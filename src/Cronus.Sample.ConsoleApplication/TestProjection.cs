@@ -7,9 +7,14 @@ using Cronus.Core.Eventing;
 
 namespace Cronus.Sample.ConsoleApplication
 {
-    public class TestProjection : IEventHandler,
+    public class TestProjections : IEventHandler,
         IEventHandler<TestEvent>
     {
+        int i;
+        public TestProjections(int k)
+        {
+            i = k;
+        }
         public void Handle(TestEvent evnt)
         {
             int i = 0;

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 
 namespace Cronus.Core.Eventing
 {
@@ -18,12 +19,12 @@ namespace Cronus.Core.Eventing
             {
                 handlers[eventType] = new List<Action<IEvent>>();
             }
-            var handleMethod = eventHandlerType.GetMethods().Where(x => x.Name == "Handle" && x.GetParameters().Count() == 1 && x.GetParameters().Select(y => y.ParameterType).Contains(eventType)).SingleOrDefault(); ;
 
             handlers[eventType].Add(x =>
             {
-                var handler = eventHandlerFactory(eventHandlerType);
-                handleMethod.Invoke(handler, new object[] { x });
+                dynamic handler = eventHandlerFactory(eventHandlerType);
+                handler.Handle((dynamic)x);
+
             });
         }
 

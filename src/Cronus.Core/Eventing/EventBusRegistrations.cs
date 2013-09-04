@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -19,15 +20,20 @@ namespace Cronus.Core.Eventing
                 foreach (var type in eventHandlerTypes)
                 {
                     Type fpEventHandlerType = type;
-                    var interfaces = fpEventHandlerType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericMarkupInterface);
-
-                    foreach (var @interface in interfaces)
-                    {
-                        Type eventType = @interface.GetGenericArguments().FirstOrDefault();
-
-                        bus.RegisterEventHandler(eventType, fpEventHandlerType, eventHandlerFactory);
-                    }
+                    Register(bus, fpEventHandlerType, genericMarkupInterface, eventHandlerFactory);
                 }
+            }
+        }
+
+        static void Register(this IEventBus bus, Type eventHandlerType, Type genericMarkupInterface, Func<Type, IEventHandler> eventHandlerFactory)
+        {
+            var interfaces = eventHandlerType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericMarkupInterface);
+
+            foreach (var @interface in interfaces)
+            {
+                Type eventType = @interface.GetGenericArguments().FirstOrDefault();
+
+                bus.RegisterEventHandler(eventType, eventHandlerType, eventHandlerFactory);
             }
         }
 
@@ -37,7 +43,19 @@ namespace Cronus.Core.Eventing
         /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
         public static void RegisterAllEventHandlersInAssembly(this IEventBus bus, params Assembly[] asembliesContainingEventHandlers)
         {
-            RegisterAllEventHandlersInAssembly(bus, (x) => (IEventHandler)Activator.CreateInstance(x), asembliesContainingEventHandlers);
+            foreach (Assembly assembly in asembliesContainingEventHandlers)
+            {
+                var eventHandlerTypes = assembly.GetTypes().Where(x => x.GetInterfaces().Contains(typeof(IEventHandler)));
+                Type genericMarkupInterface = typeof(IEventHandler<>);
+                foreach (var type in eventHandlerTypes)
+                {
+                    Type fpEventHandlerType = type;
+                    FastActivator.WarmInstanceConstructor(fpEventHandlerType);
+                    Register(bus, fpEventHandlerType, genericMarkupInterface, (x) => (IEventHandler)FastActivator.CreateInstance(x, 5));
+                }
+            }
         }
     }
+
+
 }
