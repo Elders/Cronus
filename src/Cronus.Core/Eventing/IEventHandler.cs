@@ -1,0 +1,22 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Cronus.Core.Eventing
+{
+    /// <summary>
+    /// A markup interface telling that the implementing class is an event handler
+    /// </summary>
+    public interface IEventHandler { }
+
+    /// <summary>
+    /// A markup interface telling that the implementing class will handle all events of Type <typeparamref name="T"/>
+    /// </summary>
+    public interface IEventHandler<T>
+        where T : IEvent
+    {
+        void Handle(T evnt);
+    }
+}
