@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace Cronus.Core.Eventing
 {
     public interface IEventBus
