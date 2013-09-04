@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace Cronus.Core.Eventing
 {
-    public interface IEventBus  
+    public interface IEventBus
     {
-        void Publish(IEvent @event); 
+        void RegisterEventHandler(Type eventType, Type eventHandlerType, Func<Type, IEventHandler> eventHandlerFactory);
+        void Publish(IEvent @event);
     }
 }
