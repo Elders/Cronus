@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Cronus.Core.Eventing
@@ -14,17 +15,18 @@ namespace Cronus.Core.Eventing
         /// <param name="event">An event instance</param>
         public override bool Publish(IEvent @event)
         {
+            List<Task<bool>> tasks = new List<Task<bool>>();
             foreach (var handleMethod in handlers[@event.GetType()])
             {
-                Threading.RunAsync(() => handleMethod(@event));
+                tasks.Add(Threading.RunAsync(() => handleMethod(@event)));
             }
-
+            Task.WaitAll(tasks.ToArray());
             return true;
         }
 
         public override Task<bool> PublishAsync(IEvent @event)
         {
-            throw new NotImplementedException();
+            return Threading.RunAsync(() => Publish(@event));
         }
 
     }

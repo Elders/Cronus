@@ -27,7 +27,7 @@ namespace Cronus.Core.Eventing
 
         public override Task<bool> PublishAsync(IEvent @event)
         {
-            throw new NotImplementedException();
+            return Threading.RunAsync(() => Publish(@event));
         }
     }
 }
