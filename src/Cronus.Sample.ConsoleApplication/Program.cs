@@ -14,7 +14,7 @@ namespace Cronus.Sample.ConsoleApplication
         {
             IEventBus bus = new InMemoryEventBus();
             bus.RegisterAllEventHandlersInAssembly(System.Reflection.Assembly.GetAssembly(typeof(Program)));
-            string result = MeasureExecutionTime.Start(() => bus.Publish(new TestEvent()), 1000 * 1000 * 10);
+            string result = MeasureExecutionTime.Start(() => bus.Publish(new TestEvent()), 1);
             Console.WriteLine(result);
             Console.ReadLine();
         }
@@ -42,7 +42,7 @@ namespace Cronus.Sample.ConsoleApplication
 #if DEBUG
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-            for (int i = 0; i <= repeat; i++)
+            for (int i = 0; i < repeat; i++)
             {
                 action();
             }
