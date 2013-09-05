@@ -24,21 +24,55 @@ namespace Cronus.Core.Eventing
 
         bool Handle(IEvent @event, Type eventHandlerType, Func<Type, IEventHandler> eventHandlerFactory)
         {
+            dynamic handler = null;
             try
             {
-                dynamic handler = eventHandlerFactory(eventHandlerType);
-                //onBeginHandle(handler);
+                handler = eventHandlerFactory(eventHandlerType);
+                onHandleEvent(@event, handler);
                 handler.Handle((dynamic)@event);
-                //onEndHandle(handler)
+                onEventHandled(@event, handler);
                 return true;
             }
             catch (Exception ex)
             {
-                //onErrorHandle(@event,Handler)
-                Console.WriteLine(ex.Message);
+                onErrorHandlingEvent(@event, handler, ex);
                 return false;
             }
         }
 
+        Action<IEvent> onEventPublished = (x => { });
+
+        Action<IEvent> onPublishEvent = (x => { });
+
+        Action<IEvent, IEventHandler> onHandleEvent = (x, y) => { };
+
+        Action<IEvent, IEventHandler> onEventHandled = (x, y) => { };
+
+        Action<IEvent, IEventHandler, Exception> onErrorHandlingEvent = (x, y, z) => { };
+
+        public void OnEventPublished(Action<IEvent> action)
+        {
+            onEventPublished = action;
+        }
+
+        public void OnPublishEvent(Action<IEvent> action)
+        {
+            onPublishEvent = action;
+        }
+
+        public void OnHandleEvent(Action<IEvent, IEventHandler> action)
+        {
+            onHandleEvent = action;
+        }
+
+        public void OnEventHandled(Action<IEvent, IEventHandler> action)
+        {
+            onEventHandled = action;
+        }
+
+        public void OnErrorHandlingEvent(Action<IEvent, IEventHandler, Exception> action)
+        {
+            onErrorHandlingEvent = action;
+        }
     }
 }
