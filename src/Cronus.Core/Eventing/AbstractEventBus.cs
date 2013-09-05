@@ -40,15 +40,15 @@ namespace Cronus.Core.Eventing
             }
         }
 
-        Action<IEvent> onEventPublished = (x => { });
+        protected Action<IEvent> onEventPublished = (x => { });
 
-        Action<IEvent> onPublishEvent = (x => { });
+        protected Action<IEvent> onPublishEvent = (x => { });
 
-        Action<IEvent, IEventHandler> onHandleEvent = (x, y) => { };
+        protected Action<IEvent, IEventHandler> onHandleEvent = (x, y) => { };
 
-        Action<IEvent, IEventHandler> onEventHandled = (x, y) => { };
+        protected Action<IEvent, IEventHandler> onEventHandled = (x, y) => { };
 
-        Action<IEvent, IEventHandler, Exception> onErrorHandlingEvent = (x, y, z) => { };
+        protected Action<IEvent, IEventHandler, Exception> onErrorHandlingEvent = (x, y, z) => { };
 
         public void OnEventPublished(Action<IEvent> action)
         {

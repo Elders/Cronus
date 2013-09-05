@@ -15,18 +15,27 @@ namespace Cronus.Core.Eventing
         /// <param name="event">An event instance</param>
         public override bool Publish(IEvent @event)
         {
+            onPublishEvent(@event);
             List<Task<bool>> tasks = new List<Task<bool>>();
             foreach (var handleMethod in handlers[@event.GetType()])
             {
                 tasks.Add(Threading.RunAsync(() => handleMethod(@event)));
             }
             Task.WaitAll(tasks.ToArray());
+            onEventPublished(@event);
             return true;
         }
 
         public override Task<bool> PublishAsync(IEvent @event)
         {
-            return Threading.RunAsync(() => Publish(@event));
+            return Threading.RunAsync(() =>
+            {
+                bool result;
+                onPublishEvent(@event);
+                result = Publish(@event);
+                onEventPublished(@event);
+                return result;
+            });
         }
 
     }
