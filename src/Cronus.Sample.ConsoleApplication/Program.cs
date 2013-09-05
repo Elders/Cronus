@@ -14,6 +14,11 @@ namespace Cronus.Sample.ConsoleApplication
         {
             IEventBus bus = new InMemoryEventBusAsync();
             bus.RegisterAllEventHandlersInAssembly(System.Reflection.Assembly.GetAssembly(typeof(Program)));
+            bus.OnErrorHandlingEvent((x, y, z) =>
+            {
+                Console.WriteLine("{0} | {1} | {2}", z.Message, y.GetType().Name, x.GetType().Name);
+
+            });
             string result = MeasureExecutionTime.Start(() => bus.PublishAsync(new TestEvent()), 1);
             Console.WriteLine(result);
             Console.ReadLine();
