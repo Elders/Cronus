@@ -38,6 +38,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Eventing\AbstractEventBus.cs" />
     <Compile Include="Eventing\InMemoryEventBusAsync.cs" />
     <Compile Include="FastActivator.cs" />
     <Compile Include="Eventing\EventBusRegistrations.cs" />
@@ -48,6 +49,7 @@
     <Compile Include="EventStore\IEventStore.cs" />
     <Compile Include="EventStore\NoEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Threading.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

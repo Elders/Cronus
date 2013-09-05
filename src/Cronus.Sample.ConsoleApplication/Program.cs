@@ -12,7 +12,7 @@ namespace Cronus.Sample.ConsoleApplication
     {
         static void Main(string[] args)
         {
-            IEventBus bus = new InMemoryEventBus();
+            IEventBus bus = new InMemoryEventBusAsync();
             bus.RegisterAllEventHandlersInAssembly(System.Reflection.Assembly.GetAssembly(typeof(Program)));
             string result = MeasureExecutionTime.Start(() => bus.Publish(new TestEvent()), 1);
             Console.WriteLine(result);
