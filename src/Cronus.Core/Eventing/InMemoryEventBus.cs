@@ -32,9 +32,7 @@ namespace Cronus.Core.Eventing
             return Threading.RunAsync(() =>
             {
                 bool result;
-                onPublishEvent(@event);
                 result = Publish(@event);
-                onEventPublished(@event);
                 return result;
             });
         }
