@@ -28,12 +28,7 @@ namespace Cronus.Core.Eventing
 
         public override Task<bool> PublishAsync(IEvent @event)
         {
-            return Threading.RunAsync(() =>
-            {
-                bool result;
-                result = Publish(@event);
-                return result;
-            });
+            return Threading.RunAsync(() => Publish(@event));
         }
 
     }
