@@ -12,7 +12,7 @@ namespace Cronus.Sample.ConsoleApplication
     {
         static void Main(string[] args)
         {
-            IEventBus bus = new InMemoryEventBusAsync();
+            IEventBus bus = new InMemoryEventBus();
             bus.RegisterAllEventHandlersInAssembly(System.Reflection.Assembly.GetAssembly(typeof(Program)));
             bus.OnErrorHandlingEvent((x, y, z) =>
             {

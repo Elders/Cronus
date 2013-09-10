@@ -14,6 +14,7 @@ namespace Cronus.Core
         static ConcurrentDictionary<Type, ObjectActivator> activators = new ConcurrentDictionary<Type, ObjectActivator>();
 
         public delegate object ObjectActivator(params object[] args);
+
         static ObjectActivator GetActivator(ConstructorInfo ctor)
         {
             ParameterInfo[] paramsInfo = ctor.GetParameters();
@@ -36,8 +37,12 @@ namespace Cronus.Core
         {
             if (!activators.ContainsKey(type))
             {
-                ConstructorInfo ctor = type.GetConstructors().First();
-                activators.TryAdd(type, GetActivator(ctor));
+                var constructors = type.GetConstructors();
+                if (constructors.Length == 1)
+                {
+                    ConstructorInfo ctor = type.GetConstructors().First();
+                    activators.TryAdd(type, GetActivator(ctor));
+                }
             }
         }
 
@@ -46,9 +51,18 @@ namespace Cronus.Core
             ObjectActivator activator;
             if (!activators.TryGetValue(type, out activator))
             {
-                ConstructorInfo ctor = type.GetConstructors().First();
-                activator = GetActivator(ctor);
-                activators.TryAdd(type, activator);
+                var constructors = type.GetConstructors();
+                if (constructors.Length == 1)
+                {
+                    ConstructorInfo ctor = type.GetConstructors().First();
+                    activator = GetActivator(ctor);
+                    activators.TryAdd(type, activator);
+                }
+                else
+                {
+                    activator = (a) => Activator.CreateInstance(type, a);
+                }
+
             }
             return activator(args);
         }
