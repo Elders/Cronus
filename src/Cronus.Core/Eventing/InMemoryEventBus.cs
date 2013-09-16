@@ -21,7 +21,9 @@ namespace Cronus.Core.Eventing
             onPublishEvent(@event);
             foreach (var handleMethod in handlers[@event.GetType()])
             {
-                handleMethod(@event);
+                var result = handleMethod(@event);
+                if (result == false)
+                    return result;
             }
             onEventPublished(@event);
             return true;
