@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Reflection.Emit;
 using System.Threading.Tasks;
 
 namespace Cronus.Core.Eventing
@@ -19,11 +16,15 @@ namespace Cronus.Core.Eventing
         public override bool Publish(IEvent @event)
         {
             onPublishEvent(@event);
-            foreach (var handleMethod in handlers[@event.GetType()])
+            List<Func<IEvent, bool>> eventHandlers;
+            if (handlers.TryGetValue(@event.GetType(), out eventHandlers))
             {
-                var result = handleMethod(@event);
-                if (result == false)
-                    return result;
+                foreach (var handleMethod in eventHandlers)
+                {
+                    var result = handleMethod(@event);
+                    if (result == false)
+                        return result;
+                }
             }
             onEventPublished(@event);
             return true;
