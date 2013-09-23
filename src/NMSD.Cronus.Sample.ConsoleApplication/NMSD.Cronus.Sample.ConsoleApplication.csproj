@@ -7,8 +7,8 @@
     <ProjectGuid>{0B495064-1425-465E-A2DC-36275A206F0B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cronus.Sample.ConsoleApplication</RootNamespace>
-    <AssemblyName>Cronus.Sample.ConsoleApplication</AssemblyName>
+    <RootNamespace>NMSD.Cronus.Sample.ConsoleApplication</RootNamespace>
+    <AssemblyName>NMSD.Cronus.Sample.ConsoleApplication</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Cronus.Sample.ConsoleApplication.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -53,9 +56,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Cronus.Core\Cronus.Core.csproj">
+    <ProjectReference Include="..\NMSD.Cronus.Core\NMSD.Cronus.Core.csproj">
       <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
-      <Name>Cronus.Core</Name>
+      <Name>NMSD.Cronus.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -7,8 +7,8 @@
     <ProjectGuid>{32EA2250-01B3-4171-9AE7-214037A0D524}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Cronus.Core</RootNamespace>
-    <AssemblyName>Cronus.Core</AssemblyName>
+    <RootNamespace>NMSD.Cronus.Core</RootNamespace>
+    <AssemblyName>NMSD.Cronus.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -33,6 +33,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\lib\log4net\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />

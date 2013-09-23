@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cronus.Core", "Cronus.Core\Cronus.Core.csproj", "{32EA2250-01B3-4171-9AE7-214037A0D524}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Core", "NMSD.Cronus.Core\NMSD.Cronus.Core.csproj", "{32EA2250-01B3-4171-9AE7-214037A0D524}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cronus.Sample.ConsoleApplication", "Cronus.Sample.ConsoleApplication\Cronus.Sample.ConsoleApplication.csproj", "{0B495064-1425-465E-A2DC-36275A206F0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Sample.ConsoleApplication", "NMSD.Cronus.Sample.ConsoleApplication\NMSD.Cronus.Sample.ConsoleApplication.csproj", "{0B495064-1425-465E-A2DC-36275A206F0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
