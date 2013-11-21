@@ -1,9 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.21005.1
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Core", "NMSD.Cronus.Core\NMSD.Cronus.Core.csproj", "{32EA2250-01B3-4171-9AE7-214037A0D524}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Sample.ConsoleApplication", "NMSD.Cronus.Sample.ConsoleApplication\NMSD.Cronus.Sample.ConsoleApplication.csproj", "{0B495064-1425-465E-A2DC-36275A206F0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Sample.Collaboration", "NMSD.Cronus.Sample.Collaboration\NMSD.Cronus.Sample.Collaboration.csproj", "{EBA90C1F-5F2C-4A78-B91B-D2C3D664530D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Sample.Collaboration.Contracts", "NMSD.Cronus.Sample.Collaboration.Contracts\NMSD.Cronus.Sample.Collaboration.Contracts.csproj", "{FD8A4975-EBA8-4898-A0AE-35184C11AFCB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{490F0756-EBFE-4467-B007-1C9776424400}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Tests", "NMSD.Cronus.Tests\NMSD.Cronus.Tests.csproj", "{3C04DC56-460C-4240-B118-6B6A31BBA6A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,8 +29,25 @@ Global
 		{0B495064-1425-465E-A2DC-36275A206F0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B495064-1425-465E-A2DC-36275A206F0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B495064-1425-465E-A2DC-36275A206F0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBA90C1F-5F2C-4A78-B91B-D2C3D664530D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBA90C1F-5F2C-4A78-B91B-D2C3D664530D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBA90C1F-5F2C-4A78-B91B-D2C3D664530D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBA90C1F-5F2C-4A78-B91B-D2C3D664530D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD8A4975-EBA8-4898-A0AE-35184C11AFCB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD8A4975-EBA8-4898-A0AE-35184C11AFCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD8A4975-EBA8-4898-A0AE-35184C11AFCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD8A4975-EBA8-4898-A0AE-35184C11AFCB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3C04DC56-460C-4240-B118-6B6A31BBA6A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C04DC56-460C-4240-B118-6B6A31BBA6A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3C04DC56-460C-4240-B118-6B6A31BBA6A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3C04DC56-460C-4240-B118-6B6A31BBA6A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EBA90C1F-5F2C-4A78-B91B-D2C3D664530D} = {490F0756-EBFE-4467-B007-1C9776424400}
+		{FD8A4975-EBA8-4898-A0AE-35184C11AFCB} = {490F0756-EBFE-4467-B007-1C9776424400}
+		{0B495064-1425-465E-A2DC-36275A206F0B} = {490F0756-EBFE-4467-B007-1C9776424400}
 	EndGlobalSection
 EndGlobal

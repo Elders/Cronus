@@ -33,14 +33,24 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\..\lib\log4net\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.12.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\log4net.2.0.2\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cqrs\AggregateRoot.cs" />
+    <Compile Include="Cqrs\AggregateRootFactory.cs" />
+    <Compile Include="Cqrs\AggregateRootId.cs" />
+    <Compile Include="Cqrs\AggregateRootState.cs" />
+    <Compile Include="Cqrs\AggregateRootException.cs" />
+    <Compile Include="Cqrs\IAggregateRoot.cs" />
+    <Compile Include="Cqrs\IAggregateRootId.cs" />
+    <Compile Include="Cqrs\IAggregateRootState.cs" />
+    <Compile Include="Cqrs\IAggregateRootStateManager.cs" />
     <Compile Include="Eventing\AbstractEventBus.cs" />
     <Compile Include="Eventing\InMemoryEventBusAsync.cs" />
     <Compile Include="FastActivator.cs" />
@@ -54,7 +64,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Threading.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="New\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
