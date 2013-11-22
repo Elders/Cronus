@@ -1,8 +1,9 @@
 using System;
-using Cronus.Core.Eventing;
+using System.Runtime.Serialization;
 
 namespace NMSD.Cronus.Core.Cqrs
 {
+    [DataContract(Name = "b3e2fc15-1996-437d-adfc-64f3b5be3244")]
     public class AggregateRootId : IAggregateRootId
     {
         public AggregateRootId() { }
@@ -12,6 +13,7 @@ namespace NMSD.Cronus.Core.Cqrs
             this.Id = id;
         }
 
+        [DataMember(Order = 1)]
         public Guid Id { get; set; }
 
         public override bool Equals(System.Object obj)

@@ -5,9 +5,12 @@ using Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Eventing;
+using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.Ports;
+using Protoreg;
 
 namespace Cronus.Sample.ConsoleApplication
 {
@@ -25,12 +28,20 @@ namespace Cronus.Sample.ConsoleApplication
             var cmd = new CreateNewCollaborator(collaboratorId, email);
 
             var commandBus = new InMemoryCommandBus();
+            var protoRegistration = new ProtoRegistration();
+            protoRegistration.RegisterAssembly<NewCollaboratorCreated>();
+            protoRegistration.RegisterAssembly<Wraper>();
+            ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
+            serializer.Build();
             commandBus.RegisterAllCommandHandlersInAssembly(x =>
             {
                 var instance = Activator.CreateInstance(x);
                 var casted = instance as IAggregateRootApplicationService;
                 if (casted != null)
+                {
                     casted.EventBus = eventBus;
+                    casted.EventStore = new InMemoryEventStore(serializer);
+                }
                 return casted as ICommandHandler;
             }, Assembly.GetAssembly(typeof(CollaboratorAppService)));
             commandBus.Publish(cmd);

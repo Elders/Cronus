@@ -42,6 +42,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.2\lib\net40-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="Protoreg">
+      <HintPath>..\..\lib\Protoreg\Protoreg.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />

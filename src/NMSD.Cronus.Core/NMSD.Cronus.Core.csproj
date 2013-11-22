@@ -38,8 +38,14 @@
       <HintPath>..\packages\log4net.2.0.2\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Protoreg">
+      <HintPath>..\..\lib\Protoreg\Protoreg.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commanding\InMemoryCommandBus.cs" />
@@ -58,14 +64,15 @@
     <Compile Include="Eventing\AbstractEventBus.cs" />
     <Compile Include="Eventing\InMemoryEventBusRegistrations.cs" />
     <Compile Include="Eventing\InMemoryEventBus.cs" />
+    <Compile Include="EventStoreEngine\InMemoryEventStore.cs" />
     <Compile Include="FastActivator.cs" />
     <Compile Include="Eventing\EventBusRegistrations.cs" />
     <Compile Include="Eventing\IEvent.cs" />
     <Compile Include="Eventing\IEventBus.cs" />
     <Compile Include="Eventing\IEventHandler.cs" />
     <Compile Include="Eventing\InMemoryEventBusHyperion.cs" />
-    <Compile Include="EventStore\IEventStore.cs" />
-    <Compile Include="EventStore\NoEventStore.cs" />
+    <Compile Include="EventStoreEngine\IEventStore.cs" />
+    <Compile Include="EventStoreEngine\NoEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commanding\InMemoryCommandBusRegistrations.cs" />
     <Compile Include="Publishing\InMemoryPublisher.cs" />
@@ -73,9 +80,7 @@
     <Compile Include="Publishing\IPublisher.cs" />
     <Compile Include="Threading.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="New\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
