@@ -16,6 +16,5 @@ namespace NMSD.Cronus.Core.Cqrs
             ar.State = state;
             return ar;
         }
-
     }
 }

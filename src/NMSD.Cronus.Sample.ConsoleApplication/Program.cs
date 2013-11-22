@@ -1,10 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Commanding;
+using NMSD.Cronus.Core.Cqrs;
+using NMSD.Cronus.Core.Eventing;
+using NMSD.Cronus.Sample.Collaboration.Collaborators;
+using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Sample.Ports;
 
 namespace Cronus.Sample.ConsoleApplication
 {
@@ -12,17 +15,39 @@ namespace Cronus.Sample.ConsoleApplication
     {
         static void Main(string[] args)
         {
-            IEventBus bus = new InMemoryEventBus();
-            bus.RegisterAllEventHandlersInAssembly(System.Reflection.Assembly.GetAssembly(typeof(Program)));
-            bus.OnErrorHandlingEvent((x, y, z) =>
-            {
-                Console.WriteLine("{0} | {1} | {2}", z.Message, y.GetType().Name, x.GetType().Name);
+            log4net.Config.XmlConfigurator.Configure();
 
-            }); 
-            for (int i = 0; i < 100; i++)
+            var eventBus = new InMemoryEventBus();
+            eventBus.RegisterAllEventHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
+
+            var collaboratorId = new CollaboratorId(Guid.NewGuid());
+            var email = "test@qqq.com";
+            var cmd = new CreateNewCollaborator(collaboratorId, email);
+
+            var commandBus = new InMemoryCommandBus();
+            commandBus.RegisterAllCommandHandlersInAssembly(x =>
             {
-                bus.PublishAsync(new TestEvent());
-            }
+                var instance = Activator.CreateInstance(x);
+                var casted = instance as IAggregateRootApplicationService;
+                if (casted != null)
+                    casted.EventBus = eventBus;
+                return casted as ICommandHandler;
+            }, Assembly.GetAssembly(typeof(CollaboratorAppService)));
+            commandBus.Publish(cmd);
+
+
+
+            //IEventBus bus = new InMemoryEventBus();
+            //bus.RegisterAllEventHandlersInAssembly(System.Reflection.Assembly.GetAssembly(typeof(Program)));
+            //bus.OnErrorHandlingEvent((x, y, z) =>
+            //{
+            //    Console.WriteLine("{0} | {1} | {2}", z.Message, y.GetType().Name, x.GetType().Name);
+
+            //});
+            //for (int i = 0; i < 100; i++)
+            //{
+            //    bus.PublishAsync(new TestEvent());
+            //}
 
             // Console.WriteLine(result);
             Console.ReadLine();

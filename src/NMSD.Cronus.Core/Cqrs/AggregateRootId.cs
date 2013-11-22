@@ -5,6 +5,13 @@ namespace NMSD.Cronus.Core.Cqrs
 {
     public class AggregateRootId : IAggregateRootId
     {
+        public AggregateRootId() { }
+
+        public AggregateRootId(Guid id)
+        {
+            this.Id = id;
+        }
+
         public Guid Id { get; set; }
 
         public override bool Equals(System.Object obj)
@@ -39,6 +46,11 @@ namespace NMSD.Cronus.Core.Cqrs
         public static bool operator !=(AggregateRootId a, AggregateRootId b)
         {
             return !(a == b);
+        }
+
+        public override string ToString()
+        {
+            return String.Format("AggregateId: {0}", Id);
         }
     }
 }

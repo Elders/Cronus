@@ -42,26 +42,35 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commanding\InMemoryCommandBus.cs" />
+    <Compile Include="Commanding\ICommand.cs" />
+    <Compile Include="Commanding\ICommandHandler.cs" />
     <Compile Include="Cqrs\AggregateRoot.cs" />
     <Compile Include="Cqrs\AggregateRootFactory.cs" />
     <Compile Include="Cqrs\AggregateRootId.cs" />
     <Compile Include="Cqrs\AggregateRootState.cs" />
     <Compile Include="Cqrs\AggregateRootException.cs" />
+    <Compile Include="Cqrs\AggregateRootApplicationService.cs" />
     <Compile Include="Cqrs\IAggregateRoot.cs" />
     <Compile Include="Cqrs\IAggregateRootId.cs" />
     <Compile Include="Cqrs\IAggregateRootState.cs" />
     <Compile Include="Cqrs\IAggregateRootStateManager.cs" />
     <Compile Include="Eventing\AbstractEventBus.cs" />
-    <Compile Include="Eventing\InMemoryEventBusAsync.cs" />
+    <Compile Include="Eventing\InMemoryEventBusRegistrations.cs" />
+    <Compile Include="Eventing\InMemoryEventBus.cs" />
     <Compile Include="FastActivator.cs" />
     <Compile Include="Eventing\EventBusRegistrations.cs" />
     <Compile Include="Eventing\IEvent.cs" />
     <Compile Include="Eventing\IEventBus.cs" />
     <Compile Include="Eventing\IEventHandler.cs" />
-    <Compile Include="Eventing\InMemoryEventBus.cs" />
+    <Compile Include="Eventing\InMemoryEventBusHyperion.cs" />
     <Compile Include="EventStore\IEventStore.cs" />
     <Compile Include="EventStore\NoEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Commanding\InMemoryCommandBusRegistrations.cs" />
+    <Compile Include="Publishing\InMemoryPublisher.cs" />
+    <Compile Include="Publishing\Publisher.cs" />
+    <Compile Include="Publishing\IPublisher.cs" />
     <Compile Include="Threading.cs" />
   </ItemGroup>
   <ItemGroup>

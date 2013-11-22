@@ -6,12 +6,9 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators
 {
     public sealed class Collaborator : AggregateRoot<CollaboratorState>
     {
-        Collaborator()
-        {
+        Collaborator() { }
 
-        }
-
-        Collaborator(CollaboratorId collaboratorId, string email)
+        public Collaborator(CollaboratorId collaboratorId, string email)
         {
             var evnt = new NewCollaboratorCreated(collaboratorId, email);
             state = new CollaboratorState();

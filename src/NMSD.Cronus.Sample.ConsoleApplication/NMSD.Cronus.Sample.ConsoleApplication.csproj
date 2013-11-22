@@ -38,27 +38,38 @@
     <StartupObject>Cronus.Sample.ConsoleApplication.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.12.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\log4net.2.0.2\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <Compile Include="TestEvent.cs" />
-    <Compile Include="TestProjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NMSD.Cronus.Core\NMSD.Cronus.Core.csproj">
       <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
       <Name>NMSD.Cronus.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Contracts\NMSD.Cronus.Sample.Collaboration.Contracts.csproj">
+      <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>
+      <Name>NMSD.Cronus.Sample.Collaboration.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration\NMSD.Cronus.Sample.Collaboration.csproj">
+      <Project>{eba90c1f-5f2c-4a78-b91b-d2c3d664530d}</Project>
+      <Name>NMSD.Cronus.Sample.Collaboration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.Ports\NMSD.Cronus.Sample.Ports.csproj">
+      <Project>{448a98d9-d1e2-41d3-943d-029fe17a35ef}</Project>
+      <Name>NMSD.Cronus.Sample.Ports</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

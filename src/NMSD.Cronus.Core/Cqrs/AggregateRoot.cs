@@ -7,9 +7,20 @@ namespace NMSD.Cronus.Core.Cqrs
     public class AggregateRoot<ST> : IAggregateRoot
         where ST : IAggregateRootState
     {
-        public IList<IEvent> UncommittedEvents = new List<IEvent>();
-
         protected ST state;
+
+        public AggregateRoot()
+        {
+            UncommittedEvents = new List<IEvent>();
+        }
+
+        IAggregateRootState IAggregateRootStateManager.State
+        {
+            get { return state; }
+            set { state = (ST)value; }
+        }
+
+        public List<IEvent> UncommittedEvents { get; set; }
 
         public void Apply(IEvent @event)
         {
@@ -27,10 +38,5 @@ namespace NMSD.Cronus.Core.Cqrs
             return state;
         }
 
-        IAggregateRootState IAggregateRootStateManager.State
-        {
-            get { return state; }
-            set { state = (ST)value; }
-        }
     }
 }

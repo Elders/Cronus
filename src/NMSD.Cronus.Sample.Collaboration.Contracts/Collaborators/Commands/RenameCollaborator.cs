@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NMSD.Cronus.Core.Commanding;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
 {
-    public class RenameCollaborator
+    public class RenameCollaborator : ICommand
     {
         public CollaboratorId Id { get; set; }
 

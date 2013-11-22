@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FD8A4975-EBA8-4898-A0AE-35184C11AFCB}</ProjectGuid>
+    <ProjectGuid>{448A98D9-D1E2-41D3-943D-029FE17A35EF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NMSD.Cronus.Sample.Collaboration</RootNamespace>
-    <AssemblyName>NMSD.Cronus.Sample.Collaboration.Contracts</AssemblyName>
+    <RootNamespace>NMSD.Cronus.Sample.Ports</RootNamespace>
+    <AssemblyName>NMSD.Cronus.Sample.Ports</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,25 +30,29 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.2\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collaborators\CollaboratorId.cs" />
-    <Compile Include="Collaborators\Commands\CreateNewCollaborator.cs" />
-    <Compile Include="Collaborators\Commands\RenameCollaborator.cs" />
-    <Compile Include="Collaborators\Events\CollaboratorRenamed.cs" />
-    <Compile Include="Collaborators\Events\NewCollaboratorCreated.cs" />
-    <Compile Include="Collaborators\ICollaboratorEvent.cs" />
+    <Compile Include="CollaboratorProjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\NMSD.Cronus.Core\NMSD.Cronus.Core.csproj">
       <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
       <Name>NMSD.Cronus.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Contracts\NMSD.Cronus.Sample.Collaboration.Contracts.csproj">
+      <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>
+      <Name>NMSD.Cronus.Sample.Collaboration.Contracts</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

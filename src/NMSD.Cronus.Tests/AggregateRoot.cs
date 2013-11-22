@@ -13,7 +13,7 @@ namespace NMSD.Cronus.Tests
     {
         Establish context = () =>
         {
-            id = new CollaboratorId() { Id = Guid.NewGuid() };
+            id = new CollaboratorId(Guid.NewGuid());
             events = new List<IEvent>();
             events.Add(new NewCollaboratorCreated(id, "collaborator@cronus.com"));
             events.Add(new CollaboratorRenamed(id, "first", "last"));
@@ -34,7 +34,7 @@ namespace NMSD.Cronus.Tests
     {
         Establish context = () =>
         {
-            id = new CollaboratorId() { Id = Guid.NewGuid() };
+            id = new CollaboratorId(Guid.NewGuid());
             events = new List<IEvent>();
             events.Add(new CollaboratorRenamed(id, "first", "last"));
         };

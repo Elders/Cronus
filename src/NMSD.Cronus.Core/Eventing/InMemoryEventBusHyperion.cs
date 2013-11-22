@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -7,7 +7,7 @@ namespace Cronus.Core.Eventing
     /// <summary>
     /// Represents an in memory event messaging destribution
     /// </summary>
-    public class InMemoryEventBusAsync : AbstractEventBus
+    public class InMemoryEventBusHyperion : AbstractEventBus
     {
         /// <summary>
         /// Publishes the given event to all registered event handlers
@@ -16,12 +16,16 @@ namespace Cronus.Core.Eventing
         public override bool Publish(IEvent @event)
         {
             onPublishEvent(@event);
-            List<Task<bool>> tasks = new List<Task<bool>>();
-            foreach (var handleMethod in handlers[@event.GetType()])
+            List<Func<IEvent, bool>> eventHandlers;
+            if (handlers.TryGetValue(@event.GetType(), out eventHandlers))
             {
-                tasks.Add(Threading.RunAsync(() => handleMethod(@event)));
+                foreach (var handleMethod in eventHandlers)
+                {
+                    var result = handleMethod(@event);
+                    if (result == false)
+                        return result;
+                }
             }
-            Task.WaitAll(tasks.ToArray());
             onEventPublished(@event);
             return true;
         }
@@ -30,6 +34,5 @@ namespace Cronus.Core.Eventing
         {
             return Threading.RunAsync(() => Publish(@event));
         }
-
     }
 }
