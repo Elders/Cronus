@@ -78,6 +78,8 @@
     <Compile Include="Publishing\InMemoryPublisher.cs" />
     <Compile Include="Publishing\Publisher.cs" />
     <Compile Include="Publishing\IPublisher.cs" />
+    <Compile Include="Snapshotting\ISnapShotter.cs" />
+    <Compile Include="Snapshotting\SnapShotter.cs" />
     <Compile Include="Threading.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -10,10 +10,13 @@ namespace NMSD.Cronus.Core.Cqrs
 
         public ID Id { get; set; }
 
+        public int Version { get; set; }
+
         public void Apply(IEvent @event)
         {
             var state = (dynamic)this;
             state.When((dynamic)@event);
         }
+
     }
 }

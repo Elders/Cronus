@@ -33,6 +33,22 @@ namespace Cronus.Sample.ConsoleApplication
             protoRegistration.RegisterAssembly<Wraper>();
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
+
+            var eventStore = new InMemoryEventStore(serializer);
+            var result = MeasureExecutionTime.Start(() =>
+            {
+                //int current = 0;
+                foreach (IEvent @event in eventStore.GetEventsFromStart("Collaboration", 100))
+                {
+                    //current++;
+                    ////Console.WriteLine(@event.ToString());
+                    //if (current % 100 == 0)
+                    //    Console.WriteLine(current);
+                }
+            });
+            Console.WriteLine(result);
+
+
             commandBus.RegisterAllCommandHandlersInAssembly(x =>
             {
                 var instance = Activator.CreateInstance(x);
@@ -40,11 +56,14 @@ namespace Cronus.Sample.ConsoleApplication
                 if (casted != null)
                 {
                     casted.EventBus = eventBus;
-                    casted.EventStore = new InMemoryEventStore(serializer);
+                    casted.EventStore = eventStore;
                 }
                 return casted as ICommandHandler;
             }, Assembly.GetAssembly(typeof(CollaboratorAppService)));
+
             commandBus.Publish(cmd);
+
+            
 
 
 

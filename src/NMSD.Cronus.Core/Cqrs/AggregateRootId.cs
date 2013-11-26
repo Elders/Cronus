@@ -16,6 +16,11 @@ namespace NMSD.Cronus.Core.Cqrs
         [DataMember(Order = 1)]
         public Guid Id { get; set; }
 
+        public static implicit operator Guid(AggregateRootId aggregateRootId)
+        {
+            return aggregateRootId.Id;
+        }
+
         public override bool Equals(System.Object obj)
         {
             if (ReferenceEquals(null, obj)) return false;

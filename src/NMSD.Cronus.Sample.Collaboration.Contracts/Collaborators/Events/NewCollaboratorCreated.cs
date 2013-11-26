@@ -3,9 +3,11 @@ using System.Runtime.Serialization;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Events
 {
-    [DataContract(Name = "8caa4c0c-4a34-4267-a8ef-b1fbe11d03c3")]
+    [DataContract(Name = "8caa4c0c-4a34-4267-a8ef-b1fbe11d03c3", Namespace = "LaCore.Hyperion.Collaboration")]
     public class NewCollaboratorCreated : ICollaboratorEvent
     {
+        NewCollaboratorCreated() { }
+
         public NewCollaboratorCreated(CollaboratorId collaboratorId, string email)
         {
             CollaboratorId = collaboratorId;
