@@ -9,7 +9,7 @@ using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 namespace NMSD.Cronus.Tests
 {
     [Subject("AggregateRoot")]
-    public class When_build_aggregate_root_from_history
+    public class When_build_aggregate_root_from_events
     {
         Establish context = () =>
         {
@@ -19,7 +19,7 @@ namespace NMSD.Cronus.Tests
             events.Add(new CollaboratorRenamed(id, "first", "last"));
         };
 
-        Because of = () => ar = AggregateRootFactory.BuildFromHistory<Collaborator>(events);
+        Because of = () => ar = AggregateRootFactory.Build<Collaborator>(events);
 
         It should_instansiate_aggregate_root = () => ar.ShouldNotBeNull();
         It should_instansiate_aggregate_root_with_valid_state = () => ((IAggregateRootStateManager)ar).State.Id.ShouldEqual(id);
@@ -39,11 +39,10 @@ namespace NMSD.Cronus.Tests
             events.Add(new CollaboratorRenamed(id, "first", "last"));
         };
 
-        Because of = () => expectedException = Catch.Exception(() => AggregateRootFactory.BuildFromHistory<Collaborator>(events));
+        Because of = () => expectedException = Catch.Exception(() => AggregateRootFactory.Build<Collaborator>(events));
 
         It an__AggregateRootException__should_be_thrown = () => expectedException.ShouldBeOfType<AggregateRootException>();
 
-        static Collaborator ar;
         static CollaboratorId id;
         static List<IEvent> events;
         static Exception expectedException;

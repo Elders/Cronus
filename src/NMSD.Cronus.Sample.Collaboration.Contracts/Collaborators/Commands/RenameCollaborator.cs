@@ -1,14 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NMSD.Cronus.Core.Commanding;
+﻿using NMSD.Cronus.Core.Commanding;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
 {
     public class RenameCollaborator : ICommand
     {
+        RenameCollaborator() { }
+
+        public RenameCollaborator(CollaboratorId id, string firstName, string lastName)
+        {
+            Id = id;
+            FirstName = firstName;
+            LastName = lastName;
+        }
+
         public CollaboratorId Id { get; set; }
 
         public string FirstName { get; set; }

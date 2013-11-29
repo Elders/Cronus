@@ -6,6 +6,6 @@ namespace NMSD.Cronus.Core.Cqrs
     public interface IAggregateRootStateManager
     {
         IAggregateRootState State { get; set; }
-        IAggregateRootState BuildFromHistory(List<IEvent> events);
+        IAggregateRootState BuildStateFromHistory(List<IEvent> events);
     }
 }

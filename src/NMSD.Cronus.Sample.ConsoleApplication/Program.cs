@@ -23,30 +23,32 @@ namespace Cronus.Sample.ConsoleApplication
             var eventBus = new InMemoryEventBus();
             eventBus.RegisterAllEventHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
 
-            var collaboratorId = new CollaboratorId(Guid.NewGuid());
-            var email = "test@qqq.com";
-            var cmd = new CreateNewCollaborator(collaboratorId, email);
+            var collaboratorId = new CollaboratorId(Guid.Parse("66ada31c-a098-47a6-921c-428a9f3fd485"));
+            var email = "test@qqq.commmmmmmm";
+            //var cmd = new CreateNewCollaborator(collaboratorId, email);
+            var cmd = new RenameCollaborator(collaboratorId, "", "");
 
             var commandBus = new InMemoryCommandBus();
             var protoRegistration = new ProtoRegistration();
+            protoRegistration.RegisterAssembly<CollaboratorState>();
             protoRegistration.RegisterAssembly<NewCollaboratorCreated>();
             protoRegistration.RegisterAssembly<Wraper>();
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
             var eventStore = new InMemoryEventStore(serializer);
-            var result = MeasureExecutionTime.Start(() =>
-            {
-                //int current = 0;
-                foreach (IEvent @event in eventStore.GetEventsFromStart("Collaboration", 100))
-                {
-                    //current++;
-                    ////Console.WriteLine(@event.ToString());
-                    //if (current % 100 == 0)
-                    //    Console.WriteLine(current);
-                }
-            });
-            Console.WriteLine(result);
+            //var result = MeasureExecutionTime.Start(() =>
+            //{
+            //    //int current = 0;
+            //    foreach (IEvent @event in eventStore.GetEventsFromStart("Collaboration"))
+            //    {
+            //        //current++;
+            //        ////Console.WriteLine(@event.ToString());
+            //        //if (current % 100 == 0)
+            //        //    Console.WriteLine(current);
+            //    }
+            //});
+            //Console.WriteLine(result);
 
 
             commandBus.RegisterAllCommandHandlersInAssembly(x =>
@@ -63,7 +65,7 @@ namespace Cronus.Sample.ConsoleApplication
 
             commandBus.Publish(cmd);
 
-            
+
 
 
 

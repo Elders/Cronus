@@ -10,6 +10,7 @@ using NMSD.Cronus.Core.Snapshotting;
 using Protoreg;
 using NMSD.Cronus.Core.Cqrs;
 using System.Threading.Tasks;
+using System.Configuration;
 
 namespace NMSD.Cronus.Core.EventStoreEngine
 {
@@ -38,11 +39,43 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
         public string GetBoundedContext(object obj)
         {
+            if (obj == null) throw new ArgumentNullException("obj");
+
             DataContractAttribute contract = obj.GetType().GetCustomAttributes(false).Where(attr => attr is DataContractAttribute).SingleOrDefault() as DataContractAttribute;
             if (contract != null && !String.IsNullOrWhiteSpace(contract.Namespace))
                 return contract.Namespace.Split('.').Last();
             else
                 return "BoundedContext";
+        }
+
+        public IAggregateRootState LoadAggregateState(string boundedContext, Guid aggregateId)
+        {
+            using (SqlConnection connection = new SqlConnection("Server=.;Database=CronusES;User Id=sa;Password=sa;"))
+            {
+                connection.Open();
+                string query = String.Format(@"SELECT TOP 1 AggregateState FROM {0}Snapshots WHERE AggregateId=@aggregateId ORDER BY Version DESC", boundedContext);
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@aggregateId", aggregateId);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var buffer = reader[0] as byte[];
+                        IAggregateRootState state;
+                        using (var stream = new MemoryStream(buffer))
+                        {
+                            state = (IAggregateRootState)serializer.Deserialize(stream);
+                        }
+                        return state;
+                    }
+                    else
+                    {
+                        return default(IAggregateRootState);
+                    }
+                }
+            }
+
         }
 
         public IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1)
@@ -121,11 +154,11 @@ namespace NMSD.Cronus.Core.EventStoreEngine
                 blob = str.ToArray();
             }
 
-            DataTable dt = CreateInMemoryTableForEvents();
+            DataTable dt = CreateInMemoryTableForSnapshots();
 
             var row = dt.NewRow();
             row[0] = state.Version;
-            row[1] = state.Id.Id;
+            row[1] = state.Id;
             row[2] = blob;
             row[3] = DateTime.UtcNow;
             dt.Rows.Add(row);
@@ -141,7 +174,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine(ex.Message);
+                    throw new AggregateStateFirstLevelConcurrencyException("", ex);
                 }
             }
         }

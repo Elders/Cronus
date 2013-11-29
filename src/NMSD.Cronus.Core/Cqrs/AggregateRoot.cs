@@ -28,7 +28,7 @@ namespace NMSD.Cronus.Core.Cqrs
             UncommittedEvents.Add(@event);
         }
 
-        IAggregateRootState IAggregateRootStateManager.BuildFromHistory(List<IEvent> events)
+        IAggregateRootState IAggregateRootStateManager.BuildStateFromHistory(List<IEvent> events)
         {
             var state = Activator.CreateInstance<ST>();
             foreach (IEvent @event in events)

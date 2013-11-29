@@ -21,20 +21,24 @@ namespace NMSD.Cronus.Core.Cqrs
 
         protected void UpdateAggregate(IAggregateRootId id, Action<AR> updateAr)
         {
-            //AR aggregateRoot = AggregateRootFactory.BuildFromHistory<AR>(events);
-            //updateAr(aggregateRoot);
-            //foreach (var uncommittedEvent in aggregateRoot.UncommittedEvents)
-            //{
-            //    EventBus.Publish(uncommittedEvent);
-            //}
+            var state = EventStore.LoadAggregateState("Collaboration", id.Id);
+            AR aggregateRoot = AggregateRootFactory.Build<AR>(state);
+            updateAr(aggregateRoot);
+
+            EventStore.Persist(aggregateRoot.UncommittedEvents);
+            aggregateRoot.State.Version++;
+            EventStore.TakeSnapshot(aggregateRoot.State);
+            foreach (var uncommittedEvent in aggregateRoot.UncommittedEvents)
+            {
+                EventBus.Publish(uncommittedEvent);
+            }
         }
 
         protected void CreateAggregate(AR aggregateRoot)
         {
             EventStore.Persist(aggregateRoot.UncommittedEvents);
             aggregateRoot.State.Version++;
-            //EventStore.TakeSnapshot(aggregateRoot.State);
-
+            EventStore.TakeSnapshot(aggregateRoot.State);
             foreach (var uncommittedEvent in aggregateRoot.UncommittedEvents)
             {
                 EventBus.Publish(uncommittedEvent);

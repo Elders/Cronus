@@ -57,6 +57,7 @@
     <Compile Include="Cqrs\AggregateRootState.cs" />
     <Compile Include="Cqrs\AggregateRootException.cs" />
     <Compile Include="Cqrs\AggregateRootApplicationService.cs" />
+    <Compile Include="Cqrs\AggregateStateFirstLevelConcurrencyException.cs" />
     <Compile Include="Cqrs\IAggregateRoot.cs" />
     <Compile Include="Cqrs\IAggregateRootId.cs" />
     <Compile Include="Cqrs\IAggregateRootState.cs" />
