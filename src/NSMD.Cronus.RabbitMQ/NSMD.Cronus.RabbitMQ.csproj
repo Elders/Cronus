@@ -46,7 +46,7 @@
   <ItemGroup>
     <Compile Include="Endpoint.cs" />
     <Compile Include="Pipeline.cs" />
-    <Compile Include="Plummer.cs" />
+    <Compile Include="Plumber.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RabbitMQConnection.cs" />

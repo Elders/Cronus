@@ -4,7 +4,7 @@ using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators
 {
-    [DataContract(Name = "c8978654-4380-44d2-8ebe-ae17a463dfb6", Namespace = "LaCore.Hyperion.Collaboration")]
+    [DataContract(Name = "c8978654-4380-44d2-8ebe-ae17a463dfb6", Namespace = "NMSD.Cronus.Sample.Collaboration")]
     public class CollaboratorState : AggregateRootState<CollaboratorId>
     {
         public CollaboratorState() { }

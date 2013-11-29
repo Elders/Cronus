@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace NMSD.Cronus.Core.Publishing
 {
-    public abstract class Publisher<TMessage, THandler> : IPublisher<TMessage, THandler>
+    public abstract class Publisher<TMessage, THandler> : IPublisher<TMessage>, IConsumer<THandler>
     {
         protected Dictionary<Type, List<Func<TMessage, bool>>> handlers = new Dictionary<Type, List<Func<TMessage, bool>>>();
 
@@ -68,6 +68,33 @@ namespace NMSD.Cronus.Core.Publishing
                 onErrorHandlingEvent(message, handler, ex);
                 return false;
             }
+        }
+    }
+
+    public abstract class Publisher<TMessage> : IPublisher<TMessage>
+    {
+        protected Action<TMessage> beforePublish;
+
+        protected Action<TMessage> afterPublish;
+
+        public void SetBeforePublishAction(Action<TMessage> action)
+        {
+            beforePublish = action;
+        }
+
+        public void SetAfterPublishAction(Action<TMessage> action)
+        {
+            afterPublish = action;
+        }
+
+        protected abstract bool PublishInternal(TMessage message);
+
+        public bool Publish(TMessage message)
+        {
+            if (beforePublish != null) beforePublish(message);
+            PublishInternal(message);
+            if (afterPublish != null) afterPublish(message);
+            return true;
         }
     }
 }

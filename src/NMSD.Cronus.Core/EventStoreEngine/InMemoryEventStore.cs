@@ -6,11 +6,9 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Snapshotting;
 using Protoreg;
-using NMSD.Cronus.Core.Cqrs;
-using System.Threading.Tasks;
-using System.Configuration;
 
 namespace NMSD.Cronus.Core.EventStoreEngine
 {
@@ -30,10 +28,17 @@ namespace NMSD.Cronus.Core.EventStoreEngine
     }
     public class InMemoryEventStore : ISnapShotter
     {
+        const string LoadAggregateStateQueryTemplate = @"SELECT TOP 1 AggregateState FROM {0}Snapshots WHERE AggregateId=@aggregateId ORDER BY Version DESC";
+
+        const string LoadEventsQueryTemplate = @"SELECT Events FROM {0}Events ORDER BY Revision OFFSET @offset ROWS FETCH NEXT {1} ROWS ONLY";
+
+        private readonly string connectionString;
+
         private readonly ProtoregSerializer serializer;
 
-        public InMemoryEventStore(ProtoregSerializer serializer)
+        public InMemoryEventStore(string connectionString, ProtoregSerializer serializer)
         {
+            this.connectionString = connectionString;
             this.serializer = serializer;
         }
 
@@ -48,42 +53,12 @@ namespace NMSD.Cronus.Core.EventStoreEngine
                 return "BoundedContext";
         }
 
-        public IAggregateRootState LoadAggregateState(string boundedContext, Guid aggregateId)
-        {
-            using (SqlConnection connection = new SqlConnection("Server=.;Database=CronusES;User Id=sa;Password=sa;"))
-            {
-                connection.Open();
-                string query = String.Format(@"SELECT TOP 1 AggregateState FROM {0}Snapshots WHERE AggregateId=@aggregateId ORDER BY Version DESC", boundedContext);
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@aggregateId", aggregateId);
-
-                using (var reader = command.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        var buffer = reader[0] as byte[];
-                        IAggregateRootState state;
-                        using (var stream = new MemoryStream(buffer))
-                        {
-                            state = (IAggregateRootState)serializer.Deserialize(stream);
-                        }
-                        return state;
-                    }
-                    else
-                    {
-                        return default(IAggregateRootState);
-                    }
-                }
-            }
-
-        }
-
         public IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1)
         {
-            using (SqlConnection connection = new SqlConnection("Server=.;Database=CronusES;User Id=sa;Password=sa;"))
+            using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string query = String.Format(@"SELECT Events FROM {0}Events ORDER BY Revision OFFSET @offset ROWS FETCH NEXT {1} ROWS ONLY", boundedContext, batchPerQuery);
+                string query = String.Format(LoadEventsQueryTemplate, boundedContext, batchPerQuery);
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@offset", 0);
 
@@ -112,31 +87,53 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
+        public IAggregateRootState LoadAggregateState(string boundedContext, Guid aggregateId)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string query = String.Format(LoadAggregateStateQueryTemplate, boundedContext);
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@aggregateId", aggregateId);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var buffer = reader[0] as byte[];
+                        IAggregateRootState state;
+                        using (var stream = new MemoryStream(buffer))
+                        {
+                            state = (IAggregateRootState)serializer.Deserialize(stream);
+                        }
+                        return state;
+                    }
+                    else
+                    {
+                        return default(IAggregateRootState);
+                    }
+                }
+            }
+        }
+
         public void Persist(List<IEvent> events)
         {
-            byte[] buffer;
-            using (var str = new MemoryStream())
-            {
-                serializer.Serialize(str, new Wraper(events.Cast<object>().ToList()));
-                buffer = str.ToArray();
-            }
+            byte[] buffer = SerializeEvents(events);
 
-
-            DataTable dt = CreateInMemoryTableForEvents();
-
-            var row = dt.NewRow();
+            DataTable eventsTable = CreateInMemoryTableForEvents();
+            var row = eventsTable.NewRow();
             row[1] = buffer;
             row[2] = events.Count;
             row[3] = DateTime.UtcNow;
-            dt.Rows.Add(row);
+            eventsTable.Rows.Add(row);
 
-            using (SqlBulkCopy bulkCopy = new SqlBulkCopy("Server=.;Database=CronusES;User Id=sa;Password=sa;"))
+            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connectionString))
             {
                 string boundedContext = GetBoundedContext(events.First());
                 bulkCopy.DestinationTableName = String.Format("dbo.{0}Events", boundedContext);
                 try
                 {
-                    bulkCopy.WriteToServer(dt, DataRowState.Added);
+                    bulkCopy.WriteToServer(eventsTable, DataRowState.Added);
                 }
                 catch (Exception ex)
                 {
@@ -147,23 +144,18 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
         public void TakeSnapshot(IAggregateRootState state)
         {
-            byte[] blob;
-            using (var str = new MemoryStream())
-            {
-                serializer.Serialize(str, state);
-                blob = str.ToArray();
-            }
+            byte[] buffer = SerializeAggregateState(state);
 
             DataTable dt = CreateInMemoryTableForSnapshots();
 
             var row = dt.NewRow();
             row[0] = state.Version;
             row[1] = state.Id;
-            row[2] = blob;
+            row[2] = buffer;
             row[3] = DateTime.UtcNow;
             dt.Rows.Add(row);
 
-            using (SqlBulkCopy bulkCopy = new SqlBulkCopy("Server=.;Database=CronusES;User Id=sa;Password=sa;"))
+            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connectionString))
             {
                 string boundedContext = GetBoundedContext(state);
                 bulkCopy.DestinationTableName = String.Format("dbo.{0}Snapshots", boundedContext);
@@ -242,6 +234,24 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             uncommittedState.PrimaryKey = keys;
 
             return uncommittedState;
+        }
+
+        private byte[] SerializeAggregateState(IAggregateRootState aggregateRootState)
+        {
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(stream, aggregateRootState);
+                return stream.ToArray();
+            }
+        }
+
+        private byte[] SerializeEvents(List<IEvent> events)
+        {
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(stream, new Wraper(events.Cast<object>().ToList()));
+                return stream.ToArray();
+            }
         }
 
     }

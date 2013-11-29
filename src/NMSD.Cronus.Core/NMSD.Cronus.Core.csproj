@@ -51,6 +51,7 @@
     <Compile Include="Commanding\InMemoryCommandBus.cs" />
     <Compile Include="Commanding\ICommand.cs" />
     <Compile Include="Commanding\ICommandHandler.cs" />
+    <Compile Include="Commanding\RabbitCommandBus.cs" />
     <Compile Include="Cqrs\AggregateRoot.cs" />
     <Compile Include="Cqrs\AggregateRootFactory.cs" />
     <Compile Include="Cqrs\AggregateRootId.cs" />
@@ -76,14 +77,21 @@
     <Compile Include="EventStoreEngine\NoEventStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commanding\InMemoryCommandBusRegistrations.cs" />
+    <Compile Include="Publishing\IConsumer.cs" />
     <Compile Include="Publishing\InMemoryPublisher.cs" />
     <Compile Include="Publishing\Publisher.cs" />
     <Compile Include="Publishing\IPublisher.cs" />
+    <Compile Include="Publishing\RabbitPublisher.cs" />
     <Compile Include="Snapshotting\ISnapShotter.cs" />
     <Compile Include="Snapshotting\SnapShotter.cs" />
     <Compile Include="Threading.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\NSMD.Cronus.RabbitMQ\NSMD.Cronus.RabbitMQ.csproj">
+      <Project>{28a55c9a-ece7-40b8-892b-2e349128b5d7}</Project>
+      <Name>NSMD.Cronus.RabbitMQ</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

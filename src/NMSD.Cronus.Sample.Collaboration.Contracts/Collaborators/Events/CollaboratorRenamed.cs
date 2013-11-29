@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Events
 {
-    [DataContract(Name = "64089974-6371-4112-84dc-4326ab3ec52e", Namespace = "LaCore.Hyperion.Collaboration")]
+    [DataContract(Name = "64089974-6371-4112-84dc-4326ab3ec52e", Namespace = "NMSD.Cronus.Sample.Collaboration")]
     public class CollaboratorRenamed : ICollaboratorEvent
     {
         CollaboratorRenamed() { }

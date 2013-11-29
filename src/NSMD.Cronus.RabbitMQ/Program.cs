@@ -12,6 +12,17 @@ namespace NSMD.Cronus.RabbitMQ
     {
         static void Main(string[] args)
         {
+            var simo = new Plumber();
+            var pipe = simo.GetPipeline("schupena_traba");
+            // var chuk = simo.GetEndpoint("chuk", "");
+            // var tesla = simo.GetEndpoint("tesla", "");
+            //pipe.AttachEndpoint(chuk);
+            // pipe.AttachEndpoint(tesla);
+            pipe.KickIn(new byte[] { 101, 123 }, "1");
+            pipe.Dispose();
+            // chuk.Dispose();
+
+
         }
     }
 
@@ -23,14 +34,11 @@ namespace NSMD.Cronus.RabbitMQ
             this.endpoint = endpoint;
         }
 
-        protected abstract void Consume(object message)
-        {
-
-        }
+        protected abstract void Consume(object message);
 
         public void Start()
         {
-            endpoint.
+            // endpoint.
         }
     }
 

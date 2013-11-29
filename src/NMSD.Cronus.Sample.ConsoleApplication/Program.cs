@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
 using Cronus.Core.Eventing;
@@ -28,7 +29,7 @@ namespace Cronus.Sample.ConsoleApplication
             //var cmd = new CreateNewCollaborator(collaboratorId, email);
             var cmd = new RenameCollaborator(collaboratorId, "", "");
 
-            var commandBus = new InMemoryCommandBus();
+
             var protoRegistration = new ProtoRegistration();
             protoRegistration.RegisterAssembly<CollaboratorState>();
             protoRegistration.RegisterAssembly<NewCollaboratorCreated>();
@@ -36,7 +37,10 @@ namespace Cronus.Sample.ConsoleApplication
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
-            var eventStore = new InMemoryEventStore(serializer);
+            var commandBus = new RabbitCommandBus(serializer);
+
+            string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+            var eventStore = new InMemoryEventStore(connectionString, serializer);
             //var result = MeasureExecutionTime.Start(() =>
             //{
             //    //int current = 0;
@@ -51,17 +55,17 @@ namespace Cronus.Sample.ConsoleApplication
             //Console.WriteLine(result);
 
 
-            commandBus.RegisterAllCommandHandlersInAssembly(x =>
-            {
-                var instance = Activator.CreateInstance(x);
-                var casted = instance as IAggregateRootApplicationService;
-                if (casted != null)
-                {
-                    casted.EventBus = eventBus;
-                    casted.EventStore = eventStore;
-                }
-                return casted as ICommandHandler;
-            }, Assembly.GetAssembly(typeof(CollaboratorAppService)));
+            //commandBus.RegisterAllCommandHandlersInAssembly(x =>
+            //{
+            //    var instance = Activator.CreateInstance(x);
+            //    var casted = instance as IAggregateRootApplicationService;
+            //    if (casted != null)
+            //    {
+            //        casted.EventBus = eventBus;
+            //        casted.EventStore = eventStore;
+            //    }
+            //    return casted as ICommandHandler;
+            //}, Assembly.GetAssembly(typeof(CollaboratorAppService)));
 
             commandBus.Publish(cmd);
 

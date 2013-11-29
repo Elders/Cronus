@@ -9,6 +9,6 @@ namespace NMSD.Cronus.Core.Commanding
 {
     public class InMemoryCommandBus : InMemoryPublisher<ICommand, ICommandHandler>
     {
-        
+
     }
 }
