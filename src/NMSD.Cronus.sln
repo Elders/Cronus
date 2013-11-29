@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Tests", "NMSD.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Sample.Ports", "NMSD.Cronus.Sample.Ports\NMSD.Cronus.Sample.Ports.csproj", "{448A98D9-D1E2-41D3-943D-029FE17A35EF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NSMD.Cronus.RabbitMQ", "NSMD.Cronus.Infrastructure.RabbitMQ\NSMD.Cronus.RabbitMQ.csproj", "{28A55C9A-ECE7-40B8-892B-2E349128B5D7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{448A98D9-D1E2-41D3-943D-029FE17A35EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{448A98D9-D1E2-41D3-943D-029FE17A35EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{448A98D9-D1E2-41D3-943D-029FE17A35EF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28A55C9A-ECE7-40B8-892B-2E349128B5D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28A55C9A-ECE7-40B8-892B-2E349128B5D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28A55C9A-ECE7-40B8-892B-2E349128B5D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28A55C9A-ECE7-40B8-892B-2E349128B5D7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
