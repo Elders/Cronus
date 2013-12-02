@@ -3,8 +3,8 @@ using NMSD.Cronus.Core.Commanding;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
 {
-    [DataContract(Name = "279e6378-af27-47e8-a34f-12ca3d371714", Namespace = "NMSD.Cronus.Sample.Collaboration")]
-    public class CreateNewCollaborator : ICommand
+    [DataContract(Name = "279e6378-af27-47e8-a34f-12ca3d371714")]
+    public class CreateNewCollaborator : ICollaborationCommand
     {
         CreateNewCollaborator() { }
 

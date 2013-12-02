@@ -39,6 +39,7 @@
     <Compile Include="Collaborators\Collaborator.cs" />
     <Compile Include="Collaborators\CollaboratorAppService.cs" />
     <Compile Include="Collaborators\CollaboratorState.cs" />
+    <Compile Include="Collaborators\ICollaborationCommandHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

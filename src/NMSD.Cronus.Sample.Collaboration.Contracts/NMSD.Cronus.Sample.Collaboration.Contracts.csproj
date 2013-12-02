@@ -38,6 +38,7 @@
   <ItemGroup>
     <Compile Include="Collaborators\CollaboratorId.cs" />
     <Compile Include="Collaborators\Commands\CreateNewCollaborator.cs" />
+    <Compile Include="Collaborators\Commands\ICollaborationCommand.cs" />
     <Compile Include="Collaborators\Commands\RenameCollaborator.cs" />
     <Compile Include="Collaborators\Events\CollaboratorRenamed.cs" />
     <Compile Include="Collaborators\Events\NewCollaboratorCreated.cs" />

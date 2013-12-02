@@ -3,7 +3,7 @@ using RabbitMQ.Client;
 
 namespace NSMD.Cronus.RabbitMQ
 {
-    public sealed class RabbitMQConnection : IDisposable
+    public sealed class RabbitMQSession : IDisposable
     {
         private IModel channel = null;
 
@@ -13,11 +13,9 @@ namespace NSMD.Cronus.RabbitMQ
 
         public event Action OnReconnect;
 
-        public RabbitMQConnection(ConnectionFactory factory)
+        public RabbitMQSession(ConnectionFactory factory)
         {
             this.factory = factory;
-            channel = null;
-            connection = null;
         }
 
         public IModel Channel

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NMSD.Cronus.Core.Publishing
+namespace NMSD.Cronus.Core.Messaging
 {
     public interface IPublisher<TMessage>
     {

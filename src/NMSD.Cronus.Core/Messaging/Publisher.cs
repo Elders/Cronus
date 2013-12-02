@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace NMSD.Cronus.Core.Publishing
+namespace NMSD.Cronus.Core.Messaging
 {
     public abstract class Publisher<TMessage, THandler> : IPublisher<TMessage>, IConsumer<THandler>
     {

@@ -7,11 +7,11 @@ namespace NSMD.Cronus.RabbitMQ
 {
     public sealed class Pipeline : IDisposable
     {
-        private RabbitMQConnection connection;
+        private RabbitMQSession connection;
 
         private string name;
 
-        public Pipeline(string name, RabbitMQConnection connection, PipelineType pipelineType)
+        public Pipeline(string name, RabbitMQSession connection, PipelineType pipelineType)
         {
             this.name = name;
             this.connection = connection;
@@ -21,6 +21,11 @@ namespace NSMD.Cronus.RabbitMQ
         public void AttachEndpoint(Endpoint endpoint)
         {
             connection.Channel.QueueBind(endpoint.Name, name, endpoint.RoutingKey, endpoint.AcceptanceHeaders);
+        }
+
+        public void DetachEndpoint(Endpoint endpoint)
+        {
+            connection.Channel.QueueUnbind(endpoint.Name, name, endpoint.RoutingKey, endpoint.AcceptanceHeaders);
         }
 
         public void Dispose()

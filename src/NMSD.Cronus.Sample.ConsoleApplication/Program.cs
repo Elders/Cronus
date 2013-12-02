@@ -12,6 +12,7 @@ using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.Ports;
 using Protoreg;
+using NMSD.Cronus.Core.Messaging;
 
 namespace Cronus.Sample.ConsoleApplication
 {
@@ -37,7 +38,9 @@ namespace Cronus.Sample.ConsoleApplication
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
-            var commandBus = new RabbitCommandBus(serializer);
+            var commandBus = new RabbitConsumer(serializer);
+            commandBus.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)));
+            commandBus.Start(1);
 
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
             var eventStore = new InMemoryEventStore(connectionString, serializer);

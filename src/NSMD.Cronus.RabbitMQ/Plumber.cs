@@ -39,8 +39,7 @@ namespace NSMD.Cronus.RabbitMQ
 
         public Endpoint GetEndpoint(string name, bool durable, bool exclusive, bool autoDelete, IDictionary acceptanceHeaders)
         {
-            var connection = new RabbitMQConnection(factory);
-            return new Endpoint(name, durable, exclusive, autoDelete, connection, String.Empty, acceptanceHeaders);
+            return new Endpoint(name, durable, exclusive, autoDelete, new RabbitMQSession(factory), String.Empty, acceptanceHeaders);
         }
 
         public Endpoint GetEndpoint(string name, IDictionary acceptanceHeaders)
@@ -50,7 +49,7 @@ namespace NSMD.Cronus.RabbitMQ
 
         public Pipeline GetPipeline(string name)
         {
-            return new Pipeline(name, new RabbitMQConnection(factory), Pipeline.PipelineType.Headers);
+            return new Pipeline(name, new RabbitMQSession(factory), Pipeline.PipelineType.Headers);
         }
 
     }
