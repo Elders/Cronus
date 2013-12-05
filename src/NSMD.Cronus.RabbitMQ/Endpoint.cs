@@ -18,7 +18,7 @@ namespace NSMD.Cronus.RabbitMQ
 
         private readonly bool exclusive;
 
-        public Endpoint(string endpointName, bool durable, bool exclusive, bool autoDelete, RabbitMQSession session, string endpointRoutingKeyDefinition, IDictionary acceptanceHeaders)
+        public Endpoint(string endpointName, bool durable, bool exclusive, bool autoDelete, RabbitMQSession session, string endpointRoutingKeyDefinition, IDictionary<string, object> acceptanceHeaders)
         {
             AcceptanceHeaders = acceptanceHeaders;
             this.autoDelete = autoDelete;
@@ -31,7 +31,7 @@ namespace NSMD.Cronus.RabbitMQ
             this.session.OnReconnect += Declare;
         }
 
-        public IDictionary AcceptanceHeaders { get; private set; }
+        public IDictionary<string, object> AcceptanceHeaders { get; private set; }
 
         public string Name { get; private set; }
 

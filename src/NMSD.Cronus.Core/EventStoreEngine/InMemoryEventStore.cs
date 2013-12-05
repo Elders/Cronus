@@ -150,7 +150,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
             var row = dt.NewRow();
             row[0] = state.Version;
-            row[1] = state.Id;
+            row[1] = state.Id.Id;
             row[2] = buffer;
             row[3] = DateTime.UtcNow;
             dt.Rows.Add(row);

@@ -4,15 +4,16 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{448A98D9-D1E2-41D3-943D-029FE17A35EF}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{BC71BF12-E95F-4617-BCA0-5E4E4B4C0BB7}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NMSD.Cronus.Sample.Ports</RootNamespace>
-    <AssemblyName>NMSD.Cronus.Sample.Ports</AssemblyName>
+    <RootNamespace>NMSD.Cronus.Sample.ApplicationServices</RootNamespace>
+    <AssemblyName>NMSD.Cronus.Sample.ApplicationServices</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,6 +23,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,15 +33,22 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net">
-      <HintPath>..\packages\log4net.2.0.2\lib\net40-full\log4net.dll</HintPath>
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Protoreg">
+      <HintPath>..\..\lib\Protoreg\Protoreg.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CollaboratorProjection.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NMSD.Cronus.Core\NMSD.Cronus.Core.csproj">
@@ -50,9 +59,14 @@
       <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>
       <Name>NMSD.Cronus.Sample.Collaboration.Contracts</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Handlers\NMSD.Cronus.Sample.Collaboration.Handlers.csproj">
+      <Project>{448a98d9-d1e2-41d3-943d-029fe17a35ef}</Project>
+      <Name>NMSD.Cronus.Sample.Collaboration.Handlers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration\NMSD.Cronus.Sample.Collaboration.csproj">
+      <Project>{eba90c1f-5f2c-4a78-b91b-d2c3d664530d}</Project>
+      <Name>NMSD.Cronus.Sample.Collaboration</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace NMSD.Cronus.Core.Cqrs
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Struct | AttributeTargets.Enum, Inherited = true, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Assembly)]
     public class BoundedContextAttribute : Attribute
     {
         private string boundedContextName;
@@ -15,7 +12,9 @@ namespace NMSD.Cronus.Core.Cqrs
 
         private string companyName;
 
-        private string pipelineName;
+        private string commandsPipelineName;
+
+        private string eventsPipelineName;
 
         private string productName;
 
@@ -32,7 +31,8 @@ namespace NMSD.Cronus.Core.Cqrs
             }
             this.productName = productNameBuilder.ToString().TrimEnd('.');
             this.boundedContextName = splitted[splitted.Length - 1];
-            this.pipelineName = String.Format("{0}.{1}", companyName, productName);
+            this.commandsPipelineName = String.Format("{0}.{1}.Commands", companyName, productName);
+            this.eventsPipelineName = String.Format("{0}.{1}.Events", companyName, productName);
         }
 
         public BoundedContextAttribute(string companyName, string productName, string boundedContextName)
@@ -41,7 +41,8 @@ namespace NMSD.Cronus.Core.Cqrs
             this.productName = productName;
             this.companyName = companyName;
             this.boundedContextNamespace = String.Format("{0}.{1}.{2}", companyName, productName, boundedContextName);
-            this.pipelineName = String.Format("{0}.{1}", companyName, productName);
+            this.commandsPipelineName = String.Format("{0}.{1}.Commands", companyName, productName);
+            this.eventsPipelineName = String.Format("{0}.{1}.Events", companyName, productName);
         }
 
         public string BoundedContextName { get { return boundedContextName; } }
@@ -50,7 +51,9 @@ namespace NMSD.Cronus.Core.Cqrs
 
         public string CompanyName { get { return companyName; } }
 
-        public string PipelineName { get { return pipelineName; } }
+        public string CommandsPipelineName { get { return commandsPipelineName; } }
+
+        public string EventsPipelineName { get { return eventsPipelineName; } }
 
         public string ProductName { get { return productName; } }
 

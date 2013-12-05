@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using NMSD.Cronus.Core.Cqrs;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NMSD.Cronus.Sample.Collaboration")]
+[assembly: AssemblyTitle("NMSD.Cronus.Sample.UI")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("NMSD.Cronus.Sample.Collaboration")]
+[assembly: AssemblyProduct("NMSD.Cronus.Sample.UI")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -21,7 +20,7 @@ using NMSD.Cronus.Core.Cqrs;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2a917cbf-9279-4d66-83c7-28cb0c990f60")]
+[assembly: Guid("b8dbf8cb-9afb-4767-9af7-08f6508cd249")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -35,5 +34,3 @@ using NMSD.Cronus.Core.Cqrs;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-
-[assembly: BoundedContext("NMSD.Cronus.Sample.Collaboration")]

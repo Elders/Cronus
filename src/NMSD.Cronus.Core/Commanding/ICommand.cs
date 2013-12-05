@@ -1,7 +1,12 @@
 
 namespace NMSD.Cronus.Core.Commanding
 {
-    public interface ICommand
+    public interface IMessage
+    {
+        
+    }
+
+    public interface ICommand : IMessage
     {
 
     }

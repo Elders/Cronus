@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.Cqrs;
 
 namespace NMSD.Cronus.Core.Messaging
@@ -16,22 +18,37 @@ namespace NMSD.Cronus.Core.Messaging
 
         public static string GetPipelineName(Type messageType)
         {
-            BoundedContextAttribute contract = messageType.GetCustomAttributesIncludingBaseInterfaces<BoundedContextAttribute>().SingleOrDefault();
+            var boundedContext = messageType.GetAssemblyAttribute<BoundedContextAttribute>();
 
-            if (contract == null)
-                throw new Exception(String.Format(@"The message type '{0}' is missing a BoundedContext attribute. Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));
+            if (boundedContext == null)
+                throw new Exception(String.Format(@"The assembly cointaining message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));
 
-            return contract.PipelineName;
+            if (messageType.GetInterfaces().Any(i => i == typeof(ICommand)))
+                return boundedContext.CommandsPipelineName;
+            else if (messageType.GetInterfaces().Any(i => i == typeof(IEvent)))
+                return boundedContext.EventsPipelineName;
+            else
+                throw new Exception(String.Format("The message of type '{0}' does not implement '{1}' or '{2}'", messageType.FullName, typeof(ICommand).FullName, typeof(IEvent).FullName));
         }
 
-        public static string GetQueuePrefix(Type messageType)
+        public static string GetHandlerQueueName(Type messageType)
         {
-            BoundedContextAttribute contract = messageType.GetCustomAttributesIncludingBaseInterfaces<BoundedContextAttribute>().SingleOrDefault();
+            var boundedContext = messageType.GetAssemblyAttribute<BoundedContextAttribute>();
 
-            if (contract == null)
-                throw new Exception(String.Format(@"The message type '{0}' is missing a BoundedContext attribute. Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));
+            if (boundedContext == null)
+                throw new Exception(String.Format(@"The assembly cointaining message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));
 
-            return contract.BoundedContextNamespace;
+            return String.Format("{0}.{1}", boundedContext.BoundedContextNamespace, messageType.Name);
+        }
+
+        public static string GetBoundedContextNamespace(Type messageType)
+        {
+            var boundedContext = messageType.GetAssemblyAttribute<BoundedContextAttribute>();
+
+            if (boundedContext == null)
+                throw new Exception(String.Format(@"The assembly cointaining message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));
+
+            return boundedContext.BoundedContextNamespace;
         }
 
         public static string GetMessageId(object message)
@@ -49,9 +66,6 @@ namespace NMSD.Cronus.Core.Messaging
             return contract.Name;
         }
 
-
-
-
         private static IEnumerable<T> GetCustomAttributesIncludingBaseInterfaces<T>(this Type type)
         {
             var attributeType = typeof(T);
@@ -62,66 +76,18 @@ namespace NMSD.Cronus.Core.Messaging
                 .Cast<T>();
         }
 
-
-
-        /// <summary>Searches and returns attributes. The inheritance chain is not used to find the attributes.</summary>
-        /// <typeparam name="T">The type of attribute to search for.</typeparam>
-        /// <param name="type">The type which is searched for the attributes.</param>
-        /// <returns>Returns all attributes.</returns>
-        public static T[] GetCustomAttributes<T>(this Type type) where T : Attribute
+        private static T GetAssemblyAttribute<T>(this Type type)
         {
-            return GetCustomAttributes(type, typeof(T), false).Select(arg => (T)arg).ToArray();
+            var attributeType = typeof(T);
+            var attribute = type
+                .Assembly
+                .GetCustomAttributes(attributeType, false)
+                .SingleOrDefault();
+
+            return attribute == null
+                ? default(T)
+                : (T)attribute;
         }
 
-        /// <summary>Searches and returns attributes.</summary>
-        /// <typeparam name="T">The type of attribute to search for.</typeparam>
-        /// <param name="type">The type which is searched for the attributes.</param>
-        /// <param name="inherit">Specifies whether to search this member's inheritance chain to find the attributes. Interfaces will be searched, too.</param>
-        /// <returns>Returns all attributes.</returns>
-        public static T[] GetCustomAttributes<T>(this Type type, bool inherit) where T : Attribute
-        {
-            return GetCustomAttributes(type, typeof(T), inherit).Select(arg => (T)arg).ToArray();
-        }
-
-        /// <summary>Private helper for searching attributes.</summary>
-        /// <param name="type">The type which is searched for the attribute.</param>
-        /// <param name="attributeType">The type of attribute to search for.</param>
-        /// <param name="inherit">Specifies whether to search this member's inheritance chain to find the attribute. Interfaces will be searched, too.</param>
-        /// <returns>An array that contains all the custom attributes, or an array with zero elements if no attributes are defined.</returns>
-        private static object[] GetCustomAttributes(Type type, Type attributeType, bool inherit)
-        {
-            if (!inherit)
-            {
-                return type.GetCustomAttributes(attributeType, false);
-            }
-
-            var attributeCollection = new Collection<object>();
-            var baseType = type;
-
-            do
-            {
-                baseType.GetCustomAttributes(attributeType, true).Apply(attributeCollection.Add);
-                baseType = baseType.BaseType;
-            }
-            while (baseType != null);
-
-            foreach (var interfaceType in type.GetInterfaces())
-            {
-                GetCustomAttributes(interfaceType, attributeType, true).Apply(attributeCollection.Add);
-            }
-
-            var attributeArray = new object[attributeCollection.Count];
-            attributeCollection.CopyTo(attributeArray, 0);
-            return attributeArray;
-        }
-
-        /// <summary>Applies a function to every element of the list.</summary>
-        private static void Apply<T>(this IEnumerable<T> enumerable, Action<T> function)
-        {
-            foreach (var item in enumerable)
-            {
-                function.Invoke(item);
-            }
-        }
     }
 }

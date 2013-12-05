@@ -2,17 +2,18 @@
 using System.Configuration;
 using System.Diagnostics;
 using System.Reflection;
+using Cronus.Core;
 using Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.EventStoreEngine;
+using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
-using NMSD.Cronus.Sample.Ports;
+using NMSD.Cronus.Sample.Collaboration.Projections;
 using Protoreg;
-using NMSD.Cronus.Core.Messaging;
 
 namespace Cronus.Sample.ConsoleApplication
 {
@@ -25,10 +26,10 @@ namespace Cronus.Sample.ConsoleApplication
             var eventBus = new InMemoryEventBus();
             eventBus.RegisterAllEventHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
 
-            var collaboratorId = new CollaboratorId(Guid.Parse("66ada31c-a098-47a6-921c-428a9f3fd485"));
+            var collaboratorId = new CollaboratorId(Guid.NewGuid());// Parse("66ada31c-a098-47a6-921c-428a9f3fd485"));
             var email = "test@qqq.commmmmmmm";
-            //var cmd = new CreateNewCollaborator(collaboratorId, email);
-            var cmd = new RenameCollaborator(collaboratorId, "", "");
+            var cmd = new CreateNewCollaborator(collaboratorId, email);
+            //var cmd = new RenameCollaborator(collaboratorId, "", "");
 
 
             var protoRegistration = new ProtoRegistration();
@@ -38,12 +39,21 @@ namespace Cronus.Sample.ConsoleApplication
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
-            var commandBus = new RabbitConsumer(serializer);
-            commandBus.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)));
-            commandBus.Start(1);
-
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
             var eventStore = new InMemoryEventStore(connectionString, serializer);
+
+            var commandConsumer = new RabbitCommandConsumer(serializer);
+            commandConsumer.RegisterAllHandlersInAssembly(type =>
+                                                                {
+                                                                    var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
+                                                                    handler.EventPublisher = eventBus;
+                                                                    handler.EventStore = eventStore;
+                                                                    return handler;
+                                                                },
+                                                                Assembly.GetAssembly(typeof(CollaboratorAppService)));
+            commandConsumer.Start(1);
+
+
             //var result = MeasureExecutionTime.Start(() =>
             //{
             //    //int current = 0;
@@ -70,7 +80,8 @@ namespace Cronus.Sample.ConsoleApplication
             //    return casted as ICommandHandler;
             //}, Assembly.GetAssembly(typeof(CollaboratorAppService)));
 
-            commandBus.Publish(cmd);
+            var commandPublisher = new RabbitCommandPublisher(serializer);
+            commandPublisher.Publish(cmd);
 
 
 

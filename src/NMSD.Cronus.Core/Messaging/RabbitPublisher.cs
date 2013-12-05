@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using NSMD.Cronus.RabbitMQ;
 using Protoreg;
 
@@ -13,6 +9,8 @@ namespace NMSD.Cronus.Core.Messaging
 {
     public class RabbitPublisher<TMessage> : Publisher<TMessage>
     {
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RabbitPublisher<TMessage>));
+
         string pipelineName;
 
         private readonly ProtoregSerializer serializer;
@@ -24,15 +22,26 @@ namespace NMSD.Cronus.Core.Messaging
 
         protected override bool PublishInternal(TMessage message)
         {
-            pipelineName = GetPipelineName(message);
-            var plumber = new Plumber();
-            var pipe = plumber.GetPipeline(pipelineName);
+            BuildPipeline(message);
             var buffer = SerializeMessage(message);
 
             DataContractAttribute contract = message.GetType().GetCustomAttributes(false).Where(attr => attr is DataContractAttribute).SingleOrDefault() as DataContractAttribute;
             pipe.KickIn(buffer, contract.Name);
+            log.Info("PUBLISH => " + message.ToString());
 
             return true;
+        }
+
+        Pipeline pipe;
+
+        private void BuildPipeline(TMessage message)
+        {
+            if (pipe == null)
+            {
+                pipelineName = GetPipelineName(message);
+                var plumber = new Plumber("192.168.16.69");
+                pipe = plumber.GetPipeline(pipelineName);
+            }
         }
 
         string GetPipelineName(TMessage message)
@@ -52,7 +61,7 @@ namespace NMSD.Cronus.Core.Messaging
             else
             {
                 if (pipelineName != pipelineNameFromContract)
-                    throw new Exception(String.Format(@"The message of type '{0}' has a different Namespace='{1}' than the expected Namespace='{2}'", message.GetType().FullName, pipelineNameFromContract, pipelineName));
+                    throw new Exception(String.Format(@"The message of type '{0}' has a different BoundedContextNamespace='{1}' than the expected BoundedContextNamespace='{2}'", message.GetType().FullName, pipelineNameFromContract, pipelineName));
             }
 
             return pipelineName;

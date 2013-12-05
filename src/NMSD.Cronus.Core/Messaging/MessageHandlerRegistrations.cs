@@ -41,7 +41,8 @@ namespace NMSD.Cronus.Core.Messaging
                     foreach (var @interface in interfaces)
                     {
                         Type eventType = @interface.GetGenericArguments().FirstOrDefault();
-                        bus.RegisterHandler(eventType, fpMessageHandlerType, messageHandlerFactory);
+                        if (eventType != null)
+                            bus.RegisterHandler(eventType, fpMessageHandlerType, messageHandlerFactory);
                     }
                 }
             }

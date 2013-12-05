@@ -5,7 +5,7 @@ using NMSD.Cronus.Core.Cqrs;
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
 {
     [DataContract(Name = "aeaae173-d790-443d-92b2-caa06d55f1a2")]
-    public class RenameCollaborator : ICollaborationCommand
+    public class RenameCollaborator : ICommand
     {
         RenameCollaborator() { }
 
@@ -27,7 +27,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
     }
 
     [DataContract(Name = "145e03ca-436b-4343-a54b-94a4236dbf39")]
-    public class TestRenameCollaborator : ICollaborationCommand
+    public class TestRenameCollaborator : ICommand
     {
         TestRenameCollaborator() { }
 

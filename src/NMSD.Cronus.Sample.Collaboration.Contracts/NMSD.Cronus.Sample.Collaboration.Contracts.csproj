@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -38,14 +42,14 @@
   <ItemGroup>
     <Compile Include="Collaborators\CollaboratorId.cs" />
     <Compile Include="Collaborators\Commands\CreateNewCollaborator.cs" />
-    <Compile Include="Collaborators\Commands\ICollaborationCommand.cs" />
     <Compile Include="Collaborators\Commands\RenameCollaborator.cs" />
     <Compile Include="Collaborators\Events\CollaboratorRenamed.cs" />
     <Compile Include="Collaborators\Events\NewCollaboratorCreated.cs" />
-    <Compile Include="Collaborators\ICollaboratorEvent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NMSD.Cronus.Core\NMSD.Cronus.Core.csproj">
       <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>

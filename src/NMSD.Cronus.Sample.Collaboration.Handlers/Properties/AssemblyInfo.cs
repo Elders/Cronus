@@ -6,11 +6,11 @@ using NMSD.Cronus.Core.Cqrs;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NMSD.Cronus.Sample.Collaboration")]
+[assembly: AssemblyTitle("NMSD.Cronus.Sample.Ports")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("NMSD.Cronus.Sample.Collaboration")]
+[assembly: AssemblyProduct("NMSD.Cronus.Sample.Ports")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -21,7 +21,7 @@ using NMSD.Cronus.Core.Cqrs;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2a917cbf-9279-4d66-83c7-28cb0c990f60")]
+[assembly: Guid("672763ab-300a-4275-8e4c-21729a5b507e")]
 
 // Version information for an assembly consists of the following four values:
 //

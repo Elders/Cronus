@@ -33,13 +33,17 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.12.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\log4net.2.0.2\lib\net40-full\log4net.dll</HintPath>
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Protoreg">
       <HintPath>..\..\lib\Protoreg\Protoreg.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQ.Client, Version=3.2.1.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RabbitMQ.Client.3.2.1\lib\net30\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -48,10 +52,10 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commanding\InMemoryCommandBus.cs" />
     <Compile Include="Commanding\ICommand.cs" />
+    <Compile Include="Commanding\InMemoryCommandBus.cs" />
     <Compile Include="Commanding\ICommandHandler.cs" />
-    <Compile Include="Commanding\RabbitCommandBus.cs" />
+    <Compile Include="Commanding\RabbitCommandConsumer.cs" />
     <Compile Include="Cqrs\AggregateRoot.cs" />
     <Compile Include="Cqrs\AggregateRootFactory.cs" />
     <Compile Include="Cqrs\AggregateRootId.cs" />
@@ -67,6 +71,7 @@
     <Compile Include="Eventing\AbstractEventBus.cs" />
     <Compile Include="Eventing\InMemoryEventBusRegistrations.cs" />
     <Compile Include="Eventing\InMemoryEventBus.cs" />
+    <Compile Include="Eventing\RabbitEventPublisher.cs" />
     <Compile Include="EventStoreEngine\InMemoryEventStore.cs" />
     <Compile Include="FastActivator.cs" />
     <Compile Include="Eventing\EventBusRegistrations.cs" />
@@ -76,6 +81,7 @@
     <Compile Include="Eventing\InMemoryEventBusHyperion.cs" />
     <Compile Include="EventStoreEngine\IEventStore.cs" />
     <Compile Include="EventStoreEngine\NoEventStore.cs" />
+    <Compile Include="Commanding\CommandMessageInfo.cs" />
     <Compile Include="Messaging\MessagingHelpers.cs" />
     <Compile Include="Multithreading\Work\IWork.cs" />
     <Compile Include="Multithreading\Work\WorkExtensions.cs" />
@@ -102,6 +108,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Logging\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

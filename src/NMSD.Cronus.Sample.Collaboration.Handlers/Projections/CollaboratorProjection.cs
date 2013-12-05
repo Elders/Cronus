@@ -1,11 +1,12 @@
 ﻿using System;
 using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 
-namespace NMSD.Cronus.Sample.Ports
+namespace NMSD.Cronus.Sample.Collaboration.Projections
 {
-    public class CollaboratorProjection : IEventHandler,
-        IEventHandler<NewCollaboratorCreated>
+    public class CollaboratorProjection :
+        IMessageHandler<NewCollaboratorCreated>
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(CollaboratorProjection));
 

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using Cronus.Core.Eventing;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Events
 {
-    [DataContract(Name = "8caa4c0c-4a34-4267-a8ef-b1fbe11d03c3", Namespace = "NMSD.Cronus.Sample.Collaboration")]
-    public class NewCollaboratorCreated : ICollaboratorEvent
+    [DataContract(Name = "8caa4c0c-4a34-4267-a8ef-b1fbe11d03c3")]
+    public class NewCollaboratorCreated : IEvent
     {
         NewCollaboratorCreated() { }
 
@@ -22,6 +23,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Events
 
         public override string ToString()
         {
+
             return String.Format("New collaborator created with email '{0}'. {1}", Email, CollaboratorId);
         }
     }

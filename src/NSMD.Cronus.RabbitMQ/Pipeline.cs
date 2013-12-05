@@ -40,7 +40,7 @@ namespace NSMD.Cronus.RabbitMQ
         public void KickIn(byte[] message, string messageId)
         {
             var properties = new BasicProperties();
-            properties.Headers = new Dictionary<string, string>();
+            properties.Headers = new Dictionary<string, object>();
             properties.Headers.Add(messageId, String.Empty);
             connection.Channel.BasicPublish(name, String.Empty, properties, message);
         }

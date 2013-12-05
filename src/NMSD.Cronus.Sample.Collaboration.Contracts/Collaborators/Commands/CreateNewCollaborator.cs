@@ -1,10 +1,11 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 using NMSD.Cronus.Core.Commanding;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
 {
     [DataContract(Name = "279e6378-af27-47e8-a34f-12ca3d371714")]
-    public class CreateNewCollaborator : ICollaborationCommand
+    public class CreateNewCollaborator : ICommand
     {
         CreateNewCollaborator() { }
 
@@ -19,5 +20,10 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
 
         [DataMember(Order = 2)]
         public string Email { get; private set; }
+
+        public override string ToString()
+        {
+            return this.ToString("Create collaborator with '{0}' email. {1}", Email, Id);
+        }
     }
 }
