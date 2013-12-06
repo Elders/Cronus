@@ -137,18 +137,19 @@ namespace NMSD.Cronus.Core.Commanding
                 {
 
                     QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
-                    channel.BasicConsume(endpointName, true, newQueueingBasicConsumer);
+                    channel.BasicConsume(endpointName, false, newQueueingBasicConsumer);
                     while (true)
                     {
-                        var result = newQueueingBasicConsumer.Queue.Dequeue();
+                        var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
                         ICommand command;
-                        if (result != null)
+                        if (rawMessage != null)
                         {
-                            using (var stream = new MemoryStream(result.Body))
+                            using (var stream = new MemoryStream(rawMessage.Body))
                             {
                                 command = consumer.serialiser.Deserialize(stream) as ICommand;
                             }
-                            consumer.Handle(command);
+                            if (consumer.Handle(command))
+                                channel.BasicAck(rawMessage.DeliveryTag, false);
                         }
                         else
                         {

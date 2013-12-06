@@ -27,6 +27,8 @@ namespace NMSD.Cronus.Core.Messaging
                 return boundedContext.CommandsPipelineName;
             else if (messageType.GetInterfaces().Any(i => i == typeof(IEvent)))
                 return boundedContext.EventsPipelineName;
+            else if (messageType.GetInterfaces().Any(i => i == typeof(IMessage)))
+                return boundedContext.SystemPipelineName;
             else
                 throw new Exception(String.Format("The message of type '{0}' does not implement '{1}' or '{2}'", messageType.FullName, typeof(ICommand).FullName, typeof(IEvent).FullName));
         }

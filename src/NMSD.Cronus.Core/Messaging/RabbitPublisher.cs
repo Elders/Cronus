@@ -35,7 +35,7 @@ namespace NMSD.Cronus.Core.Messaging
 
         Pipeline pipe;
 
-        private void BuildPipeline(TMessage message)
+        protected void BuildPipeline(TMessage message)
         {
             if (pipe == null)
             {
@@ -68,7 +68,7 @@ namespace NMSD.Cronus.Core.Messaging
             return pipelineName;
         }
 
-        private byte[] SerializeMessage(TMessage message)
+        protected byte[] SerializeMessage(TMessage message)
         {
             using (var stream = new MemoryStream())
             {

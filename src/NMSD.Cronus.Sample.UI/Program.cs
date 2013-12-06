@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using NMSD.Cronus.Core.Commanding;
+using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
@@ -18,6 +19,7 @@ namespace NMSD.Cronus.Sample.UI
             var protoRegistration = new ProtoRegistration();
             protoRegistration.RegisterAssembly<NewCollaboratorCreated>();
             protoRegistration.RegisterAssembly<Wraper>();
+            //protoRegistration.RegisterCommonType(typeof(AggregateRootState<CollaboratorId>));
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
@@ -25,7 +27,7 @@ namespace NMSD.Cronus.Sample.UI
 
             var email = "test@qqq.commmmmmmm";
 
-            for (int i = 0; i < 999; i++)
+            for (int i = 0; i < 99999; i++)
             {
                 commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
             }

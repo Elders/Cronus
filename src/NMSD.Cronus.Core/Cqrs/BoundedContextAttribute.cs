@@ -17,6 +17,8 @@ namespace NMSD.Cronus.Core.Cqrs
         private string eventsPipelineName;
 
         private string productName;
+        
+        private string systemPipelineName;
 
         public BoundedContextAttribute(string boundedContextNamespace)
         {
@@ -33,6 +35,7 @@ namespace NMSD.Cronus.Core.Cqrs
             this.boundedContextName = splitted[splitted.Length - 1];
             this.commandsPipelineName = String.Format("{0}.{1}.Commands", companyName, productName);
             this.eventsPipelineName = String.Format("{0}.{1}.Events", companyName, productName);
+            this.systemPipelineName = String.Format("{0}.{1}.System", companyName, productName);
         }
 
         public BoundedContextAttribute(string companyName, string productName, string boundedContextName)
@@ -43,6 +46,7 @@ namespace NMSD.Cronus.Core.Cqrs
             this.boundedContextNamespace = String.Format("{0}.{1}.{2}", companyName, productName, boundedContextName);
             this.commandsPipelineName = String.Format("{0}.{1}.Commands", companyName, productName);
             this.eventsPipelineName = String.Format("{0}.{1}.Events", companyName, productName);
+            this.systemPipelineName = String.Format("{0}.{1}.System", companyName, productName);
         }
 
         public string BoundedContextName { get { return boundedContextName; } }
@@ -54,6 +58,8 @@ namespace NMSD.Cronus.Core.Cqrs
         public string CommandsPipelineName { get { return commandsPipelineName; } }
 
         public string EventsPipelineName { get { return eventsPipelineName; } }
+
+        public string SystemPipelineName { get { return systemPipelineName; } }
 
         public string ProductName { get { return productName; } }
 

@@ -24,6 +24,7 @@ namespace NMSD.Cronus.Sample.ApplicationService
             protoRegistration.RegisterAssembly<CollaboratorState>();
             protoRegistration.RegisterAssembly<NewCollaboratorCreated>();
             protoRegistration.RegisterAssembly<Wraper>();
+            //protoRegistration.RegisterCommonType(typeof(AggregateRootState<CollaboratorId>));
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
@@ -31,17 +32,27 @@ namespace NMSD.Cronus.Sample.ApplicationService
             eventConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
             eventConsumer.Start(2);
 
-            var eventPublisher = new RabbitEventPublisher(serializer);
-
+            var systemConsumer = new RabbitSystemConsumer(serializer);
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
             var eventStore = new InMemoryEventStore(connectionString, serializer);
+            systemConsumer.RegisterHandler(typeof(MessageCommit), typeof(SystemHandler), (x) =>
+            {
+                var handler = new SystemHandler();
+                handler.EventStore = eventStore;
+                return handler;
+            });
+            systemConsumer.Start(2);
+
+            var eventPublisher = new RabbitSystemPublisher(serializer);
+
+
+
 
             var commandConsumer = new RabbitCommandConsumer(serializer);
             commandConsumer.RegisterAllHandlersInAssembly(type =>
                                                                 {
                                                                     var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
                                                                     handler.EventPublisher = eventPublisher;
-                                                                    handler.EventStore = eventStore;
                                                                     return handler;
                                                                 },
                                                                 Assembly.GetAssembly(typeof(CollaboratorAppService)));

@@ -23,8 +23,7 @@ namespace Cronus.Sample.ConsoleApplication
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            var eventBus = new InMemoryEventBus();
-            eventBus.RegisterAllEventHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
+
 
             var collaboratorId = new CollaboratorId(Guid.NewGuid());// Parse("66ada31c-a098-47a6-921c-428a9f3fd485"));
             var email = "test@qqq.commmmmmmm";
@@ -41,6 +40,8 @@ namespace Cronus.Sample.ConsoleApplication
 
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
             var eventStore = new InMemoryEventStore(connectionString, serializer);
+
+            var eventBus = new RabbitSystemPublisher(serializer);
 
             var commandConsumer = new RabbitCommandConsumer(serializer);
             commandConsumer.RegisterAllHandlersInAssembly(type =>

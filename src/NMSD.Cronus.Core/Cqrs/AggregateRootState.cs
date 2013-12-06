@@ -1,16 +1,16 @@
-using System;
-using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Cronus.Core.Eventing;
 
 namespace NMSD.Cronus.Core.Cqrs
 {
-    public abstract class AggregateRootState<ID> : IAggregateRootState where ID : IAggregateRootId
+    public abstract class AggregateRootState<ID> : IAggregateRootState
+        where ID : IAggregateRootId
     {
         IAggregateRootId IAggregateRootState.Id { get { return Id; } }
 
-        public ID Id { get; set; }
+        public abstract ID Id { get; set; }
 
-        public int Version { get; set; }
+        public abstract int Version { get; set; }
 
         public void Apply(IEvent @event)
         {
