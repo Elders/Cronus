@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Reflection;
 using Cronus.Core;
 using NMSD.Cronus.Core.Commanding;
@@ -28,16 +29,23 @@ namespace NMSD.Cronus.Sample.ApplicationService
 
             var eventConsumer = new RabbitEventConsumer(serializer);
             eventConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
-            eventConsumer.Start(1);
+            eventConsumer.Start(2);
+
+            var eventPublisher = new RabbitEventPublisher(serializer);
+
+            string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+            var eventStore = new InMemoryEventStore(connectionString, serializer);
 
             var commandConsumer = new RabbitCommandConsumer(serializer);
             commandConsumer.RegisterAllHandlersInAssembly(type =>
                                                                 {
                                                                     var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
+                                                                    handler.EventPublisher = eventPublisher;
+                                                                    handler.EventStore = eventStore;
                                                                     return handler;
                                                                 },
                                                                 Assembly.GetAssembly(typeof(CollaboratorAppService)));
-            commandConsumer.Start(1);
+            commandConsumer.Start(4);
 
             Console.ReadLine();
         }

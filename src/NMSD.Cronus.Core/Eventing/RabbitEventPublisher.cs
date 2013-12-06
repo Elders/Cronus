@@ -13,8 +13,6 @@ namespace NMSD.Cronus.Core.Eventing
 {
     public class RabbitEventConsumer : IConsumer<IMessageHandler>
     {
-        private string commandsQueueName;
-
         private Dictionary<Type, List<Func<IEvent, bool>>> handlers = new Dictionary<Type, List<Func<IEvent, bool>>>();
 
         private IDictionary<string, object> headers;
@@ -52,15 +50,15 @@ namespace NMSD.Cronus.Core.Eventing
                 CreateEndpoint(plumber.RabbitConnection, pipeName, item.Key, item.Value);
             }
 
-            //  Think about this
+            // Think about this
 
-            //pool = new WorkPool("defaultPool", numberOfWorkers);
-            //for (int i = 0; i < numberOfWorkers; i++)
-            //{
-            //    pool.AddWork(new ConsumerWork(this, plumber.RabbitConnection, commandsQueueName));
-            //}
+            pool = new WorkPool("defaultPool", numberOfWorkers);
+            for (int i = 0; i < numberOfWorkers; i++)
+            {
+                pool.AddWork(new ConsumerWork(this, plumber.RabbitConnection));
+            }
 
-            //pool.StartCrawlers();
+            pool.StartCrawlers();
         }
 
         public void Stop()
@@ -127,12 +125,10 @@ namespace NMSD.Cronus.Core.Eventing
         private class ConsumerWork : IWork
         {
             private RabbitEventConsumer consumer;
-            private readonly string endpointName;
             private readonly IConnection rabbitConnection;
 
-            public ConsumerWork(RabbitEventConsumer consumer, IConnection rabbitConnection, string endpointName)
+            public ConsumerWork(RabbitEventConsumer consumer, IConnection rabbitConnection)
             {
-                this.endpointName = endpointName;
                 this.rabbitConnection = rabbitConnection;
                 this.consumer = consumer;
             }
@@ -143,16 +139,29 @@ namespace NMSD.Cronus.Core.Eventing
             {
                 using (var channel = rabbitConnection.CreateModel())//ConnectionClosedException??
                 {
-                    IEvent @event;
-                    BasicGetResult result = channel.BasicGet(endpointName, false);
-                    if (result != null)
+                    QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
+                    foreach (var item in consumer.handlersQueues)
                     {
-                        using (var stream = new MemoryStream(result.Body))
+                        channel.BasicConsume(item.Key, true, newQueueingBasicConsumer);
+                    }
+
+                    while (true)
+                    {
+                        var result = newQueueingBasicConsumer.Queue.Dequeue();
+                        IEvent message;
+                        if (result != null)
                         {
-                            @event = consumer.serialiser.Deserialize(stream) as IEvent;
+                            using (var stream = new MemoryStream(result.Body))
+                            {
+                                message = consumer.serialiser.Deserialize(stream) as IEvent;
+                            }
+                            consumer.Handle(message);
                         }
-                        if (consumer.Handle(@event))
-                            channel.BasicAck(result.DeliveryTag, false);
+                        else
+                        {
+                            //Console.WriteLine("null");
+                            //ScheduledStart = DateTime.UtcNow.AddMilliseconds(500);
+                        }
                     }
                 }
             }

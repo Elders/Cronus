@@ -53,8 +53,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commanding\ICommand.cs" />
+    <Compile Include="Messaging\IMessage.cs" />
     <Compile Include="Commanding\InMemoryCommandBus.cs" />
-    <Compile Include="Commanding\ICommandHandler.cs" />
+    <Compile Include="Messaging\IMessageHandler.cs" />
     <Compile Include="Commanding\RabbitCommandConsumer.cs" />
     <Compile Include="Cqrs\AggregateRoot.cs" />
     <Compile Include="Cqrs\AggregateRootFactory.cs" />

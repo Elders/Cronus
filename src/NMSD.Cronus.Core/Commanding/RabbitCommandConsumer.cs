@@ -44,7 +44,7 @@ namespace NMSD.Cronus.Core.Commanding
 
         public void Start(int numberOfWorkers)
         {
-            Plumber plumber = new Plumber();
+            var plumber = new Plumber("192.168.16.69");
 
             //  Think about this
             CreateEndpoint(plumber.RabbitConnection, pipeName, commandsQueueName, headers);

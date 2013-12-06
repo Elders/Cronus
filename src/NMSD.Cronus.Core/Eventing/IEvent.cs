@@ -1,4 +1,5 @@
-﻿using NMSD.Cronus.Core.Commanding;
+﻿using NMSD.Cronus.Core.Messaging;
+
 namespace Cronus.Core.Eventing
 {
     /// <summary>

@@ -23,12 +23,12 @@ namespace NMSD.Cronus.Sample.UI
 
             var commandPublisher = new RabbitCommandPublisher(serializer);
 
-            var collaboratorId = new CollaboratorId(Guid.NewGuid());// Parse("66ada31c-a098-47a6-921c-428a9f3fd485"));
             var email = "test@qqq.commmmmmmm";
-            var cmd = new CreateNewCollaborator(collaboratorId, email);
-            //var cmd = new RenameCollaborator(collaboratorId, "", "");
 
-            commandPublisher.Publish(cmd);
+            for (int i = 0; i < 999; i++)
+            {
+                commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
+            }
         }
     }
 }

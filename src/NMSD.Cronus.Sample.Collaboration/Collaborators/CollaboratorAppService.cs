@@ -1,7 +1,5 @@
-﻿using System.Runtime.Serialization;
-using System.Threading.Tasks;
-using NMSD.Cronus.Core.Commanding;
-using NMSD.Cronus.Core.Cqrs;
+﻿using NMSD.Cronus.Core.Cqrs;
+using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators
@@ -9,8 +7,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators
 
     public class CollaboratorAppService : AggregateRootApplicationService<Collaborator>, IMessageHandler,
         IMessageHandler<CreateNewCollaborator>,
-        IMessageHandler<RenameCollaborator>,
-        IMessageHandler<TestRenameCollaborator>
+        IMessageHandler<RenameCollaborator>
     {
         public void Handle(RenameCollaborator command)
         {
@@ -20,11 +17,6 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators
         public void Handle(CreateNewCollaborator command)
         {
             CreateAggregate(new Collaborator(command.Id, command.Email));
-        }
-
-        public void Handle(TestRenameCollaborator command)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

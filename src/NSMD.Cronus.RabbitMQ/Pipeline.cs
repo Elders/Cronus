@@ -42,7 +42,9 @@ namespace NSMD.Cronus.RabbitMQ
             var properties = new BasicProperties();
             properties.Headers = new Dictionary<string, object>();
             properties.Headers.Add(messageId, String.Empty);
-            connection.Channel.BasicPublish(name, String.Empty, properties, message);
+            properties.SetPersistent(true);
+            properties.Priority = 9;
+            connection.Channel.BasicPublish(name, String.Empty, false, false, properties, message);
         }
 
         public sealed class PipelineType

@@ -35,13 +35,13 @@ namespace NMSD.Cronus.Core.Cqrs
 
         protected void CreateAggregate(AR aggregateRoot)
         {
-            //EventStore.Persist(aggregateRoot.UncommittedEvents);
-            //aggregateRoot.State.Version++;
-            //EventStore.TakeSnapshot(aggregateRoot.State);
-            //foreach (var uncommittedEvent in aggregateRoot.UncommittedEvents)
-            //{
-            //    EventPublisher.Publish(uncommittedEvent);
-            //}
+            EventStore.Persist(aggregateRoot.UncommittedEvents);
+            aggregateRoot.State.Version++;
+            EventStore.TakeSnapshot(aggregateRoot.State);
+            foreach (var uncommittedEvent in aggregateRoot.UncommittedEvents)
+            {
+                EventPublisher.Publish(uncommittedEvent);
+            }
         }
     }
 }

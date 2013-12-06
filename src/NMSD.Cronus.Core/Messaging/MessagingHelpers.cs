@@ -51,6 +51,16 @@ namespace NMSD.Cronus.Core.Messaging
             return boundedContext.BoundedContextNamespace;
         }
 
+        public static string GetBoundedContext(Type messageType)
+        {
+            var boundedContext = messageType.GetAssemblyAttribute<BoundedContextAttribute>();
+
+            if (boundedContext == null)
+                throw new Exception(String.Format(@"The assembly cointaining message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));
+
+            return boundedContext.BoundedContextName;
+        }
+
         public static string GetMessageId(object message)
         {
             return GetMessageId(message.GetType());

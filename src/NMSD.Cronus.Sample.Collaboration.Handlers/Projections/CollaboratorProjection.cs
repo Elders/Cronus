@@ -1,6 +1,4 @@
-﻿using System;
-using Cronus.Core.Eventing;
-using NMSD.Cronus.Core.Commanding;
+﻿using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 
 namespace NMSD.Cronus.Sample.Collaboration.Projections
@@ -10,9 +8,9 @@ namespace NMSD.Cronus.Sample.Collaboration.Projections
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(CollaboratorProjection));
 
-        public void Handle(NewCollaboratorCreated evnt)
+        public void Handle(NewCollaboratorCreated message)
         {
-            log.Info(evnt);
+            log.Info(message);
         }
     }
 }

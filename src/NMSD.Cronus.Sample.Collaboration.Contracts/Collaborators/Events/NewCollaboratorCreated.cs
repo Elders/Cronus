@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Commanding;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Events
 {
@@ -23,8 +24,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Events
 
         public override string ToString()
         {
-
-            return String.Format("New collaborator created with email '{0}'. {1}", Email, CollaboratorId);
+            return this.ToString("New collaborator created with email '{0}'. {1}", Email, CollaboratorId);
         }
     }
 }

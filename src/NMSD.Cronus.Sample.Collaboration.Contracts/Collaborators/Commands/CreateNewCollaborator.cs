@@ -23,7 +23,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
 
         public override string ToString()
         {
-            return this.ToString("Create collaborator with '{0}' email. {1}", Email, Id);
+            return this.ToString("Create a new collaborator with '{0}' email. {1}", Email, Id);
         }
     }
 }

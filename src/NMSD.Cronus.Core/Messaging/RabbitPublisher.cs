@@ -2,12 +2,13 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
+using NMSD.Cronus.Core.Commanding;
 using NSMD.Cronus.RabbitMQ;
 using Protoreg;
 
 namespace NMSD.Cronus.Core.Messaging
 {
-    public class RabbitPublisher<TMessage> : Publisher<TMessage>
+    public class RabbitPublisher<TMessage> : Publisher<TMessage> where TMessage : IMessage
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RabbitPublisher<TMessage>));
 

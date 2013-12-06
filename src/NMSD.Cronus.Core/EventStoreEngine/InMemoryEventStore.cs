@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Cqrs;
+using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Snapshotting;
 using Protoreg;
 
@@ -40,17 +41,6 @@ namespace NMSD.Cronus.Core.EventStoreEngine
         {
             this.connectionString = connectionString;
             this.serializer = serializer;
-        }
-
-        public string GetBoundedContext(object obj)
-        {
-            if (obj == null) throw new ArgumentNullException("obj");
-
-            DataContractAttribute contract = obj.GetType().GetCustomAttributes(false).Where(attr => attr is DataContractAttribute).SingleOrDefault() as DataContractAttribute;
-            if (contract != null && !String.IsNullOrWhiteSpace(contract.Namespace))
-                return contract.Namespace.Split('.').Last();
-            else
-                return "BoundedContext";
         }
 
         public IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1)
@@ -129,7 +119,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connectionString))
             {
-                string boundedContext = GetBoundedContext(events.First());
+                string boundedContext = MessagingHelper.GetBoundedContext(events.First().GetType());
                 bulkCopy.DestinationTableName = String.Format("dbo.{0}Events", boundedContext);
                 try
                 {
@@ -157,7 +147,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connectionString))
             {
-                string boundedContext = GetBoundedContext(state);
+                string boundedContext = MessagingHelper.GetBoundedContext(state.GetType());
                 bulkCopy.DestinationTableName = String.Format("dbo.{0}Snapshots", boundedContext);
 
                 try
