@@ -41,7 +41,7 @@ namespace Cronus.Sample.ConsoleApplication
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
             var eventStore = new InMemoryEventStore(connectionString, serializer);
 
-            var eventBus = new RabbitSystemPublisher(serializer);
+            var eventBus = new RabbitEventStorePublisher(serializer);
 
             var commandConsumer = new RabbitCommandConsumer(serializer);
             commandConsumer.RegisterAllHandlersInAssembly(type =>
@@ -111,7 +111,7 @@ namespace Cronus.Sample.ConsoleApplication
         {
             string result = string.Empty;
 #if DEBUG
-            Stopwatch stopWatch = new Stopwatch();
+            var stopWatch = new System.Diagnostics.Stopwatch();
             stopWatch.Start();
             action();
             stopWatch.Stop();
@@ -125,7 +125,7 @@ namespace Cronus.Sample.ConsoleApplication
         {
             string result = string.Empty;
 #if DEBUG
-            Stopwatch stopWatch = new Stopwatch();
+            var stopWatch = new System.Diagnostics.Stopwatch();
             stopWatch.Start();
             for (int i = 0; i < repeat; i++)
             {

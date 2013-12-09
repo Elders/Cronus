@@ -91,9 +91,9 @@ namespace NMSD.Cronus.Core.Messaging
 
         public bool Publish(TMessage message)
         {
-            if (beforePublish != null) beforePublish(message);
+            //if (beforePublish != null) beforePublish(message);
             PublishInternal(message);
-            if (afterPublish != null) afterPublish(message);
+            //if (afterPublish != null) afterPublish(message);
             return true;
         }
     }

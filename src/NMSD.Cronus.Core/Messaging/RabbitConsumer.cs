@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using RabbitMQ.Client;
 
 namespace NMSD.Cronus.Core.Messaging
 {
@@ -11,45 +7,18 @@ namespace NMSD.Cronus.Core.Messaging
         where TMessage : IMessage
         where TMessageHandler : IMessageHandler
     {
+        protected QueueFactory queueFactory;
+
         protected Dictionary<Type, List<Func<TMessage, bool>>> handlers = new Dictionary<Type, List<Func<TMessage, bool>>>();
 
-        protected Dictionary<string, IDictionary<string, object>> handlerQueues = new Dictionary<string, IDictionary<string, object>>();
-
-        protected string pipeName;
-
-        protected void CreateEndpoint(IConnection rabbitConnection, string pipelineName, string endpointName, IDictionary<string, object> headers)
+        public void RegisterHandler(Type messageType, Type messageHandlerType, Func<Type, TMessageHandler> handlerFactory)
         {
-            using (var channel = rabbitConnection.CreateModel())
-            {
-                channel.ExchangeDeclare(pipelineName, "headers");
-                channel.QueueDeclare(endpointName, true, false, false, headers);
-                channel.QueueBind(endpointName, pipelineName, String.Empty, headers);
-            }
-        }
+            if (!handlers.ContainsKey(messageType))
+                handlers[messageType] = new List<Func<TMessage, bool>>();
 
-        protected void AddMessageContractToQueueHeaders(Type messageType, Type messageHandlerType)
-        {
-            pipeName = MessagingHelper.GetPipelineName(messageType);
+            handlers[messageType].Add(x => Handle(x, messageHandlerType, handlerFactory));
 
-            var handlerQueueName = MessagingHelper.GetHandlerQueueName(messageHandlerType);
-            var messageId = MessagingHelper.GetMessageId(messageType);
-
-            IDictionary<string, object> headers;
-            if (handlerQueues.TryGetValue(handlerQueueName, out headers))
-                headers.Add(messageId, String.Empty);
-            else
-                handlerQueues.Add(handlerQueueName, new Dictionary<string, object>() { { "x-match", "any" }, { messageId, String.Empty } });
-
-        }
-
-        public void RegisterHandler(Type eventType, Type eventHandlerType, Func<Type, TMessageHandler> handlerFactory)
-        {
-            if (!handlers.ContainsKey(eventType))
-                handlers[eventType] = new List<Func<TMessage, bool>>();
-
-            handlers[eventType].Add(x => Handle(x, eventHandlerType, handlerFactory));
-
-            AddMessageContractToQueueHeaders(eventType, eventHandlerType);
+            queueFactory.Register(messageType, messageHandlerType);
         }
 
         protected bool Handle(TMessage message)

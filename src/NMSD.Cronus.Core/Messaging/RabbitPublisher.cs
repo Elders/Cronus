@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using NMSD.Cronus.Core.Commanding;
 using NSMD.Cronus.RabbitMQ;
 using Protoreg;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Framing.v0_9_1;
 
 namespace NMSD.Cronus.Core.Messaging
 {
@@ -16,33 +18,58 @@ namespace NMSD.Cronus.Core.Messaging
 
         private readonly ProtoregSerializer serializer;
 
+        IConnection connection;
+        IModel channel;
+
         public RabbitPublisher(ProtoregSerializer serializer)
         {
             this.serializer = serializer;
+            BoundedContext = String.Empty;
+            connection = new Plumber("192.168.16.69").RabbitConnection;
+            channel = connection.CreateModel();
         }
+
+        public string BoundedContext { get; protected set; }
+
+        Dictionary<Type, string> messageIds = new Dictionary<Type, string>();
 
         protected override bool PublishInternal(TMessage message)
         {
             BuildPipeline(message);
-            var buffer = SerializeMessage(message);
 
-            DataContractAttribute contract = message.GetType().GetCustomAttributes(false).Where(attr => attr is DataContractAttribute).SingleOrDefault() as DataContractAttribute;
-            pipe.KickIn(buffer, contract.Name);
+            string messageId = null;
+            Type messageType = message.GetType();
+            if (!messageIds.TryGetValue(messageType, out messageId))
+            {
+                DataContractAttribute contract = messageType.GetCustomAttributes(false).Where(attr => attr is DataContractAttribute).SingleOrDefault() as DataContractAttribute;
+                messageIds[messageType] = contract.Name;
+                messageId = contract.Name;
+            }
+
+            var buffer = SerializeMessage(message);
+            KickIn(buffer, messageId, BoundedContext);
             log.Info("PUBLISH => " + message.ToString());
 
             return true;
         }
 
-        Pipeline pipe;
+        public void KickIn(byte[] message, string messageId, string boundedContext = "")
+        {
+            var properties = new BasicProperties();
+            properties.Headers = new Dictionary<string, object>();
+            properties.Headers.Add(messageId, String.Empty);
+            properties.Headers.Add(boundedContext, String.Empty);
+            properties.SetPersistent(true);
+            properties.Priority = 9;
+            channel.BasicPublish(pipelineName, String.Empty, false, false, properties, message);
+        }
 
         protected void BuildPipeline(TMessage message)
         {
-            if (pipe == null)
-            {
-                pipelineName = GetPipelineName(message);
-                var plumber = new Plumber("192.168.16.69");
-                pipe = plumber.GetPipeline(pipelineName);
-            }
+            if (typeof(TMessage) == typeof(NMSD.Cronus.Core.Cqrs.MessageCommit))
+                pipelineName = pipelineName ?? "NMSD.Cronus.Sample.EventStore";
+            else
+                pipelineName = pipelineName ?? GetPipelineName(message);
         }
 
         string GetPipelineName(TMessage message)

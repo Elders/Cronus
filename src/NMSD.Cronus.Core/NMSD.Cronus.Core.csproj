@@ -53,7 +53,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commanding\ICommand.cs" />
-    <Compile Include="Cqrs\MessageCommit.cs" />
+    <Compile Include="Commanding\RabbitCommandPublisher.cs" />
+    <Compile Include="Eventing\RabbitEventConsumer.cs" />
+    <Compile Include="Eventing\RabbitEventStoreConsumer.cs" />
+    <Compile Include="Eventing\RabbitEventStorePublisher.cs" />
     <Compile Include="Messaging\IMessage.cs" />
     <Compile Include="Commanding\InMemoryCommandBus.cs" />
     <Compile Include="Messaging\IMessageHandler.cs" />
@@ -84,7 +87,9 @@
     <Compile Include="EventStoreEngine\IEventStore.cs" />
     <Compile Include="EventStoreEngine\NoEventStore.cs" />
     <Compile Include="Commanding\CommandMessageInfo.cs" />
+    <Compile Include="Cqrs\MessageCommit.cs" />
     <Compile Include="Messaging\MessagingHelpers.cs" />
+    <Compile Include="Messaging\QueueFactory.cs" />
     <Compile Include="Messaging\RabbitConsumer.cs" />
     <Compile Include="Multithreading\Work\IWork.cs" />
     <Compile Include="Multithreading\Work\WorkExtensions.cs" />

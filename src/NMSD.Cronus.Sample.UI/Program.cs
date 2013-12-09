@@ -27,9 +27,13 @@ namespace NMSD.Cronus.Sample.UI
 
             var email = "test@qqq.commmmmmmm";
 
-            for (int i = 0; i < 99999; i++)
+            for (int i = 0; i > -1; i++)
             {
-                commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
+                for (int j = 0; j < 100; j++)
+                {
+                    commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
+                }
+                Thread.Sleep(40);
             }
         }
     }

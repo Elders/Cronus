@@ -18,16 +18,6 @@ namespace NSMD.Cronus.RabbitMQ
             this.connection.Channel.ExchangeDeclare(name, pipelineType.ToString());
         }
 
-        public void AttachEndpoint(Endpoint endpoint)
-        {
-            connection.Channel.QueueBind(endpoint.Name, name, endpoint.RoutingKey, endpoint.AcceptanceHeaders);
-        }
-
-        public void DetachEndpoint(Endpoint endpoint)
-        {
-            connection.Channel.QueueUnbind(endpoint.Name, name, endpoint.RoutingKey, endpoint.AcceptanceHeaders);
-        }
-
         public void Dispose()
         {
             if (connection != null)
@@ -37,11 +27,12 @@ namespace NSMD.Cronus.RabbitMQ
             }
         }
 
-        public void KickIn(byte[] message, string messageId)
+        public void KickIn(byte[] message, string messageId, string boundedContext = "")
         {
             var properties = new BasicProperties();
             properties.Headers = new Dictionary<string, object>();
             properties.Headers.Add(messageId, String.Empty);
+            properties.Headers.Add(boundedContext, String.Empty);
             properties.SetPersistent(true);
             properties.Priority = 9;
             connection.Channel.BasicPublish(name, String.Empty, false, false, properties, message);

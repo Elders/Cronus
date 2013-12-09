@@ -108,6 +108,9 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
         public void Persist(List<IEvent> events)
         {
+            if (events == null) throw new ArgumentNullException("events");
+            if (events.Count == 0) return;
+
             byte[] buffer = SerializeEvents(events);
 
             DataTable eventsTable = CreateInMemoryTableForEvents();
@@ -132,22 +135,25 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
-        public void TakeSnapshot(IAggregateRootState state)
+        public void TakeSnapshot(List<IAggregateRootState> states)
         {
-            byte[] buffer = SerializeAggregateState(state);
-
             DataTable dt = CreateInMemoryTableForSnapshots();
 
-            var row = dt.NewRow();
-            row[0] = state.Version;
-            row[1] = state.Id.Id;
-            row[2] = buffer;
-            row[3] = DateTime.UtcNow;
-            dt.Rows.Add(row);
+            foreach (var state in states)
+            {
+                byte[] buffer = SerializeAggregateState(state);
+
+                var row = dt.NewRow();
+                row[0] = state.Version;
+                row[1] = state.Id.Id;
+                row[2] = buffer;
+                row[3] = DateTime.UtcNow;
+                dt.Rows.Add(row);
+            }
 
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connectionString))
             {
-                string boundedContext = MessagingHelper.GetBoundedContext(state.GetType());
+                string boundedContext = MessagingHelper.GetBoundedContext(states.First().GetType());
                 bulkCopy.DestinationTableName = String.Format("dbo.{0}Snapshots", boundedContext);
 
                 try

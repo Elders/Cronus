@@ -3,7 +3,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Messaging;
-using System;
 
 namespace NMSD.Cronus.Core.Cqrs
 {
@@ -30,16 +29,5 @@ namespace NMSD.Cronus.Core.Cqrs
         public IAggregateRootState State { get { return (IAggregateRootState)UncommittedState; } }
 
         public List<IEvent> Events { get { return UncommittedEvents.Cast<IEvent>().ToList(); } }
-    }
-
-    public class SystemHandler : IMessageHandler<MessageCommit>
-    {
-        public NMSD.Cronus.Core.EventStoreEngine.InMemoryEventStore EventStore { get; set; }
-
-        public void Handle(MessageCommit message)
-        {
-            EventStore.Persist(message.Events);
-            EventStore.TakeSnapshot(message.State);
-        }
     }
 }

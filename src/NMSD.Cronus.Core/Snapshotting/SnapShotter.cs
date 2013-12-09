@@ -1,10 +1,11 @@
-﻿using NMSD.Cronus.Core.Cqrs;
+﻿using System.Collections.Generic;
+using NMSD.Cronus.Core.Cqrs;
 
 namespace NMSD.Cronus.Core.Snapshotting
 {
     public class SnapShotter : ISnapShotter
     {
-        public void TakeSnapshot(IAggregateRootState state)
+        public void TakeSnapshot(List<IAggregateRootState> state)
         {
 
         }

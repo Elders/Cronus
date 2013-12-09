@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using NMSD.Cronus.Core.Cqrs;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Cronus.Core")]
+[assembly: AssemblyTitle("NMSD.Cronus.Sample.EventStore")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Cronus.Core")]
+[assembly: AssemblyProduct("NMSD.Cronus.Sample.EventStore")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -21,7 +20,7 @@ using NMSD.Cronus.Core.Cqrs;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2e57f3c4-eca4-4a33-800c-ab1789c805b6")]
+[assembly: Guid("2cb11a6b-6b58-4149-a56e-aecde7e4dca5")]
 
 // Version information for an assembly consists of the following four values:
 //
