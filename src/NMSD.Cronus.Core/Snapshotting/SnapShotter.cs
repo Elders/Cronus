@@ -9,5 +9,10 @@ namespace NMSD.Cronus.Core.Snapshotting
         {
 
         }
+
+        public void TakeSnapshot(List<IAggregateRootState> state, System.Data.SqlClient.SqlConnection connection)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -77,6 +77,18 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
+        public SqlConnection OpenConnection()
+        {
+            var conn = new SqlConnection(connectionString);
+            conn.Open();
+            return conn;
+        }
+
+        public void CloseConnection(SqlConnection conn)
+        {
+            conn.Close();
+        }
+
         public IAggregateRootState LoadAggregateState(string boundedContext, Guid aggregateId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -106,7 +118,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
-        public void Persist(List<IEvent> events)
+        public void Persist(List<IEvent> events, SqlConnection connection)
         {
             if (events == null) throw new ArgumentNullException("events");
             if (events.Count == 0) return;
@@ -120,7 +132,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             row[3] = DateTime.UtcNow;
             eventsTable.Rows.Add(row);
 
-            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connectionString))
+            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
             {
                 string boundedContext = MessagingHelper.GetBoundedContext(events.First().GetType());
                 bulkCopy.DestinationTableName = String.Format("dbo.{0}Events", boundedContext);
@@ -135,7 +147,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
-        public void TakeSnapshot(List<IAggregateRootState> states)
+        public void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection)
         {
             DataTable dt = CreateInMemoryTableForSnapshots();
 
@@ -151,7 +163,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
                 dt.Rows.Add(row);
             }
 
-            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connectionString))
+            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
             {
                 string boundedContext = MessagingHelper.GetBoundedContext(states.First().GetType());
                 bulkCopy.DestinationTableName = String.Format("dbo.{0}Snapshots", boundedContext);

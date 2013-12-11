@@ -51,7 +51,27 @@ namespace Cronus.Core
                 var constructors = type.GetConstructors();
                 if (constructors.Length == 1)
                 {
-                    ConstructorInfo ctor = type.GetConstructors().First();
+                    ConstructorInfo ctor = constructors.First();
+                    activator = GetActivator(ctor);
+                    activators.TryAdd(type, activator);
+                }
+                else
+                {
+                    activator = (a) => Activator.CreateInstance(type, a);
+                }
+
+            }
+            return activator(args);
+        }
+        public static object CreateInstance(Type type, bool @private, params object[] args)
+        {
+            ObjectActivator activator;
+            if (!activators.TryGetValue(type, out activator))
+            {
+                var constructors = type.GetConstructors(BindingFlags.NonPublic);
+                if (constructors.Length == 1)
+                {
+                    ConstructorInfo ctor = constructors.First();
                     activator = GetActivator(ctor);
                     activators.TryAdd(type, activator);
                 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cronus.Core;
 using Cronus.Core.Eventing;
 
 namespace NMSD.Cronus.Core.Cqrs
@@ -30,7 +31,7 @@ namespace NMSD.Cronus.Core.Cqrs
 
         IAggregateRootState IAggregateRootStateManager.BuildStateFromHistory(List<IEvent> events)
         {
-            var state = Activator.CreateInstance<ST>();
+            var state = (ST)FastActivator.CreateInstance(typeof(ST));
             foreach (IEvent @event in events)
             {
                 state.Apply(@event);

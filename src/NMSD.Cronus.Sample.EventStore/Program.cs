@@ -24,7 +24,7 @@ namespace NMSD.Cronus.Sample.EventStore
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
             var eventStore = new InMemoryEventStore(connectionString, serializer);
             var eventStoreConsumer = new RabbitEventStoreConsumer(Assembly.GetAssembly(typeof(NewCollaboratorCreated)), serializer, eventStore);
-            eventStoreConsumer.Start(2);
+            eventStoreConsumer.Start(1);
         }
     }
 }

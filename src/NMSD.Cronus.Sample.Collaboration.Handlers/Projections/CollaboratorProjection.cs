@@ -15,8 +15,8 @@ namespace NMSD.Cronus.Sample.Collaboration.Projections
 
         public void Handle(NewCollaboratorCreated message)
         {
-            ++MyClass.count;
-            log.Info(MyClass.count);
+            //++MyClass.count;
+            //log.Info(MyClass.count);
         }
     }
 }

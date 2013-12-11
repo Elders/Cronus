@@ -26,7 +26,7 @@ namespace NMSD.Cronus.Core.Commanding
 
         public void Start(int numberOfWorkers)
         {
-            var plumber = new Plumber("192.168.16.69");
+            var plumber = new Plumber();
 
             //  Think about this
             queueFactory.Compile(plumber.RabbitConnection);
@@ -73,17 +73,15 @@ namespace NMSD.Cronus.Core.Commanding
                         try
                         {
                             var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
-                            if (rawMessage != null)
-                            {
-                                ICommand command;
-                                using (var stream = new MemoryStream(rawMessage.Body))
-                                {
-                                    command = consumer.serialiser.Deserialize(stream) as ICommand;
-                                }
 
-                                if (consumer.Handle(command))
-                                    channel.BasicAck(rawMessage.DeliveryTag, false);
+                            ICommand command;
+                            using (var stream = new MemoryStream(rawMessage.Body))
+                            {
+                                command = consumer.serialiser.Deserialize(stream) as ICommand;
                             }
+
+                            if (consumer.Handle(command))
+                                channel.BasicAck(rawMessage.DeliveryTag, false);
                         }
                         catch (EndOfStreamException)
                         {

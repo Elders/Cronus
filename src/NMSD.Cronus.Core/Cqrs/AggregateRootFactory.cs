@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cronus.Core;
 using Cronus.Core.Eventing;
 
 namespace NMSD.Cronus.Core.Cqrs
@@ -9,7 +10,7 @@ namespace NMSD.Cronus.Core.Cqrs
         public static AR Build<AR>(List<IEvent> events)
             where AR : IAggregateRoot
         {
-            var ar = (AR)Activator.CreateInstance(typeof(AR), true);
+            var ar = (AR)FastActivator.CreateInstance(typeof(AR), true);
             var state = ar.BuildStateFromHistory(events);
             return Build(ar, state);
         }
@@ -17,7 +18,7 @@ namespace NMSD.Cronus.Core.Cqrs
         public static AR Build<AR>(IAggregateRootState state)
             where AR : IAggregateRoot
         {
-            var ar = (AR)Activator.CreateInstance(typeof(AR), true);
+            var ar = (AR)FastActivator.CreateInstance(typeof(AR), true);
             return Build(ar, state);
         }
 

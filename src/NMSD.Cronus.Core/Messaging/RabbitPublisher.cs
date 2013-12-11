@@ -25,7 +25,7 @@ namespace NMSD.Cronus.Core.Messaging
         {
             this.serializer = serializer;
             BoundedContext = String.Empty;
-            connection = new Plumber("192.168.16.69").RabbitConnection;
+            connection = new Plumber().RabbitConnection;
             channel = connection.CreateModel();
         }
 
