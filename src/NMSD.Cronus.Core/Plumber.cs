@@ -88,6 +88,8 @@ namespace NSMD.Cronus.RabbitMQ
 
         private readonly int port;
 
+        private RetryPolicy retryPolicy = RetryPolicyFactory.CreateInfiniteLinearRetryPolicy(new TimeSpan(500000));
+        
         private readonly string username;
 
         private readonly string virtualHost;
@@ -117,7 +119,6 @@ namespace NSMD.Cronus.RabbitMQ
             {
                 if (connection == null || !connection.IsOpen)
                 {
-                    var retryPolicy = RetryPolicyFactory.CreateInfiniteLinearRetryPolicy(new TimeSpan(500000));
                     connection = RetryableOperation.TryExecute<IConnection>(() => factory.CreateConnection(), retryPolicy);
                 }
                 return connection;

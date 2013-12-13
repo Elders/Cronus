@@ -106,6 +106,18 @@ namespace NMSD.Cronus.Core.Messaging
                 log.Error(error, ex);
                 return false;
             }
+            catch (IOException ex)
+            {
+                var error = String.Format("Unable to connect to RabbitMQ broker. Consequences: Cannot publish message '{0}'", message.ToString());
+                log.Error(error, ex);
+                return false;
+            }
+            catch (InvalidOperationException ex)
+            {
+                var error = String.Format("Unable to connect to RabbitMQ broker. Consequences: Cannot publish message '{0}'", message.ToString());
+                log.Error(error, ex);
+                return false;
+            }
             //if (afterPublish != null) afterPublish(message);
             return true;
         }

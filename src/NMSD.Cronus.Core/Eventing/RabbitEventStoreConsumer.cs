@@ -22,6 +22,7 @@ namespace NMSD.Cronus.Core.Eventing
 
         InMemoryEventStore eventStore;
 
+        private Plumber plumber;
         private WorkPool pool;
 
         private readonly ProtoregSerializer serialiser;
@@ -36,7 +37,7 @@ namespace NMSD.Cronus.Core.Eventing
 
         public void Start(int numberOfWorkers)
         {
-            Plumber plumber = new Plumber();
+            plumber = new Plumber();
 
             //  Think about this
             queueFactory.Compile(plumber.RabbitConnection);
@@ -45,7 +46,7 @@ namespace NMSD.Cronus.Core.Eventing
             pool = new WorkPool("defaultPool", numberOfWorkers);
             foreach (var queueInfo in queueFactory.Headers)
             {
-                pool.AddWork(new ConsumerWork(this, plumber.RabbitConnection, queueInfo.Key));
+                pool.AddWork(new ConsumerWork(this, queueInfo.Key));
             }
 
             pool.StartCrawlers();
@@ -60,12 +61,9 @@ namespace NMSD.Cronus.Core.Eventing
         {
             private RabbitEventStoreConsumer consumer;
             private readonly string queueName;
-            private readonly IConnection rabbitConnection;
-
-            public ConsumerWork(RabbitEventStoreConsumer consumer, IConnection rabbitConnection, string queueName)
+            public ConsumerWork(RabbitEventStoreConsumer consumer, string queueName)
             {
                 this.queueName = queueName;
-                this.rabbitConnection = rabbitConnection;
                 this.consumer = consumer;
             }
 
@@ -73,76 +71,86 @@ namespace NMSD.Cronus.Core.Eventing
 
             public void Start()
             {
-                using (var channel = rabbitConnection.CreateModel())
+                try
                 {
-                    QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
-                    channel.BasicConsume(queueName, false, newQueueingBasicConsumer);
 
-                    List<BasicDeliverEventArgs> rawMessages = new List<BasicDeliverEventArgs>();
-                    List<IEvent> eventsBatch = new List<IEvent>();
-                    List<IAggregateRootState> statesBatch = new List<IAggregateRootState>();
-                    var connection = consumer.eventStore.OpenConnection();
-                    try
+
+                    using (var channel = consumer.plumber.RabbitConnection.CreateModel())
                     {
-                        while (true)
+                        QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
+                        channel.BasicConsume(queueName, false, newQueueingBasicConsumer);
+
+                        List<BasicDeliverEventArgs> rawMessages = new List<BasicDeliverEventArgs>();
+                        List<IEvent> eventsBatch = new List<IEvent>();
+                        List<IAggregateRootState> statesBatch = new List<IAggregateRootState>();
+                        var connection = consumer.eventStore.OpenConnection();
+                        try
                         {
-                            rawMessages.Clear();
-                            eventsBatch.Clear();
-                            statesBatch.Clear();
-
-                            try
+                            while (true)
                             {
-                                for (int i = 0; i < 1000; i++)
+                                rawMessages.Clear();
+                                eventsBatch.Clear();
+                                statesBatch.Clear();
+
+                                try
                                 {
-                                    BasicDeliverEventArgs rawMessage = newQueueingBasicConsumer.Queue.DequeueNoWait(null);
-                                    if (rawMessage == null)
-                                        break;
-
-                                    rawMessages.Add(rawMessage);
-                                    MessageCommit message;
-                                    using (var stream = new MemoryStream(rawMessage.Body))
+                                    for (int i = 0; i < 1000; i++)
                                     {
-                                        message = consumer.serialiser.Deserialize(stream) as MessageCommit;
-                                    }
-                                    eventsBatch.AddRange(message.Events);
-                                    statesBatch.Add(message.State);
-                                }
+                                        BasicDeliverEventArgs rawMessage = newQueueingBasicConsumer.Queue.DequeueNoWait(null);
+                                        if (rawMessage == null)
+                                            break;
 
-                                if (eventsBatch.Count > 0)
+                                        rawMessages.Add(rawMessage);
+                                        MessageCommit message;
+                                        using (var stream = new MemoryStream(rawMessage.Body))
+                                        {
+                                            message = consumer.serialiser.Deserialize(stream) as MessageCommit;
+                                        }
+                                        eventsBatch.AddRange(message.Events);
+                                        statesBatch.Add(message.State);
+                                    }
+
+                                    if (eventsBatch.Count > 0)
+                                    {
+                                        consumer.eventStore.Persist(eventsBatch, connection);
+                                        consumer.eventStore.TakeSnapshot(statesBatch, connection);
+
+                                        foreach (var @event in eventsBatch)
+                                        {
+                                            consumer.eventPublisher.Publish(@event);
+                                        }
+
+                                        foreach (var rawMessage in rawMessages)
+                                        {
+                                            channel.BasicAck(rawMessage.DeliveryTag, false);
+                                        }
+                                    }
+                                }
+                                catch (EndOfStreamException)
                                 {
-                                    consumer.eventStore.Persist(eventsBatch, connection);
-                                    consumer.eventStore.TakeSnapshot(statesBatch, connection);
-
-                                    foreach (var @event in eventsBatch)
-                                    {
-                                        consumer.eventPublisher.Publish(@event);
-                                    }
-
-                                    foreach (var rawMessage in rawMessages)
-                                    {
-                                        channel.BasicAck(rawMessage.DeliveryTag, false);
-                                    }
+                                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                                    break;
                                 }
-                            }
-                            catch (EndOfStreamException)
-                            {
-                                ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                                break;
-                            }
-                            catch (AlreadyClosedException)
-                            {
-                                ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                                catch (AlreadyClosedException)
+                                {
+                                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
 
-                                break;
+                                    break;
+                                }
                             }
                         }
-                    }
-                    finally
-                    {
-                        consumer.eventStore.CloseConnection(connection);
+                        finally
+                        {
+                            consumer.eventStore.CloseConnection(connection);
+                        }
                     }
                 }
+                catch (Exception)
+                {
+                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                }
             }
+
         }
     }
 

@@ -37,10 +37,11 @@ namespace NMSD.Cronus.Core.Multithreading.Work
                 {
                     while (!shouldStop)
                     {
+                        IWork work;
                         try
                         {
                             log.Debug("Getting available work...");
-                            var work = workSource.GetAvailableWork();
+                            work = workSource.GetAvailableWork();
                             if (work != null)
                             {
                                 log.InfoFormat("Executing work [{0}]", work);

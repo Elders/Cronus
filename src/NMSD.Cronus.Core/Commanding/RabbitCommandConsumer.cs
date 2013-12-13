@@ -8,12 +8,14 @@ using NMSD.Cronus.Core.Multithreading.Work;
 using NSMD.Cronus.RabbitMQ;
 using Protoreg;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Exceptions;
 
 namespace NMSD.Cronus.Core.Commanding
 {
     public class RabbitCommandConsumer : RabbitConsumer<ICommand, IMessageHandler>
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RabbitCommandConsumer));
+        private Plumber plumber;
         private WorkPool pool;
         string commandsQueueName;
         private readonly ProtoregSerializer serialiser;
@@ -26,7 +28,7 @@ namespace NMSD.Cronus.Core.Commanding
 
         public void Start(int numberOfWorkers)
         {
-            var plumber = new Plumber();
+            plumber = new Plumber();
 
             //  Think about this
             queueFactory.Compile(plumber.RabbitConnection);
@@ -35,7 +37,7 @@ namespace NMSD.Cronus.Core.Commanding
             pool = new WorkPool("defaultPool", numberOfWorkers);
             foreach (var queueInfo in queueFactory.Headers)
             {
-                pool.AddWork(new ConsumerWork(this, plumber.RabbitConnection, queueInfo.Key));
+                pool.AddWork(new ConsumerWork(this, queueInfo.Key));
             }
 
             pool.StartCrawlers();
@@ -50,12 +52,10 @@ namespace NMSD.Cronus.Core.Commanding
         {
             private RabbitCommandConsumer consumer;
             private readonly string endpointName;
-            private readonly IConnection rabbitConnection;
 
-            public ConsumerWork(RabbitCommandConsumer consumer, IConnection rabbitConnection, string endpointName)
+            public ConsumerWork(RabbitCommandConsumer consumer, string endpointName)
             {
                 this.endpointName = endpointName;
-                this.rabbitConnection = rabbitConnection;
                 this.consumer = consumer;
             }
 
@@ -63,32 +63,41 @@ namespace NMSD.Cronus.Core.Commanding
 
             public void Start()
             {
-                using (var channel = rabbitConnection.CreateModel())
+                try
                 {
-                    QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
-                    channel.BasicConsume(endpointName, false, newQueueingBasicConsumer);
-
-                    while (true)
+                    using (var channel = consumer.plumber.RabbitConnection.CreateModel())
                     {
-                        try
-                        {
-                            var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
+                        QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
+                        channel.BasicConsume(endpointName, false, newQueueingBasicConsumer);
 
-                            ICommand command;
-                            using (var stream = new MemoryStream(rawMessage.Body))
+                        while (true)
+                        {
+                            try
                             {
-                                command = consumer.serialiser.Deserialize(stream) as ICommand;
-                            }
+                                var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
 
-                            if (consumer.Handle(command))
-                                channel.BasicAck(rawMessage.DeliveryTag, false);
-                        }
-                        catch (EndOfStreamException)
-                        {
-                            ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                            break;
+                                ICommand command;
+                                using (var stream = new MemoryStream(rawMessage.Body))
+                                {
+                                    command = consumer.serialiser.Deserialize(stream) as ICommand;
+                                }
+
+                                if (consumer.Handle(command))
+                                    channel.BasicAck(rawMessage.DeliveryTag, false);
+                            }
+                            catch (EndOfStreamException)
+                            {
+                                ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                                break;
+                            }
                         }
                     }
+                }
+                catch (OperationInterruptedException ex)
+                {
+
+                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+
                 }
             }
         }
