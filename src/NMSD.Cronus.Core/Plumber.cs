@@ -12,6 +12,7 @@ namespace NSMD.Cronus.RabbitMQ
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RetryableOperation));
 
         static RetryPolicy defaultExponentialRetryPolicy = RetryPolicyFactory.CreateExponentialRetryPolicy(5, new TimeSpan(0, 0, 3), new TimeSpan(0, 0, 90), new TimeSpan(0, 0, 6));
+        static RetryPolicy defaultLinearRetryPolicy = RetryPolicyFactory.CreateLinearRetryPolicy(5, new TimeSpan(0, 0, 1));
 
         /// <summary>
         /// Number of retries: 5;
@@ -20,6 +21,12 @@ namespace NSMD.Cronus.RabbitMQ
         ///              Step: 6 seconds;
         /// </summary>
         public static RetryPolicy DefaultExponentialRetryPolicy { get { return defaultExponentialRetryPolicy; } }
+
+        /// <summary>
+        /// Number of retries: 5;
+        ///             Delay: 1 second;
+        /// </summary>
+        public static RetryPolicy DefaultLinearRetryPolicy { get { return defaultLinearRetryPolicy; } }
 
         public static T TryExecute<T>(Func<T> operation, RetryPolicy retryPolicy)
         {
@@ -110,7 +117,8 @@ namespace NSMD.Cronus.RabbitMQ
             {
                 if (connection == null || !connection.IsOpen)
                 {
-                    connection = RetryableOperation.TryExecute<IConnection>(() => factory.CreateConnection(), RetryableOperation.DefaultExponentialRetryPolicy);
+                    var retryPolicy = RetryPolicyFactory.CreateInfiniteLinearRetryPolicy(new TimeSpan(500000));
+                    connection = RetryableOperation.TryExecute<IConnection>(() => factory.CreateConnection(), retryPolicy);
                 }
                 return connection;
             }

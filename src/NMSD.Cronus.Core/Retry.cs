@@ -35,13 +35,23 @@ namespace NMSD.Cronus.Core
         {
             return () =>
             {
-                return (int currentRetryCount, Exception lastException, out TimeSpan retryInterval) =>
+                return (int currentRetryCount, Exception lastException, out TimeSpan delay) =>
                 {
-                    // Do custom work here               
-                    // Set backoff
-                    retryInterval = intervalBetweenRetries;
-                    // Decide if we should retry, return bool
+                    delay = intervalBetweenRetries;
                     return currentRetryCount < retryCount;
+
+                };
+            };
+        }
+
+        public static RetryPolicy CreateInfiniteLinearRetryPolicy(TimeSpan intervalBetweenRetries)
+        {
+            return () =>
+            {
+                return (int currentRetryCount, Exception lastException, out TimeSpan delay) =>
+                {
+                    delay = intervalBetweenRetries;
+                    return true;
 
                 };
             };
