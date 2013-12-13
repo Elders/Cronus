@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using RabbitMQ.Client.Exceptions;
 
 namespace NMSD.Cronus.Core.Messaging
 {
@@ -73,6 +75,8 @@ namespace NMSD.Cronus.Core.Messaging
 
     public abstract class Publisher<TMessage> : IPublisher<TMessage>
     {
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(Publisher<TMessage>));
+
         protected Action<TMessage> beforePublish;
 
         protected Action<TMessage> afterPublish;
@@ -92,7 +96,16 @@ namespace NMSD.Cronus.Core.Messaging
         public bool Publish(TMessage message)
         {
             //if (beforePublish != null) beforePublish(message);
-            PublishInternal(message);
+            try
+            {
+                PublishInternal(message);
+            }
+            catch (AlreadyClosedException ex)
+            {
+                var error = String.Format("Unable to connect to RabbitMQ broker. Consequences: Cannot publish message '{0}'", message.ToString());
+                log.Error(error, ex);
+                return false;
+            }
             //if (afterPublish != null) afterPublish(message);
             return true;
         }

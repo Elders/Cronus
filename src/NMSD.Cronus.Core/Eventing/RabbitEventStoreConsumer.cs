@@ -78,62 +78,68 @@ namespace NMSD.Cronus.Core.Eventing
                     QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
                     channel.BasicConsume(queueName, false, newQueueingBasicConsumer);
 
-                    //List<BasicDeliverEventArgs> rawMessages = new List<BasicDeliverEventArgs>();
-                    //List<IEvent> eventsBatch = new List<IEvent>();
-                    //List<IAggregateRootState> statesBatch = new List<IAggregateRootState>();
-                    //var connection = consumer.eventStore.OpenConnection();
-                    while (true)
+                    List<BasicDeliverEventArgs> rawMessages = new List<BasicDeliverEventArgs>();
+                    List<IEvent> eventsBatch = new List<IEvent>();
+                    List<IAggregateRootState> statesBatch = new List<IAggregateRootState>();
+                    var connection = consumer.eventStore.OpenConnection();
+                    try
                     {
-                        //rawMessages.Clear();
-                        //eventsBatch.Clear();
-                        //statesBatch.Clear();
-
-                        //try
-                        //{
-                        //for (int i = 0; i < 1000; i++)
-                        //{
-                        BasicDeliverEventArgs rawMessage = newQueueingBasicConsumer.Queue.Dequeue();//NoWait(null);
-                        //if (rawMessage == null)
-                        //    break;
-
-                        //rawMessages.Add(rawMessage);
-                        MessageCommit message;
-                        using (var stream = new MemoryStream(rawMessage.Body))
+                        while (true)
                         {
-                            message = consumer.serialiser.Deserialize(stream) as MessageCommit;
-                        }
-                        //eventsBatch.AddRange(message.Events);
-                        //statesBatch.Add(message.State);
-                        //}
+                            rawMessages.Clear();
+                            eventsBatch.Clear();
+                            statesBatch.Clear();
 
-                        //if (eventsBatch.Count > 0)
-                        {
-                            //consumer.eventStore.Persist(eventsBatch, connection);
-                            //consumer.eventStore.TakeSnapshot(statesBatch, connection);
-
-                            //foreach (var @event in eventsBatch)
+                            try
                             {
-                                consumer.eventPublisher.Publish(message.Events.First());
-                            }
+                                for (int i = 0; i < 1000; i++)
+                                {
+                                    BasicDeliverEventArgs rawMessage = newQueueingBasicConsumer.Queue.DequeueNoWait(null);
+                                    if (rawMessage == null)
+                                        break;
 
-                            //foreach (var rawMessage in rawMessages)
+                                    rawMessages.Add(rawMessage);
+                                    MessageCommit message;
+                                    using (var stream = new MemoryStream(rawMessage.Body))
+                                    {
+                                        message = consumer.serialiser.Deserialize(stream) as MessageCommit;
+                                    }
+                                    eventsBatch.AddRange(message.Events);
+                                    statesBatch.Add(message.State);
+                                }
+
+                                if (eventsBatch.Count > 0)
+                                {
+                                    consumer.eventStore.Persist(eventsBatch, connection);
+                                    consumer.eventStore.TakeSnapshot(statesBatch, connection);
+
+                                    foreach (var @event in eventsBatch)
+                                    {
+                                        consumer.eventPublisher.Publish(@event);
+                                    }
+
+                                    foreach (var rawMessage in rawMessages)
+                                    {
+                                        channel.BasicAck(rawMessage.DeliveryTag, false);
+                                    }
+                                }
+                            }
+                            catch (EndOfStreamException)
                             {
-                                channel.BasicAck(rawMessage.DeliveryTag, false);
+                                ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                                break;
+                            }
+                            catch (AlreadyClosedException)
+                            {
+                                ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+
+                                break;
                             }
                         }
-                        //}
-                        //catch (EndOfStreamException)
-                        //{
-                        //    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                        //    consumer.eventStore.CloseConnection(connection);
-                        //    break;
-                        //}
-                        //catch (AlreadyClosedException)
-                        //{
-                        //    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                        //    consumer.eventStore.CloseConnection(connection);
-                        //    break;
-                        //}
+                    }
+                    finally
+                    {
+                        consumer.eventStore.CloseConnection(connection);
                     }
                 }
             }

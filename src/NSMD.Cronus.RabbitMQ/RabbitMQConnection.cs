@@ -1,93 +1,93 @@
-using System;
-using RabbitMQ.Client;
+//using System;
+//using RabbitMQ.Client;
 
-namespace NSMD.Cronus.RabbitMQ
-{
-    public sealed class RabbitMQSession : IDisposable
-    {
-        private IModel channel = null;
+//namespace NSMD.Cronus.RabbitMQ
+//{
+//    public sealed class RabbitMQSession : IDisposable
+//    {
+//        private IModel channel = null;
 
-        private IConnection connection = null;
+//        private IConnection connection = null;
 
-        private readonly ConnectionFactory factory;
+//        private readonly ConnectionFactory factory;
 
-        public event Action OnReconnect;
+//        public event Action OnReconnect;
 
-        public RabbitMQSession(ConnectionFactory factory)
-        {
-            this.factory = factory;
-        }
+//        public RabbitMQSession(ConnectionFactory factory)
+//        {
+//            this.factory = factory;
+//        }
 
-        public IModel Channel
-        {
-            get
-            {
-                Connect();
-                return channel;
-            }
-        }
+//        public IModel Channel
+//        {
+//            get
+//            {
+//                Connect();
+//                return channel;
+//            }
+//        }
 
-        public void Dispose()
-        {
-            if (channel != null)
-            {
-                channel.Close();
-                channel.Dispose();
-                channel = null;
-            }
-            if (connection != null)
-            {
-                connection.Close();
-                connection.Dispose();
-                connection = null;
-            }
-        }
+//        public void Dispose()
+//        {
+//            if (channel != null)
+//            {
+//                channel.Close();
+//                channel.Dispose();
+//                channel = null;
+//            }
+//            if (connection != null)
+//            {
+//                connection.Close();
+//                connection.Dispose();
+//                connection = null;
+//            }
+//        }
 
-        void channel_ModelShutdown(IModel model, ShutdownEventArgs reason)
-        {
-            //  Connect();
-            if (OnReconnect != null)
-                OnReconnect();
-        }
+//        void channel_ModelShutdown(IModel model, ShutdownEventArgs reason)
+//        {
+//            //  Connect();
+//            if (OnReconnect != null)
+//                OnReconnect();
+//        }
 
-        private void Connect()
-        {
-            if (IsConnected())
-                return;
+//        private void Connect()
+//        {
+//            if (IsConnected())
+//                return;
 
-            if (connection != null && !connection.IsOpen)
-            {
-                connection.Close();
-                connection.Dispose();
-                connection = null;
-            }
+//            if (connection != null && !connection.IsOpen)
+//            {
+//                connection.Close();
+//                connection.Dispose();
+//                connection = null;
+//            }
 
-            if (connection == null)
-            {
-                connection = factory.CreateConnection();
-                connection.ConnectionShutdown += connection_ConnectionShutdown;
-            }
+//            if (connection == null)
+//            {
+//                connection = factory.CreateConnection();
+//                connection.ConnectionShutdown += connection_ConnectionShutdown;
+//            }
 
-            if (channel != null)
-            {
-                channel.Close();
-                channel.Dispose();
-            }
+//            if (channel != null)
+//            {
+//                channel.Close();
+//                channel.Dispose();
+//            }
 
-            channel = connection.CreateModel();
-            channel.ModelShutdown += channel_ModelShutdown;
-        }
+//            channel = connection.CreateModel();
+//            channel.ModelShutdown += channel_ModelShutdown;
+//        }
 
-        void connection_ConnectionShutdown(IConnection connection, ShutdownEventArgs reason)
-        {
-            // Connect();
-            if (OnReconnect != null)
-                OnReconnect();
-        }
+//        void connection_ConnectionShutdown(IConnection connection, ShutdownEventArgs reason)
+//        {
+//            // Connect();
+//            if (OnReconnect != null)
+//                OnReconnect();
+//        }
 
-        bool IsConnected()
-        {
-            return channel != null && channel.IsOpen && connection.IsOpen;
-        }
-    }
-}
+//        bool IsConnected()
+//        {
+//            return channel != null && channel.IsOpen && connection.IsOpen;
+//        }
+//    }
+//}

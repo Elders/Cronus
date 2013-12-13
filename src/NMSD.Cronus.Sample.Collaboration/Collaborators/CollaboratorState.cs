@@ -37,6 +37,6 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators
             Email = e.Email;
         }
 
-        
+
     }
 }
