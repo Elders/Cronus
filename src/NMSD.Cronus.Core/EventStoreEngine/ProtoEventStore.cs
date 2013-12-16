@@ -27,7 +27,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
         public List<object> Events { get; private set; }
 
     }
-    public class InMemoryEventStore : ISnapShotter
+    public class ProtoEventStore : ISnapShotter
     {
         const string LoadAggregateStateQueryTemplate = @"SELECT TOP 1 AggregateState FROM {0}Snapshots WHERE AggregateId=@aggregateId ORDER BY Version DESC";
 
@@ -37,7 +37,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
         private readonly ProtoregSerializer serializer;
 
-        public InMemoryEventStore(string connectionString, ProtoregSerializer serializer)
+        public ProtoEventStore(string connectionString, ProtoregSerializer serializer)
         {
             this.connectionString = connectionString;
             this.serializer = serializer;

@@ -23,7 +23,7 @@ namespace NMSD.Cronus.Core.Eventing
             queueFactory = new QueuePerHandlerFactory();
         }
 
-        public void Start(int numberOfWorkers)
+        public override void Start(int numberOfWorkers)
         {
             plumber = new Plumber();
 
@@ -40,7 +40,7 @@ namespace NMSD.Cronus.Core.Eventing
             pool.StartCrawlers();
         }
 
-        public void Stop()
+        public override void Stop()
         {
             pool.Stop();
         }

@@ -4,8 +4,10 @@ namespace NMSD.Cronus.Core.Messaging
 {
     public interface IConsumer<THandler>
     {
-        void RegisterHandler(Type eventType, Type eventHandlerType, Func<Type, THandler> handlerFactory);
+        void Stop();
 
-        //void Start();
+        void Start(int numberOfWorkers);
+
+        void RegisterHandler(Type messageType, Type handlerType, Func<Type, THandler> handlerFactory);
     }
 }

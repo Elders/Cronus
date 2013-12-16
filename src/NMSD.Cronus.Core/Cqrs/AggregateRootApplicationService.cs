@@ -9,13 +9,13 @@ namespace NMSD.Cronus.Core.Cqrs
 {
     public interface IAggregateRootApplicationService : IMessageHandler
     {
-        InMemoryEventStore EventStore { get; set; }
+        ProtoEventStore EventStore { get; set; }
 
         IPublisher<MessageCommit> EventPublisher { get; set; }
     }
     public class AggregateRootApplicationService<AR> : IAggregateRootApplicationService where AR : IAggregateRoot
     {
-        public InMemoryEventStore EventStore { get; set; }
+        public ProtoEventStore EventStore { get; set; }
         public IPublisher<MessageCommit> EventPublisher { get; set; }
 
         protected void UpdateAggregate(IAggregateRootId id, Action<AR> updateAr)

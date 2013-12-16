@@ -54,10 +54,12 @@
   <ItemGroup>
     <Compile Include="Commanding\ICommand.cs" />
     <Compile Include="Commanding\RabbitCommandPublisher.cs" />
+    <Compile Include="Eventing\InMemoryEventBus.cs" />
     <Compile Include="Eventing\RabbitEventConsumer.cs" />
     <Compile Include="Eventing\RabbitEventStoreConsumer.cs" />
     <Compile Include="Eventing\RabbitEventStorePublisher.cs" />
     <Compile Include="LateBoundMethod.cs" />
+    <Compile Include="Messaging\Consumer.cs" />
     <Compile Include="Messaging\IMessage.cs" />
     <Compile Include="Commanding\InMemoryCommandBus.cs" />
     <Compile Include="Messaging\IMessageHandler.cs" />
@@ -76,9 +78,8 @@
     <Compile Include="Cqrs\IAggregateRootStateManager.cs" />
     <Compile Include="Eventing\AbstractEventBus.cs" />
     <Compile Include="Eventing\InMemoryEventBusRegistrations.cs" />
-    <Compile Include="Eventing\InMemoryEventBus.cs" />
     <Compile Include="Eventing\RabbitEventPublisher.cs" />
-    <Compile Include="EventStoreEngine\InMemoryEventStore.cs" />
+    <Compile Include="EventStoreEngine\ProtoEventStore.cs" />
     <Compile Include="FastActivator.cs" />
     <Compile Include="Eventing\EventBusRegistrations.cs" />
     <Compile Include="Eventing\IEvent.cs" />

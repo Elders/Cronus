@@ -22,7 +22,7 @@ namespace NMSD.Cronus.Sample.EventStore
             serializer.Build();
 
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-            var eventStore = new InMemoryEventStore(connectionString, serializer);
+            var eventStore = new ProtoEventStore(connectionString, serializer);
             var eventStoreConsumer = new RabbitEventStoreConsumer(Assembly.GetAssembly(typeof(NewCollaboratorCreated)), serializer, eventStore);
             eventStoreConsumer.Start(1);
         }

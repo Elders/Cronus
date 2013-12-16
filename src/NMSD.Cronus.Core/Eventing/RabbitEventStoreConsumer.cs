@@ -20,14 +20,14 @@ namespace NMSD.Cronus.Core.Eventing
     {
         RabbitEventPublisher eventPublisher;
 
-        InMemoryEventStore eventStore;
+        ProtoEventStore eventStore;
 
         private Plumber plumber;
         private WorkPool pool;
 
         private readonly ProtoregSerializer serialiser;
 
-        public RabbitEventStoreConsumer(Assembly assembly, ProtoregSerializer serialiser, InMemoryEventStore eventStore)
+        public RabbitEventStoreConsumer(Assembly assembly, ProtoregSerializer serialiser, ProtoEventStore eventStore)
         {
             this.serialiser = serialiser;
             eventPublisher = new RabbitEventPublisher(serialiser);
@@ -35,7 +35,7 @@ namespace NMSD.Cronus.Core.Eventing
             queueFactory = new EventStoreQueueFactory(assembly);
         }
 
-        public void Start(int numberOfWorkers)
+        public override void Start(int numberOfWorkers)
         {
             plumber = new Plumber();
 
@@ -52,7 +52,7 @@ namespace NMSD.Cronus.Core.Eventing
             pool.StartCrawlers();
         }
 
-        public void Stop()
+        public override void Stop()
         {
             pool.Stop();
         }
@@ -73,8 +73,6 @@ namespace NMSD.Cronus.Core.Eventing
             {
                 try
                 {
-
-
                     using (var channel = consumer.plumber.RabbitConnection.CreateModel())
                     {
                         QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
@@ -156,40 +154,6 @@ namespace NMSD.Cronus.Core.Eventing
                 }
             }
 
-        }
-    }
-
-    public static class MeasureExecutionTime
-    {
-        public static string Start(Action action)
-        {
-            string result = string.Empty;
-#if DEBUG
-            var stopWatch = new System.Diagnostics.Stopwatch();
-            stopWatch.Start();
-            action();
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
-            result = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-#endif
-            return result;
-        }
-
-        public static string Start(Action action, int repeat)
-        {
-            string result = string.Empty;
-#if DEBUG
-            var stopWatch = new System.Diagnostics.Stopwatch();
-            stopWatch.Start();
-            for (int i = 0; i < repeat; i++)
-            {
-                action();
-            }
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
-            result = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-#endif
-            return result;
         }
     }
 }

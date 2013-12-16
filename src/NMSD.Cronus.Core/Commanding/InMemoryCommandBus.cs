@@ -2,7 +2,7 @@
 
 namespace NMSD.Cronus.Core.Commanding
 {
-    public class InMemoryCommandBus : InMemoryPublisher<ICommand, IMessageHandler>
+    public class InMemoryCommandBus : InMemoryBus<ICommand, IMessageHandler>
     {
 
     }

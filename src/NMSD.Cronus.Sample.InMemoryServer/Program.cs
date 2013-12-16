@@ -9,12 +9,57 @@ using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Sample.Collaboration.Projections;
 using Protoreg;
 
 namespace NMSD.Cronus.Sample.InMemoryServer
 {
     class Program
     {
+        private static void HostApplicationServices()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+            var eventStore = new ProtoEventStore(connectionString, serializer);
+
+            commandBus = new InMemoryCommandBus();
+            commandBus.RegisterAllHandlersInAssembly(type =>
+                                                    {
+                                                        var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
+                                                        handler.EventPublisher = eventBus;
+                                                        return handler;
+                                                    },
+                                                    Assembly.GetAssembly(typeof(CollaboratorAppService)));
+
+
+
+        }
+
+        static InMemoryEventBus eventBus;
+        private static void HostEventHandlers()
+        {
+            //string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+            //var eventStore = new ProtoEventStore(connectionString, serializer);
+
+            eventBus = new InMemoryEventBus();
+            eventBus.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
+        }
+
+        private static void HostUI()
+        {
+            var email = "test@qqq.commmmmmmm";
+            for (int i = 0; i > -1; i++)
+            {
+                commandBus.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
+                //if (commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email)))
+                //    Thread.Sleep(1000);
+                //else
+                //    Thread.Sleep(10000);
+            }
+        }
+
+        static InMemoryCommandBus commandBus;
+        static ProtoregSerializer serializer;
+
         static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
@@ -23,52 +68,12 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             protoRegistration.RegisterAssembly<CollaboratorState>();
             protoRegistration.RegisterAssembly<CreateNewCollaborator>();
             protoRegistration.RegisterAssembly<Wraper>();
-            ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
+            serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
-            string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-            var eventStore = new InMemoryEventStore(connectionString, serializer);
-
-            var eventBus = new RabbitEventStorePublisher(serializer);
-
-            var commandConsumer = new RabbitCommandConsumer(serializer);
-            commandConsumer.RegisterAllHandlersInAssembly(type =>
-                                                                {
-                                                                    var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
-                                                                    handler.EventPublisher = eventBus;
-                                                                    handler.EventStore = eventStore;
-                                                                    return handler;
-                                                                },
-                                                                Assembly.GetAssembly(typeof(CollaboratorAppService)));
-            commandConsumer.Start(1);
-
-
-            //var result = MeasureExecutionTime.Start(() =>
-            //{
-            //    //int current = 0;
-            //    foreach (IEvent @event in eventStore.GetEventsFromStart("Collaboration"))
-            //    {
-            //        //current++;
-            //        ////Console.WriteLine(@event.ToString());
-            //        //if (current % 100 == 0)
-            //        //    Console.WriteLine(current);
-            //    }
-            //});
-            //Console.WriteLine(result);
-
-
-            //commandBus.RegisterAllCommandHandlersInAssembly(x =>
-            //{
-            //    var instance = Activator.CreateInstance(x);
-            //    var casted = instance as IAggregateRootApplicationService;
-            //    if (casted != null)
-            //    {
-            //        casted.EventBus = eventBus;
-            //        casted.EventStore = eventStore;
-            //    }
-            //    return casted as ICommandHandler;
-            //}, Assembly.GetAssembly(typeof(CollaboratorAppService)));
-
+            HostEventHandlers();
+            HostApplicationServices();
+            HostUI();
 
             //IEventBus bus = new InMemoryEventBus();
             //bus.RegisterAllEventHandlersInAssembly(System.Reflection.Assembly.GetAssembly(typeof(Program)));

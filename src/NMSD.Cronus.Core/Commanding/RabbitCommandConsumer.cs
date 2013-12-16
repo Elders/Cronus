@@ -26,7 +26,7 @@ namespace NMSD.Cronus.Core.Commanding
             queueFactory = new CommonQueueFactory();
         }
 
-        public void Start(int numberOfWorkers)
+        public override void Start(int numberOfWorkers)
         {
             plumber = new Plumber();
 
@@ -43,7 +43,7 @@ namespace NMSD.Cronus.Core.Commanding
             pool.StartCrawlers();
         }
 
-        public void Stop()
+        public override void Stop()
         {
             pool.Stop();
         }

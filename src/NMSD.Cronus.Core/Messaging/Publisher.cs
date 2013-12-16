@@ -5,8 +5,18 @@ using RabbitMQ.Client.Exceptions;
 
 namespace NMSD.Cronus.Core.Messaging
 {
-    public abstract class Publisher<TMessage, THandler> : IPublisher<TMessage>, IConsumer<THandler>
+    public abstract class Bus<TMessage, THandler> : IPublisher<TMessage>, IConsumer<THandler>
     {
+        public void Stop()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Start(int numberOfWorkers)
+        {
+            throw new NotImplementedException();
+        }
+
         protected Dictionary<Type, List<Func<TMessage, bool>>> handlers = new Dictionary<Type, List<Func<TMessage, bool>>>();
 
         protected Action<TMessage, THandler, Exception> onErrorHandlingEvent = (x, y, z) => { };
