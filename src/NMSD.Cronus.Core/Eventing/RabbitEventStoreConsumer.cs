@@ -150,6 +150,7 @@ namespace NMSD.Cronus.Core.Eventing
                 }
                 catch (Exception ex)
                 {
+                    throw ex;
                     ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
                 }
             }

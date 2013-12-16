@@ -5,6 +5,7 @@ using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.Collaboration.Projections;
 using Protoreg;
+using NMSD.Cronus.Core.UnitOfWork;
 
 namespace NMSD.Cronus.Sample.Handlers
 {
@@ -21,6 +22,7 @@ namespace NMSD.Cronus.Sample.Handlers
             serializer.Build();
 
             var eventConsumer = new RabbitEventConsumer(serializer);
+            eventConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
             eventConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
             eventConsumer.Start(2);
         }

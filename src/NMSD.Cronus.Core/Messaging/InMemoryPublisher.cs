@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NMSD.Cronus.Core.Multithreading.Work;
+using NMSD.Cronus.Core.UnitOfWork;
 
 namespace NMSD.Cronus.Core.Messaging
 {
@@ -49,7 +50,20 @@ namespace NMSD.Cronus.Core.Messaging
 
                 protected override bool PublishInternal(TMessage message)
                 {
-                    return consumer.Handle(message);
+                    bool handled = false;
+                    IUnitOfWorkPerBatch unitOfWork = consumer.UnitOfWorkFactory.NewBatch();
+                    if (unitOfWork != null)
+                    {
+                        unitOfWork.Begin();
+                    }
+                    consumer.Handle(message, unitOfWork);
+                    if (unitOfWork != null)
+                    {
+                        unitOfWork.Commit();
+                        unitOfWork.Dispose();
+                        unitOfWork = null;
+                    }
+                    return handled;
                 }
             }
         }

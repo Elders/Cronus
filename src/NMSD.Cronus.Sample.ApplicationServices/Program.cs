@@ -7,6 +7,7 @@ using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.Messaging;
+using NMSD.Cronus.Core.UnitOfWork;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
@@ -37,6 +38,7 @@ namespace NMSD.Cronus.Sample.ApplicationService
                                                                     return handler;
                                                                 },
                                                                 Assembly.GetAssembly(typeof(CollaboratorAppService)));
+            commandConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
             commandConsumer.Start(1);
 
             Console.ReadLine();

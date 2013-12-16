@@ -110,6 +110,8 @@
     <Compile Include="Snapshotting\ISnapShotter.cs" />
     <Compile Include="Snapshotting\SnapShotter.cs" />
     <Compile Include="Threading.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWork.cs" />
+    <Compile Include="UnitOfWork\NullUnitOfWorkImpl.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

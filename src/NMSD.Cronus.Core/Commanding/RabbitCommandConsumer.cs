@@ -9,6 +9,7 @@ using NSMD.Cronus.RabbitMQ;
 using Protoreg;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
+using NMSD.Cronus.Core.UnitOfWork;
 
 namespace NMSD.Cronus.Core.Commanding
 {
@@ -70,27 +71,36 @@ namespace NMSD.Cronus.Core.Commanding
                         QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
                         channel.BasicConsume(endpointName, false, newQueueingBasicConsumer);
 
+                        
                         while (true)
                         {
-                            try
+                            for (int i = 0; i < 1000; i++)
                             {
-                                var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
-
-                                ICommand command;
-                                using (var stream = new MemoryStream(rawMessage.Body))
+                                StartNewUnitOfWork();
+                                try
                                 {
-                                    command = consumer.serialiser.Deserialize(stream) as ICommand;
-                                }
+                                    var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
 
-                                if (consumer.Handle(command))
-                                    channel.BasicAck(rawMessage.DeliveryTag, false);
-                            }
-                            catch (EndOfStreamException)
-                            {
-                                ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                                break;
+                                    ICommand command;
+                                    using (var stream = new MemoryStream(rawMessage.Body))
+                                    {
+                                        command = consumer.serialiser.Deserialize(stream) as ICommand;
+                                    }
+
+                                    if (consumer.Handle(command, unitOfWork))
+                                        channel.BasicAck(rawMessage.DeliveryTag, false);
+                                }
+                                catch (EndOfStreamException)
+                                {
+                                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                                    break;
+                                }
+                                EndUnitOfWork();
                             }
                         }
+
+
+
                     }
                 }
                 catch (OperationInterruptedException ex)
@@ -100,6 +110,27 @@ namespace NMSD.Cronus.Core.Commanding
 
                 }
             }
+
+            public IUnitOfWorkPerBatch unitOfWork;
+            public void StartNewUnitOfWork()
+            {
+                unitOfWork = consumer.UnitOfWorkFactory.NewBatch();
+                if (unitOfWork != null)
+                {
+                    unitOfWork.Begin();
+                }
+            }
+            public void EndUnitOfWork()
+            {
+                if (unitOfWork != null)
+                {
+                    unitOfWork.Commit();
+                    unitOfWork.Dispose();
+                    unitOfWork = null;
+                }
+            }
         }
+
+
     }
 }

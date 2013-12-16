@@ -2,6 +2,7 @@
 using System.Reflection;
 using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.EventStoreEngine;
+using NMSD.Cronus.Core.UnitOfWork;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using Protoreg;
@@ -24,6 +25,7 @@ namespace NMSD.Cronus.Sample.EventStore
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
             var eventStore = new ProtoEventStore(connectionString, serializer);
             var eventStoreConsumer = new RabbitEventStoreConsumer(Assembly.GetAssembly(typeof(NewCollaboratorCreated)), serializer, eventStore);
+            eventStoreConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
             eventStoreConsumer.Start(1);
         }
     }

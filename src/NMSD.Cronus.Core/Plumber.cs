@@ -25,7 +25,7 @@ namespace NSMD.Cronus.RabbitMQ
 
         private readonly string virtualHost;
 
-        public Plumber() : this("192.168.16.69") { }
+        public Plumber() : this("192.168.16.53") { }
 
         public Plumber(string hostname, string username = ConnectionFactory.DefaultUser, string password = ConnectionFactory.DefaultPass, int port = 5672, string virtualHost = ConnectionFactory.DefaultVHost)
         {

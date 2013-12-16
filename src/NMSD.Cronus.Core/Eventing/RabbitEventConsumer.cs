@@ -3,6 +3,7 @@ using System.IO;
 using Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Multithreading.Work;
+using NMSD.Cronus.Core.UnitOfWork;
 using NSMD.Cronus.RabbitMQ;
 using Protoreg;
 using RabbitMQ.Client;
@@ -67,43 +68,51 @@ namespace NMSD.Cronus.Core.Eventing
                     {
                         QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
                         channel.BasicConsume(queueName, false, newQueueingBasicConsumer);
+                        
                         while (true)
                         {
-                            try
+                            for (int i = 0; i < 1000; i++)
                             {
-                                var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
-                                IEvent message;
-                                if (rawMessage != null)
-                                {
-                                    using (var stream = new MemoryStream(rawMessage.Body))
-                                    {
-                                        message = consumer.serialiser.Deserialize(stream) as IEvent;
-                                    }
+                                StartNewUnitOfWork();
 
-                                    if (consumer.Handle(message))
-                                        channel.BasicAck(rawMessage.DeliveryTag, false);
+                                try
+                                {
+                                    var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
+                                    IEvent message;
+                                    if (rawMessage != null)
+                                    {
+                                        using (var stream = new MemoryStream(rawMessage.Body))
+                                        {
+                                            message = consumer.serialiser.Deserialize(stream) as IEvent;
+                                        }
+
+                                        if (consumer.Handle(message, unitOfWork))
+                                            channel.BasicAck(rawMessage.DeliveryTag, false);
+                                    }
                                 }
-                            }
-                            catch (EndOfStreamException)
-                            {
-                                ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                                break;
-                            }
-                            catch (AlreadyClosedException)
-                            {
-                                ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                                break;
-                            }
-                            catch (OperationInterruptedException)
-                            {
-                                ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                                break;
-                            }
-                            catch (Exception ex)
-                            {
-                                throw ex;
+                                catch (EndOfStreamException)
+                                {
+                                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                                    break;
+                                }
+                                catch (AlreadyClosedException)
+                                {
+                                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                                    break;
+                                }
+                                catch (OperationInterruptedException)
+                                {
+                                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                                    break;
+                                }
+                                catch (Exception ex)
+                                {
+                                    throw ex;
+                                }
+                                EndUnitOfWork();
                             }
                         }
+
 
                     }
                 }
@@ -115,6 +124,25 @@ namespace NMSD.Cronus.Core.Eventing
                 catch (Exception ex)
                 {
                     throw ex;
+                }
+            }
+
+            public IUnitOfWorkPerBatch unitOfWork;
+            public void StartNewUnitOfWork()
+            {
+                unitOfWork = consumer.UnitOfWorkFactory.NewBatch();
+                if (unitOfWork != null)
+                {
+                    unitOfWork.Begin();
+                }
+            }
+            public void EndUnitOfWork()
+            {
+                if (unitOfWork != null)
+                {
+                    unitOfWork.Commit();
+                    unitOfWork.Dispose();
+                    unitOfWork = null;
                 }
             }
         }
