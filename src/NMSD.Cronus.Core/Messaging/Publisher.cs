@@ -109,6 +109,7 @@ namespace NMSD.Cronus.Core.Messaging
             try
             {
                 PublishInternal(message);
+                log.Info("PUBLISH => " + message.ToString());
             }
             catch (AlreadyClosedException ex)
             {

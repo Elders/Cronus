@@ -1,4 +1,7 @@
-﻿using Cronus.Core.Eventing;
+﻿using System.Collections.Generic;
+using System.Data.SqlClient;
+using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Cqrs;
 
 namespace Cronus.Core.EventStore
 {
@@ -10,10 +13,11 @@ namespace Cronus.Core.EventStore
     /// </remarks>
     public interface IEventStore
     {
-        /// <summary>
-        /// Stores an event
-        /// </summary>
-        /// <param name="event"></param>
-        void Save(IEvent @event);
+        void Persist(List<IEvent> events, SqlConnection connection);
+        void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection);
+
+        SqlConnection OpenConnection();
+
+        void CloseConnection(SqlConnection conn);
     }
 }

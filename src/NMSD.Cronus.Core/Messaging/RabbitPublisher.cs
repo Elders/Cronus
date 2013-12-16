@@ -82,7 +82,6 @@ namespace NMSD.Cronus.Core.Messaging
 
             var buffer = SerializeMessage(message);
             KickIn(buffer, messageId, BoundedContext);
-            log.Info("PUBLISH => " + message.ToString());
 
             return true;
         }

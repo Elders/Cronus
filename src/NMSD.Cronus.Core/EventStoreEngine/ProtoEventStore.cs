@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using Cronus.Core.Eventing;
+using Cronus.Core.EventStore;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Snapshotting;
@@ -27,7 +28,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
         public List<object> Events { get; private set; }
 
     }
-    public class ProtoEventStore : ISnapShotter
+    public class ProtoEventStore : ISnapShotter, IEventStore
     {
         const string LoadAggregateStateQueryTemplate = @"SELECT TOP 1 AggregateState FROM {0}Snapshots WHERE AggregateId=@aggregateId ORDER BY Version DESC";
 

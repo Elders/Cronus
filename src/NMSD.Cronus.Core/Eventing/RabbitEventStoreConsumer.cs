@@ -111,7 +111,7 @@ namespace NMSD.Cronus.Core.Eventing
                                     if (eventsBatch.Count > 0)
                                     {
                                         consumer.eventStore.Persist(eventsBatch, connection);
-                                        //consumer.eventStore.TakeSnapshot(statesBatch, connection);
+                                        consumer.eventStore.TakeSnapshot(statesBatch, connection);
 
                                         foreach (var @event in eventsBatch)
                                         {

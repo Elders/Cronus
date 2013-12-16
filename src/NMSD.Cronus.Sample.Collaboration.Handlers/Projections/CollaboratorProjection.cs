@@ -3,11 +3,6 @@ using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 
 namespace NMSD.Cronus.Sample.Collaboration.Projections
 {
-    public static class MyClass
-    {
-        public static int count = 0;
-    }
-
     public class CollaboratorProjection :
         IMessageHandler<NewCollaboratorCreated>
     {
@@ -15,8 +10,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Projections
 
         public void Handle(NewCollaboratorCreated message)
         {
-            //++MyClass.count;
-            //log.Info(MyClass.count);
+            log.Info(message);
         }
     }
 }

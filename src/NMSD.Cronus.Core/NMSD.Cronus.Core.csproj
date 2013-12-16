@@ -87,7 +87,6 @@
     <Compile Include="Eventing\IEventHandler.cs" />
     <Compile Include="Eventing\InMemoryEventBusHyperion.cs" />
     <Compile Include="EventStoreEngine\IEventStore.cs" />
-    <Compile Include="EventStoreEngine\NoEventStore.cs" />
     <Compile Include="Commanding\CommandMessageInfo.cs" />
     <Compile Include="Cqrs\MessageCommit.cs" />
     <Compile Include="Messaging\MessagingHelpers.cs" />
