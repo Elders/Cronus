@@ -7,8 +7,8 @@
     <ProjectGuid>{0B495064-1425-465E-A2DC-36275A206F0B}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NMSD.Cronus.Sample.ConsoleApplication</RootNamespace>
-    <AssemblyName>NMSD.Cronus.Sample.ConsoleApplication</AssemblyName>
+    <RootNamespace>NMSD.Cronus.Sample.InMemoryServer</RootNamespace>
+    <AssemblyName>NMSD.Cronus.Sample.InMemoryServer</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -35,7 +35,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>Cronus.Sample.ConsoleApplication.Program</StartupObject>
+    <StartupObject>NMSD.Cronus.Sample.InMemoryServer.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">

@@ -106,7 +106,7 @@
     <Compile Include="Messaging\Publisher.cs" />
     <Compile Include="Messaging\IPublisher.cs" />
     <Compile Include="Messaging\RabbitPublisher.cs" />
-    <Compile Include="Retry.cs" />
+    <Compile Include="RetryableOperation.cs" />
     <Compile Include="Snapshotting\ISnapShotter.cs" />
     <Compile Include="Snapshotting\SnapShotter.cs" />
     <Compile Include="Threading.cs" />

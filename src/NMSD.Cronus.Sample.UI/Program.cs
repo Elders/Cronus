@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Threading;
 using NMSD.Cronus.Core.Commanding;
-using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using Protoreg;
 
 namespace NMSD.Cronus.Sample.UI
@@ -17,9 +14,8 @@ namespace NMSD.Cronus.Sample.UI
             log4net.Config.XmlConfigurator.Configure();
 
             var protoRegistration = new ProtoRegistration();
-            protoRegistration.RegisterAssembly<NewCollaboratorCreated>();
+            protoRegistration.RegisterAssembly<CreateNewCollaborator>();
             protoRegistration.RegisterAssembly<Wraper>();
-            //protoRegistration.RegisterCommonType(typeof(AggregateRootState<CollaboratorId>));
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
@@ -29,10 +25,13 @@ namespace NMSD.Cronus.Sample.UI
 
             for (int i = 0; i > -1; i++)
             {
-                if (commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email)))
-                    Thread.Sleep(1000);
-                else
-                    Thread.Sleep(10000);
+                commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
+
+
+                //if (commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email)))
+                //    Thread.Sleep(1000);
+                //else
+                //    Thread.Sleep(10000);
             }
         }
     }

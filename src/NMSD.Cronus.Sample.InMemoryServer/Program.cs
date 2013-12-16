@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Configuration;
-using System.Diagnostics;
 using System.Reflection;
 using Cronus.Core;
-using Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Eventing;
@@ -11,11 +9,9 @@ using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
-using NMSD.Cronus.Sample.Collaboration.Projections;
 using Protoreg;
 
-namespace Cronus.Sample.ConsoleApplication
+namespace NMSD.Cronus.Sample.InMemoryServer
 {
     class Program
     {
@@ -23,17 +19,9 @@ namespace Cronus.Sample.ConsoleApplication
         {
             log4net.Config.XmlConfigurator.Configure();
 
-
-
-            var collaboratorId = new CollaboratorId(Guid.NewGuid());// Parse("66ada31c-a098-47a6-921c-428a9f3fd485"));
-            var email = "test@qqq.commmmmmmm";
-            var cmd = new CreateNewCollaborator(collaboratorId, email);
-            //var cmd = new RenameCollaborator(collaboratorId, "", "");
-
-
             var protoRegistration = new ProtoRegistration();
             protoRegistration.RegisterAssembly<CollaboratorState>();
-            protoRegistration.RegisterAssembly<NewCollaboratorCreated>();
+            protoRegistration.RegisterAssembly<CreateNewCollaborator>();
             protoRegistration.RegisterAssembly<Wraper>();
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
@@ -81,12 +69,6 @@ namespace Cronus.Sample.ConsoleApplication
             //    return casted as ICommandHandler;
             //}, Assembly.GetAssembly(typeof(CollaboratorAppService)));
 
-            var commandPublisher = new RabbitCommandPublisher(serializer);
-            commandPublisher.Publish(cmd);
-
-
-
-
 
             //IEventBus bus = new InMemoryEventBus();
             //bus.RegisterAllEventHandlersInAssembly(System.Reflection.Assembly.GetAssembly(typeof(Program)));
@@ -102,40 +84,6 @@ namespace Cronus.Sample.ConsoleApplication
 
             // Console.WriteLine(result);
             Console.ReadLine();
-        }
-    }
-
-    public static class MeasureExecutionTime
-    {
-        public static string Start(Action action)
-        {
-            string result = string.Empty;
-#if DEBUG
-            var stopWatch = new System.Diagnostics.Stopwatch();
-            stopWatch.Start();
-            action();
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
-            result = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-#endif
-            return result;
-        }
-
-        public static string Start(Action action, int repeat)
-        {
-            string result = string.Empty;
-#if DEBUG
-            var stopWatch = new System.Diagnostics.Stopwatch();
-            stopWatch.Start();
-            for (int i = 0; i < repeat; i++)
-            {
-                action();
-            }
-            stopWatch.Stop();
-            TimeSpan ts = stopWatch.Elapsed;
-            result = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-#endif
-            return result;
         }
     }
 }

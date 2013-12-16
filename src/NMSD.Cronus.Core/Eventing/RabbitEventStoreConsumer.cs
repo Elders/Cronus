@@ -113,17 +113,18 @@ namespace NMSD.Cronus.Core.Eventing
                                     if (eventsBatch.Count > 0)
                                     {
                                         consumer.eventStore.Persist(eventsBatch, connection);
-                                        consumer.eventStore.TakeSnapshot(statesBatch, connection);
+                                        //consumer.eventStore.TakeSnapshot(statesBatch, connection);
 
                                         foreach (var @event in eventsBatch)
                                         {
                                             consumer.eventPublisher.Publish(@event);
                                         }
 
-                                        foreach (var rawMessage in rawMessages)
-                                        {
-                                            channel.BasicAck(rawMessage.DeliveryTag, false);
-                                        }
+                                        //foreach (var rawMessage in rawMessages)
+                                        //{
+                                        //    channel.BasicAck(rawMessage.DeliveryTag, false);
+                                        //}
+                                        channel.BasicAck(rawMessages.First().DeliveryTag, true);
                                     }
                                 }
                                 catch (EndOfStreamException)
@@ -139,13 +140,17 @@ namespace NMSD.Cronus.Core.Eventing
                                 }
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            throw ex;
+                        }
                         finally
                         {
                             consumer.eventStore.CloseConnection(connection);
                         }
                     }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
                 }
