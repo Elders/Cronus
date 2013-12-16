@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using Cronus.Core.Eventing;
 using Cronus.Core.EventStore;
 using NMSD.Cronus.Core.Cqrs;
@@ -10,6 +11,7 @@ namespace NMSD.Cronus.Core.Eventing
     public class InMemoryEventBus : InMemoryBus<IEvent, IMessageHandler>, IPublisher<MessageCommit>
     {
         private readonly IEventStore eventStore;
+        SqlConnection connection;
 
         public InMemoryEventBus(IEventStore eventStore)
         {
@@ -18,7 +20,8 @@ namespace NMSD.Cronus.Core.Eventing
 
         public bool Publish(MessageCommit message)
         {
-            var connection = eventStore.OpenConnection();
+            if (connection == null || connection.State != System.Data.ConnectionState.Open)
+                connection = eventStore.OpenConnection();
             try
             {
                 eventStore.Persist(message.Events, connection);

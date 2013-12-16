@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
@@ -9,6 +10,8 @@ namespace NMSD.Cronus.Sample.UI
 {
     class Program
     {
+        static RabbitCommandPublisher commandPublisher;
+
         static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
@@ -19,19 +22,25 @@ namespace NMSD.Cronus.Sample.UI
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
-            var commandPublisher = new RabbitCommandPublisher(serializer);
+            commandPublisher = new RabbitCommandPublisher(serializer);
 
+            HostUI();
+        }
+
+        private static void HostUI(int messageDelayInMilliseconds = 0)
+        {
             var email = "test@qqq.commmmmmmm";
-
             for (int i = 0; i > -1; i++)
             {
-                commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
-
-
-                //if (commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email)))
-                //    Thread.Sleep(1000);
-                //else
-                //    Thread.Sleep(10000);
+                if (messageDelayInMilliseconds == 0)
+                {
+                    commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
+                }
+                else
+                {
+                    commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
+                    Thread.Sleep(messageDelayInMilliseconds);
+                }
             }
         }
     }

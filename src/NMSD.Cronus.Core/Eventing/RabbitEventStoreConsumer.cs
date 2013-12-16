@@ -118,11 +118,11 @@ namespace NMSD.Cronus.Core.Eventing
                                             consumer.eventPublisher.Publish(@event);
                                         }
 
-                                        //foreach (var rawMessage in rawMessages)
-                                        //{
-                                        //    channel.BasicAck(rawMessage.DeliveryTag, false);
-                                        //}
-                                        channel.BasicAck(rawMessages.First().DeliveryTag, true);
+                                        foreach (var rawMessage in rawMessages)
+                                        {
+                                            channel.BasicAck(rawMessage.DeliveryTag, false);
+                                        }
+                                        //channel.BasicAck(rawMessages.First().DeliveryTag, true);
                                     }
                                 }
                                 catch (EndOfStreamException)

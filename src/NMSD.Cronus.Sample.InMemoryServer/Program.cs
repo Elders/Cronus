@@ -30,7 +30,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
 
             HostEventHandlers();
             HostApplicationServices();
-            HostUI(1000);
+            HostUI(0);
 
             Console.ReadLine();
         }
@@ -82,7 +82,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
                 else
                 {
                     commandBus.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
-                    Thread.Sleep(1000);
+                    Thread.Sleep(messageDelayInMilliseconds);
                 }
             }
         }

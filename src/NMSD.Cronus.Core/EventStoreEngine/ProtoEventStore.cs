@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -36,12 +37,21 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
         private readonly string connectionString;
 
+        ConcurrentDictionary<Type, Tuple<string, string>> eventsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
+
         private readonly ProtoregSerializer serializer;
+
+        ConcurrentDictionary<Type, Tuple<string, string>> snapshotsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
 
         public ProtoEventStore(string connectionString, ProtoregSerializer serializer)
         {
             this.connectionString = connectionString;
             this.serializer = serializer;
+        }
+
+        public void CloseConnection(SqlConnection conn)
+        {
+            conn.Close();
         }
 
         public IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1)
@@ -78,18 +88,6 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
-        public SqlConnection OpenConnection()
-        {
-            var conn = new SqlConnection(connectionString);
-            conn.Open();
-            return conn;
-        }
-
-        public void CloseConnection(SqlConnection conn)
-        {
-            conn.Close();
-        }
-
         public IAggregateRootState LoadAggregateState(string boundedContext, Guid aggregateId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -119,6 +117,13 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
+        public SqlConnection OpenConnection()
+        {
+            var conn = new SqlConnection(connectionString);
+            conn.Open();
+            return conn;
+        }
+
         public void Persist(List<IEvent> events, SqlConnection connection)
         {
             if (events == null) throw new ArgumentNullException("events");
@@ -135,8 +140,17 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
             {
-                string boundedContext = MessagingHelper.GetBoundedContext(events.First().GetType());
-                bulkCopy.DestinationTableName = String.Format("dbo.{0}Events", boundedContext);
+                Tuple<string, string> eventInfo;
+                Type firstEventType = events.First().GetType();
+                if (!eventsInfo.TryGetValue(firstEventType, out eventInfo))
+                {
+                    string boundedContext = MessagingHelper.GetBoundedContext(firstEventType);
+                    string table = String.Format("dbo.{0}Events", boundedContext);
+                    eventInfo = new Tuple<string, string>(boundedContext, table);
+                    eventsInfo.TryAdd(firstEventType, eventInfo);
+                }
+
+                bulkCopy.DestinationTableName = eventInfo.Item2;
                 try
                 {
                     bulkCopy.WriteToServer(eventsTable, DataRowState.Added);
@@ -147,6 +161,8 @@ namespace NMSD.Cronus.Core.EventStoreEngine
                 }
             }
         }
+
+
 
         public void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection)
         {
@@ -166,8 +182,17 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
             {
-                string boundedContext = MessagingHelper.GetBoundedContext(states.First().GetType());
-                bulkCopy.DestinationTableName = String.Format("dbo.{0}Snapshots", boundedContext);
+                Tuple<string, string> snapshotInfo;
+                Type firstSnapshotType = states.First().GetType();
+                if (!snapshotsInfo.TryGetValue(firstSnapshotType, out snapshotInfo))
+                {
+                    string boundedContext = MessagingHelper.GetBoundedContext(firstSnapshotType);
+                    string table = String.Format("dbo.{0}Snapshots", boundedContext);
+                    snapshotInfo = new Tuple<string, string>(boundedContext, table);
+                    snapshotsInfo.TryAdd(firstSnapshotType, snapshotInfo);
+                }
+
+                bulkCopy.DestinationTableName = snapshotInfo.Item2;
 
                 try
                 {
@@ -263,5 +288,80 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
+    }
+
+    public static class MeasureExecutionTime
+    {
+        public static string Start(System.Action action)
+        {
+            string result = string.Empty;
+
+            var stopWatch = new System.Diagnostics.Stopwatch();
+            stopWatch.Start();
+            action();
+            stopWatch.Stop();
+            System.TimeSpan ts = stopWatch.Elapsed;
+            result = System.String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
+            return result;
+        }
+
+        public static string Start(System.Action action, int repeat, bool showTicksInfo = false)
+        {
+            var stopWatch = new System.Diagnostics.Stopwatch();
+            stopWatch.Start();
+            for (int i = 0; i < repeat; i++)
+            {
+                action();
+            }
+            stopWatch.Stop();
+            System.TimeSpan total = stopWatch.Elapsed;
+            System.TimeSpan average = new System.TimeSpan(stopWatch.Elapsed.Ticks / repeat);
+
+            System.Text.StringBuilder perfResultsBuilder = new System.Text.StringBuilder();
+            perfResultsBuilder.AppendLine("--------------------------------------------------------------");
+            perfResultsBuilder.AppendFormat("  Total Time => {0}\r\nAverage Time => {1}", Align(total), Align(average));
+            perfResultsBuilder.AppendLine();
+            perfResultsBuilder.AppendLine("--------------------------------------------------------------");
+            if (showTicksInfo)
+                perfResultsBuilder.AppendLine(TicksInfo());
+            return perfResultsBuilder.ToString();
+        }
+
+        static string Align(System.TimeSpan interval)
+        {
+            string intervalStr = interval.ToString();
+            int pointIndex = intervalStr.IndexOf(':');
+
+            pointIndex = intervalStr.IndexOf('.', pointIndex);
+            if (pointIndex < 0) intervalStr += "        ";
+            return intervalStr;
+        }
+
+        static string TicksInfo()
+        {
+            System.Text.StringBuilder ticksInfoBuilder = new System.Text.StringBuilder("\r\n\r\n");
+            ticksInfoBuilder.AppendLine("Ticks Info");
+            ticksInfoBuilder.AppendLine("--------------------------------------------------------------");
+            const string numberFmt = "{0,-22}{1,18:N0}";
+            const string timeFmt = "{0,-22}{1,26}";
+
+            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Field", "Value"));
+            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "-----", "-----"));
+
+            // Display the maximum, minimum, and zero TimeSpan values.
+            ticksInfoBuilder.AppendLine(System.String.Format(timeFmt, "Maximum TimeSpan", Align(System.TimeSpan.MaxValue)));
+            ticksInfoBuilder.AppendLine(System.String.Format(timeFmt, "Minimum TimeSpan", Align(System.TimeSpan.MinValue)));
+            ticksInfoBuilder.AppendLine(System.String.Format(timeFmt, "Zero TimeSpan", Align(System.TimeSpan.Zero)));
+            ticksInfoBuilder.AppendLine();
+
+            // Display the ticks-per-time-unit fields.
+            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Ticks per day", System.TimeSpan.TicksPerDay));
+            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Ticks per hour", System.TimeSpan.TicksPerHour));
+            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Ticks per minute", System.TimeSpan.TicksPerMinute));
+            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Ticks per second", System.TimeSpan.TicksPerSecond));
+            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Ticks per millisecond", System.TimeSpan.TicksPerMillisecond));
+            ticksInfoBuilder.AppendLine("--------------------------------------------------------------");
+            return ticksInfoBuilder.ToString();
+        }
     }
 }
