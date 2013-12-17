@@ -36,4 +36,4 @@ using NMSD.Cronus.Core.Cqrs;
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
-[assembly: BoundedContext("NMSD.Cronus.Sample.IdentityAndAcceess")]
+[assembly: BoundedContext("NMSD.Cronus.Sample.IdentityAndAccess")]

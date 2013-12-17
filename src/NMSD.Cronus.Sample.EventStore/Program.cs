@@ -6,6 +6,7 @@ using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.UnitOfWork;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
+using NMSD.Cronus.Sample.IdentityAndAccess.Users;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
 using Protoreg;
 
@@ -20,6 +21,8 @@ namespace NMSD.Cronus.Sample.EventStore
             var protoRegistration = new ProtoRegistration();
             protoRegistration.RegisterAssembly<CollaboratorState>();
             protoRegistration.RegisterAssembly<NewCollaboratorCreated>();
+            protoRegistration.RegisterAssembly<UserState>();
+            protoRegistration.RegisterAssembly<NewUserRegistered>();
             protoRegistration.RegisterAssembly<Wraper>();
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
