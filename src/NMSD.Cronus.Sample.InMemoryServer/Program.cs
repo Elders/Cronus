@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.Reflection;
 using System.Threading;
-using Cronus.Core;
+using NMSD.Cronus.Core;
 using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Eventing;
@@ -51,13 +51,13 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             var eventStore = new ProtoEventStore(connectionString, serializer);
 
             commandBus = new InMemoryCommandBus();
-            commandBus.RegisterAllHandlersInAssembly(type =>
-                                                    {
-                                                        var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
-                                                        handler.EventPublisher = eventBus;
-                                                        return handler;
-                                                    },
-                                                    Assembly.GetAssembly(typeof(CollaboratorAppService)));
+            commandBus.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)),
+                type =>
+                {
+                    var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
+                    handler.EventPublisher = eventBus;
+                    return handler;
+                });
 
         }
 

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cronus.Core;
-using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Eventing;
 
 namespace NMSD.Cronus.Core.Cqrs
 {

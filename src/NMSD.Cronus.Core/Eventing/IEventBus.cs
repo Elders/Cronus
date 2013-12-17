@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Cronus.Core.Eventing
+namespace NMSD.Cronus.Core.Eventing
 {
     public interface IEventBus
     {

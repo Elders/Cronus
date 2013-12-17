@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Cronus.Core
+namespace NMSD.Cronus.Core
 {
     public static class Threading
     {

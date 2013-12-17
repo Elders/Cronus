@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.Messaging;
@@ -23,16 +23,16 @@ namespace NMSD.Cronus.Core.Eventing
         ProtoEventStore eventStore;
 
         private Plumber plumber;
-        private WorkPool pool;
+        private List<WorkPool> pools;
 
         private readonly ProtoregSerializer serialiser;
 
-        public RabbitEventStoreConsumer(Assembly assembly, ProtoregSerializer serialiser, ProtoEventStore eventStore)
+        public RabbitEventStoreConsumer(List<Assembly> assemblies, ProtoregSerializer serialiser, ProtoEventStore eventStore)
         {
             this.serialiser = serialiser;
             eventPublisher = new RabbitEventPublisher(serialiser);
             this.eventStore = eventStore;
-            queueFactory = new EventStoreQueueFactory(assembly);
+            queueFactory = new EventStoreQueueFactory(assemblies);
         }
 
         public override void Start(int numberOfWorkers)
@@ -43,18 +43,25 @@ namespace NMSD.Cronus.Core.Eventing
             queueFactory.Compile(plumber.RabbitConnection);
             // Think about this
 
-            pool = new WorkPool("defaultPool", numberOfWorkers);
+            pools = new List<WorkPool>();
             foreach (var queueInfo in queueFactory.Headers)
             {
-                pool.AddWork(new ConsumerWork(this, queueInfo.Key));
+                var pool = new WorkPool("defaultPool", numberOfWorkers);
+                for (int i = 0; i < numberOfWorkers; i++)
+                {
+                    pool.AddWork(new ConsumerWork(this, queueInfo.Key));
+                }
+                pools.Add(pool);
+                pool.StartCrawlers();
             }
-
-            pool.StartCrawlers();
         }
 
         public override void Stop()
         {
-            pool.Stop();
+            foreach (WorkPool pool in pools)
+            {
+                pool.Stop();
+            }
         }
 
         private class ConsumerWork : IWork

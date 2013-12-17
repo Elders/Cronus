@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 
-namespace Cronus.Core.Eventing
+namespace NMSD.Cronus.Core.Eventing
 {
     public static class EventBusRegistrations
     {

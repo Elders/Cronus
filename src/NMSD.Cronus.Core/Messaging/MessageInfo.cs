@@ -1,9 +1,10 @@
 ﻿using System;
+using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.Messaging;
 
-namespace NMSD.Cronus.Core.Commanding
+namespace NMSD.Cronus.Core.Messaging
 {
-    public static class CommandMessageInfo
+    public static class MessageInfo
     {
         public static string ToString(this IMessage message, string info, params object[] args)
         {

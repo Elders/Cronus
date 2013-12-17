@@ -4,7 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace Cronus.Core
+namespace NMSD.Cronus.Core
 {
     public static class FastActivator
     {

@@ -39,6 +39,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ports\CollaboratorPorts.cs" />
     <Compile Include="Projections\CollaboratorProjection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -51,10 +52,12 @@
       <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>
       <Name>NMSD.Cronus.Sample.Collaboration.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
+      <Project>{1c59eb3d-70e6-45b4-b644-e5607dcf4713}</Project>
+      <Name>NMSD.Cronus.Sample.IdentityAndAccess.Contracts</Name>
+    </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Ports\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>

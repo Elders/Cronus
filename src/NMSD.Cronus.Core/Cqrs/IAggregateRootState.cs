@@ -1,5 +1,5 @@
 using System;
-using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Eventing;
 
 namespace NMSD.Cronus.Core.Cqrs
 {

@@ -1,6 +1,6 @@
 using System;
 using System.IO;
-using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Multithreading.Work;
 using NMSD.Cronus.Core.UnitOfWork;

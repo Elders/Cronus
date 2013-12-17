@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using NMSD.Cronus.Core.Eventing;
 
-namespace Cronus.Core.Eventing
+namespace NMSD.Cronus.Core.Eventing
 {
     //public static class InMemoryEventBusRegistrations
     //{

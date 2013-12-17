@@ -1,5 +1,5 @@
 ﻿using System;
-using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.Messaging;

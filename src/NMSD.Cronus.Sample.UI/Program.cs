@@ -4,6 +4,8 @@ using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Sample.IdentityAndAccess.Users;
+using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
 using Protoreg;
 
 namespace NMSD.Cronus.Sample.UI
@@ -17,28 +19,28 @@ namespace NMSD.Cronus.Sample.UI
             log4net.Config.XmlConfigurator.Configure();
 
             var protoRegistration = new ProtoRegistration();
-            protoRegistration.RegisterAssembly<CreateNewCollaborator>();
+            protoRegistration.RegisterAssembly<RegisterNewUser>();
             protoRegistration.RegisterAssembly<Wraper>();
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
             commandPublisher = new RabbitCommandPublisher(serializer);
 
-            HostUI();
+            HostUI(10000000);
         }
 
         private static void HostUI(int messageDelayInMilliseconds = 0)
         {
-            var email = "test@qqq.commmmmmmm";
+            var email = "mynkow@gmail.com";
             for (int i = 0; i > -1; i++)
             {
                 if (messageDelayInMilliseconds == 0)
                 {
-                    commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
+                    commandPublisher.Publish(new RegisterNewUser(new UserId(Guid.NewGuid()), email));
                 }
                 else
                 {
-                    commandPublisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), email));
+                    commandPublisher.Publish(new RegisterNewUser(new UserId(Guid.NewGuid()), email));
                     Thread.Sleep(messageDelayInMilliseconds);
                 }
             }

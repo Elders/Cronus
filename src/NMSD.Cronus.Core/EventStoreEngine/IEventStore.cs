@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Data.SqlClient;
-using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Cqrs;
 
 namespace Cronus.Core.EventStore

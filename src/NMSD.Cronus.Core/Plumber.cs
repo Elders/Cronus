@@ -1,8 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Threading;
-using NMSD.Cronus.Core;
 using RabbitMQ.Client;
 
 namespace NSMD.Cronus.RabbitMQ
@@ -25,7 +21,7 @@ namespace NSMD.Cronus.RabbitMQ
 
         private readonly string virtualHost;
 
-        public Plumber() : this("192.168.16.53") { }
+        public Plumber() : this("localhost") { }
 
         public Plumber(string hostname, string username = ConnectionFactory.DefaultUser, string password = ConnectionFactory.DefaultPass, int port = 5672, string virtualHost = ConnectionFactory.DefaultVHost)
         {

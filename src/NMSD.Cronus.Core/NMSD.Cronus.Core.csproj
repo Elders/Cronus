@@ -52,9 +52,12 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commanding\CommandMessageInfo.cs" />
     <Compile Include="Commanding\ICommand.cs" />
     <Compile Include="Commanding\RabbitCommandPublisher.cs" />
+    <Compile Include="Cqrs\IPort.cs" />
     <Compile Include="Eventing\InMemoryEventBus.cs" />
+    <Compile Include="Eventing\EventMessageInfo.cs" />
     <Compile Include="Eventing\RabbitEventConsumer.cs" />
     <Compile Include="Eventing\RabbitEventStoreConsumer.cs" />
     <Compile Include="Eventing\RabbitEventStorePublisher.cs" />
@@ -87,7 +90,7 @@
     <Compile Include="Eventing\IEventHandler.cs" />
     <Compile Include="Eventing\InMemoryEventBusHyperion.cs" />
     <Compile Include="EventStoreEngine\IEventStore.cs" />
-    <Compile Include="Commanding\CommandMessageInfo.cs" />
+    <Compile Include="Messaging\MessageInfo.cs" />
     <Compile Include="Cqrs\MessageCommit.cs" />
     <Compile Include="Messaging\MessagingHelpers.cs" />
     <Compile Include="Messaging\QueueFactory.cs" />

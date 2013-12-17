@@ -17,7 +17,7 @@ namespace NMSD.Cronus.Core.Commanding
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RabbitCommandConsumer));
         private Plumber plumber;
-        private WorkPool pool;
+        private List<WorkPool> pools;
         string commandsQueueName;
         private readonly ProtoregSerializer serialiser;
 
@@ -29,24 +29,32 @@ namespace NMSD.Cronus.Core.Commanding
 
         public override void Start(int numberOfWorkers)
         {
+            pools = new List<WorkPool>();
             plumber = new Plumber();
 
             //  Think about this
             queueFactory.Compile(plumber.RabbitConnection);
             //  Think about this
 
-            pool = new WorkPool("defaultPool", numberOfWorkers);
+
             foreach (var queueInfo in queueFactory.Headers)
             {
-                pool.AddWork(new ConsumerWork(this, queueInfo.Key));
+                var pool = new WorkPool("defaultPool", numberOfWorkers);
+                for (int i = 0; i < numberOfWorkers; i++)
+                {
+                    pool.AddWork(new ConsumerWork(this, queueInfo.Key));
+                }
+                pools.Add(pool);
+                pool.StartCrawlers();
             }
-
-            pool.StartCrawlers();
         }
 
         public override void Stop()
         {
-            pool.Stop();
+            foreach (WorkPool pool in pools)
+            {
+                pool.Stop();
+            }
         }
 
         private class ConsumerWork : IWork
@@ -71,7 +79,7 @@ namespace NMSD.Cronus.Core.Commanding
                         QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
                         channel.BasicConsume(endpointName, false, newQueueingBasicConsumer);
 
-                        
+
                         while (true)
                         {
                             for (int i = 0; i < 1000; i++)

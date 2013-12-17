@@ -12,38 +12,35 @@ namespace NMSD.Cronus.Core.Messaging
         /// Registers all message handlers from a given assembly.
         /// </summary>
         /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
-        public static void RegisterAllHandlersInAssembly<THandler>(this IConsumer<THandler> bus, params Assembly[] asembliesContainingMessageHandlers)
+        public static void RegisterAllHandlersInAssembly<THandler>(this IConsumer<THandler> bus, Assembly assemblyContainingMessageHandlers)
         {
-            Register(bus, (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType), (x) => (THandler)FastActivator.CreateInstance(x), asembliesContainingMessageHandlers);
+            Register(bus, assemblyContainingMessageHandlers, (x) => (THandler)FastActivator.CreateInstance(x), (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType));
         }
 
         /// <summary>
         /// Registers all message handlers from a given assembly.
         /// </summary>
         /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
-        public static void RegisterAllHandlersInAssembly<THandler>(this IConsumer<THandler> bus, Func<Type, THandler> commandHandlerFactory, params Assembly[] asembliesContainingMessageHandlers)
+        public static void RegisterAllHandlersInAssembly<THandler>(this IConsumer<THandler> bus, Assembly assemblyContainingMessageHandlers, Func<Type, THandler> messageHandlerFactory)
         {
-            Register(bus, (eventHandlerType) => { }, commandHandlerFactory, asembliesContainingMessageHandlers);
+            Register(bus, assemblyContainingMessageHandlers, messageHandlerFactory, (eventHandlerType) => { });
         }
 
-        static void Register<THandler>(this IConsumer<THandler> bus, Action<Type> doBeforeRegister, Func<Type, THandler> messageHandlerFactory, params Assembly[] asembliesContainingMessageHandlers)
+        static void Register<THandler>(this IConsumer<THandler> bus, Assembly assemblyContainingMessageHandlers, Func<Type, THandler> messageHandlerFactory, Action<Type> doBeforeRegister)
         {
-            foreach (Assembly assembly in asembliesContainingMessageHandlers)
+            var messageHandlerTypes = assemblyContainingMessageHandlers.GetTypes().Where(x => x.GetInterfaces().Contains(typeof(THandler)) && x.IsClass);
+            Type genericMarkupInterface = typeof(IMessageHandler<>);
+            foreach (var messageHandlerType in messageHandlerTypes)
             {
-                var commandHandlerTypes = assembly.GetTypes().Where(x => x.GetInterfaces().Contains(typeof(THandler)) && x.IsClass);
-                Type genericMarkupInterface = typeof(IMessageHandler<>);
-                foreach (var messageHandlerType in commandHandlerTypes)
-                {
-                    var fpMessageHandlerType = messageHandlerType;
-                    doBeforeRegister(fpMessageHandlerType);
-                    var interfaces = fpMessageHandlerType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericMarkupInterface);
+                var fpMessageHandlerType = messageHandlerType;
+                doBeforeRegister(fpMessageHandlerType);
+                var interfaces = fpMessageHandlerType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericMarkupInterface);
 
-                    foreach (var @interface in interfaces)
-                    {
-                        Type eventType = @interface.GetGenericArguments().FirstOrDefault();
-                        if (eventType != null)
-                            bus.RegisterHandler(eventType, fpMessageHandlerType, messageHandlerFactory);
-                    }
+                foreach (var @interface in interfaces)
+                {
+                    Type eventType = @interface.GetGenericArguments().FirstOrDefault();
+                    if (eventType != null)
+                        bus.RegisterHandler(eventType, fpMessageHandlerType, messageHandlerFactory);
                 }
             }
         }

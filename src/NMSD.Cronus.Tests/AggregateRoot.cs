@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Eventing;
 using Machine.Specifications;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;

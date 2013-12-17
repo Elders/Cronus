@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Cronus.Core;
 
-namespace Cronus.Core.Eventing
+namespace NMSD.Cronus.Core.Eventing
 {
     /// <summary>
     /// Represents an in memory event messaging destribution

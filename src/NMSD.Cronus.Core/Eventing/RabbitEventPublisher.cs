@@ -1,4 +1,4 @@
-﻿using Cronus.Core.Eventing;
+﻿using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Messaging;
 using Protoreg;
 

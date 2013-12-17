@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Eventing;
 using Cronus.Core.EventStore;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Messaging;

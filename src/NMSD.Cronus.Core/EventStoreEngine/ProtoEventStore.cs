@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using Cronus.Core.Eventing;
+using NMSD.Cronus.Core.Eventing;
 using Cronus.Core.EventStore;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Messaging;

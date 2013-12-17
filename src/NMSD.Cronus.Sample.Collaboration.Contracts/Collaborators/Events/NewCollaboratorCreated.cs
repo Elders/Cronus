@@ -1,7 +1,5 @@
-﻿using System;
-using System.Runtime.Serialization;
-using Cronus.Core.Eventing;
-using NMSD.Cronus.Core.Commanding;
+﻿using System.Runtime.Serialization;
+using NMSD.Cronus.Core.Eventing;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Events
 {
