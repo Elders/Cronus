@@ -1,5 +1,5 @@
 using NMSD.Cronus.Core.Messaging;
-using Protoreg;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Core.Commanding
 {

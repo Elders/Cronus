@@ -33,10 +33,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators
         public void When(NewCollaboratorCreated e)
         {
             Id = e.CollaboratorId;
-            Version = 10;
             Email = e.Email;
         }
-
-
     }
 }

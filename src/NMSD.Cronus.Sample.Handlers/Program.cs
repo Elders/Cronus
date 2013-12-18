@@ -7,7 +7,7 @@ using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.UnitOfWork;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.Collaboration.Projections;
-using Protoreg;
+using NMSD.Protoreg;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
 

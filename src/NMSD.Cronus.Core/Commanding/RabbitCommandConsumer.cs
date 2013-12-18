@@ -6,10 +6,11 @@ using System.Reflection;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Multithreading.Work;
 using NSMD.Cronus.RabbitMQ;
-using Protoreg;
+using NMSD.Protoreg;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using NMSD.Cronus.Core.UnitOfWork;
+using RabbitMQ.Client.Events;
 
 namespace NMSD.Cronus.Core.Commanding
 {
@@ -79,36 +80,30 @@ namespace NMSD.Cronus.Core.Commanding
                         QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
                         channel.BasicConsume(endpointName, false, newQueueingBasicConsumer);
 
-
                         while (true)
                         {
-                            for (int i = 0; i < 1000; i++)
+                            // TODO: add logic like for
+                            StartNewUnitOfWork();
+                            try
                             {
-                                StartNewUnitOfWork();
-                                try
-                                {
-                                    var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
+                                var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
 
-                                    ICommand command;
-                                    using (var stream = new MemoryStream(rawMessage.Body))
-                                    {
-                                        command = consumer.serialiser.Deserialize(stream) as ICommand;
-                                    }
-
-                                    if (consumer.Handle(command, unitOfWork))
-                                        channel.BasicAck(rawMessage.DeliveryTag, false);
-                                }
-                                catch (EndOfStreamException)
+                                ICommand command;
+                                using (var stream = new MemoryStream(rawMessage.Body))
                                 {
-                                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                                    break;
+                                    command = consumer.serialiser.Deserialize(stream) as ICommand;
                                 }
-                                EndUnitOfWork();
+
+                                if (consumer.Handle(command, unitOfWork))
+                                    channel.BasicAck(rawMessage.DeliveryTag, false);
                             }
+                            catch (EndOfStreamException)
+                            {
+                                ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                                break;
+                            }
+                            EndUnitOfWork();
                         }
-
-
-
                     }
                 }
                 catch (OperationInterruptedException ex)
@@ -116,6 +111,10 @@ namespace NMSD.Cronus.Core.Commanding
 
                     ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
 
+                }
+                catch (Exception ex)
+                {
+                    throw ex;
                 }
             }
 

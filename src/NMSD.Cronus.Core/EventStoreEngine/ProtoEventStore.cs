@@ -11,7 +11,9 @@ using Cronus.Core.EventStore;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Snapshotting;
-using Protoreg;
+using NMSD.Protoreg;
+using System.Text;
+using System.Globalization;
 
 namespace NMSD.Cronus.Core.EventStoreEngine
 {
@@ -31,9 +33,10 @@ namespace NMSD.Cronus.Core.EventStoreEngine
     }
     public class ProtoEventStore : ISnapShotter, IEventStore
     {
-        const string LoadAggregateStateQueryTemplate = @"SELECT TOP 1 AggregateState FROM {0}Snapshots WHERE AggregateId=@aggregateId ORDER BY Version DESC";
+        private readonly string boundedContext;
+        const string LoadAggregateStateQueryTemplate = @"SELECT TOP 1 AggregateState FROM {0} WHERE AggregateId=@aggregateId ORDER BY Version DESC";
 
-        const string LoadEventsQueryTemplate = @"SELECT Events FROM {0}Events ORDER BY Revision OFFSET @offset ROWS FETCH NEXT {1} ROWS ONLY";
+        const string LoadEventsQueryTemplate = @"SELECT Events FROM {0} ORDER BY Revision OFFSET @offset ROWS FETCH NEXT {1} ROWS ONLY";
 
         private readonly string connectionString;
 
@@ -43,8 +46,13 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
         ConcurrentDictionary<Type, Tuple<string, string>> snapshotsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
 
-        public ProtoEventStore(string connectionString, ProtoregSerializer serializer)
+        private readonly string eventsTableName;
+        private readonly string snapshotsTableName;
+        public ProtoEventStore(string boundedContext, string connectionString, ProtoregSerializer serializer)
         {
+            this.boundedContext = boundedContext;
+            eventsTableName = String.Format("dbo.{0}Events", boundedContext);
+            snapshotsTableName = String.Format("dbo.{0}Snapshots", boundedContext);
             this.connectionString = connectionString;
             this.serializer = serializer;
         }
@@ -88,12 +96,12 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
-        public IAggregateRootState LoadAggregateState(string boundedContext, Guid aggregateId)
+        public IAggregateRootState LoadAggregateState(Guid aggregateId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string query = String.Format(LoadAggregateStateQueryTemplate, boundedContext);
+                string query = String.Format(LoadAggregateStateQueryTemplate, snapshotsTableName);
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@aggregateId", aggregateId);
 
@@ -124,10 +132,64 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             return conn;
         }
 
+
+
+        private void ValidateEventsBoundedContext(List<IEvent> events)
+        {
+            StringBuilder errors = new StringBuilder();
+            ISet<Type> wrongEventTypes = new HashSet<Type>();
+            foreach (var @event in events)
+            {
+                var eventType = @event.GetType();
+                string eventBC = MessagingHelper.GetBoundedContext(eventType);
+                if (String.Compare(boundedContext, eventBC, true, CultureInfo.InvariantCulture) != 0)
+                    wrongEventTypes.Add(eventType);
+            }
+
+            if (wrongEventTypes.Count > 0)
+            {
+                foreach (Type et in wrongEventTypes)
+                {
+                    errors.AppendLine();
+                    errors.Append(et.FullName);
+                }
+                string errorMessage = String.Format("The following events do not belong to the '{0} bounded context. {1}", boundedContext, errors.ToString());
+                throw new Exception(errorMessage);
+            }
+        }
+
+        private void ValidateSnapshotsBoundedContext(List<IAggregateRootState> states)
+        {
+            StringBuilder errors = new StringBuilder();
+            ISet<Type> wrongStateTypes = new HashSet<Type>();
+            foreach (var @event in states)
+            {
+                var eventType = @event.GetType();
+                string eventBC = MessagingHelper.GetBoundedContext(eventType);
+                if (String.Compare(boundedContext, eventBC, true, CultureInfo.InvariantCulture) != 0)
+                    wrongStateTypes.Add(eventType);
+            }
+
+            if (wrongStateTypes.Count > 0)
+            {
+                foreach (Type et in wrongStateTypes)
+                {
+                    errors.AppendLine();
+                    errors.Append(et.FullName);
+                }
+                string errorMessage = String.Format("The following states do not belong to the '{0} bounded context. {1}", boundedContext, errors.ToString());
+                throw new Exception(errorMessage);
+            }
+        }
+
         public void Persist(List<IEvent> events, SqlConnection connection)
         {
             if (events == null) throw new ArgumentNullException("events");
             if (events.Count == 0) return;
+
+#if DEBUG
+            ValidateEventsBoundedContext(events);
+#endif
 
             byte[] buffer = SerializeEvents(events);
 
@@ -140,17 +202,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
             {
-                Tuple<string, string> eventInfo;
-                Type firstEventType = events.First().GetType();
-                if (!eventsInfo.TryGetValue(firstEventType, out eventInfo))
-                {
-                    string boundedContext = MessagingHelper.GetBoundedContext(firstEventType);
-                    string table = String.Format("dbo.{0}Events", boundedContext);
-                    eventInfo = new Tuple<string, string>(boundedContext, table);
-                    eventsInfo.TryAdd(firstEventType, eventInfo);
-                }
-
-                bulkCopy.DestinationTableName = eventInfo.Item2;
+                bulkCopy.DestinationTableName = eventsTableName;
                 try
                 {
                     bulkCopy.WriteToServer(eventsTable, DataRowState.Added);
@@ -166,6 +218,10 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
         public void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection)
         {
+#if DEBUG
+            ValidateSnapshotsBoundedContext(states);
+#endif
+
             DataTable dt = CreateInMemoryTableForSnapshots();
 
             foreach (var state in states)
@@ -182,18 +238,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
             {
-                Tuple<string, string> snapshotInfo;
-                Type firstSnapshotType = states.First().GetType();
-                if (!snapshotsInfo.TryGetValue(firstSnapshotType, out snapshotInfo))
-                {
-                    string boundedContext = MessagingHelper.GetBoundedContext(firstSnapshotType);
-                    string table = String.Format("dbo.{0}Snapshots", boundedContext);
-                    snapshotInfo = new Tuple<string, string>(boundedContext, table);
-                    snapshotsInfo.TryAdd(firstSnapshotType, snapshotInfo);
-                }
-
-                bulkCopy.DestinationTableName = snapshotInfo.Item2;
-
+                bulkCopy.DestinationTableName = snapshotsTableName;
                 try
                 {
                     bulkCopy.WriteToServer(dt, DataRowState.Added);

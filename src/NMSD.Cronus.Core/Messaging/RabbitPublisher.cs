@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using NSMD.Cronus.RabbitMQ;
-using Protoreg;
+using NMSD.Protoreg;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Framing.v0_9_1;
 

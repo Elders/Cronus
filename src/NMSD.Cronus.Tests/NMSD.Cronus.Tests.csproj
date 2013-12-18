@@ -40,6 +40,14 @@
     <Reference Include="Machine.Specifications.Clr4">
       <HintPath>..\packages\Machine.Specifications.0.5.16\lib\net40\Machine.Specifications.Clr4.dll</HintPath>
     </Reference>
+    <Reference Include="NMSD.Protoreg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NMSD.Protoreg.1.0.7400.1\lib\NMSD.Protoreg.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NMSD.Protoreg.1.0.7400.1\lib\protobuf-net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />

@@ -68,7 +68,7 @@ namespace NMSD.Cronus.Core
             ObjectActivator activator;
             if (!activators.TryGetValue(type, out activator))
             {
-                var constructors = type.GetConstructors(BindingFlags.NonPublic);
+                var constructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic);
                 if (constructors.Length == 1)
                 {
                     ConstructorInfo ctor = constructors.First();

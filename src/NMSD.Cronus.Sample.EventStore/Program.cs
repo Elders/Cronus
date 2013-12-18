@@ -8,7 +8,7 @@ using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
-using Protoreg;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Sample.EventStore
 {
@@ -28,13 +28,18 @@ namespace NMSD.Cronus.Sample.EventStore
             serializer.Build();
 
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-            var eventStore = new ProtoEventStore(connectionString, serializer);
-            var bcAssemblies = new List<Assembly>();
-            bcAssemblies.Add(Assembly.GetAssembly(typeof(NewCollaboratorCreated)));
-            bcAssemblies.Add(Assembly.GetAssembly(typeof(NewUserRegistered)));
-            var eventStoreConsumer = new RabbitEventStoreConsumer(bcAssemblies, serializer, eventStore);
-            eventStoreConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
-            eventStoreConsumer.Start(2);
+
+            var iacES = new ProtoEventStore("IdentityAndAccess", connectionString, serializer);
+            var iacEventStoreConsumer = new RabbitEventStoreConsumer(Assembly.GetAssembly(typeof(NewUserRegistered)), serializer, iacES);
+            iacEventStoreConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
+            iacEventStoreConsumer.Start(1);
+
+            var collaborationES = new ProtoEventStore("Collaboration", connectionString, serializer);
+            var collaborationEventStoreConsumer = new RabbitEventStoreConsumer(Assembly.GetAssembly(typeof(NewCollaboratorCreated)), serializer, collaborationES);
+            collaborationEventStoreConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
+            collaborationEventStoreConsumer.Start(1);
+
+
         }
     }
 }

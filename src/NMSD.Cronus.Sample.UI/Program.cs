@@ -6,7 +6,7 @@ using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
-using Protoreg;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Sample.UI
 {
@@ -26,24 +26,37 @@ namespace NMSD.Cronus.Sample.UI
 
             commandPublisher = new RabbitCommandPublisher(serializer);
 
-            HostUI(10000000);
+            HostUI(0);
         }
 
-        private static void HostUI(int messageDelayInMilliseconds = 0)
+        private static void HostUI(int messageDelayInMilliseconds = 0, int batchSize = 1)
         {
-            var email = "mynkow@gmail.com";
-            for (int i = 0; i > -1; i++)
+
+            for (int i = 0; i < 1000; i++)
             {
                 if (messageDelayInMilliseconds == 0)
                 {
-                    commandPublisher.Publish(new RegisterNewUser(new UserId(Guid.NewGuid()), email));
+                    PublishCommands();
                 }
                 else
                 {
-                    commandPublisher.Publish(new RegisterNewUser(new UserId(Guid.NewGuid()), email));
+                    for (int j = 0; j < batchSize; j++)
+                    {
+                        PublishCommands();
+                    }
+
                     Thread.Sleep(messageDelayInMilliseconds);
                 }
             }
+        }
+
+        private static void PublishCommands()
+        {
+            UserId userId = new UserId(Guid.NewGuid());
+            var email = "mynkow@gmail.com";
+            commandPublisher.Publish(new RegisterNewUser(userId, email));
+            Thread.Sleep(500);
+            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
         }
     }
 }

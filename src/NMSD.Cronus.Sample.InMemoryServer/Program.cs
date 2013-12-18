@@ -2,6 +2,7 @@
 using System.Configuration;
 using System.Reflection;
 using System.Threading;
+using Cronus.Core.EventStore;
 using NMSD.Cronus.Core;
 using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.Cqrs;
@@ -11,7 +12,7 @@ using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.Collaboration.Projections;
-using Protoreg;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Sample.InMemoryServer
 {
@@ -48,7 +49,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
         private static void HostApplicationServices()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-            var eventStore = new ProtoEventStore(connectionString, serializer);
+            IEventStore eventStore = null;//= new ProtoEventStore(connectionString, serializer);
 
             commandBus = new InMemoryCommandBus();
             commandBus.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)),
@@ -64,7 +65,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
         private static void HostEventHandlers()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-            var eventStore = new ProtoEventStore(connectionString, serializer);
+            var eventStore = new ProtoEventStore("", connectionString, serializer);
 
             eventBus = new InMemoryEventBus(eventStore);
             eventBus.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));

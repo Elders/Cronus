@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Reflection;
 using NMSD.Cronus.Core;
 using NMSD.Cronus.Core.Commanding;
@@ -11,7 +12,7 @@ using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
-using Protoreg;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Sample.ApplicationService
 {
@@ -30,23 +31,36 @@ namespace NMSD.Cronus.Sample.ApplicationService
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
-            var eventPublisher = new RabbitEventStorePublisher(serializer);
+            string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+
             var commandConsumer = new RabbitCommandConsumer(serializer);
+            commandConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
+
+
+            var commaborationES = new ProtoEventStore("Collaboration", connectionString, serializer);
+            var collaborationEventPublisher = new RabbitEventStorePublisher(serializer);
             commandConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)),
                 type =>
                 {
                     var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
-                    handler.EventPublisher = eventPublisher;
+                    handler.EventStore = commaborationES;
+                    handler.EventPublisher = collaborationEventPublisher;
                     return handler;
                 });
+
+            var iacES = new ProtoEventStore("IdentityAndAccess", connectionString, serializer);
+            var iacEventPublisher = new RabbitEventStorePublisher(serializer);
             commandConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)),
                 type =>
                 {
                     var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
-                    handler.EventPublisher = eventPublisher;
+                    handler.EventStore = iacES;
+                    handler.EventPublisher = iacEventPublisher;
                     return handler;
                 });
-            commandConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
+
+
+
             commandConsumer.Start(1);
 
             Console.ReadLine();

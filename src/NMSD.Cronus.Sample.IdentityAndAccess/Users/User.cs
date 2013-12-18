@@ -15,5 +15,12 @@ namespace NMSD.Cronus.Sample.IdentityAndAccess
             Apply(evnt);
         }
 
+        public void ChangeEmail(string oldEmail, string newEmail)
+        {
+            //  Checks
+            var @event = new UserEmailChanged(state.Id, oldEmail, newEmail);
+            Apply(@event);
+        }
+
     }
 }

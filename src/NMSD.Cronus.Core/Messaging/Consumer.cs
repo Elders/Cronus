@@ -67,21 +67,14 @@ namespace NMSD.Cronus.Core.Messaging
 
         protected bool Handle(TMessage message, IUnitOfWorkPerMessage uowMessage, Type eventHandlerType, Func<Type, TMessageHandler> handlerFactory)
         {
-            try
-            {
-                var unitOfWork = UnitOfWorkFactory.NewHandler();
-                unitOfWork.UoWMessage = uowMessage;
-                var handler = handlerFactory(eventHandlerType);
+            var unitOfWork = UnitOfWorkFactory.NewHandler();
+            unitOfWork.UoWMessage = uowMessage;
+            var handler = handlerFactory(eventHandlerType);
 
-                handlerCallbacks[eventHandlerType][message.GetType()](handler, new object[] { message });
-                log.Info("HANDLE => " + message.ToString());
+            handlerCallbacks[eventHandlerType][message.GetType()](handler, new object[] { message });
+            log.Info("HANDLE => " + message.ToString());
 
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            return true;
         }
     }
 }
