@@ -26,7 +26,7 @@ namespace NMSD.Cronus.Sample.UI
 
             commandPublisher = new RabbitCommandPublisher(serializer);
 
-            HostUI(0);
+            HostUI(1111111100);
         }
 
         private static void HostUI(int messageDelayInMilliseconds = 0, int batchSize = 1)
@@ -55,7 +55,7 @@ namespace NMSD.Cronus.Sample.UI
             UserId userId = new UserId(Guid.NewGuid());
             var email = "mynkow@gmail.com";
             commandPublisher.Publish(new RegisterNewUser(userId, email));
-            Thread.Sleep(500);
+            Thread.Sleep(10000);
             commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
         }
     }

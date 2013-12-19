@@ -8,9 +8,9 @@ namespace NMSD.Cronus.Core.Cqrs
     {
         public AggregateRootId() { }
 
-        public AggregateRootId(Guid id)
+        public AggregateRootId(Guid idBase)
         {
-            this.Id = id;
+            this.Id = idBase;
         }
 
         [DataMember(Order = 1)]
@@ -33,7 +33,6 @@ namespace NMSD.Cronus.Core.Cqrs
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-
             return Id.Equals(other.Id);
         }
 
