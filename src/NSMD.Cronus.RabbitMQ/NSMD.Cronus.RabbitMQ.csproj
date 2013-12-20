@@ -48,17 +48,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Endpoint.cs" />
-    <Compile Include="Pipeline.cs" />
-    <Compile Include="Plumber.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="Transports.Conventions\Class1.cs" />
+    <Compile Include="Transports.RabbitMQ\Endpoint.cs" />
+    <Compile Include="Transports.RabbitMQ\EndpointMessage.cs" />
+    <Compile Include="Transports.RabbitMQ\Pipeline.cs" />
+    <Compile Include="Transports.RabbitMQ\SafeChannel.cs" />
+    <Compile Include="Transports.RabbitMQ\SessionFactory.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RabbitMQConnection.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMQSession.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
