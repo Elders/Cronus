@@ -7,23 +7,23 @@ namespace NMSD.Cronus.Core.Cqrs
 {
     public static class AggregateRootFactory
     {
-        public static AR Build<AR>(List<IEvent> events)
-            where AR : IAggregateRoot
+        public static TAggregateRoot Build<TAggregateRoot>(List<IEvent> events)
+            where TAggregateRoot : IAggregateRoot
         {
-            var ar = (AR)FastActivator.CreateInstance(typeof(AR), true);
+            var ar = (TAggregateRoot)FastActivator.CreateInstance(typeof(TAggregateRoot), true);
             var state = ar.BuildStateFromHistory(events);
             return Build(ar, state);
         }
 
-        public static AR Build<AR>(IAggregateRootState state)
-            where AR : IAggregateRoot
+        public static TAggregateRoot Build<TAggregateRoot>(IAggregateRootState state)
+            where TAggregateRoot : IAggregateRoot
         {
-            var ar = (AR)FastActivator.CreateInstance(typeof(AR), true);
+            var ar = (TAggregateRoot)FastActivator.CreateInstance(typeof(TAggregateRoot), true);
             return Build(ar, state);
         }
 
-        private static AR Build<AR>(AR aggregateRoot, IAggregateRootState state)
-            where AR : IAggregateRoot
+        private static TAggregateRoot Build<TAggregateRoot>(TAggregateRoot aggregateRoot, IAggregateRootState state)
+            where TAggregateRoot : IAggregateRoot
         {
             if (state == null || state.Id == null || state.Id.Id == default(Guid))
                 throw new AggregateRootException("Invalid aggregate root state. The initial event which created the aggregate root is missing.");

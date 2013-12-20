@@ -33,10 +33,10 @@ namespace NMSD.Cronus.Core.Eventing
                 }
                 return true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 eventStore.CloseConnection(connection);
-                throw ex;
+                throw;
             }
         }
     }
