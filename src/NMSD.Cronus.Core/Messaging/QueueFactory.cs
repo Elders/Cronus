@@ -28,7 +28,7 @@ namespace NMSD.Cronus.Core.Messaging
             pipeline = pipeline ?? MessagingHelper.GetPipelineName(messageType);
         }
 
-        protected void CreateEndpoint(IConnection rabbitConnection, string pipelineName, string endpointName, IDictionary<string, object> headers)
+        public static void CreateEndpoint(IConnection rabbitConnection, string pipelineName, string endpointName, IDictionary<string, object> headers)
         {
             using (var channel = rabbitConnection.CreateModel())
             {

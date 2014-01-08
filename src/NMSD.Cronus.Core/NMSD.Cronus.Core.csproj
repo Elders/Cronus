@@ -23,7 +23,7 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
     <RunCodeAnalysis>true</RunCodeAnalysis>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>CronusCodeAnalysisRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -118,8 +118,6 @@
     <Compile Include="Messaging\IPublisher.cs" />
     <Compile Include="Messaging\RabbitPublisher.cs" />
     <Compile Include="RetryableOperation.cs" />
-    <Compile Include="Snapshotting\ISnapShotter.cs" />
-    <Compile Include="Snapshotting\SnapShotter.cs" />
     <Compile Include="Threading.cs" />
     <Compile Include="UnitOfWork\IUnitOfWork.cs" />
     <Compile Include="UnitOfWork\NullUnitOfWorkImpl.cs" />
@@ -129,6 +127,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Logging\" />
+  </ItemGroup>
+  <ItemGroup>
+    <CodeAnalysisDictionary Include="CodeAnalysisDictionary.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

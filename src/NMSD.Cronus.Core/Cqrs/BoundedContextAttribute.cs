@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 
 namespace NMSD.Cronus.Core.Cqrs
 {
     [AttributeUsage(AttributeTargets.Assembly)]
-    public class BoundedContextAttribute : Attribute
+    public sealed class BoundedContextAttribute : Attribute
     {
         private string boundedContextName;
 
@@ -33,9 +34,9 @@ namespace NMSD.Cronus.Core.Cqrs
             }
             this.productName = productNameBuilder.ToString().TrimEnd('.');
             this.boundedContextName = splitted[splitted.Length - 1];
-            this.commandsPipelineName = String.Format("{0}.{1}.Commands", companyName, productName);
-            this.eventsPipelineName = String.Format("{0}.{1}.Events", companyName, productName);
-            this.eventStorePipelineName = String.Format("{0}.{1}.EventStore", companyName, productName);
+            this.commandsPipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.Commands", companyName, productName);
+            this.eventsPipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.Events", companyName, productName);
+            this.eventStorePipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.EventStore", companyName, productName);
         }
 
         public BoundedContextAttribute(string companyName, string productName, string boundedContextName)
@@ -43,10 +44,10 @@ namespace NMSD.Cronus.Core.Cqrs
             this.boundedContextName = boundedContextName;
             this.productName = productName;
             this.companyName = companyName;
-            this.boundedContextNamespace = String.Format("{0}.{1}.{2}", companyName, productName, boundedContextName);
-            this.commandsPipelineName = String.Format("{0}.{1}.Commands", companyName, productName);
-            this.eventsPipelineName = String.Format("{0}.{1}.Events", companyName, productName);
-            this.eventStorePipelineName = String.Format("{0}.{1}.EventStore", companyName, productName);
+            this.boundedContextNamespace = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", companyName, productName, boundedContextName);
+            this.commandsPipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.Commands", companyName, productName);
+            this.eventsPipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.Events", companyName, productName);
+            this.eventStorePipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.EventStore", companyName, productName);
         }
 
         public string BoundedContextName { get { return boundedContextName; } }

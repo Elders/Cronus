@@ -15,7 +15,9 @@ namespace NMSD.Cronus.Core.Messaging
 
         protected Dictionary<Type, Dictionary<Type, LateBoundVoidMethod>> handlerCallbacks = new Dictionary<Type, Dictionary<Type, LateBoundVoidMethod>>();
 
-        protected Dictionary<Type, List<Func<TMessage, IUnitOfWorkPerMessage, bool>>> handlers = new Dictionary<Type, List<Func<TMessage, IUnitOfWorkPerMessage, bool>>>();
+        private Dictionary<Type, List<Func<TMessage, IUnitOfWorkPerMessage, bool>>> handlers = new Dictionary<Type, List<Func<TMessage, IUnitOfWorkPerMessage, bool>>>();
+
+        public Dictionary<Type, List<Func<TMessage, IUnitOfWorkPerMessage, bool>>> Handlers { get { return handlers; } set { handlers = value; } }
 
         public virtual void RegisterHandler(Type messageType, Type messageHandlerType, Func<Type, TMessageHandler> handlerFactory)
         {

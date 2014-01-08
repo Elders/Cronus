@@ -12,8 +12,6 @@ namespace NMSD.Cronus.Core.Multithreading.Work
 
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(WorkProcessor));
 
-        object locker = new object();
-
         volatile bool shouldWork = true;
 
         int sleepTime;

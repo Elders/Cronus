@@ -10,10 +10,10 @@ using NMSD.Cronus.Core.Eventing;
 using Cronus.Core.EventStore;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Messaging;
-using NMSD.Cronus.Core.Snapshotting;
 using NMSD.Protoreg;
 using System.Text;
 using System.Globalization;
+using System.Diagnostics.Contracts;
 
 namespace NMSD.Cronus.Core.EventStoreEngine
 {
@@ -31,7 +31,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
         public List<object> Events { get; private set; }
 
     }
-    public class ProtoEventStore : ISnapShotter, IEventStore
+    public class ProtoEventStore : IEventStore
     {
         const string DeleteAggregateStatesQueryTemplate = @"DELETE {0} WHERE [Timestamp]<@timestamp AND ({1})";
 
@@ -45,13 +45,9 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
         private readonly string connectionString;
 
-        ConcurrentDictionary<Type, Tuple<string, string>> eventsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
-
         private readonly string eventsTableName;
 
         private readonly ProtoregSerializer serializer;
-
-        ConcurrentDictionary<Type, Tuple<string, string>> snapshotsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
 
         private readonly string snapshotsTableName;
 
@@ -69,12 +65,13 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             conn.Close();
         }
 
-        public IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
+        public IEnumerable<IEvent> GetEventsFromStart(string boundedContextToQuery, int batchPerQuery = 1)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string query = String.Format(LoadEventsQueryTemplate, boundedContext, batchPerQuery);
+                string query = String.Format(CultureInfo.InvariantCulture, LoadEventsQueryTemplate, boundedContextToQuery, batchPerQuery);
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@offset", 0);
 
@@ -103,30 +100,33 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         public IAggregateRootState LoadAggregateState(Guid aggregateId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string query = String.Format(LoadAggregateStateQueryTemplate, snapshotsTableName);
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@aggregateId", aggregateId);
-
-                using (var reader = command.ExecuteReader())
+                string query = String.Format(CultureInfo.InvariantCulture, LoadAggregateStateQueryTemplate, snapshotsTableName);
+                using (SqlCommand command = new SqlCommand(query, connection))
                 {
-                    if (reader.Read())
+                    command.Parameters.AddWithValue("@aggregateId", aggregateId);
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        var buffer = reader[0] as byte[];
-                        IAggregateRootState state;
-                        using (var stream = new MemoryStream(buffer))
+                        if (reader.Read())
                         {
-                            state = (IAggregateRootState)serializer.Deserialize(stream);
+                            var buffer = reader[0] as byte[];
+                            IAggregateRootState state;
+                            using (var stream = new MemoryStream(buffer))
+                            {
+                                state = (IAggregateRootState)serializer.Deserialize(stream);
+                            }
+                            return state;
                         }
-                        return state;
-                    }
-                    else
-                    {
-                        return default(IAggregateRootState);
+                        else
+                        {
+                            return default(IAggregateRootState);
+                        }
                     }
                 }
             }
@@ -141,8 +141,8 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
         public void Persist(List<IEvent> events, SqlConnection connection)
         {
-            if (events == null) throw new ArgumentNullException("events");
-            if (events.Count == 0) return;
+            Contract.Requires<ArgumentNullException>(events != null);
+            Contract.Requires(events.Count > 0);
 
 #if DEBUG
             ValidateEventsBoundedContext(events);
@@ -150,23 +150,25 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
             byte[] buffer = SerializeEvents(events);
 
-            DataTable eventsTable = CreateInMemoryTableForEvents();
-            var row = eventsTable.NewRow();
-            row[1] = buffer;
-            row[2] = events.Count;
-            row[3] = DateTime.UtcNow;
-            eventsTable.Rows.Add(row);
-
-            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
+            using (DataTable eventsTable = CreateInMemoryTableForEvents())
             {
-                bulkCopy.DestinationTableName = eventsTableName;
-                try
+                var row = eventsTable.NewRow();
+                row[1] = buffer;
+                row[2] = events.Count;
+                row[3] = DateTime.UtcNow;
+                eventsTable.Rows.Add(row);
+
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
                 {
-                    bulkCopy.WriteToServer(eventsTable, DataRowState.Added);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
+                    bulkCopy.DestinationTableName = eventsTableName;
+                    try
+                    {
+                        bulkCopy.WriteToServer(eventsTable, DataRowState.Added);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
                 }
             }
         }
@@ -280,6 +282,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             return uncommittedState;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2100:Review SQL queries for security vulnerabilities")]
         SqlCommand PrepareAggregateStateDeleteCommand(List<IAggregateRootState> states)
         {
             var deleteCmd = new SqlCommand();
@@ -294,7 +297,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
                     deleteWhereClauseBuilder.Append(" OR ");
             }
             deleteCmd.Parameters.AddWithValue("@timestamp", DateTime.UtcNow.AddHours(-1));
-            deleteCmd.CommandText = String.Format(DeleteAggregateStatesQueryTemplate, snapshotsTableName, deleteWhereClauseBuilder.ToString());
+            deleteCmd.CommandText = String.Format(CultureInfo.InvariantCulture, DeleteAggregateStatesQueryTemplate, snapshotsTableName, deleteWhereClauseBuilder.ToString());
 
             return deleteCmd;
         }

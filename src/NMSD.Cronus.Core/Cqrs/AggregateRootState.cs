@@ -17,36 +17,36 @@ namespace NMSD.Cronus.Core.Cqrs
             state.When((dynamic)@event);
         }
 
-        public static bool operator ==(AggregateRootState<ID> x, AggregateRootState<ID> y)
+        public static bool operator ==(AggregateRootState<ID> left, AggregateRootState<ID> right)
         {
-            return x.Equals(y);
+            return left.Equals(right);
         }
 
-        public static bool operator >(AggregateRootState<ID> x, AggregateRootState<ID> y)
+        public static bool operator >(AggregateRootState<ID> left, AggregateRootState<ID> right)
         {
-            if (ReferenceEquals(null, x) && ReferenceEquals(null, y)) return false;
-            if (x == y) return false;
-            return x.Id.Equals(y.Id) && x.Version > y.Version;
+            if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return false;
+            if (left == right) return false;
+            return left.Id.Equals(right.Id) && left.Version > right.Version;
         }
 
-        public static bool operator !=(AggregateRootState<ID> x, AggregateRootState<ID> y)
+        public static bool operator !=(AggregateRootState<ID> left, AggregateRootState<ID> right)
         {
-            return !(x == y);
+            return !(left == right);
         }
 
-        public static bool operator <(AggregateRootState<ID> x, AggregateRootState<ID> y)
+        public static bool operator <(AggregateRootState<ID> left, AggregateRootState<ID> right)
         {
-            if (ReferenceEquals(null, x) && ReferenceEquals(null, y)) return false;
-            if (x == y) return false;
-            return x.Id.Equals(y.Id) && x.Version < y.Version;
+            if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return false;
+            if (left == right) return false;
+            return left.Id.Equals(right.Id) && left.Version < right.Version;
         }
 
-        public bool Equals(IAggregateRootState x, IAggregateRootState y)
+        public bool Equals(IAggregateRootState left, IAggregateRootState right)
         {
-            if (ReferenceEquals(null, x) && ReferenceEquals(null, y)) return false;
-            if (ReferenceEquals(x, y)) return true;
+            if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return false;
+            if (ReferenceEquals(left, right)) return true;
 
-            return x.Id == y.Id && x.Version == y.Version;
+            return left.Id == right.Id && left.Version == right.Version;
         }
 
         public bool Equals(IAggregateRootState other)

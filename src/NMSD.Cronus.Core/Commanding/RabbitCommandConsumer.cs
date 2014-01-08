@@ -16,10 +16,8 @@ namespace NMSD.Cronus.Core.Commanding
 {
     public class RabbitCommandConsumer : RabbitConsumer<ICommand, IMessageHandler>
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RabbitCommandConsumer));
         private Plumber plumber;
         private List<WorkPool> pools;
-        string commandsQueueName;
         private readonly ProtoregSerializer serialiser;
 
         public RabbitCommandConsumer(ProtoregSerializer serialiser)
@@ -106,11 +104,9 @@ namespace NMSD.Cronus.Core.Commanding
                         }
                     }
                 }
-                catch (OperationInterruptedException ex)
+                catch (OperationInterruptedException)
                 {
-
                     ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-
                 }
                 catch (Exception ex)
                 {

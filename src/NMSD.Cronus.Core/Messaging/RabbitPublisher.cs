@@ -38,19 +38,19 @@ namespace NMSD.Cronus.Core.Messaging
             Console.WriteLine("connection_ConnectionUnblocked");
         }
 
-        void connection_ConnectionShutdown(IConnection connection, ShutdownEventArgs reason)
+        void connection_ConnectionShutdown(IConnection rabbitMqConnection, ShutdownEventArgs reason)
         {
-            connection.CallbackException -= connection_CallbackException;
-            connection.ConnectionBlocked -= connection_ConnectionBlocked;
-            connection.ConnectionShutdown -= connection_ConnectionShutdown;
-            connection.ConnectionUnblocked -= connection_ConnectionUnblocked;
+            rabbitMqConnection.CallbackException -= connection_CallbackException;
+            rabbitMqConnection.ConnectionBlocked -= connection_ConnectionBlocked;
+            rabbitMqConnection.ConnectionShutdown -= connection_ConnectionShutdown;
+            rabbitMqConnection.ConnectionUnblocked -= connection_ConnectionUnblocked;
 
-            connection = new Plumber().RabbitConnection;
-            channel = connection.CreateModel();
-            connection.CallbackException += connection_CallbackException;
-            connection.ConnectionBlocked += connection_ConnectionBlocked;
-            connection.ConnectionShutdown += connection_ConnectionShutdown;
-            connection.ConnectionUnblocked += connection_ConnectionUnblocked;
+            rabbitMqConnection = new Plumber().RabbitConnection;
+            channel = rabbitMqConnection.CreateModel();
+            rabbitMqConnection.CallbackException += connection_CallbackException;
+            rabbitMqConnection.ConnectionBlocked += connection_ConnectionBlocked;
+            rabbitMqConnection.ConnectionShutdown += connection_ConnectionShutdown;
+            rabbitMqConnection.ConnectionUnblocked += connection_ConnectionUnblocked;
         }
 
         void connection_ConnectionBlocked(IConnection sender, RabbitMQ.Client.Events.ConnectionBlockedEventArgs args)

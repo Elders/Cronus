@@ -5,6 +5,7 @@ using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.Messaging;
 using System.Runtime.Remoting.Messaging;
 using Cronus.Core.EventStore;
+using System.Diagnostics.Contracts;
 
 namespace NMSD.Cronus.Core.Cqrs
 {
@@ -21,6 +22,8 @@ namespace NMSD.Cronus.Core.Cqrs
 
         protected void UpdateAggregate(IAggregateRootId id, Action<AR> updateAr)
         {
+            Contract.Requires<ArgumentNullException>(id != null);
+
             var state = EventStore.LoadAggregateState(id.Id);
             AR aggregateRoot = AggregateRootFactory.Build<AR>(state);
             updateAr(aggregateRoot);

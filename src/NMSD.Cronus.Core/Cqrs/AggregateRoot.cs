@@ -31,12 +31,12 @@ namespace NMSD.Cronus.Core.Cqrs
 
         IAggregateRootState IAggregateRootStateManager.BuildStateFromHistory(List<IEvent> events)
         {
-            var state = (ST)FastActivator.CreateInstance(typeof(ST));
+            var stateFromHistory = (ST)FastActivator.CreateInstance(typeof(ST));
             foreach (IEvent @event in events)
             {
-                state.Apply(@event);
+                stateFromHistory.Apply(@event);
             }
-            return state;
+            return stateFromHistory;
         }
 
     }
