@@ -13,11 +13,18 @@ namespace Cronus.Core.EventStore
     /// </remarks>
     public interface IEventStore
     {
-        void Persist(List<IEvent> events, SqlConnection connection);
-        void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection);
+        AR Load<AR>(IAggregateRootId aggregateId) where AR : IAggregateRoot;
 
-        SqlConnection OpenConnection();
+        void Save(IAggregateRoot aggregateRoot);
 
-        void CloseConnection(SqlConnection conn);
+       // IAggregateRootState LoadAggregateState(System.Guid aggregateId);
+
+        //void Persist(List<IEvent> events, SqlConnection connection);
+
+        //void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection);
+
+        //SqlConnection OpenConnection();
+
+        //void CloseConnection(SqlConnection conn);
     }
 }

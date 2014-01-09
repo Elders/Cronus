@@ -24,15 +24,16 @@ namespace NMSD.Cronus.Core.Messaging
             if (boundedContext == null)
                 throw new Exception(String.Format(@"The assembly cointaining message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));
 
-            if (messageType.GetInterfaces().Any(i => i == typeof(ICommand)))
+            if (messageType.GetInterfaces().Any(i => i == typeof(object)))
                 return boundedContext.CommandsPipelineName;
             else if (messageType.GetInterfaces().Any(i => i == typeof(IEvent)))
                 return boundedContext.EventsPipelineName;
             else if (messageType.GetInterfaces().Any(i => i == typeof(IMessage)))
                 return boundedContext.EventStorePipelineName;
             else
-                throw new Exception(String.Format("The message of type '{0}' does not implement '{1}' or '{2}'", messageType.FullName, typeof(ICommand).FullName, typeof(IEvent).FullName));
+                throw new Exception(String.Format("The message of type '{0}' does not implement '{1}' or '{2}'", messageType.FullName, typeof(object).FullName, typeof(IEvent).FullName));
         }
+       
         public static string GetEventStorePipelineName(Assembly assembly)
         {
             var boundedContext = assembly.GetAssemblyAttribute<BoundedContextAttribute>();
@@ -125,23 +126,5 @@ namespace NMSD.Cronus.Core.Messaging
                 .Distinct()
                 .Cast<T>();
         }
-
-        private static T GetAssemblyAttribute<T>(this Type type)
-        {
-            return GetAssemblyAttribute<T>(type.Assembly);
-        }
-
-        private static T GetAssemblyAttribute<T>(this Assembly assembly)
-        {
-            var attributeType = typeof(T);
-            var attribute = assembly
-                .GetCustomAttributes(attributeType, false)
-                .SingleOrDefault();
-
-            return attribute == null
-                ? default(T)
-                : (T)attribute;
-        }
-
     }
 }

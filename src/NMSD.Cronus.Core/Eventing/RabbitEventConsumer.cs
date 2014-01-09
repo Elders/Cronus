@@ -4,8 +4,8 @@ using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Multithreading.Work;
 using NMSD.Cronus.Core.UnitOfWork;
-using NSMD.Cronus.RabbitMQ;
-using Protoreg;
+using NMSD.Cronus.RabbitMQ;
+using NMSD.Protoreg;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 
@@ -68,16 +68,16 @@ namespace NMSD.Cronus.Core.Eventing
                     {
                         QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
                         channel.BasicConsume(queueName, false, newQueueingBasicConsumer);
-                        
+
                         while (true)
                         {
-                            for (int i = 0; i < 1000; i++)
+                            for (int i = 0; i < 100; i++)
                             {
                                 StartNewUnitOfWork();
 
                                 try
                                 {
-                                    var rawMessage = newQueueingBasicConsumer.Queue.Dequeue();
+                                    var rawMessage = newQueueingBasicConsumer.Queue.DequeueNoWait(null);
                                     IEvent message;
                                     if (rawMessage != null)
                                     {

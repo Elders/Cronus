@@ -2,17 +2,20 @@
 using System.Threading;
 using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.EventStoreEngine;
+using NMSD.Cronus.Core.Transports.Conventions;
+using NMSD.Cronus.Core.Transports.RabbitMQ;
+using NMSD.Cronus.RabbitMQ;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
-using Protoreg;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Sample.UI
 {
     class Program
     {
-        static RabbitCommandPublisher commandPublisher;
+        static CommandPublisher commandPublisher;
 
         static void Main(string[] args)
         {
@@ -24,26 +27,42 @@ namespace NMSD.Cronus.Sample.UI
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
-            commandPublisher = new RabbitCommandPublisher(serializer);
+            var rabbitMqSessionFactory = new RabbitMqSessionFactory();
+            var session = rabbitMqSessionFactory.OpenSession();
+            commandPublisher = new CommandPublisher(new CommandPipelineConvention(), new RabbitMqPipelineFactory(session), serializer);
 
-            HostUI(10000000);
+            HostUI(1111111100);
+            session.Close();
         }
 
-        private static void HostUI(int messageDelayInMilliseconds = 0)
+        private static void HostUI(int messageDelayInMilliseconds = 0, int batchSize = 1)
         {
-            var email = "mynkow@gmail.com";
-            for (int i = 0; i > -1; i++)
+
+            for (int i = 0; i < 1000; i++)
             {
                 if (messageDelayInMilliseconds == 0)
                 {
-                    commandPublisher.Publish(new RegisterNewUser(new UserId(Guid.NewGuid()), email));
+                    PublishCommands();
                 }
                 else
                 {
-                    commandPublisher.Publish(new RegisterNewUser(new UserId(Guid.NewGuid()), email));
+                    for (int j = 0; j < batchSize; j++)
+                    {
+                        PublishCommands();
+                    }
+
                     Thread.Sleep(messageDelayInMilliseconds);
                 }
             }
+        }
+
+        private static void PublishCommands()
+        {
+            UserId userId = new UserId(Guid.NewGuid());
+            var email = "mynkow@gmail.com";
+            commandPublisher.Publish(new RegisterNewUser(userId, email));
+            Thread.Sleep(10000);
+            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
         }
     }
 }

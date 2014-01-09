@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Reflection;
 using NMSD.Cronus.Core;
 using NMSD.Cronus.Core.Commanding;
@@ -6,12 +7,15 @@ using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.Messaging;
+using NMSD.Cronus.Core.Transports.Conventions;
+using NMSD.Cronus.Core.Transports.RabbitMQ;
 using NMSD.Cronus.Core.UnitOfWork;
+using NMSD.Cronus.RabbitMQ;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
-using Protoreg;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Sample.ApplicationService
 {
@@ -30,26 +34,28 @@ namespace NMSD.Cronus.Sample.ApplicationService
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
-            var eventPublisher = new RabbitEventStorePublisher(serializer);
-            var commandConsumer = new RabbitCommandConsumer(serializer);
-            commandConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)),
-                type =>
-                {
-                    var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
-                    handler.EventPublisher = eventPublisher;
-                    return handler;
-                });
-            commandConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)),
-                type =>
-                {
-                    var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
-                    handler.EventPublisher = eventPublisher;
-                    return handler;
-                });
-            commandConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
-            commandConsumer.Start(1);
+            string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+
+            var rabbitMqSessionFactory = new RabbitMqSessionFactory();
+            var session = rabbitMqSessionFactory.OpenSession();
+            var commaborationES = new RabbitEventStore("Collaboration", connectionString, serializer);
+            var commandConsumerCollaboration = new CommandConsumer(new CommandHandlersPerBoundedContext(new CommandPipelineConvention()), new RabbitMqEndpointFactory(session), serializer, commaborationES);
+            commandConsumerCollaboration.UnitOfWorkFactory = new NullUnitOfWorkFactory();
+            commandConsumerCollaboration.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)));
+
+
+            var iacES = new RabbitEventStore("IdentityAndAccess", connectionString, serializer);
+            var commandConsumerIaC = new CommandConsumer(new CommandHandlersPerBoundedContext(new CommandPipelineConvention()), new RabbitMqEndpointFactory(session), serializer, iacES);
+            commandConsumerIaC.UnitOfWorkFactory = new NullUnitOfWorkFactory();
+            commandConsumerIaC.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)));
+
+
+
+            commandConsumerCollaboration.Start(1);
+            commandConsumerIaC.Start(1);
 
             Console.ReadLine();
+            session.Close();
         }
     }
 }

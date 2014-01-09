@@ -23,7 +23,7 @@ namespace NMSD.Cronus.Core.Eventing
         {
             Register(bus, (eventHandlerType) => { }, eventHandlerFactory, asembliesContainingEventHandlers);
         }
-
+            
         static void Register(this IEventBus bus, Action<Type> doBeforeRegister, Func<Type, IEventHandler> eventHandlerFactory, params Assembly[] asembliesContainingEventHandlers)
         {
             foreach (Assembly assembly in asembliesContainingEventHandlers)

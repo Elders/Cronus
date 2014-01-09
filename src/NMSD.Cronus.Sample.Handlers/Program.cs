@@ -7,9 +7,12 @@ using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.UnitOfWork;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.Collaboration.Projections;
-using Protoreg;
+using NMSD.Protoreg;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
+using NMSD.Cronus.RabbitMQ;
+using NMSD.Cronus.Core.Transports.Conventions;
+using NMSD.Cronus.Core.Transports.RabbitMQ;
 
 namespace NMSD.Cronus.Sample.Handlers
 {
@@ -26,7 +29,9 @@ namespace NMSD.Cronus.Sample.Handlers
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
-            var commandPublisher = new RabbitCommandPublisher(serializer);
+            var rabbitMqSessionFactory = new RabbitMqSessionFactory();
+            var session = rabbitMqSessionFactory.OpenSession();
+            var commandPublisher = new CommandPublisher(new CommandPipelineConvention(), new RabbitMqPipelineFactory(session), serializer);
 
             var eventConsumer = new RabbitEventConsumer(serializer);
             eventConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
@@ -41,6 +46,7 @@ namespace NMSD.Cronus.Sample.Handlers
                     return (port ?? handler) as IMessageHandler;
                 });
             eventConsumer.Start(2);
+            session.Close();
         }
     }
 }

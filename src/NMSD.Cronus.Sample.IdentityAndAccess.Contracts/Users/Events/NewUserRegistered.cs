@@ -8,21 +8,21 @@ namespace NMSD.Cronus.Sample.IdentityAndAccess.Users.Events
     {
         NewUserRegistered() { }
 
-        public NewUserRegistered(UserId userId, string email)
+        public NewUserRegistered(UserId id, string email)
         {
-            UserId = userId;
+            Id = id;
             Email = email;
         }
 
         [DataMember(Order = 1)]
-        public UserId UserId { get; private set; }
+        public UserId Id { get; private set; }
 
         [DataMember(Order = 2)]
         public string Email { get; private set; }
 
         public override string ToString()
         {
-            return this.ToString("New user registered with email '{0}'. {1}", Email, UserId);
+            return this.ToString("New user registered with email '{0}'. {1}", Email, Id);
         }
     }
 }

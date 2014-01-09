@@ -5,13 +5,15 @@ using NMSD.Cronus.Core.UnitOfWork;
 
 namespace NMSD.Cronus.Core.Messaging
 {
-    public abstract class Consumer<TMessage, TMessageHandler> : IConsumer<TMessageHandler>
+    public abstract class BaseInMemoryConsumer<TMessage, TMessageHandler> : IConsumer<TMessageHandler>
         where TMessage : IMessage
         where TMessageHandler : IMessageHandler
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(Consumer<TMessage, TMessageHandler>));
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(BaseInMemoryConsumer<TMessage, TMessageHandler>));
 
         public IUnitOfWorkFactory UnitOfWorkFactory { get; set; }
+
+        protected Dictionary<Type, HashSet<Type>> RegisteredHandlers = new Dictionary<Type, HashSet<Type>>();
 
         protected Dictionary<Type, Dictionary<Type, LateBoundVoidMethod>> handlerCallbacks = new Dictionary<Type, Dictionary<Type, LateBoundVoidMethod>>();
 
@@ -19,6 +21,10 @@ namespace NMSD.Cronus.Core.Messaging
 
         public virtual void RegisterHandler(Type messageType, Type messageHandlerType, Func<Type, TMessageHandler> handlerFactory)
         {
+            if (!RegisteredHandlers.ContainsKey(messageHandlerType))
+                RegisteredHandlers.Add(messageHandlerType, new HashSet<Type>());
+            RegisteredHandlers[messageHandlerType].Add(messageType);
+
             if (!handlers.ContainsKey(messageType))
                 handlers[messageType] = new List<Func<TMessage, IUnitOfWorkPerMessage, bool>>();
 
@@ -67,20 +73,13 @@ namespace NMSD.Cronus.Core.Messaging
 
         protected bool Handle(TMessage message, IUnitOfWorkPerMessage uowMessage, Type eventHandlerType, Func<Type, TMessageHandler> handlerFactory)
         {
-            try
-            {
-                var unitOfWork = UnitOfWorkFactory.NewHandler();
-                unitOfWork.UoWMessage = uowMessage;
-                var handler = handlerFactory(eventHandlerType);
-                handlerCallbacks[eventHandlerType][message.GetType()](handler, new object[] { message });
-                log.Info("HANDLE => " + message.ToString());
+            var unitOfWork = UnitOfWorkFactory.NewHandler();
+            unitOfWork.UoWMessage = uowMessage;
+            var handler = handlerFactory(eventHandlerType);
+            handlerCallbacks[eventHandlerType][message.GetType()](handler, new object[] { message });
+            log.Info("HANDLE => " + message.ToString());
 
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            return true;
         }
     }
 }

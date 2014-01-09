@@ -22,6 +22,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,8 +40,13 @@
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Protoreg">
-      <HintPath>..\..\lib\Protoreg\Protoreg.dll</HintPath>
+    <Reference Include="NMSD.Protoreg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NMSD.Protoreg.1.0.7400.1\lib\NMSD.Protoreg.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NMSD.Protoreg.1.0.7400.1\lib\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client, Version=3.2.1.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -54,19 +61,21 @@
   <ItemGroup>
     <Compile Include="Commanding\CommandMessageInfo.cs" />
     <Compile Include="Commanding\ICommand.cs" />
-    <Compile Include="Commanding\RabbitCommandPublisher.cs" />
+    <Compile Include="Commanding\CommandPublisher.cs" />
     <Compile Include="Cqrs\IPort.cs" />
     <Compile Include="Eventing\InMemoryEventBus.cs" />
     <Compile Include="Eventing\EventMessageInfo.cs" />
     <Compile Include="Eventing\RabbitEventConsumer.cs" />
     <Compile Include="Eventing\RabbitEventStoreConsumer.cs" />
     <Compile Include="Eventing\RabbitEventStorePublisher.cs" />
+    <Compile Include="EventStoreEngine\ProtoEventStore.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="LateBoundMethod.cs" />
     <Compile Include="Messaging\Consumer.cs" />
     <Compile Include="Messaging\IMessage.cs" />
     <Compile Include="Commanding\InMemoryCommandBus.cs" />
     <Compile Include="Messaging\IMessageHandler.cs" />
-    <Compile Include="Commanding\RabbitCommandConsumer.cs" />
+    <Compile Include="Commanding\CommandConsumer.cs" />
     <Compile Include="Cqrs\AggregateRoot.cs" />
     <Compile Include="Cqrs\AggregateRootFactory.cs" />
     <Compile Include="Cqrs\AggregateRootId.cs" />
@@ -79,16 +88,13 @@
     <Compile Include="Cqrs\IAggregateRootId.cs" />
     <Compile Include="Cqrs\IAggregateRootState.cs" />
     <Compile Include="Cqrs\IAggregateRootStateManager.cs" />
-    <Compile Include="Eventing\AbstractEventBus.cs" />
-    <Compile Include="Eventing\InMemoryEventBusRegistrations.cs" />
     <Compile Include="Eventing\RabbitEventPublisher.cs" />
-    <Compile Include="EventStoreEngine\ProtoEventStore.cs" />
+    <Compile Include="EventStoreEngine\MssqlEventStore.cs" />
     <Compile Include="FastActivator.cs" />
     <Compile Include="Eventing\EventBusRegistrations.cs" />
     <Compile Include="Eventing\IEvent.cs" />
     <Compile Include="Eventing\IEventBus.cs" />
     <Compile Include="Eventing\IEventHandler.cs" />
-    <Compile Include="Eventing\InMemoryEventBusHyperion.cs" />
     <Compile Include="EventStoreEngine\IEventStore.cs" />
     <Compile Include="Messaging\MessageInfo.cs" />
     <Compile Include="Cqrs\MessageCommit.cs" />
@@ -113,6 +119,25 @@
     <Compile Include="Snapshotting\ISnapShotter.cs" />
     <Compile Include="Snapshotting\SnapShotter.cs" />
     <Compile Include="Threading.cs" />
+    <Compile Include="Transports.Conventions\CommandHandlersPerBoundedContext.cs" />
+    <Compile Include="Transports.Conventions\CommandPerBoundedContextConvention.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqEndpointFactory.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqPipelineFactory.cs" />
+    <Compile Include="Transports\ICommandPipelineConvention.cs" />
+    <Compile Include="Transports\IEndpointFactory.cs" />
+    <Compile Include="Transports\IEventHandlerEndpointConvention.cs" />
+    <Compile Include="Transports\EndpointDefinition.cs" />
+    <Compile Include="Transports.Conventions\EventHandlersPerBoundedContext.cs" />
+    <Compile Include="Transports.Conventions\EndpointPerEventHandler.cs" />
+    <Compile Include="Transports\IPipeline.cs" />
+    <Compile Include="Transports\ReflectionExtensions.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqEndpoint.cs" />
+    <Compile Include="Transports\EndpointMessage.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqPipeline.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqSession.cs" />
+    <Compile Include="Transports.RabbitMQ\SafeChannel.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqSessionFactory.cs" />
+    <Compile Include="Transports\IPipelineFactory.cs" />
     <Compile Include="UnitOfWork\IDependancyResolver.cs" />
     <Compile Include="UnitOfWork\IUnitOfWork.cs" />
     <Compile Include="UnitOfWork\IUnitOfWorkFactory.cs" />

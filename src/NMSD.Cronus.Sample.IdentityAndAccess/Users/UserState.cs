@@ -26,9 +26,13 @@ namespace NMSD.Cronus.Sample.IdentityAndAccess.Users
 
         public void When(NewUserRegistered e)
         {
-            Id = e.UserId;
-            Version = 10;
+            Id = e.Id;
             Email = e.Email;
+        }
+
+        public void When(UserEmailChanged e)
+        {
+            Email = e.NewEmail;
         }
     }
 }

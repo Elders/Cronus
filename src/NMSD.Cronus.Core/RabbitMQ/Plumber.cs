@@ -1,7 +1,7 @@
 using System;
 using RabbitMQ.Client;
 
-namespace NSMD.Cronus.RabbitMQ
+namespace NMSD.Cronus.RabbitMQ
 {
     public sealed class Plumber
     {

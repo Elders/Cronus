@@ -33,7 +33,7 @@ namespace NMSD.Cronus.Core.Messaging
 
         public void Stop() { }
 
-        class InMemoryConsumer : Consumer<TMessage, THandler>
+        class InMemoryConsumer : BaseInMemoryConsumer<TMessage, THandler>
         {
             public override void Start(int numberOfWorkers) { }
 

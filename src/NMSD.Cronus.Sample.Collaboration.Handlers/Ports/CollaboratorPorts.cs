@@ -1,10 +1,10 @@
 ﻿using System;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Messaging;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
 using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
+using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
 
 namespace NMSD.Cronus.Sample.Collaboration.Ports
 {

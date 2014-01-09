@@ -2,7 +2,8 @@ using System;
 using System.Linq;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Messaging;
-using Protoreg;
+
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Core.Eventing
 {

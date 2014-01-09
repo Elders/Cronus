@@ -80,18 +80,15 @@ namespace NMSD.Cronus.Core.Messaging
 
     public class EventStoreQueueFactory : QueueFactory
     {
-        public EventStoreQueueFactory(List<Assembly> assemblies)
+        public EventStoreQueueFactory(Assembly assembly)
         {
-            foreach (Assembly assembly in assemblies)
-            {
-                var boundedContext = MessagingHelper.GetBoundedContext(assembly);
-                pipeline = MessagingHelper.GetEventStorePipelineName(assembly);
+            var boundedContext = MessagingHelper.GetBoundedContext(assembly);
+            pipeline = MessagingHelper.GetEventStorePipelineName(assembly);
 
-                var handlerQueueName = String.Format("{0}.EventStore", MessagingHelper.GetBoundedContextNamespace(assembly));
-                Dictionary<string, object> headers = new Dictionary<string, object>();
-                headers[boundedContext] = String.Empty;
-                handlerQueues.Add(handlerQueueName, headers);
-            }
+            var handlerQueueName = String.Format("{0}.EventStore", MessagingHelper.GetBoundedContextNamespace(assembly));
+            Dictionary<string, object> headers = new Dictionary<string, object>();
+            headers[boundedContext] = String.Empty;
+            handlerQueues.Add(handlerQueueName, headers);
         }
 
         public override void Register(Type messageType, Type messageHandlerType)

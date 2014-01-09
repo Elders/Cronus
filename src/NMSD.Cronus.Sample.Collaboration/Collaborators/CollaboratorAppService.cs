@@ -11,12 +11,14 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators
     {
         public void Handle(RenameCollaborator command)
         {
-            UpdateAggregate(command.Id, ar => ar.Rename(command.FirstName, command.LastName));
+            var user = EventStore.Load<Collaborator>(command.Id);
+            user.Rename(command.FirstName, command.LastName);
+            EventStore.Save(user);
         }
 
         public void Handle(CreateNewCollaborator command)
         {
-            CreateAggregate(new Collaborator(command.Id, command.Email));
+            EventStore.Save(new Collaborator(command.Id, command.Email));
         }
     }
 }

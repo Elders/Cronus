@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using NSMD.Cronus.RabbitMQ;
-using Protoreg;
+using NMSD.Cronus.RabbitMQ;
+using NMSD.Protoreg;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Framing.v0_9_1;
 
@@ -19,6 +19,7 @@ namespace NMSD.Cronus.Core.Messaging
         private readonly ProtoregSerializer serializer;
 
         IConnection connection;
+
         IModel channel;
 
         public RabbitPublisher(ProtoregSerializer serializer)
@@ -27,40 +28,6 @@ namespace NMSD.Cronus.Core.Messaging
             BoundedContext = String.Empty;
             connection = new Plumber().RabbitConnection;
             channel = connection.CreateModel();
-            connection.CallbackException += connection_CallbackException;
-            connection.ConnectionBlocked += connection_ConnectionBlocked;
-            connection.ConnectionShutdown += connection_ConnectionShutdown;
-            connection.ConnectionUnblocked += connection_ConnectionUnblocked;
-        }
-
-        void connection_ConnectionUnblocked(IConnection sender)
-        {
-            Console.WriteLine("connection_ConnectionUnblocked");
-        }
-
-        void connection_ConnectionShutdown(IConnection connection, ShutdownEventArgs reason)
-        {
-            connection.CallbackException -= connection_CallbackException;
-            connection.ConnectionBlocked -= connection_ConnectionBlocked;
-            connection.ConnectionShutdown -= connection_ConnectionShutdown;
-            connection.ConnectionUnblocked -= connection_ConnectionUnblocked;
-
-            connection = new Plumber().RabbitConnection;
-            channel = connection.CreateModel();
-            connection.CallbackException += connection_CallbackException;
-            connection.ConnectionBlocked += connection_ConnectionBlocked;
-            connection.ConnectionShutdown += connection_ConnectionShutdown;
-            connection.ConnectionUnblocked += connection_ConnectionUnblocked;
-        }
-
-        void connection_ConnectionBlocked(IConnection sender, RabbitMQ.Client.Events.ConnectionBlockedEventArgs args)
-        {
-            Console.WriteLine("connection_ConnectionBlocked");
-        }
-
-        void connection_CallbackException(object sender, RabbitMQ.Client.Events.CallbackExceptionEventArgs e)
-        {
-            Console.WriteLine("connection_CallbackException");
         }
 
         public string BoundedContext { get; protected set; }

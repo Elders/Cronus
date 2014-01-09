@@ -8,8 +8,8 @@ using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Multithreading.Work;
-using NSMD.Cronus.RabbitMQ;
-using Protoreg;
+using NMSD.Cronus.RabbitMQ;
+using NMSD.Protoreg;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
@@ -20,19 +20,19 @@ namespace NMSD.Cronus.Core.Eventing
     {
         RabbitEventPublisher eventPublisher;
 
-        ProtoEventStore eventStore;
+        MssqlEventStore eventStore;
 
         private Plumber plumber;
         private List<WorkPool> pools;
 
         private readonly ProtoregSerializer serialiser;
 
-        public RabbitEventStoreConsumer(List<Assembly> assemblies, ProtoregSerializer serialiser, ProtoEventStore eventStore)
+        public RabbitEventStoreConsumer(Assembly assembly, ProtoregSerializer serialiser, MssqlEventStore eventStore)
         {
             this.serialiser = serialiser;
             eventPublisher = new RabbitEventPublisher(serialiser);
             this.eventStore = eventStore;
-            queueFactory = new EventStoreQueueFactory(assemblies);
+            queueFactory = new EventStoreQueueFactory(assembly);
         }
 
         public override void Start(int numberOfWorkers)
@@ -99,10 +99,10 @@ namespace NMSD.Cronus.Core.Eventing
 
                                 try
                                 {
-                                    for (int i = 0; i < 1000; i++)
+                                    for (int i = 0; i < 100; i++)
                                     {
-                                        BasicDeliverEventArgs rawMessage = newQueueingBasicConsumer.Queue.DequeueNoWait(null);
-                                        if (rawMessage == null)
+                                        BasicDeliverEventArgs rawMessage;
+                                        if (!newQueueingBasicConsumer.Queue.Dequeue(30, out rawMessage))
                                             break;
 
                                         rawMessages.Add(rawMessage);

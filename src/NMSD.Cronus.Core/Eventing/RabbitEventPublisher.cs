@@ -1,6 +1,6 @@
 ﻿using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Messaging;
-using Protoreg;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Core.Eventing
 {
