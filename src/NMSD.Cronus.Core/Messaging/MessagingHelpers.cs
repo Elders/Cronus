@@ -22,7 +22,7 @@ namespace NMSD.Cronus.Core.Messaging
             var boundedContext = messageType.GetAssemblyAttribute<BoundedContextAttribute>();
 
             if (boundedContext == null)
-                throw new Exception(String.Format(@"The assembly cointaining message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));
+                throw new Exception(String.Format(@"The assembly containing message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));
 
             if (messageType.GetInterfaces().Any(i => i == typeof(ICommand)))
                 return boundedContext.CommandsPipelineName;

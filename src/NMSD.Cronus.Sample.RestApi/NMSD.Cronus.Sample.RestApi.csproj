@@ -39,6 +39,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ApiActionSelector">
+      <HintPath>..\packages\AspNetWebApi.ApiActionSelector.0.4.0.0\lib\net45\ApiActionSelector.dll</HintPath>
+    </Reference>
+    <Reference Include="FiveLevelsOfMediaType">
+      <HintPath>..\packages\AspNetWebApi.FiveLevelsOfMediaType.0.3.2.0\lib\net45\FiveLevelsOfMediaType.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -113,6 +119,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Areas\IdentityAndAccess\Models\" />
+    <Folder Include="Areas\IdentityAndAccess\Views\Shared\" />
+    <Folder Include="Controllers\Account\" />
     <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
@@ -134,8 +143,12 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
+    <Compile Include="Areas\IdentityAndAccess\Controllers\UserController.cs" />
+    <Compile Include="Areas\IdentityAndAccess\IdentityAndAccessAreaRegistration.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="Class2.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ValuesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -225,9 +238,11 @@
     <Content Include="Areas\HelpPage\Views\Help\Api.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\TestClientReferences.cshtml" />
     <Content Include="Areas\HelpPage\Views\Help\DisplayTemplates\TestClientDialogs.cshtml" />
+    <Content Include="Areas\IdentityAndAccess\Views\web.config" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\jquery-1.10.2.js" />
     <Content Include="Scripts\jquery-1.10.2.min.js" />
+    <Content Include="Scripts\jquery-5lmt.js" />
     <Content Include="Scripts\jquery-ui-1.9.2.js" />
     <Content Include="Scripts\jquery-ui-1.9.2.min.js" />
     <Content Include="Scripts\knockout-2.2.1.debug.js" />
@@ -253,7 +268,16 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\NMSD.Cronus.Core\NMSD.Cronus.Core.csproj">
+      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
+      <Name>NMSD.Cronus.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
+      <Project>{1c59eb3d-70e6-45b4-b644-e5607dcf4713}</Project>
+      <Name>NMSD.Cronus.Sample.IdentityAndAccess.Contracts</Name>
+    </ProjectReference>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="fonts\glyphicons-halflings-regular.ttf" />
