@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Diagnostics.Contracts;
 
 namespace NMSD.Cronus.Core
 {
@@ -10,6 +11,8 @@ namespace NMSD.Cronus.Core
     {
         public static LateBoundMethod<TResult> Create<TResult>(System.Reflection.MethodInfo method)
         {
+            Contract.Requires(method != null);
+
             ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
             ParameterExpression argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
 
@@ -28,6 +31,8 @@ namespace NMSD.Cronus.Core
 
         public static LateBoundVoidMethod Create(System.Reflection.MethodInfo method)
         {
+            Contract.Requires(method != null);
+
             ParameterExpression instanceParameter = Expression.Parameter(typeof(object), "target");
             ParameterExpression argumentsParameter = Expression.Parameter(typeof(object[]), "arguments");
 

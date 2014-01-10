@@ -5,8 +5,6 @@ namespace NMSD.Cronus.Core.Multithreading.Work
 {
     public class WorkPool
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(WorkPool));
-
         private List<WorkProcessor> crawlers;
 
         int jobsInSource = 0;
