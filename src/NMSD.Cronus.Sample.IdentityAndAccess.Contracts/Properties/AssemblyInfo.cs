@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using NMSD.Cronus.Core.DomainModelling;
+using NMSD.Cronus.DomainModelling;
 
 
 // General Information about an assembly is controlled through the following 

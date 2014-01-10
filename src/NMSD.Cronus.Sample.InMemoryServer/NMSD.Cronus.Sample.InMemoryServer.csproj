@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\NMSD.Cronus.Sample.InMemoryServer</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -28,7 +28,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\NMSD.Cronus.Sample.InMemoryServer</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -67,10 +67,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NMSD.Cronus.Core\NMSD.Cronus.Core.csproj">
-      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
-      <Name>NMSD.Cronus.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Contracts\NMSD.Cronus.Sample.Collaboration.Contracts.csproj">
       <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>
       <Name>NMSD.Cronus.Sample.Collaboration.Contracts</Name>
@@ -82,6 +78,10 @@
     <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration\NMSD.Cronus.Sample.Collaboration.csproj">
       <Project>{eba90c1f-5f2c-4a78-b91b-d2c3d664530d}</Project>
       <Name>NMSD.Cronus.Sample.Collaboration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
+      <Project>{32EA2250-01B3-4171-9AE7-214037A0D524}</Project>
+      <Name>NMSD.Cronus</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup />

@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\NMSD.Cronus.Sample.IdentityAndAccess.Contracts</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -24,7 +24,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\NMSD.Cronus.Sample.IdentityAndAccess.Contracts</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -44,12 +44,11 @@
     <Compile Include="Users\UserId.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NMSD.Cronus.Core\NMSD.Cronus.Core.csproj">
+    <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
       <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
-      <Name>NMSD.Cronus.Core</Name>
+      <Name>NMSD.Cronus</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

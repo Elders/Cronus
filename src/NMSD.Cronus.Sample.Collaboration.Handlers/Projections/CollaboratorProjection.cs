@@ -1,4 +1,4 @@
-﻿using NMSD.Cronus.Core.Messaging;
+﻿using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 
 namespace NMSD.Cronus.Sample.Collaboration.Projections

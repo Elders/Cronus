@@ -1,4 +1,4 @@
-﻿using NMSD.Cronus.Core.DomainModelling;
+﻿using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
 

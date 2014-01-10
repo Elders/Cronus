@@ -1,5 +1,5 @@
-﻿using NMSD.Cronus.Core.DomainModelling;
-using NMSD.Cronus.Core.Messaging;
+﻿using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators

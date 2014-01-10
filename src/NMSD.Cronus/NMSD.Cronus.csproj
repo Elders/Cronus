@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{32EA2250-01B3-4171-9AE7-214037A0D524}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>NMSD.Cronus</RootNamespace>
+    <AssemblyName>NMSD.Cronus</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\$(Configuration)\NMSD.Cronus.Core</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\$(Configuration)\NMSD.Cronus.Core</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="NMSD.Protoreg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NMSD.Protoreg.1.0.7400.1\lib\NMSD.Protoreg.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NMSD.Protoreg.1.0.7400.1\lib\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQ.Client, Version=3.2.1.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RabbitMQ.Client.3.2.1\lib\net30\RabbitMQ.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.XML" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commanding\CommandMessageInfo.cs" />
+    <Compile Include="Commanding\ICommand.cs" />
+    <Compile Include="Commanding\CommandPublisher.cs" />
+    <Compile Include="Eventing\IPort.cs" />
+    <Compile Include="Eventing\InMemoryEventBus.cs" />
+    <Compile Include="Eventing\EventMessageInfo.cs" />
+    <Compile Include="Eventing\EventConsumer.cs" />
+    <Compile Include="EventSourcing\EventStoreConsumer.cs" />
+    <Compile Include="EventSourcing\EventStorePublisher.cs" />
+    <Compile Include="EventSourcing\MssqlStream.cs" />
+    <Compile Include="EventSourcing\RabbitEventStore.cs" />
+    <Compile Include="Userfull\LateBoundMethod.cs" />
+    <Compile Include="Messaging\BaseInMemoryConsumer.cs" />
+    <Compile Include="Messaging\IMessage.cs" />
+    <Compile Include="Commanding\InMemoryCommandBus.cs" />
+    <Compile Include="Messaging\IMessageHandler.cs" />
+    <Compile Include="Commanding\CommandConsumer.cs" />
+    <Compile Include="DomainModelling\AggregateRoot.cs" />
+    <Compile Include="DomainModelling\AggregateRootFactory.cs" />
+    <Compile Include="DomainModelling\AggregateRootId.cs" />
+    <Compile Include="DomainModelling\AggregateRootState.cs" />
+    <Compile Include="DomainModelling\AggregateRootException.cs" />
+    <Compile Include="DomainModelling\AggregateRootApplicationService.cs" />
+    <Compile Include="DomainModelling\AggregateStateFirstLevelConcurrencyException.cs" />
+    <Compile Include="DomainModelling\BoundedContextAttribute.cs" />
+    <Compile Include="DomainModelling\IAggregateRoot.cs" />
+    <Compile Include="DomainModelling\IAggregateRootId.cs" />
+    <Compile Include="DomainModelling\IAggregateRootState.cs" />
+    <Compile Include="DomainModelling\IAggregateRootStateManager.cs" />
+    <Compile Include="Eventing\EventPublisher.cs" />
+    <Compile Include="EventSourcing\MssqlEventStore.cs" />
+    <Compile Include="Userfull\FastActivator.cs" />
+    <Compile Include="Eventing\IEvent.cs" />
+    <Compile Include="DomainModelling\IAggregateRepository.cs" />
+    <Compile Include="Messaging\MessageInfo.cs" />
+    <Compile Include="DomainModelling\MessageCommit.cs" />
+    <Compile Include="Multithreading\Work\IWork.cs" />
+    <Compile Include="Multithreading\Work\WorkExtensions.cs" />
+    <Compile Include="Multithreading\Work\WorkPool.cs" />
+    <Compile Include="Multithreading\Work\WorkProcessor.cs" />
+    <Compile Include="Multithreading\Work\WorkSource.cs" />
+    <Compile Include="Multithreading\Work\WorkSourceScheduler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Messaging\MessageHandlerRegistrations.cs" />
+    <Compile Include="Messaging\IConsumer.cs" />
+    <Compile Include="Messaging\InMemoryPublisher.cs" />
+    <Compile Include="Messaging\IPublisher.cs" />
+    <Compile Include="Userfull\RetryableOperation.cs" />
+    <Compile Include="EventSourcing\IEventStore.cs" />
+    <Compile Include="Transports.Conventions\CommandHandlersPerBoundedContext.cs" />
+    <Compile Include="Transports.Conventions\CommandPipelinePerApplication.cs" />
+    <Compile Include="Transports.Conventions\EventHandlersPipelinePerApplication.cs" />
+    <Compile Include="Transports.Conventions\EventStorePerBoundedContext.cs" />
+    <Compile Include="Transports.Conventions\EventStorePipelinePerApplication.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqEndpointFactory.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqPipelineFactory.cs" />
+    <Compile Include="Transports\ICommandHandlerEndpointConvention.cs" />
+    <Compile Include="Transports\ICommandPipelineConvention.cs" />
+    <Compile Include="Transports\IEndpoint.cs" />
+    <Compile Include="Transports\IEventHandlersPipelineConvention.cs" />
+    <Compile Include="Transports\IEventStorePipelineConvention.cs" />
+    <Compile Include="Transports\IEndpointFactory.cs" />
+    <Compile Include="Transports\IEventHandlerEndpointConvention.cs" />
+    <Compile Include="Transports\EndpointDefinition.cs" />
+    <Compile Include="Transports.Conventions\EventHandlersPerBoundedContext.cs" />
+    <Compile Include="Transports.Conventions\EventHandlerPerEndpoint.cs" />
+    <Compile Include="Transports\IEventStoreEndpointConvention.cs" />
+    <Compile Include="Transports\IPipeline.cs" />
+    <Compile Include="Transports\ReflectionExtensions.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqEndpoint.cs" />
+    <Compile Include="Transports\EndpointMessage.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqPipeline.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqSession.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqSafeChannel.cs" />
+    <Compile Include="Transports.RabbitMQ\RabbitMqSessionFactory.cs" />
+    <Compile Include="Transports\IPipelineFactory.cs" />
+    <Compile Include="UnitOfWork\IDependancyResolver.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWork.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWorkFactory.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWorkPerBatch.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWorkPerHandler.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWorkPerMessage.cs" />
+    <Compile Include="UnitOfWork\NullUnitOfWorkImpl.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Hosts\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

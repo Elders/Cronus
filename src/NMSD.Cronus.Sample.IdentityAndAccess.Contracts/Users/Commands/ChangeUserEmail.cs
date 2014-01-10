@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using NMSD.Cronus.Core.Commanding;
+using NMSD.Cronus.Commanding;
 
 namespace NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands
 {

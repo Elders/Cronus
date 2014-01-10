@@ -1,6 +1,6 @@
 using System;
 using System.Runtime.Serialization;
-using NMSD.Cronus.Core.DomainModelling;
+using NMSD.Cronus.DomainModelling;
 
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators

@@ -269,13 +269,13 @@
     <Content Include="Scripts\jquery-1.10.2.min.map" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NMSD.Cronus.Core\NMSD.Cronus.Core.csproj">
-      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
-      <Name>NMSD.Cronus.Core</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
       <Project>{1c59eb3d-70e6-45b4-b644-e5607dcf4713}</Project>
       <Name>NMSD.Cronus.Sample.IdentityAndAccess.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
+      <Project>{32EA2250-01B3-4171-9AE7-214037A0D524}</Project>
+      <Name>NMSD.Cronus</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

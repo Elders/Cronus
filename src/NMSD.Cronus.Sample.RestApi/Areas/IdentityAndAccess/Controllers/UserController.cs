@@ -18,7 +18,6 @@ namespace NMSD.Cronus.Sample.RestApi.Controllers
 
         public HttpResponseMessage Post(ChangeUserEmail command)
         {
-            command.Timestamp = DateTime.Now;
             return Request.CreateResponse(HttpStatusCode.Accepted, command);
         }
 

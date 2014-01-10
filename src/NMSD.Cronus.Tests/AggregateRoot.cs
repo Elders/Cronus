@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using NMSD.Cronus.Core.Eventing;
+using NMSD.Cronus.Eventing;
 using Machine.Specifications;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
-using NMSD.Cronus.Core.DomainModelling;
+using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus.Tests
 {

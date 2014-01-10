@@ -1,17 +1,17 @@
 ﻿using System.Reflection;
-using NMSD.Cronus.Core;
-using NMSD.Cronus.Core.Commanding;
-using NMSD.Cronus.Core.Eventing;
-using NMSD.Cronus.Core.UnitOfWork;
+using NMSD.Cronus;
+using NMSD.Cronus.Commanding;
+using NMSD.Cronus.Eventing;
+using NMSD.Cronus.UnitOfWork;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Protoreg;
-using NMSD.Cronus.Core.Messaging;
+using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
 using NMSD.Cronus.RabbitMQ;
-using NMSD.Cronus.Core.Transports.Conventions;
-using NMSD.Cronus.Core.Transports.RabbitMQ;
-using NMSD.Cronus.Core.EventSourcing;
+using NMSD.Cronus.Transports.Conventions;
+using NMSD.Cronus.Transports.RabbitMQ;
+using NMSD.Cronus.EventSourcing;
 
 namespace NMSD.Cronus.Sample.Handlers
 {

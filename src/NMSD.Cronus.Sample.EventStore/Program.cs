@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Configuration;
 using System.Reflection;
-using NMSD.Cronus.Core.Eventing;
-using NMSD.Cronus.Core.EventSourcing;
-using NMSD.Cronus.Core.Transports.Conventions;
-using NMSD.Cronus.Core.Transports.RabbitMQ;
-using NMSD.Cronus.Core.UnitOfWork;
+using NMSD.Cronus.Eventing;
+using NMSD.Cronus.EventSourcing;
+using NMSD.Cronus.Transports.Conventions;
+using NMSD.Cronus.Transports.RabbitMQ;
+using NMSD.Cronus.UnitOfWork;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;

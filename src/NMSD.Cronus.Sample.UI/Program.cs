@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
-using NMSD.Cronus.Core.Commanding;
-using NMSD.Cronus.Core.EventSourcing;
-using NMSD.Cronus.Core.Transports.Conventions;
-using NMSD.Cronus.Core.Transports.RabbitMQ;
+using NMSD.Cronus.Commanding;
+using NMSD.Cronus.EventSourcing;
+using NMSD.Cronus.Transports.Conventions;
+using NMSD.Cronus.Transports.RabbitMQ;
 using NMSD.Cronus.RabbitMQ;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;

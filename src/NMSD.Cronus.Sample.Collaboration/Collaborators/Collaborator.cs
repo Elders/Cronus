@@ -1,5 +1,5 @@
 ﻿using System;
-using NMSD.Cronus.Core.DomainModelling;
+using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators

@@ -16,7 +16,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\NMSD.Cronus.Sample.Collaboration.Contracts</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -24,7 +24,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\NMSD.Cronus.Sample.Collaboration.Contracts</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -51,9 +51,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NMSD.Cronus.Core\NMSD.Cronus.Core.csproj">
-      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
-      <Name>NMSD.Cronus.Core</Name>
+    <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
+      <Project>{32EA2250-01B3-4171-9AE7-214037A0D524}</Project>
+      <Name>NMSD.Cronus</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

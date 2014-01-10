@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Serialization;
-using NMSD.Cronus.Core.Commanding;
+using NMSD.Cronus.Commanding;
 
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
