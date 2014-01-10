@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using NMSD.Cronus.Core.Eventing;
 using Machine.Specifications;
-using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
+using NMSD.Cronus.Core.DomainModelling;
 
 namespace NMSD.Cronus.Tests
 {

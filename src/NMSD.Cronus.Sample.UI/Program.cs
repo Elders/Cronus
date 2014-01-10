@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using NMSD.Cronus.Core.Commanding;
-using NMSD.Cronus.Core.EventStoreEngine;
+using NMSD.Cronus.Core.EventSourcing;
 using NMSD.Cronus.Core.Transports.Conventions;
 using NMSD.Cronus.Core.Transports.RabbitMQ;
 using NMSD.Cronus.RabbitMQ;

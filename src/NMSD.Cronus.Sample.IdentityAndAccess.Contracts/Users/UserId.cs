@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using NMSD.Cronus.Core.Cqrs;
+using NMSD.Cronus.Core.DomainModelling;
+
 
 namespace NMSD.Cronus.Sample.IdentityAndAccess.Users
 {

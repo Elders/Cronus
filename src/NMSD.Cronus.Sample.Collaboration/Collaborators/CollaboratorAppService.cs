@@ -1,4 +1,4 @@
-﻿using NMSD.Cronus.Core.Cqrs;
+﻿using NMSD.Cronus.Core.DomainModelling;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 
@@ -11,14 +11,14 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators
     {
         public void Handle(RenameCollaborator command)
         {
-            var user = EventStore.Load<Collaborator>(command.Id);
+            var user = Repository.Load<Collaborator>(command.Id);
             user.Rename(command.FirstName, command.LastName);
-            EventStore.Save(user);
+            Repository.Save(user);
         }
 
         public void Handle(CreateNewCollaborator command)
         {
-            EventStore.Save(new Collaborator(command.Id, command.Email));
+            Repository.Save(new Collaborator(command.Id, command.Email));
         }
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace NMSD.Cronus.Core.Cqrs
+namespace NMSD.Cronus.Core.DomainModelling
 {
     [DataContract(Name = "b3e2fc15-1996-437d-adfc-64f3b5be3244")]
     public class AggregateRootId : IAggregateRootId

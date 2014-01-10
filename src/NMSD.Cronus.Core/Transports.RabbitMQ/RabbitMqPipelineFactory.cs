@@ -10,11 +10,9 @@ namespace NMSD.Cronus.Core.Transports.RabbitMQ
 {
     public class RabbitMqPipelineFactory : IPipelineFactory
     {
+        public ConcurrentDictionary<string, RabbitMqPipeline> pipes = new ConcurrentDictionary<string, RabbitMqPipeline>();
+
         private RabbitMqSession session;
-
-        //public ConcurrentDictionary<string, RabbitMqPipeline> pipes = new ConcurrentDictionary<string, RabbitMqPipeline>();
-
-        private readonly RabbitMqSessionFactory sessionFactory;
 
         public RabbitMqPipelineFactory(RabbitMqSession session)
         {
@@ -23,14 +21,14 @@ namespace NMSD.Cronus.Core.Transports.RabbitMQ
 
         public RabbitMqPipeline GetPipeline(string pipelineName)
         {
-            //  if (!pipes.ContainsKey(pipelineName))
+            if (!pipes.ContainsKey(pipelineName))
             {
                 var pipeline = new RabbitMqPipeline(pipelineName, session, RabbitMqPipeline.PipelineType.Headers);
                 pipeline.Open();
-                // pipes.TryAdd(pipelineName, pipeline);
+                pipes.TryAdd(pipelineName, pipeline);
                 return pipeline;
             }
-            //  return pipes[pipelineName];
+            return pipes[pipelineName];
 
         }
 
@@ -38,5 +36,6 @@ namespace NMSD.Cronus.Core.Transports.RabbitMQ
         {
             return GetPipeline(pipelineName);
         }
+
     }
 }

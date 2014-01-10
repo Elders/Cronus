@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Data.SqlClient;
 using NMSD.Cronus.Core.Eventing;
-using NMSD.Cronus.Core.Cqrs;
 
-namespace Cronus.Core.EventStore
+namespace NMSD.Cronus.Core.DomainModelling
 {
     /// <summary>
     /// Indicates the ability to store and retreive a stream of events.
@@ -11,7 +10,7 @@ namespace Cronus.Core.EventStore
     /// <remarks>
     /// Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
     /// </remarks>
-    public interface IEventStore
+    public interface IAggregateRepository
     {
         AR Load<AR>(IAggregateRootId aggregateId) where AR : IAggregateRoot;
 

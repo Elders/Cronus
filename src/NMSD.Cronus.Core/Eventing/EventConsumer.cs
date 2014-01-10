@@ -16,15 +16,19 @@ using System.IO;
 
 namespace NMSD.Cronus.Core.Eventing
 {
-    public class RabbitEventConsumer : BaseInMemoryConsumer<IEvent, IMessageHandler>
+    public class EventConsumer : BaseInMemoryConsumer<IEvent, IMessageHandler>
     {
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EventConsumer));
+
         private readonly IEventHandlerEndpointConvention convention;
+
         private readonly IEndpointFactory factory;
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RabbitEventConsumer));
+
         private List<WorkPool> pools;
+
         private readonly ProtoregSerializer serialiser;
 
-        public RabbitEventConsumer(IEventHandlerEndpointConvention convention, IEndpointFactory factory, ProtoregSerializer serialiser)
+        public EventConsumer(IEventHandlerEndpointConvention convention, IEndpointFactory factory, ProtoregSerializer serialiser)
         {
             this.factory = factory;
             this.convention = convention;
@@ -56,14 +60,14 @@ namespace NMSD.Cronus.Core.Eventing
             }
         }
 
-
-
         private class ConsumerWork : IWork
         {
-            private RabbitEventConsumer consumer;
+
+            static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(ConsumerWork));
+            private EventConsumer consumer;
             private readonly IEndpoint endpoint;
 
-            public ConsumerWork(RabbitEventConsumer consumer, IEndpoint endpoint)
+            public ConsumerWork(EventConsumer consumer, IEndpoint endpoint)
             {
                 this.endpoint = endpoint;
                 this.consumer = consumer;
@@ -101,6 +105,7 @@ namespace NMSD.Cronus.Core.Eventing
                 }
                 catch (EndpointClosedException ex)
                 {
+                    log.Error("Endpoint Closed", ex);
                     ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
                 }
                 catch (Exception ex)

@@ -31,7 +31,7 @@ namespace NMSD.Cronus.Core.Eventing
         {
             var endpointMessage = ToEndpointMessage(@event);
             var eventType = @event.GetType();
-            endpointMessage.Headers.Add(MessagingHelper.GetMessageId(eventType), String.Empty);
+            endpointMessage.Headers.Add(MessageInfo.GetMessageId(eventType), String.Empty);
             BuildPipeline(eventType);
             pipelines[eventType].Push(endpointMessage);
             log.Info("PUBLISHED EVENT => " + @event.ToString());

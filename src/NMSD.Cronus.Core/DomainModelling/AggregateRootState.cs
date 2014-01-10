@@ -1,6 +1,6 @@
 using NMSD.Cronus.Core.Eventing;
 
-namespace NMSD.Cronus.Core.Cqrs
+namespace NMSD.Cronus.Core.DomainModelling
 {
     public abstract class AggregateRootState<ID> : IAggregateRootState
         where ID : IAggregateRootId

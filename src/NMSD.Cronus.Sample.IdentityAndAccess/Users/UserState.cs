@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Serialization;
-using NMSD.Cronus.Core.Cqrs;
+using NMSD.Cronus.Core.DomainModelling;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
 
 namespace NMSD.Cronus.Sample.IdentityAndAccess.Users

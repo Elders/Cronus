@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NMSD.Cronus.Core.Cqrs;
+using NMSD.Cronus.Core.DomainModelling;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Transports;
 using NMSD.Cronus.RabbitMQ;
 using NMSD.Protoreg;
 
-namespace NMSD.Cronus.Core.Eventing
+namespace NMSD.Cronus.Core.EventSourcing
 {
     public class EventStorePublisher : IPublisher<DomainMessageCommit>
     {
@@ -22,7 +22,7 @@ namespace NMSD.Cronus.Core.Eventing
             this.serializer = serializer;
 
         }
-        
+
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EventStorePublisher));
 
         Dictionary<Type, IPipeline> pipelines = new Dictionary<Type, IPipeline>();

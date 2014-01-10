@@ -6,7 +6,7 @@ using System.Text;
 using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Messaging;
 
-namespace NMSD.Cronus.Core.Cqrs
+namespace NMSD.Cronus.Core.DomainModelling
 {
     [DataContract(Name = "6a146321-7b94-4ff6-bf2c-cd82cba1836b")]
     public class DomainMessageCommit : IMessage

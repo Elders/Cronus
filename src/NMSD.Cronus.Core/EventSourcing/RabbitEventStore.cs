@@ -3,17 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Cronus.Core.EventStore;
-using NMSD.Cronus.Core.Cqrs;
+using NMSD.Cronus.Core.DomainModelling;
 using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Transports.Conventions;
 using NMSD.Cronus.Core.Transports.RabbitMQ;
 using NMSD.Protoreg;
 
-namespace NMSD.Cronus.Core.EventStoreEngine
+namespace NMSD.Cronus.Core.EventSourcing
 {
-    public class RabbitEventStore : IEventStore
+    public class RabbitEventStore : IAggregateRepository
     {
         private MssqlEventStore mssqlStore;
 
@@ -25,12 +24,12 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             eventPublisher = new EventStorePublisher(new EventStorePipelinePerApplication(), new RabbitMqPipelineFactory(session), serializer);
         }
 
-        public AR Load<AR>(Cqrs.IAggregateRootId aggregateId) where AR : Cqrs.IAggregateRoot
+        public AR Load<AR>(IAggregateRootId aggregateId) where AR : IAggregateRoot
         {
             return mssqlStore.Load<AR>(aggregateId);
         }
 
-        public void Save(Cqrs.IAggregateRoot aggregateRoot)
+        public void Save(IAggregateRoot aggregateRoot)
         {
             aggregateRoot.State.Version += 1;
             var commit = new DomainMessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents);

@@ -13,21 +13,21 @@ using NMSD.Cronus.Core.UnitOfWork;
 using RabbitMQ.Client.Events;
 using NMSD.Cronus.Core.Transports.Conventions;
 using NMSD.Cronus.Core.Transports;
-using Cronus.Core.EventStore;
-using NMSD.Cronus.Core.Cqrs;
+using NMSD.Cronus.Core.DomainModelling;
+using NMSD.Cronus.Core.Transports.RabbitMQ;
 
 namespace NMSD.Cronus.Core.Commanding
 {
-    public class CommandConsumer : BaseInMemoryConsumer<ICommand, IMessageHandler> //: RabbitConsumer<ICommand, IMessageHandler>
+    public class CommandConsumer : BaseInMemoryConsumer<ICommand, IMessageHandler>
     {
         private readonly ICommandHandlerEndpointConvention convention;
-        private readonly IEventStore eventStore;
+        private readonly IAggregateRepository eventStore;
         private readonly IEndpointFactory factory;
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(CommandConsumer));
         private List<WorkPool> pools;
         private readonly ProtoregSerializer serialiser;
 
-        public CommandConsumer(ICommandHandlerEndpointConvention convention, IEndpointFactory factory, ProtoregSerializer serialiser, IEventStore eventStore)
+        public CommandConsumer(ICommandHandlerEndpointConvention convention, IEndpointFactory factory, ProtoregSerializer serialiser, IAggregateRepository eventStore)
         {
             this.eventStore = eventStore;
             this.factory = factory;
@@ -44,7 +44,7 @@ namespace NMSD.Cronus.Core.Commanding
             MessageHandlerRegistrations.RegisterAllHandlersInAssembly<IMessageHandler>(this, assemblyContainingMessageHandlers, x =>
             {
                 var handler = messageHandlerFactory(x);
-                (handler as IAggregateRootApplicationService).EventStore = eventStore;
+                (handler as IAggregateRootApplicationService).Repository = eventStore;
                 return handler;
             });
         }
@@ -53,7 +53,7 @@ namespace NMSD.Cronus.Core.Commanding
         {
             pools = new List<WorkPool>();
             var endpoints = convention.GetEndpointDefinitions(base.RegisteredHandlers.Keys.ToArray());
-            
+
             foreach (var endpoint in endpoints)
             {
                 var pool = new WorkPool(String.Format("Workpoll {0}", endpoint.EndpointName), numberOfWorkers);
@@ -93,34 +93,32 @@ namespace NMSD.Cronus.Core.Commanding
                     endpoint.Open();
                     while (true)
                     {
-                        try
+                        using (var batchedUoW = consumer.UnitOfWorkFactory.NewBatch())
                         {
-                            using (var batchedUoW = consumer.UnitOfWorkFactory.NewBatch())
+                            var rawMessage = endpoint.BlockDequeue();
+
+                            ICommand command;
+                            using (var stream = new MemoryStream(rawMessage.Body))
                             {
-                                var rawMessage = endpoint.BlockDequeue();
-
-                                ICommand command;
-                                using (var stream = new MemoryStream(rawMessage.Body))
-                                {
-                                    command = consumer.serialiser.Deserialize(stream) as ICommand;
-                                }
-
-                                if (consumer.Handle(command, batchedUoW))
-                                    endpoint.Acknowledge(rawMessage);
+                                command = consumer.serialiser.Deserialize(stream) as ICommand;
                             }
+
+                            if (consumer.Handle(command, batchedUoW))
+                                endpoint.Acknowledge(rawMessage);
                         }
-                        catch (EndOfStreamException)
-                        {
-                            ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                            break;
-                        }
+
 
                     }
-                    endpoint.Close();
+
                 }
-                catch (OperationInterruptedException ex)
+                catch (EndpointClosedException ex)
                 {
+                    log.Error("Endpoint Closed", ex);
                     ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+                }
+                finally
+                {
+                    endpoint.Close();
                 }
             }
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace NMSD.Cronus.Core.Cqrs
+namespace NMSD.Cronus.Core.DomainModelling
 {
     /// <summary>
     /// 

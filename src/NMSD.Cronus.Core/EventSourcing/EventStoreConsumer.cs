@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using NMSD.Cronus.Core.Eventing;
-using NMSD.Cronus.Core.Cqrs;
-using NMSD.Cronus.Core.EventStoreEngine;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Multithreading.Work;
 using NMSD.Cronus.RabbitMQ;
@@ -14,13 +12,12 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 using NMSD.Cronus.Core.Transports;
-using Cronus.Core.EventStore;
 using NMSD.Cronus.Core.Transports.Conventions;
-using NMSD.Cronus.Core.Snapshotting;
 using NMSD.Cronus.Core.UnitOfWork;
 using NMSD.Cronus.Core.Transports.RabbitMQ;
+using NMSD.Cronus.Core.DomainModelling;
 
-namespace NMSD.Cronus.Core.Eventing
+namespace NMSD.Cronus.Core.EventSourcing
 {
     public class EventStoreConsumer
     {
@@ -30,7 +27,7 @@ namespace NMSD.Cronus.Core.Eventing
 
         private readonly IEventStoreEndpointConvention convention;
 
-        private readonly IPersistEventStream eventStore;
+        private readonly IEventStore eventStore;
 
         private readonly IPublisher<IEvent> eventPublisher;
 
@@ -40,7 +37,7 @@ namespace NMSD.Cronus.Core.Eventing
 
         private readonly ProtoregSerializer serialiser;
 
-        public EventStoreConsumer(IEventStoreEndpointConvention convention, IEndpointFactory factory, Assembly assemblyContainingEvents, ProtoregSerializer serialiser, IPersistEventStream eventStore, IPublisher<IEvent> eventPublisher)
+        public EventStoreConsumer(IEventStoreEndpointConvention convention, IEndpointFactory factory, Assembly assemblyContainingEvents, ProtoregSerializer serialiser, IEventStore eventStore, IPublisher<IEvent> eventPublisher)
         {
             this.eventPublisher = eventPublisher;
             this.assemblyContainingEvents = assemblyContainingEvents;

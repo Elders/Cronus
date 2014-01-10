@@ -2,12 +2,11 @@
 using System.Configuration;
 using System.Reflection;
 using System.Threading;
-using Cronus.Core.EventStore;
 using NMSD.Cronus.Core;
 using NMSD.Cronus.Core.Commanding;
-using NMSD.Cronus.Core.Cqrs;
+using NMSD.Cronus.Core.DomainModelling;
 using NMSD.Cronus.Core.Eventing;
-using NMSD.Cronus.Core.EventStoreEngine;
+using NMSD.Cronus.Core.EventSourcing;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
@@ -49,7 +48,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
         private static void HostApplicationServices()
         {
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-            IEventStore eventStore = null;//= new ProtoEventStore(connectionString, serializer);
+            //IAggregateRepository eventStore = new ProtoEventStore(connectionString, serializer);
 
             commandBus = new InMemoryCommandBus();
             commandBus.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)),

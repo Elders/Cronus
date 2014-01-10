@@ -1,4 +1,4 @@
-﻿using NMSD.Cronus.Core.Cqrs;
+﻿using NMSD.Cronus.Core.DomainModelling;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
 
@@ -11,14 +11,14 @@ namespace NMSD.Cronus.Sample.IdentityAndAccess.Users
 
         public void Handle(RegisterNewUser message)
         {
-            EventStore.Save(new User(message.Id, message.Email));
+            Repository.Save(new User(message.Id, message.Email));
         }
 
         public void Handle(ChangeUserEmail message)
         {
-            var user = EventStore.Load<User>(message.Id);
+            var user = Repository.Load<User>(message.Id);
             user.ChangeEmail(message.OldEmail, message.NewEmail);
-            EventStore.Save(user);
+            Repository.Save(user);
         }
     }
 }

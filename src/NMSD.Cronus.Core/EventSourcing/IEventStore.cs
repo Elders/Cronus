@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using NMSD.Cronus.Core.Cqrs;
+using NMSD.Cronus.Core.DomainModelling;
 using NMSD.Cronus.Core.Eventing;
 
-namespace NMSD.Cronus.Core.Snapshotting
+namespace NMSD.Cronus.Core.EventSourcing
 {
-    public interface IPersistEventStream
+    public interface IEventStore
     {
         IEventStream OpenStream();
 

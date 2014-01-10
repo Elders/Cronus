@@ -7,15 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using NMSD.Cronus.Core.Eventing;
-using Cronus.Core.EventStore;
-using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Messaging;
-using NMSD.Cronus.Core.Snapshotting;
 using NMSD.Protoreg;
 using System.Text;
 using System.Globalization;
+using NMSD.Cronus.Core.DomainModelling;
 
-namespace NMSD.Cronus.Core.EventStoreEngine
+namespace NMSD.Cronus.Core.EventSourcing
 {
     public class MssqlStream : IEventStream
     {

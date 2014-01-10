@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace NMSD.Cronus.Core.Cqrs
+namespace NMSD.Cronus.Core.DomainModelling
 {
     [AttributeUsage(AttributeTargets.Assembly)]
     public class BoundedContextAttribute : Attribute

@@ -7,15 +7,13 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using NMSD.Cronus.Core.Eventing;
-using Cronus.Core.EventStore;
-using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Messaging;
-using NMSD.Cronus.Core.Snapshotting;
 using NMSD.Protoreg;
 using System.Text;
 using System.Globalization;
+using NMSD.Cronus.Core.DomainModelling;
 
-namespace NMSD.Cronus.Core.EventStoreEngine
+namespace NMSD.Cronus.Core.EventSourcing
 {
     [DataContract(Name = "987a7bed-7689-4c08-b610-9a802d306215")]
     public class Wraper
@@ -31,7 +29,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
         public List<object> Events { get; private set; }
 
     }
-    public class MssqlEventStore : IEventStore, IPersistEventStream
+    public class MssqlEventStore : IAggregateRepository, IEventStore
     {
         const string DeleteAggregateStatesQueryTemplate = @"DELETE {0} WHERE [Timestamp]<@timestamp AND ({1})";
 
@@ -324,7 +322,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             foreach (var @event in events)
             {
                 var eventType = @event.GetType();
-                string eventBC = MessagingHelper.GetBoundedContext(eventType);
+                string eventBC = MessageInfo.GetBoundedContext(eventType);
                 if (String.Compare(boundedContext, eventBC, true, CultureInfo.InvariantCulture) != 0)
                     wrongEventTypes.Add(eventType);
             }
@@ -348,7 +346,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             foreach (var @event in states)
             {
                 var eventType = @event.GetType();
-                string eventBC = MessagingHelper.GetBoundedContext(eventType);
+                string eventBC = MessageInfo.GetBoundedContext(eventType);
                 if (String.Compare(boundedContext, eventBC, true, CultureInfo.InvariantCulture) != 0)
                     wrongStateTypes.Add(eventType);
             }
@@ -381,7 +379,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
 
 
 
-        IEventStream IPersistEventStream.OpenStream()
+        IEventStream IEventStore.OpenStream()
         {
             var connection = OpenConnection();
             return new MssqlStream(connection);
@@ -395,7 +393,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             TakeSnapshot(stream.Snapshots, stream.Connection);
         }
 
-        void IPersistEventStream.Commit(IEventStream stream)
+        void IEventStore.Commit(IEventStream stream)
         {
             Commit(stream as MssqlStream);
         }

@@ -35,7 +35,7 @@ namespace NMSD.Cronus.Core.Commanding
         {
             var endpointMessage = ToEndpointMessage(command);
             var commandType = command.GetType();
-            endpointMessage.Headers.Add(MessagingHelper.GetMessageId(commandType), String.Empty);
+            endpointMessage.Headers.Add(MessageInfo.GetMessageId(commandType), String.Empty);
             BuildPipeline(commandType);
             pipelines[commandType].Push(endpointMessage);
             log.Info("COMMAND SENT => " + command.ToString());

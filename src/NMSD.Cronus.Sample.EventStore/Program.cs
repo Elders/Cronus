@@ -2,7 +2,7 @@
 using System.Configuration;
 using System.Reflection;
 using NMSD.Cronus.Core.Eventing;
-using NMSD.Cronus.Core.EventStoreEngine;
+using NMSD.Cronus.Core.EventSourcing;
 using NMSD.Cronus.Core.Transports.Conventions;
 using NMSD.Cronus.Core.Transports.RabbitMQ;
 using NMSD.Cronus.Core.UnitOfWork;

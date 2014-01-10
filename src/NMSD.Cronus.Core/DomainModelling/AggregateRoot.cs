@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cronus.Core;
 using NMSD.Cronus.Core.Eventing;
 
-namespace NMSD.Cronus.Core.Cqrs
+namespace NMSD.Cronus.Core.DomainModelling
 {
     public class AggregateRoot<ST> : IAggregateRoot
         where ST : IAggregateRootState

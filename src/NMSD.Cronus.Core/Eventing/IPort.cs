@@ -1,7 +1,7 @@
 ﻿using NMSD.Cronus.Core.Commanding;
 using NMSD.Cronus.Core.Messaging;
 
-namespace NMSD.Cronus.Core.Cqrs
+namespace NMSD.Cronus.Core.Eventing
 {
     public interface IPort
     {
