@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("NSMD.Cronus.Infrastructure.RabbitMQ")]
+[assembly: AssemblyTitle("NMSD.Cronus.Infrastructure.RabbitMQ")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("NSMD.Cronus.Infrastructure.RabbitMQ")]
+[assembly: AssemblyProduct("NMSD.Cronus.Infrastructure.RabbitMQ")]
 [assembly: AssemblyCopyright("Copyright ©  2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

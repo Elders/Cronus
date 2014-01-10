@@ -29,9 +29,6 @@ namespace NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands
         [DataMember(Order = 3)]
         public string NewEmail { get; private set; }
 
-        [DataMember(Order = 4)]
-        public DateTime Timestamp { get; set; }
-
         public override string ToString()
         {
             return this.ToString("Change old user email '{0}' with '{1}'. {2}", OldEmail, NewEmail, Id);

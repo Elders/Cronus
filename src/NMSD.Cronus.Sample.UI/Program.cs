@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Threading;
 using NMSD.Cronus.Core.Commanding;
-using NMSD.Cronus.Core.EventStoreEngine;
+using NMSD.Cronus.Core.EventSourcing;
+using NMSD.Cronus.Core.Transports.Conventions;
+using NMSD.Cronus.Core.Transports.RabbitMQ;
+using NMSD.Cronus.RabbitMQ;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
@@ -12,7 +15,7 @@ namespace NMSD.Cronus.Sample.UI
 {
     class Program
     {
-        static RabbitCommandPublisher commandPublisher;
+        static CommandPublisher commandPublisher;
 
         static void Main(string[] args)
         {
@@ -24,15 +27,20 @@ namespace NMSD.Cronus.Sample.UI
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
 
-            commandPublisher = new RabbitCommandPublisher(serializer);
+            var rabbitMqSessionFactory = new RabbitMqSessionFactory();
+            var session = rabbitMqSessionFactory.OpenSession();
+            commandPublisher = new CommandPublisher(new CommandPipelinePerApplication(), new RabbitMqPipelineFactory(session), serializer);
 
-            HostUI(1111111100);
+            //HostUI(1000, 2600); //  Target
+            // HostUI(1000, 800);  //  With Snapshot Delition right after new snapshots
+            HostUI(2000);
+            session.Close();
         }
 
         private static void HostUI(int messageDelayInMilliseconds = 0, int batchSize = 1)
         {
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i > -1; i++)
             {
                 if (messageDelayInMilliseconds == 0)
                 {
@@ -55,7 +63,8 @@ namespace NMSD.Cronus.Sample.UI
             UserId userId = new UserId(Guid.NewGuid());
             var email = "mynkow@gmail.com";
             commandPublisher.Publish(new RegisterNewUser(userId, email));
-            Thread.Sleep(10000);
+            Thread.Sleep(500);
+
             commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
         }
     }

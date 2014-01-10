@@ -3,11 +3,13 @@ using System.Configuration;
 using System.Reflection;
 using NMSD.Cronus.Core;
 using NMSD.Cronus.Core.Commanding;
-using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Eventing;
-using NMSD.Cronus.Core.EventStoreEngine;
+using NMSD.Cronus.Core.EventSourcing;
 using NMSD.Cronus.Core.Messaging;
+using NMSD.Cronus.Core.Transports.Conventions;
+using NMSD.Cronus.Core.Transports.RabbitMQ;
 using NMSD.Cronus.Core.UnitOfWork;
+using NMSD.Cronus.RabbitMQ;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
@@ -33,37 +35,26 @@ namespace NMSD.Cronus.Sample.ApplicationService
 
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
 
-            var commandConsumer = new RabbitCommandConsumer(serializer);
-            commandConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
+            var rabbitMqSessionFactory = new RabbitMqSessionFactory();
+            var session = rabbitMqSessionFactory.OpenSession();
+            var commaborationES = new RabbitEventStore("Collaboration", connectionString, session, serializer);
+            var commandConsumerCollaboration = new CommandConsumer(new CommandHandlersPerBoundedContext(new CommandPipelinePerApplication()), new RabbitMqEndpointFactory(session), serializer, commaborationES);
+            commandConsumerCollaboration.UnitOfWorkFactory = new NullUnitOfWorkFactory();
+            commandConsumerCollaboration.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)));
 
 
-            var commaborationES = new ProtoEventStore("Collaboration", connectionString, serializer);
-            var collaborationEventPublisher = new RabbitEventStorePublisher(serializer);
-            commandConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)),
-                type =>
-                {
-                    var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
-                    handler.EventStore = commaborationES;
-                    handler.EventPublisher = collaborationEventPublisher;
-                    return handler;
-                });
-
-            var iacES = new ProtoEventStore("IdentityAndAccess", connectionString, serializer);
-            var iacEventPublisher = new RabbitEventStorePublisher(serializer);
-            commandConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)),
-                type =>
-                {
-                    var handler = FastActivator.CreateInstance(type) as IAggregateRootApplicationService;
-                    handler.EventStore = iacES;
-                    handler.EventPublisher = iacEventPublisher;
-                    return handler;
-                });
+            var iacES = new RabbitEventStore("IdentityAndAccess", connectionString, session, serializer);
+            var commandConsumerIaC = new CommandConsumer(new CommandHandlersPerBoundedContext(new CommandPipelinePerApplication()), new RabbitMqEndpointFactory(session), serializer, iacES);
+            commandConsumerIaC.UnitOfWorkFactory = new NullUnitOfWorkFactory();
+            commandConsumerIaC.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)));
 
 
 
-            commandConsumer.Start(1);
+            commandConsumerCollaboration.Start(1);
+            commandConsumerIaC.Start(1);
 
             Console.ReadLine();
+            session.Close();
         }
     }
 }

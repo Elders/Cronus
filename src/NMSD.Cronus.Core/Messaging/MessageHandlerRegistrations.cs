@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using Cronus.Core;
 using NMSD.Cronus.Core.Commanding;
 
 namespace NMSD.Cronus.Core.Messaging
