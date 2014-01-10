@@ -66,7 +66,7 @@ namespace NMSD.Cronus.Core.Messaging
 
         protected void BuildPipeline(TMessage message)
         {
-            if (typeof(TMessage) == typeof(NMSD.Cronus.Core.Cqrs.MessageCommit))
+            if (typeof(TMessage) == typeof(NMSD.Cronus.Core.Cqrs.DomainMessageCommit))
                 pipelineName = pipelineName ?? "NMSD.Cronus.Sample.EventStore";
             else
                 pipelineName = pipelineName ?? GetPipelineName(message);

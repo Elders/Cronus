@@ -8,7 +8,7 @@ using NMSD.Cronus.Core.Cqrs;
 
 namespace NMSD.Cronus.Core.Transports.Conventions
 {
-    public class CommandPipelineConvention : ICommandPipelineConvention
+    public class CommandPipelinePerApplication : ICommandPipelineConvention
     {
         public string GetPipelineName(Type commandType)
         {

@@ -31,7 +31,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
         public List<object> Events { get; private set; }
 
     }
-    public class MssqlEventStore : IEventStore
+    public class MssqlEventStore : IEventStore, IPersistEventStream
     {
         const string DeleteAggregateStatesQueryTemplate = @"DELETE {0} WHERE [Timestamp]<@timestamp AND ({1})";
 
@@ -156,7 +156,6 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             row[2] = events.Count;
             row[3] = DateTime.UtcNow;
             eventsTable.Rows.Add(row);
-
             using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
             {
                 bulkCopy.DestinationTableName = eventsTableName;
@@ -189,25 +188,26 @@ namespace NMSD.Cronus.Core.EventStoreEngine
                 dt.Rows.Add(row);
             }
 
-            using (var tx = connection.BeginTransaction())
+            // using (var tx = connection.BeginTransaction(IsolationLevel.Snapshot))
             {
-                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection, SqlBulkCopyOptions.Default, tx))
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
                 {
                     bulkCopy.DestinationTableName = snapshotsTableName;
                     try
                     {
-                        var statesDeleteCommand = PrepareAggregateStateDeleteCommand(states);
-                        statesDeleteCommand.Connection = connection;
-                        statesDeleteCommand.Transaction = tx;
-                        statesDeleteCommand.ExecuteNonQuery();
+                        //var statesDeleteCommand = PrepareAggregateStateDeleteCommand(states);
+                        //statesDeleteCommand.Connection = connection;
+                        //statesDeleteCommand.Transaction = tx;
+                        //statesDeleteCommand.ExecuteNonQuery();
 
                         bulkCopy.BatchSize = 100;
                         bulkCopy.WriteToServer(dt, DataRowState.Added);
-                        tx.Commit();
+                        // tx.Commit();
+
                     }
                     catch (Exception ex)
                     {
-                        tx.Rollback();
+                        // tx.Rollback();
                         throw new AggregateStateFirstLevelConcurrencyException("", ex);
                     }
                 }
@@ -317,7 +317,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
-        private void ValidateEventsBoundedContext(List<IEvent> events)
+        private void ValidateEventsBoundedContext(IList<IEvent> events)
         {
             StringBuilder errors = new StringBuilder();
             ISet<Type> wrongEventTypes = new HashSet<Type>();
@@ -341,7 +341,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
             }
         }
 
-        private void ValidateSnapshotsBoundedContext(List<IAggregateRootState> states)
+        private void ValidateSnapshotsBoundedContext(IList<IAggregateRootState> states)
         {
             StringBuilder errors = new StringBuilder();
             ISet<Type> wrongStateTypes = new HashSet<Type>();
@@ -377,6 +377,27 @@ namespace NMSD.Cronus.Core.EventStoreEngine
         public void Save(IAggregateRoot aggregateRoot)
         {
             throw new NotImplementedException();
+        }
+
+
+
+        IEventStream IPersistEventStream.OpenStream()
+        {
+            var connection = OpenConnection();
+            return new MssqlStream(connection);
+        }
+
+        public void Commit(MssqlStream stream)
+        {
+            if (stream.Events.Count == 0)
+                return;
+            Persist(stream.Events, stream.Connection);
+            TakeSnapshot(stream.Snapshots, stream.Connection);
+        }
+
+        void IPersistEventStream.Commit(IEventStream stream)
+        {
+            Commit(stream as MssqlStream);
         }
     }
 

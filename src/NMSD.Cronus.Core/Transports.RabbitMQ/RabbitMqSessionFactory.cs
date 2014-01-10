@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using RabbitMQ.Client;
 
-namespace NMSD.Cronus.RabbitMQ
+namespace NMSD.Cronus.Core.Transports.RabbitMQ
 {
     public sealed class RabbitMqSessionFactory
     {
@@ -19,7 +19,7 @@ namespace NMSD.Cronus.RabbitMQ
 
         private readonly string virtualHost;
 
-        public RabbitMqSessionFactory() : this("localhost") { }
+        public RabbitMqSessionFactory() : this("192.168.16.69") { }
 
         public RabbitMqSessionFactory(string hostname, string username = ConnectionFactory.DefaultUser, string password = ConnectionFactory.DefaultPass, int port = 5672, string virtualHost = ConnectionFactory.DefaultVHost)
         {

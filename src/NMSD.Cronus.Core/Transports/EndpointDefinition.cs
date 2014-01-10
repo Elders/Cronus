@@ -14,13 +14,13 @@ namespace NMSD.Cronus.Core.Transports
 
         public string EndpointName { get; private set; }
 
-        public List<Guid> HandledMessagesIds { get; private set; }
-
-        public EndpointDefinition(string endpointName, List<Guid> endpointMessagesDefinitions, string pipelineName)
+        //public List<obj> HandledMessagesIds { get; private set; }
+        public Dictionary<string, object> AcceptanceHeaders { get; private set; }
+        public EndpointDefinition(string endpointName, Dictionary<string, object> acceptanceHeaders, string pipelineName)
         {
             EndpointName = endpointName;
-            HandledMessagesIds = endpointMessagesDefinitions;
             PipelineName = pipelineName;
+            AcceptanceHeaders = acceptanceHeaders;
         }
     }
 }

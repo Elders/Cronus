@@ -7,6 +7,8 @@ using Cronus.Core.EventStore;
 using NMSD.Cronus.Core.Cqrs;
 using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Messaging;
+using NMSD.Cronus.Core.Transports.Conventions;
+using NMSD.Cronus.Core.Transports.RabbitMQ;
 using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Core.EventStoreEngine
@@ -15,12 +17,12 @@ namespace NMSD.Cronus.Core.EventStoreEngine
     {
         private MssqlEventStore mssqlStore;
 
-        private IPublisher<MessageCommit> eventPublisher;
+        private IPublisher<DomainMessageCommit> eventPublisher;
 
-        public RabbitEventStore(string boundedContext, string connectionString, ProtoregSerializer serializer)
+        public RabbitEventStore(string boundedContext, string connectionString, RabbitMqSession session, ProtoregSerializer serializer)
         {
             mssqlStore = new MssqlEventStore(boundedContext, connectionString, serializer);
-            eventPublisher = new RabbitEventStorePublisher(serializer);
+            eventPublisher = new EventStorePublisher(new EventStorePipelinePerApplication(), new RabbitMqPipelineFactory(session), serializer);
         }
 
         public AR Load<AR>(Cqrs.IAggregateRootId aggregateId) where AR : Cqrs.IAggregateRoot
@@ -31,7 +33,7 @@ namespace NMSD.Cronus.Core.EventStoreEngine
         public void Save(Cqrs.IAggregateRoot aggregateRoot)
         {
             aggregateRoot.State.Version += 1;
-            var commit = new MessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents);
+            var commit = new DomainMessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents);
             eventPublisher.Publish(commit);
         }
     }

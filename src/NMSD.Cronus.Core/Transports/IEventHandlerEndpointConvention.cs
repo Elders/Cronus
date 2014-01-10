@@ -12,8 +12,4 @@ namespace NMSD.Cronus.Core.Transports.Conventions
     {
         IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] handlerTypes);
     }
-    public interface ICommandHandlerEndpointConvention
-    {
-        IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] handlerTypes);
-    }
 }

@@ -9,11 +9,11 @@ using NMSD.Cronus.Core.Cqrs;
 
 namespace NMSD.Cronus.Core.Transports.Conventions
 {
-    public class EndpointPerEventHandler : IEventHandlerEndpointConvention
+    public class EventHandlerPerEndpoint : IEventHandlerEndpointConvention
     {
-        private IEventPipelineConvention pipelineConvention;
+        private IEventHandlersPipelineConvention pipelineConvention;
 
-        public EndpointPerEventHandler(IEventPipelineConvention pipelineConvention)
+        public EventHandlerPerEndpoint(IEventHandlersPipelineConvention pipelineConvention)
         {
             this.pipelineConvention = pipelineConvention;
         }
@@ -29,8 +29,13 @@ namespace NMSD.Cronus.Core.Transports.Conventions
                 string endpointName = String.Format("{0}.{1}", boundedContext.BoundedContextNamespace, handlerType.Name);
 
                 var eventTypes = handlerType.GetMethods().Where(x => x.Name == "Handle").SelectMany(x => x.GetParameters().Select(y => y.ParameterType));
-                var eventIds = eventTypes.Select(x => new Guid((x.GetCustomAttribute(typeof(DataContractAttribute), false) as DataContractAttribute).Name));
-                yield return new EndpointDefinition(endpointName, new List<Guid>(eventIds), pipelineConvention.GetPipelineName(eventTypes.First()));
+                var eventIds = eventTypes.Select(x => (x.GetCustomAttribute(typeof(DataContractAttribute), false) as DataContractAttribute).Name);
+                var acceptanceHeaders = new Dictionary<string, object>();
+                foreach (var id in eventIds)
+                {
+                    acceptanceHeaders[id] = String.Empty;
+                }
+                yield return new EndpointDefinition(endpointName, acceptanceHeaders, pipelineConvention.GetPipelineName(eventTypes.First()));
             }
         }
     }

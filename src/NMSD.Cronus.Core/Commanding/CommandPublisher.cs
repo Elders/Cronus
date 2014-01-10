@@ -36,13 +36,13 @@ namespace NMSD.Cronus.Core.Commanding
             var endpointMessage = ToEndpointMessage(command);
             var commandType = command.GetType();
             endpointMessage.Headers.Add(MessagingHelper.GetMessageId(commandType), String.Empty);
-            BuildPipeline(commandType, command);
+            BuildPipeline(commandType);
             pipelines[commandType].Push(endpointMessage);
-            log.Info("Sending Command => " + command.ToString());
+            log.Info("COMMAND SENT => " + command.ToString());
             return true;
         }
 
-        private EndpointMessage ToEndpointMessage(object cmd)
+        private EndpointMessage ToEndpointMessage(ICommand cmd)
         {
             byte[] body;
             using (var stream = new MemoryStream())
@@ -53,7 +53,7 @@ namespace NMSD.Cronus.Core.Commanding
             return new EndpointMessage(body);
         }
 
-        private void BuildPipeline(Type commandType, object command)
+        private void BuildPipeline(Type commandType)
         {
             if (!pipelines.ContainsKey(commandType))
             {

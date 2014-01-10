@@ -9,7 +9,7 @@ using NMSD.Cronus.Core.Commanding;
 
 namespace NMSD.Cronus.Core.Transports
 {
-    public interface ICommandPipelineConvention
+    public interface IEventHandlersPipelineConvention
     {
         string GetPipelineName(Type messageType);
     }

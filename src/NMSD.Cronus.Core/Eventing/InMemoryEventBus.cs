@@ -8,7 +8,7 @@ using NMSD.Cronus.Core.Messaging;
 
 namespace NMSD.Cronus.Core.Eventing
 {
-    public class InMemoryEventBus : InMemoryBus<IEvent, IMessageHandler>, IPublisher<MessageCommit>
+    public class InMemoryEventBus : InMemoryBus<IEvent, IMessageHandler>, IPublisher<DomainMessageCommit>
     {
         private readonly IEventStore eventStore;
         SqlConnection connection;
@@ -18,7 +18,7 @@ namespace NMSD.Cronus.Core.Eventing
             this.eventStore = eventStore;
         }
 
-        public bool Publish(MessageCommit message)
+        public bool Publish(DomainMessageCommit message)
         {
             //if (connection == null || connection.State != System.Data.ConnectionState.Open)
             //    connection = eventStore.OpenConnection();

@@ -3,6 +3,8 @@ using System.Configuration;
 using System.Reflection;
 using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.EventStoreEngine;
+using NMSD.Cronus.Core.Transports.Conventions;
+using NMSD.Cronus.Core.Transports.RabbitMQ;
 using NMSD.Cronus.Core.UnitOfWork;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
@@ -26,18 +28,21 @@ namespace NMSD.Cronus.Sample.EventStore
             protoRegistration.RegisterAssembly<Wraper>();
             ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
             serializer.Build();
-
+            var rabbitMqSessionFactory = new RabbitMqSessionFactory();
+            var session = rabbitMqSessionFactory.OpenSession();
             string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-
+            var eventPublisher = new EventPublisher(new EventHandlersPipelinePerApplication(), new RabbitMqPipelineFactory(session), serializer);
             var iacES = new MssqlEventStore("IdentityAndAccess", connectionString, serializer);
-            var iacEventStoreConsumer = new RabbitEventStoreConsumer(Assembly.GetAssembly(typeof(NewUserRegistered)), serializer, iacES);
+            var iacEventStoreConsumer = new EventStoreConsumer(new EventStorePerBoundedContext(new EventStorePipelinePerApplication()), new RabbitMqEndpointFactory(session), Assembly.GetAssembly(typeof(NewUserRegistered)), serializer, iacES, eventPublisher);
             iacEventStoreConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
-            iacEventStoreConsumer.Start(1);
+            iacEventStoreConsumer.Start(5);
 
             var collaborationES = new MssqlEventStore("Collaboration", connectionString, serializer);
-            var collaborationEventStoreConsumer = new RabbitEventStoreConsumer(Assembly.GetAssembly(typeof(NewCollaboratorCreated)), serializer, collaborationES);
+            var collaborationEventStoreConsumer = new EventStoreConsumer(new EventStorePerBoundedContext(new EventStorePipelinePerApplication()), new RabbitMqEndpointFactory(session), Assembly.GetAssembly(typeof(NewCollaboratorCreated)), serializer, collaborationES, eventPublisher);
             collaborationEventStoreConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
-            collaborationEventStoreConsumer.Start(1);
+            collaborationEventStoreConsumer.Start(5);
+            System.Console.ReadLine();
+            session.Close();
 
 
         }

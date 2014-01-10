@@ -1,60 +1,71 @@
 using System;
-using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 using NMSD.Cronus.Core.Eventing;
 using NMSD.Cronus.Core.Messaging;
 using NMSD.Cronus.Core.Multithreading.Work;
+using NMSD.Cronus.Core.Transports;
+using NMSD.Cronus.Core.Transports.Conventions;
 using NMSD.Cronus.Core.UnitOfWork;
 using NMSD.Cronus.RabbitMQ;
 using NMSD.Protoreg;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
+using NMSD.Cronus.Core.Transports.RabbitMQ;
+using System.IO;
 
 namespace NMSD.Cronus.Core.Eventing
 {
-    public class RabbitEventConsumer : RabbitConsumer<IEvent, IMessageHandler>
+    public class RabbitEventConsumer : BaseInMemoryConsumer<IEvent, IMessageHandler>
     {
-        private Plumber plumber;
-        private WorkPool pool;
-
+        private readonly IEventHandlerEndpointConvention convention;
+        private readonly IEndpointFactory factory;
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RabbitEventConsumer));
+        private List<WorkPool> pools;
         private readonly ProtoregSerializer serialiser;
 
-        public RabbitEventConsumer(ProtoregSerializer serialiser)
+        public RabbitEventConsumer(IEventHandlerEndpointConvention convention, IEndpointFactory factory, ProtoregSerializer serialiser)
         {
+            this.factory = factory;
+            this.convention = convention;
             this.serialiser = serialiser;
-            queueFactory = new QueuePerHandlerFactory();
         }
 
         public override void Start(int numberOfWorkers)
         {
-            plumber = new Plumber();
+            pools = new List<WorkPool>();
+            var endpoints = convention.GetEndpointDefinitions(base.RegisteredHandlers.Keys.ToArray());
 
-            //  Think about this
-            queueFactory.Compile(plumber.RabbitConnection);
-            // Think about this
-
-            pool = new WorkPool("defaultPool", numberOfWorkers);
-            foreach (var queueInfo in queueFactory.Headers)
+            foreach (var endpoint in endpoints)
             {
-                pool.AddWork(new ConsumerWork(this, queueInfo.Key));
+                var pool = new WorkPool(String.Format("Workpoll {0}", endpoint.EndpointName), numberOfWorkers);
+                for (int i = 0; i < numberOfWorkers; i++)
+                {
+                    pool.AddWork(new ConsumerWork(this, factory.CreateEndpoint(endpoint)));
+                }
+                pools.Add(pool);
+                pool.StartCrawlers();
             }
-
-            pool.StartCrawlers();
         }
 
         public override void Stop()
         {
-            pool.Stop();
+            foreach (WorkPool pool in pools)
+            {
+                pool.Stop();
+            }
         }
+
 
 
         private class ConsumerWork : IWork
         {
             private RabbitEventConsumer consumer;
-            private readonly string queueName;
+            private readonly IEndpoint endpoint;
 
-            public ConsumerWork(RabbitEventConsumer consumer, string queueName)
+            public ConsumerWork(RabbitEventConsumer consumer, IEndpoint endpoint)
             {
-                this.queueName = queueName;
+                this.endpoint = endpoint;
                 this.consumer = consumer;
             }
 
@@ -64,87 +75,44 @@ namespace NMSD.Cronus.Core.Eventing
             {
                 try
                 {
-                    using (var channel = consumer.plumber.RabbitConnection.CreateModel())//ConnectionClosedException??
+                    endpoint.Open();
+                    while (true)
                     {
-                        QueueingBasicConsumer newQueueingBasicConsumer = new QueueingBasicConsumer();
-                        channel.BasicConsume(queueName, false, newQueueingBasicConsumer);
-
-                        while (true)
+                        using (var unitOfWork = consumer.UnitOfWorkFactory.NewBatch())
                         {
                             for (int i = 0; i < 100; i++)
                             {
-                                StartNewUnitOfWork();
 
-                                try
+                                EndpointMessage message;
+                                if (endpoint.BlockDequeue(30, out message))
                                 {
-                                    var rawMessage = newQueueingBasicConsumer.Queue.DequeueNoWait(null);
-                                    IEvent message;
-                                    if (rawMessage != null)
+                                    IEvent @event;
+                                    using (var stream = new MemoryStream(message.Body))
                                     {
-                                        using (var stream = new MemoryStream(rawMessage.Body))
-                                        {
-                                            message = consumer.serialiser.Deserialize(stream) as IEvent;
-                                        }
-
-                                        if (consumer.Handle(message, unitOfWork))
-                                            channel.BasicAck(rawMessage.DeliveryTag, false);
+                                        @event = consumer.serialiser.Deserialize(stream) as IEvent;
                                     }
+
+                                    if (consumer.Handle(@event, unitOfWork))
+                                        endpoint.Acknowledge(message);
                                 }
-                                catch (EndOfStreamException)
-                                {
-                                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                                    break;
-                                }
-                                catch (AlreadyClosedException)
-                                {
-                                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                                    break;
-                                }
-                                catch (OperationInterruptedException)
-                                {
-                                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-                                    break;
-                                }
-                                catch (Exception ex)
-                                {
-                                    throw ex;
-                                }
-                                EndUnitOfWork();
                             }
                         }
-
-
                     }
                 }
-                catch (OperationInterruptedException)
+                catch (EndpointClosedException ex)
                 {
                     ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
-
                 }
                 catch (Exception ex)
                 {
                     throw ex;
                 }
+                finally
+                {
+                    endpoint.Close();
+                }
             }
 
-            public IUnitOfWorkPerBatch unitOfWork;
-            public void StartNewUnitOfWork()
-            {
-                unitOfWork = consumer.UnitOfWorkFactory.NewBatch();
-                if (unitOfWork != null)
-                {
-                    unitOfWork.Begin();
-                }
-            }
-            public void EndUnitOfWork()
-            {
-                if (unitOfWork != null)
-                {
-                    unitOfWork.Commit();
-                    unitOfWork.Dispose();
-                    unitOfWork = null;
-                }
-            }
         }
     }
 }

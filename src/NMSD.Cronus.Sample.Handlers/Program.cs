@@ -31,9 +31,9 @@ namespace NMSD.Cronus.Sample.Handlers
 
             var rabbitMqSessionFactory = new RabbitMqSessionFactory();
             var session = rabbitMqSessionFactory.OpenSession();
-            var commandPublisher = new CommandPublisher(new CommandPipelineConvention(), new RabbitMqPipelineFactory(session), serializer);
+            var commandPublisher = new CommandPublisher(new CommandPipelinePerApplication(), new RabbitMqPipelineFactory(session), serializer);
 
-            var eventConsumer = new RabbitEventConsumer(serializer);
+            var eventConsumer = new RabbitEventConsumer(new EventHandlerPerEndpoint(new EventHandlersPipelinePerApplication()), new RabbitMqEndpointFactory(session), serializer);
             eventConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
             eventConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)),
                 type =>
@@ -46,6 +46,7 @@ namespace NMSD.Cronus.Sample.Handlers
                     return (port ?? handler) as IMessageHandler;
                 });
             eventConsumer.Start(2);
+            System.Console.ReadLine();
             session.Close();
         }
     }

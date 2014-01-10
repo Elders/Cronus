@@ -6,11 +6,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NMSD.Cronus.Core.Transports;
+using NMSD.Cronus.RabbitMQ;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 
-namespace NMSD.Cronus.RabbitMQ
+namespace NMSD.Cronus.Core.Transports.RabbitMQ
 {
     public class RabbitMqEndpoint : IEndpoint, IDisposable
     {
@@ -62,10 +63,15 @@ namespace NMSD.Cronus.RabbitMQ
                 Close();
                 throw ex;
             }
-            finally
-            {
+        }
 
+        public void Acknowledge(IEnumerable<EndpointMessage> messages)
+        {
+            foreach (EndpointMessage message in messages)
+            {
+                Acknowledge(message);
             }
+
         }
 
         public void AcknowledgeAll()
@@ -74,8 +80,9 @@ namespace NMSD.Cronus.RabbitMQ
             {
                 foreach (KeyValuePair<EndpointMessage, BasicDeliverEventArgs> dequeuedMessage in dequeuedMessages)
                 {
-                    safeChannel.Channel.BasicAck(dequeuedMessage.Value.DeliveryTag, true);
+                    safeChannel.Channel.BasicAck(dequeuedMessage.Value.DeliveryTag, false);
                 }
+                dequeuedMessages.Clear();
 
             }
             catch (EndOfStreamException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
@@ -165,13 +172,46 @@ namespace NMSD.Cronus.RabbitMQ
 
         public void Open()
         {
-
-            safeChannel = session.OpenSafeChannel();
-            consumer = new QueueingBasicConsumer(safeChannel.Channel);
-            safeChannel.Channel.BasicConsume(Name, false, consumer);
-            dequeuedMessages = new Dictionary<EndpointMessage, BasicDeliverEventArgs>();
+            try
+            {
+                safeChannel = session.OpenSafeChannel();
+                consumer = new QueueingBasicConsumer(safeChannel.Channel);
+                safeChannel.Channel.BasicConsume(Name, false, consumer);
+                dequeuedMessages = new Dictionary<EndpointMessage, BasicDeliverEventArgs>();
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
 
+
+
+        public bool BlockDequeue(int timeoutInMiliseconds, out EndpointMessage msg)
+        {
+            msg = null;
+            BasicDeliverEventArgs result;
+            if (consumer == null)
+            {
+                throw new EndpointClosedException(String.Format("The Endpoint '{0}' is closed", Name));
+            }
+            try
+            {
+                if (!consumer.Queue.Dequeue(timeoutInMiliseconds, out result))
+                    return false;
+                msg = new EndpointMessage(result.Body, result.BasicProperties.Headers);
+                dequeuedMessages.Add(msg, result);
+                return true;
+            }
+            catch (EndOfStreamException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (AlreadyClosedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (OperationInterruptedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (Exception ex)
+            {
+                Close();
+                throw ex;
+            }
+        }
     }
     [Serializable]
     public class EndpointClosedException : Exception

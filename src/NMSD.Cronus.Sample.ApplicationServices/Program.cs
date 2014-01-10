@@ -38,14 +38,14 @@ namespace NMSD.Cronus.Sample.ApplicationService
 
             var rabbitMqSessionFactory = new RabbitMqSessionFactory();
             var session = rabbitMqSessionFactory.OpenSession();
-            var commaborationES = new RabbitEventStore("Collaboration", connectionString, serializer);
-            var commandConsumerCollaboration = new CommandConsumer(new CommandHandlersPerBoundedContext(new CommandPipelineConvention()), new RabbitMqEndpointFactory(session), serializer, commaborationES);
+            var commaborationES = new RabbitEventStore("Collaboration", connectionString, session, serializer);
+            var commandConsumerCollaboration = new CommandConsumer(new CommandHandlersPerBoundedContext(new CommandPipelinePerApplication()), new RabbitMqEndpointFactory(session), serializer, commaborationES);
             commandConsumerCollaboration.UnitOfWorkFactory = new NullUnitOfWorkFactory();
             commandConsumerCollaboration.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)));
 
 
-            var iacES = new RabbitEventStore("IdentityAndAccess", connectionString, serializer);
-            var commandConsumerIaC = new CommandConsumer(new CommandHandlersPerBoundedContext(new CommandPipelineConvention()), new RabbitMqEndpointFactory(session), serializer, iacES);
+            var iacES = new RabbitEventStore("IdentityAndAccess", connectionString, session, serializer);
+            var commandConsumerIaC = new CommandConsumer(new CommandHandlersPerBoundedContext(new CommandPipelinePerApplication()), new RabbitMqEndpointFactory(session), serializer, iacES);
             commandConsumerIaC.UnitOfWorkFactory = new NullUnitOfWorkFactory();
             commandConsumerIaC.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)));
 

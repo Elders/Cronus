@@ -5,11 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NMSD.Cronus.RabbitMQ;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client.Exceptions;
 
-namespace NMSD.Cronus.RabbitMQ
+namespace NMSD.Cronus.Core.Transports.RabbitMQ
 {
     public class RabbitMqSafeChannel
     {

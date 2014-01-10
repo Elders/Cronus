@@ -17,14 +17,7 @@ namespace Cronus.Core.EventStore
 
         void Save(IAggregateRoot aggregateRoot);
 
-       // IAggregateRootState LoadAggregateState(System.Guid aggregateId);
-
-        //void Persist(List<IEvent> events, SqlConnection connection);
-
-        //void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection);
-
-        //SqlConnection OpenConnection();
-
-        //void CloseConnection(SqlConnection conn);
+       
     }
+ 
 }

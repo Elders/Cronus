@@ -29,16 +29,18 @@ namespace NMSD.Cronus.Sample.UI
 
             var rabbitMqSessionFactory = new RabbitMqSessionFactory();
             var session = rabbitMqSessionFactory.OpenSession();
-            commandPublisher = new CommandPublisher(new CommandPipelineConvention(), new RabbitMqPipelineFactory(session), serializer);
+            commandPublisher = new CommandPublisher(new CommandPipelinePerApplication(), new RabbitMqPipelineFactory(session), serializer);
 
-            HostUI(1111111100);
+            //HostUI(1000, 2600); //  Target
+            // HostUI(1000, 800);  //  With Snapshot Delition right after new snapshots
+            HostUI(2000);
             session.Close();
         }
 
         private static void HostUI(int messageDelayInMilliseconds = 0, int batchSize = 1)
         {
 
-            for (int i = 0; i < 1000; i++)
+            for (int i = 0; i > -1; i++)
             {
                 if (messageDelayInMilliseconds == 0)
                 {
@@ -61,7 +63,8 @@ namespace NMSD.Cronus.Sample.UI
             UserId userId = new UserId(Guid.NewGuid());
             var email = "mynkow@gmail.com";
             commandPublisher.Publish(new RegisterNewUser(userId, email));
-            Thread.Sleep(10000);
+            Thread.Sleep(500);
+
             commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
         }
     }

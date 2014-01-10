@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace NMSD.Cronus.RabbitMQ
+namespace NMSD.Cronus.Core.Transports
 {
     public class EndpointMessage
     {

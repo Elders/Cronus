@@ -30,11 +30,11 @@ namespace NMSD.Cronus.Core.Transports.RabbitMQ
         public RabbitMqEndpoint CreateEndpoint(EndpointDefinition definition)
         {
             var endpoint = new RabbitMqEndpoint(definition.EndpointName, session);
-            foreach (var messageId in definition.HandledMessagesIds)
+            foreach (var header in definition.AcceptanceHeaders)
             {
-                endpoint.RoutingHeaders.Add(messageId.ToString(), String.Empty);
+                endpoint.RoutingHeaders.Add(header.Key, header.Value);
             }
-            endpoint.RoutingHeaders.Add("x-match","any");
+            endpoint.RoutingHeaders.Add("x-match", "any");
             endpoint.Declare();
             var pipeLine = new RabbitMqPipeline(definition.PipelineName, session, RabbitMqPipeline.PipelineType.Headers);
             pipeLine.Declare();

@@ -7,22 +7,6 @@ using NMSD.Cronus.RabbitMQ;
 
 namespace NMSD.Cronus.Core.Transports
 {
-    public interface IEndpoint
-    {
-        string Name { get; }
-
-        void Acknowledge(EndpointMessage message);
-
-        void AcknowledgeAll();
-
-        EndpointMessage BlockDequeue();
-
-        void Close();
-
-        EndpointMessage DequeueNoWait();
-
-        void Open();
-    }
     public interface IPipeline
     {
         void Push(EndpointMessage message);

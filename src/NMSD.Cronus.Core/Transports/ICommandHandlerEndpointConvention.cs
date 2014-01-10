@@ -5,12 +5,11 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
-using NMSD.Cronus.Core.Commanding;
 
-namespace NMSD.Cronus.Core.Transports
+namespace NMSD.Cronus.Core.Transports.Conventions
 {
-    public interface ICommandPipelineConvention
+    public interface ICommandHandlerEndpointConvention
     {
-        string GetPipelineName(Type messageType);
+        IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] handlerTypes);
     }
 }

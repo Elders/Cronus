@@ -9,8 +9,8 @@ using NMSD.Cronus.Core.Commanding;
 
 namespace NMSD.Cronus.Core.Transports
 {
-    public interface ICommandPipelineConvention
+    public interface IEventStorePipelineConvention
     {
-        string GetPipelineName(Type messageType);
+        string GetPipelineName(Assembly assemblyContainingEvents);
     }
 }

@@ -1,7 +1,7 @@
 using System;
 using RabbitMQ.Client;
 
-namespace NMSD.Cronus.RabbitMQ
+namespace NMSD.Cronus.Core.Transports.RabbitMQ
 {
     public sealed class RabbitMqSession : IDisposable
     {

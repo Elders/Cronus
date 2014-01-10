@@ -6,7 +6,7 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using RabbitMQ.Client.Framing.v0_9_1;
 
-namespace NMSD.Cronus.RabbitMQ
+namespace NMSD.Cronus.Core.Transports.RabbitMQ
 {
     public sealed class RabbitMqPipeline : IPipeline, IDisposable
     {
@@ -76,7 +76,8 @@ namespace NMSD.Cronus.RabbitMQ
             {
                 safeChannel = session.OpenSafeChannel();
             }
-            safeChannel.Channel.ExchangeDeclare(name, pipelineType.ToString(), true, false, null);
+            //safeChannel.Channel.ExchangeDeclare(name, pipelineType.ToString(), true, false, null);
+            safeChannel.Channel.ExchangeDeclare(name, pipelineType.ToString());
             safeChannel.Close();
             safeChannel = null;
         }
