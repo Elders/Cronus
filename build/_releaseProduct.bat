@@ -1,2 +1,2 @@
-%windir%\system32\windowspowershell\v1.0\powershell.exe .\InvokeReleaseProduct.ps1
+powershell -ExecutionPolicy Unrestricted -Command "& {Import-Module .\psake.psm1; Invoke-psake .\release.ps1 -properties @{ sln='NMSD.Cronus.sln' }%*} "
 PAUSE
