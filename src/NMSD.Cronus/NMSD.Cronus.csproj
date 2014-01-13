@@ -70,6 +70,11 @@
     <Compile Include="EventSourcing\EventStorePublisher.cs" />
     <Compile Include="EventSourcing\MssqlStream.cs" />
     <Compile Include="EventSourcing\RabbitEventStore.cs" />
+    <Compile Include="Hosts\CommandConsumerConfiguration.cs" />
+    <Compile Include="Hosts\CommandPublisherConfiguration.cs" />
+    <Compile Include="Hosts\CronusHost.cs" />
+    <Compile Include="Hosts\EventHandlersConfiguration.cs" />
+    <Compile Include="Hosts\EventStoreConsumerConfiguration.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
     <Compile Include="Messaging\BaseInMemoryConsumer.cs" />
     <Compile Include="Messaging\IMessage.cs" />
@@ -146,9 +151,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Hosts\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

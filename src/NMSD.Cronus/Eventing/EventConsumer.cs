@@ -13,11 +13,14 @@ using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using NMSD.Cronus.Transports.RabbitMQ;
 using System.IO;
+using System.Reflection;
+using NMSD.Cronus.Commanding;
 
 namespace NMSD.Cronus.Eventing
 {
     public class EventConsumer : BaseInMemoryConsumer<IEvent, IMessageHandler>
     {
+        private readonly IPublisher<ICommand> commandPublisher;
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EventConsumer));
 
         private readonly IEventHandlerEndpointConvention convention;
@@ -28,12 +31,31 @@ namespace NMSD.Cronus.Eventing
 
         private readonly ProtoregSerializer serialiser;
 
-        public EventConsumer(IEventHandlerEndpointConvention convention, IEndpointFactory factory, ProtoregSerializer serialiser)
+        public EventConsumer(IEventHandlerEndpointConvention convention, IEndpointFactory factory, ProtoregSerializer serialiser, IPublisher<ICommand> commandPublisher)
         {
+            this.commandPublisher = commandPublisher;
             this.factory = factory;
             this.convention = convention;
             this.serialiser = serialiser;
         }
+
+        public void RegisterAllHandlersInAssembly(Assembly assemblyContainingMessageHandlers)
+        {
+            RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, x => (IMessageHandler)FastActivator.CreateInstance(x));
+        }
+        public void RegisterAllHandlersInAssembly(Assembly assemblyContainingMessageHandlers, Func<Type, IMessageHandler> messageHandlerFactory)
+        {
+            MessageHandlerRegistrations.RegisterAllHandlersInAssembly<IMessageHandler>(this, assemblyContainingMessageHandlers, x =>
+            {
+                var handler = FastActivator.CreateInstance(x);
+                var port = handler as IPort;
+                if (port != null)
+                    port.CommandPublisher = commandPublisher;
+
+                return (port ?? handler) as IMessageHandler;
+            });
+        }
+
 
         public override void Start(int numberOfWorkers)
         {
