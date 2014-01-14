@@ -72,7 +72,7 @@ namespace NMSD.Cronus.Sample.UI
             UserId userId = new UserId(Guid.NewGuid());
             var email = "mynkow@gmail.com";
             commandPublisher.Publish(new RegisterNewUser(userId, email));
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
 
             commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
         }

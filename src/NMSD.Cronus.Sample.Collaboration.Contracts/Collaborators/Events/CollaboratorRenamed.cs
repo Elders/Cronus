@@ -23,6 +23,5 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Events
 
         [DataMember(Order = 3)]
         public string LastName { get; private set; }
-
     }
 }

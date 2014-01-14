@@ -117,7 +117,7 @@ namespace NMSD.Cronus.Hosts
                 {
                     ProtoRegistration.RegisterAssembly(eventsAssembly);
                 }
-                
+
             }
             Serializer.Build();
         }
@@ -224,7 +224,7 @@ namespace NMSD.Cronus.Hosts
 
         public void HostEventStoreConsumers(int consumerWorkers)
         {
-            if (eventConsumers.Count == 0)
+            if (eventStoreConsumers.Count == 0)
                 throw new CronusConfigurationException("Configuration is required. Use: 'ConfigureEventStoreConsumer(Action<EventStoreConsumerConfiguration> configure)'");
             foreach (EventStoreConsumer esConsumer in eventStoreConsumers)
             {

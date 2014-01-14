@@ -77,8 +77,11 @@ namespace NMSD.Cronus.Messaging
         {
             var unitOfWork = UnitOfWorkFactory.NewHandler();
             unitOfWork.UoWMessage = uowMessage;
+            unitOfWork.Begin();
             var handler = handlerFactory(eventHandlerType);
+            handler = unitOfWork.Resolver.ResolveDependancies(handler);
             handlerCallbacks[eventHandlerType][message.GetType()](handler, new object[] { message });
+            unitOfWork.Commit();
             log.Info("HANDLE => " + message.ToString());
 
             return true;

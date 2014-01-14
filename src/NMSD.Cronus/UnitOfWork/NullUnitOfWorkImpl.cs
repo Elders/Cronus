@@ -27,6 +27,10 @@ namespace NMSD.Cronus.UnitOfWork
 
     public class NullUnitOfWorkPerHandler : IUnitOfWorkPerHandler
     {
+        public NullUnitOfWorkPerHandler()
+        {
+            Resolver = new NullDependancyResolver();
+        }
         public IUnitOfWorkPerMessage UoWMessage { get; set; }
 
         public IDependancyResolver Resolver { get; set; }
@@ -42,7 +46,10 @@ namespace NMSD.Cronus.UnitOfWork
 
     public class NullUnitOfWorkPerMessage : IUnitOfWorkPerMessage
     {
-
+        public NullUnitOfWorkPerMessage()
+        {
+            Resolver = new NullDependancyResolver();
+        }
         public IUnitOfWorkPerBatch UoWBatch { get; set; }
 
         public IDependancyResolver Resolver { get; set; }
@@ -62,7 +69,7 @@ namespace NMSD.Cronus.UnitOfWork
 
         public void Begin()
         {
-
+            Resolver = new NullDependancyResolver();
         }
 
         public void Commit() { }

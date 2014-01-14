@@ -15,7 +15,10 @@ using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.Hosts;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
-
+using NHibernate;
+using System.Linq;
+using System.Configuration;
+using NMSD.Cronus.Sample.Nhibernate.UoW;
 namespace NMSD.Cronus.Sample.Handlers
 {
     class Program
@@ -44,9 +47,22 @@ namespace NMSD.Cronus.Sample.Handlers
             System.Console.ReadLine();
             //session.Close();
         }
-
+        static ISessionFactory BuildSessionFactory()
+        {
+            var typesThatShouldBeMapped = Assembly.GetAssembly(typeof(CollaboratorProjection)).GetExportedTypes().Where(t => t.Namespace.EndsWith("DTOs"));
+            var cfg = new NHibernate.Cfg.Configuration();
+            cfg = cfg.AddAutoMappings(typesThatShouldBeMapped);
+            cfg.CreateDatabaseTables();
+            return cfg.BuildSessionFactory();
+        }
         static void UseCronusHost()
         {
+            var connectionString = ConfigurationManager.ConnectionStrings["dbConnection"].ConnectionString;
+            DatabaseManager.DeleteDatabase(connectionString);
+            DatabaseManager.CreateDatabase(connectionString, "use_default", true);
+            DatabaseManager.EnableSnapshotIsolation(connectionString);
+            var sf = BuildSessionFactory();
+            var uow = new NhibernateUnitOfWorkFactory(sf);
             host = new CronusHost();
             host.UseRabbitMqTransport();
             host.UseEventHandlersPipelinePerApplication();
@@ -57,10 +73,10 @@ namespace NMSD.Cronus.Sample.Handlers
                 x.RegisterCommandsAssembly<RegisterNewUser>();
                 x.RegisterCommandsAssembly<CreateNewCollaborator>();
             });
-       //     host.BuildCommandPublisher();
+            host.BuildCommandPublisher();
             host.ConfigureEventHandlersConsumer(cfg =>
             {
-                cfg.SetUnitOfWorkFacotry(new NullUnitOfWorkFactory());
+                cfg.SetUnitOfWorkFacotry(uow);
                 cfg.RegisterEventsAssembly(Assembly.GetAssembly(typeof(NewCollaboratorCreated)));
                 cfg.RegisterEventsAssembly(Assembly.GetAssembly(typeof(NewUserRegistered)));
                 cfg.SetEventHandlersAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
