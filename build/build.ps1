@@ -13,7 +13,7 @@ properties {
 
 	$nugetPackageName=''
 	$nugetDeployDir = "$base_directory\.nuget\lib\"
-	$nugetSource = ""
+	$nugetSource=""
 }
 
 task default -depends PublishNugetPackage;
@@ -47,7 +47,7 @@ function BuildNugetPackage([string] $sln_full_path)
 	Delete-Directory $nugetDeployDir
 	Create-Directory $nugetDeployDir
 	$binariesToNuget = "$base_directory\bin\$config\$nugetSource\*"
-	Copy-Item $nugetSource $nugetDeployDir
+	Copy-Item $binariesToNuget $nugetDeployDir
 	
 	cd $base_directory\.nuget\
 	

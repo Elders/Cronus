@@ -35,11 +35,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Sample.Identity
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Sample.IdentityAndAccess.Contracts", "NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj", "{1C59EB3D-70E6-45B4-B644-E5607DCF4713}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A3BB1256-F228-4D46-BB01-C9DE7E0D704A}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RestAPI", "RestAPI", "{AA5DBBE2-A9AB-48DA-BC48-E2156AD12EF8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Sample.RestApi", "NMSD.Cronus.Sample.RestApi\NMSD.Cronus.Sample.RestApi.csproj", "{4B14BDE3-AD5C-41D0-B671-945B2EBC6335}"
