@@ -64,6 +64,7 @@
     <Compile Include="Commanding\CommandMessageInfo.cs" />
     <Compile Include="Commanding\ICommand.cs" />
     <Compile Include="Commanding\CommandPublisher.cs" />
+    <Compile Include="DomainModelling\IValueObject.cs" />
     <Compile Include="Eventing\IPort.cs" />
     <Compile Include="Eventing\InMemoryEventBus.cs" />
     <Compile Include="Eventing\EventMessageInfo.cs" />
