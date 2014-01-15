@@ -65,7 +65,7 @@ namespace NMSD.Cronus.DomainModelling
 
         public static bool IsValid(AggregateRootId aggregateRootId)
         {
-            return (ReferenceEquals(null, aggregateRootId)) && aggregateRootId.Id != default(Guid);
+            return (!ReferenceEquals(null, aggregateRootId)) && aggregateRootId.Id != default(Guid);
         }
 
 
