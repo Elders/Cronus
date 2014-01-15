@@ -1,2 +1,2 @@
-powershell -ExecutionPolicy Unrestricted -Command "& {Import-Module .\psake.psm1; Invoke-psake .\build.ps1 -properties @{ sln='NMSD.Cronus.sln';config='Release';nugetPackageName='Cronus';nugetSource='NMSD.Cronus';assemblyInformationalVersion='Cronus Beta';assemblyVersion='1.0.0.0';assemblyFileVersion='1.0.7200.?';assemblyRevision='19' }%*} "
+powershell -ExecutionPolicy Unrestricted -Command "& {Import-Module .\psake.psm1; Invoke-psake .\build.ps1 -properties @{ sln='NMSD.Cronus.sln';config='Release';nugetPackageName='Cronus';nugetSource='NMSD.Cronus';assemblyInformationalVersion='Cronus Beta';assemblyVersion='1.0.0.0';assemblyFileVersion='1.0.7200.?';assemblyRevision='20' }%*} "
 PAUSE
