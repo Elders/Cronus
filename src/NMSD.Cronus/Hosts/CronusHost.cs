@@ -255,11 +255,18 @@ namespace NMSD.Cronus.Hosts
                 throw new CronusConfigurationException("EventHandlersPipelineConvention is required. Example: 'UseEventHandlersPipelineConventionPerApplication()'.");
             this.eventHandlersEnpointConvention = new EventHandlerPerEndpoint(eventHandlersPipelineConvention);
         }
+        public void UseEventHandlersPerBoundedContext()
+        {
+            if (eventHandlersPipelineConvention == null)
+                throw new CronusConfigurationException("EventHandlersPipelineConvention is required. Example: 'UseEventHandlersPipelineConventionPerApplication()'.");
+            this.eventHandlersEnpointConvention = new EventHandlersPerBoundedContext(eventHandlersPipelineConvention);
+        }
 
         public void UseEventHandlersPipelinePerApplication()
         {
             eventHandlersPipelineConvention = new EventHandlersPipelinePerApplication();
         }
+
 
         public void UseEventStorePerBoundedContext()
         {

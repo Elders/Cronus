@@ -13,7 +13,6 @@ namespace NMSD.Cronus.Transports.Conventions
     public class EventHandlersPerBoundedContext : IEventHandlerEndpointConvention
     {
         private IEventHandlersPipelineConvention pipelineConvention;
-
         public EventHandlersPerBoundedContext(IEventHandlersPipelineConvention pipelineConvention)
         {
             this.pipelineConvention = pipelineConvention;
