@@ -44,9 +44,13 @@ namespace NMSD.Cronus.DomainModelling
             }
         }
 
-        public static bool operator ==(AggregateRootId a, AggregateRootId b)
+        public static bool operator ==(AggregateRootId left, AggregateRootId right)
         {
-            return a.Equals(b);
+            if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return true;
+            if (ReferenceEquals(null, left))
+                return false;
+            else
+                return left.Equals(right);
         }
 
         public static bool operator !=(AggregateRootId a, AggregateRootId b)
@@ -58,5 +62,12 @@ namespace NMSD.Cronus.DomainModelling
         {
             return String.Format("AggregateId: {0}", Id);
         }
+
+        public static bool IsValid(AggregateRootId aggregateRootId)
+        {
+            return (ReferenceEquals(null, aggregateRootId)) && aggregateRootId.Id != default(Guid);
+        }
+
+
     }
 }

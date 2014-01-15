@@ -17,9 +17,13 @@ namespace NMSD.Cronus.DomainModelling
             state.When((dynamic)@event);
         }
 
-        public static bool operator ==(AggregateRootState<ID> x, AggregateRootState<ID> y)
+        public static bool operator ==(AggregateRootState<ID> left, AggregateRootState<ID> right)
         {
-            return x.Equals(y);
+            if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return true;
+            if (ReferenceEquals(null, left))
+                return false;
+            else
+                return left.Equals(right);
         }
 
         public static bool operator >(AggregateRootState<ID> x, AggregateRootState<ID> y)
