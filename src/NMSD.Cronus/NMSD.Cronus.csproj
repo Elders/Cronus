@@ -78,6 +78,7 @@
     <Compile Include="Hosts\CronusHost.cs" />
     <Compile Include="Hosts\EventHandlersConfiguration.cs" />
     <Compile Include="Hosts\EventStoreConsumerConfiguration.cs" />
+    <Compile Include="Userfull\Class1.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
     <Compile Include="Messaging\BaseInMemoryConsumer.cs" />
     <Compile Include="Messaging\IMessage.cs" />

@@ -12,6 +12,8 @@ using NMSD.Protoreg;
 using System.Text;
 using System.Globalization;
 using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.Userfull;
+using System.Threading;
 
 namespace NMSD.Cronus.EventSourcing
 {
@@ -39,6 +41,12 @@ namespace NMSD.Cronus.EventSourcing
 
         const string LoadEventsQueryTemplate = @"SELECT Events FROM {0} ORDER BY Revision OFFSET @offset ROWS FETCH NEXT {1} ROWS ONLY";
 
+        const string CreateSnapshotsTableQuery = @"USE [{0}]  SET ANSI_NULLS ON  SET QUOTED_IDENTIFIER ON  SET ANSI_PADDING ON  CREATE TABLE [dbo].[{1}]( [Version] [int] NOT NULL, [AggregateId] [uniqueidentifier] NOT NULL,[AggregateState] [varbinary](max) NOT NULL, [Timestamp] [datetime] NOT NULL, CONSTRAINT [PK_{1}BoundedContextSnapshots] PRIMARY KEY CLUSTERED ([Version] ASC, [AggregateId] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]  SET ANSI_PADDING OFF ";
+
+        const string CreateEventsTableQuery = @"USE [{0}] SET ANSI_NULLS ON SET QUOTED_IDENTIFIER ON SET ANSI_PADDING ON CREATE TABLE [dbo].[{1}]([Revision] [int] IDENTITY(1,1) NOT NULL,[Events] [varbinary](max) NOT NULL,[EventsCount] [smallint] NOT NULL,[Timestamp] [datetime] NOT NULL,CONSTRAINT [PK_{1}BoundedContext] PRIMARY KEY CLUSTERED ([Revision] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY] SET ANSI_PADDING OFF";
+
+        const string TableExistsQuery = @"SELECT * FROM INFORMATION_SCHEMA.TABLES  WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = '{0}'";
+
         private readonly string boundedContext;
 
         private readonly string connectionString;
@@ -60,8 +68,108 @@ namespace NMSD.Cronus.EventSourcing
             snapshotsTableName = String.Format("dbo.{0}Snapshots", boundedContext);
             this.connectionString = connectionString;
             this.serializer = serializer;
+            Create();
+        }
+        static object locker = new object();
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MssqlEventStore));
+        public void Create()
+        {
+            try
+            {
+                lock (locker)
+                {
+                    if (!DatabaseManager.Exists(connectionString))
+                    {
+                        DatabaseManager.CreateDatabase(connectionString, "use_default", true);
+                        while (!DatabaseManager.Exists(connectionString))
+                            Thread.Sleep(50);
+                    }
+
+                    if (!TableExists(eventsTableName))
+                    {
+                        CreateEventsTable();
+                        while (!TableExists(eventsTableName))
+                            Thread.Sleep(50);
+                    }
+                    if (!TableExists(snapshotsTableName))
+                    {
+                        CreateSnapshotsTableTable();
+                        while (!TableExists(snapshotsTableName))
+                            Thread.Sleep(50);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Could not create EventStore", ex);
+            }
         }
 
+        public void CreateEventsTable()
+        {
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+
+            SqlConnection conn = new SqlConnection(connectionString);
+            try
+            {
+                conn.Open();
+
+                var command = String.Format(CreateEventsTableQuery, builder.InitialCatalog, eventsTableName.Replace("dbo.", ""));
+                SqlCommand cmd = new SqlCommand(command, conn);
+                cmd.ExecuteNonQuery();
+
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+        public void CreateSnapshotsTableTable()
+        {
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+
+            SqlConnection conn = new SqlConnection(connectionString);
+            try
+            {
+                conn.Open();
+
+                var command = String.Format(CreateSnapshotsTableQuery, builder.InitialCatalog, snapshotsTableName.Replace("dbo.", ""));
+                SqlCommand cmd = new SqlCommand(command, conn);
+                cmd.ExecuteNonQuery();
+
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+        public bool TableExists(string tableName)
+        {
+            bool DatabaseExsists = false;
+            SqlConnection conn = new SqlConnection(connectionString);
+            try
+            {
+                conn.Open();
+
+                var command = String.Format(TableExistsQuery, tableName.Replace("dbo.", ""));
+                SqlCommand cmd = new SqlCommand(command, conn);
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    DatabaseExsists = true;
+                    break;
+                }
+                reader.Close();
+
+            }
+            finally
+            {
+                conn.Close();
+            }
+            return DatabaseExsists;
+
+        }
         public void CloseConnection(SqlConnection conn)
         {
             conn.Close();

@@ -19,6 +19,7 @@ using NHibernate;
 using System.Linq;
 using System.Configuration;
 using NMSD.Cronus.Sample.Nhibernate.UoW;
+using NMSD.Cronus.Userfull;
 namespace NMSD.Cronus.Sample.Handlers
 {
     class Program
