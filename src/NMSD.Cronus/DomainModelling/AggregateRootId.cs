@@ -14,7 +14,7 @@ namespace NMSD.Cronus.DomainModelling
         }
 
         [DataMember(Order = 1)]
-        public Guid Id { get; set; }
+        public virtual Guid Id { get; set; }
 
         public static implicit operator Guid(AggregateRootId aggregateRootId)
         {

@@ -2,8 +2,7 @@ properties {
 	$base_directory = Resolve-Path ..
 	$src_directory = "$base_directory\src"
  	
-	$sln="NMSD.Cronus"
-	$sln_file = "$src_directory\"
+	$sln="NMSD.Cronus.sln"
 	
 	$config = "debug"; #debug or release or stage
 	
