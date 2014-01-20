@@ -10,7 +10,7 @@ properties {
 	$product="Cronus"
  
 	$assemblyInformationalVersion = "dev";
-	$assemblyFileVersion = "0.0.0.?";
+	$assemblyFileVersion = "0.0.?.0";
 	$assemblyVersion = "0.0.0.0";
 	$assemblyRevision = "0";
 
@@ -26,8 +26,15 @@ task ValidateConfig {
 }
 
 task -name AssemblyInfo -action {
-	Create-AssemblyVersionInfo $assemblyInformationalVersion $assemblyVersion $assemblyFileVersion.Replace("?",$assemblyRevision) $src_directory\AssemblyVersionInfo.cs
-	Create-AssemblyCompanyProductInfo $company $product $src_directory\AssemblyCompanyProductInfo.cs
+    Create-AssemblyVersionInfo `
+        -assemblyVersion $assemblyVersion `
+        -assemblyFileVersion $assemblyFileVersion.Replace("?",$assemblyRevision) `
+        -file $src_directory\AssemblyVersionInfo.cs `
+
+    Create-AssemblyCompanyProductInfo `
+        -company $company `
+        -product $product `
+        -file $src_directory\AssemblyCompanyProductInfo.cs `
 }
 
 task Build -depends ValidateConfig, AssemblyInfo -description "Builds outdated source files" {
@@ -35,78 +42,115 @@ task Build -depends ValidateConfig, AssemblyInfo -description "Builds outdated s
 }
 
 task PublishNugetPackage {
-	$sln_full_path = "$src_directory\$sln";
-	BuildNugetPackage $sln_full_path
-	PushNugetPackage
+    $version = $assemblyFileVersion.Replace("?",$assemblyRevision)
+    $version = "$version-Beta"
+    Create-ProductNuspec `
+        -authors "Nikolai Mynkow, Simeon Dimov" `
+        -owners "Nikolai Mynkow, Simeon Dimov" `
+        -copyright NMSD `
+        -requireLicenseAcceptance false `
+        -licenseUrl https://github.com/NMSD/Cronus/blob/master/LICENSE `
+        -projectUrl http://nmsd.github.io/Cronus `
+        -product $product `
+        -version  $version `
+        -description "Simple CQRS + EvetStore framework" `
+        -file "$base_directory\.nuget\Product.nuspec" `
+
+    BuildNugetPackage $nugetSourceDir $nugetDeployDir
+
+    PushNugetPackage $version
 }
 
 ######################################################################################################
 
-function BuildNugetPackage([string] $sln_full_path)
+function BuildNugetPackage([string] $nugetSourceDir, [string] $nugetDeployDir)
 {
-	Delete-Directory $nugetDeployDir
-	Create-Directory $nugetDeployDir
-	$binariesToNuget = "$base_directory\bin\$config\$nugetSourceDir\*"
-	Copy-Item $binariesToNuget $nugetDeployDir
-	
-	cd $base_directory\.nuget\
-	
-	Create-ProductNuspec $product $assemblyFileVersion.Replace("?",$assemblyRevision) "$base_directory\.nuget\Product.nuspec"
+    Delete-Directory $nugetDeployDir
+    Create-Directory $nugetDeployDir
+    $binariesToNuget = "$base_directory\bin\$config\$nugetSourceDir\*"
+    Copy-Item $binariesToNuget $nugetDeployDir
+    
+    cd $base_directory\.nuget\
 
     & ".\NuGet.exe" pack Product.nuspec -IncludeReferencedProjects
-	Delete-Directory $nugetDeployDir
-	Remove-Item "$base_directory\.nuget\*" -include *.nuspec
+    Delete-Directory $nugetDeployDir
+    Remove-Item "$base_directory\.nuget\*" -include *.nuspec
 }
 
-function PushNugetPackage
+function PushNugetPackage([string] $version)
 {
-	cd $base_directory\.nuget\
-	$assemblyFileVersion = $assemblyFileVersion.Replace("?",$assemblyRevision);
-	$package = $product.$assemblyFileVersion.nupkg
+    cd $base_directory\.nuget\
+    $package = "$product.$version.nupkg"
     & ".\NuGet.exe" push $package
-	Remove-Item "$base_directory\.nuget\*" -include *.nupkg
+    Remove-Item "$base_directory\.nuget\*" -include *.nupkg
 }
 
-function Build([string] $sln_file, [string] $config){
+function Build([string] $sln_file, [string] $config)
+{
     write-host The build is now running...
-	write-host
+    write-host
     write-host Current solution: `t --> $sln_file
     write-host Current config: `t --> $config
-	write-host
-	
+    write-host
+    
     exec { msbuild /nologo /verbosity:minimal $sln_file /t:Clean /p:Configuration=$config /m }
     exec { msbuild /nologo /verbosity:minimal $sln_file /p:Configuration=$config /m }
-	
-	write-host The build finished successfully!
+    
+    write-host The build finished successfully!
 }
 
-function global:Create-ProductNuspec($product, $assemblyFileVersion, $filename)
+function global:Create-ProductNuspec
 {
+    param(
+        [string]$product = $(throw "product is a required parameter."),
+        [string]$version = $(throw "version is a required parameter."),
+        [string]$authors,
+        [string]$owners,
+        [string]$licenseUrl,
+        [string]$projectUrl,
+        [string]$requireLicenseAcceptance,
+        [string]$description = $(throw "version is a required parameter."),
+        [string]$releaseNotes,
+        [string]$copyright,
+        [string]$tags,
+        [string]$file = $(throw "file is a required parameter.")
+    )
+
 "<?xml version=""1.0""?>
 <package >
   <metadata>
     <id>$product</id>
-    <version>$assemblyFileVersion</version>
-    <authors>Nikolay Mynkow, Simeon Dimov</authors>
-    <owners>Nikolay Mynkow, Simeon Dimov</owners>
-    <licenseUrl>https://github.com/NMSD/Cronus/blob/master/LICENSE</licenseUrl>
-    <projectUrl>http://nmsd.github.io/Cronus/</projectUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Simple CQRS + EventStore framework</description>
-    <releaseNotes>https://github.com/NMSD/Cronus</releaseNotes>
-    <copyright>Copyright NMSD 2014</copyright>
-    <tags>CQRS, EventSource</tags>
+    <version>$version</version>
+    <authors>$authors</authors>
+    <owners>$owners</owners>
+    <licenseUrl>$licenseUrl</licenseUrl>
+    <projectUrl>$projectUrl</projectUrl>
+    <requireLicenseAcceptance>$requireLicenseAcceptance</requireLicenseAcceptance>
+    <description>$description</description>
+    <releaseNotes>$releaseNotes</releaseNotes>
+    <copyright>$copyright</copyright>
+    <tags>$tags</tags>
   </metadata>
-</package>" | out-file $filename -encoding "ASCII" 
+</package>" | out-file $file -encoding "ASCII" 
 }
 
-function global:Create-AssemblyVersionInfo($assemblyInformationalVersion, $assemblyVersion, $assemblyFileVersion, $filename)
+function global:Create-AssemblyVersionInfo
 {
-write-host Updating file $filename : 
-write-host `t --> $assemblyInformationalVersion
-write-host `t --> $assemblyFileVersion 
-write-host `t --> $assemblyVersion
-write-host
+    param(
+        [string]$assemblyVersion,
+        [string]$assemblyFileVersion,
+        [string]$file = $(throw "file is a required parameter.")
+    )
+
+    $commit = Get-Git-Commit
+    $tag = Get-Version-From-Git-Tag
+    $assemblyInformationalVersion = "$tag / $commit"
+
+    write-host Updating file $file : 
+    write-host `t --> $assemblyInformationalVersion
+    write-host `t --> $assemblyFileVersion 
+    write-host `t --> $assemblyVersion
+    write-host
 
 "using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -125,7 +169,7 @@ using System.Runtime.InteropServices;
 //		Alpha	- 7100
 //		Beta	- 7200
 //		RC		- 7300
-//		GA	- 7400
+//		GA      - 7400
 //		HF		- 7500
 //		SP		- 7600
 
@@ -141,16 +185,23 @@ using System.Runtime.InteropServices;
 
 //	Careful! The CLR uses this version when loading assemblies. 
 //	Change this only when you introduce breaking changes.
-[assembly: AssemblyVersion(""$assemblyVersion"")]"  | out-file $filename -encoding "ASCII"    
+[assembly: AssemblyVersion(""$assemblyVersion"")]"  | out-file $file -encoding "ASCII"    
 }
 
-function global:Create-AssemblyCompanyProductInfo($company, $product, $filename)
+function global:Create-AssemblyCompanyProductInfo
 {
-write-host
-write-host Updating file $filename : 
-write-host `t --> $company
-write-host `t --> $product 
-write-host
+    param(
+        [string]$company, 
+        [string]$product, 
+        [string]$copyright,
+        [string]$file = $(throw "file is a required parameter.")
+    )
+
+    write-host
+    write-host Updating file $filename : 
+    write-host `t --> $company
+    write-host `t --> $product 
+    write-host
 
 "using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -159,26 +210,62 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("""")]
 [assembly: AssemblyCompany(""$company"")]
 [assembly: AssemblyProduct(""$product"")]
-[assembly: AssemblyCopyright(""Copyright $company"")]
-[assembly: AssemblyTrademark("""")]"  | out-file $filename -encoding "ASCII"    
+[assembly: AssemblyCopyright(""$copyright"")]
+[assembly: AssemblyTrademark("""")]"  | out-file $file -encoding "ASCII"    
 }
 
-function global:Copy-Files($source,$destination,$exclude=@()){    
+function global:Get-Git-Commit
+{
+    if(Test-Path "$base_directory\.git\"){
+        $gitLog = git log --oneline -1
+        return $gitLog.Split(' ')[0]
+    }
+    else
+    {
+        write-host Cannot find .git directory. May be this is not a GIT repository.
+        return ""
+    }
+}
+
+function global:Get-Version-From-Git-Tag 
+{
+    if(Test-Path "$base_directory\.git\")
+    {
+        $gitTag = git describe --tags --abbrev=0
+        
+        if($gitTag)
+        {
+            return $gitTag.Replace("v", "") + ".0"
+        }
+        else
+        {
+            return ""
+        }
+    }
+    else
+    {
+        write-host Cannot find .git directory. May be this is not a GIT repository.
+        return ""
+    }
+}
+
+function global:Copy-Files($source,$destination,$exclude=@()) 
+{    
     Create-Directory $destination
     Get-ChildItem $source -Recurse -Exclude $exclude | Copy-Item -Destination {Join-Path $destination $_.FullName.Substring($source.length)} 
 }
 
-function global:Create-Directory($directory_name)
+function global:Create-Directory($directory_name) 
 {
-	mkdir $directory_name  -ErrorAction SilentlyContinue  | out-null
+    mkdir $directory_name  -ErrorAction SilentlyContinue  | out-null
 }
 
-function global:Delete-Directory($directory_name)
+function global:Delete-Directory($directory_name) 
 {
-	rd $directory_name -recurse -force  -ErrorAction SilentlyContinue | out-null
+    rd $directory_name -recurse -force  -ErrorAction SilentlyContinue | out-null
 }
 
-function global:Delete-Files-In-Dir($dir, $pattern)
+function global:Delete-Files-In-Dir($dir, $pattern) 
 {
-	get-childitem $dir -recurse | foreach ($_) {remove-item $_.fullname -include $pattern}
+    get-childitem $dir -recurse | foreach ($_) {remove-item $_.fullname -include $pattern}
 }

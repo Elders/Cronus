@@ -11,6 +11,8 @@
     <AssemblyName>NMSD.Cronus.Sample.IdentityAndAccess</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -40,6 +42,12 @@
     <Compile Include="Users\User.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Users\UserState.cs" />
+    <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
+      <Link>Properties\AssemblyVersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="$(SolutionDir)AssemblyCompanyProductInfo.cs">
+      <Link>Properties\AssemblyCompanyProductInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
@@ -59,4 +67,5 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Import Project="$(SolutionDir)\..\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\..\.nuget\NuGet.targets')" />
 </Project>

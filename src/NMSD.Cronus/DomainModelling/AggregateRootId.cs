@@ -10,16 +10,16 @@ namespace NMSD.Cronus.DomainModelling
 
         public AggregateRootId(Guid idBase)
         {
-            this.Id = idBase;
+            ((IAggregateRootId)this).Id = idBase;
+        }
+
+        public AggregateRootId(IAggregateRootId idBase)
+        {
+            ((IAggregateRootId)this).Id = idBase.Id;
         }
 
         [DataMember(Order = 1)]
-        public virtual Guid Id { get; set; }
-
-        public static implicit operator Guid(AggregateRootId aggregateRootId)
-        {
-            return aggregateRootId.Id;
-        }
+        Guid IAggregateRootId.Id { get; set; }
 
         public override bool Equals(System.Object obj)
         {
@@ -33,14 +33,14 @@ namespace NMSD.Cronus.DomainModelling
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Id.Equals(other.Id);
+            return ((IAggregateRootId)this).Id.Equals(other.Id);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return 101 ^ Id.GetHashCode() ^ GetType().GetHashCode();
+                return 101 ^ ((IAggregateRootId)this).Id.GetHashCode() ^ GetType().GetHashCode();
             }
         }
 
@@ -60,13 +60,15 @@ namespace NMSD.Cronus.DomainModelling
 
         public override string ToString()
         {
-            return String.Format("AggregateId: {0}", Id);
+            return String.Format("AggregateId: {0}", ((IAggregateRootId)this).Id);
         }
 
         public static bool IsValid(AggregateRootId aggregateRootId)
         {
-            return (!ReferenceEquals(null, aggregateRootId)) && aggregateRootId.Id != default(Guid);
+            return (!ReferenceEquals(null, aggregateRootId)) && ((IAggregateRootId)aggregateRootId).Id != default(Guid);
         }
+
+
 
 
     }

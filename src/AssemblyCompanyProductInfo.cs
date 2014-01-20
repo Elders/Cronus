@@ -5,5 +5,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("NMSD")]
 [assembly: AssemblyProduct("Cronus")]
-[assembly: AssemblyCopyright("Copyright NMSD")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]

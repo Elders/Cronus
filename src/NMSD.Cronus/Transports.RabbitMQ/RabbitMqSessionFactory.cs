@@ -19,7 +19,7 @@ namespace NMSD.Cronus.Transports.RabbitMQ
 
         private readonly string virtualHost;
 
-        public RabbitMqSessionFactory() : this("192.168.16.69") { }
+        public RabbitMqSessionFactory() : this("localhost") { }
 
         public RabbitMqSessionFactory(string hostname, string username = ConnectionFactory.DefaultUser, string password = ConnectionFactory.DefaultPass, int port = 5672, string virtualHost = ConnectionFactory.DefaultVHost)
         {
