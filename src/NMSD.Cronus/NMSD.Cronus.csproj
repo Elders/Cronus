@@ -44,11 +44,11 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="NMSD.Protoreg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Protoreg.1.0.7400.3\lib\NMSD.Protoreg.dll</HintPath>
+      <HintPath>..\packages\Protoreg.1.0.4.7400\lib\NMSD.Protoreg.dll</HintPath>
     </Reference>
     <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Protoreg.1.0.7400.3\lib\protobuf-net.dll</HintPath>
+      <HintPath>..\packages\Protoreg.1.0.4.7400\lib\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client, Version=3.2.1.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
