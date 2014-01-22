@@ -10,13 +10,15 @@ properties {
 	$product="Cronus"
  
 	$assemblyInformationalVersion = "dev";
-	$assemblyFileVersion = "0.0.?.0";
-	$assemblyVersion = "0.0.0.0";
+	$assemblyFileVersion = "1.0.?.7200";
+	$assemblyVersion = "1.0.0.0";
 	$assemblyRevision = "0";
 
 	$nugetDeployDir = "$base_directory\.nuget\lib\"
 	$nugetSourceDir="NMSD.Cronus"
 }
+
+##################################### TASKS #######################################################
 
 task default -depends AssemblyInfo, ValidateConfig, Build
 task nuget -depends AssemblyInfo, ValidateConfig, Build, PublishNugetPackage
@@ -87,6 +89,8 @@ function PushNugetPackage([string] $version)
 
 function Build([string] $sln_file, [string] $config)
 {
+    write-host Enable nuget package restore
+    EnableNugetPackageRestore
     write-host The build is now running...
     write-host
     write-host Current solution: `t --> $sln_file
@@ -96,7 +100,25 @@ function Build([string] $sln_file, [string] $config)
     exec { msbuild /nologo /verbosity:minimal $sln_file /t:Clean /p:Configuration=$config /m }
     exec { msbuild /nologo /verbosity:minimal $sln_file /p:Configuration=$config /m }
     
+	RestoreNugetPackageRestore
+	
     write-host The build finished successfully!
+}
+
+$OriginalEnableNugetPackageRestore
+
+function global:EnableNugetPackageRestore
+{
+	$OriginalEnableNugetPackageRestore = [environment]::GetEnvironmentVariable("EnableNugetPackageRestore")
+	[Environment]::SetEnvironmentVariable("EnableNugetPackageRestore", $OriginalEnableNugetPackageRestore)
+}
+
+function global:RestoreNugetPackageRestore
+{
+	if($OriginalEnableNugetPackageRestore)
+	{
+		$env:EnableNugetPackageRestore = $OriginalEnableNugetPackageRestore
+	}	
 }
 
 function global:Create-ProductNuspec
