@@ -53,11 +53,14 @@ namespace NMSD.Cronus.Sample.ApplicationService
             //commandConsumerIaC.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)));
 
 
-            
+
             //commandConsumerCollaboration.Start(1);
             //commandConsumerIaC.Start(1);
             UseCronusHost();
-            Console.ReadLine();
+            System.Console.WriteLine("Started");
+            System.Console.ReadLine();
+            host.Release();
+
             // session.Close();
         }
         static void UseCronusHost()

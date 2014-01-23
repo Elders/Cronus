@@ -234,6 +234,18 @@ namespace NMSD.Cronus.Hosts
 
         public void Release()
         {
+            foreach (CommandConsumer commandConsumer in commandConsumers)
+            {
+                commandConsumer.Stop();
+            }
+            foreach (EventConsumer eventConsumer in eventConsumers)
+            {
+                eventConsumer.Stop();
+            }
+            foreach (EventStoreConsumer eventStoreConsumer in eventStoreConsumers)
+            {
+                eventStoreConsumer.Stop();
+            }
             session.Close();
         }
 
@@ -255,6 +267,7 @@ namespace NMSD.Cronus.Hosts
                 throw new CronusConfigurationException("EventHandlersPipelineConvention is required. Example: 'UseEventHandlersPipelineConventionPerApplication()'.");
             this.eventHandlersEnpointConvention = new EventHandlerPerEndpoint(eventHandlersPipelineConvention);
         }
+
         public void UseEventHandlersPerBoundedContext()
         {
             if (eventHandlersPipelineConvention == null)
@@ -266,7 +279,6 @@ namespace NMSD.Cronus.Hosts
         {
             eventHandlersPipelineConvention = new EventHandlersPipelinePerApplication();
         }
-
 
         public void UseEventStorePerBoundedContext()
         {

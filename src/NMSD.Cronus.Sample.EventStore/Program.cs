@@ -46,7 +46,9 @@ namespace NMSD.Cronus.Sample.EventStore
             //collaborationEventStoreConsumer.UnitOfWorkFactory = new NullUnitOfWorkFactory();
             //collaborationEventStoreConsumer.Start(5);
             UseCronusHost();
+            System.Console.WriteLine("Started");
             System.Console.ReadLine();
+            host.Release();
             //  session.Close();
 
 

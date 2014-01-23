@@ -45,7 +45,11 @@ namespace NMSD.Cronus.Sample.Handlers
             //eventConsumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
             //eventConsumer.Start(2);
             UseCronusHost();
+            System.Console.WriteLine("Started");
             System.Console.ReadLine();
+            host.Release();
+
+            //System.Console.ReadLine();
             //session.Close();
         }
         static ISessionFactory BuildSessionFactory()
