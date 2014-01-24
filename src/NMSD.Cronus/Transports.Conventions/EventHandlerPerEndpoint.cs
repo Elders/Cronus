@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using NMSD.Cronus.DomainModelling;
 
-
 namespace NMSD.Cronus.Transports.Conventions
 {
     public class EventHandlerPerEndpoint : IEventHandlerEndpointConvention
