@@ -309,7 +309,7 @@ function global:Get-Version-From-Git-Tag
 function global:Copy-Files($source,$destination,$include=@()) 
 {    
     Create-Directory $destination
-    Get-ChildItem $source -Recurse -Include $include | Copy-Item -Destination {Join-Path $destination $_.FullName.Substring($source.length)} 
+    Get-ChildItem $source -Recurse -Include $include | Copy-Item -Destination { Join-Path $destination $_.FullName.Substring($source.length - 1)} 
 }
 
 function global:Create-Directory($directory_name) 
