@@ -143,7 +143,7 @@ namespace NMSD.Cronus.Hosts
             commandConsumerConfigurations.Add(commandConsumerConfiguration);
 
             var boundedContext = commandConsumerConfiguration.EventsAssembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
-            var es = new RabbitEventStore(boundedContext, commandConsumerConfiguration.EventStoreConnectionString, session, Serializer);
+            var es = new RabbitRepository(boundedContext, commandConsumerConfiguration.EventStoreConnectionString, session, Serializer);
             var commandConsumer = new CommandConsumer(commandHandlersEndpointConvention, endpointFactory, Serializer, es);
             commandConsumer.UnitOfWorkFactory = commandConsumerConfiguration.UnitOfWorkFacotry;
             commandConsumer.RegisterAllHandlersInAssembly(commandConsumerConfiguration.CommandHandlersAssembly);

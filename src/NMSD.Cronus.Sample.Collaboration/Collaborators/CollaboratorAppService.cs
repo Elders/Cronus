@@ -11,9 +11,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators
     {
         public void Handle(RenameCollaborator command)
         {
-            var user = Repository.Load<Collaborator>(command.Id);
-            user.Rename(command.FirstName, command.LastName);
-            Repository.Save(user);
+            Repository.Update<Collaborator>(command.Id, user => user.Rename(command.FirstName, command.LastName));
         }
 
         public void Handle(CreateNewCollaborator command)

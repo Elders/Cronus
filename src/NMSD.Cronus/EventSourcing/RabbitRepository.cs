@@ -12,21 +12,22 @@ using NMSD.Protoreg;
 
 namespace NMSD.Cronus.EventSourcing
 {
-    public class RabbitEventStore : IAggregateRepository
+    public class RabbitRepository : IAggregateRepository
     {
         private MssqlEventStore mssqlStore;
 
         private IPublisher<DomainMessageCommit> eventPublisher;
 
-        public RabbitEventStore(string boundedContext, string connectionString, RabbitMqSession session, ProtoregSerializer serializer)
+        public RabbitRepository(string boundedContext, string connectionString, RabbitMqSession session, ProtoregSerializer serializer)
         {
             mssqlStore = new MssqlEventStore(boundedContext, connectionString, serializer);
             eventPublisher = new EventStorePublisher(new EventStorePipelinePerApplication(), new RabbitMqPipelineFactory(session), serializer);
         }
 
-        public AR Load<AR>(IAggregateRootId aggregateId) where AR : IAggregateRoot
+        public AR Update<AR>(IAggregateRootId aggregateId, Action<AR> update, Action<IAggregateRoot> save = null) where AR : IAggregateRoot
         {
-            return mssqlStore.Load<AR>(aggregateId);
+            Action<IAggregateRoot> saveAction = save ?? this.Save;
+            return mssqlStore.Update<AR>(aggregateId, update, saveAction);
         }
 
         public void Save(IAggregateRoot aggregateRoot)

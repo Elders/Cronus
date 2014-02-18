@@ -16,9 +16,7 @@ namespace NMSD.Cronus.Sample.IdentityAndAccess.Users
 
         public void Handle(ChangeUserEmail message)
         {
-            var user = Repository.Load<User>(message.Id);
-            user.ChangeEmail(message.OldEmail, message.NewEmail);
-            Repository.Save(user);
+            Repository.Update<User>(message.Id, user => user.ChangeEmail(message.OldEmail, message.NewEmail));
         }
     }
 }

@@ -3,17 +3,16 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using NMSD.Cronus.Eventing;
-using NMSD.Cronus.Messaging;
-using NMSD.Protoreg;
 using System.Text;
-using System.Globalization;
-using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Userfull;
 using System.Threading;
+using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.Eventing;
+using NMSD.Cronus.Userfull;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.EventSourcing
 {
@@ -33,6 +32,10 @@ namespace NMSD.Cronus.EventSourcing
     }
     public class MssqlEventStore : IAggregateRepository, IEventStore
     {
+        const string CreateEventsTableQuery = @"USE [{0}] SET ANSI_NULLS ON SET QUOTED_IDENTIFIER ON SET ANSI_PADDING ON CREATE TABLE [dbo].[{1}]([Revision] [int] IDENTITY(1,1) NOT NULL,[Events] [varbinary](max) NOT NULL,[EventsCount] [smallint] NOT NULL,[Timestamp] [datetime] NOT NULL,CONSTRAINT [PK_{1}BoundedContext] PRIMARY KEY CLUSTERED ([Revision] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY] SET ANSI_PADDING OFF";
+
+        const string CreateSnapshotsTableQuery = @"USE [{0}]  SET ANSI_NULLS ON  SET QUOTED_IDENTIFIER ON  SET ANSI_PADDING ON  CREATE TABLE [dbo].[{1}]( [Version] [int] NOT NULL, [AggregateId] [uniqueidentifier] NOT NULL,[AggregateState] [varbinary](max) NOT NULL, [Timestamp] [datetime] NOT NULL, CONSTRAINT [PK_{1}BoundedContextSnapshots] PRIMARY KEY CLUSTERED ([Version] ASC, [AggregateId] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]  SET ANSI_PADDING OFF ";
+
         const string DeleteAggregateStatesQueryTemplate = @"DELETE {0} WHERE [Timestamp]<@timestamp AND ({1})";
 
         const string DeleteAggregateStatesWhereTemplate = @"AggregateId=@aggregateId{0} AND [Version]<@version{0}";
@@ -41,23 +44,23 @@ namespace NMSD.Cronus.EventSourcing
 
         const string LoadEventsQueryTemplate = @"SELECT Events FROM {0} ORDER BY Revision OFFSET @offset ROWS FETCH NEXT {1} ROWS ONLY";
 
-        const string CreateSnapshotsTableQuery = @"USE [{0}]  SET ANSI_NULLS ON  SET QUOTED_IDENTIFIER ON  SET ANSI_PADDING ON  CREATE TABLE [dbo].[{1}]( [Version] [int] NOT NULL, [AggregateId] [uniqueidentifier] NOT NULL,[AggregateState] [varbinary](max) NOT NULL, [Timestamp] [datetime] NOT NULL, CONSTRAINT [PK_{1}BoundedContextSnapshots] PRIMARY KEY CLUSTERED ([Version] ASC, [AggregateId] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]  SET ANSI_PADDING OFF ";
-
-        const string CreateEventsTableQuery = @"USE [{0}] SET ANSI_NULLS ON SET QUOTED_IDENTIFIER ON SET ANSI_PADDING ON CREATE TABLE [dbo].[{1}]([Revision] [int] IDENTITY(1,1) NOT NULL,[Events] [varbinary](max) NOT NULL,[EventsCount] [smallint] NOT NULL,[Timestamp] [datetime] NOT NULL,CONSTRAINT [PK_{1}BoundedContext] PRIMARY KEY CLUSTERED ([Revision] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY] SET ANSI_PADDING OFF";
-
         const string TableExistsQuery = @"SELECT * FROM INFORMATION_SCHEMA.TABLES  WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = '{0}'";
+
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MssqlEventStore));
 
         private readonly string boundedContext;
 
         private readonly string connectionString;
 
-        ConcurrentDictionary<Type, Tuple<string, string>> eventsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
+        private ConcurrentDictionary<Type, Tuple<string, string>> eventsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
 
         private readonly string eventsTableName;
 
+        private static object locker = new object();
+
         private readonly ProtoregSerializer serializer;
 
-        ConcurrentDictionary<Type, Tuple<string, string>> snapshotsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
+        private ConcurrentDictionary<Type, Tuple<string, string>> snapshotsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
 
         private readonly string snapshotsTableName;
 
@@ -69,110 +72,6 @@ namespace NMSD.Cronus.EventSourcing
             this.connectionString = connectionString;
             this.serializer = serializer;
             Create();
-        }
-        static object locker = new object();
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MssqlEventStore));
-        public void Create()
-        {
-            try
-            {
-                lock (locker)
-                {
-                    if (!DatabaseManager.Exists(connectionString))
-                    {
-                        DatabaseManager.CreateDatabase(connectionString, "use_default", true);
-                        while (!DatabaseManager.Exists(connectionString))
-                            Thread.Sleep(50);
-                    }
-
-                    if (!TableExists(eventsTableName))
-                    {
-                        CreateEventsTable();
-                        while (!TableExists(eventsTableName))
-                            Thread.Sleep(50);
-                    }
-                    if (!TableExists(snapshotsTableName))
-                    {
-                        CreateSnapshotsTableTable();
-                        while (!TableExists(snapshotsTableName))
-                            Thread.Sleep(50);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Could not create EventStore", ex);
-            }
-        }
-
-        public void CreateEventsTable()
-        {
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
-
-            SqlConnection conn = new SqlConnection(connectionString);
-            try
-            {
-                conn.Open();
-
-                var command = String.Format(CreateEventsTableQuery, builder.InitialCatalog, eventsTableName.Replace("dbo.", ""));
-                SqlCommand cmd = new SqlCommand(command, conn);
-                cmd.ExecuteNonQuery();
-
-            }
-            finally
-            {
-                conn.Close();
-            }
-        }
-        public void CreateSnapshotsTableTable()
-        {
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
-
-            SqlConnection conn = new SqlConnection(connectionString);
-            try
-            {
-                conn.Open();
-
-                var command = String.Format(CreateSnapshotsTableQuery, builder.InitialCatalog, snapshotsTableName.Replace("dbo.", ""));
-                SqlCommand cmd = new SqlCommand(command, conn);
-                cmd.ExecuteNonQuery();
-
-            }
-            finally
-            {
-                conn.Close();
-            }
-        }
-        public bool TableExists(string tableName)
-        {
-            bool DatabaseExsists = false;
-            SqlConnection conn = new SqlConnection(connectionString);
-            try
-            {
-                conn.Open();
-
-                var command = String.Format(TableExistsQuery, tableName.Replace("dbo.", ""));
-                SqlCommand cmd = new SqlCommand(command, conn);
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    DatabaseExsists = true;
-                    break;
-                }
-                reader.Close();
-
-            }
-            finally
-            {
-                conn.Close();
-            }
-            return DatabaseExsists;
-
-        }
-        public void CloseConnection(SqlConnection conn)
-        {
-            conn.Close();
         }
 
         public IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1)
@@ -209,116 +108,117 @@ namespace NMSD.Cronus.EventSourcing
             }
         }
 
-        public IAggregateRootState LoadAggregateState(Guid aggregateId)
+        public AR Update<AR>(IAggregateRootId aggregateId, Action<AR> update, Action<IAggregateRoot> save = null) where AR : IAggregateRoot
         {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                string query = String.Format(LoadAggregateStateQueryTemplate, snapshotsTableName);
-                SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@aggregateId", aggregateId);
+            var state = LoadAggregateState(aggregateId.Id);
+            AR aggregateRoot = AggregateRootFactory.Build<AR>(state);
+            update(aggregateRoot);
+            if (save != null)
+                save(aggregateRoot);
+            else
+                Save(aggregateRoot);
+            return aggregateRoot;
+        }
 
-                using (var reader = command.ExecuteReader())
+        public void Save(IAggregateRoot aggregateRoot)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<IEventStream> postCommit, Func<IEventStream, bool> closeStreamCondition)
+        {
+            using (var conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                var newStream = new EventStream();
+                bool shouldCommit = false;
+
+                while (!closeStreamCondition(newStream))
                 {
-                    if (reader.Read())
+                    while (!shouldCommit)
                     {
-                        var buffer = reader[0] as byte[];
-                        IAggregateRootState state;
-                        using (var stream = new MemoryStream(buffer))
+                        var commit = getCommit();
+                        if (commit != default(DomainMessageCommit))
                         {
-                            state = (IAggregateRootState)serializer.Deserialize(stream);
+                            newStream.Events.AddRange(commit.Events);
+                            newStream.Snapshots.Add(commit.State);
                         }
-                        return state;
-                    }
-                    else
-                    {
-                        return default(IAggregateRootState);
+
+                        shouldCommit = commitCondition(newStream, commit);
+                        if (shouldCommit)
+                        {
+                            if (newStream.Events.Count > 0)
+                            {
+                                Persist(newStream.Events, conn);
+                                TakeSnapshot(newStream.Snapshots, conn);
+
+                                if (!ReferenceEquals(null, postCommit))
+                                    postCommit(newStream);
+
+                                newStream.Events.Clear();
+                                newStream.Snapshots.Clear();
+                            }
+                            shouldCommit = false;   // reset
+                        }
                     }
                 }
             }
         }
 
-        public SqlConnection OpenConnection()
+        /// <summary>
+        /// Creates the database for the event store including the Events and Snapshots tables. If any exists it is not overwritten.
+        /// </summary>
+        private void Create()
         {
-            var conn = new SqlConnection(connectionString);
-            conn.Open();
-            return conn;
-        }
-
-        public void Persist(List<IEvent> events, SqlConnection connection)
-        {
-            if (events == null) throw new ArgumentNullException("events");
-            if (events.Count == 0) return;
-
-            //#if DEBUG
-            ValidateEventsBoundedContext(events);
-            //#endif
-
-            byte[] buffer = SerializeEvents(events);
-
-            DataTable eventsTable = CreateInMemoryTableForEvents();
-            var row = eventsTable.NewRow();
-            row[1] = buffer;
-            row[2] = events.Count;
-            row[3] = DateTime.UtcNow;
-            eventsTable.Rows.Add(row);
-            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
+            try
             {
-                bulkCopy.DestinationTableName = eventsTableName;
-                try
+                lock (locker)
                 {
-                    bulkCopy.WriteToServer(eventsTable, DataRowState.Added);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
-            }
-        }
-
-        public void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection)
-        {
-            //#if DEBUG
-            ValidateSnapshotsBoundedContext(states);
-            //#endif
-
-            DataTable dt = CreateInMemoryTableForSnapshots();
-            foreach (var state in states)
-            {
-                byte[] buffer = SerializeAggregateState(state);
-                var row = dt.NewRow();
-                row[0] = state.Version;
-                row[1] = state.Id.Id;
-                row[2] = buffer;
-                row[3] = DateTime.UtcNow;
-                dt.Rows.Add(row);
-            }
-
-            // using (var tx = connection.BeginTransaction(IsolationLevel.Snapshot))
-            {
-                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
-                {
-                    bulkCopy.DestinationTableName = snapshotsTableName;
-                    try
+                    if (!DatabaseManager.Exists(connectionString))
                     {
-                        //var statesDeleteCommand = PrepareAggregateStateDeleteCommand(states);
-                        //statesDeleteCommand.Connection = connection;
-                        //statesDeleteCommand.Transaction = tx;
-                        //statesDeleteCommand.ExecuteNonQuery();
-
-                        bulkCopy.BatchSize = 100;
-                        bulkCopy.WriteToServer(dt, DataRowState.Added);
-                        // tx.Commit();
-
+                        DatabaseManager.CreateDatabase(connectionString, enableSnapshotIsolation: true);
+                        while (!DatabaseManager.Exists(connectionString))
+                            Thread.Sleep(50);
                     }
-                    catch (Exception ex)
+
+                    if (!TableExists(eventsTableName))
                     {
-                        // tx.Rollback();
-                        throw new AggregateStateFirstLevelConcurrencyException("", ex);
+                        CreateEventsTable();
+                        while (!TableExists(eventsTableName))
+                            Thread.Sleep(50);
+                    }
+                    if (!TableExists(snapshotsTableName))
+                    {
+                        CreateSnapshotsTableTable();
+                        while (!TableExists(snapshotsTableName))
+                            Thread.Sleep(50);
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                log.Error("Could not create EventStore.", ex);
+            }
+        }
 
+        private void CreateEventsTable()
+        {
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+
+            SqlConnection conn = new SqlConnection(connectionString);
+            try
+            {
+                conn.Open();
+
+                var command = String.Format(CreateEventsTableQuery, builder.InitialCatalog, eventsTableName.Replace("dbo.", ""));
+                SqlCommand cmd = new SqlCommand(command, conn);
+                cmd.ExecuteNonQuery();
+
+            }
+            finally
+            {
+                conn.Close();
+            }
         }
 
         private static DataTable CreateInMemoryTableForEvents()
@@ -386,7 +286,87 @@ namespace NMSD.Cronus.EventSourcing
             return uncommittedState;
         }
 
-        SqlCommand PrepareAggregateStateDeleteCommand(List<IAggregateRootState> states)
+        private void CreateSnapshotsTableTable()
+        {
+            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
+
+            SqlConnection conn = new SqlConnection(connectionString);
+            try
+            {
+                conn.Open();
+
+                var command = String.Format(CreateSnapshotsTableQuery, builder.InitialCatalog, snapshotsTableName.Replace("dbo.", ""));
+                SqlCommand cmd = new SqlCommand(command, conn);
+                cmd.ExecuteNonQuery();
+
+            }
+            finally
+            {
+                conn.Close();
+            }
+        }
+
+        private IAggregateRootState LoadAggregateState(Guid aggregateId)
+        {
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+                string query = String.Format(LoadAggregateStateQueryTemplate, snapshotsTableName);
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@aggregateId", aggregateId);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        var buffer = reader[0] as byte[];
+                        IAggregateRootState state;
+                        using (var stream = new MemoryStream(buffer))
+                        {
+                            state = (IAggregateRootState)serializer.Deserialize(stream);
+                        }
+                        return state;
+                    }
+                    else
+                    {
+                        return default(IAggregateRootState);
+                    }
+                }
+            }
+        }
+
+        private void Persist(List<IEvent> events, SqlConnection connection)
+        {
+            if (events == null) throw new ArgumentNullException("events");
+            if (events.Count == 0) return;
+
+            //#if DEBUG
+            ValidateEventsBoundedContext(events);
+            //#endif
+
+            byte[] buffer = SerializeEvents(events);
+
+            DataTable eventsTable = CreateInMemoryTableForEvents();
+            var row = eventsTable.NewRow();
+            row[1] = buffer;
+            row[2] = events.Count;
+            row[3] = DateTime.UtcNow;
+            eventsTable.Rows.Add(row);
+            using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
+            {
+                bulkCopy.DestinationTableName = eventsTableName;
+                try
+                {
+                    bulkCopy.WriteToServer(eventsTable, DataRowState.Added);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
+        }
+
+        private SqlCommand PrepareAggregateStateDeleteCommand(List<IAggregateRootState> states)
         {
             var deleteCmd = new SqlCommand();
             StringBuilder deleteWhereClauseBuilder = new StringBuilder();
@@ -421,6 +401,79 @@ namespace NMSD.Cronus.EventSourcing
                 serializer.Serialize(stream, new Wraper(events.Cast<object>().ToList()));
                 return stream.ToArray();
             }
+        }
+
+        private bool TableExists(string tableName)
+        {
+            bool DatabaseExsists = false;
+            SqlConnection conn = new SqlConnection(connectionString);
+            try
+            {
+                conn.Open();
+
+                var command = String.Format(TableExistsQuery, tableName.Replace("dbo.", ""));
+                SqlCommand cmd = new SqlCommand(command, conn);
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    DatabaseExsists = true;
+                    break;
+                }
+                reader.Close();
+
+            }
+            finally
+            {
+                conn.Close();
+            }
+            return DatabaseExsists;
+
+        }
+
+        private void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection)
+        {
+            //#if DEBUG
+            ValidateSnapshotsBoundedContext(states);
+            //#endif
+
+            DataTable dt = CreateInMemoryTableForSnapshots();
+            foreach (var state in states)
+            {
+                byte[] buffer = SerializeAggregateState(state);
+                var row = dt.NewRow();
+                row[0] = state.Version;
+                row[1] = state.Id.Id;
+                row[2] = buffer;
+                row[3] = DateTime.UtcNow;
+                dt.Rows.Add(row);
+            }
+
+            // using (var tx = connection.BeginTransaction(IsolationLevel.Snapshot))
+            {
+                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
+                {
+                    bulkCopy.DestinationTableName = snapshotsTableName;
+                    try
+                    {
+                        //var statesDeleteCommand = PrepareAggregateStateDeleteCommand(states);
+                        //statesDeleteCommand.Connection = connection;
+                        //statesDeleteCommand.Transaction = tx;
+                        //statesDeleteCommand.ExecuteNonQuery();
+
+                        bulkCopy.BatchSize = 100;
+                        bulkCopy.WriteToServer(dt, DataRowState.Added);
+                        // tx.Commit();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        // tx.Rollback();
+                        throw new AggregateStateFirstLevelConcurrencyException("", ex);
+                    }
+                }
+            }
+
         }
 
         private void ValidateEventsBoundedContext(IList<IEvent> events)
@@ -471,114 +524,6 @@ namespace NMSD.Cronus.EventSourcing
             }
         }
 
-
-        public AR Load<AR>(IAggregateRootId aggregateId) where AR : IAggregateRoot
-        {
-            var state = LoadAggregateState(aggregateId.Id);
-            AR aggregateRoot = AggregateRootFactory.Build<AR>(state);
-            return aggregateRoot;
-        }
-
-
-        public void Save(IAggregateRoot aggregateRoot)
-        {
-            throw new NotImplementedException();
-        }
-
-
-
-        IEventStream IEventStore.OpenStream()
-        {
-            var connection = OpenConnection();
-            return new MssqlStream(connection);
-        }
-
-        public void Commit(MssqlStream stream)
-        {
-            if (stream.Events.Count == 0)
-                return;
-            Persist(stream.Events, stream.Connection);
-            TakeSnapshot(stream.Snapshots, stream.Connection);
-        }
-
-        void IEventStore.Commit(IEventStream stream)
-        {
-            Commit(stream as MssqlStream);
-        }
     }
 
-    public static class MeasureExecutionTime
-    {
-        public static string Start(System.Action action)
-        {
-            string result = string.Empty;
-
-            var stopWatch = new System.Diagnostics.Stopwatch();
-            stopWatch.Start();
-            action();
-            stopWatch.Stop();
-            System.TimeSpan ts = stopWatch.Elapsed;
-            result = System.String.Format("{0:00}:{1:00}:{2:00}.{3:00}", ts.Hours, ts.Minutes, ts.Seconds, ts.Milliseconds / 10);
-            return result;
-        }
-
-        public static string Start(System.Action action, int repeat, bool showTicksInfo = false)
-        {
-            var stopWatch = new System.Diagnostics.Stopwatch();
-            stopWatch.Start();
-            for (int i = 0; i < repeat; i++)
-            {
-                action();
-            }
-            stopWatch.Stop();
-            System.TimeSpan total = stopWatch.Elapsed;
-            System.TimeSpan average = new System.TimeSpan(stopWatch.Elapsed.Ticks / repeat);
-
-            System.Text.StringBuilder perfResultsBuilder = new System.Text.StringBuilder();
-            perfResultsBuilder.AppendLine("--------------------------------------------------------------");
-            perfResultsBuilder.AppendFormat("  Total Time => {0}\r\nAverage Time => {1}", Align(total), Align(average));
-            perfResultsBuilder.AppendLine();
-            perfResultsBuilder.AppendLine("--------------------------------------------------------------");
-            if (showTicksInfo)
-                perfResultsBuilder.AppendLine(TicksInfo());
-            return perfResultsBuilder.ToString();
-        }
-
-        static string Align(System.TimeSpan interval)
-        {
-            string intervalStr = interval.ToString();
-            int pointIndex = intervalStr.IndexOf(':');
-
-            pointIndex = intervalStr.IndexOf('.', pointIndex);
-            if (pointIndex < 0) intervalStr += "        ";
-            return intervalStr;
-        }
-
-        static string TicksInfo()
-        {
-            System.Text.StringBuilder ticksInfoBuilder = new System.Text.StringBuilder("\r\n\r\n");
-            ticksInfoBuilder.AppendLine("Ticks Info");
-            ticksInfoBuilder.AppendLine("--------------------------------------------------------------");
-            const string numberFmt = "{0,-22}{1,18:N0}";
-            const string timeFmt = "{0,-22}{1,26}";
-
-            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Field", "Value"));
-            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "-----", "-----"));
-
-            // Display the maximum, minimum, and zero TimeSpan values.
-            ticksInfoBuilder.AppendLine(System.String.Format(timeFmt, "Maximum TimeSpan", Align(System.TimeSpan.MaxValue)));
-            ticksInfoBuilder.AppendLine(System.String.Format(timeFmt, "Minimum TimeSpan", Align(System.TimeSpan.MinValue)));
-            ticksInfoBuilder.AppendLine(System.String.Format(timeFmt, "Zero TimeSpan", Align(System.TimeSpan.Zero)));
-            ticksInfoBuilder.AppendLine();
-
-            // Display the ticks-per-time-unit fields.
-            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Ticks per day", System.TimeSpan.TicksPerDay));
-            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Ticks per hour", System.TimeSpan.TicksPerHour));
-            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Ticks per minute", System.TimeSpan.TicksPerMinute));
-            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Ticks per second", System.TimeSpan.TicksPerSecond));
-            ticksInfoBuilder.AppendLine(System.String.Format(numberFmt, "Ticks per millisecond", System.TimeSpan.TicksPerMillisecond));
-            ticksInfoBuilder.AppendLine("--------------------------------------------------------------");
-            return ticksInfoBuilder.ToString();
-        }
-    }
 }

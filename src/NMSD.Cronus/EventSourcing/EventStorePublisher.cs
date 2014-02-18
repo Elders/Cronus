@@ -37,7 +37,8 @@ namespace NMSD.Cronus.EventSourcing
             endpointMessage.Headers.Add(commitBoundedContext, String.Empty);
             BuildPipeline(firstEventInCommitType);
             pipelines[firstEventInCommitType].Push(endpointMessage);
-            log.Info("PUBLISHED COMMIT => " + commit.ToString());
+            if (log.IsInfoEnabled)
+                log.Info("PUBLISHED COMMIT => " + commit.ToString());
             return true;
         }
 

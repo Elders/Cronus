@@ -1,6 +1,6 @@
 #	Parameters you do not want to change
 $root = Resolve-Path ..
-$src = "$root\src"
+$src_directory = "$root\src"
 $verbosity = "minimal"
 $nuget = "$env:USERPROFILE\AppData\Local\NuGet\NuGet.exe"
 $deploy = "$root\bin\Deploy"

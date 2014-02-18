@@ -74,7 +74,7 @@ namespace NMSD.Cronus.Sample.UI
             commandPublisher.Publish(new RegisterNewUser(userId, email));
             Thread.Sleep(1000);
 
-            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
+            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
         }
     }
 }

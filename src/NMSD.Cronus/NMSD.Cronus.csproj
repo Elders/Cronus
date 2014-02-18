@@ -104,7 +104,7 @@
     <Compile Include="EventSourcing\EventStoreConsumer.cs" />
     <Compile Include="EventSourcing\EventStorePublisher.cs" />
     <Compile Include="EventSourcing\MssqlStream.cs" />
-    <Compile Include="EventSourcing\RabbitEventStore.cs" />
+    <Compile Include="EventSourcing\RabbitRepository.cs" />
     <Compile Include="Hosts\CommandConsumerConfiguration.cs" />
     <Compile Include="Hosts\CommandPublisherConfiguration.cs" />
     <Compile Include="Hosts\CronusHost.cs" />

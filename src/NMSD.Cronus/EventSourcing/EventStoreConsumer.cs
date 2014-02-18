@@ -89,60 +89,47 @@ namespace NMSD.Cronus.EventSourcing
 
             public void Start()
             {
-                IEventStream eventStream = consumer.eventStore.OpenStream();
-                endpoint.Open();
                 try
                 {
-                    while (true)
-                    {
-                        try
+                    endpoint.Open();
+                    consumer.eventStore.UseStream(() =>
                         {
-                            eventStream.Clear();
-                            for (int i = 0; i < 100; i++)
+                            EndpointMessage rawMessage;
+                            DomainMessageCommit commit = null;
+                            if (endpoint.BlockDequeue(30, out rawMessage))
                             {
-                                EndpointMessage rawMessage;
-                                if (!endpoint.BlockDequeue(30, out rawMessage))
-                                    break;
-
-                                DomainMessageCommit message;
                                 using (var stream = new MemoryStream(rawMessage.Body))
                                 {
-                                    message = consumer.serialiser.Deserialize(stream) as DomainMessageCommit;
+                                    commit = consumer.serialiser.Deserialize(stream) as DomainMessageCommit;
                                 }
-                                eventStream.Events.AddRange(message.Events);
-                                eventStream.Snapshots.Add(message.State);
                             }
-                            consumer.eventStore.Commit(eventStream);
+                            return commit;
+                        },
+                        (eventStream, commit) => commit == null || eventStream.Events.Count == 100,
+                        eventStream =>
+                        {
                             foreach (var @event in eventStream.Events)
                             {
                                 consumer.eventPublisher.Publish(@event);
                             }
                             endpoint.AcknowledgeAll();
-
-                        }
-                        catch (EndpointClosedException ex)
-                        {
-                            ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
-                            log.Error("Endpoint Closed", ex);
-                            break;
-                        }
-                        catch (PipelineClosedException ex)
-                        {
-                            ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
-                            log.Error("Endpoint Closed", ex);
-                            break;
-                        }
-                    }
+                        },
+                        eventStream => false);
+                }
+                catch (EndpointClosedException ex)
+                {
+                    log.Error("Endpoint Closed", ex);
+                }
+                catch (PipelineClosedException ex)
+                {
+                    log.Error("Endpoint Closed", ex);
                 }
                 finally
                 {
                     ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
-                    eventStream.Dispose();
                     endpoint.Close();
                 }
-
             }
-
         }
     }
 }
