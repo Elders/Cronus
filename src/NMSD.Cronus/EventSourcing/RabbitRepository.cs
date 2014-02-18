@@ -32,6 +32,8 @@ namespace NMSD.Cronus.EventSourcing
 
         public void Save(IAggregateRoot aggregateRoot)
         {
+            if (aggregateRoot.UncommittedEvents == null || aggregateRoot.UncommittedEvents.Count == 0)
+                return;
             aggregateRoot.State.Version += 1;
             var commit = new DomainMessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents);
             eventPublisher.Publish(commit);
