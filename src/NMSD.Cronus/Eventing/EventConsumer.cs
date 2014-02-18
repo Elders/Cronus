@@ -117,9 +117,16 @@ namespace NMSD.Cronus.Eventing
                                     {
                                         @event = consumer.serialiser.Deserialize(stream) as IEvent;
                                     }
-
-                                    if (consumer.Handle(@event, unitOfWork))
-                                        endpoint.Acknowledge(message);
+                                    try
+                                    {
+                                        if (consumer.Handle(@event, unitOfWork))
+                                            endpoint.Acknowledge(message);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        string error = String.Format("Error while handling event '{0}'", @event.ToString());
+                                        log.Error(error, ex);
+                                    }
                                 }
                             }
                         }
@@ -128,15 +135,15 @@ namespace NMSD.Cronus.Eventing
                 catch (EndpointClosedException ex)
                 {
                     log.Error("Endpoint Closed", ex);
-                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
                 }
                 catch (Exception ex)
                 {
-                    throw ex;
+                    log.Error("Unexpected Error.", ex);
                 }
                 finally
                 {
                     endpoint.Close();
+                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
                 }
             }
 

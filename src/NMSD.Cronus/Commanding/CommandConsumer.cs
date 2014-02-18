@@ -102,9 +102,16 @@ namespace NMSD.Cronus.Commanding
                             {
                                 command = consumer.serialiser.Deserialize(stream) as ICommand;
                             }
-
-                            if (consumer.Handle(command, batchedUoW))
-                                endpoint.Acknowledge(rawMessage);
+                            try
+                            {
+                                if (consumer.Handle(command, batchedUoW))
+                                    endpoint.Acknowledge(rawMessage);
+                            }
+                            catch (Exception ex)
+                            {
+                                string error = String.Format("Error while handling command '{0}'", command.ToString());
+                                log.Error(error, ex);
+                            }
                         }
 
 
@@ -114,10 +121,15 @@ namespace NMSD.Cronus.Commanding
                 catch (EndpointClosedException ex)
                 {
                     log.Error("Endpoint Closed", ex);
-                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(1000);
+
+                }
+                catch (Exception ex)
+                {
+                    log.Error("Unexpected Exception.", ex);
                 }
                 finally
                 {
+                    ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
                     endpoint.Close();
                 }
             }
