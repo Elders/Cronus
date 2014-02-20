@@ -1,20 +1,15 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using NMSD.Cronus.Eventing;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using NMSD.Cronus.Commanding;
 using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Multithreading.Work;
 using NMSD.Cronus.Transports;
 using NMSD.Cronus.Transports.Conventions;
-using NMSD.Cronus.UnitOfWork;
-using NMSD.Cronus.RabbitMQ;
-using NMSD.Protoreg;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Exceptions;
 using NMSD.Cronus.Transports.RabbitMQ;
-using System.IO;
-using System.Reflection;
-using NMSD.Cronus.Commanding;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Eventing
 {
@@ -84,7 +79,6 @@ namespace NMSD.Cronus.Eventing
 
         private class ConsumerWork : IWork
         {
-
             static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(ConsumerWork));
             private EventConsumer consumer;
             private readonly IEndpoint endpoint;

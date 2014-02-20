@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NMSD.Cronus.RabbitMQ;
 
 namespace NMSD.Cronus.Transports.RabbitMQ
 {
     public class RabbitMqPipelineFactory : IPipelineFactory
     {
+        private readonly IPipelineNameConvention nameConvention;
+
         public ConcurrentDictionary<string, RabbitMqPipeline> pipes = new ConcurrentDictionary<string, RabbitMqPipeline>();
 
         private RabbitMqSession session;
 
-        public RabbitMqPipelineFactory(RabbitMqSession session)
+        public RabbitMqPipelineFactory(RabbitMqSession session, IPipelineNameConvention nameConvention)
         {
+            this.nameConvention = nameConvention;
             this.session = session;
         }
 
@@ -29,7 +27,12 @@ namespace NMSD.Cronus.Transports.RabbitMQ
                 return pipeline;
             }
             return pipes[pipelineName];
+        }
 
+        public RabbitMqPipeline GetPipeline(Type messageType)
+        {
+            string pipelineName = nameConvention.GetPipelineName(messageType);
+            return GetPipeline(pipelineName);
         }
 
         IPipeline IPipelineFactory.GetPipeline(string pipelineName)
@@ -37,5 +40,9 @@ namespace NMSD.Cronus.Transports.RabbitMQ
             return GetPipeline(pipelineName);
         }
 
+        IPipeline IPipelineFactory.GetPipeline(Type messageType)
+        {
+            return GetPipeline(messageType);
+        }
     }
 }

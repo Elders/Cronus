@@ -12,9 +12,9 @@ namespace NMSD.Cronus.Transports.Conventions
 {
     public class CommandHandlersPerBoundedContext : ICommandHandlerEndpointConvention
     {
-        private ICommandPipelineConvention pipelineConvention;
+        private IPipelineNameConvention pipelineConvention;
 
-        public CommandHandlersPerBoundedContext(ICommandPipelineConvention pipelineConvention)
+        public CommandHandlersPerBoundedContext(IPipelineNameConvention pipelineConvention)
         {
             this.pipelineConvention = pipelineConvention;
         }

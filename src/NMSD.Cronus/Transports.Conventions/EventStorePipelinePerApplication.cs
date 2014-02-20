@@ -1,17 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using NMSD.Cronus.DomainModelling;
-
 
 namespace NMSD.Cronus.Transports.Conventions
 {
-    public class EventStorePipelinePerApplication : IEventStorePipelineConvention
+    public class EventStorePipelinePerApplication : IPipelineNameConvention
     {
-        public string GetPipelineName(Assembly assemblyContainingEvents)
+        public string GetPipelineName(Type messageType)
+        {
+            var messageAssembly = messageType.Assembly;
+            return GetPipelineName(messageAssembly);
+        }
+
+        private string GetPipelineName(Assembly assemblyContainingEvents)
         {
             var boundedContext = assemblyContainingEvents.GetAssemblyAttribute<BoundedContextAttribute>();
             if (boundedContext == null)
@@ -19,5 +20,6 @@ namespace NMSD.Cronus.Transports.Conventions
 
             return boundedContext.EventStorePipelineName;
         }
+
     }
 }

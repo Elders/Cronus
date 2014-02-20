@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Eventing;
 using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Transports.Conventions;
 using NMSD.Cronus.Transports.RabbitMQ;
@@ -21,7 +16,7 @@ namespace NMSD.Cronus.EventSourcing
         public RabbitRepository(string boundedContext, string connectionString, RabbitMqSession session, ProtoregSerializer serializer)
         {
             mssqlStore = new MssqlEventStore(boundedContext, connectionString, serializer);
-            eventPublisher = new EventStorePublisher(new EventStorePipelinePerApplication(), new RabbitMqPipelineFactory(session), serializer);
+            eventPublisher = new EventStorePublisher(new RabbitMqPipelineFactory(session, new EventStorePipelinePerApplication()), serializer);
         }
 
         public AR Update<AR>(IAggregateRootId aggregateId, Action<AR> update, Action<IAggregateRoot> save = null) where AR : IAggregateRoot

@@ -79,7 +79,7 @@ namespace NMSD.Cronus.EventSourcing
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string query = String.Format(LoadEventsQueryTemplate, boundedContext, batchPerQuery);
+                string query = String.Format(LoadEventsQueryTemplate, boundedContext + "Events", batchPerQuery);
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@offset", 0);
 

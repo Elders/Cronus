@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using NMSD.Cronus.Multithreading.Work;
@@ -7,42 +7,6 @@ using RabbitMQ.Client.Exceptions;
 
 namespace NMSD.Cronus.Messaging
 {
-    public abstract class Publisher<TMessage> : IPublisher<TMessage>
-    {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(Publisher<TMessage>));
-
-        protected abstract bool PublishInternal(TMessage message);
-
-        public bool Publish(TMessage message)
-        {
-            //if (beforePublish != null) beforePublish(message);
-            try
-            {
-                PublishInternal(message);
-                log.Info("PUBLISH => " + message.ToString());
-            }
-            catch (AlreadyClosedException ex)
-            {
-                var error = String.Format("Unable to connect to RabbitMQ broker. Consequences: Cannot publish message '{0}'", message.ToString());
-                log.Error(error, ex);
-                return false;
-            }
-            catch (IOException ex)
-            {
-                var error = String.Format("Unable to connect to RabbitMQ broker. Consequences: Cannot publish message '{0}'", message.ToString());
-                log.Error(error, ex);
-                return false;
-            }
-            catch (InvalidOperationException ex)
-            {
-                var error = String.Format("Unable to connect to RabbitMQ broker. Consequences: Cannot publish message '{0}'", message.ToString());
-                log.Error(error, ex);
-                return false;
-            }
-            //if (afterPublish != null) afterPublish(message);
-            return true;
-        }
-    }
     public abstract class InMemoryBus<TMessage, THandler> : IPublisher<TMessage>, IConsumer<THandler>
         where TMessage : IMessage
         where THandler : IMessageHandler

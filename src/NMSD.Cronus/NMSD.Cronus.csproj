@@ -107,9 +107,12 @@
     <Compile Include="EventSourcing\RabbitRepository.cs" />
     <Compile Include="Hosts\CommandConsumerConfiguration.cs" />
     <Compile Include="Hosts\CommandPublisherConfiguration.cs" />
+    <Compile Include="Hosts\CronusConfigurationException.cs" />
     <Compile Include="Hosts\CronusHost.cs" />
     <Compile Include="Hosts\EventHandlersConfiguration.cs" />
     <Compile Include="Hosts\EventStoreConsumerConfiguration.cs" />
+    <Compile Include="Messaging\InMemoryBus.cs" />
+    <Compile Include="Transports\EndpointMessageExtensions.cs" />
     <Compile Include="Userfull\Class1.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
     <Compile Include="Messaging\BaseInMemoryConsumer.cs" />
@@ -151,7 +154,7 @@
     </Compile>
     <Compile Include="Messaging\MessageHandlerRegistrations.cs" />
     <Compile Include="Messaging\IConsumer.cs" />
-    <Compile Include="Messaging\InMemoryPublisher.cs" />
+    <Compile Include="Messaging\Publisher.cs" />
     <Compile Include="Messaging\IPublisher.cs" />
     <Compile Include="Userfull\RetryableOperation.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
@@ -163,10 +166,8 @@
     <Compile Include="Transports.RabbitMQ\RabbitMqEndpointFactory.cs" />
     <Compile Include="Transports.RabbitMQ\RabbitMqPipelineFactory.cs" />
     <Compile Include="Transports\ICommandHandlerEndpointConvention.cs" />
-    <Compile Include="Transports\ICommandPipelineConvention.cs" />
+    <Compile Include="Transports\IPipelineNameConvention.cs" />
     <Compile Include="Transports\IEndpoint.cs" />
-    <Compile Include="Transports\IEventHandlersPipelineConvention.cs" />
-    <Compile Include="Transports\IEventStorePipelineConvention.cs" />
     <Compile Include="Transports\IEndpointFactory.cs" />
     <Compile Include="Transports\IEventHandlerEndpointConvention.cs" />
     <Compile Include="Transports\EndpointDefinition.cs" />

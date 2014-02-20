@@ -15,6 +15,8 @@ namespace NMSD.Cronus.EventSourcing
         /// <param name="postCommit">What to do after a successful commit.</param>
         /// <param name="closeStreamCondition">When to close the stream.</param>
         void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<IEventStream> postCommit, Func<IEventStream, bool> closeStreamCondition);
+
+        IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1);
     }
 
     public interface IEventStream

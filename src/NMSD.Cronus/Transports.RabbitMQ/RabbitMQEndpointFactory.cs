@@ -11,10 +11,11 @@ namespace NMSD.Cronus.Transports.RabbitMQ
     {
         private RabbitMqPipelineFactory pipeFactory;
         private RabbitMqSession session;
-        public RabbitMqEndpointFactory(RabbitMqSession session)
+
+        public RabbitMqEndpointFactory(RabbitMqSession session, RabbitMqPipelineFactory pipelineFactory)
         {
             this.session = session;
-            pipeFactory = new RabbitMqPipelineFactory(session);
+            pipeFactory = pipelineFactory;
         }
 
         public void BuildEndpoint(EndpointDefinition definition)
@@ -27,6 +28,7 @@ namespace NMSD.Cronus.Transports.RabbitMQ
             pipeLine.Close();
             endpoint.Close();
         }
+
         public RabbitMqEndpoint CreateEndpoint(EndpointDefinition definition)
         {
             var endpoint = new RabbitMqEndpoint(definition.EndpointName, session);
@@ -41,6 +43,7 @@ namespace NMSD.Cronus.Transports.RabbitMQ
             pipeLine.AttachEndpoint(endpoint);
             return endpoint;
         }
+
         IEndpoint IEndpointFactory.CreateEndpoint(EndpointDefinition definition)
         {
             return CreateEndpoint(definition);

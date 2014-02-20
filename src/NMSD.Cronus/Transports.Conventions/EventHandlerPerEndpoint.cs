@@ -3,19 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus.Transports.Conventions
 {
     public class EventHandlerPerEndpoint : IEventHandlerEndpointConvention
     {
-        private IEventHandlersPipelineConvention pipelineConvention;
+        private IPipelineNameConvention pipelineNameConvention;
 
-        public EventHandlerPerEndpoint(IEventHandlersPipelineConvention pipelineConvention)
+        public EventHandlerPerEndpoint(IPipelineNameConvention pipelineNameConvention)
         {
-            this.pipelineConvention = pipelineConvention;
+            this.pipelineNameConvention = pipelineNameConvention;
         }
         public IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] handlerTypes)
         {
@@ -35,7 +33,7 @@ namespace NMSD.Cronus.Transports.Conventions
                 {
                     acceptanceHeaders[id] = String.Empty;
                 }
-                yield return new EndpointDefinition(endpointName, acceptanceHeaders, pipelineConvention.GetPipelineName(eventTypes.First()));
+                yield return new EndpointDefinition(endpointName, acceptanceHeaders, pipelineNameConvention.GetPipelineName(eventTypes.First()));
             }
         }
     }

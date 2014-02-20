@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NMSD.Cronus.DomainModelling;
-
+using System.Reflection;
 
 namespace NMSD.Cronus.Transports.Conventions
 {
     public class EventStorePerBoundedContext : IEventStoreEndpointConvention
     {
-        IEventStorePipelineConvention convention;
+        IPipelineNameConvention pipelineNameConvention;
 
-        public EventStorePerBoundedContext(IEventStorePipelineConvention convention)
+        public EventStorePerBoundedContext(IPipelineNameConvention pipelineNameConvention)
         {
-            this.convention = convention;
+            this.pipelineNameConvention = pipelineNameConvention;
         }
-        public IEnumerable<EndpointDefinition> GetEndpointDefinitions(System.Reflection.Assembly assemblyContainingEvents)
+
+        public IEnumerable<EndpointDefinition> GetEndpointDefinitions(Type eventType)
         {
+            Assembly assemblyContainingEvents = eventType.Assembly;
             var atr = assemblyContainingEvents.GetAssemblyAttribute<BoundedContextAttribute>();
             var handlerQueueName = String.Format("{0}.EventStore", atr.BoundedContextNamespace);
-            var endpoint = new EndpointDefinition(handlerQueueName, new Dictionary<string, object> { { atr.BoundedContextName, String.Empty } }, convention.GetPipelineName(assemblyContainingEvents));
+            var endpoint = new EndpointDefinition(handlerQueueName, new Dictionary<string, object> { { atr.BoundedContextName, String.Empty } }, pipelineNameConvention.GetPipelineName(eventType));
             yield return endpoint;
         }
+
     }
 }

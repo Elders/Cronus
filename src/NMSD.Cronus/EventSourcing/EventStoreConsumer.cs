@@ -23,7 +23,7 @@ namespace NMSD.Cronus.EventSourcing
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EventStoreConsumer));
 
-        private readonly Assembly assemblyContainingEvents;
+        private readonly Type assemblyContainingEventsByEventType;
 
         private readonly IEventStoreEndpointConvention convention;
 
@@ -37,10 +37,10 @@ namespace NMSD.Cronus.EventSourcing
 
         private readonly ProtoregSerializer serialiser;
 
-        public EventStoreConsumer(IEventStoreEndpointConvention convention, IEndpointFactory factory, Assembly assemblyContainingEvents, ProtoregSerializer serialiser, IEventStore eventStore, IPublisher<IEvent> eventPublisher)
+        public EventStoreConsumer(IEventStoreEndpointConvention convention, IEndpointFactory factory, Type assemblyContainingEventsByEventType, ProtoregSerializer serialiser, IEventStore eventStore, IPublisher<IEvent> eventPublisher)
         {
             this.eventPublisher = eventPublisher;
-            this.assemblyContainingEvents = assemblyContainingEvents;
+            this.assemblyContainingEventsByEventType = assemblyContainingEventsByEventType;
             this.eventStore = eventStore;
             this.factory = factory;
             this.convention = convention;
@@ -52,7 +52,7 @@ namespace NMSD.Cronus.EventSourcing
         public void Start(int numberOfWorkers)
         {
             pools = new List<WorkPool>();
-            var endpoints = convention.GetEndpointDefinitions(assemblyContainingEvents);
+            var endpoints = convention.GetEndpointDefinitions(assemblyContainingEventsByEventType);
 
             foreach (var endpoint in endpoints)
             {

@@ -1,16 +1,9 @@
 ﻿using System;
 using System.Threading;
 using NMSD.Cronus.Commanding;
-using NMSD.Cronus.EventSourcing;
-using NMSD.Cronus.Transports.Conventions;
-using NMSD.Cronus.Transports.RabbitMQ;
-using NMSD.Cronus.RabbitMQ;
-using NMSD.Cronus.Sample.Collaboration.Collaborators;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Hosts;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
-using NMSD.Protoreg;
-using NMSD.Cronus.Hosts;
 
 namespace NMSD.Cronus.Sample.UI
 {
@@ -20,30 +13,17 @@ namespace NMSD.Cronus.Sample.UI
 
         static void Main(string[] args)
         {
-            //    log4net.Config.XmlConfigurator.Configure();
-
-            //    var protoRegistration = new ProtoRegistration();
-            //    protoRegistration.RegisterAssembly<RegisterNewUser>();
-            //    protoRegistration.RegisterAssembly<Wraper>();
-            //    ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
-            //    serializer.Build();
-
-            //    var rabbitMqSessionFactory = new RabbitMqSessionFactory();
-            //    var session = rabbitMqSessionFactory.OpenSession();
-            //    commandPublisher = new CommandPublisher(new CommandPipelinePerApplication(), new RabbitMqPipelineFactory(session), serializer);
-
-            //HostUI(1000, 2600); //  Target
-            // HostUI(1000, 800);  //  With Snapshot Delition right after new snapshots
+            log4net.Config.XmlConfigurator.Configure();
 
             CronusHost host = new CronusHost();
-            host.UseRabbitMqTransport();
+
             host.UseCommandPipelinePerApplication();
             host.ConfigureCommandPublisher(cfg => cfg.RegisterCommandsAssembly<RegisterNewUser>());
+            host.UseRabbitMqTransport();
             host.BuildSerializer();
             host.BuildCommandPublisher();
             commandPublisher = host.CommandPublisher;
             HostUI(2000);
-            //session.Close();
         }
 
         private static void HostUI(int messageDelayInMilliseconds = 0, int batchSize = 1)

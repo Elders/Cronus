@@ -9,7 +9,7 @@ using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus.Transports.Conventions
 {
-    public class CommandPipelinePerApplication : ICommandPipelineConvention
+    public class CommandPipelinePerApplication : IPipelineNameConvention
     {
         public string GetPipelineName(Type commandType)
         {

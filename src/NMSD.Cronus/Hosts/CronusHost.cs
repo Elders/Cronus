@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using NMSD.Cronus.Commanding;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Eventing;
@@ -23,17 +20,21 @@ namespace NMSD.Cronus.Hosts
 
         private List<CommandConsumer> commandConsumers = new List<CommandConsumer>();
 
+        private IEndpointFactory commandEndpointFactory;
+
         private ICommandHandlerEndpointConvention commandHandlersEndpointConvention;
 
-        private ICommandPipelineConvention commandPipelineConvention;
+        private IPipelineNameConvention commandPipelineConvention;
 
-        private CommandPublisher commandPublisher;
+        private IPipelineFactory commandPipelineFactory;
 
         private CommandPublisherConfiguration commandPublisherConfiguration;
 
-        private RabbitMqEndpointFactory endpointFactory;
+        private CommandPublisher commandPublisher;
 
         private List<EventConsumer> eventConsumers = new List<EventConsumer>();
+
+        private IEndpointFactory eventEndpointFactory;
 
         private HashSet<Assembly> eventHandlersAssemblies = new HashSet<Assembly>();
 
@@ -41,7 +42,9 @@ namespace NMSD.Cronus.Hosts
 
         private IEventHandlerEndpointConvention eventHandlersEnpointConvention;
 
-        private IEventHandlersPipelineConvention eventHandlersPipelineConvention;
+        private IPipelineNameConvention eventHandlersPipelineConvention;
+
+        private IPipelineFactory eventPipelineFactory;
 
         private HashSet<Assembly> eventsAssemblies = new HashSet<Assembly>();
 
@@ -51,9 +54,11 @@ namespace NMSD.Cronus.Hosts
 
         private IEventStoreEndpointConvention eventStoreEndpointConvention;
 
-        private IEventStorePipelineConvention eventStorePipelineConvention = new EventStorePipelinePerApplication();
+        private IEndpointFactory eventStoreEndpointFactory;
 
-        private IPipelineFactory pipelineFactory;
+        private IPipelineNameConvention eventStorePipelineConvention = new EventStorePipelinePerApplication();
+
+        private IPipelineFactory eventStorePipelineFactory;
 
         private RabbitMqSessionFactory rabbitMqSessionFactory;
 
@@ -87,10 +92,8 @@ namespace NMSD.Cronus.Hosts
                 throw new CronusConfigurationException("At least one commands assembly is required. Example: 'RegisterCommandsAssembly(Assembly assembly)'.");
             if (commandPipelineConvention == null)
                 throw new CronusConfigurationException("CommandPipelineConvention is required. Example: 'UseCommandPipelinePerApplication()'.");
-            if (pipelineFactory == null)
-                throw new CronusConfigurationException("Method of thansport is required. Example: 'UseRabbitMqTransport()'. ");
 
-            commandPublisher = new CommandPublisher(commandPipelineConvention, pipelineFactory, Serializer);
+            commandPublisher = new CommandPublisher(commandPipelineFactory, Serializer);
         }
 
         public void BuildSerializer()
@@ -108,7 +111,7 @@ namespace NMSD.Cronus.Hosts
             }
             foreach (var item in eventStoreConsumerConfigurations)
             {
-                ProtoRegistration.RegisterAssembly(item.EventsAssembly);
+                ProtoRegistration.RegisterAssembly(item.AssemblyContainingEventsByEventType);
                 ProtoRegistration.RegisterAssembly(item.AggregateStatesAssembly);
             }
             foreach (var item in eventHandlersConfigurations)
@@ -126,25 +129,21 @@ namespace NMSD.Cronus.Hosts
         {
             var commandConsumerConfiguration = new CommandConsumerConfiguration();
             configure(commandConsumerConfiguration);
-            if (commandConsumerConfiguration.CommandsAssembly == null)
-                throw new CronusConfigurationException("Commands assembly is required. Example: 'SetCommandsAssembly(Assembly assembly)'.");
-            if (commandConsumerConfiguration.EventsAssembly == null)
-                throw new CronusConfigurationException("Events assembly is required. Example: 'SetEventsAssembly(Assembly assembly)'.");
-            if (commandConsumerConfiguration.AggregateStatesAssembly == null)
-                throw new CronusConfigurationException("AggregateStates assembly is required. Example: 'SetAggregateStatesAssembly(Assembly assembly)'.");
-            if (commandConsumerConfiguration.CommandHandlersAssembly == null)
-                throw new CronusConfigurationException("CommandHandlers assembly is required. Example: 'SetCommandHandlersAssembly(Assembly assembly)'.");
-            if (String.IsNullOrEmpty(commandConsumerConfiguration.EventStoreConnectionString))
-                throw new CronusConfigurationException("EventStoreConnectionString  is required. Example: 'SetEventStoreConnectionString(string connectionString)'.");
-            if (commandPipelineConvention == null)
-                throw new CronusConfigurationException("CommandPipelineConvention is required. Example: 'UseCommandPipelinePerApplication()'.");
-            if (commandHandlersEndpointConvention == null)
-                throw new CronusConfigurationException("CommandHandlersEndpointConvention is required. Example: 'UseCommandHandlersPerBoundedContext()'.");
+
+            if (commandConsumerConfiguration.CommandsAssembly == null) throw new CronusConfigurationException("Commands assembly is required. Example: 'SetCommandsAssembly(Assembly assembly)'.");
+            if (commandConsumerConfiguration.EventsAssembly == null) throw new CronusConfigurationException("Events assembly is required. Example: 'SetEventsAssembly(Assembly assembly)'.");
+            if (commandConsumerConfiguration.AggregateStatesAssembly == null) throw new CronusConfigurationException("AggregateStates assembly is required. Example: 'SetAggregateStatesAssembly(Assembly assembly)'.");
+            if (commandConsumerConfiguration.CommandHandlersAssembly == null) throw new CronusConfigurationException("CommandHandlers assembly is required. Example: 'SetCommandHandlersAssembly(Assembly assembly)'.");
+            if (String.IsNullOrEmpty(commandConsumerConfiguration.EventStoreConnectionString)) throw new CronusConfigurationException("EventStoreConnectionString  is required. Example: 'SetEventStoreConnectionString(string connectionString)'.");
+            if (commandPipelineConvention == null) throw new CronusConfigurationException("CommandPipelineConvention is required. Example: 'UseCommandPipelinePerApplication()'.");
+            if (commandHandlersEndpointConvention == null) throw new CronusConfigurationException("CommandHandlersEndpointConvention is required. Example: 'UseCommandHandlersPerBoundedContext()'.");
+
             commandConsumerConfigurations.Add(commandConsumerConfiguration);
 
             var boundedContext = commandConsumerConfiguration.EventsAssembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
             var es = new RabbitRepository(boundedContext, commandConsumerConfiguration.EventStoreConnectionString, session, Serializer);
-            var commandConsumer = new CommandConsumer(commandHandlersEndpointConvention, endpointFactory, Serializer, es);
+
+            var commandConsumer = new CommandConsumer(commandHandlersEndpointConvention, commandEndpointFactory, Serializer, es);
             commandConsumer.UnitOfWorkFactory = commandConsumerConfiguration.UnitOfWorkFacotry;
             commandConsumer.RegisterAllHandlersInAssembly(commandConsumerConfiguration.CommandHandlersAssembly);
             commandConsumers.Add(commandConsumer);
@@ -160,17 +159,15 @@ namespace NMSD.Cronus.Hosts
         {
             var cfg = new EventHandlersConfiguration();
             configure(cfg);
-            if (cfg.EventsAssemblies.Count <= 0)
-                throw new CronusConfigurationException("Events assembly is required. Example: 'SetEventsAssembly(Assembly assembly)'.");
-            if (cfg.EventHandlersAssembly == null)
-                throw new CronusConfigurationException("EventHandlersAssembly assembly is required. Example: 'SetEventHandlersAssembly(Assembly assembly)'.");
-            if (eventHandlersEnpointConvention == null)
-                throw new CronusConfigurationException("EventHandlersEnpointConvention is required. Example: 'UseEventHandlerPerEndpoint()'.");
-            if (commandPublisher == null)
-                throw new CronusConfigurationException("CommandPublisher is required. Example: 'BuildCommandPublisher()'.");
+
+            if (cfg.EventsAssemblies.Count <= 0) throw new CronusConfigurationException("Events assembly is required. Example: 'SetEventsAssembly(Assembly assembly)'.");
+            if (cfg.EventHandlersAssembly == null) throw new CronusConfigurationException("EventHandlersAssembly assembly is required. Example: 'SetEventHandlersAssembly(Assembly assembly)'.");
+            if (eventHandlersEnpointConvention == null) throw new CronusConfigurationException("EventHandlersEnpointConvention is required. Example: 'UseEventHandlerPerEndpoint()'.");
+            if (commandPublisher == null) throw new CronusConfigurationException("CommandPublisher is required. Example: 'BuildCommandPublisher()'.");
+
             eventHandlersConfigurations.Add(cfg);
 
-            var eventConsumer = new EventConsumer(eventHandlersEnpointConvention, endpointFactory, Serializer, commandPublisher);
+            var eventConsumer = new EventConsumer(eventHandlersEnpointConvention, eventEndpointFactory, Serializer, commandPublisher);
             eventConsumer.UnitOfWorkFactory = cfg.UnitOfWorkFacotry;
             eventConsumer.RegisterAllHandlersInAssembly(cfg.EventHandlersAssembly);
             eventConsumers.Add(eventConsumer);
@@ -180,32 +177,28 @@ namespace NMSD.Cronus.Hosts
         {
             var cfg = new EventStoreConsumerConfiguration();
             configure(cfg);
-            if (cfg.EventsAssembly == null)
-                throw new CronusConfigurationException("Events assembly is required. Example: 'SetEventsAssembly(Assembly assembly)'.");
-            if (cfg.AggregateStatesAssembly == null)
-                throw new CronusConfigurationException("AggregateStates assembly is required. Example: 'SetAggregateStatesAssembly(Assembly assembly)'.");
-            if (String.IsNullOrEmpty(cfg.EventStoreConnectionString))
-                throw new CronusConfigurationException("EventStoreConnectionString  is required. Example: 'SetEventStoreConnectionString(string connectionString)'.");
-            if (eventHandlersPipelineConvention == null)
-                throw new CronusConfigurationException("EventHandlersPipelineConvention is required. Example: 'UseEventHandlersPipelineConventionPerApplication()'.");
-            if (eventStoreEndpointConvention == null)
-                throw new CronusConfigurationException("EventStoreEndpointConvention is required. Example: 'UseEventStoreEndpointConventionBoundedContext()'.");
-            if (eventStorePipelineConvention == null)
-                throw new CronusConfigurationException("EventStorePipelineConvention is required. Example: 'UseEventStorePipelineConventionPerApplication()'.");
+
+            if (cfg.AssemblyContainingEventsByEventType == null) throw new CronusConfigurationException("Events assembly is required. Example: 'SetEventsAssembly(Assembly assembly)'.");
+            if (cfg.AggregateStatesAssembly == null) throw new CronusConfigurationException("AggregateStates assembly is required. Example: 'SetAggregateStatesAssembly(Assembly assembly)'.");
+            if (String.IsNullOrEmpty(cfg.EventStoreConnectionString)) throw new CronusConfigurationException("EventStoreConnectionString  is required. Example: 'SetEventStoreConnectionString(string connectionString)'.");
+            if (eventStoreEndpointConvention == null) throw new CronusConfigurationException("EventStoreEndpointConvention is required. Example: 'UseEventStoreEndpointConventionBoundedContext()'.");
+            if (eventStorePipelineConvention == null) throw new CronusConfigurationException("EventStorePipelineConvention is required. Example: 'UseEventStorePipelineConventionPerApplication()'.");
+
             eventStoreConsumerConfigurations.Add(cfg);
-            var boundedContext = cfg.EventsAssembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
+            var boundedContext = cfg.AssemblyContainingEventsByEventType.Assembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
             var es = new MssqlEventStore(boundedContext, cfg.EventStoreConnectionString, Serializer);
-            var eventPublisher = new EventPublisher(eventHandlersPipelineConvention, pipelineFactory, Serializer);
-            var commandConsumer = new EventStoreConsumer(eventStoreEndpointConvention, endpointFactory, cfg.EventsAssembly, Serializer, es, eventPublisher);
-            commandConsumer.UnitOfWorkFactory = cfg.UnitOfWorkFacotry;
-            eventStoreConsumers.Add(commandConsumer);
+
+            var eventPublisher = new EventPublisher(eventPipelineFactory, Serializer);
+            var eventStoreConsumer = new EventStoreConsumer(eventStoreEndpointConvention, eventStoreEndpointFactory, cfg.AssemblyContainingEventsByEventType, Serializer, es, eventPublisher);
+            eventStoreConsumer.UnitOfWorkFactory = cfg.UnitOfWorkFacotry;
+            eventStoreConsumers.Add(eventStoreConsumer);
 
         }
 
         public void HostCommandConsumers(int consumerWorkers)
         {
-            if (commandConsumers.Count == 0)
-                throw new CronusConfigurationException("Configuration is required. Use: 'ConfigureCommandConsumer(Action<CommandConsumerConfiguration> configure)'");
+            if (commandConsumers.Count == 0) throw new CronusConfigurationException("Configuration is required. Use: 'ConfigureCommandConsumer(Action<CommandConsumerConfiguration> configure)'");
+
             foreach (CommandConsumer commandCosumer in commandConsumers)
             {
                 commandCosumer.Start(consumerWorkers);
@@ -214,8 +207,8 @@ namespace NMSD.Cronus.Hosts
 
         public void HostEventHandlerConsumers(int consumerWorkers)
         {
-            if (eventConsumers.Count == 0)
-                throw new CronusConfigurationException("Configuration is required. Use: 'ConfigureEventHandlersConsumer(Action<EventHandlersConfiguration> configure)'");
+            if (eventConsumers.Count == 0) throw new CronusConfigurationException("Configuration is required. Use: 'ConfigureEventHandlersConsumer(Action<EventHandlersConfiguration> configure)'");
+
             foreach (var eHandlerConsumer in eventConsumers)
             {
                 eHandlerConsumer.Start(consumerWorkers);
@@ -224,8 +217,8 @@ namespace NMSD.Cronus.Hosts
 
         public void HostEventStoreConsumers(int consumerWorkers)
         {
-            if (eventStoreConsumers.Count == 0)
-                throw new CronusConfigurationException("Configuration is required. Use: 'ConfigureEventStoreConsumer(Action<EventStoreConsumerConfiguration> configure)'");
+            if (eventStoreConsumers.Count == 0) throw new CronusConfigurationException("Configuration is required. Use: 'ConfigureEventStoreConsumer(Action<EventStoreConsumerConfiguration> configure)'");
+
             foreach (EventStoreConsumer esConsumer in eventStoreConsumers)
             {
                 esConsumer.Start(consumerWorkers);
@@ -296,20 +289,31 @@ namespace NMSD.Cronus.Hosts
         {
             rabbitMqSessionFactory = new RabbitMqSessionFactory();
             session = rabbitMqSessionFactory.OpenSession();
-            pipelineFactory = new RabbitMqPipelineFactory(session);
-            endpointFactory = new RabbitMqEndpointFactory(session);
+
+            commandPipelineFactory = new RabbitMqPipelineFactory(session, commandPipelineConvention);
+            commandEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)commandPipelineFactory);
+
+            eventStorePipelineFactory = new RabbitMqPipelineFactory(session, eventStorePipelineConvention);
+            eventStoreEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)eventStorePipelineFactory);
+
+            eventPipelineFactory = new RabbitMqPipelineFactory(session, eventHandlersPipelineConvention);
+            eventEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)eventPipelineFactory);
         }
 
-    }
-    [Serializable]
-    public class CronusConfigurationException : Exception
-    {
-        public CronusConfigurationException() { }
-        public CronusConfigurationException(string message) : base(message) { }
-        public CronusConfigurationException(string message, Exception inner) : base(message, inner) { }
-        protected CronusConfigurationException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context)
-            : base(info, context) { }
+        public void UseInMemoryTransport()
+        {
+            //rabbitMqSessionFactory = new RabbitMqSessionFactory();
+            //session = rabbitMqSessionFactory.OpenSession();
+
+            //commandPipelineFactory = new RabbitMqPipelineFactory(session, commandPipelineConvention);
+            //commandEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)commandPipelineFactory);
+
+            //eventStorePipelineFactory = new RabbitMqPipelineFactory(session, eventStorePipelineConvention);
+            //eventStoreEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)eventStorePipelineFactory);
+
+            //eventPipelineFactory = new RabbitMqPipelineFactory(session, eventHandlersPipelineConvention);
+            //eventEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)eventPipelineFactory);
+        }
+
     }
 }
