@@ -98,7 +98,6 @@
     <Compile Include="Commanding\CommandPublisher.cs" />
     <Compile Include="DomainModelling\IValueObject.cs" />
     <Compile Include="Eventing\IPort.cs" />
-    <Compile Include="Eventing\InMemoryEventBus.cs" />
     <Compile Include="Eventing\EventMessageInfo.cs" />
     <Compile Include="Eventing\EventConsumer.cs" />
     <Compile Include="EventSourcing\EventStoreConsumer.cs" />
@@ -119,6 +118,7 @@
     <Compile Include="Transport.InMemory\InMemoryQueue.cs" />
     <Compile Include="Transports.RabbitMQ\PipelineClosedException.cs" />
     <Compile Include="Transports\EndpointMessageExtensions.cs" />
+    <Compile Include="Transports.RabbitMQ\IRabbitMqPipeline.cs" />
     <Compile Include="Userfull\Class1.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
     <Compile Include="Messaging\BaseInMemoryConsumer.cs" />

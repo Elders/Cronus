@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+
 namespace NMSD.Cronus.Transports
 {
     public interface IEndpoint : IEquatable<IEndpoint>
@@ -10,18 +11,18 @@ namespace NMSD.Cronus.Transports
 
         string Name { get; }
 
-        void Acknowledge(EndpointMessage message);
-
-        void AcknowledgeAll();
-
         EndpointMessage BlockDequeue();
 
         bool BlockDequeue(int timeoutInMiliseconds, out EndpointMessage msg);
 
-        void Close();
-
         EndpointMessage DequeueNoWait();
 
         void Open();
+
+        void Close();
+
+        void Acknowledge(EndpointMessage message);
+
+        void AcknowledgeAll();
     }
 }

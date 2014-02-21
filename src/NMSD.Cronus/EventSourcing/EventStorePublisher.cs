@@ -9,9 +9,9 @@ namespace NMSD.Cronus.EventSourcing
 {
     public class EventStorePublisher : Publisher<DomainMessageCommit>
     {
-        private readonly IPipelineFactory pipelineFactory;
+        private readonly IPipelineFactory<IPipeline> pipelineFactory;
 
-        public EventStorePublisher(IPipelineFactory pipelineFactory, ProtoregSerializer serializer)
+        public EventStorePublisher(IPipelineFactory<IPipeline> pipelineFactory, ProtoregSerializer serializer)
         {
             this.pipelineFactory = pipelineFactory;
             this.serializer = serializer;

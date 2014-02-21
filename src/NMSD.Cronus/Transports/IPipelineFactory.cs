@@ -2,10 +2,10 @@
 
 namespace NMSD.Cronus.Transports
 {
-    public interface IPipelineFactory
+    public interface IPipelineFactory<out T> where T : IPipeline
     {
-        IPipeline GetPipeline(string pipelineName);
+        T GetPipeline(string pipelineName);
 
-        IPipeline GetPipeline(Type messageType);
+        T GetPipeline(Type messageType);
     }
 }

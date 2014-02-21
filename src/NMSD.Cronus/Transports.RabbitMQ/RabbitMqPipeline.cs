@@ -5,7 +5,7 @@ using RabbitMQ.Client.Framing.v0_9_1;
 
 namespace NMSD.Cronus.Transports.RabbitMQ
 {
-    public sealed class RabbitMqPipeline : IPipeline, IDisposable
+    public sealed class RabbitMqPipeline : IRabbitMqPipeline, IDisposable
     {
         private RabbitMqSafeChannel safeChannel;
         private readonly PipelineType pipelineType;

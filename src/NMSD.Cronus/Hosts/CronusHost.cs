@@ -27,7 +27,7 @@ namespace NMSD.Cronus.Hosts
 
         private IPipelineNameConvention commandPipelineConvention;
 
-        private IPipelineFactory commandPipelineFactory;
+        private IPipelineFactory<IPipeline> commandPipelineFactory;
 
         private CommandPublisherConfiguration commandPublisherConfiguration;
 
@@ -45,7 +45,7 @@ namespace NMSD.Cronus.Hosts
 
         private IPipelineNameConvention eventHandlersPipelineConvention;
 
-        private IPipelineFactory eventPipelineFactory;
+        private IPipelineFactory<IPipeline> eventPipelineFactory;
 
         private HashSet<Assembly> eventsAssemblies = new HashSet<Assembly>();
 
@@ -59,7 +59,7 @@ namespace NMSD.Cronus.Hosts
 
         private IPipelineNameConvention eventStorePipelineConvention = new EventStorePipelinePerApplication();
 
-        private IPipelineFactory eventStorePipelineFactory;
+        private IPipelineFactory<IPipeline> eventStorePipelineFactory;
 
         private RabbitMqSessionFactory rabbitMqSessionFactory;
 

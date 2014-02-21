@@ -5,8 +5,6 @@ namespace NMSD.Cronus.Transport.InMemory
 {
     public class InMemoryPipeline : IPipeline
     {
-        private readonly InMemoryQueue endpointStorage = new InMemoryQueue();
-
         private readonly string name;
 
         public InMemoryPipeline(string name)
@@ -14,20 +12,16 @@ namespace NMSD.Cronus.Transport.InMemory
             this.name = name;
         }
 
-        public void Attach(InMemoryEndpoint endpoint)
+        public void Bind(IEndpoint endpoint)
         {
-            endpointStorage.Bind(this, endpoint);
+            InMemoryQueue.Current.Bind(this, endpoint);
         }
 
         public void Push(EndpointMessage message)
         {
-            endpointStorage.SendMessage(this, message);
+            InMemoryQueue.Current.SendMessage(this, message);
         }
 
-        public void Bind(IEndpoint endpoint)
-        {
-            throw new NotImplementedException();
-        }
         public string Name
         {
             get { return name; }
@@ -69,5 +63,6 @@ namespace NMSD.Cronus.Transport.InMemory
         {
             return !(a == b);
         }
+
     }
 }

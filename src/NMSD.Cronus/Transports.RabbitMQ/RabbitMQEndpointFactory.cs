@@ -21,18 +21,7 @@ namespace NMSD.Cronus.Transports.RabbitMQ
             pipeFactory = pipelineFactory;
         }
 
-        public void BuildEndpoint(EndpointDefinition definition)
-        {
-            var endpoint = new RabbitMqEndpoint(definition.EndpointName, session);
-            endpoint.Declare();
-            var pipeLine = pipeFactory.GetPipeline(definition.PipelineName);
-            pipeLine.Declare();
-            pipeLine.Bind(endpoint);
-            pipeLine.Close();
-            endpoint.Close();
-        }
-
-        public RabbitMqEndpoint CreateEndpoint(EndpointDefinition definition)
+        public IEndpoint CreateEndpoint(EndpointDefinition definition)
         {
             var endpoint = new RabbitMqEndpoint(definition.EndpointName, session);
             foreach (var header in definition.AcceptanceHeaders)
@@ -45,11 +34,6 @@ namespace NMSD.Cronus.Transports.RabbitMQ
             pipeLine.Declare();
             pipeLine.Bind(endpoint);
             return endpoint;
-        }
-
-        IEndpoint IEndpointFactory.CreateEndpoint(EndpointDefinition definition)
-        {
-            return CreateEndpoint(definition);
         }
 
         public IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] handlerTypes)

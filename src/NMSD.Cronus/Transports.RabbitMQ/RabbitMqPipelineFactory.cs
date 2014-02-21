@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 
 namespace NMSD.Cronus.Transports.RabbitMQ
 {
-    public class RabbitMqPipelineFactory : IPipelineFactory
+    public class RabbitMqPipelineFactory : IPipelineFactory<IRabbitMqPipeline>
     {
         private readonly IPipelineNameConvention nameConvention;
 
-        public ConcurrentDictionary<string, RabbitMqPipeline> pipes = new ConcurrentDictionary<string, RabbitMqPipeline>();
+        public ConcurrentDictionary<string, IRabbitMqPipeline> pipes = new ConcurrentDictionary<string, IRabbitMqPipeline>();
 
         private RabbitMqSession session;
 
@@ -17,11 +17,11 @@ namespace NMSD.Cronus.Transports.RabbitMQ
             this.session = session;
         }
 
-        public RabbitMqPipeline GetPipeline(string pipelineName)
+        public IRabbitMqPipeline GetPipeline(string pipelineName)
         {
             if (!pipes.ContainsKey(pipelineName))
             {
-                var pipeline = new RabbitMqPipeline(pipelineName, session, RabbitMqPipeline.PipelineType.Headers);
+                IRabbitMqPipeline pipeline = new RabbitMqPipeline(pipelineName, session, RabbitMqPipeline.PipelineType.Headers);
                 pipeline.Open();
                 pipes.TryAdd(pipelineName, pipeline);
                 return pipeline;
@@ -29,20 +29,10 @@ namespace NMSD.Cronus.Transports.RabbitMQ
             return pipes[pipelineName];
         }
 
-        public RabbitMqPipeline GetPipeline(Type messageType)
+        public IRabbitMqPipeline GetPipeline(Type messageType)
         {
             string pipelineName = nameConvention.GetPipelineName(messageType);
             return GetPipeline(pipelineName);
-        }
-
-        IPipeline IPipelineFactory.GetPipeline(string pipelineName)
-        {
-            return GetPipeline(pipelineName);
-        }
-
-        IPipeline IPipelineFactory.GetPipeline(Type messageType)
-        {
-            return GetPipeline(messageType);
         }
     }
 }

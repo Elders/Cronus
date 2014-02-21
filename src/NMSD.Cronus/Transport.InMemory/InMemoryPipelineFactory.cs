@@ -3,7 +3,7 @@ using NMSD.Cronus.Transports;
 
 namespace NMSD.Cronus.Transport.InMemory
 {
-    public class InMemoryPipelineFactory : IPipelineFactory
+    public class InMemoryPipelineFactory : IPipelineFactory<IPipeline>
     {
         private readonly IPipelineNameConvention pipelineNameConvention;
 

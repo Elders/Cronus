@@ -9,11 +9,11 @@ namespace NMSD.Cronus.Eventing
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EventPublisher));
 
-        private readonly IPipelineFactory pipelineFactory;
+        private readonly IPipelineFactory<IPipeline> pipelineFactory;
 
         private readonly ProtoregSerializer serializer;
 
-        public EventPublisher(IPipelineFactory pipelineFactory, ProtoregSerializer serializer)
+        public EventPublisher(IPipelineFactory<IPipeline> pipelineFactory, ProtoregSerializer serializer)
         {
             this.pipelineFactory = pipelineFactory;
             this.serializer = serializer;
