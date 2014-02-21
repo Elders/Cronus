@@ -1,37 +1,29 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Multithreading.Work;
-using NMSD.Cronus.RabbitMQ;
-using NMSD.Protoreg;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Exceptions;
-using NMSD.Cronus.UnitOfWork;
-using RabbitMQ.Client.Events;
-using NMSD.Cronus.Transports.Conventions;
 using NMSD.Cronus.Transports;
-using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Transports.RabbitMQ;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Commanding
 {
     public class CommandConsumer : BaseInMemoryConsumer<ICommand, IMessageHandler>
     {
-        private readonly ICommandHandlerEndpointConvention convention;
         private readonly IAggregateRepository eventStore;
-        private readonly IEndpointFactory factory;
+        private readonly IEndpointFactory endpointFactory;
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(CommandConsumer));
         private List<WorkPool> pools;
         private readonly ProtoregSerializer serialiser;
 
-        public CommandConsumer(ICommandHandlerEndpointConvention convention, IEndpointFactory factory, ProtoregSerializer serialiser, IAggregateRepository eventStore)
+        public CommandConsumer(IEndpointFactory endpointFactory, ProtoregSerializer serialiser, IAggregateRepository eventStore)
         {
             this.eventStore = eventStore;
-            this.factory = factory;
-            this.convention = convention;
+            this.endpointFactory = endpointFactory;
             this.serialiser = serialiser;
         }
 
@@ -52,14 +44,14 @@ namespace NMSD.Cronus.Commanding
         public override void Start(int numberOfWorkers)
         {
             pools = new List<WorkPool>();
-            var endpoints = convention.GetEndpointDefinitions(base.RegisteredHandlers.Keys.ToArray());
+            var endpointDefinitions = endpointFactory.GetEndpointDefinitions(base.RegisteredHandlers.Keys.ToArray());
 
-            foreach (var endpoint in endpoints)
+            foreach (var endpointDefinition in endpointDefinitions)
             {
-                var pool = new WorkPool(String.Format("Workpoll {0}", endpoint.EndpointName), numberOfWorkers);
+                var pool = new WorkPool(String.Format("Workpoll {0}", endpointDefinition.EndpointName), numberOfWorkers);
                 for (int i = 0; i < numberOfWorkers; i++)
                 {
-                    pool.AddWork(new ConsumerWork(this, factory.CreateEndpoint(endpoint)));
+                    pool.AddWork(new ConsumerWork(this, endpointFactory.CreateEndpoint(endpointDefinition)));
                 }
                 pools.Add(pool);
                 pool.StartCrawlers();

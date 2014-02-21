@@ -5,7 +5,7 @@ using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Eventing
 {
-    public class EventPublisher : IPublisher<IEvent>
+    public class EventPublisher : Publisher<IEvent>
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EventPublisher));
 
@@ -19,13 +19,14 @@ namespace NMSD.Cronus.Eventing
             this.serializer = serializer;
         }
 
-        public bool Publish(IEvent @event)
+        protected override bool PublishInternal(IEvent message)
         {
-            var endpointMessage = @event.AsEndpointMessage(serializer);
-            var eventType = @event.GetType();
+            var endpointMessage = message.AsEndpointMessage(serializer);
+            var eventType = message.GetType();
             endpointMessage.Headers.Add(MessageInfo.GetMessageId(eventType), String.Empty);
-            pipelineFactory.GetPipeline(eventType).Push(endpointMessage);
-            log.Info("PUBLISHED EVENT => " + @event.ToString());
+            pipelineFactory
+                .GetPipeline(eventType)
+                .Push(endpointMessage);
             return true;
         }
     }

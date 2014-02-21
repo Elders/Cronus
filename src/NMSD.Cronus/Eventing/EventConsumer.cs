@@ -7,7 +7,6 @@ using NMSD.Cronus.Commanding;
 using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Multithreading.Work;
 using NMSD.Cronus.Transports;
-using NMSD.Cronus.Transports.Conventions;
 using NMSD.Cronus.Transports.RabbitMQ;
 using NMSD.Protoreg;
 
@@ -16,21 +15,19 @@ namespace NMSD.Cronus.Eventing
     public class EventConsumer : BaseInMemoryConsumer<IEvent, IMessageHandler>
     {
         private readonly IPublisher<ICommand> commandPublisher;
+
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EventConsumer));
 
-        private readonly IEventHandlerEndpointConvention convention;
-
-        private readonly IEndpointFactory factory;
+        private readonly IEndpointFactory endpointFactory;
 
         private List<WorkPool> pools;
 
         private readonly ProtoregSerializer serialiser;
 
-        public EventConsumer(IEventHandlerEndpointConvention convention, IEndpointFactory factory, ProtoregSerializer serialiser, IPublisher<ICommand> commandPublisher)
+        public EventConsumer(IEndpointFactory endpointFactory, ProtoregSerializer serialiser, IPublisher<ICommand> commandPublisher)
         {
             this.commandPublisher = commandPublisher;
-            this.factory = factory;
-            this.convention = convention;
+            this.endpointFactory = endpointFactory;
             this.serialiser = serialiser;
         }
 
@@ -55,14 +52,14 @@ namespace NMSD.Cronus.Eventing
         public override void Start(int numberOfWorkers)
         {
             pools = new List<WorkPool>();
-            var endpoints = convention.GetEndpointDefinitions(base.RegisteredHandlers.Keys.ToArray());
+            var endpoints = endpointFactory.GetEndpointDefinitions(base.RegisteredHandlers.Keys.ToArray());
 
             foreach (var endpoint in endpoints)
             {
                 var pool = new WorkPool(String.Format("Workpoll {0}", endpoint.EndpointName), numberOfWorkers);
                 for (int i = 0; i < numberOfWorkers; i++)
                 {
-                    pool.AddWork(new ConsumerWork(this, factory.CreateEndpoint(endpoint)));
+                    pool.AddWork(new ConsumerWork(this, endpointFactory.CreateEndpoint(endpoint)));
                 }
                 pools.Add(pool);
                 pool.StartCrawlers();

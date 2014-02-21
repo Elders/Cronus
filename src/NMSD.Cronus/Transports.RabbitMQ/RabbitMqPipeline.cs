@@ -1,8 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using NMSD.Cronus.Transports;
-using RabbitMQ.Client;
 using RabbitMQ.Client.Exceptions;
 using RabbitMQ.Client.Framing.v0_9_1;
 
@@ -16,10 +13,10 @@ namespace NMSD.Cronus.Transports.RabbitMQ
 
         private string name;
 
-        public RabbitMqPipeline(string name, RabbitMqSession rabbitMqSession, PipelineType pipelineType)
+        public RabbitMqPipeline(string pipelineName, RabbitMqSession rabbitMqSession, PipelineType pipelineType)
         {
             this.pipelineType = pipelineType;
-            this.name = name;
+            this.name = pipelineName;
             this.session = rabbitMqSession;
         }
 
@@ -58,7 +55,7 @@ namespace NMSD.Cronus.Transports.RabbitMQ
             catch (OperationInterruptedException ex) { throw new PipelineClosedException(String.Format("The Pipeline '{0}' was closed", name), ex); }
 
         }
-        public void AttachEndpoint(RabbitMqEndpoint endpoint)
+        public void Bind(IEndpoint endpoint)
         {
             //ClearOldHeaders
             if (safeChannel == null)
@@ -104,18 +101,14 @@ namespace NMSD.Cronus.Transports.RabbitMQ
             }
 
         }
+        public string Name
+        {
+            get { return name; }
+        }
 
-
-    }
-    [Serializable]
-    public class PipelineClosedException : Exception
-    {
-        public PipelineClosedException() { }
-        public PipelineClosedException(string message) : base(message) { }
-        public PipelineClosedException(string message, Exception inner) : base(message, inner) { }
-        protected PipelineClosedException(
-          System.Runtime.Serialization.SerializationInfo info,
-          System.Runtime.Serialization.StreamingContext context)
-            : base(info, context) { }
+        public bool Equals(IPipeline other)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

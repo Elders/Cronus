@@ -38,9 +38,17 @@
     <StartupObject>NMSD.Cronus.Sample.InMemoryServer.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Iesi.Collections, Version=1.0.1.0, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Iesi.Collections.3.2.0.1001\lib\Net35\Iesi.Collections.dll</HintPath>
+    </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate, Version=3.3.1.4000, Culture=neutral, PublicKeyToken=aa95f207798dfdb4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\NHibernate.3.3.3.4001\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
     <Reference Include="NMSD.Protoreg">
       <HintPath>..\packages\Protoreg.1.0.7.7400\lib\NMSD.Protoreg.dll</HintPath>
@@ -53,8 +61,12 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Entity.Design" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Nhibernate\NHibernateExtensions.cs" />
+    <Compile Include="Nhibernate\UoW\UnitOfWork.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
@@ -80,6 +92,14 @@
     <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration\NMSD.Cronus.Sample.Collaboration.csproj">
       <Project>{eba90c1f-5f2c-4a78-b91b-d2c3d664530d}</Project>
       <Name>NMSD.Cronus.Sample.Collaboration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
+      <Project>{1c59eb3d-70e6-45b4-b644-e5607dcf4713}</Project>
+      <Name>NMSD.Cronus.Sample.IdentityAndAccess.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess\NMSD.Cronus.Sample.IdentityAndAccess.csproj">
+      <Project>{4b8feb6a-874b-4acd-960a-73cbdb749049}</Project>
+      <Name>NMSD.Cronus.Sample.IdentityAndAccess</Name>
     </ProjectReference>
     <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
       <Project>{32EA2250-01B3-4171-9AE7-214037A0D524}</Project>

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using NMSD.Cronus.DomainModelling;
 using System.Reflection;
 
 namespace NMSD.Cronus.Transports.Conventions
 {
-    public class EventStorePerBoundedContext : IEventStoreEndpointConvention
+    public class EventStorePerBoundedContext : IEndpointNameConvention
     {
         IPipelineNameConvention pipelineNameConvention;
 
@@ -14,8 +15,9 @@ namespace NMSD.Cronus.Transports.Conventions
             this.pipelineNameConvention = pipelineNameConvention;
         }
 
-        public IEnumerable<EndpointDefinition> GetEndpointDefinitions(Type eventType)
+        public IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] eventTypes)
         {
+            var eventType = eventTypes.First();
             Assembly assemblyContainingEvents = eventType.Assembly;
             var atr = assemblyContainingEvents.GetAssemblyAttribute<BoundedContextAttribute>();
             var handlerQueueName = String.Format("{0}.EventStore", atr.BoundedContextNamespace);

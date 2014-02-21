@@ -7,7 +7,7 @@ using NMSD.Protoreg;
 
 namespace NMSD.Cronus.EventSourcing
 {
-    public class EventStorePublisher : IPublisher<DomainMessageCommit>
+    public class EventStorePublisher : Publisher<DomainMessageCommit>
     {
         private readonly IPipelineFactory pipelineFactory;
 
@@ -21,15 +21,15 @@ namespace NMSD.Cronus.EventSourcing
 
         private readonly ProtoregSerializer serializer;
 
-        public bool Publish(DomainMessageCommit commit)
+        protected override bool PublishInternal(DomainMessageCommit message)
         {
-            var firstEventInCommitType = commit.Events.First().GetType();
-            var endpointMessage = commit.AsEndpointMessage(serializer);
+            var firstEventInCommitType = message.Events.First().GetType();
+            var endpointMessage = message.AsEndpointMessage(serializer);
             var commitBoundedContext = firstEventInCommitType.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
             endpointMessage.Headers.Add(commitBoundedContext, String.Empty);
-            pipelineFactory.GetPipeline(firstEventInCommitType).Push(endpointMessage);
-            if (log.IsInfoEnabled)
-                log.Info("PUBLISHED COMMIT => " + commit.ToString());
+            pipelineFactory
+                .GetPipeline(firstEventInCommitType)
+                .Push(endpointMessage);
             return true;
         }
     }

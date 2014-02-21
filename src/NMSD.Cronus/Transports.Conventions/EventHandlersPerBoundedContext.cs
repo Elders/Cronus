@@ -7,9 +7,10 @@ using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus.Transports.Conventions
 {
-    public class EventHandlersPerBoundedContext : IEventHandlerEndpointConvention
+    public class EventHandlersPerBoundedContext : IEndpointNameConvention
     {
         private IPipelineNameConvention pipelineNameConvention;
+
         public EventHandlersPerBoundedContext(IPipelineNameConvention pipelineNameConvention)
         {
             this.pipelineNameConvention = pipelineNameConvention;

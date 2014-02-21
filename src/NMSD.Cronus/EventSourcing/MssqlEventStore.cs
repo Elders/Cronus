@@ -122,7 +122,7 @@ namespace NMSD.Cronus.EventSourcing
 
         public void Save(IAggregateRoot aggregateRoot)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<IEventStream> postCommit, Func<IEventStream, bool> closeStreamCondition)

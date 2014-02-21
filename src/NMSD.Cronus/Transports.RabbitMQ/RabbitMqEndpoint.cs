@@ -212,6 +212,11 @@ namespace NMSD.Cronus.Transports.RabbitMQ
                 throw ex;
             }
         }
+
+        public bool Equals(IEndpoint other)
+        {
+            throw new NotImplementedException();
+        }
     }
     [Serializable]
     public class EndpointClosedException : Exception

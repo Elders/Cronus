@@ -1,21 +1,14 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
+using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Eventing;
 using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Multithreading.Work;
-using NMSD.Cronus.RabbitMQ;
-using NMSD.Protoreg;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using RabbitMQ.Client.Exceptions;
 using NMSD.Cronus.Transports;
-using NMSD.Cronus.Transports.Conventions;
-using NMSD.Cronus.UnitOfWork;
 using NMSD.Cronus.Transports.RabbitMQ;
-using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.UnitOfWork;
+using NMSD.Protoreg;
 
 namespace NMSD.Cronus.EventSourcing
 {
@@ -25,25 +18,22 @@ namespace NMSD.Cronus.EventSourcing
 
         private readonly Type assemblyContainingEventsByEventType;
 
-        private readonly IEventStoreEndpointConvention convention;
-
         private readonly IEventStore eventStore;
 
         private readonly IPublisher<IEvent> eventPublisher;
 
-        private readonly IEndpointFactory factory;
+        private readonly IEndpointFactory endpointFactory;
 
         private List<WorkPool> pools;
 
         private readonly ProtoregSerializer serialiser;
 
-        public EventStoreConsumer(IEventStoreEndpointConvention convention, IEndpointFactory factory, Type assemblyContainingEventsByEventType, ProtoregSerializer serialiser, IEventStore eventStore, IPublisher<IEvent> eventPublisher)
+        public EventStoreConsumer(IEndpointFactory endpointFactory, Type assemblyContainingEventsByEventType, ProtoregSerializer serialiser, IEventStore eventStore, IPublisher<IEvent> eventPublisher)
         {
             this.eventPublisher = eventPublisher;
             this.assemblyContainingEventsByEventType = assemblyContainingEventsByEventType;
             this.eventStore = eventStore;
-            this.factory = factory;
-            this.convention = convention;
+            this.endpointFactory = endpointFactory;
             this.serialiser = serialiser;
         }
 
@@ -52,14 +42,14 @@ namespace NMSD.Cronus.EventSourcing
         public void Start(int numberOfWorkers)
         {
             pools = new List<WorkPool>();
-            var endpoints = convention.GetEndpointDefinitions(assemblyContainingEventsByEventType);
+            var endpoints = endpointFactory.GetEndpointDefinitions(assemblyContainingEventsByEventType);
 
             foreach (var endpoint in endpoints)
             {
                 var pool = new WorkPool(String.Format("Workpoll {0}", endpoint.EndpointName), numberOfWorkers);
                 for (int i = 0; i < numberOfWorkers; i++)
                 {
-                    pool.AddWork(new ConsumerWork(this, factory.CreateEndpoint(endpoint)));
+                    pool.AddWork(new ConsumerWork(this, endpointFactory.CreateEndpoint(endpoint)));
                 }
                 pools.Add(pool);
                 pool.StartCrawlers();

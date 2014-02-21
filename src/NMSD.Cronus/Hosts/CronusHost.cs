@@ -5,6 +5,7 @@ using NMSD.Cronus.Commanding;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Eventing;
 using NMSD.Cronus.EventSourcing;
+using NMSD.Cronus.Transport.InMemory;
 using NMSD.Cronus.Transports;
 using NMSD.Cronus.Transports.Conventions;
 using NMSD.Cronus.Transports.RabbitMQ;
@@ -22,7 +23,7 @@ namespace NMSD.Cronus.Hosts
 
         private IEndpointFactory commandEndpointFactory;
 
-        private ICommandHandlerEndpointConvention commandHandlersEndpointConvention;
+        private IEndpointNameConvention commandHandlersEndpointConvention;
 
         private IPipelineNameConvention commandPipelineConvention;
 
@@ -40,7 +41,7 @@ namespace NMSD.Cronus.Hosts
 
         private List<EventHandlersConfiguration> eventHandlersConfigurations = new List<EventHandlersConfiguration>();
 
-        private IEventHandlerEndpointConvention eventHandlersEnpointConvention;
+        private IEndpointNameConvention eventHandlersEnpointConvention;
 
         private IPipelineNameConvention eventHandlersPipelineConvention;
 
@@ -52,7 +53,7 @@ namespace NMSD.Cronus.Hosts
 
         private List<EventStoreConsumer> eventStoreConsumers = new List<EventStoreConsumer>();
 
-        private IEventStoreEndpointConvention eventStoreEndpointConvention;
+        private IEndpointNameConvention eventStoreEndpointConvention;
 
         private IEndpointFactory eventStoreEndpointFactory;
 
@@ -90,8 +91,6 @@ namespace NMSD.Cronus.Hosts
         {
             if (commandPublisherConfiguration.CommandsAssemblies.Count <= 0)
                 throw new CronusConfigurationException("At least one commands assembly is required. Example: 'RegisterCommandsAssembly(Assembly assembly)'.");
-            if (commandPipelineConvention == null)
-                throw new CronusConfigurationException("CommandPipelineConvention is required. Example: 'UseCommandPipelinePerApplication()'.");
 
             commandPublisher = new CommandPublisher(commandPipelineFactory, Serializer);
         }
@@ -135,15 +134,16 @@ namespace NMSD.Cronus.Hosts
             if (commandConsumerConfiguration.AggregateStatesAssembly == null) throw new CronusConfigurationException("AggregateStates assembly is required. Example: 'SetAggregateStatesAssembly(Assembly assembly)'.");
             if (commandConsumerConfiguration.CommandHandlersAssembly == null) throw new CronusConfigurationException("CommandHandlers assembly is required. Example: 'SetCommandHandlersAssembly(Assembly assembly)'.");
             if (String.IsNullOrEmpty(commandConsumerConfiguration.EventStoreConnectionString)) throw new CronusConfigurationException("EventStoreConnectionString  is required. Example: 'SetEventStoreConnectionString(string connectionString)'.");
-            if (commandPipelineConvention == null) throw new CronusConfigurationException("CommandPipelineConvention is required. Example: 'UseCommandPipelinePerApplication()'.");
-            if (commandHandlersEndpointConvention == null) throw new CronusConfigurationException("CommandHandlersEndpointConvention is required. Example: 'UseCommandHandlersPerBoundedContext()'.");
 
             commandConsumerConfigurations.Add(commandConsumerConfiguration);
 
-            var boundedContext = commandConsumerConfiguration.EventsAssembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
-            var es = new RabbitRepository(boundedContext, commandConsumerConfiguration.EventStoreConnectionString, session, Serializer);
 
-            var commandConsumer = new CommandConsumer(commandHandlersEndpointConvention, commandEndpointFactory, Serializer, es);
+            var boundedContext = commandConsumerConfiguration.EventsAssembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
+            var eventStorePublisher = new EventStorePublisher(eventStorePipelineFactory, Serializer);
+            var es = new RabbitRepository(boundedContext, commandConsumerConfiguration.EventStoreConnectionString, eventStorePublisher, Serializer);
+            //var es = new MssqlEventStore(boundedContext, commandConsumerConfiguration.EventStoreConnectionString, Serializer);
+
+            var commandConsumer = new CommandConsumer(commandEndpointFactory, Serializer, es);
             commandConsumer.UnitOfWorkFactory = commandConsumerConfiguration.UnitOfWorkFacotry;
             commandConsumer.RegisterAllHandlersInAssembly(commandConsumerConfiguration.CommandHandlersAssembly);
             commandConsumers.Add(commandConsumer);
@@ -167,7 +167,7 @@ namespace NMSD.Cronus.Hosts
 
             eventHandlersConfigurations.Add(cfg);
 
-            var eventConsumer = new EventConsumer(eventHandlersEnpointConvention, eventEndpointFactory, Serializer, commandPublisher);
+            var eventConsumer = new EventConsumer(eventEndpointFactory, Serializer, commandPublisher);
             eventConsumer.UnitOfWorkFactory = cfg.UnitOfWorkFacotry;
             eventConsumer.RegisterAllHandlersInAssembly(cfg.EventHandlersAssembly);
             eventConsumers.Add(eventConsumer);
@@ -189,7 +189,7 @@ namespace NMSD.Cronus.Hosts
             var es = new MssqlEventStore(boundedContext, cfg.EventStoreConnectionString, Serializer);
 
             var eventPublisher = new EventPublisher(eventPipelineFactory, Serializer);
-            var eventStoreConsumer = new EventStoreConsumer(eventStoreEndpointConvention, eventStoreEndpointFactory, cfg.AssemblyContainingEventsByEventType, Serializer, es, eventPublisher);
+            var eventStoreConsumer = new EventStoreConsumer(eventStoreEndpointFactory, cfg.AssemblyContainingEventsByEventType, Serializer, es, eventPublisher);
             eventStoreConsumer.UnitOfWorkFactory = cfg.UnitOfWorkFacotry;
             eventStoreConsumers.Add(eventStoreConsumer);
 
@@ -291,13 +291,13 @@ namespace NMSD.Cronus.Hosts
             session = rabbitMqSessionFactory.OpenSession();
 
             commandPipelineFactory = new RabbitMqPipelineFactory(session, commandPipelineConvention);
-            commandEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)commandPipelineFactory);
+            commandEndpointFactory = new RabbitMqEndpointFactory(session, commandHandlersEndpointConvention, (RabbitMqPipelineFactory)commandPipelineFactory);
 
             eventStorePipelineFactory = new RabbitMqPipelineFactory(session, eventStorePipelineConvention);
-            eventStoreEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)eventStorePipelineFactory);
+            eventStoreEndpointFactory = new RabbitMqEndpointFactory(session, eventStoreEndpointConvention, (RabbitMqPipelineFactory)eventStorePipelineFactory);
 
             eventPipelineFactory = new RabbitMqPipelineFactory(session, eventHandlersPipelineConvention);
-            eventEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)eventPipelineFactory);
+            eventEndpointFactory = new RabbitMqEndpointFactory(session, eventHandlersEnpointConvention, (RabbitMqPipelineFactory)eventPipelineFactory);
         }
 
         public void UseInMemoryTransport()
@@ -305,14 +305,14 @@ namespace NMSD.Cronus.Hosts
             //rabbitMqSessionFactory = new RabbitMqSessionFactory();
             //session = rabbitMqSessionFactory.OpenSession();
 
-            //commandPipelineFactory = new RabbitMqPipelineFactory(session, commandPipelineConvention);
-            //commandEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)commandPipelineFactory);
+            commandPipelineFactory = new InMemoryPipelineFactory(commandPipelineConvention);
+            commandEndpointFactory = new InMemoryEndpointFactory(commandPipelineFactory as InMemoryPipelineFactory, commandHandlersEndpointConvention);
 
-            //eventStorePipelineFactory = new RabbitMqPipelineFactory(session, eventStorePipelineConvention);
-            //eventStoreEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)eventStorePipelineFactory);
+            eventStorePipelineFactory = new InMemoryPipelineFactory(eventStorePipelineConvention);
+            eventStoreEndpointFactory = new InMemoryEndpointFactory(eventStorePipelineFactory as InMemoryPipelineFactory, eventStoreEndpointConvention);
 
-            //eventPipelineFactory = new RabbitMqPipelineFactory(session, eventHandlersPipelineConvention);
-            //eventEndpointFactory = new RabbitMqEndpointFactory(session, (RabbitMqPipelineFactory)eventPipelineFactory);
+            eventPipelineFactory = new InMemoryPipelineFactory(eventHandlersPipelineConvention);
+            eventEndpointFactory = new InMemoryEndpointFactory(eventPipelineFactory as InMemoryPipelineFactory, eventHandlersEnpointConvention);
         }
 
     }
