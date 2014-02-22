@@ -340,9 +340,9 @@ namespace NMSD.Cronus.EventSourcing
             if (events == null) throw new ArgumentNullException("events");
             if (events.Count == 0) return;
 
-            //#if DEBUG
+#if DEBUG
             ValidateEventsBoundedContext(events);
-            //#endif
+#endif
 
             byte[] buffer = SerializeEvents(events);
 
@@ -433,9 +433,9 @@ namespace NMSD.Cronus.EventSourcing
 
         private void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection)
         {
-            //#if DEBUG
+#if DEBUG
             ValidateSnapshotsBoundedContext(states);
-            //#endif
+#endif
 
             DataTable dt = CreateInMemoryTableForSnapshots();
             foreach (var state in states)
@@ -483,7 +483,7 @@ namespace NMSD.Cronus.EventSourcing
             foreach (var @event in events)
             {
                 var eventType = @event.GetType();
-                string eventBC = MessageInfo.GetBoundedContext(eventType);
+                string eventBC = MessageInfo.GetBoundedContextName(eventType);
                 if (String.Compare(boundedContext, eventBC, true, CultureInfo.InvariantCulture) != 0)
                     wrongEventTypes.Add(eventType);
             }
@@ -507,7 +507,7 @@ namespace NMSD.Cronus.EventSourcing
             foreach (var @event in states)
             {
                 var eventType = @event.GetType();
-                string eventBC = MessageInfo.GetBoundedContext(eventType);
+                string eventBC = MessageInfo.GetBoundedContextName(eventType);
                 if (String.Compare(boundedContext, eventBC, true, CultureInfo.InvariantCulture) != 0)
                     wrongStateTypes.Add(eventType);
             }

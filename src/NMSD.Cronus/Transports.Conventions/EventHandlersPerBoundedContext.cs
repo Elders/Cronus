@@ -21,7 +21,7 @@ namespace NMSD.Cronus.Transports.Conventions
             if (assembliesContainingHandlersCount > 1)
                 throw new ArgumentException("Handler types must not come from different asssemblies");
 
-            var boundedContext = handlerTypes.First().GetAssemblyAttribute<BoundedContextAttribute>();
+            var boundedContext = handlerTypes.First().GetBoundedContext();
 
             if (boundedContext == null)
                 throw new Exception(String.Format(@"The assembly '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", handlerTypes.First().Assembly.FullName));

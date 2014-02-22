@@ -7,10 +7,9 @@ namespace NMSD.Cronus.Transports.Conventions
     {
         public string GetPipelineName(Type messageType)
         {
-            var assemblyContainingEvents = messageType.Assembly;
-            var boundedContext = assemblyContainingEvents.GetAssemblyAttribute<BoundedContextAttribute>();
+            var boundedContext = messageType.GetBoundedContext();
             if (boundedContext == null)
-                throw new Exception(String.Format(@"The assembly '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", assemblyContainingEvents.FullName));
+                throw new Exception(String.Format(@"The assembly '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.Assembly.FullName));
 
             return boundedContext.EventsPipelineName;
         }

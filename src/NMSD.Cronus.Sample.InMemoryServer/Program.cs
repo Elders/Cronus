@@ -33,7 +33,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             UseCronusHost();
 
             HostUI(0);
-
+            Console.WriteLine("Started");
             Console.ReadLine();
         }
 
@@ -63,7 +63,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             UserId userId = new UserId(Guid.NewGuid());
             var email = "mynkow@gmail.com";
             commandPublisher.Publish(new RegisterNewUser(userId, email));
-            Thread.Sleep(1000);
+            //Thread.Sleep(1000);
 
             //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
         }

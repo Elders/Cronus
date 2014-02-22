@@ -14,8 +14,8 @@ namespace NMSD.Cronus.Sample.Collaboration.Projections
 
         public void Handle(NewCollaboratorCreated message)
         {
-            log.Info(message);
-            Session.Save(new Collaborator() { Id = message.CollaboratorId.Id, Email = message.Email });
+            //log.Info(message);
+            //Session.Save(new Collaborator() { Id = message.CollaboratorId.Id, Email = message.Email });
         }
     }
 }

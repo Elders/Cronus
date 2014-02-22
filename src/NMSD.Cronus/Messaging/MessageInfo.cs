@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -9,6 +10,26 @@ namespace NMSD.Cronus
 {
     public static class MessageInfo
     {
+        private static readonly ConcurrentDictionary<Type, Guid> boundedContextIdsForType = new ConcurrentDictionary<Type, Guid>();
+        private static readonly ConcurrentDictionary<Guid, BoundedContextAttribute> boundedContexts = new ConcurrentDictionary<Guid, BoundedContextAttribute>();
+
+        public static BoundedContextAttribute GetBoundedContext(this Type messageType)
+        {
+            Guid boundedContextId;
+            if (boundedContextIdsForType.TryGetValue(messageType, out boundedContextId))
+            {
+                return boundedContexts[boundedContextId];
+            }
+            else
+            {
+                var boundedContext = messageType.Assembly.GetAssemblyAttribute<BoundedContextAttribute>();
+                boundedContextId = Guid.NewGuid();
+                boundedContexts.TryAdd(boundedContextId, boundedContext);
+                boundedContextIdsForType.TryAdd(messageType, boundedContextId);
+                return boundedContext;
+            }
+        }
+
         public static string ToString(this IMessage message, string info, params object[] args)
         {
             var bcNamespace = GetBoundedContextNamespace(message.GetType());
@@ -33,28 +54,28 @@ namespace NMSD.Cronus
             return contract.Name;
         }
 
-        public static string GetBoundedContext(Type messageType)
+        public static string GetBoundedContextName(Type messageType)
         {
-            var boundedContext = messageType.GetAssemblyAttribute<BoundedContextAttribute>();
+            var boundedContext = messageType.GetBoundedContext();
 
             if (boundedContext == null)
                 throw new Exception(String.Format(@"The assembly containing message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));
 
             return boundedContext.BoundedContextName;
         }
-        public static string GetBoundedContext(Assembly assembly)
-        {
-            var boundedContext = assembly.GetAssemblyAttribute<BoundedContextAttribute>();
+        //public static string GetBoundedContext(Assembly assembly)
+        //{
+        //    var boundedContext = assembly.GetAssemblyAttribute<BoundedContextAttribute>();
 
-            if (boundedContext == null)
-                throw new Exception(String.Format(@"The assembly '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", assembly.FullName));
+        //    if (boundedContext == null)
+        //        throw new Exception(String.Format(@"The assembly '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", assembly.FullName));
 
-            return boundedContext.BoundedContextName;
-        }
+        //    return boundedContext.BoundedContextName;
+        //}
 
         public static string GetBoundedContextNamespace(Type messageType)
         {
-            var boundedContext = messageType.GetAssemblyAttribute<BoundedContextAttribute>();
+            var boundedContext = messageType.GetBoundedContext();
 
             if (boundedContext == null)
                 throw new Exception(String.Format(@"The assembly containing message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", messageType.FullName));

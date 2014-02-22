@@ -19,7 +19,7 @@ namespace NMSD.Cronus.Transports.Conventions
         {
             foreach (var handlerType in handlerTypes)
             {
-                var boundedContext = handlerType.GetAssemblyAttribute<BoundedContextAttribute>();
+                var boundedContext = handlerType.GetBoundedContext();
 
                 if (boundedContext == null)
                     throw new Exception(String.Format(@"The assembly containing message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", handlerType.FullName));

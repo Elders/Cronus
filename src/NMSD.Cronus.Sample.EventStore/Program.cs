@@ -16,7 +16,7 @@ namespace NMSD.Cronus.Sample.EventStore
         {
             //log4net.Config.XmlConfigurator.Configure();
             UseCronusHost();
-            System.Console.WriteLine("Started");
+            System.Console.WriteLine("Started Event store");
             System.Console.ReadLine();
             host.Release();
         }
