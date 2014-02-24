@@ -22,7 +22,7 @@ namespace NMSD.Cronus.Multithreading.Work
 
         Thread workManager;
 
-        ManualResetEvent workManagerWaitHandle;
+        ManualResetEvent workManagerWaitHandle = new ManualResetEvent(false);
 
         Action<IWork> workReadyForProcess;
 
@@ -40,7 +40,8 @@ namespace NMSD.Cronus.Multithreading.Work
         public void ScheduleWork(IWork work)
         {
             unmanagedPendingWork.Enqueue(work);
-            log.DebugFormat("WorkManager received a new  work for scheduling. [{0}]", work);
+            if (log.IsDebugEnabled)
+                log.DebugFormat("WorkManager received a new  work for scheduling. [{0}]", work);
             WakeUpTheManager();
         }
 
@@ -95,7 +96,8 @@ namespace NMSD.Cronus.Multithreading.Work
                         if (workForSchedule.Remove(orderedPendingWork[i]))
                         {
                             workReadyForProcess(orderedPendingWork[i]);
-                            log.DebugFormat("WorkManager has prepared a work for processing by the crawlers. [{0}]", orderedPendingWork[i]);
+                            if (log.IsDebugEnabled)
+                                log.DebugFormat("WorkManager has prepared a work for processing by the crawlers. [{0}]", orderedPendingWork[i]);
                         }
                         else
                         {
@@ -141,7 +143,7 @@ namespace NMSD.Cronus.Multithreading.Work
         {
             if (sleepTime > 0)
             {
-                workManagerWaitHandle = new ManualResetEvent(false);
+                workManagerWaitHandle.Reset();
                 workManagerWaitHandle.WaitOne(sleepTime);
             }
         }

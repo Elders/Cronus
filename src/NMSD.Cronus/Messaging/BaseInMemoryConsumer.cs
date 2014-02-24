@@ -82,7 +82,8 @@ namespace NMSD.Cronus.Messaging
             handler = unitOfWork.Resolver.ResolveDependancies(handler);
             handlerCallbacks[eventHandlerType][message.GetType()](handler, new object[] { message });
             unitOfWork.Commit();
-            log.Info("HANDLE => " + message.ToString());
+            if (log.IsInfoEnabled)
+                log.Info("HANDLE => " + message.ToString());
 
             return true;
         }

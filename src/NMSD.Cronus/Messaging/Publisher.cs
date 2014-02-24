@@ -13,7 +13,8 @@ namespace NMSD.Cronus.Messaging
             try
             {
                 PublishInternal(message);
-                log.Info("PUBLISH => " + message.ToString());
+                if (log.IsInfoEnabled)
+                    log.Info("PUBLISH => " + message.ToString());
                 return true;
             }
             catch (Exception ex)

@@ -23,7 +23,7 @@ namespace NMSD.Cronus.Eventing
         {
             var endpointMessage = message.AsEndpointMessage(serializer);
             var eventType = message.GetType();
-            endpointMessage.Headers.Add(MessageInfo.GetMessageId(eventType), String.Empty);
+            endpointMessage.Headers.Add(MessageInfo.GetContractId(eventType), String.Empty);
             pipelineFactory
                 .GetPipeline(eventType)
                 .Push(endpointMessage);

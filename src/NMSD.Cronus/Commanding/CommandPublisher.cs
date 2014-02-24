@@ -23,7 +23,7 @@ namespace NMSD.Cronus.Commanding
         {
             var endpointMessage = message.AsEndpointMessage(serializer);
             var commandType = message.GetType();
-            endpointMessage.Headers.Add(MessageInfo.GetMessageId(commandType), String.Empty);
+            endpointMessage.Headers.Add(MessageInfo.GetContractId(commandType), String.Empty);
             pipelineFactory
                 .GetPipeline(commandType)
                 .Push(endpointMessage);

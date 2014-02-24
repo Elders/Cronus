@@ -162,7 +162,6 @@ namespace NMSD.Cronus.Hosts
 
             if (cfg.EventsAssemblies.Count <= 0) throw new CronusConfigurationException("Events assembly is required. Example: 'SetEventsAssembly(Assembly assembly)'.");
             if (cfg.EventHandlersAssembly == null) throw new CronusConfigurationException("EventHandlersAssembly assembly is required. Example: 'SetEventHandlersAssembly(Assembly assembly)'.");
-            if (eventHandlersEnpointConvention == null) throw new CronusConfigurationException("EventHandlersEnpointConvention is required. Example: 'UseEventHandlerPerEndpoint()'.");
             if (commandPublisher == null) throw new CronusConfigurationException("CommandPublisher is required. Example: 'BuildCommandPublisher()'.");
 
             eventHandlersConfigurations.Add(cfg);

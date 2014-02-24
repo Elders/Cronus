@@ -25,7 +25,7 @@ namespace NMSD.Cronus.EventSourcing
         {
             var firstEventInCommitType = message.Events.First().GetType();
             var endpointMessage = message.AsEndpointMessage(serializer);
-            var commitBoundedContext = firstEventInCommitType.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
+            var commitBoundedContext = firstEventInCommitType.GetBoundedContext().BoundedContextName;
             endpointMessage.Headers.Add(commitBoundedContext, String.Empty);
             pipelineFactory
                 .GetPipeline(firstEventInCommitType)
