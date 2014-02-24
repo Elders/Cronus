@@ -24,7 +24,7 @@ namespace NMSD.Cronus.Sample.UI
             host.BuildCommandPublisher();
             commandPublisher = host.CommandPublisher;
             Console.WriteLine("Start sending commands...");
-            HostUI(100, 100);
+            HostUI(80, 100);
         }
 
         private static void HostUI(int messageDelayInMilliseconds = 0, int batchSize = 1)

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 using NMSD.Cronus.UnitOfWork;
+
 namespace NMSD.Cronus.Hosts
 {
     public class CommandConsumerConfiguration
@@ -51,5 +48,10 @@ namespace NMSD.Cronus.Hosts
             UnitOfWorkFacotry = unitOfWorkFacotry;
         }
 
+        public void ConfigureEventStore(Action<EventStoreConfiguration> configure)
+        {
+            var cfg = new EventStoreConfiguration();
+            configure(cfg);
+        }
     }
 }

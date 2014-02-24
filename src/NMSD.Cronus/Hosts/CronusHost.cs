@@ -141,8 +141,6 @@ namespace NMSD.Cronus.Hosts
             var boundedContext = commandConsumerConfiguration.EventsAssembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
             var eventStorePublisher = new EventStorePublisher(eventStorePipelineFactory, Serializer);
             var es = new RabbitRepository(boundedContext, commandConsumerConfiguration.EventStoreConnectionString, eventStorePublisher, Serializer);
-            //var es = new MssqlEventStore(boundedContext, commandConsumerConfiguration.EventStoreConnectionString, Serializer);
-
             var commandConsumer = new CommandConsumer(commandEndpointFactory, Serializer, es);
             commandConsumer.UnitOfWorkFactory = commandConsumerConfiguration.UnitOfWorkFacotry;
             commandConsumer.RegisterAllHandlersInAssembly(commandConsumerConfiguration.CommandHandlersAssembly);
@@ -301,9 +299,6 @@ namespace NMSD.Cronus.Hosts
 
         public void UseInMemoryTransport()
         {
-            //rabbitMqSessionFactory = new RabbitMqSessionFactory();
-            //session = rabbitMqSessionFactory.OpenSession();
-
             commandPipelineFactory = new InMemoryPipelineFactory(commandPipelineConvention);
             commandEndpointFactory = new InMemoryEndpointFactory(commandPipelineFactory as InMemoryPipelineFactory, commandHandlersEndpointConvention);
 

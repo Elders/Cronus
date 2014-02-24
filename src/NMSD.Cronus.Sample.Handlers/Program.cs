@@ -9,6 +9,7 @@ using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
 using NMSD.Cronus.Sample.Nhibernate.UoW;
+using NMSD.Cronus.UnitOfWork;
 using NMSD.Cronus.Userfull;
 
 namespace NMSD.Cronus.Sample.Handlers
@@ -37,12 +38,12 @@ namespace NMSD.Cronus.Sample.Handlers
 
         static void UseCronusHost()
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["dbConnection"].ConnectionString;
-            DatabaseManager.DeleteDatabase(connectionString);
-            DatabaseManager.CreateDatabase(connectionString, "use_default", true);
-            DatabaseManager.EnableSnapshotIsolation(connectionString);
-            var sf = BuildSessionFactory();
-            var uow = new NhibernateUnitOfWorkFactory(sf);
+            //var connectionString = ConfigurationManager.ConnectionStrings["dbConnection"].ConnectionString;
+            //DatabaseManager.DeleteDatabase(connectionString);
+            //DatabaseManager.CreateDatabase(connectionString, "use_default", true);
+            //DatabaseManager.EnableSnapshotIsolation(connectionString);
+            //var sf = BuildSessionFactory();
+            var uow = new NullUnitOfWorkFactory();
             host = new CronusHost();
             host.UseEventHandlersPipelinePerApplication();
             host.UseEventHandlerPerEndpoint();

@@ -32,7 +32,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             UseEventStoreHost();
             UseCronusHost();
 
-            HostUI(0);
+            HostUI(80, 100);
             Console.WriteLine("Started");
             Console.ReadLine();
         }

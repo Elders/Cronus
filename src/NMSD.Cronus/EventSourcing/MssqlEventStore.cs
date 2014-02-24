@@ -127,9 +127,9 @@ namespace NMSD.Cronus.EventSourcing
 
         public void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<IEventStream> postCommit, Func<IEventStream, bool> closeStreamCondition)
         {
-            //using (var conn = new SqlConnection(connectionString))
+            using (var conn = new SqlConnection(connectionString))
             {
-                //conn.Open();
+                conn.Open();
                 var newStream = new EventStream();
                 bool shouldCommit = false;
 
@@ -149,8 +149,8 @@ namespace NMSD.Cronus.EventSourcing
                         {
                             if (newStream.Events.Count > 0)
                             {
-                                //Persist(newStream.Events, conn);
-                                //TakeSnapshot(newStream.Snapshots, conn);
+                                Persist(newStream.Events, conn);
+                                TakeSnapshot(newStream.Snapshots, conn);
 
                                 if (!ReferenceEquals(null, postCommit))
                                     postCommit(newStream);

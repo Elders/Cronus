@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.Reflection;
 using NMSD.Cronus.UnitOfWork;
 
@@ -35,5 +36,20 @@ namespace NMSD.Cronus.Hosts
             UnitOfWorkFacotry = unitOfWorkFacotry;
         }
 
+    }
+
+    public class EventStoreConfiguration
+    {
+        public string ConnectionString { get; private set; }
+
+        public void SetConnectionString(string connectionString)
+        {
+            ConnectionString = connectionString;
+        }
+
+        public void SetConnectionStringName(string connectionStringName)
+        {
+            ConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
+        }
     }
 }
