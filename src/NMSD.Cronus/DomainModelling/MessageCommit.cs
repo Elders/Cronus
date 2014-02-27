@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using NMSD.Cronus.Commanding;
 using NMSD.Cronus.Eventing;
 using NMSD.Cronus.Messaging;
 
@@ -16,8 +17,9 @@ namespace NMSD.Cronus.DomainModelling
             UncommittedEvents = new List<object>();
         }
 
-        public DomainMessageCommit(IAggregateRootState state, List<IEvent> events)
+        public DomainMessageCommit(IAggregateRootState state, List<IEvent> events, ICommand command)
         {
+            CommanWrap = command;
             UncommittedState = state;
             UncommittedEvents = events.Cast<object>().ToList();
         }
@@ -28,9 +30,15 @@ namespace NMSD.Cronus.DomainModelling
         [DataMember(Order = 2)]
         private List<object> UncommittedEvents { get; set; }
 
+        [DataMember(Order = 3)]
+        private object CommanWrap { get; set; }
+
         public IAggregateRootState State { get { return (IAggregateRootState)UncommittedState; } }
 
         public List<IEvent> Events { get { return UncommittedEvents.Cast<IEvent>().ToList(); } }
+
+
+        public ICommand Command { get { return (ICommand)CommanWrap; } }
 
         public override string ToString()
         {

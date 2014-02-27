@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
+using NMSD.Cronus.Commanding;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Eventing;
 using NMSD.Cronus.Userfull;
@@ -108,29 +109,35 @@ namespace NMSD.Cronus.EventSourcing
             }
         }
 
-        public AR Update<AR>(IAggregateRootId aggregateId, Action<AR> update, Action<IAggregateRoot> save = null) where AR : IAggregateRoot
+
+        //public AR Update<AR>(IAggregateRootId aggregateId, Commanding.ICommand command, Action<AR> update, Action<IAggregateRoot> save = null) where AR : IAggregateRoot
+        //{
+        //    throw new NotImplementedException();
+        //}
+        public AR Update<AR>(IAggregateRootId aggregateId, ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot
         {
             var state = LoadAggregateState(aggregateId.Id);
             AR aggregateRoot = AggregateRootFactory.Build<AR>(state);
             update(aggregateRoot);
             if (save != null)
-                save(aggregateRoot);
+                save(aggregateRoot, command);
             else
-                Save(aggregateRoot);
+                Save(aggregateRoot, command);
             return aggregateRoot;
         }
 
-        public void Save(IAggregateRoot aggregateRoot)
+        public void Save(IAggregateRoot aggregateRoot, ICommand command)
         {
             //throw new NotImplementedException();
         }
 
-        public void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<IEventStream> postCommit, Func<IEventStream, bool> closeStreamCondition)
+        public void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<List<IEvent>> postCommit, Func<IEventStream, bool> closeStreamCondition, Action<DomainMessageCommit> onPersistError)
         {
             using (var conn = new SqlConnection(connectionString))
             {
                 conn.Open();
                 var newStream = new EventStream();
+                List<DomainMessageCommit> commits = new List<DomainMessageCommit>();
                 bool shouldCommit = false;
 
                 while (!closeStreamCondition(newStream))
@@ -138,10 +145,12 @@ namespace NMSD.Cronus.EventSourcing
                     while (!shouldCommit)
                     {
                         var commit = getCommit();
+
                         if (commit != default(DomainMessageCommit))
                         {
                             newStream.Events.AddRange(commit.Events);
                             newStream.Snapshots.Add(commit.State);
+                            commits.Add(commit);
                         }
 
                         shouldCommit = commitCondition(newStream, commit);
@@ -149,14 +158,39 @@ namespace NMSD.Cronus.EventSourcing
                         {
                             if (newStream.Events.Count > 0)
                             {
-                                Persist(newStream.Events, conn);
-                                TakeSnapshot(newStream.Snapshots, conn);
+                                try
+                                {
+                                    TakeSnapshot(newStream.Snapshots, conn);
 
-                                if (!ReferenceEquals(null, postCommit))
-                                    postCommit(newStream);
+                                    Persist(newStream.Events, conn);
+
+                                    if (!ReferenceEquals(null, postCommit))
+                                        postCommit(newStream.Events);
+                                }
+                                catch (AggregateStateFirstLevelConcurrencyException ex)
+                                {
+                                    foreach (var item in commits)
+                                    {
+                                        try
+                                        {
+                                            TakeSnapshot(new List<IAggregateRootState>() { item.State }, conn);
+                                            Persist(new List<IEvent>(item.Events), conn);
+                                            if (!ReferenceEquals(null, postCommit))
+                                                postCommit(item.Events);
+
+                                        }
+                                        catch (AggregateStateFirstLevelConcurrencyException)
+                                        {
+                                            onPersistError(item);
+                                        }
+                                    }
+                                }
+
 
                                 newStream.Events.Clear();
                                 newStream.Snapshots.Clear();
+                                commits.Clear();
+
                             }
                             shouldCommit = false;   // reset
                         }
@@ -436,26 +470,26 @@ namespace NMSD.Cronus.EventSourcing
 #if DEBUG
             ValidateSnapshotsBoundedContext(states);
 #endif
-
-            DataTable dt = CreateInMemoryTableForSnapshots();
-            foreach (var state in states)
+            try
             {
-                byte[] buffer = SerializeAggregateState(state);
-                var row = dt.NewRow();
-                row[0] = state.Version;
-                row[1] = state.Id.Id;
-                row[2] = buffer;
-                row[3] = DateTime.UtcNow;
-                dt.Rows.Add(row);
-            }
-
-            // using (var tx = connection.BeginTransaction(IsolationLevel.Snapshot))
-            {
-                using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
+                DataTable dt = CreateInMemoryTableForSnapshots();
+                foreach (var state in states)
                 {
-                    bulkCopy.DestinationTableName = snapshotsTableName;
-                    try
+                    byte[] buffer = SerializeAggregateState(state);
+                    var row = dt.NewRow();
+                    row[0] = state.Version;
+                    row[1] = state.Id.Id;
+                    row[2] = buffer;
+                    row[3] = DateTime.UtcNow;
+                    dt.Rows.Add(row);
+                }
+
+                // using (var tx = connection.BeginTransaction(IsolationLevel.Snapshot))
+                {
+                    using (SqlBulkCopy bulkCopy = new SqlBulkCopy(connection))
                     {
+                        bulkCopy.DestinationTableName = snapshotsTableName;
+
                         //var statesDeleteCommand = PrepareAggregateStateDeleteCommand(states);
                         //statesDeleteCommand.Connection = connection;
                         //statesDeleteCommand.Transaction = tx;
@@ -466,12 +500,13 @@ namespace NMSD.Cronus.EventSourcing
                         // tx.Commit();
 
                     }
-                    catch (Exception ex)
-                    {
-                        // tx.Rollback();
-                        throw new AggregateStateFirstLevelConcurrencyException("", ex);
-                    }
+                    
                 }
+            }
+            catch (Exception ex)
+            {
+                // tx.Rollback();
+                throw new AggregateStateFirstLevelConcurrencyException("", ex);
             }
 
         }
@@ -523,6 +558,7 @@ namespace NMSD.Cronus.EventSourcing
                 throw new Exception(errorMessage);
             }
         }
+
 
     }
 

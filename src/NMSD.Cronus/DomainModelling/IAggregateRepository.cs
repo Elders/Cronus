@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using NMSD.Cronus.Commanding;
 using NMSD.Cronus.Eventing;
 
 namespace NMSD.Cronus.DomainModelling
@@ -13,9 +14,9 @@ namespace NMSD.Cronus.DomainModelling
     /// </remarks>
     public interface IAggregateRepository
     {
-        AR Update<AR>(IAggregateRootId aggregateId, Action<AR> update, Action<IAggregateRoot> save = null) where AR : IAggregateRoot;
+        AR Update<AR>(IAggregateRootId aggregateId, ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot;
 
-        void Save(IAggregateRoot aggregateRoot);
+        void Save(IAggregateRoot aggregateRoot, ICommand command);
 
 
     }

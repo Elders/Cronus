@@ -24,7 +24,7 @@ namespace NMSD.Cronus.Sample.UI
             host.BuildCommandPublisher();
             commandPublisher = host.CommandPublisher;
             Console.WriteLine("Start sending commands...");
-            HostUI(80, 100);
+            HostUI(5000, 1);
         }
 
         private static void HostUI(int messageDelayInMilliseconds = 0, int batchSize = 1)
@@ -53,9 +53,13 @@ namespace NMSD.Cronus.Sample.UI
             UserId userId = new UserId(Guid.NewGuid());
             var email = "mynkow@gmail.com";
             commandPublisher.Publish(new RegisterNewUser(userId, email));
-            //Thread.Sleep(1000);
 
-            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
+            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail3@gmail.com"));
+            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail4@gmail.com"));
+            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail5@gmail.com"));
+            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail6@gmail.com"));
+            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail7@gmail.com"));
+            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail8@gmail.com"));
         }
     }
 }

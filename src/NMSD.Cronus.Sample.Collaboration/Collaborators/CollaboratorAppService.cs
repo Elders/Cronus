@@ -11,12 +11,12 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators
     {
         public void Handle(RenameCollaborator command)
         {
-            Repository.Update<Collaborator>(command.Id, user => user.Rename(command.FirstName, command.LastName));
+            Repository.Update<Collaborator>(command.Id, command, user => user.Rename(command.FirstName, command.LastName));
         }
 
         public void Handle(CreateNewCollaborator command)
         {
-            Repository.Save(new Collaborator(command.Id, command.Email));
+            Repository.Save(new Collaborator(command.Id, command.Email), command);
         }
     }
 }

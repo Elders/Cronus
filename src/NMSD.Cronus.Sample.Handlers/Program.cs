@@ -63,7 +63,7 @@ namespace NMSD.Cronus.Sample.Handlers
                 cfg.SetEventHandlersAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
             });
             host.BuildSerializer();
-            host.HostEventHandlerConsumers(1);
+            host.HostEventHandlerConsumers(5);
         }
     }
 }

@@ -96,14 +96,19 @@ namespace NMSD.Cronus.Commanding
                             }
                             try
                             {
-                                if (consumer.Handle(command, batchedUoW))
-                                    endpoint.Acknowledge(rawMessage);
+                                if (!consumer.Handle(command, batchedUoW))
+                                { //AddToErrorQueue
+                                }
+
                             }
                             catch (Exception ex)
                             {
                                 string error = String.Format("Error while handling command '{0}'", command.ToString());
                                 log.Error(error, ex);
+                                //AddToErrorQueue
                             }
+
+                            endpoint.Acknowledge(rawMessage);
                         }
 
 

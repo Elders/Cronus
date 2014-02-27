@@ -11,12 +11,12 @@ namespace NMSD.Cronus.Sample.IdentityAndAccess.Users
 
         public void Handle(RegisterNewUser message)
         {
-            Repository.Save(new User(message.Id, message.Email));
+            Repository.Save(new User(message.Id, message.Email), message);
         }
 
         public void Handle(ChangeUserEmail message)
         {
-            Repository.Update<User>(message.Id, user => user.ChangeEmail(message.OldEmail, message.NewEmail));
+            Repository.Update<User>(message.Id, message, user => user.ChangeEmail(message.OldEmail, message.NewEmail));
         }
     }
 }

@@ -180,13 +180,13 @@ namespace NMSD.Cronus.Hosts
             if (String.IsNullOrEmpty(cfg.EventStoreConnectionString)) throw new CronusConfigurationException("EventStoreConnectionString  is required. Example: 'SetEventStoreConnectionString(string connectionString)'.");
             if (eventStoreEndpointConvention == null) throw new CronusConfigurationException("EventStoreEndpointConvention is required. Example: 'UseEventStoreEndpointConventionBoundedContext()'.");
             if (eventStorePipelineConvention == null) throw new CronusConfigurationException("EventStorePipelineConvention is required. Example: 'UseEventStorePipelineConventionPerApplication()'.");
-
+            if (commandPublisher == null) throw new CronusConfigurationException("CommandPublisher is required. Example: 'ConfigureCommandPublisher()'.");
             eventStoreConsumerConfigurations.Add(cfg);
             var boundedContext = cfg.AssemblyContainingEventsByEventType.Assembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
             var es = new MssqlEventStore(boundedContext, cfg.EventStoreConnectionString, Serializer);
 
             var eventPublisher = new EventPublisher(eventPipelineFactory, Serializer);
-            var eventStoreConsumer = new EventStoreConsumer(eventStoreEndpointFactory, cfg.AssemblyContainingEventsByEventType, Serializer, es, eventPublisher);
+            var eventStoreConsumer = new EventStoreConsumer(eventStoreEndpointFactory, cfg.AssemblyContainingEventsByEventType, Serializer, es, eventPublisher, commandPublisher);
             eventStoreConsumer.UnitOfWorkFactory = cfg.UnitOfWorkFacotry;
             eventStoreConsumers.Add(eventStoreConsumer);
 

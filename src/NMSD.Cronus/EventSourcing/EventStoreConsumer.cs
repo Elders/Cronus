@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using NMSD.Cronus.Commanding;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Eventing;
 using NMSD.Cronus.Messaging;
@@ -14,6 +15,7 @@ namespace NMSD.Cronus.EventSourcing
 {
     public class EventStoreConsumer
     {
+        private readonly IPublisher<ICommand> commandPublisher;
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EventStoreConsumer));
 
         private readonly Type assemblyContainingEventsByEventType;
@@ -28,8 +30,9 @@ namespace NMSD.Cronus.EventSourcing
 
         private readonly ProtoregSerializer serialiser;
 
-        public EventStoreConsumer(IEndpointFactory endpointFactory, Type assemblyContainingEventsByEventType, ProtoregSerializer serialiser, IEventStore eventStore, IPublisher<IEvent> eventPublisher)
+        public EventStoreConsumer(IEndpointFactory endpointFactory, Type assemblyContainingEventsByEventType, ProtoregSerializer serialiser, IEventStore eventStore, IPublisher<IEvent> eventPublisher, IPublisher<ICommand> commandPublisher)
         {
+            this.commandPublisher = commandPublisher;
             this.eventPublisher = eventPublisher;
             this.assemblyContainingEventsByEventType = assemblyContainingEventsByEventType;
             this.eventStore = eventStore;
@@ -96,15 +99,20 @@ namespace NMSD.Cronus.EventSourcing
                             return commit;
                         },
                         (eventStream, commit) => commit == null || eventStream.Events.Count == 100,
-                        eventStream =>
+                        events =>
                         {
-                            foreach (var @event in eventStream.Events)
+                            foreach (var @event in events)
                             {
                                 consumer.eventPublisher.Publish(@event);
                             }
                             endpoint.AcknowledgeAll();
                         },
-                        eventStream => false);
+                        eventStream => false,
+                        commit =>
+                        {
+                            consumer.commandPublisher.Publish(commit.Command);
+                            endpoint.AcknowledgeAll();
+                        });
                 }
                 catch (EndpointClosedException ex)
                 {

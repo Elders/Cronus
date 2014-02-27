@@ -14,7 +14,7 @@ namespace NMSD.Cronus.EventSourcing
         /// <param name="commitCondition">When to commit the stream. IEventStream param holds the current state of the stream. DomainMessageCommit param holds the result of getCommit.</param>
         /// <param name="postCommit">What to do after a successful commit.</param>
         /// <param name="closeStreamCondition">When to close the stream.</param>
-        void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<IEventStream> postCommit, Func<IEventStream, bool> closeStreamCondition);
+        void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<List<IEvent>> postCommit, Func<IEventStream, bool> closeStreamCondition, Action<DomainMessageCommit> onPersistError);
 
         IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1);
     }

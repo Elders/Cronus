@@ -2,8 +2,10 @@
 using System.Reflection;
 using NMSD.Cronus.Hosts;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
+using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
+using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
 using NMSD.Cronus.UnitOfWork;
 
@@ -24,10 +26,21 @@ namespace NMSD.Cronus.Sample.EventStore
         static void UseCronusHost()
         {
             host = new CronusHost();
+
             host.UseEventHandlersPipelinePerApplication();
             host.UseEventStorePipelinePerApplication();
             host.UseEventStorePerBoundedContext();
+            host.UseCommandPipelinePerApplication();
             host.UseRabbitMqTransport();
+            host.ConfigureCommandPublisher(x =>
+                {
+                    host.UseCommandPipelinePerApplication();
+                    host.ConfigureCommandPublisher(cfg => { cfg.RegisterCommandsAssembly<RegisterNewUser>(); cfg.RegisterCommandsAssembly<CreateNewCollaborator>(); });
+                    host.UseRabbitMqTransport();
+                    host.BuildSerializer();
+                    host.BuildCommandPublisher();
+                });
+            host.BuildCommandPublisher();
             host.ConfigureEventStoreConsumer(cfg =>
             {
                 cfg.SetEventStoreConnectionString(ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
@@ -43,7 +56,7 @@ namespace NMSD.Cronus.Sample.EventStore
                 cfg.SetEventsAssembly(typeof(NewUserRegistered));
             });
             host.BuildSerializer();
-            host.HostEventStoreConsumers(1);
+            host.HostEventStoreConsumers(5);
         }
     }
 }
