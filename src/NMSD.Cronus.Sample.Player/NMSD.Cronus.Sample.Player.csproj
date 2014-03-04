@@ -33,6 +33,12 @@
     <StartupObject>NMSD.Cronus.Sample.Player.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\packages\Iesi.Collections.3.2.0.1001\lib\Net35\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\packages\NHibernate.3.3.3.4001\lib\Net35\NHibernate.dll</HintPath>
+    </Reference>
     <Reference Include="NMSD.Protoreg">
       <HintPath>..\packages\Protoreg.1.0.7.7400\lib\NMSD.Protoreg.dll</HintPath>
     </Reference>
@@ -42,6 +48,8 @@
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.Entity.Design" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,6 +57,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NHibernateExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -56,6 +65,18 @@
     <ProjectReference Include="..\NMSD.Cronus.Player\NMSD.Cronus.Player.csproj">
       <Project>{931d0254-bad5-49f8-b6a2-552803fe5799}</Project>
       <Name>NMSD.Cronus.Player</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Contracts\NMSD.Cronus.Sample.Collaboration.Contracts.csproj">
+      <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>
+      <Name>NMSD.Cronus.Sample.Collaboration.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Handlers\NMSD.Cronus.Sample.Collaboration.Handlers.csproj">
+      <Project>{448a98d9-d1e2-41d3-943d-029fe17a35ef}</Project>
+      <Name>NMSD.Cronus.Sample.Collaboration.Handlers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration\NMSD.Cronus.Sample.Collaboration.csproj">
+      <Project>{eba90c1f-5f2c-4a78-b91b-d2c3d664530d}</Project>
+      <Name>NMSD.Cronus.Sample.Collaboration</Name>
     </ProjectReference>
     <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
       <Project>{1c59eb3d-70e6-45b4-b644-e5607dcf4713}</Project>
@@ -70,6 +91,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

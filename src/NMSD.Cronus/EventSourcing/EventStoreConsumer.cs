@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using NMSD.Cronus.Commanding;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Eventing;
 using NMSD.Cronus.Messaging;
+using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Cronus.Multithreading.Work;
 using NMSD.Cronus.Transports;
 using NMSD.Cronus.Transports.RabbitMQ;
-using NMSD.Cronus.UnitOfWork;
 using NMSD.Protoreg;
 
 namespace NMSD.Cronus.EventSourcing
@@ -40,7 +39,7 @@ namespace NMSD.Cronus.EventSourcing
             this.serialiser = serialiser;
         }
 
-        public IUnitOfWorkFactory UnitOfWorkFactory { get; set; }
+        public ScopeFactory UnitOfWorkFactory { get; set; }
 
         public void Start(int numberOfWorkers)
         {

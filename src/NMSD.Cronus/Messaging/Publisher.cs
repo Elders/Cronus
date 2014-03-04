@@ -1,8 +1,10 @@
 ﻿using System;
+using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus.Messaging
 {
     public abstract class Publisher<TMessage> : IPublisher<TMessage>
+        where TMessage : IMessage
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(Publisher<TMessage>));
 
@@ -22,6 +24,11 @@ namespace NMSD.Cronus.Messaging
                 log.Error(ex.Message, ex);
                 return false;
             }
+        }
+
+        public bool Publish(IMessage message)
+        {
+            return Publish((TMessage)message);
         }
     }
 }

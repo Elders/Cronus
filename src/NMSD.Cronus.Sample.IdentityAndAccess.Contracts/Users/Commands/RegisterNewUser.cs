@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Serialization;
-using NMSD.Cronus.Commanding;
+using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands
 {

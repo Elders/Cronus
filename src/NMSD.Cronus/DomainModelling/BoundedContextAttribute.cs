@@ -13,13 +13,9 @@ namespace NMSD.Cronus.DomainModelling
 
         private string companyName;
 
-        private string commandsPipelineName;
-
-        private string eventsPipelineName;
-
         private string productName;
 
-        private string eventStorePipelineName;
+        private string productNamespace;
 
         public BoundedContextAttribute(string boundedContextNamespace)
         {
@@ -34,9 +30,7 @@ namespace NMSD.Cronus.DomainModelling
             }
             this.productName = productNameBuilder.ToString().TrimEnd('.');
             this.boundedContextName = splitted[splitted.Length - 1];
-            this.commandsPipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.Commands", companyName, productName);
-            this.eventsPipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.Events", companyName, productName);
-            this.eventStorePipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.EventStore", companyName, productName);
+            this.productNamespace = String.Format(CultureInfo.InvariantCulture, "{0}.{1}", companyName, productName);
         }
 
         public BoundedContextAttribute(string companyName, string productName, string boundedContextName)
@@ -45,9 +39,7 @@ namespace NMSD.Cronus.DomainModelling
             this.productName = productName;
             this.companyName = companyName;
             this.boundedContextNamespace = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.{2}", companyName, productName, boundedContextName);
-            this.commandsPipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.Commands", companyName, productName);
-            this.eventsPipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.Events", companyName, productName);
-            this.eventStorePipelineName = String.Format(CultureInfo.InvariantCulture, "{0}.{1}.EventStore", companyName, productName);
+            this.productNamespace = String.Format(CultureInfo.InvariantCulture, "{0}.{1}", companyName, productName);
         }
 
         public string BoundedContextName { get { return boundedContextName; } }
@@ -56,13 +48,9 @@ namespace NMSD.Cronus.DomainModelling
 
         public string CompanyName { get { return companyName; } }
 
-        public string CommandsPipelineName { get { return commandsPipelineName; } }
-
-        public string EventsPipelineName { get { return eventsPipelineName; } }
-
-        public string EventStorePipelineName { get { return eventStorePipelineName; } }
-
         public string ProductName { get { return productName; } }
+
+        public string ProductNamespace { get { return productNamespace; } }
 
     }
 }

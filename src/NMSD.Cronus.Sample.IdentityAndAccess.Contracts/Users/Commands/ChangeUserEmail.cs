@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
-using NMSD.Cronus.Commanding;
+﻿using System.Runtime.Serialization;
+using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands
 {

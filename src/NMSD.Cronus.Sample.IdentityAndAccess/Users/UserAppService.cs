@@ -4,7 +4,7 @@ using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
 
 namespace NMSD.Cronus.Sample.IdentityAndAccess.Users
 {
-    public class UserAppService : AggregateRootApplicationService<User>, IMessageHandler,
+    public class UserAppService : AggregateRootApplicationService<User>,
         IMessageHandler<RegisterNewUser>,
         IMessageHandler<ChangeUserEmail>
     {

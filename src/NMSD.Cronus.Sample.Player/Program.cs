@@ -1,27 +1,98 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
+using System.Linq;
+using System.Reflection;
+using NHibernate;
+using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.Eventing;
 using NMSD.Cronus.EventSourcing;
-using NMSD.Cronus.Player;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
-using NMSD.Protoreg;
+using NMSD.Cronus.Messaging.MessageHandleScope;
+using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Pipelining.InMemory.Config;
+using NMSD.Cronus.Pipelining.Transport.Config;
+using NMSD.Cronus.Sample.Collaboration.Collaborators;
+using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Sample.Collaboration.Projections;
+using NMSD.Cronus.Sample.Nhibernate.UoW;
 
 namespace NMSD.Cronus.Sample.Player
 {
+    public class NHibernateHandlerScope : IHandlerScope
+    {
+        private readonly ISessionFactory sessionFactory;
+        private ISession session;
+        private ITransaction transaction;
+
+        public NHibernateHandlerScope(ISessionFactory sessionFactory)
+        {
+            this.sessionFactory = sessionFactory;
+        }
+
+        public void Begin()
+        {
+            session = sessionFactory.OpenSession();
+            transaction = session.BeginTransaction();
+            Context.Set<ISession>(session);
+        }
+
+        public void End()
+        {
+            transaction.Commit();
+            session.Clear();
+            session.Close();
+        }
+
+        public IScopeContext Context { get; set; }
+    }
+
     class Program
     {
         static void Main(string[] args)
         {
-            //log4net.Config.XmlConfigurator.Configure();
+            var sf = BuildSessionFactory();
+            var cfg = new CronusConfiguration();
+            cfg.ConfigureEventStore<MssqlEventStore>(eventStore =>
+            {
+                eventStore.BoundedContext = "Collaboration";
+                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["LaCore_Hyperion_Collaboration_EventStore"].ConnectionString;
+                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(CollaboratorState));
+            });
+            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(publisher =>
+            {
+                publisher.InMemory(t => t.UsePipelinePerApplication());
+                publisher.MessagesAssembly = Assembly.GetAssembly(typeof(CreateNewCollaborator));
+            });
+            cfg.ConfigureConsumer<PipelineConsumer<ICommand>>(consumer =>
+            {
+                //consumer.UnitOfWorkFactory
+                consumer.NumberOfWorkers = 1;
+                consumer.ScopeFactory = new ScopeFactory();
+                consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)), (type, context) =>
+                    {
+                        var handler = FastActivator.CreateInstance(type, null);
+                        var nhHandler = handler as IHaveNhibernateSession;
+                        if (nhHandler != null)
+                        {
+                            nhHandler.Session = context.HandlerScopeContext.Get<ISession>();
+                        }
+                        return handler;
+                    });
+                consumer.InMemory(t => t
+                            .UsePipelinePerApplication()
+                            .UseEndpointPerBoundedContext());
+            })
+            .Start();
 
-            var protoRegistration = new ProtoRegistration();
-            protoRegistration.RegisterAssembly<RegisterNewUser>();
-            protoRegistration.RegisterAssembly<Wraper>();
-            ProtoregSerializer serializer = new ProtoregSerializer(protoRegistration);
-            serializer.Build();
+            cfg.Publisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), "mynkow@gmail.com"));
+        }
 
-            string connectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-            var eventStore = new MssqlEventStore("IdentityAndAccess", connectionString, serializer);
-            var player = new EventPlayer(eventStore);
-            player.ReplayEvents();
+        static ISessionFactory BuildSessionFactory()
+        {
+            var typesThatShouldBeMapped = Assembly.GetAssembly(typeof(CollaboratorProjection)).GetExportedTypes().Where(t => t.Namespace.EndsWith("DTOs"));
+            var cfg = new NHibernate.Cfg.Configuration();
+            cfg = cfg.AddAutoMappings(typesThatShouldBeMapped);
+            return cfg.BuildSessionFactory();
         }
     }
 }

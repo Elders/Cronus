@@ -562,4 +562,12 @@ namespace NMSD.Cronus.EventSourcing
 
     }
 
+
+    public interface IEventStreamProcessor
+    {
+        DomainMessageCommit GetCommit();
+        bool CommitCondition(IEventStream eventStream, DomainMessageCommit commit);
+        void PostCommit(IEventStream eventStream);
+        bool CloseStreamCondition(IEventStream eventStream);
+    }
 }

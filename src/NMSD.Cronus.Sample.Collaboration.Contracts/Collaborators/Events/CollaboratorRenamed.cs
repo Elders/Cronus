@@ -1,5 +1,5 @@
 using System.Runtime.Serialization;
-using NMSD.Cronus.Eventing;
+using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Events
 {

@@ -8,7 +8,7 @@ using NMSD.Cronus.UnitOfWork;
 
 namespace NMSD.Cronus.Sample.Nhibernate.UoW
 {
-    public class NhibernateUnitOfWorkFactory : IUnitOfWorkFactory
+    public class NhibernateUnitOfWorkFactory : IScopeFactory
     {
         ISessionFactory nhSessionFactory;
 
@@ -17,17 +17,17 @@ namespace NMSD.Cronus.Sample.Nhibernate.UoW
             this.nhSessionFactory = nhSessionFactory;
         }
 
-        public IUnitOfWorkPerBatch NewBatch()
+        public IBatchScope NewBatchScope()
         {
             return new NullUnitOfWorkPerBatch();
         }
 
-        public IUnitOfWorkPerMessage NewMessage()
+        public IMessageScope NewMessageScope()
         {
             return new NullUnitOfWorkPerMessage();
         }
 
-        public IUnitOfWorkPerHandler NewHandler()
+        public IHandlerScope NewHandlerScope()
         {
             return new NhibernateUnitOfWork(nhSessionFactory);
         }
@@ -51,7 +51,7 @@ namespace NMSD.Cronus.Sample.Nhibernate.UoW
         }
     }
 
-    public class NhibernateUnitOfWork : IUnitOfWorkPerHandler
+    public class NhibernateUnitOfWork : IHandlerScope
     {
         private ISession session;
 
@@ -59,7 +59,7 @@ namespace NMSD.Cronus.Sample.Nhibernate.UoW
 
         private readonly ISessionFactory nhSessionFactory;
 
-        public IUnitOfWorkPerMessage UoWMessage { get; set; }
+        public IMessageScope MessageScope { get; set; }
 
         public IDependancyResolver Resolver { get; set; }
 

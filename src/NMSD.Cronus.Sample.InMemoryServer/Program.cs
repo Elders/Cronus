@@ -152,7 +152,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             var uow = new NhibernateUnitOfWorkFactory(sf);
             var host = new CronusHost();
             host.UseEventHandlersPipelinePerApplication();
-            host.UseEventHandlerPerEndpoint();
+            host.UseEventHandlersPerBoundedContext();
             host.UseCommandPipelinePerApplication();
             host.UseInMemoryTransport();
             host.ConfigureCommandPublisher(x =>

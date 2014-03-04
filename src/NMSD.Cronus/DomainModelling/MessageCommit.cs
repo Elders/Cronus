@@ -4,8 +4,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using NMSD.Cronus.Commanding;
-using NMSD.Cronus.Eventing;
-using NMSD.Cronus.Messaging;
 
 namespace NMSD.Cronus.DomainModelling
 {

@@ -19,7 +19,7 @@ namespace NMSD.Cronus.Sample.Handlers
         private static CronusHost host;
         static void Main(string[] args)
         {
-            //log4net.Config.XmlConfigurator.Configure();
+            log4net.Config.XmlConfigurator.Configure();
 
             UseCronusHost();
             System.Console.WriteLine("Started event handlers");
@@ -42,8 +42,8 @@ namespace NMSD.Cronus.Sample.Handlers
             //DatabaseManager.DeleteDatabase(connectionString);
             //DatabaseManager.CreateDatabase(connectionString, "use_default", true);
             //DatabaseManager.EnableSnapshotIsolation(connectionString);
-            //var sf = BuildSessionFactory();
-            var uow = new NullUnitOfWorkFactory();
+            var sf = BuildSessionFactory();
+            var uow = new NhibernateUnitOfWorkFactory(sf);
             host = new CronusHost();
             host.UseEventHandlersPipelinePerApplication();
             host.UseEventHandlerPerEndpoint();
@@ -57,7 +57,7 @@ namespace NMSD.Cronus.Sample.Handlers
             host.BuildCommandPublisher();
             host.ConfigureEventHandlersConsumer(cfg =>
             {
-                cfg.SetUnitOfWorkFacotry(uow);
+                //cfg.SetUnitOfWorkFacotry(uow);
                 cfg.RegisterEventsAssembly(Assembly.GetAssembly(typeof(NewCollaboratorCreated)));
                 cfg.RegisterEventsAssembly(Assembly.GetAssembly(typeof(NewUserRegistered)));
                 cfg.SetEventHandlersAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));

@@ -5,7 +5,7 @@ using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 namespace NMSD.Cronus.Sample.Collaboration.Collaborators
 {
 
-    public class CollaboratorAppService : AggregateRootApplicationService<Collaborator>, IMessageHandler,
+    public class CollaboratorAppService : AggregateRootApplicationService<Collaborator>,
         IMessageHandler<CreateNewCollaborator>,
         IMessageHandler<RenameCollaborator>
     {
