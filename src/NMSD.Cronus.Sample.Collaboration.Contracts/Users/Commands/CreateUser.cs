@@ -1,14 +1,14 @@
 ﻿using System.Runtime.Serialization;
 using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
+namespace NMSD.Cronus.Sample.Collaboration.Users.Commands
 {
     [DataContract(Name = "279e6378-af27-47e8-a34f-12ca3d371714")]
-    public class CreateNewCollaborator : ICommand
+    public class CreateUser : ICommand
     {
-        CreateNewCollaborator() { }
+        CreateUser() { }
 
-        public CreateNewCollaborator(CollaboratorId id, string email)
+        public CreateUser(CollaboratorId id, string email)
         {
             Email = email;
             Id = id;
@@ -22,7 +22,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Commands
 
         public override string ToString()
         {
-            return this.ToString("Create a new collaborator with '{0}' email. {1}", Email, Id);
+            return this.ToString("Create a new user with '{0}' email. {1}", Email, Id);
         }
     }
 }

@@ -7,9 +7,9 @@ using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Cronus.Sample.Collaboration;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Projections;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
+using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
 using NMSD.Cronus.Sample.Player;
 
@@ -29,12 +29,12 @@ namespace NMSD.Cronus.Sample.Handlers
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(Collaboration, publisher =>
             {
                 publisher.RabbitMq();
-                publisher.MessagesAssemblies = new Assembly[] { Assembly.GetAssembly(typeof(RegisterNewUser)), Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
+                publisher.MessagesAssemblies = new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) };
             });
             cfg.ConfigureConsumer<EndpointConsumer<IEvent>>(Collaboration, consumer =>
             {
                 consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)), (type, context) =>
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
                         var nhHandler = handler as IHaveNhibernateSession;
@@ -59,7 +59,7 @@ namespace NMSD.Cronus.Sample.Handlers
 
         static ISessionFactory BuildSessionFactory()
         {
-            var typesThatShouldBeMapped = Assembly.GetAssembly(typeof(CollaboratorProjection)).GetExportedTypes().Where(t => t.Namespace.EndsWith("DTOs"));
+            var typesThatShouldBeMapped = Assembly.GetAssembly(typeof(UserProjection)).GetExportedTypes().Where(t => t.Namespace.EndsWith("DTOs"));
             var cfg = new NHibernate.Cfg.Configuration();
             cfg = cfg.AddAutoMappings(typesThatShouldBeMapped);
             cfg.CreateDatabaseTables();

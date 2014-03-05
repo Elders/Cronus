@@ -2,13 +2,12 @@
 using System.Runtime.Serialization;
 using NMSD.Cronus.DomainModelling;
 
-
-namespace NMSD.Cronus.Sample.IdentityAndAccess.Users
+namespace NMSD.Cronus.Sample.IdentityAndAccess.Accounts
 {
     [DataContract(Name = "68cb3c79-0d0e-40d4-8dd5-0a49a361ecdd")]
-    public class UserId : AggregateRootId
+    public class AccountId : AggregateRootId
     {
-        UserId() { }
-        public UserId(Guid id) : base(id) { }
+        AccountId() { }
+        public AccountId(Guid id) : base(id) { }
     }
 }

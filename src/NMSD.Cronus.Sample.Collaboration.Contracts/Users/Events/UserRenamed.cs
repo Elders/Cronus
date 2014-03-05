@@ -1,14 +1,14 @@
 using System.Runtime.Serialization;
 using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.Sample.Collaboration.Collaborators.Events
+namespace NMSD.Cronus.Sample.Collaboration.Users.Events
 {
     [DataContract(Name = "64089974-6371-4112-84dc-4326ab3ec52e")]
-    public class CollaboratorRenamed : IEvent
+    public class UserRenamed : IEvent
     {
-        CollaboratorRenamed() { }
+        UserRenamed() { }
 
-        public CollaboratorRenamed(CollaboratorId collaboratorId, string firstName, string lastName)
+        public UserRenamed(CollaboratorId collaboratorId, string firstName, string lastName)
         {
             CollaboratorId = collaboratorId;
             FirstName = firstName;

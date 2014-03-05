@@ -1,6 +1,6 @@
 ﻿using System;
 using Machine.Specifications;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users;
+using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 
 namespace NMSD.Cronus.Tests.ImplTests
 {
@@ -11,12 +11,12 @@ namespace NMSD.Cronus.Tests.ImplTests
         {
             var idBase = Guid.NewGuid();
 
-            stateA = new UserState();
-            stateA.Id = new UserId(idBase);
+            stateA = new AccountState();
+            stateA.Id = new AccountId(idBase);
             stateA.Version = 1;
 
-            stateB = new UserState();
-            stateB.Id = new UserId(idBase);
+            stateB = new AccountState();
+            stateB.Id = new AccountId(idBase);
             stateB.Version = 1;
         };
 
@@ -25,8 +25,8 @@ namespace NMSD.Cronus.Tests.ImplTests
         It should_return__true__ = () => result.ShouldBeTrue();
 
         static bool result;
-        static UserState stateA;
-        static UserState stateB;
+        static AccountState stateA;
+        static AccountState stateB;
     }
 
     [Subject("AggregateRootState_compare_operations")]
@@ -36,8 +36,8 @@ namespace NMSD.Cronus.Tests.ImplTests
         {
             var idBase = Guid.NewGuid();
 
-            stateA = new UserState();
-            stateA.Id = new UserId(idBase);
+            stateA = new AccountState();
+            stateA.Id = new AccountId(idBase);
             stateA.Version = 1;
 
             stateB = null;
@@ -48,8 +48,8 @@ namespace NMSD.Cronus.Tests.ImplTests
         It should_return__false__ = () => result.ShouldBeFalse();
 
         static bool result;
-        static UserState stateA;
-        static UserState stateB;
+        static AccountState stateA;
+        static AccountState stateB;
     }
 
     [Subject("AggregateRootState_compare_operations")]
@@ -59,12 +59,12 @@ namespace NMSD.Cronus.Tests.ImplTests
         {
             var idBase = Guid.NewGuid();
 
-            stateA = new UserState();
-            stateA.Id = new UserId(idBase);
+            stateA = new AccountState();
+            stateA.Id = new AccountId(idBase);
             stateA.Version = 1;
 
-            stateB = new UserState();
-            stateB.Id = new UserId(idBase);
+            stateB = new AccountState();
+            stateB.Id = new AccountId(idBase);
             stateB.Version = 2;
         };
 
@@ -73,7 +73,7 @@ namespace NMSD.Cronus.Tests.ImplTests
         It should_return__true__ = () => result.ShouldBeTrue();
 
         static bool result;
-        static UserState stateA;
-        static UserState stateB;
+        static AccountState stateA;
+        static AccountState stateB;
     }
 }

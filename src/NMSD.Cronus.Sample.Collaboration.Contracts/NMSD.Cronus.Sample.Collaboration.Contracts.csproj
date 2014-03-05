@@ -75,11 +75,11 @@
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collaborators\CollaboratorId.cs" />
-    <Compile Include="Collaborators\Commands\CreateNewCollaborator.cs" />
-    <Compile Include="Collaborators\Commands\RenameCollaborator.cs" />
-    <Compile Include="Collaborators\Events\CollaboratorRenamed.cs" />
-    <Compile Include="Collaborators\Events\NewCollaboratorCreated.cs" />
+    <Compile Include="Users\CollaboratorId.cs" />
+    <Compile Include="Users\Commands\CreateUser.cs" />
+    <Compile Include="Users\Commands\RenameUser.cs" />
+    <Compile Include="Users\Events\UserRenamed.cs" />
+    <Compile Include="Users\Events\UserCreated.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
       <Link>Properties\AssemblyVersionInfo.cs</Link>

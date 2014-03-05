@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using Machine.Specifications;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Sample.Collaboration.Collaborators;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
+using NMSD.Cronus.Sample.Collaboration.Users;
+using NMSD.Cronus.Sample.Collaboration.Users.Events;
 
 namespace NMSD.Cronus.Tests
 {
@@ -14,16 +14,16 @@ namespace NMSD.Cronus.Tests
         {
             id = new CollaboratorId(Guid.NewGuid());
             events = new List<IEvent>();
-            events.Add(new NewCollaboratorCreated(id, "collaborator@cronus.com"));
-            events.Add(new CollaboratorRenamed(id, "first", "last"));
+            events.Add(new UserCreated(id, "collaborator@cronus.com"));
+            events.Add(new UserRenamed(id, "first", "last"));
         };
 
-        Because of = () => ar = AggregateRootFactory.Build<Collaborator>(events);
+        Because of = () => ar = AggregateRootFactory.Build<User>(events);
 
         It should_instansiate_aggregate_root = () => ar.ShouldNotBeNull();
         It should_instansiate_aggregate_root_with_valid_state = () => ((IAggregateRootStateManager)ar).State.Id.ShouldEqual(id);
 
-        static Collaborator ar;
+        static User ar;
         static CollaboratorId id;
         static List<IEvent> events;
     }
@@ -35,10 +35,10 @@ namespace NMSD.Cronus.Tests
         {
             id = new CollaboratorId(Guid.NewGuid());
             events = new List<IEvent>();
-            events.Add(new CollaboratorRenamed(id, "first", "last"));
+            events.Add(new UserRenamed(id, "first", "last"));
         };
 
-        Because of = () => expectedException = Catch.Exception(() => AggregateRootFactory.Build<Collaborator>(events));
+        Because of = () => expectedException = Catch.Exception(() => AggregateRootFactory.Build<User>(events));
 
         It an__AggregateRootException__should_be_thrown = () => expectedException.ShouldBeOfType<AggregateRootException>();
 

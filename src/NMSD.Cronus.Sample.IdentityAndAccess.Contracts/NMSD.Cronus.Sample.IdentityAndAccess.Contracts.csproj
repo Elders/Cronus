@@ -37,11 +37,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Users\Commands\ChangeUserEmail.cs" />
-    <Compile Include="Users\Commands\RegisterNewUser.cs" />
-    <Compile Include="Users\Events\NewUserRegistered.cs" />
-    <Compile Include="Users\Events\UserEmailChanged.cs" />
-    <Compile Include="Users\UserId.cs" />
+    <Compile Include="Accounts\Commands\ChangeAccountEmail.cs" />
+    <Compile Include="Accounts\Commands\RegisterAccount.cs" />
+    <Compile Include="Accounts\Events\AccountRegistered.cs" />
+    <Compile Include="Accounts\Events\AccountEmailChanged.cs" />
+    <Compile Include="Accounts\AccountId.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
       <Link>Properties\AssemblyVersionInfo.cs</Link>
     </Compile>

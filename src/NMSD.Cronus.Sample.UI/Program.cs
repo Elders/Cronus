@@ -2,14 +2,11 @@
 using System.Reflection;
 using System.Threading;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Pipelining;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
-using NMSD.Cronus.Sample.Player;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
-using NMSD.Cronus.Pipelining.Transport.Config;
+using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
+using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
+using NMSD.Cronus.Sample.Player;
 
 namespace NMSD.Cronus.Sample.UI
 {
@@ -28,7 +25,7 @@ namespace NMSD.Cronus.Sample.UI
             {
                 publisher.RabbitMq();
                 //publisher.Transport<RabbitMq>(x=>x.);
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterNewUser)) };
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
             })
             .Start();
 
@@ -60,9 +57,9 @@ namespace NMSD.Cronus.Sample.UI
 
         private static void PublishCommands()
         {
-            UserId userId = new UserId(Guid.NewGuid());
+            AccountId userId = new AccountId(Guid.NewGuid());
             var email = "mynkow@gmail.com";
-            commandPublisher.Publish(new RegisterNewUser(userId, email));
+            commandPublisher.Publish(new RegisterAccount(userId, email));
 
             //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail3@gmail.com"));
             //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail4@gmail.com"));

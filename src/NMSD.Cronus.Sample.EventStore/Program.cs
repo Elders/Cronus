@@ -2,16 +2,15 @@
 using System.Reflection;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.EventSourcing;
-using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Cronus.Pipelining;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
-using NMSD.Cronus.Sample.Player;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
-using NMSD.Cronus.Sample.Collaboration.Collaborators;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Sample.Collaboration.Users;
+using NMSD.Cronus.Sample.Collaboration.Users.Commands;
+using NMSD.Cronus.Sample.Collaboration.Users.Events;
+using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
+using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
+using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Events;
+using NMSD.Cronus.Sample.Player;
 
 namespace NMSD.Cronus.Sample.EventStore
 {
@@ -34,21 +33,21 @@ namespace NMSD.Cronus.Sample.EventStore
             {
                 eventStore.BoundedContext = IAA;
                 eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
+                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(AccountState));
             });
             cfg.ConfigurePublisher<PipelinePublisher<IEvent>>(IAA, publisher =>
             {
                 publisher.RabbitMq();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(NewUserRegistered)) };
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(AccountRegistered)) };
             });
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(IAA, publisher =>
             {
                 publisher.RabbitMq();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterNewUser)) };
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
             });
             cfg.ConfigureEventStoreConsumer<EndpointEventStoreConsumer>(IAA, consumer =>
             {
-                consumer.AssemblyEventsWhichWillBeIntercepted = typeof(RegisterNewUser);
+                consumer.AssemblyEventsWhichWillBeIntercepted = typeof(RegisterAccount);
                 consumer.RabbitMq();
             });
 
@@ -57,21 +56,21 @@ namespace NMSD.Cronus.Sample.EventStore
             {
                 eventStore.BoundedContext = Collaboration;
                 eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(CollaboratorState));
+                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
             });
             cfg.ConfigurePublisher<PipelinePublisher<IEvent>>(Collaboration, publisher =>
             {
                 publisher.RabbitMq();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(NewCollaboratorCreated)) };
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
             });
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(Collaboration, publisher =>
             {
                 publisher.RabbitMq();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
             });
             cfg.ConfigureEventStoreConsumer<EndpointEventStoreConsumer>(Collaboration, consumer =>
             {
-                consumer.AssemblyEventsWhichWillBeIntercepted = typeof(NewCollaboratorCreated);
+                consumer.AssemblyEventsWhichWillBeIntercepted = typeof(UserCreated);
                 consumer.RabbitMq();
             });
 

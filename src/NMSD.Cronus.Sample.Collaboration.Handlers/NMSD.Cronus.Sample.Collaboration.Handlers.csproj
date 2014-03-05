@@ -48,9 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IHaveNhibernateSession.cs" />
-    <Compile Include="Ports\Collaborator\CollaboratorPorts.cs" />
-    <Compile Include="Projections\CollaboratorProjection.cs" />
-    <Compile Include="Projections\DTOs\CollaboratorI.cs" />
+    <Compile Include="Users\Ports\UserPort.cs" />
+    <Compile Include="Users\Projections\CollaboratorProjection.cs" />
+    <Compile Include="Users\DTOs\Collaborator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
       <Link>Properties\AssemblyVersionInfo.cs</Link>

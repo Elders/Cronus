@@ -11,8 +11,8 @@ using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Cronus.Sample.Collaboration;
-using NMSD.Cronus.Sample.Collaboration.Collaborators;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Sample.Collaboration.Users;
+using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
 using NMSD.Cronus.Sample.Player;
@@ -33,17 +33,17 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             {
                 eventStore.BoundedContext = "Collaboration";
                 eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(CollaboratorState));
+                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
             });
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
             {
                 publisher.InMemory();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
             });
             cfg.ConfigurePublisher<PipelinePublisher<IEvent>>("Collaboration", publisher =>
             {
                 publisher.InMemory();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
             });
             cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>("Collaboration", publisher =>
             {
@@ -51,14 +51,14 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             });
             cfg.ConfigureEventStoreConsumer<EndpointEventStoreConsumer>("Collaboration", consumer =>
             {
-                consumer.AssemblyEventsWhichWillBeIntercepted = typeof(CreateNewCollaborator);
+                consumer.AssemblyEventsWhichWillBeIntercepted = typeof(CreateUser);
                 consumer.InMemory();
             });
             cfg.ConfigureConsumer<EndpointConsumer<ICommand>>("Collaboration", consumer =>
             {
                 consumer.ScopeFactory = new ScopeFactory();
                 consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)), (type, context) =>
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
                         var repositoryHandler = handler as IAggregateRootApplicationService;
@@ -74,7 +74,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             {
                 consumer.ScopeFactory = new ScopeFactory();
                 consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)), (type, context) =>
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
                         var nhHandler = handler as IHaveNhibernateSession;
@@ -118,7 +118,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
         {
             CollaboratorId collaboratorId = new CollaboratorId(Guid.NewGuid());
             var email = "mynkow@gmail.com";
-            commandPublisher.Publish(new CreateNewCollaborator(collaboratorId, email));
+            commandPublisher.Publish(new CreateUser(collaboratorId, email));
             //Thread.Sleep(1000);
 
             //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
@@ -127,7 +127,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
 
         static ISessionFactory BuildSessionFactory()
         {
-            var typesThatShouldBeMapped = Assembly.GetAssembly(typeof(CollaboratorProjection)).GetExportedTypes().Where(t => t.Namespace.EndsWith("DTOs"));
+            var typesThatShouldBeMapped = Assembly.GetAssembly(typeof(UserProjection)).GetExportedTypes().Where(t => t.Namespace.EndsWith("DTOs"));
             var cfg = new NHibernate.Cfg.Configuration();
             cfg = cfg.AddAutoMappings(typesThatShouldBeMapped);
             cfg.CreateDatabaseTables();

@@ -10,8 +10,8 @@ using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.Pipelining.InMemory.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Cronus.Sample.Collaboration;
-using NMSD.Cronus.Sample.Collaboration.Collaborators;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Sample.Collaboration.Users;
+using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Projections;
 
 namespace NMSD.Cronus.Sample.Player
@@ -54,12 +54,12 @@ namespace NMSD.Cronus.Sample.Player
             {
                 eventStore.BoundedContext = "Collaboration";
                 eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["LaCore_Hyperion_Collaboration_EventStore"].ConnectionString;
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(CollaboratorState));
+                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
             });
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
             {
                 publisher.InMemory(t => t.UsePipelinePerApplication());
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
             });
 
             cfg.ConfigureConsumer<EndpointConsumer<ICommand>>("Collaboration", consumer =>
@@ -68,7 +68,7 @@ namespace NMSD.Cronus.Sample.Player
                 consumer.NumberOfWorkers = 1;
                 consumer.ScopeFactory = new ScopeFactory();
                 consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)), (type, context) =>
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
                         var nhHandler = handler as IHaveNhibernateSession;
@@ -82,12 +82,12 @@ namespace NMSD.Cronus.Sample.Player
             })
             .Start();
 
-            cfg.publishers["Collaboration"][typeof(ICommand)].Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), "mynkow@gmail.com"));
+            cfg.publishers["Collaboration"][typeof(ICommand)].Publish(new CreateUser(new CollaboratorId(Guid.NewGuid()), "mynkow@gmail.com"));
         }
 
         static ISessionFactory BuildSessionFactory()
         {
-            var typesThatShouldBeMapped = Assembly.GetAssembly(typeof(CollaboratorProjection)).GetExportedTypes().Where(t => t.Namespace.EndsWith("DTOs"));
+            var typesThatShouldBeMapped = Assembly.GetAssembly(typeof(UserProjection)).GetExportedTypes().Where(t => t.Namespace.EndsWith("DTOs"));
             var cfg = new NHibernate.Cfg.Configuration();
             cfg = cfg.AddAutoMappings(typesThatShouldBeMapped);
             return cfg.BuildSessionFactory();

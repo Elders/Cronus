@@ -1,16 +1,16 @@
 ﻿using System.Runtime.Serialization;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
+using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Events;
 
-namespace NMSD.Cronus.Sample.IdentityAndAccess.Users
+namespace NMSD.Cronus.Sample.IdentityAndAccess.Accounts
 {
     [DataContract(Name = "9e97081e-d230-4351-b23a-6cbb65df4cbb")]
-    public sealed class UserState : AggregateRootState<UserId>
+    public sealed class AccountState : AggregateRootState<AccountId>
     {
-        public UserState() { }
+        public AccountState() { }
 
         [DataMember(Order = 1)]
-        public override UserId Id { get; set; }
+        public override AccountId Id { get; set; }
 
         [DataMember(Order = 2)]
         public override int Version { get; set; }
@@ -24,13 +24,13 @@ namespace NMSD.Cronus.Sample.IdentityAndAccess.Users
         [DataMember(Order = 5)]
         public string LastName { get; private set; }
 
-        public void When(NewUserRegistered e)
+        public void When(AccountRegistered e)
         {
             Id = e.Id;
             Email = e.Email;
         }
 
-        public void When(UserEmailChanged e)
+        public void When(AccountEmailChanged e)
         {
             Email = e.NewEmail;
         }

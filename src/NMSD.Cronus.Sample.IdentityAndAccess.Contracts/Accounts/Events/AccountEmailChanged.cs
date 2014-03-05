@@ -1,14 +1,14 @@
 ﻿using System.Runtime.Serialization;
 using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.Sample.IdentityAndAccess.Users.Events
+namespace NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Events
 {
     [DataContract(Name = "fa54bc57-cfba-49b6-b08f-99457624de5d")]
-    public class UserEmailChanged : IEvent
+    public class AccountEmailChanged : IEvent
     {
-        UserEmailChanged() { }
+        AccountEmailChanged() { }
 
-        public UserEmailChanged(UserId id, string oldEmail, string newEmail)
+        public AccountEmailChanged(AccountId id, string oldEmail, string newEmail)
         {
             NewEmail = newEmail;
             OldEmail = oldEmail;
@@ -16,7 +16,7 @@ namespace NMSD.Cronus.Sample.IdentityAndAccess.Users.Events
         }
 
         [DataMember(Order = 1)]
-        public UserId Id { get; private set; }
+        public AccountId Id { get; private set; }
 
         [DataMember(Order = 2)]
         public string OldEmail { get; private set; }
@@ -26,7 +26,7 @@ namespace NMSD.Cronus.Sample.IdentityAndAccess.Users.Events
 
         public override string ToString()
         {
-            return this.ToString("User email '{0}' was changed to '{1}'. {2}", OldEmail, NewEmail, Id);
+            return this.ToString("Account email '{0}' was changed to '{1}'. {2}", OldEmail, NewEmail, Id);
         }
     }
 }

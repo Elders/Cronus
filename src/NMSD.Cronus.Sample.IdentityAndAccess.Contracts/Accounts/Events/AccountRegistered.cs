@@ -1,21 +1,21 @@
 ﻿using System.Runtime.Serialization;
 using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.Sample.IdentityAndAccess.Users.Events
+namespace NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Events
 {
     [DataContract(Name = "594c1ff2-07b1-42ac-b622-bc9d5045057a")]
-    public class NewUserRegistered : IEvent
+    public class AccountRegistered : IEvent
     {
-        NewUserRegistered() { }
+        AccountRegistered() { }
 
-        public NewUserRegistered(UserId id, string email)
+        public AccountRegistered(AccountId id, string email)
         {
             Id = id;
             Email = email;
         }
 
         [DataMember(Order = 1)]
-        public UserId Id { get; private set; }
+        public AccountId Id { get; private set; }
 
         [DataMember(Order = 2)]
         public string Email { get; private set; }

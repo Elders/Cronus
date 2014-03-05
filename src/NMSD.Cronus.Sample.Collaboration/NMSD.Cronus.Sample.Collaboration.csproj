@@ -75,9 +75,13 @@
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Collaborators\Collaborator.cs" />
-    <Compile Include="Collaborators\CollaboratorAppService.cs" />
-    <Compile Include="Collaborators\CollaboratorState.cs" />
+    <Compile Include="Users\User.cs" />
+    <Compile Include="Users\UserAppService.cs">
+      <DependentUpon>User.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Users\UserState.cs">
+      <DependentUpon>User.cs</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
       <Link>Properties\AssemblyVersionInfo.cs</Link>
@@ -86,9 +90,7 @@
       <Link>Properties\AssemblyCompanyProductInfo.cs</Link>
     </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Chat\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Contracts\NMSD.Cronus.Sample.Collaboration.Contracts.csproj">
       <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>

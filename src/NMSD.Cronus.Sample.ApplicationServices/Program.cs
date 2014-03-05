@@ -2,15 +2,14 @@
 using System.Reflection;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.EventSourcing;
-using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Cronus.Pipelining;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
-using NMSD.Cronus.Sample.Player;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;
-using NMSD.Cronus.Sample.Collaboration.Collaborators;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
+using NMSD.Cronus.Sample.Collaboration.Users;
+using NMSD.Cronus.Sample.Collaboration.Users.Commands;
+using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
+using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
+using NMSD.Cronus.Sample.Player;
 
 namespace NMSD.Cronus.Sample.ApplicationService
 {
@@ -35,7 +34,7 @@ namespace NMSD.Cronus.Sample.ApplicationService
             {
                 eventStore.BoundedContext = IAA;
                 eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
+                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(AccountState));
             });
             cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>(IAA, publisher =>
             {
@@ -43,8 +42,8 @@ namespace NMSD.Cronus.Sample.ApplicationService
             });
             cfg.ConfigureConsumer<EndpointConsumer<ICommand>>(IAA, consumer =>
             {
-                consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterNewUser)) };
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
+                consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(AccountAppService)), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
                         var repositoryHandler = handler as IAggregateRootApplicationService;
@@ -62,7 +61,7 @@ namespace NMSD.Cronus.Sample.ApplicationService
             {
                 eventStore.BoundedContext = Collaboration;
                 eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(CollaboratorState));
+                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
             });
             cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>(Collaboration, publisher =>
             {
@@ -70,8 +69,8 @@ namespace NMSD.Cronus.Sample.ApplicationService
             });
             cfg.ConfigureConsumer<EndpointConsumer<ICommand>>(Collaboration, consumer =>
             {
-                consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)), (type, context) =>
+                consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
                         var repositoryHandler = handler as IAggregateRootApplicationService;
