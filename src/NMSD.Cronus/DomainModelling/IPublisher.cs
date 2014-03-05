@@ -1,6 +1,6 @@
 ﻿using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.Messaging
+namespace NMSD.Cronus.DomainModelling
 {
     public interface IPublisher : ITransportIMessage
     {

@@ -21,10 +21,10 @@ namespace NMSD.Cronus.Pipelining.RabbitMQ.Config
         public static PipelinePublisherSettings<T> RabbitMq<T>(this PipelinePublisherSettings<T> publisher, Action<IPipelineTransportSettings<T>> transportConfigure = null)
             where T : IPublisher
         {
-            publisher.Transport = new RabbitMqTransportSettings<T>(publisher.Transport.PipelineSettings);
+            publisher.TransportSettings = new RabbitMqTransportSettings<T>(publisher.TransportSettings.PipelineSettings);
             if (transportConfigure != null)
-                transportConfigure(publisher.Transport);
-            publisher.Transport.Build();
+                transportConfigure(publisher.TransportSettings);
+            publisher.TransportSettings.Build();
             return publisher;
         }
 
@@ -37,5 +37,7 @@ namespace NMSD.Cronus.Pipelining.RabbitMQ.Config
             esConsumer.Transport.Build();
             return esConsumer;
         }
+
+        
     }
 }

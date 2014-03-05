@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Hosting;
 using NMSD.Cronus.Messaging.MessageHandleScope;
-using NMSD.Cronus.Transports.Conventions;
+using NMSD.Cronus.Pipelining.Transport.Strategy;
 
 namespace NMSD.Cronus.Pipelining.Transport.Config
 {
@@ -13,6 +12,7 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
         public PipelineConsumerSettings()
         {
             NumberOfWorkers = 1;
+            ScopeFactory = new ScopeFactory();
             Transport = new PipelineTransportSettings<T>();
 
             bool isCommand = typeof(T).GetGenericArguments()[0] == typeof(ICommand);

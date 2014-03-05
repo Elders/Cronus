@@ -78,9 +78,7 @@ namespace NMSD.Cronus.Sample.Player
                         }
                         return handler;
                     });
-                consumer.InMemory(t => t
-                            .UsePipelinePerApplication()
-                            .UseEndpointPerBoundedContext());
+                consumer.InMemory();
             })
             .Start();
 

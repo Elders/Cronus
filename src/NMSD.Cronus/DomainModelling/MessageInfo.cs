@@ -3,9 +3,9 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.Serialization;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Messaging;
+//using NMSD.Cronus.Messaging;
 
-namespace NMSD.Cronus
+namespace NMSD.Cronus.DomainModelling
 {
     public static class MessageInfo
     {

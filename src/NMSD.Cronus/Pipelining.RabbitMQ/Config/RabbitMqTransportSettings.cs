@@ -1,3 +1,4 @@
+using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Cronus.Transport.InMemory;

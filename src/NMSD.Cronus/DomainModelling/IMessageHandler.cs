@@ -1,6 +1,6 @@
 using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.Messaging
+namespace NMSD.Cronus.DomainModelling
 {
     /// <summary>
     /// A markup interface telling that the implementing class will handle all messages of Type <typeparamref name="T"/>

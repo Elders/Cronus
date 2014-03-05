@@ -1,4 +1,4 @@
-﻿using NMSD.Cronus.Messaging;
+﻿using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.Collaboration.Projections.DTOs;
 

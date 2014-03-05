@@ -4,8 +4,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.Transports;
+using NMSD.Cronus.Transports.Conventions;
 
-namespace NMSD.Cronus.Transports.Conventions
+namespace NMSD.Cronus.Pipelining.Transport.Strategy
 {
     public class EventHandlerEndpointPerHandler : IEndpointNameConvention
     {

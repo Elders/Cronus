@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.Transports;
+using NMSD.Cronus.Transports.Conventions;
 
-namespace NMSD.Cronus.Transports.Conventions
+namespace NMSD.Cronus.Pipelining.Transport.Strategy
 {
     public class CommandHandlerEndpointPerBoundedContext : IEndpointNameConvention
     {

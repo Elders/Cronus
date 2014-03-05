@@ -1,4 +1,4 @@
-namespace NMSD.Cronus.Messaging
+namespace NMSD.Cronus.DomainModelling
 {
     public interface ITransportIMessage
     {

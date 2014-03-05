@@ -9,6 +9,7 @@ using NMSD.Cronus.Sample.IdentityAndAccess.Users;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
 using NMSD.Cronus.Sample.Player;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
+using NMSD.Cronus.Pipelining.Transport.Config;
 
 namespace NMSD.Cronus.Sample.UI
 {
@@ -26,6 +27,7 @@ namespace NMSD.Cronus.Sample.UI
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(IAA, publisher =>
             {
                 publisher.RabbitMq();
+                //publisher.Transport<RabbitMq>(x=>x.);
                 publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterNewUser)) };
             })
             .Start();

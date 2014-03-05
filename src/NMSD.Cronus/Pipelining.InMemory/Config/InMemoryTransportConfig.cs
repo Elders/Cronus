@@ -21,10 +21,10 @@ namespace NMSD.Cronus.Pipelining.InMemory.Config
         public static PipelinePublisherSettings<T> InMemory<T>(this PipelinePublisherSettings<T> publisher, Action<IPipelineTransportSettings<T>> transportConfigure = null)
             where T : IPublisher
         {
-            publisher.Transport = new InMemoryTransportSettings<T>(publisher.Transport.PipelineSettings);
+            publisher.TransportSettings = new InMemoryTransportSettings<T>(publisher.TransportSettings.PipelineSettings);
             if (transportConfigure != null)
-                transportConfigure(publisher.Transport);
-            publisher.Transport.Build();
+                transportConfigure(publisher.TransportSettings);
+            publisher.TransportSettings.Build();
             return publisher;
         }
 

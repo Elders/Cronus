@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using NHibernate;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;
@@ -22,11 +21,11 @@ namespace NMSD.Cronus.Sample.Handlers
         public static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
-            string IAA = "IdentityAndAccess";
-            string Collaboration = "Collaboration";
+
             var sf = BuildSessionFactory();
             var cfg = new CronusConfiguration();
 
+            string Collaboration = "Collaboration";
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(Collaboration, publisher =>
             {
                 publisher.RabbitMq();
@@ -34,7 +33,6 @@ namespace NMSD.Cronus.Sample.Handlers
             });
             cfg.ConfigureConsumer<EndpointConsumer<IEvent>>(Collaboration, consumer =>
             {
-                consumer.ScopeFactory = new ScopeFactory();
                 consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)), (type, context) =>
                     {

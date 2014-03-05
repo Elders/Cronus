@@ -118,14 +118,16 @@
     <Compile Include="EventSourcing\RabbitRepository.cs" />
     <Compile Include="Pipelining\IConsumer.cs" />
     <Compile Include="Pipelining\Host\IEndpointConsumable.cs" />
-    <Compile Include="Messaging\ITransportIMessage.cs" />
+    <Compile Include="DomainModelling\ITransportIMessage.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryEndpointFactory.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryEndpoint.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryPipeline.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryPipelineFactory.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryQueue.cs" />
     <Compile Include="Pipelining.RabbitMQ\PipelineClosedException.cs" />
-    <Compile Include="Pipelining\Transport\Config\CommandTransportConfig.cs" />
+    <Compile Include="Pipelining\Transport\Config\CommandTransportStrategyConfig.cs" />
+    <Compile Include="Pipelining\Transport\Config\EventStoreTransportStrategyConfig.cs" />
+    <Compile Include="Pipelining\Transport\Config\EventTransportStrategyConfig.cs" />
     <Compile Include="Pipelining.InMemory\Config\InMemoryTransportConfig.cs" />
     <Compile Include="Pipelining.InMemory\Config\InMemoryTransportSettings.cs" />
     <Compile Include="Pipelining\Transport\Config\MessageHandlerRegistrations.cs" />
@@ -141,9 +143,9 @@
     <Compile Include="Userfull\Class1.cs" />
     <Compile Include="Userfull\DictionaryExtensions.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
-    <Compile Include="Messaging\MessageHandlerCollection.cs" />
+    <Compile Include="DomainModelling\MessageHandlerCollection.cs" />
     <Compile Include="DomainModelling\IMessage.cs" />
-    <Compile Include="Messaging\IMessageHandler.cs" />
+    <Compile Include="DomainModelling\IMessageHandler.cs" />
     <Compile Include="Messaging\MessageHandleScope\ScopeContext.cs" />
     <Compile Include="DomainModelling\AggregateRoot.cs" />
     <Compile Include="DomainModelling\AggregateRootFactory.cs" />
@@ -162,7 +164,7 @@
     <Compile Include="Userfull\FastActivator.cs" />
     <Compile Include="DomainModelling\IEvent.cs" />
     <Compile Include="DomainModelling\IAggregateRepository.cs" />
-    <Compile Include="Messaging\MessageInfo.cs" />
+    <Compile Include="DomainModelling\MessageInfo.cs" />
     <Compile Include="DomainModelling\MessageCommit.cs" />
     <Compile Include="Multithreading\Work\IWork.cs" />
     <Compile Include="Multithreading\Work\WorkExtensions.cs" />
@@ -177,8 +179,8 @@
     <Compile Include="$(SolutionDir)AssemblyCompanyProductInfo.cs">
       <Link>Properties\AssemblyCompanyProductInfo.cs</Link>
     </Compile>
-    <Compile Include="Messaging\Publisher.cs" />
-    <Compile Include="Messaging\IPublisher.cs" />
+    <Compile Include="DomainModelling\Publisher.cs" />
+    <Compile Include="DomainModelling\IPublisher.cs" />
     <Compile Include="Userfull\RetryableOperation.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
     <Compile Include="Pipelining\Transport\Strategy\CommandHandlerEndpointPerBoundedContext.cs" />

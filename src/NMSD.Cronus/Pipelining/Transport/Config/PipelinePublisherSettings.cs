@@ -1,8 +1,8 @@
 using System;
 using System.Reflection;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Messaging;
-using NMSD.Cronus.Transports.Conventions;
+using NMSD.Cronus.Pipelining.RabbitMQ.Config;
+using NMSD.Cronus.Pipelining.Transport.Strategy;
 
 namespace NMSD.Cronus.Pipelining.Transport.Config
 {
@@ -10,7 +10,7 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
     {
         public PipelinePublisherSettings()
         {
-            Transport = new PipelineTransportSettings<T>();
+            TransportSettings = new PipelineTransportSettings<T>();
 
             bool isCommand = typeof(T).GetGenericArguments()[0] == typeof(ICommand);
             bool isEvent = typeof(T).GetGenericArguments()[0] == typeof(IEvent);
@@ -18,22 +18,59 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
 
             if (isCommand)
             {
-                Transport.PipelineSettings.PipelineNameConvention = new CommandPipelinePerApplication();
+                TransportSettings.PipelineSettings.PipelineNameConvention = new CommandPipelinePerApplication();
             }
             else if (isEvent)
             {
-                Transport.PipelineSettings.PipelineNameConvention = new EventPipelinePerApplication();
+                TransportSettings.PipelineSettings.PipelineNameConvention = new EventPipelinePerApplication();
             }
             else if (isCommit)
             {
-                Transport.PipelineSettings.PipelineNameConvention = new EventStorePipelinePerApplication();
+                TransportSettings.PipelineSettings.PipelineNameConvention = new EventStorePipelinePerApplication();
             }
             else
             {
                 throw new NotImplementedException();
             }
         }
-        public IPipelineTransportSettings<T> Transport;
+        public IPipelineTransportSettings<T> TransportSettings;
+
         public Assembly[] MessagesAssemblies { get; set; }
+
+
+
+        public PipelinePublisherSettings<T> Transport<TTransport>(Action<TTransport> transportConfigure = null)
+            where TTransport : IPipelineTransport
+        {
+            var transport = Activator.CreateInstance<TTransport>();
+            TransportSettings = transport.TransportSettings<T>(TransportSettings.PipelineSettings);
+            //if (transportConfigure != null)
+            //    transportConfigure(TransportSettings);
+            TransportSettings.Build();
+            return this;
+        }
+    }
+
+
+
+    public interface IPipelineTransport
+    {
+        IPipelineTransportSettings<T> TransportSettings<T>(PipelineSettings pipelineSettings = null) where T : ITransportIMessage;
+    }
+
+    public class RabbitMq : IPipelineTransport
+    {
+        public IPipelineTransportSettings<T> TransportSettings<T>(PipelineSettings pipelineSettings = null) where T : ITransportIMessage
+        {
+            return new RabbitMqTransportSettings<T>(pipelineSettings);
+        }
+    }
+
+    public static class RabbitMqConfig
+    {
+        public static RabbitMq Settings<T>(this RabbitMq transport, Action<IPipelineTransportSettings<T>> settings) where T : ITransportIMessage
+        {
+            return transport;
+        }
     }
 }

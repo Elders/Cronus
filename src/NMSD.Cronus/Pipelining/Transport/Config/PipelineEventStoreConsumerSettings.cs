@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
-using NMSD.Cronus.Messaging.MessageHandleScope;
-using NMSD.Cronus.Transports.Conventions;
+using NMSD.Cronus.Pipelining.Transport.Strategy;
 
 namespace NMSD.Cronus.Pipelining.Transport.Config
 {

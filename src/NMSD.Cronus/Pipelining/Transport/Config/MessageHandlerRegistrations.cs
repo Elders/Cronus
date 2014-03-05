@@ -2,8 +2,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Hosting;
-using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Messaging.MessageHandleScope;
 
 namespace NMSD.Cronus.Pipelining.Transport.Config
@@ -47,13 +45,6 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
                         consumer.AddRegistration(eventType, fpMessageHandlerType, messageHandlerFactory);
                 }
             }
-        }
-
-        static bool IsHandlerClass(Type possbileHandler)
-        {
-            Type genericMarkupInterface = typeof(IMessageHandler<>);
-
-            return possbileHandler.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericMarkupInterface);
         }
     }
 }

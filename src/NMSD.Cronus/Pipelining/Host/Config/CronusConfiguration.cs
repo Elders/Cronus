@@ -99,15 +99,15 @@ namespace NMSD.Cronus.Sample.Player
 
             if (typeof(T) == typeof(PipelinePublisher<ICommand>))
             {
-                publishers[boundedContextName].Add(typeof(ICommand), new PipelinePublisher<ICommand>(cfg.Transport.PipelineFactory, serializer));
+                publishers[boundedContextName].Add(typeof(ICommand), new PipelinePublisher<ICommand>(cfg.TransportSettings.PipelineFactory, serializer));
             }
             else if (typeof(T) == typeof(PipelinePublisher<IEvent>))
             {
-                publishers[boundedContextName].Add(typeof(IEvent), new PipelinePublisher<IEvent>(cfg.Transport.PipelineFactory, serializer));
+                publishers[boundedContextName].Add(typeof(IEvent), new PipelinePublisher<IEvent>(cfg.TransportSettings.PipelineFactory, serializer));
             }
             else if (typeof(T) == typeof(PipelinePublisher<DomainMessageCommit>))
             {
-                publishers[boundedContextName].Add(typeof(DomainMessageCommit), new EventStorePublisher(cfg.Transport.PipelineFactory, serializer));
+                publishers[boundedContextName].Add(typeof(DomainMessageCommit), new EventStorePublisher(cfg.TransportSettings.PipelineFactory, serializer));
             }
             else
             {

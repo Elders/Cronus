@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Transports;
 
 namespace NMSD.Cronus.Pipelining

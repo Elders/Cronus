@@ -43,7 +43,6 @@ namespace NMSD.Cronus.Sample.ApplicationService
             });
             cfg.ConfigureConsumer<EndpointConsumer<ICommand>>(IAA, consumer =>
             {
-                consumer.ScopeFactory = new ScopeFactory();
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterNewUser)) };
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
                     {
@@ -71,7 +70,6 @@ namespace NMSD.Cronus.Sample.ApplicationService
             });
             cfg.ConfigureConsumer<EndpointConsumer<ICommand>>(Collaboration, consumer =>
             {
-                consumer.ScopeFactory = new ScopeFactory();
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)), (type, context) =>
                     {
