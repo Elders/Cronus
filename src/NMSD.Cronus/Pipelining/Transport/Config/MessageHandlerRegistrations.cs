@@ -14,7 +14,7 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
         /// Registers all message handlers from a given assembly.
         /// </summary>
         /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
-        public static void RegisterAllHandlersInAssembly<T>(this PipelineConsumerSettings<T> consumer, Assembly assemblyContainingMessageHandlers) where T : IStartableConsumer<IMessage>
+        public static void RegisterAllHandlersInAssembly<T>(this PipelineConsumerSettings<T> consumer, Assembly assemblyContainingMessageHandlers) where T : IEndpointConsumer<IMessage>
         {
             Register(consumer, assemblyContainingMessageHandlers, (x, context) => FastActivator.CreateInstance(x), (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType));
         }
@@ -23,12 +23,12 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
         /// Registers all message handlers from a given assembly.
         /// </summary>
         /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
-        public static void RegisterAllHandlersInAssembly<T>(this PipelineConsumerSettings<T> consumer, Assembly assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory) where T : IStartableConsumer<IMessage>
+        public static void RegisterAllHandlersInAssembly<T>(this PipelineConsumerSettings<T> consumer, Assembly assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory) where T : IEndpointConsumer<IMessage>
         {
             Register(consumer, assemblyContainingMessageHandlers, messageHandlerFactory, (eventHandlerType) => { });
         }
 
-        static void Register<T>(this PipelineConsumerSettings<T> consumer, Assembly assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IStartableConsumer<IMessage>
+        static void Register<T>(this PipelineConsumerSettings<T> consumer, Assembly assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IEndpointConsumer<IMessage>
         {
             Type genericMarkupInterface = typeof(IMessageHandler<>);
 

@@ -10,10 +10,10 @@ namespace NMSD.Cronus.Messaging.MessageHandleScope
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RabbitMqConsumerWork));
 
-        private IConsumer consumer;
+        private IEndpointConsumer consumer;
         private readonly IEndpoint endpoint;
 
-        public RabbitMqConsumerWork(IConsumer consumer, IEndpoint endpoint)
+        public RabbitMqConsumerWork(IEndpointConsumer consumer, IEndpoint endpoint)
         {
             this.endpoint = endpoint;
             this.consumer = consumer;

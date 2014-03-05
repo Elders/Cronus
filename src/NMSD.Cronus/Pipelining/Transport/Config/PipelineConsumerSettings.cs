@@ -7,14 +7,30 @@ using NMSD.Cronus.Transports.Conventions;
 
 namespace NMSD.Cronus.Pipelining.Transport.Config
 {
-    public class PipelineConsumerSettings<T> where T : IStartableConsumer<IMessage>
+    public class PipelineConsumerSettings<T> where T : IEndpointConsumer<IMessage>
     {
         public PipelineConsumerSettings()
         {
             NumberOfWorkers = 1;
             Transport = new PipelineTransportSettings<T>();
-            Transport.PipelineSettings.PipelineNameConvention = new CommandPipelinePerApplication();
-            Transport.PipelineSettings.EndpointNameConvention = new CommandHandlerEndpointPerBoundedContext(Transport.PipelineSettings.PipelineNameConvention);
+
+            bool isCommand = typeof(T).GetGenericArguments()[0] == typeof(ICommand);
+            bool isEvent = typeof(T).GetGenericArguments()[0] == typeof(IEvent);
+
+            if (isCommand)
+            {
+                Transport.PipelineSettings.PipelineNameConvention = new CommandPipelinePerApplication();
+                Transport.PipelineSettings.EndpointNameConvention = new CommandHandlerEndpointPerBoundedContext(Transport.PipelineSettings.PipelineNameConvention);
+            }
+            else if (isEvent)
+            {
+                Transport.PipelineSettings.PipelineNameConvention = new EventPipelinePerApplication();
+                Transport.PipelineSettings.EndpointNameConvention = new EventHandlerEndpointPerHandler(Transport.PipelineSettings.PipelineNameConvention);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public int NumberOfWorkers { get; set; }

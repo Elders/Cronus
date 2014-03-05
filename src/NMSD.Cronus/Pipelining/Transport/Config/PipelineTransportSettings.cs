@@ -16,9 +16,9 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
     public class PipelineTransportSettings<T> : TransportSettings, IPipelineTransportSettings<T>
         where T : ITransportIMessage
     {
-        public PipelineTransportSettings()
+        public PipelineTransportSettings(PipelineSettings pipelineSettings = null)
         {
-            PipelineSettings = new PipelineSettings();
+            PipelineSettings = pipelineSettings ?? new PipelineSettings();
         }
 
         public virtual void Build()

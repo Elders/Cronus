@@ -4,16 +4,15 @@ using System.Linq;
 using System.Reflection;
 using NHibernate;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Eventing;
 using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.Pipelining.InMemory.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;
+using NMSD.Cronus.Sample.Collaboration;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.Collaboration.Projections;
-using NMSD.Cronus.Sample.Nhibernate.UoW;
 
 namespace NMSD.Cronus.Sample.Player
 {
@@ -57,12 +56,13 @@ namespace NMSD.Cronus.Sample.Player
                 eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["LaCore_Hyperion_Collaboration_EventStore"].ConnectionString;
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(CollaboratorState));
             });
-            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(publisher =>
+            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
             {
                 publisher.InMemory(t => t.UsePipelinePerApplication());
                 publisher.MessagesAssembly = Assembly.GetAssembly(typeof(CreateNewCollaborator));
             });
-            cfg.ConfigureConsumer<PipelineConsumer<ICommand>>(consumer =>
+            
+            cfg.ConfigureConsumer<EndpointConsumer<ICommand>>("Collaboration", consumer =>
             {
                 //consumer.UnitOfWorkFactory
                 consumer.NumberOfWorkers = 1;
@@ -84,7 +84,7 @@ namespace NMSD.Cronus.Sample.Player
             })
             .Start();
 
-            cfg.Publisher.Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), "mynkow@gmail.com"));
+            cfg.publishers["Collaboration"][typeof(ICommand)].Publish(new CreateNewCollaborator(new CollaboratorId(Guid.NewGuid()), "mynkow@gmail.com"));
         }
 
         static ISessionFactory BuildSessionFactory()

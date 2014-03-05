@@ -4,53 +4,109 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using NHibernate;
-using NMSD.Cronus.Commanding;
-using NMSD.Cronus.Hosts;
+using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.EventSourcing;
+using NMSD.Cronus.Messaging;
+using NMSD.Cronus.Messaging.MessageHandleScope;
+using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Pipelining.InMemory.Config;
+using NMSD.Cronus.Pipelining.Transport.Config;
+using NMSD.Cronus.Sample.Collaboration;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.Collaboration.Projections;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
-using NMSD.Cronus.Sample.Nhibernate.UoW;
-using NMSD.Cronus.UnitOfWork;
-using NMSD.Cronus.Userfull;
+using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
+using NMSD.Cronus.Sample.Player;
 
 namespace NMSD.Cronus.Sample.InMemoryServer
 {
     class Program
     {
-        static CommandPublisher commandPublisher;
 
         public static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            UseInMemoryCommandPublisherHost();
-            UseInMemoryCommandConsumerHost();
-            UseEventStoreHost();
-            UseCronusHost();
+            var sf = BuildSessionFactory();
+            var cfg = new CronusConfiguration();
+            cfg.ConfigureEventStore<MssqlEventStore>(eventStore =>
+            {
+                eventStore.BoundedContext = "Collaboration";
+                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(CollaboratorState));
+            });
+            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
+            {
+                publisher.InMemory();
+                publisher.MessagesAssembly = Assembly.GetAssembly(typeof(CreateNewCollaborator));
+            });
+            cfg.ConfigurePublisher<PipelinePublisher<IEvent>>("Collaboration", publisher =>
+            {
+                publisher.InMemory();
+                publisher.MessagesAssembly = Assembly.GetAssembly(typeof(CreateNewCollaborator));
+            });
+            cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>("Collaboration", publisher =>
+            {
+                publisher.InMemory();
+            });
+            cfg.ConfigureEventStoreConsumer<EndpointEventStoreConsumer>("Collaboration", consumer =>
+            {
+                consumer.AssemblyEventsWhichWillBeIntercepted = typeof(CreateNewCollaborator);
+                consumer.InMemory();
+            });
+            cfg.ConfigureConsumer<EndpointConsumer<ICommand>>("Collaboration", consumer =>
+            {
+                consumer.ScopeFactory = new ScopeFactory();
+                consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)), (type, context) =>
+                    {
+                        var handler = FastActivator.CreateInstance(type, null);
+                        var repositoryHandler = handler as IAggregateRootApplicationService;
+                        if (repositoryHandler != null)
+                        {
+                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.eventStores["Collaboration"], cfg.publishers["Collaboration"][typeof(DomainMessageCommit)]);
+                        }
+                        return handler;
+                    });
+                consumer.InMemory();
+            });
+            cfg.ConfigureConsumer<EndpointConsumer<IEvent>>("Collaboration", consumer =>
+            {
+                consumer.ScopeFactory = new ScopeFactory();
+                consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)), (type, context) =>
+                    {
+                        var handler = FastActivator.CreateInstance(type, null);
+                        var nhHandler = handler as IHaveNhibernateSession;
+                        if (nhHandler != null)
+                        {
+                            nhHandler.Session = context.HandlerScopeContext.Get<ISession>();
+                        }
+                        return handler;
+                    });
+                consumer.InMemory();
+            });
+            cfg.Start();
 
-            HostUI(80, 100);
+            HostUI(cfg.publishers["Collaboration"][typeof(ICommand)], 1000, 1);
             Console.WriteLine("Started");
             Console.ReadLine();
         }
 
-        private static void HostUI(int messageDelayInMilliseconds = 0, int batchSize = 1)
+        private static void HostUI(IPublisher commandPublisher, int messageDelayInMilliseconds = 0, int batchSize = 1)
         {
 
             for (int i = 0; i > -1; i++)
             {
                 if (messageDelayInMilliseconds == 0)
                 {
-                    PublishCommands();
+                    PublishCommands(commandPublisher);
                 }
                 else
                 {
                     for (int j = 0; j < batchSize; j++)
                     {
-                        PublishCommands();
+                        PublishCommands(commandPublisher);
                     }
 
                     Thread.Sleep(messageDelayInMilliseconds);
@@ -58,78 +114,14 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             }
         }
 
-        private static void PublishCommands()
+        private static void PublishCommands(IPublisher commandPublisher)
         {
-            UserId userId = new UserId(Guid.NewGuid());
+            CollaboratorId collaboratorId = new CollaboratorId(Guid.NewGuid());
             var email = "mynkow@gmail.com";
-            commandPublisher.Publish(new RegisterNewUser(userId, email));
+            commandPublisher.Publish(new CreateNewCollaborator(collaboratorId, email));
             //Thread.Sleep(1000);
 
             //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail@gmail.com"));
-        }
-
-        static void UseInMemoryCommandPublisherHost()
-        {
-            CronusHost host = new CronusHost();
-            host.UseCommandPipelinePerApplication();
-            host.ConfigureCommandPublisher(cfg => cfg.RegisterCommandsAssembly<RegisterNewUser>());
-            host.UseInMemoryTransport();
-            host.BuildSerializer();
-            host.BuildCommandPublisher();
-            commandPublisher = host.CommandPublisher;
-        }
-
-        static void UseInMemoryCommandConsumerHost()
-        {
-            var host = new CronusHost();
-            host.UseCommandPipelinePerApplication();
-            host.UseCommandHandlersPerBoundedContext();
-            host.UseInMemoryTransport();
-            host.ConfigureCommandConsumer(cfg =>
-            {
-                cfg.SetEventStoreConnectionString(ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
-                cfg.SetUnitOfWorkFacotry(new NullUnitOfWorkFactory());
-                cfg.SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(CollaboratorState)));
-                cfg.SetEventsAssembly(Assembly.GetAssembly(typeof(NewCollaboratorCreated)));
-                cfg.SetCommandsAssembly(Assembly.GetAssembly(typeof(CreateNewCollaborator)));
-                cfg.SetCommandHandlersAssembly(Assembly.GetAssembly(typeof(CollaboratorAppService)));
-            });
-            host.ConfigureCommandConsumer(cfg =>
-            {
-                cfg.SetEventStoreConnectionString(ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
-                cfg.SetUnitOfWorkFacotry(new NullUnitOfWorkFactory());
-                cfg.SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)));
-                cfg.SetEventsAssembly(Assembly.GetAssembly(typeof(NewUserRegistered)));
-                cfg.SetCommandsAssembly(Assembly.GetAssembly(typeof(RegisterNewUser)));
-                cfg.SetCommandHandlersAssembly(Assembly.GetAssembly(typeof(UserAppService)));
-            });
-            host.BuildSerializer();
-            host.HostCommandConsumers(1);
-        }
-
-        static void UseEventStoreHost()
-        {
-            var host = new CronusHost();
-            host.UseEventHandlersPipelinePerApplication();
-            host.UseEventStorePipelinePerApplication();
-            host.UseEventStorePerBoundedContext();
-            host.UseInMemoryTransport();
-            host.ConfigureEventStoreConsumer(cfg =>
-            {
-                cfg.SetEventStoreConnectionString(ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
-                cfg.SetUnitOfWorkFacotry(new NullUnitOfWorkFactory());
-                cfg.SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(CollaboratorState)));
-                cfg.SetEventsAssembly(typeof(NewCollaboratorCreated));
-            });
-            host.ConfigureEventStoreConsumer(cfg =>
-            {
-                cfg.SetEventStoreConnectionString(ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
-                cfg.SetUnitOfWorkFacotry(new NullUnitOfWorkFactory());
-                cfg.SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)));
-                cfg.SetEventsAssembly(typeof(NewUserRegistered));
-            });
-            host.BuildSerializer();
-            host.HostEventStoreConsumers(1);
         }
 
 
@@ -140,36 +132,6 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             cfg = cfg.AddAutoMappings(typesThatShouldBeMapped);
             cfg.CreateDatabaseTables();
             return cfg.BuildSessionFactory();
-        }
-
-        static void UseCronusHost()
-        {
-            var connectionString = ConfigurationManager.ConnectionStrings["dbConnection"].ConnectionString;
-            DatabaseManager.DeleteDatabase(connectionString);
-            DatabaseManager.CreateDatabase(connectionString, "use_default", true);
-            DatabaseManager.EnableSnapshotIsolation(connectionString);
-            var sf = BuildSessionFactory();
-            var uow = new NhibernateUnitOfWorkFactory(sf);
-            var host = new CronusHost();
-            host.UseEventHandlersPipelinePerApplication();
-            host.UseEventHandlersPerBoundedContext();
-            host.UseCommandPipelinePerApplication();
-            host.UseInMemoryTransport();
-            host.ConfigureCommandPublisher(x =>
-            {
-                x.RegisterCommandsAssembly<RegisterNewUser>();
-                x.RegisterCommandsAssembly<CreateNewCollaborator>();
-            });
-            host.BuildCommandPublisher();
-            host.ConfigureEventHandlersConsumer(cfg =>
-            {
-                cfg.SetUnitOfWorkFacotry(uow);
-                cfg.RegisterEventsAssembly(Assembly.GetAssembly(typeof(NewCollaboratorCreated)));
-                cfg.RegisterEventsAssembly(Assembly.GetAssembly(typeof(NewUserRegistered)));
-                cfg.SetEventHandlersAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
-            });
-            host.BuildSerializer();
-            host.HostEventHandlerConsumers(1);
         }
     }
 }

@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity.Design.PluralizationServices;
-using System.Data.SqlClient;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using NHibernate.Cfg;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Tool.hbm2ddl;
 
-namespace NMSD.Cronus.Sample.Nhibernate.UoW
+namespace NMSD.Cronus.Sample.InMemoryServer.Nhibernate
 {
     public static class NHibernateExtensions
     {
@@ -93,7 +88,7 @@ namespace NMSD.Cronus.Sample.Nhibernate.UoW
             return nhConf;
         }
     }
-    
+
 
 
 }

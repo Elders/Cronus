@@ -5,7 +5,7 @@ using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Transports;
 using NMSD.Protoreg;
 
-namespace NMSD.Cronus.Eventing
+namespace NMSD.Cronus.Pipelining
 {
     public class PipelinePublisher<T> : Publisher<T> where T : IMessage
     {

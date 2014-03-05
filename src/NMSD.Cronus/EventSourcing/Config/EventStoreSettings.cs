@@ -7,6 +7,5 @@ namespace NMSD.Cronus.Sample.Player
         public string ConnectionString { get; set; }
         public string BoundedContext { get; set; }
         public Assembly AggregateStatesAssembly { get; set; }
-
     }
 }

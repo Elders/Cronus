@@ -34,8 +34,11 @@ namespace NMSD.Cronus.Messaging.MessageHandleScope
 
         public void Clear()
         {
-            context.Clear();
-            context = null;
+            if (context != null)
+            {
+                context.Clear();
+                context = null;
+            }
         }
     }
 }

@@ -6,6 +6,10 @@ namespace NMSD.Cronus.Pipelining.InMemory.Config
 {
     public class InMemoryTransportSettings<T> : PipelineTransportSettings<T> where T : ITransportIMessage
     {
+        public InMemoryTransportSettings(PipelineSettings pipelineSettings = null)
+            : base(pipelineSettings)
+        { }
+
         public override void Build()
         {
             base.Build();

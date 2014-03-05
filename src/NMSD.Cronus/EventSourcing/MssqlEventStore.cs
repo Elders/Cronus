@@ -9,9 +9,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
-using NMSD.Cronus.Commanding;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Eventing;
 using NMSD.Cronus.Userfull;
 using NMSD.Protoreg;
 
@@ -500,7 +498,7 @@ namespace NMSD.Cronus.EventSourcing
                         // tx.Commit();
 
                     }
-                    
+
                 }
             }
             catch (Exception ex)

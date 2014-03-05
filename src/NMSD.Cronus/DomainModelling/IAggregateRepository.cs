@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using NMSD.Cronus.Commanding;
-using NMSD.Cronus.Eventing;
 
 namespace NMSD.Cronus.DomainModelling
 {
@@ -17,8 +13,6 @@ namespace NMSD.Cronus.DomainModelling
         AR Update<AR>(IAggregateRootId aggregateId, ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot;
 
         void Save(IAggregateRoot aggregateRoot, ICommand command);
-
-
     }
 
 }

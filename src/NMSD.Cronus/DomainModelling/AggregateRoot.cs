@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using NMSD.Cronus.Eventing;
 
 namespace NMSD.Cronus.DomainModelling
 {

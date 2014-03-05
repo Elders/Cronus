@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NHibernate;
 
-namespace NMSD.Cronus.Sample.Nhibernate.UoW
+namespace NMSD.Cronus.Sample.Collaboration
 {
     public interface IHaveNhibernateSession
     {

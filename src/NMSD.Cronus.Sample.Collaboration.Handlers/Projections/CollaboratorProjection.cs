@@ -1,8 +1,6 @@
 ﻿using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.Collaboration.Projections.DTOs;
-using NMSD.Cronus.Sample.Nhibernate.UoW;
-
 
 namespace NMSD.Cronus.Sample.Collaboration.Projections
 {

@@ -1,5 +1,3 @@
-using NMSD.Cronus.Eventing;
-
 namespace NMSD.Cronus.DomainModelling
 {
     public abstract class AggregateRootState<ID> : IAggregateRootState

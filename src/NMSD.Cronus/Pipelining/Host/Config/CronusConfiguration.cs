@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Eventing;
 using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.Hosting;
 using NMSD.Cronus.Messaging;
@@ -15,24 +14,25 @@ namespace NMSD.Cronus.Sample.Player
     {
         ProtoRegistration protoreg;
         ProtoregSerializer serializer;
-        Dictionary<IStartableConsumer<IMessage>, int> consumers = new Dictionary<IStartableConsumer<IMessage>, int>();
-        Dictionary<string, IEventStore> eventStores = new Dictionary<string, IEventStore>();
-        public Publisher<ICommand> Publisher { get; set; }
+        Dictionary<IEndpointConsumable, int> consumers = new Dictionary<IEndpointConsumable, int>();
+        public Dictionary<string, IEventStore> eventStores = new Dictionary<string, IEventStore>();
+        public Dictionary<string, Dictionary<Type, IPublisher>> publishers = new Dictionary<string, Dictionary<Type, IPublisher>>();
 
         public CronusConfiguration()
         {
             protoreg = new ProtoRegistration();
             serializer = new ProtoregSerializer(protoreg);
+            protoreg.RegisterAssembly(typeof(Wraper));
         }
 
-        public CronusConfiguration ConfigureConsumer<T>(Action<PipelineConsumerSettings<T>> configuration) where T : IStartableConsumer<IMessage>
+        public CronusConfiguration ConfigureConsumer<T>(string boundedContextName, Action<PipelineConsumerSettings<T>> configuration) where T : IEndpointConsumer<IMessage>
         {
             var cfg = new PipelineConsumerSettings<T>();
             configuration(cfg);
 
-            ITransportIMessage consumer = null;
+            IEndpointConsumable consumable = null;
 
-            if (typeof(T) == typeof(PipelineConsumer<ICommand>))
+            if (typeof(T) == typeof(EndpointConsumer<ICommand>))
             {
                 MessageHandlerCollection<ICommand> handlers = new MessageHandlerCollection<ICommand>();
                 foreach (var reg in cfg.Registrations)
@@ -41,35 +41,80 @@ namespace NMSD.Cronus.Sample.Player
                     handlers.RegisterHandler(reg.Key, reg.Value.Item1, reg.Value.Item2);
                 }
 
-                consumer = new PipelineConsumer<ICommand>(cfg.Transport.EndpointFactory, serializer, handlers, cfg.ScopeFactory);
+                var consumer = new EndpointConsumer<ICommand>(handlers, cfg.ScopeFactory, serializer);
+                consumable = new EndpointConsumable(cfg.Transport.EndpointFactory, consumer);
+            }
+            else if (typeof(T) == typeof(EndpointConsumer<IEvent>))
+            {
+                MessageHandlerCollection<IEvent> handlers = new MessageHandlerCollection<IEvent>();
+                foreach (var reg in cfg.Registrations)
+                {
+                    protoreg.RegisterCommonType(reg.Key);
+                    handlers.RegisterHandler(reg.Key, reg.Value.Item1, reg.Value.Item2);
+                }
+
+                var consumer = new EndpointConsumer<IEvent>(handlers, cfg.ScopeFactory, serializer);
+                consumable = new EndpointConsumable(cfg.Transport.EndpointFactory, consumer);
             }
             else
             {
                 throw new InvalidOperationException("Unknown consumer.");
             }
 
-
-            consumers.Add((IStartableConsumer<IMessage>)consumer, cfg.NumberOfWorkers);
+            consumers.Add((IEndpointConsumable)consumable, cfg.NumberOfWorkers);
             return this;
         }
 
-        public CronusConfiguration ConfigurePublisher<T>(Action<PipelinePublisherSettings<T>> configuration) where T : IPublisher
+        public CronusConfiguration ConfigureEventStoreConsumer<T>(string boundedContextName, Action<PipelineEventStoreConsumerSettings<T>> configuration) where T : EndpointEventStoreConsumer
+        {
+            var cfg = new PipelineEventStoreConsumerSettings<T>();
+            configuration(cfg);
+
+            IEndpointConsumable consumable = null;
+
+            if (typeof(T) == typeof(EndpointEventStoreConsumer))
+            {
+                var consumer = new EndpointEventStoreConsumer(eventStores[boundedContextName], publishers[boundedContextName][typeof(IEvent)], publishers[boundedContextName][typeof(IEvent)], cfg.AssemblyEventsWhichWillBeIntercepted, serializer);
+                consumable = new EndpointConsumable(cfg.Transport.EndpointFactory, consumer);
+            }
+            else
+            {
+                throw new InvalidOperationException("Unknown consumer.");
+            }
+
+            consumers.Add((IEndpointConsumable)consumable, cfg.NumberOfWorkers);
+            return this;
+        }
+
+        public CronusConfiguration ConfigurePublisher<T>(string boundedContextName, Action<PipelinePublisherSettings<T>> configuration) where T : IPublisher
         {
             var cfg = new PipelinePublisherSettings<T>();
             configuration(cfg);
 
-            if (typeof(T) == typeof(Publisher<ICommand>))
-            {
-                Publisher = new PipelinePublisher<ICommand>(cfg.Transport.PipelineFactory, serializer);
+            if (!publishers.ContainsKey(boundedContextName))
+                publishers.Add(boundedContextName, new Dictionary<Type, IPublisher>());
 
+            if (typeof(T) == typeof(PipelinePublisher<ICommand>))
+            {
+                publishers[boundedContextName].Add(typeof(ICommand), new PipelinePublisher<ICommand>(cfg.Transport.PipelineFactory, serializer));
+            }
+            else if (typeof(T) == typeof(PipelinePublisher<IEvent>))
+            {
+                publishers[boundedContextName].Add(typeof(IEvent), new PipelinePublisher<IEvent>(cfg.Transport.PipelineFactory, serializer));
+            }
+            else if (typeof(T) == typeof(PipelinePublisher<DomainMessageCommit>))
+            {
+                publishers[boundedContextName].Add(typeof(DomainMessageCommit), new EventStorePublisher(cfg.Transport.PipelineFactory, serializer));
             }
             else
             {
                 throw new InvalidOperationException("Unknown consumer.");
             }
-
+            if (cfg.MessagesAssembly != null)
+                protoreg.RegisterAssembly(cfg.MessagesAssembly);
             return this;
         }
+
 
         public CronusConfiguration ConfigureEventStore<T>(Action<EventStoreSettings> configuration) where T : IEventStore
         {
