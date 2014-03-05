@@ -1,30 +1,62 @@
-﻿using System.Configuration;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 using NHibernate;
-using NMSD.Cronus.Hosts;
+using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.Messaging.MessageHandleScope;
+using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Pipelining.RabbitMQ.Config;
+using NMSD.Cronus.Pipelining.Transport.Config;
+using NMSD.Cronus.Sample.Collaboration;
 using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
-using NMSD.Cronus.Sample.Collaboration.Collaborators.Events;
 using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
-using NMSD.Cronus.Sample.IdentityAndAccess.Users.Events;
-using NMSD.Cronus.Sample.Nhibernate.UoW;
-using NMSD.Cronus.UnitOfWork;
-using NMSD.Cronus.Userfull;
+using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
+using NMSD.Cronus.Sample.Player;
 
 namespace NMSD.Cronus.Sample.Handlers
 {
     class Program
     {
-        private static CronusHost host;
-        static void Main(string[] args)
+
+        public static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
+            string IAA = "IdentityAndAccess";
+            string Collaboration = "Collaboration";
+            var sf = BuildSessionFactory();
+            var cfg = new CronusConfiguration();
 
-            UseCronusHost();
-            System.Console.WriteLine("Started event handlers");
-            System.Console.ReadLine();
-            host.Release();
+            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(Collaboration, publisher =>
+            {
+                publisher.RabbitMq();
+                publisher.MessagesAssemblies = new Assembly[] { Assembly.GetAssembly(typeof(RegisterNewUser)), Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
+            });
+            cfg.ConfigureConsumer<EndpointConsumer<IEvent>>(Collaboration, consumer =>
+            {
+                consumer.ScopeFactory = new ScopeFactory();
+                consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)), (type, context) =>
+                    {
+                        var handler = FastActivator.CreateInstance(type, null);
+                        var nhHandler = handler as IHaveNhibernateSession;
+                        if (nhHandler != null)
+                        {
+                            nhHandler.Session = context.HandlerScopeContext.Get<ISession>();
+                        }
+                        var port = handler as IPort;
+                        if (port != null)
+                        {
+                            port.CommandPublisher = cfg.publishers[Collaboration][typeof(ICommand)];
+                        }
+                        return handler;
+                    });
+                consumer.RabbitMq();
+            });
+            cfg.Start();
+
+            Console.WriteLine("Started");
+            Console.ReadLine();
         }
 
         static ISessionFactory BuildSessionFactory()
@@ -34,36 +66,6 @@ namespace NMSD.Cronus.Sample.Handlers
             cfg = cfg.AddAutoMappings(typesThatShouldBeMapped);
             cfg.CreateDatabaseTables();
             return cfg.BuildSessionFactory();
-        }
-
-        static void UseCronusHost()
-        {
-            //var connectionString = ConfigurationManager.ConnectionStrings["dbConnection"].ConnectionString;
-            //DatabaseManager.DeleteDatabase(connectionString);
-            //DatabaseManager.CreateDatabase(connectionString, "use_default", true);
-            //DatabaseManager.EnableSnapshotIsolation(connectionString);
-            var sf = BuildSessionFactory();
-            var uow = new NhibernateUnitOfWorkFactory(sf);
-            host = new CronusHost();
-            host.UseEventHandlersPipelinePerApplication();
-            host.UseEventHandlerPerEndpoint();
-            host.UseCommandPipelinePerApplication();
-            host.UseRabbitMqTransport();
-            host.ConfigureCommandPublisher(x =>
-            {
-                x.RegisterCommandsAssembly<RegisterNewUser>();
-                x.RegisterCommandsAssembly<CreateNewCollaborator>();
-            });
-            host.BuildCommandPublisher();
-            host.ConfigureEventHandlersConsumer(cfg =>
-            {
-                //cfg.SetUnitOfWorkFacotry(uow);
-                cfg.RegisterEventsAssembly(Assembly.GetAssembly(typeof(NewCollaboratorCreated)));
-                cfg.RegisterEventsAssembly(Assembly.GetAssembly(typeof(NewUserRegistered)));
-                cfg.SetEventHandlersAssembly(Assembly.GetAssembly(typeof(CollaboratorProjection)));
-            });
-            host.BuildSerializer();
-            host.HostEventHandlerConsumers(5);
         }
     }
 }

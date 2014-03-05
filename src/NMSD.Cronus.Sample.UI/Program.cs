@@ -1,28 +1,36 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading;
-using NMSD.Cronus.Commanding;
-using NMSD.Cronus.Hosts;
+using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.Messaging;
+using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users;
 using NMSD.Cronus.Sample.IdentityAndAccess.Users.Commands;
+using NMSD.Cronus.Sample.Player;
+using NMSD.Cronus.Pipelining.RabbitMQ.Config;
 
 namespace NMSD.Cronus.Sample.UI
 {
     class Program
     {
-        static CommandPublisher commandPublisher;
+        static IPublisher commandPublisher;
 
         static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            CronusHost host = new CronusHost();
+            string IAA = "IdentityAndAccess";
 
-            host.UseCommandPipelinePerApplication();
-            host.ConfigureCommandPublisher(cfg => cfg.RegisterCommandsAssembly<RegisterNewUser>());
-            host.UseRabbitMqTransport();
-            host.BuildSerializer();
-            host.BuildCommandPublisher();
-            commandPublisher = host.CommandPublisher;
+            var cfg = new CronusConfiguration();
+            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(IAA, publisher =>
+            {
+                publisher.RabbitMq();
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterNewUser)) };
+            })
+            .Start();
+
+            commandPublisher = cfg.publishers[IAA][typeof(ICommand)];
             Console.WriteLine("Start sending commands...");
             HostUI(5000, 1);
         }
@@ -54,12 +62,12 @@ namespace NMSD.Cronus.Sample.UI
             var email = "mynkow@gmail.com";
             commandPublisher.Publish(new RegisterNewUser(userId, email));
 
-            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail3@gmail.com"));
-            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail4@gmail.com"));
-            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail5@gmail.com"));
-            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail6@gmail.com"));
-            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail7@gmail.com"));
-            commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail8@gmail.com"));
+            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail3@gmail.com"));
+            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail4@gmail.com"));
+            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail5@gmail.com"));
+            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail6@gmail.com"));
+            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail7@gmail.com"));
+            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail8@gmail.com"));
         }
     }
 }

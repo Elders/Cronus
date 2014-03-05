@@ -10,7 +10,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Ports
     public class CollaboratorPorts : IPort,
         IMessageHandler<NewUserRegistered>
     {
-        public IPublisher<ICommand> CommandPublisher { get; set; }
+        public IPublisher CommandPublisher { get; set; }
 
         public void Handle(NewUserRegistered message)
         {

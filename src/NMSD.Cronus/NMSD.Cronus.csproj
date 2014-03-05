@@ -96,6 +96,8 @@
   <ItemGroup>
     <Compile Include="EventSourcing\Config\EventStoreSettings.cs" />
     <Compile Include="Messaging\MessageHandleScope\Context.cs" />
+    <Compile Include="Pipelining.RabbitMQ\Config\RabbitMqTransportConfig.cs" />
+    <Compile Include="Pipelining.RabbitMQ\Config\RabbitMqTransportSettings.cs" />
     <Compile Include="Pipelining.RabbitMQ\EndpointExtensions.cs" />
     <Compile Include="Messaging\MessageHandleScope\IBatchScope.cs" />
     <Compile Include="Messaging\MessageHandleScope\IHandlerScope.cs" />

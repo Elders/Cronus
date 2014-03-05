@@ -34,6 +34,6 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
             }
         }
         public IPipelineTransportSettings<T> Transport;
-        public Assembly MessagesAssembly { get; set; }
+        public Assembly[] MessagesAssemblies { get; set; }
     }
 }

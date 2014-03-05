@@ -9,7 +9,6 @@ using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Cronus.Pipelining;
-using NMSD.Cronus.Pipelining.InMemory.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Cronus.Sample.Collaboration;
 using NMSD.Cronus.Sample.Collaboration.Collaborators;
@@ -17,6 +16,7 @@ using NMSD.Cronus.Sample.Collaboration.Collaborators.Commands;
 using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
 using NMSD.Cronus.Sample.Player;
+using NMSD.Cronus.Pipelining.InMemory.Config;
 
 namespace NMSD.Cronus.Sample.InMemoryServer
 {
@@ -38,12 +38,12 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
             {
                 publisher.InMemory();
-                publisher.MessagesAssembly = Assembly.GetAssembly(typeof(CreateNewCollaborator));
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
             });
             cfg.ConfigurePublisher<PipelinePublisher<IEvent>>("Collaboration", publisher =>
             {
                 publisher.InMemory();
-                publisher.MessagesAssembly = Assembly.GetAssembly(typeof(CreateNewCollaborator));
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
             });
             cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>("Collaboration", publisher =>
             {

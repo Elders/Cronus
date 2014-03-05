@@ -11,7 +11,7 @@ namespace NMSD.Cronus.Transports.RabbitMQ
         private RabbitMqPipelineFactory pipeFactory;
         private RabbitMqSession session;
 
-        public RabbitMqEndpointFactory(RabbitMqSession session, IEndpointNameConvention endpointNameConvention, RabbitMqPipelineFactory pipelineFactory)
+        public RabbitMqEndpointFactory(RabbitMqSession session, RabbitMqPipelineFactory pipelineFactory, IEndpointNameConvention endpointNameConvention)
         {
             this.endpointNameConvention = endpointNameConvention;
             this.session = session;

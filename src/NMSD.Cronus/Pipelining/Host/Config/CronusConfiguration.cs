@@ -7,6 +7,7 @@ using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Protoreg;
+using System.Linq;
 
 namespace NMSD.Cronus.Sample.Player
 {
@@ -60,6 +61,8 @@ namespace NMSD.Cronus.Sample.Player
             {
                 throw new InvalidOperationException("Unknown consumer.");
             }
+            if (cfg.MessagesAssemblies != null)
+                cfg.MessagesAssemblies.ToList().ForEach(ass => protoreg.RegisterAssembly(ass));
 
             consumers.Add((IEndpointConsumable)consumable, cfg.NumberOfWorkers);
             return this;
@@ -110,8 +113,8 @@ namespace NMSD.Cronus.Sample.Player
             {
                 throw new InvalidOperationException("Unknown consumer.");
             }
-            if (cfg.MessagesAssembly != null)
-                protoreg.RegisterAssembly(cfg.MessagesAssembly);
+            if (cfg.MessagesAssemblies != null)
+                cfg.MessagesAssemblies.ToList().ForEach(ass => protoreg.RegisterAssembly(ass));
             return this;
         }
 

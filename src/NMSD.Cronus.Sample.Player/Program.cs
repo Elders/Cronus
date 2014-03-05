@@ -59,9 +59,9 @@ namespace NMSD.Cronus.Sample.Player
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
             {
                 publisher.InMemory(t => t.UsePipelinePerApplication());
-                publisher.MessagesAssembly = Assembly.GetAssembly(typeof(CreateNewCollaborator));
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateNewCollaborator)) };
             });
-            
+
             cfg.ConfigureConsumer<EndpointConsumer<ICommand>>("Collaboration", consumer =>
             {
                 //consumer.UnitOfWorkFactory

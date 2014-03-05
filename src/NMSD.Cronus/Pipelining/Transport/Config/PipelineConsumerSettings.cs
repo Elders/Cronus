@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Hosting;
 using NMSD.Cronus.Messaging.MessageHandleScope;
@@ -36,6 +37,8 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
         public int NumberOfWorkers { get; set; }
 
         public ScopeFactory ScopeFactory { get; set; }
+
+        public Assembly[] MessagesAssemblies { get; set; }
 
         public IPipelineTransportSettings<T> Transport;
 
