@@ -13,6 +13,7 @@ using NMSD.Cronus.Sample.Collaboration;
 using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Projections;
+using NMSD.Cronus.Pipelining.Host.Config;
 
 namespace NMSD.Cronus.Sample.Player
 {

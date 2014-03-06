@@ -12,6 +12,7 @@ using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
 using NMSD.Cronus.Sample.Player;
+using NMSD.Cronus.Pipelining.Host.Config;
 
 namespace NMSD.Cronus.Sample.Handlers
 {

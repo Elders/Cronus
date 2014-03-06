@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Pipelining.Host.Config;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;

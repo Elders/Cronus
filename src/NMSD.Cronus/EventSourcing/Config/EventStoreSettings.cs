@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace NMSD.Cronus.Sample.Player
+namespace NMSD.Cronus.EventSourcing.Config
 {
     public class EventStoreSettings
     {

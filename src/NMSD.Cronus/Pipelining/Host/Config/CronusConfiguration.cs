@@ -8,8 +8,9 @@ using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Protoreg;
 using System.Linq;
+using NMSD.Cronus.EventSourcing.Config;
 
-namespace NMSD.Cronus.Sample.Player
+namespace NMSD.Cronus.Pipelining.Host.Config
 {
     public class CronusConfiguration
     {
@@ -143,6 +144,14 @@ namespace NMSD.Cronus.Sample.Player
             foreach (var consumer in consumers)
             {
                 consumer.Key.Start(consumer.Value);
+            }
+        }
+
+        public void Stop()
+        {
+            foreach (var consumer in consumers)
+            {
+                consumer.Key.Stop();
             }
         }
     }

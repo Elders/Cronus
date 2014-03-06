@@ -17,6 +17,7 @@ using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
 using NMSD.Cronus.Sample.Player;
 using NMSD.Cronus.Pipelining.InMemory.Config;
+using NMSD.Cronus.Pipelining.Host.Config;
 
 namespace NMSD.Cronus.Sample.InMemoryServer
 {
