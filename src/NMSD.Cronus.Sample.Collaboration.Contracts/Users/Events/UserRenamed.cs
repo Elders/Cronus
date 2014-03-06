@@ -8,7 +8,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Users.Events
     {
         UserRenamed() { }
 
-        public UserRenamed(CollaboratorId collaboratorId, string firstName, string lastName)
+        public UserRenamed(UserId collaboratorId, string firstName, string lastName)
         {
             CollaboratorId = collaboratorId;
             FirstName = firstName;
@@ -16,7 +16,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Users.Events
         }
 
         [DataMember(Order = 1)]
-        public CollaboratorId CollaboratorId { get; private set; }
+        public UserId CollaboratorId { get; private set; }
 
         [DataMember(Order = 2)]
         public string FirstName { get; private set; }

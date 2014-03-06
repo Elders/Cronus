@@ -12,7 +12,7 @@ namespace NMSD.Cronus.Tests
     {
         Establish context = () =>
         {
-            id = new CollaboratorId(Guid.NewGuid());
+            id = new UserId(Guid.NewGuid());
             events = new List<IEvent>();
             events.Add(new UserCreated(id, "collaborator@cronus.com"));
             events.Add(new UserRenamed(id, "first", "last"));
@@ -24,7 +24,7 @@ namespace NMSD.Cronus.Tests
         It should_instansiate_aggregate_root_with_valid_state = () => ((IAggregateRootStateManager)ar).State.Id.ShouldEqual(id);
 
         static User ar;
-        static CollaboratorId id;
+        static UserId id;
         static List<IEvent> events;
     }
 
@@ -33,7 +33,7 @@ namespace NMSD.Cronus.Tests
     {
         Establish context = () =>
         {
-            id = new CollaboratorId(Guid.NewGuid());
+            id = new UserId(Guid.NewGuid());
             events = new List<IEvent>();
             events.Add(new UserRenamed(id, "first", "last"));
         };
@@ -42,7 +42,7 @@ namespace NMSD.Cronus.Tests
 
         It an__AggregateRootException__should_be_thrown = () => expectedException.ShouldBeOfType<AggregateRootException>();
 
-        static CollaboratorId id;
+        static UserId id;
         static List<IEvent> events;
         static Exception expectedException;
     }

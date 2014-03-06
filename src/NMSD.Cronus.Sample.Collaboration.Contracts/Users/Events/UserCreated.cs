@@ -8,14 +8,14 @@ namespace NMSD.Cronus.Sample.Collaboration.Users.Events
     {
         UserCreated() { }
 
-        public UserCreated(CollaboratorId collaboratorId, string email)
+        public UserCreated(UserId collaboratorId, string email)
         {
             CollaboratorId = collaboratorId;
             Email = email;
         }
 
         [DataMember(Order = 1)]
-        public CollaboratorId CollaboratorId { get; private set; }
+        public UserId CollaboratorId { get; private set; }
 
         [DataMember(Order = 2)]
         public string Email { get; private set; }

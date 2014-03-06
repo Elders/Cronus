@@ -75,7 +75,7 @@
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Users\CollaboratorId.cs" />
+    <Compile Include="Users\UserId.cs" />
     <Compile Include="Users\Commands\CreateUser.cs" />
     <Compile Include="Users\Commands\RenameUser.cs" />
     <Compile Include="Users\Events\UserRenamed.cs" />

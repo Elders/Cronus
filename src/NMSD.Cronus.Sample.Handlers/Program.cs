@@ -22,7 +22,7 @@ namespace NMSD.Cronus.Sample.Handlers
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            var sf = BuildSessionFactory();
+            //var sf = BuildSessionFactory();
             var cfg = new CronusConfiguration();
 
             string Collaboration = "Collaboration";
@@ -33,15 +33,15 @@ namespace NMSD.Cronus.Sample.Handlers
             });
             cfg.ConfigureConsumer<EndpointConsumer<IEvent>>(Collaboration, consumer =>
             {
-                consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
+                //consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
-                        var nhHandler = handler as IHaveNhibernateSession;
-                        if (nhHandler != null)
-                        {
-                            nhHandler.Session = context.HandlerScopeContext.Get<ISession>();
-                        }
+                        //var nhHandler = handler as IHaveNhibernateSession;
+                        //if (nhHandler != null)
+                        //{
+                        //    nhHandler.Session = context.HandlerScopeContext.Get<ISession>();
+                        //}
                         var port = handler as IPort;
                         if (port != null)
                         {

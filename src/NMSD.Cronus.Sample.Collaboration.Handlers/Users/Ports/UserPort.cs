@@ -1,6 +1,5 @@
 ﻿using System;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Events;
 
@@ -13,8 +12,8 @@ namespace NMSD.Cronus.Sample.Collaboration.Users.Ports
 
         public void Handle(AccountRegistered message)
         {
-            CommandPublisher.Publish(new CreateUser(new CollaboratorId(Guid.NewGuid()), message.Email));
+            UserId userId = new UserId(Guid.NewGuid());
+            CommandPublisher.Publish(new CreateUser(userId, message.Email));
         }
-
     }
 }

@@ -41,7 +41,7 @@ namespace NMSD.Cronus.Pipelining
                 }
                 return commit;
             },
-            (eventStream, commit) => commit == null || eventStream.Events.Count == 100,
+            (eventStream, commit) => commit == null || eventStream.Events.Count == 200,
             events =>
             {
                 foreach (var @event in events)

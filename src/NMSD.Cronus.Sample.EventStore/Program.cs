@@ -70,6 +70,7 @@ namespace NMSD.Cronus.Sample.EventStore
             });
             cfg.ConfigureEventStoreConsumer<EndpointEventStoreConsumer>(Collaboration, consumer =>
             {
+                //consumer.NumberOfWorkers = 2;
                 consumer.AssemblyEventsWhichWillBeIntercepted = typeof(UserCreated);
                 consumer.RabbitMq();
             });

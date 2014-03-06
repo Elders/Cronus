@@ -116,7 +116,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
 
         private static void PublishCommands(IPublisher commandPublisher)
         {
-            CollaboratorId collaboratorId = new CollaboratorId(Guid.NewGuid());
+            UserId collaboratorId = new UserId(Guid.NewGuid());
             var email = "mynkow@gmail.com";
             commandPublisher.Publish(new CreateUser(collaboratorId, email));
             //Thread.Sleep(1000);

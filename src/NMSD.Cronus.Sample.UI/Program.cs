@@ -16,6 +16,20 @@ namespace NMSD.Cronus.Sample.UI
 
         static void Main(string[] args)
         {
+            ConfigurePublisher();
+
+            HostUI(/////////////////////////////////////////////////////////////////
+                               publish: SingleCreationCommand,
+                   delayBetweenBatches: 1000,
+                             batchSize: 1,
+                numberOfMessagesToSend: Int32.MaxValue
+                ///////////////////////////////////////////////////////////////////
+                );
+
+        }
+
+        private static void ConfigurePublisher()
+        {
             log4net.Config.XmlConfigurator.Configure();
 
             string IAA = "IdentityAndAccess";
@@ -30,43 +44,74 @@ namespace NMSD.Cronus.Sample.UI
             .Start();
 
             commandPublisher = cfg.publishers[IAA][typeof(ICommand)];
-            Console.WriteLine("Start sending commands...");
-            HostUI(5000, 1);
         }
 
-        private static void HostUI(int messageDelayInMilliseconds = 0, int batchSize = 1)
+        private static void SingleCreationCommand()
         {
+            AccountId accountId = new AccountId(Guid.NewGuid());
+            var email = "cronus_0_@nmsd.com";
+            commandPublisher.Publish(new RegisterAccount(accountId, email));
+        }
 
-            for (int i = 0; i > -1; i++)
+        private static void SingleCreateWithMultipleUpdateCommands()
+        {
+            AccountId accountId = new AccountId(Guid.NewGuid());
+            var email = "cronus_0_@nmsd.com";
+            commandPublisher.Publish(new RegisterAccount(accountId, email));
+            commandPublisher.Publish(new ChangeAccountEmail(accountId, email, "cronus_1_@nmsd.com"));
+            commandPublisher.Publish(new ChangeAccountEmail(accountId, email, "cronus_2_@nmsd.com"));
+            commandPublisher.Publish(new ChangeAccountEmail(accountId, email, "cronus_3_@nmsd.com"));
+            commandPublisher.Publish(new ChangeAccountEmail(accountId, email, "cronus_4_@nmsd.com"));
+            commandPublisher.Publish(new ChangeAccountEmail(accountId, email, "cronus_5_@nmsd.com"));
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        private static void HostUI(Action publish, int delayBetweenBatches = 0, int batchSize = 1, int numberOfMessagesToSend = Int32.MaxValue)
+        {
+            Console.WriteLine("Start sending commands...");
+            if (batchSize == 1)
             {
-                if (messageDelayInMilliseconds == 0)
+                if (delayBetweenBatches == 0)
                 {
-                    PublishCommands();
+                    for (int i = 0; i < numberOfMessagesToSend; i++)
+                    {
+                        publish();
+                    }
                 }
                 else
                 {
-                    for (int j = 0; j < batchSize; j++)
+                    for (int i = 0; i < numberOfMessagesToSend; i++)
                     {
-                        PublishCommands();
+                        publish();
+                        Thread.Sleep(delayBetweenBatches);
                     }
-
-                    Thread.Sleep(messageDelayInMilliseconds);
                 }
             }
-        }
-
-        private static void PublishCommands()
-        {
-            AccountId userId = new AccountId(Guid.NewGuid());
-            var email = "mynkow@gmail.com";
-            commandPublisher.Publish(new RegisterAccount(userId, email));
-
-            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail3@gmail.com"));
-            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail4@gmail.com"));
-            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail5@gmail.com"));
-            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail6@gmail.com"));
-            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail7@gmail.com"));
-            //commandPublisher.Publish(new ChangeUserEmail(userId, email, "newEmail8@gmail.com"));
+            else
+            {
+                if (delayBetweenBatches == 0)
+                {
+                    for (int i = 0; i < numberOfMessagesToSend; i = i + batchSize)
+                    {
+                        for (int j = 0; j < batchSize; j++)
+                        {
+                            publish();
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i < numberOfMessagesToSend; i = i + batchSize)
+                    {
+                        for (int j = 0; j < batchSize; j++)
+                        {
+                            publish();
+                        }
+                        Thread.Sleep(delayBetweenBatches);
+                    }
+                }
+            }
         }
     }
 }

@@ -82,7 +82,7 @@ namespace NMSD.Cronus.Sample.Player
             })
             .Start();
 
-            cfg.publishers["Collaboration"][typeof(ICommand)].Publish(new CreateUser(new CollaboratorId(Guid.NewGuid()), "mynkow@gmail.com"));
+            cfg.publishers["Collaboration"][typeof(ICommand)].Publish(new CreateUser(new UserId(Guid.NewGuid()), "mynkow@gmail.com"));
         }
 
         static ISessionFactory BuildSessionFactory()

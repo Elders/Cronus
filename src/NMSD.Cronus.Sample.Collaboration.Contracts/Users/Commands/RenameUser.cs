@@ -8,7 +8,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Users.Commands
     {
         RenameUser() { }
 
-        public RenameUser(CollaboratorId id, string firstName, string lastName)
+        public RenameUser(UserId id, string firstName, string lastName)
         {
             Id = id;
             FirstName = firstName;
@@ -16,7 +16,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Users.Commands
         }
 
         [DataMember(Order = 1)]
-        public CollaboratorId Id { get; set; }
+        public UserId Id { get; set; }
 
         [DataMember(Order = 2)]
         public string FirstName { get; set; }

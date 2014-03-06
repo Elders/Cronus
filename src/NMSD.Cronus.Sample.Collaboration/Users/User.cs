@@ -8,7 +8,7 @@ namespace NMSD.Cronus.Sample.Collaboration.Users
     {
         User() { }
 
-        public User(CollaboratorId collaboratorId, string email)
+        public User(UserId collaboratorId, string email)
         {
             var evnt = new UserCreated(collaboratorId, email);
             state = new UserState();

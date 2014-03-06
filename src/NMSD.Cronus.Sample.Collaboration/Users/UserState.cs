@@ -5,12 +5,12 @@ using NMSD.Cronus.Sample.Collaboration.Users.Events;
 namespace NMSD.Cronus.Sample.Collaboration.Users
 {
     [DataContract(Name = "c8978654-4380-44d2-8ebe-ae17a463dfb6")]
-    public class UserState : AggregateRootState<CollaboratorId>
+    public class UserState : AggregateRootState<UserId>
     {
         public UserState() { }
 
         [DataMember(Order = 1)]
-        public override CollaboratorId Id { get; set; }
+        public override UserId Id { get; set; }
 
         [DataMember(Order = 2)]
         public override int Version { get; set; }
