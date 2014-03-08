@@ -2,7 +2,7 @@
 $root = Resolve-Path ..
 $src_directory = "$root\src"
 $verbosity = "minimal"
-$nuget = "$env:USERPROFILE\AppData\Local\NuGet\NuGet.exe"
+$nuget = "$root\build\nuget.exe"
 $deploy = "$root\bin\Deploy"
 $nugetDeploy = "$deploy\nuget"
 $nugetDeployLib = "$deploy\nuget\lib"

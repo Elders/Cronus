@@ -57,7 +57,6 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             });
             cfg.ConfigureConsumer<EndpointConsumer<ICommand>>("Collaboration", consumer =>
             {
-                consumer.ScopeFactory = new ScopeFactory();
                 consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
                     {
@@ -73,7 +72,6 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             });
             cfg.ConfigureConsumer<EndpointConsumer<IEvent>>("Collaboration", consumer =>
             {
-                consumer.ScopeFactory = new ScopeFactory();
                 consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                     {
