@@ -44,9 +44,13 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
 
         public void AddRegistration(Type messageType, Type messageHandlerType, Func<Type, Context, object> messageHandlerFactory)
         {
-            Registrations.Add(messageType, new Tuple<Type, Func<Type, Context, object>>(messageHandlerType, messageHandlerFactory));
+            if (!Registrations.ContainsKey(messageType))
+            {
+                Registrations.Add(messageType, new List<Tuple<Type, Func<Type, Context, object>>>());
+            }
+            Registrations[messageType].Add(new Tuple<Type, Func<Type, Context, object>>(messageHandlerType, messageHandlerFactory));
         }
 
-        public Dictionary<Type, Tuple<Type, Func<Type, Context, object>>> Registrations = new Dictionary<Type, Tuple<Type, Func<Type, Context, object>>>();
+        public Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> Registrations = new Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>>();
     }
 }

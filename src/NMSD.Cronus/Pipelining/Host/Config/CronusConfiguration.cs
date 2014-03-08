@@ -40,7 +40,10 @@ namespace NMSD.Cronus.Pipelining.Host.Config
                 foreach (var reg in cfg.Registrations)
                 {
                     protoreg.RegisterCommonType(reg.Key);
-                    handlers.RegisterHandler(reg.Key, reg.Value.Item1, reg.Value.Item2);
+                    foreach (var item in reg.Value)
+                    {
+                        handlers.RegisterHandler(reg.Key, item.Item1, item.Item2);
+                    }
                 }
 
                 var consumer = new EndpointConsumer<ICommand>(handlers, cfg.ScopeFactory, serializer);
@@ -52,7 +55,10 @@ namespace NMSD.Cronus.Pipelining.Host.Config
                 foreach (var reg in cfg.Registrations)
                 {
                     protoreg.RegisterCommonType(reg.Key);
-                    handlers.RegisterHandler(reg.Key, reg.Value.Item1, reg.Value.Item2);
+                    foreach (var item in reg.Value)
+                    {
+                        handlers.RegisterHandler(reg.Key, item.Item1, item.Item2);
+                    }
                 }
 
                 var consumer = new EndpointConsumer<IEvent>(handlers, cfg.ScopeFactory, serializer);
