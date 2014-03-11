@@ -132,10 +132,10 @@ namespace NMSD.Cronus.Pipelining.Host.Config
             return this;
         }
 
-
-        public CronusConfiguration ConfigureEventStore(Action<EventStoreSettings> configuration)
+        public CronusConfiguration ConfigureEventStore<T>(Action<T> configuration) where T : EventStoreSettings
         {
-            EventStoreSettings esSettings = new EventStoreSettings();
+            T esSettings = Activator.CreateInstance<T>();
+            esSettings.GlobalSettings = GlobalSettings;
             configuration(esSettings);
             eventStoreConfigurations.Add(esSettings);
             return this;
@@ -147,7 +147,7 @@ namespace NMSD.Cronus.Pipelining.Host.Config
 
             foreach (var esSettings in eventStoreConfigurations)
             {
-                var eventStore = esSettings.Builder.Build();
+                var eventStore = esSettings.Build();
                 GlobalSettings.protoreg.RegisterAssembly(esSettings.AggregateStatesAssembly);
                 GlobalSettings.eventStores.Add(esSettings.BoundedContext, eventStore);
             }

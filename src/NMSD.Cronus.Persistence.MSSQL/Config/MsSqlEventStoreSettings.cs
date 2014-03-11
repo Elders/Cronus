@@ -3,21 +3,15 @@ using NMSD.Cronus.EventSourcing.Config;
 
 namespace NMSD.Cronus.Persitence.MSSQL.Config
 {
-    public class MsSqlEventStoreSettings : IEventStoreBuilder
+    public class MsSqlEventStoreSettings : EventStoreSettings
     {
-        private readonly EventStoreSettings common;
-
-        public MsSqlEventStoreSettings(EventStoreSettings common)
-        {
-            this.common = common;
-        }
         public string ConnectionString { get; set; }
 
-        public IEventStore Build()
+        public override IEventStore Build()
         {
-            var storageManager = new MsSqlEventStoreStorageManager(common.BoundedContext, ConnectionString);
+            var storageManager = new MsSqlEventStoreStorageManager(BoundedContext, ConnectionString);
             storageManager.CreateStorage();
-            return new MssqlEventStore(common.BoundedContext, ConnectionString, common.GlobalSettings.serializer);
+            return new MssqlEventStore(BoundedContext, ConnectionString, GlobalSettings.serializer);
         }
     }
 }

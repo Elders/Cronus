@@ -31,11 +31,11 @@ namespace NMSD.Cronus.Sample.ApplicationService
             var cfg = new CronusConfiguration();
 
             string IAA = "IdentityAndAccess";
-            cfg.ConfigureEventStore(eventStore =>
+            cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
             {
                 eventStore.BoundedContext = IAA;
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(AccountState));
-                eventStore.MsSql(es => es.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
+                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
             });
             cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>(IAA, publisher =>
             {
@@ -58,11 +58,11 @@ namespace NMSD.Cronus.Sample.ApplicationService
             });
 
             string Collaboration = "Collaboration";
-            cfg.ConfigureEventStore(eventStore =>
+            cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
             {
                 eventStore.BoundedContext = Collaboration;
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
-                eventStore.MsSql(es => es.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
+                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
             });
             cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>(Collaboration, publisher =>
             {

@@ -46,7 +46,6 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\MsSqlEventStoreConfig.cs" />
     <Compile Include="Config\MsSqlEventStoreSettings.cs" />
     <Compile Include="DatabaseManager.cs" />
     <Compile Include="MssqlEventStore.cs" />

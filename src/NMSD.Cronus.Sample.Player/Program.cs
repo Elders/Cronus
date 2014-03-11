@@ -52,15 +52,15 @@ namespace NMSD.Cronus.Sample.Player
         {
             var sf = BuildSessionFactory();
             var cfg = new CronusConfiguration();
-            cfg.ConfigureEventStore(eventStore =>
+            cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
             {
                 eventStore.BoundedContext = "Collaboration";
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
-                eventStore.MsSql(es => es.ConnectionString = ConfigurationManager.ConnectionStrings["LaCore_Hyperion_Collaboration_EventStore"].ConnectionString);
+                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["LaCore_Hyperion_Collaboration_EventStore"].ConnectionString;
             });
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
             {
-                publisher.InMemory(t => t.UsePipelinePerApplication());
+                publisher.InMemory();
                 publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
             });
 

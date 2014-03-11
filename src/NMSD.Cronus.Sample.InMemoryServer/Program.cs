@@ -31,10 +31,10 @@ namespace NMSD.Cronus.Sample.InMemoryServer
 
             var sf = BuildSessionFactory();
             var cfg = new CronusConfiguration();
-            cfg.ConfigureEventStore(eventStore =>
+            cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
             {
                 eventStore.BoundedContext = "Collaboration";
-                eventStore.MsSql(es => es.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
+                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
             });
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
