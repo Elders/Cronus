@@ -62,6 +62,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NMSD.Cronus.DomainModelling\NMSD.Cronus.DomainModelling.csproj">
+      <Project>{3603583e-c261-4aa6-ae73-b3f4c7440d7c}</Project>
+      <Name>NMSD.Cronus.DomainModelling</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus.Persistence.MSSQL\NMSD.Cronus.Persistence.MSSQL.csproj">
+      <Project>{ba1f1aee-5f4b-40bf-8f42-9c3cca157355}</Project>
+      <Name>NMSD.Cronus.Persistence.MSSQL</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Contracts\NMSD.Cronus.Sample.Collaboration.Contracts.csproj">
       <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>
       <Name>NMSD.Cronus.Sample.Collaboration.Contracts</Name>

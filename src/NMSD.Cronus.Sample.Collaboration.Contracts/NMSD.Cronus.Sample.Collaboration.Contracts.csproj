@@ -92,9 +92,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
-      <Project>{32EA2250-01B3-4171-9AE7-214037A0D524}</Project>
-      <Name>NMSD.Cronus</Name>
+    <ProjectReference Include="..\NMSD.Cronus.DomainModelling\NMSD.Cronus.DomainModelling.csproj">
+      <Project>{3603583e-c261-4aa6-ae73-b3f4c7440d7c}</Project>
+      <Name>NMSD.Cronus.DomainModelling</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

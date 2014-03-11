@@ -14,6 +14,7 @@ using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Pipelining.Host.Config;
+using NMSD.Cronus.Persitence.MSSQL.Config;
 
 namespace NMSD.Cronus.Sample.Player
 {
@@ -51,11 +52,11 @@ namespace NMSD.Cronus.Sample.Player
         {
             var sf = BuildSessionFactory();
             var cfg = new CronusConfiguration();
-            cfg.ConfigureEventStore<MssqlEventStore>(eventStore =>
+            cfg.ConfigureEventStore(eventStore =>
             {
                 eventStore.BoundedContext = "Collaboration";
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["LaCore_Hyperion_Collaboration_EventStore"].ConnectionString;
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
+                eventStore.MsSql(es => es.ConnectionString = ConfigurationManager.ConnectionStrings["LaCore_Hyperion_Collaboration_EventStore"].ConnectionString);
             });
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
             {
@@ -83,7 +84,7 @@ namespace NMSD.Cronus.Sample.Player
             })
             .Start();
 
-            cfg.publishers["Collaboration"][typeof(ICommand)].Publish(new CreateUser(new UserId(Guid.NewGuid()), "mynkow@gmail.com"));
+            cfg.GlobalSettings.publishers["Collaboration"][typeof(ICommand)].Publish(new CreateUser(new UserId(Guid.NewGuid()), "mynkow@gmail.com"));
         }
 
         static ISessionFactory BuildSessionFactory()

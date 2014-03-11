@@ -26,7 +26,7 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
             else if (isEvent)
             {
                 Transport.PipelineSettings.PipelineNameConvention = new EventPipelinePerApplication();
-                Transport.PipelineSettings.EndpointNameConvention = new EventHandlerEndpointPerHandler(Transport.PipelineSettings.PipelineNameConvention);
+                Transport.PipelineSettings.EndpointNameConvention = new EventHandlerEndpointPerBoundedContext(Transport.PipelineSettings.PipelineNameConvention);
             }
             else
             {

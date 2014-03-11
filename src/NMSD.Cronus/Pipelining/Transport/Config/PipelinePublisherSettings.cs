@@ -37,40 +37,10 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
 
         public Assembly[] MessagesAssemblies { get; set; }
 
-
-
-        public PipelinePublisherSettings<T> Transport<TTransport>(Action<TTransport> transportConfigure = null)
-            where TTransport : IPipelineTransport
+        public IPublisher Build()
         {
-            var transport = Activator.CreateInstance<TTransport>();
-            TransportSettings = transport.TransportSettings<T>(TransportSettings.PipelineSettings);
-            //if (transportConfigure != null)
-            //    transportConfigure(TransportSettings);
-            TransportSettings.Build();
-            return this;
+            return null;
         }
-    }
 
-
-
-    public interface IPipelineTransport
-    {
-        IPipelineTransportSettings<T> TransportSettings<T>(PipelineSettings pipelineSettings = null) where T : ITransportIMessage;
-    }
-
-    public class RabbitMq : IPipelineTransport
-    {
-        public IPipelineTransportSettings<T> TransportSettings<T>(PipelineSettings pipelineSettings = null) where T : ITransportIMessage
-        {
-            return new RabbitMqTransportSettings<T>(pipelineSettings);
-        }
-    }
-
-    public static class RabbitMqConfig
-    {
-        public static RabbitMq Settings<T>(this RabbitMq transport, Action<IPipelineTransportSettings<T>> settings) where T : ITransportIMessage
-        {
-            return transport;
-        }
     }
 }

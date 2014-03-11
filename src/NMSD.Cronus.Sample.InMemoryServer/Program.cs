@@ -18,6 +18,7 @@ using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
 using NMSD.Cronus.Sample.Player;
 using NMSD.Cronus.Pipelining.InMemory.Config;
 using NMSD.Cronus.Pipelining.Host.Config;
+using NMSD.Cronus.Persitence.MSSQL.Config;
 
 namespace NMSD.Cronus.Sample.InMemoryServer
 {
@@ -30,10 +31,10 @@ namespace NMSD.Cronus.Sample.InMemoryServer
 
             var sf = BuildSessionFactory();
             var cfg = new CronusConfiguration();
-            cfg.ConfigureEventStore<MssqlEventStore>(eventStore =>
+            cfg.ConfigureEventStore(eventStore =>
             {
                 eventStore.BoundedContext = "Collaboration";
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+                eventStore.MsSql(es => es.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
             });
             cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
@@ -64,7 +65,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
                         var repositoryHandler = handler as IAggregateRootApplicationService;
                         if (repositoryHandler != null)
                         {
-                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.eventStores["Collaboration"], cfg.publishers["Collaboration"][typeof(DomainMessageCommit)]);
+                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.GlobalSettings.eventStores["Collaboration"], cfg.GlobalSettings.publishers["Collaboration"][typeof(DomainMessageCommit)]);
                         }
                         return handler;
                     });
@@ -87,7 +88,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             });
             cfg.Start();
 
-            HostUI(cfg.publishers["Collaboration"][typeof(ICommand)], 1000, 1);
+            HostUI(cfg.GlobalSettings.publishers["Collaboration"][typeof(ICommand)], 1000, 1);
             Console.WriteLine("Started");
             Console.ReadLine();
         }

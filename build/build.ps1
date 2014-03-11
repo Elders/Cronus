@@ -12,7 +12,7 @@ properties {
 	$assemblyInformationalVersion = "dev";
 	$assemblyFileVersion = "1.0.?.7200";
 	$assemblyVersion = "1.0.0.0";
-	$assemblyRevision = "48";
+	$assemblyRevision = "54";
 
 	$nugetSourceDir = "NMSD.Cronus"
 	$nugetSourceFiles = @("NMSD.Cronus.dll", "NMSD.Cronus.pdb")

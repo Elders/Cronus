@@ -46,7 +46,7 @@ namespace NMSD.Cronus.Sample.Handlers
                         var port = handler as IPort;
                         if (port != null)
                         {
-                            port.CommandPublisher = cfg.publishers[Collaboration][typeof(ICommand)];
+                            port.CommandPublisher = cfg.GlobalSettings.publishers[Collaboration][typeof(ICommand)];
                         }
                         return handler;
                     });

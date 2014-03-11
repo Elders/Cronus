@@ -11,7 +11,7 @@ using NMSD.Cronus.Sample.Collaboration.Users.Events;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Events;
-using NMSD.Cronus.Sample.Player;
+using NMSD.Cronus.Persitence.MSSQL.Config;
 
 namespace NMSD.Cronus.Sample.EventStore
 {
@@ -30,11 +30,11 @@ namespace NMSD.Cronus.Sample.EventStore
             var cfg = new CronusConfiguration();
 
             string IAA = "IdentityAndAccess";
-            cfg.ConfigureEventStore<MssqlEventStore>(eventStore =>
+            cfg.ConfigureEventStore(eventStore =>
             {
                 eventStore.BoundedContext = IAA;
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(AccountState));
+                eventStore.MsSql(es => es.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
             });
             cfg.ConfigurePublisher<PipelinePublisher<IEvent>>(IAA, publisher =>
             {
@@ -53,11 +53,11 @@ namespace NMSD.Cronus.Sample.EventStore
             });
 
             string Collaboration = "Collaboration";
-            cfg.ConfigureEventStore<MssqlEventStore>(eventStore =>
+            cfg.ConfigureEventStore(eventStore =>
             {
                 eventStore.BoundedContext = Collaboration;
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
+                eventStore.MsSql(es => es.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
             });
             cfg.ConfigurePublisher<PipelinePublisher<IEvent>>(Collaboration, publisher =>
             {

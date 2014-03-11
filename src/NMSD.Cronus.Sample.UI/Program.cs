@@ -44,7 +44,7 @@ namespace NMSD.Cronus.Sample.UI
             })
             .Start();
 
-            commandPublisher = cfg.publishers[IAA][typeof(ICommand)];
+            commandPublisher = cfg.GlobalSettings.publishers[IAA][typeof(ICommand)];
         }
 
         private static void SingleCreationCommand()

@@ -2,6 +2,7 @@
 using System.Reflection;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.EventSourcing;
+using NMSD.Cronus.Persitence.MSSQL.Config;
 using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.Pipelining.Host.Config;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
@@ -10,7 +11,6 @@ using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
-using NMSD.Cronus.Sample.Player;
 
 namespace NMSD.Cronus.Sample.ApplicationService
 {
@@ -31,11 +31,11 @@ namespace NMSD.Cronus.Sample.ApplicationService
             var cfg = new CronusConfiguration();
 
             string IAA = "IdentityAndAccess";
-            cfg.ConfigureEventStore<MssqlEventStore>(eventStore =>
+            cfg.ConfigureEventStore(eventStore =>
             {
                 eventStore.BoundedContext = IAA;
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(AccountState));
+                eventStore.MsSql(es => es.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
             });
             cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>(IAA, publisher =>
             {
@@ -50,7 +50,7 @@ namespace NMSD.Cronus.Sample.ApplicationService
                         var repositoryHandler = handler as IAggregateRootApplicationService;
                         if (repositoryHandler != null)
                         {
-                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.eventStores[IAA], cfg.publishers[IAA][typeof(DomainMessageCommit)]);
+                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.GlobalSettings.eventStores[IAA], cfg.GlobalSettings.publishers[IAA][typeof(DomainMessageCommit)]);
                         }
                         return handler;
                     });
@@ -58,11 +58,11 @@ namespace NMSD.Cronus.Sample.ApplicationService
             });
 
             string Collaboration = "Collaboration";
-            cfg.ConfigureEventStore<MssqlEventStore>(eventStore =>
+            cfg.ConfigureEventStore(eventStore =>
             {
                 eventStore.BoundedContext = Collaboration;
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
                 eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
+                eventStore.MsSql(es => es.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
             });
             cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>(Collaboration, publisher =>
             {
@@ -77,7 +77,7 @@ namespace NMSD.Cronus.Sample.ApplicationService
                         var repositoryHandler = handler as IAggregateRootApplicationService;
                         if (repositoryHandler != null)
                         {
-                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.eventStores[Collaboration], cfg.publishers[IAA][typeof(DomainMessageCommit)]);
+                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.GlobalSettings.eventStores[Collaboration], cfg.GlobalSettings.publishers[IAA][typeof(DomainMessageCommit)]);
                         }
                         return handler;
                     });

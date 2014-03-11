@@ -94,31 +94,24 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EventSourcing\Config\IEventStoreBuilder.cs" />
+    <Compile Include="EventSourcing\IEventStoreStorageManager.cs" />
     <Compile Include="EventSourcing\Config\EventStoreSettings.cs" />
-    <Compile Include="Messaging\MessageHandleScope\Context.cs" />
+    <Compile Include="EventSourcing\EventBatchWraper.cs" />
+    <Compile Include="EventSourcing\IEventStream.cs" />
     <Compile Include="Pipelining.RabbitMQ\Config\RabbitMqTransportConfig.cs" />
     <Compile Include="Pipelining.RabbitMQ\Config\RabbitMqTransportSettings.cs" />
     <Compile Include="Pipelining.RabbitMQ\EndpointExtensions.cs" />
-    <Compile Include="Messaging\MessageHandleScope\IBatchScope.cs" />
-    <Compile Include="Messaging\MessageHandleScope\IHandlerScope.cs" />
-    <Compile Include="Messaging\MessageHandleScope\IMessageScope.cs" />
-    <Compile Include="Messaging\MessageHandleScope\IScope.cs" />
-    <Compile Include="Messaging\MessageHandleScope\IScopeContext.cs" />
-    <Compile Include="DomainModelling\ICommand.cs" />
     <Compile Include="Pipelining.RabbitMQ\RabbitMqConsumerWork.cs" />
-    <Compile Include="Messaging\MessageHandleScope\ScopeFactory.cs" />
     <Compile Include="Pipelining\EndpointEventStoreConsumer.cs" />
     <Compile Include="Pipelining\Host\Config\CronusConfiguration.cs" />
     <Compile Include="Pipelining\EndpointConsumable.cs" />
     <Compile Include="Pipelining\EndpointConsumer.cs" />
-    <Compile Include="DomainModelling\IValueObject.cs" />
-    <Compile Include="DomainModelling\IPort.cs" />
     <Compile Include="EventSourcing\EventStorePublisher.cs" />
-    <Compile Include="EventSourcing\MssqlStream.cs" />
+    <Compile Include="EventSourcing\EventStream.cs" />
     <Compile Include="EventSourcing\RabbitRepository.cs" />
     <Compile Include="Pipelining\IConsumer.cs" />
     <Compile Include="Pipelining\Host\IEndpointConsumable.cs" />
-    <Compile Include="DomainModelling\ITransportIMessage.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryEndpointFactory.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryEndpoint.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryPipeline.cs" />
@@ -140,32 +133,10 @@
     <Compile Include="Pipelining\Transport\Config\TransportSettings.cs" />
     <Compile Include="Pipelining\Transport\EndpointMessageExtensions.cs" />
     <Compile Include="Pipelining.RabbitMQ\IRabbitMqPipeline.cs" />
-    <Compile Include="Userfull\Class1.cs" />
     <Compile Include="Userfull\DictionaryExtensions.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
-    <Compile Include="DomainModelling\MessageHandlerCollection.cs" />
-    <Compile Include="DomainModelling\IMessage.cs" />
-    <Compile Include="DomainModelling\IMessageHandler.cs" />
-    <Compile Include="Messaging\MessageHandleScope\ScopeContext.cs" />
-    <Compile Include="DomainModelling\AggregateRoot.cs" />
-    <Compile Include="DomainModelling\AggregateRootFactory.cs" />
-    <Compile Include="DomainModelling\AggregateRootId.cs" />
-    <Compile Include="DomainModelling\AggregateRootState.cs" />
-    <Compile Include="DomainModelling\AggregateRootException.cs" />
-    <Compile Include="DomainModelling\AggregateRootApplicationService.cs" />
-    <Compile Include="DomainModelling\AggregateStateFirstLevelConcurrencyException.cs" />
-    <Compile Include="DomainModelling\BoundedContextAttribute.cs" />
-    <Compile Include="DomainModelling\IAggregateRoot.cs" />
-    <Compile Include="DomainModelling\IAggregateRootId.cs" />
-    <Compile Include="DomainModelling\IAggregateRootState.cs" />
-    <Compile Include="DomainModelling\IAggregateRootStateManager.cs" />
     <Compile Include="Pipelining\PipelinePublisher.cs" />
-    <Compile Include="EventSourcing\MssqlEventStore.cs" />
     <Compile Include="Userfull\FastActivator.cs" />
-    <Compile Include="DomainModelling\IEvent.cs" />
-    <Compile Include="DomainModelling\IAggregateRepository.cs" />
-    <Compile Include="DomainModelling\MessageInfo.cs" />
-    <Compile Include="DomainModelling\MessageCommit.cs" />
     <Compile Include="Multithreading\Work\IWork.cs" />
     <Compile Include="Multithreading\Work\WorkExtensions.cs" />
     <Compile Include="Multithreading\Work\WorkPool.cs" />
@@ -179,8 +150,6 @@
     <Compile Include="$(SolutionDir)AssemblyCompanyProductInfo.cs">
       <Link>Properties\AssemblyCompanyProductInfo.cs</Link>
     </Compile>
-    <Compile Include="DomainModelling\Publisher.cs" />
-    <Compile Include="DomainModelling\IPublisher.cs" />
     <Compile Include="Userfull\RetryableOperation.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
     <Compile Include="Pipelining\Transport\Strategy\CommandHandlerEndpointPerBoundedContext.cs" />
@@ -210,7 +179,12 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\NMSD.Cronus.DomainModelling\NMSD.Cronus.DomainModelling.csproj">
+      <Project>{3603583e-c261-4aa6-ae73-b3f4c7440d7c}</Project>
+      <Name>NMSD.Cronus.DomainModelling</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

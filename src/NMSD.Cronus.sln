@@ -41,6 +41,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Player", "NMSD.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Sample.Player", "NMSD.Cronus.Sample.Player\NMSD.Cronus.Sample.Player.csproj", "{AD1B27D2-0778-46CC-B647-7A7A906F3324}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.Persistence.MSSQL", "NMSD.Cronus.Persistence.MSSQL\NMSD.Cronus.Persistence.MSSQL.csproj", "{BA1F1AEE-5F4B-40BF-8F42-9C3CCA157355}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NMSD.Cronus.DomainModelling", "NMSD.Cronus.DomainModelling\NMSD.Cronus.DomainModelling.csproj", "{3603583E-C261-4AA6-AE73-B3F4C7440D7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -103,6 +107,14 @@ Global
 		{AD1B27D2-0778-46CC-B647-7A7A906F3324}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AD1B27D2-0778-46CC-B647-7A7A906F3324}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AD1B27D2-0778-46CC-B647-7A7A906F3324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA1F1AEE-5F4B-40BF-8F42-9C3CCA157355}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA1F1AEE-5F4B-40BF-8F42-9C3CCA157355}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA1F1AEE-5F4B-40BF-8F42-9C3CCA157355}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA1F1AEE-5F4B-40BF-8F42-9C3CCA157355}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

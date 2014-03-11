@@ -15,12 +15,6 @@ namespace NMSD.Cronus.EventSourcing
         /// <param name="closeStreamCondition">When to close the stream.</param>
         void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<List<IEvent>> postCommit, Func<IEventStream, bool> closeStreamCondition, Action<DomainMessageCommit> onPersistError);
 
-        IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1);
-    }
-
-    public interface IEventStream
-    {
-        List<IEvent> Events { get; }
-        List<IAggregateRootState> Snapshots { get; }
+        //IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1);
     }
 }

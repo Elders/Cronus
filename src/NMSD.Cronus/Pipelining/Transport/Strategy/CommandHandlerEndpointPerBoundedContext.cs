@@ -30,6 +30,7 @@ namespace NMSD.Cronus.Pipelining.Transport.Strategy
                                   from handlerMethodParameter in handlerMethod.GetParameters()
                                   where handlerMethod.Name == "Handle"
                                   select handlerMethodParameter.ParameterType)
+                                  .Distinct()
                                  .ToDictionary<Type, string, object>(key => key.GetContractId(), val => String.Empty);
 
             yield return new EndpointDefinition(endpointName, routingHeaders, pipelineNameConvention.GetPipelineName(boundedContext));

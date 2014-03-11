@@ -6,29 +6,14 @@ using System.Data.SqlClient;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Userfull;
+using NMSD.Cronus.Persitence.MSSQL;
 using NMSD.Protoreg;
 
 namespace NMSD.Cronus.EventSourcing
 {
-    [DataContract(Name = "987a7bed-7689-4c08-b610-9a802d306215")]
-    public class Wraper
-    {
-        Wraper() { }
-
-        public Wraper(List<object> events)
-        {
-            Events = events;
-        }
-
-        [DataMember(Order = 1)]
-        public List<object> Events { get; private set; }
-
-    }
     public class MssqlEventStore : IAggregateRepository, IEventStore
     {
         const string CreateEventsTableQuery = @"USE [{0}] SET ANSI_NULLS ON SET QUOTED_IDENTIFIER ON SET ANSI_PADDING ON CREATE TABLE [dbo].[{1}]([Revision] [int] IDENTITY(1,1) NOT NULL,[Events] [varbinary](max) NOT NULL,[EventsCount] [smallint] NOT NULL,[Timestamp] [datetime] NOT NULL,CONSTRAINT [PK_{1}BoundedContext] PRIMARY KEY CLUSTERED ([Revision] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY] SET ANSI_PADDING OFF";
@@ -51,15 +36,11 @@ namespace NMSD.Cronus.EventSourcing
 
         private readonly string connectionString;
 
-        private ConcurrentDictionary<Type, Tuple<string, string>> eventsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
-
         private readonly string eventsTableName;
 
         private static object locker = new object();
 
         private readonly ProtoregSerializer serializer;
-
-        private ConcurrentDictionary<Type, Tuple<string, string>> snapshotsInfo = new ConcurrentDictionary<Type, Tuple<string, string>>();
 
         private readonly string snapshotsTableName;
 
@@ -70,7 +51,6 @@ namespace NMSD.Cronus.EventSourcing
             snapshotsTableName = String.Format("dbo.{0}Snapshots", boundedContext);
             this.connectionString = connectionString;
             this.serializer = serializer;
-            Create();
         }
 
         public IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1)
@@ -92,10 +72,10 @@ namespace NMSD.Cronus.EventSourcing
                         while (reader.Read())
                         {
                             var buffer = reader[0] as byte[];
-                            Wraper wraper;
+                            EventBatchWraper wraper;
                             using (var stream = new MemoryStream(buffer))
                             {
-                                wraper = (Wraper)serializer.Deserialize(stream);
+                                wraper = (EventBatchWraper)serializer.Deserialize(stream);
                             }
                             foreach (IEvent @event in wraper.Events)
                             {
@@ -197,62 +177,6 @@ namespace NMSD.Cronus.EventSourcing
             }
         }
 
-        /// <summary>
-        /// Creates the database for the event store including the Events and Snapshots tables. If any exists it is not overwritten.
-        /// </summary>
-        private void Create()
-        {
-            try
-            {
-                lock (locker)
-                {
-                    if (!DatabaseManager.Exists(connectionString))
-                    {
-                        DatabaseManager.CreateDatabase(connectionString, enableSnapshotIsolation: true);
-                        while (!DatabaseManager.Exists(connectionString))
-                            Thread.Sleep(50);
-                    }
-
-                    if (!TableExists(eventsTableName))
-                    {
-                        CreateEventsTable();
-                        while (!TableExists(eventsTableName))
-                            Thread.Sleep(50);
-                    }
-                    if (!TableExists(snapshotsTableName))
-                    {
-                        CreateSnapshotsTableTable();
-                        while (!TableExists(snapshotsTableName))
-                            Thread.Sleep(50);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.Error("Could not create EventStore.", ex);
-            }
-        }
-
-        private void CreateEventsTable()
-        {
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
-
-            SqlConnection conn = new SqlConnection(connectionString);
-            try
-            {
-                conn.Open();
-
-                var command = String.Format(CreateEventsTableQuery, builder.InitialCatalog, eventsTableName.Replace("dbo.", ""));
-                SqlCommand cmd = new SqlCommand(command, conn);
-                cmd.ExecuteNonQuery();
-
-            }
-            finally
-            {
-                conn.Close();
-            }
-        }
-
         private static DataTable CreateInMemoryTableForEvents()
         {
             DataTable uncommittedEvents = new DataTable();
@@ -316,26 +240,6 @@ namespace NMSD.Cronus.EventSourcing
             uncommittedState.PrimaryKey = keys;
 
             return uncommittedState;
-        }
-
-        private void CreateSnapshotsTableTable()
-        {
-            SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
-
-            SqlConnection conn = new SqlConnection(connectionString);
-            try
-            {
-                conn.Open();
-
-                var command = String.Format(CreateSnapshotsTableQuery, builder.InitialCatalog, snapshotsTableName.Replace("dbo.", ""));
-                SqlCommand cmd = new SqlCommand(command, conn);
-                cmd.ExecuteNonQuery();
-
-            }
-            finally
-            {
-                conn.Close();
-            }
         }
 
         private IAggregateRootState LoadAggregateState(Guid aggregateId)
@@ -430,37 +334,9 @@ namespace NMSD.Cronus.EventSourcing
         {
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(stream, new Wraper(events.Cast<object>().ToList()));
+                serializer.Serialize(stream, new EventBatchWraper(events.Cast<object>().ToList()));
                 return stream.ToArray();
             }
-        }
-
-        private bool TableExists(string tableName)
-        {
-            bool DatabaseExsists = false;
-            SqlConnection conn = new SqlConnection(connectionString);
-            try
-            {
-                conn.Open();
-
-                var command = String.Format(TableExistsQuery, tableName.Replace("dbo.", ""));
-                SqlCommand cmd = new SqlCommand(command, conn);
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    DatabaseExsists = true;
-                    break;
-                }
-                reader.Close();
-
-            }
-            finally
-            {
-                conn.Close();
-            }
-            return DatabaseExsists;
-
         }
 
         private void TakeSnapshot(List<IAggregateRootState> states, SqlConnection connection)
