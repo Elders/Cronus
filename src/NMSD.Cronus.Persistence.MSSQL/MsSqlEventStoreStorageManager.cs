@@ -46,11 +46,11 @@ namespace NMSD.Cronus.Persitence.MSSQL
             {
                 lock (locker)
                 {
-                    if (!DatabaseManager.Exists(connectionString))
+                    if (!DatabaseManager.DatabaseExists(connectionString))
                     {
                         DatabaseManager.CreateDatabase(connectionString, enableSnapshotIsolation: true);
 
-                        while (!DatabaseManager.Exists(connectionString))
+                        while (!DatabaseManager.DatabaseExists(connectionString))
                             Thread.Sleep(50);
                     }
 

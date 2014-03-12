@@ -16,10 +16,6 @@ namespace NMSD.Cronus.EventSourcing
 {
     public class MssqlEventStore : IAggregateRepository, IEventStore
     {
-        const string CreateEventsTableQuery = @"USE [{0}] SET ANSI_NULLS ON SET QUOTED_IDENTIFIER ON SET ANSI_PADDING ON CREATE TABLE [dbo].[{1}]([Revision] [int] IDENTITY(1,1) NOT NULL,[Events] [varbinary](max) NOT NULL,[EventsCount] [smallint] NOT NULL,[Timestamp] [datetime] NOT NULL,CONSTRAINT [PK_{1}BoundedContext] PRIMARY KEY CLUSTERED ([Revision] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY] SET ANSI_PADDING OFF";
-
-        const string CreateSnapshotsTableQuery = @"USE [{0}]  SET ANSI_NULLS ON  SET QUOTED_IDENTIFIER ON  SET ANSI_PADDING ON  CREATE TABLE [dbo].[{1}]( [Version] [int] NOT NULL, [AggregateId] [uniqueidentifier] NOT NULL,[AggregateState] [varbinary](max) NOT NULL, [Timestamp] [datetime] NOT NULL, CONSTRAINT [PK_{1}BoundedContextSnapshots] PRIMARY KEY CLUSTERED ([Version] ASC, [AggregateId] ASC)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]  SET ANSI_PADDING OFF ";
-
         const string DeleteAggregateStatesQueryTemplate = @"DELETE {0} WHERE [Timestamp]<@timestamp AND ({1})";
 
         const string DeleteAggregateStatesWhereTemplate = @"AggregateId=@aggregateId{0} AND [Version]<@version{0}";
@@ -28,11 +24,9 @@ namespace NMSD.Cronus.EventSourcing
 
         const string LoadEventsQueryTemplate = @"SELECT Events FROM {0} ORDER BY Revision OFFSET @offset ROWS FETCH NEXT {1} ROWS ONLY";
 
-        const string TableExistsQuery = @"SELECT * FROM INFORMATION_SCHEMA.TABLES  WHERE TABLE_SCHEMA = 'dbo' AND  TABLE_NAME = '{0}'";
-
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MssqlEventStore));
 
-        private readonly string boundedContext;
+        public string BoundedContext { get; private set; }
 
         private readonly string connectionString;
 
@@ -46,7 +40,7 @@ namespace NMSD.Cronus.EventSourcing
 
         public MssqlEventStore(string boundedContext, string connectionString, ProtoregSerializer serializer)
         {
-            this.boundedContext = boundedContext;
+            this.BoundedContext = boundedContext;
             eventsTableName = String.Format("dbo.{0}Events", boundedContext);
             snapshotsTableName = String.Format("dbo.{0}Snapshots", boundedContext);
             this.connectionString = connectionString;
@@ -393,7 +387,7 @@ namespace NMSD.Cronus.EventSourcing
             {
                 var eventType = @event.GetType();
                 string eventBC = eventType.GetBoundedContext().BoundedContextName;
-                if (String.Compare(boundedContext, eventBC, true, CultureInfo.InvariantCulture) != 0)
+                if (String.Compare(BoundedContext, eventBC, true, CultureInfo.InvariantCulture) != 0)
                     wrongEventTypes.Add(eventType);
             }
 
@@ -404,7 +398,7 @@ namespace NMSD.Cronus.EventSourcing
                     errors.AppendLine();
                     errors.Append(et.FullName);
                 }
-                string errorMessage = String.Format("The following events do not belong to the '{0} bounded context. {1}", boundedContext, errors.ToString());
+                string errorMessage = String.Format("The following events do not belong to the '{0} bounded context. {1}", BoundedContext, errors.ToString());
                 throw new Exception(errorMessage);
             }
         }
@@ -417,7 +411,7 @@ namespace NMSD.Cronus.EventSourcing
             {
                 var eventType = @event.GetType();
                 string eventBC = eventType.GetBoundedContext().BoundedContextName;
-                if (String.Compare(boundedContext, eventBC, true, CultureInfo.InvariantCulture) != 0)
+                if (String.Compare(BoundedContext, eventBC, true, CultureInfo.InvariantCulture) != 0)
                     wrongStateTypes.Add(eventType);
             }
 
@@ -428,7 +422,7 @@ namespace NMSD.Cronus.EventSourcing
                     errors.AppendLine();
                     errors.Append(et.FullName);
                 }
-                string errorMessage = String.Format("The following states do not belong to the '{0} bounded context. {1}", boundedContext, errors.ToString());
+                string errorMessage = String.Format("The following states do not belong to the '{0} bounded context. {1}", BoundedContext, errors.ToString());
                 throw new Exception(errorMessage);
             }
         }

@@ -1,7 +1,7 @@
 namespace NMSD.Cronus.Pipelining.Transport.Config
 {
-    public class TransportSettings
+    public abstract class TransportSettings
     {
-
+        //public abstract void Build();
     }
 }

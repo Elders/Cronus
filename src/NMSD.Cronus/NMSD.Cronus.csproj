@@ -99,7 +99,6 @@
     <Compile Include="EventSourcing\Config\EventStoreSettings.cs" />
     <Compile Include="EventSourcing\EventBatchWraper.cs" />
     <Compile Include="EventSourcing\IEventStream.cs" />
-    <Compile Include="Pipelining.RabbitMQ\Config\RabbitMqTransportConfig.cs" />
     <Compile Include="Pipelining.RabbitMQ\Config\RabbitMqTransportSettings.cs" />
     <Compile Include="Pipelining.RabbitMQ\EndpointExtensions.cs" />
     <Compile Include="Pipelining.RabbitMQ\RabbitMqConsumerWork.cs" />
@@ -110,6 +109,8 @@
     <Compile Include="EventSourcing\EventStorePublisher.cs" />
     <Compile Include="EventSourcing\EventStream.cs" />
     <Compile Include="EventSourcing\RabbitRepository.cs" />
+    <Compile Include="Pipelining\Host\Config\CronusConfigurationExtensions.cs" />
+    <Compile Include="Pipelining\Host\Config\CronusGlobalSettings.cs" />
     <Compile Include="Pipelining\IConsumer.cs" />
     <Compile Include="Pipelining\Host\IEndpointConsumable.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryEndpointFactory.cs" />
@@ -118,13 +119,8 @@
     <Compile Include="Pipelining.InMemory\InMemoryPipelineFactory.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryQueue.cs" />
     <Compile Include="Pipelining.RabbitMQ\PipelineClosedException.cs" />
-    <Compile Include="Pipelining\Transport\Config\CommandTransportStrategyConfig.cs" />
-    <Compile Include="Pipelining\Transport\Config\EventStoreTransportStrategyConfig.cs" />
-    <Compile Include="Pipelining\Transport\Config\EventTransportStrategyConfig.cs" />
-    <Compile Include="Pipelining.InMemory\Config\InMemoryTransportConfig.cs" />
     <Compile Include="Pipelining.InMemory\Config\InMemoryTransportSettings.cs" />
     <Compile Include="Pipelining\Transport\Config\MessageHandlerRegistrations.cs" />
-    <Compile Include="Pipelining\Transport\Config\PipelineConsumerSettings.cs" />
     <Compile Include="Pipelining\Transport\Config\PipelineEventStoreConsumerSettings.cs" />
     <Compile Include="Pipelining\Transport\Config\PipelinePublisherSettings.cs" />
     <Compile Include="Pipelining\Transport\Config\PipelineSettings.cs" />

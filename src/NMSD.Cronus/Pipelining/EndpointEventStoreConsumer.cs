@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.EventSourcing;
-using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Transports;
 using NMSD.Protoreg;
 

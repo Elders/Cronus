@@ -12,6 +12,7 @@ using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Events;
 using NMSD.Cronus.Persitence.MSSQL.Config;
+using NMSD.Cronus.Pipelining.Transport.Config;
 
 namespace NMSD.Cronus.Sample.EventStore
 {
@@ -29,51 +30,41 @@ namespace NMSD.Cronus.Sample.EventStore
         {
             var cfg = new CronusConfiguration();
 
-            string IAA = "IdentityAndAccess";
+            const string IAA = "IdentityAndAccess";
             cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
             {
-                eventStore.BoundedContext = IAA;
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(AccountState));
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+                eventStore
+                    .SetConnectionStringName("cronus-es")
+                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(AccountState)));
             });
-            cfg.ConfigurePublisher<PipelinePublisher<IEvent>>(IAA, publisher =>
+            cfg.PipelineEventPublisher(publisher =>
             {
-                publisher.RabbitMq();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(AccountRegistered)) };
+                publisher.UseTransport<RabbitMqTransportSettings>();
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(AccountRegistered)), Assembly.GetAssembly(typeof(UserCreated)) };
             });
-            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(IAA, publisher =>
+            cfg.PipelineCommandPublisher(publisher =>
             {
-                publisher.RabbitMq();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
+                publisher.UseTransport<RabbitMqTransportSettings>();
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) };
             });
-            cfg.ConfigureEventStoreConsumer<EndpointEventStoreConsumer>(IAA, consumer =>
+            cfg.ConfigureConsumer<EndpointEventStoreConsumableSettings>(IAA, consumer =>
             {
-                consumer.AssemblyEventsWhichWillBeIntercepted = typeof(RegisterAccount);
-                consumer.RabbitMq();
+                consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
+                consumer.UseTransport<RabbitMqTransportSettings>();
             });
 
-            string Collaboration = "Collaboration";
+            const string Collaboration = "Collaboration";
             cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
             {
-                eventStore.BoundedContext = Collaboration;
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+                eventStore
+                    .SetConnectionStringName("cronus-es")
+                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)));
             });
-            cfg.ConfigurePublisher<PipelinePublisher<IEvent>>(Collaboration, publisher =>
-            {
-                publisher.RabbitMq();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
-            });
-            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(Collaboration, publisher =>
-            {
-                publisher.RabbitMq();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
-            });
-            cfg.ConfigureEventStoreConsumer<EndpointEventStoreConsumer>(Collaboration, consumer =>
+            cfg.ConfigureConsumer<EndpointEventStoreConsumableSettings>(Collaboration, consumer =>
             {
                 //consumer.NumberOfWorkers = 2;
-                consumer.AssemblyEventsWhichWillBeIntercepted = typeof(UserCreated);
-                consumer.RabbitMq();
+                consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
+                consumer.UseTransport<RabbitMqTransportSettings>();
             });
 
             cfg.Start();

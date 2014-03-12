@@ -1,158 +1,72 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.EventSourcing.Config;
 using NMSD.Cronus.Hosting;
-using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Pipelining.Host.Config
 {
-    public class CronusGlobalSettings
-    {
-        public ProtoRegistration protoreg;
-        public ProtoregSerializer serializer;
-        public Dictionary<IEndpointConsumable, int> consumers = new Dictionary<IEndpointConsumable, int>();
-        public Dictionary<string, IEventStore> eventStores = new Dictionary<string, IEventStore>();
-        public Dictionary<string, Dictionary<Type, IPublisher>> publishers = new Dictionary<string, Dictionary<Type, IPublisher>>();
-    }
-
     public class CronusConfiguration
     {
-        public CronusGlobalSettings GlobalSettings { get; set; }
+        public List<IEndpointConsumerSetting> ConsumersConfigurations = new List<IEndpointConsumerSetting>();
 
-        List<EventStoreSettings> eventStoreConfigurations = new List<EventStoreSettings>();
+        public List<EventStoreSettings> EventStoreConfigurations = new List<EventStoreSettings>();
+
+        public event EventHandler<CronusGlobalSettings> BeforeStart;
 
         public CronusConfiguration()
         {
             GlobalSettings = new CronusGlobalSettings();
-            GlobalSettings.protoreg = new ProtoRegistration();
-            GlobalSettings.serializer = new ProtoregSerializer(GlobalSettings.protoreg);
-            GlobalSettings.protoreg.RegisterAssembly(typeof(EventBatchWraper));
+            GlobalSettings.Protoreg = new ProtoRegistration();
+            GlobalSettings.Serializer = new ProtoregSerializer(GlobalSettings.Protoreg);
+            GlobalSettings.Protoreg.RegisterAssembly(typeof(EventBatchWraper));
+            GlobalSettings.Protoreg.RegisterAssembly(typeof(IMessage));
         }
 
-        public CronusConfiguration ConfigureConsumer<T>(string boundedContextName, Action<PipelineConsumerSettings<T>> configuration) where T : IEndpointConsumer<IMessage>
+        public PipelineCommandPublisherSettings CommandPublisherConfiguration { get; set; }
+
+        public PipelineEventPublisherSettings EventPublisherConfiguration { get; set; }
+
+        public PipelineEventStorePublisherSettings EventStorePublisherConfiguration { get; set; }
+
+        public CronusGlobalSettings GlobalSettings { get; set; }
+
+        public virtual void OnBeforeStart(CronusGlobalSettings e)
         {
-            var cfg = new PipelineConsumerSettings<T>();
-            configuration(cfg);
-
-            IEndpointConsumable consumable = null;
-
-            if (typeof(T) == typeof(EndpointConsumer<ICommand>))
-            {
-                MessageHandlerCollection<ICommand> handlers = new MessageHandlerCollection<ICommand>();
-                foreach (var reg in cfg.Registrations)
-                {
-                    GlobalSettings.protoreg.RegisterCommonType(reg.Key);
-                    foreach (var item in reg.Value)
-                    {
-                        handlers.RegisterHandler(reg.Key, item.Item1, item.Item2);
-                    }
-                }
-
-                var consumer = new EndpointConsumer<ICommand>(handlers, cfg.ScopeFactory, GlobalSettings.serializer);
-                consumable = new EndpointConsumable(cfg.Transport.EndpointFactory, consumer);
-            }
-            else if (typeof(T) == typeof(EndpointConsumer<IEvent>))
-            {
-                MessageHandlerCollection<IEvent> handlers = new MessageHandlerCollection<IEvent>();
-                foreach (var reg in cfg.Registrations)
-                {
-                    GlobalSettings.protoreg.RegisterCommonType(reg.Key);
-                    foreach (var item in reg.Value)
-                    {
-                        handlers.RegisterHandler(reg.Key, item.Item1, item.Item2);
-                    }
-                }
-
-                var consumer = new EndpointConsumer<IEvent>(handlers, cfg.ScopeFactory, GlobalSettings.serializer);
-                consumable = new EndpointConsumable(cfg.Transport.EndpointFactory, consumer);
-            }
-            else
-            {
-                throw new InvalidOperationException("Unknown consumer.");
-            }
-            if (cfg.MessagesAssemblies != null)
-                cfg.MessagesAssemblies.ToList().ForEach(ass => GlobalSettings.protoreg.RegisterAssembly(ass));
-
-            GlobalSettings.consumers.Add((IEndpointConsumable)consumable, cfg.NumberOfWorkers);
-            return this;
-        }
-
-        public CronusConfiguration ConfigureEventStoreConsumer<T>(string boundedContextName, Action<PipelineEventStoreConsumerSettings<T>> configuration) where T : EndpointEventStoreConsumer
-        {
-            var cfg = new PipelineEventStoreConsumerSettings<T>();
-            configuration(cfg);
-
-            IEndpointConsumable consumable = null;
-
-            if (typeof(T) == typeof(EndpointEventStoreConsumer))
-            {
-                var consumer = new EndpointEventStoreConsumer(GlobalSettings.eventStores[boundedContextName], GlobalSettings.publishers[boundedContextName][typeof(IEvent)], GlobalSettings.publishers[boundedContextName][typeof(IEvent)], cfg.AssemblyEventsWhichWillBeIntercepted, GlobalSettings.serializer);
-                consumable = new EndpointConsumable(cfg.Transport.EndpointFactory, consumer);
-            }
-            else
-            {
-                throw new InvalidOperationException("Unknown consumer.");
-            }
-
-            GlobalSettings.consumers.Add((IEndpointConsumable)consumable, cfg.NumberOfWorkers);
-            return this;
-        }
-
-        public CronusConfiguration ConfigurePublisher<T>(string boundedContextName, Action<PipelinePublisherSettings<T>> configuration) where T : IPublisher
-        {
-            var cfg = new PipelinePublisherSettings<T>();
-            configuration(cfg);
-
-            if (!GlobalSettings.publishers.ContainsKey(boundedContextName))
-                GlobalSettings.publishers.Add(boundedContextName, new Dictionary<Type, IPublisher>());
-
-            if (typeof(T) == typeof(PipelinePublisher<ICommand>))
-            {
-                GlobalSettings.publishers[boundedContextName].Add(typeof(ICommand), new PipelinePublisher<ICommand>(cfg.TransportSettings.PipelineFactory, GlobalSettings.serializer));
-            }
-            else if (typeof(T) == typeof(PipelinePublisher<IEvent>))
-            {
-                GlobalSettings.publishers[boundedContextName].Add(typeof(IEvent), new PipelinePublisher<IEvent>(cfg.TransportSettings.PipelineFactory, GlobalSettings.serializer));
-            }
-            else if (typeof(T) == typeof(PipelinePublisher<DomainMessageCommit>))
-            {
-                GlobalSettings.publishers[boundedContextName].Add(typeof(DomainMessageCommit), new EventStorePublisher(cfg.TransportSettings.PipelineFactory, GlobalSettings.serializer));
-            }
-            else
-            {
-                throw new InvalidOperationException("Unknown consumer.");
-            }
-            if (cfg.MessagesAssemblies != null)
-                cfg.MessagesAssemblies.ToList().ForEach(ass => GlobalSettings.protoreg.RegisterAssembly(ass));
-            return this;
-        }
-
-        public CronusConfiguration ConfigureEventStore<T>(Action<T> configuration) where T : EventStoreSettings
-        {
-            T esSettings = Activator.CreateInstance<T>();
-            esSettings.GlobalSettings = GlobalSettings;
-            configuration(esSettings);
-            eventStoreConfigurations.Add(esSettings);
-            return this;
+            EventHandler<CronusGlobalSettings> handler = BeforeStart;
+            if (handler != null)
+                handler(this, e);
         }
 
         public void Start()
         {
-            GlobalSettings.serializer.Build();
+            if (CommandPublisherConfiguration != null)
+                GlobalSettings.CommandPublisher = CommandPublisherConfiguration.Build();
 
-            foreach (var esSettings in eventStoreConfigurations)
+            if (EventPublisherConfiguration != null)
+                GlobalSettings.EventPublisher = EventPublisherConfiguration.Build();
+
+            if (EventStorePublisherConfiguration != null)
+                GlobalSettings.EventStorePublisher = EventStorePublisherConfiguration.Build();
+
+            foreach (var esSettings in EventStoreConfigurations)
             {
                 var eventStore = esSettings.Build();
-                GlobalSettings.protoreg.RegisterAssembly(esSettings.AggregateStatesAssembly);
-                GlobalSettings.eventStores.Add(esSettings.BoundedContext, eventStore);
+                GlobalSettings.EventStores.Add(eventStore);
             }
 
-            foreach (var consumer in GlobalSettings.consumers)
+            foreach (var consumerSettings in ConsumersConfigurations)
+            {
+                IEndpointConsumable consumable = consumerSettings.Build();
+                GlobalSettings.Consumers.Add(consumable, consumerSettings.NumberOfWorkers);
+            }
+
+            OnBeforeStart(GlobalSettings);
+            GlobalSettings.Serializer.Build();
+            foreach (var consumer in GlobalSettings.Consumers)
             {
                 consumer.Key.Start(consumer.Value);
             }
@@ -160,11 +74,11 @@ namespace NMSD.Cronus.Pipelining.Host.Config
 
         public void Stop()
         {
-            foreach (var consumer in GlobalSettings.consumers)
+            foreach (var consumer in GlobalSettings.Consumers)
             {
                 consumer.Key.Stop();
             }
         }
-    }
 
+    }
 }

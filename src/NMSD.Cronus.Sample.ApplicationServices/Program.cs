@@ -1,5 +1,6 @@
 ﻿using System.Configuration;
 using System.Reflection;
+using System.Linq;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.Persitence.MSSQL.Config;
@@ -30,18 +31,18 @@ namespace NMSD.Cronus.Sample.ApplicationService
         {
             var cfg = new CronusConfiguration();
 
-            string IAA = "IdentityAndAccess";
+            const string IAA = "IdentityAndAccess";
             cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
             {
-                eventStore.BoundedContext = IAA;
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(AccountState));
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+                eventStore
+                    .SetConnectionStringName("cronus-es")
+                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(AccountState)));
             });
-            cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>(IAA, publisher =>
+            cfg.PipelineEventStorePublisher(publisher =>
             {
-                publisher.RabbitMq();
+                publisher.UseTransport<RabbitMqTransportSettings>();
             });
-            cfg.ConfigureConsumer<EndpointConsumer<ICommand>>(IAA, consumer =>
+            cfg.ConfigureConsumer<EndpointCommandConsumableSettings>(IAA, consumer =>
             {
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(AccountAppService)), (type, context) =>
@@ -50,25 +51,21 @@ namespace NMSD.Cronus.Sample.ApplicationService
                         var repositoryHandler = handler as IAggregateRootApplicationService;
                         if (repositoryHandler != null)
                         {
-                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.GlobalSettings.eventStores[IAA], cfg.GlobalSettings.publishers[IAA][typeof(DomainMessageCommit)]);
+                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.GlobalSettings.EventStores.Single(es => es.BoundedContext == IAA), cfg.GlobalSettings.EventStorePublisher);
                         }
                         return handler;
                     });
-                consumer.RabbitMq();
+                consumer.UseTransport<RabbitMqTransportSettings>();
             });
 
-            string Collaboration = "Collaboration";
+            const string Collaboration = "Collaboration";
             cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
             {
-                eventStore.BoundedContext = Collaboration;
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString;
+                eventStore
+                    .SetConnectionStringName("cronus-es")
+                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)));
             });
-            cfg.ConfigurePublisher<PipelinePublisher<DomainMessageCommit>>(Collaboration, publisher =>
-            {
-                publisher.RabbitMq();
-            });
-            cfg.ConfigureConsumer<EndpointConsumer<ICommand>>(Collaboration, consumer =>
+            cfg.ConfigureConsumer<EndpointCommandConsumableSettings>(Collaboration, consumer =>
             {
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
@@ -77,11 +74,11 @@ namespace NMSD.Cronus.Sample.ApplicationService
                         var repositoryHandler = handler as IAggregateRootApplicationService;
                         if (repositoryHandler != null)
                         {
-                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.GlobalSettings.eventStores[Collaboration], cfg.GlobalSettings.publishers[IAA][typeof(DomainMessageCommit)]);
+                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.GlobalSettings.EventStores.Single(es => es.BoundedContext == Collaboration), cfg.GlobalSettings.EventStorePublisher);
                         }
                         return handler;
                     });
-                consumer.RabbitMq();
+                consumer.UseTransport<RabbitMqTransportSettings>();
             });
 
             cfg.Start();

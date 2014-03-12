@@ -2,12 +2,10 @@
 using System.Reflection;
 using System.Threading;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.Pipelining.Host.Config;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
-using NMSD.Cronus.Sample.Player;
 
 namespace NMSD.Cronus.Sample.UI
 {
@@ -26,25 +24,21 @@ namespace NMSD.Cronus.Sample.UI
                 numberOfMessagesToSend: Int32.MaxValue
                 ///////////////////////////////////////////////////////////////////
                 );
-
         }
 
         private static void ConfigurePublisher()
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            string IAA = "IdentityAndAccess";
-
             var cfg = new CronusConfiguration();
-            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(IAA, publisher =>
+            cfg.PipelineCommandPublisher(publisher =>
             {
-                publisher.RabbitMq();
-                //publisher.Transport<RabbitMq>(x=>x.);
+                publisher.UseTransport<RabbitMqTransportSettings>();
                 publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
             })
             .Start();
 
-            commandPublisher = cfg.GlobalSettings.publishers[IAA][typeof(ICommand)];
+            commandPublisher = cfg.GlobalSettings.CommandPublisher;
         }
 
         private static void SingleCreationCommand()

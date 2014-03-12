@@ -26,13 +26,13 @@ namespace NMSD.Cronus.Sample.Handlers
             //var sf = BuildSessionFactory();
             var cfg = new CronusConfiguration();
 
-            string Collaboration = "Collaboration";
-            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>(Collaboration, publisher =>
+            const string Collaboration = "Collaboration";
+            cfg.PipelineCommandPublisher(publisher =>
             {
-                publisher.RabbitMq();
+                publisher.UseTransport<RabbitMqTransportSettings>();
                 publisher.MessagesAssemblies = new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) };
             });
-            cfg.ConfigureConsumer<EndpointConsumer<IEvent>>(Collaboration, consumer =>
+            cfg.ConfigureConsumer<EndpointEventConsumableSettings>(Collaboration, consumer =>
             {
                 //consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
@@ -46,11 +46,11 @@ namespace NMSD.Cronus.Sample.Handlers
                         var port = handler as IPort;
                         if (port != null)
                         {
-                            port.CommandPublisher = cfg.GlobalSettings.publishers[Collaboration][typeof(ICommand)];
+                            port.CommandPublisher = cfg.GlobalSettings.CommandPublisher;
                         }
                         return handler;
                     });
-                consumer.RabbitMq();
+                consumer.UseTransport<RabbitMqTransportSettings>();
             });
             cfg.Start();
 

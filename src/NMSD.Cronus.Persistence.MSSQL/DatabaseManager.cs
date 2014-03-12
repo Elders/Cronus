@@ -26,7 +26,7 @@ namespace NMSD.Cronus.Persitence.MSSQL
             string dbName = builder.InitialCatalog;
             builder.InitialCatalog = "master";
 
-            if (Exists(connectionString))
+            if (DatabaseExists(connectionString))
                 throw new Exception(String.Format("Database '{0}' exists.", dbName));
 
             SqlConnection conn = new SqlConnection(builder.ToString());
@@ -70,7 +70,7 @@ namespace NMSD.Cronus.Persitence.MSSQL
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
             string dbName = builder.InitialCatalog;
             builder.InitialCatalog = "master";
-            if (!Exists(connectionString))
+            if (!DatabaseExists(connectionString))
                 return;
 
             SqlConnection conn = new SqlConnection(builder.ToString());
@@ -111,7 +111,7 @@ namespace NMSD.Cronus.Persitence.MSSQL
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
             string dbName = builder.InitialCatalog;
             builder.InitialCatalog = "master";
-            if (!Exists(connectionString))
+            if (!DatabaseExists(connectionString))
                 return;
 
             SqlConnection conn = new SqlConnection(builder.ToString());
@@ -148,7 +148,7 @@ namespace NMSD.Cronus.Persitence.MSSQL
             }
         }
 
-        public static bool Exists(string connectionString)
+        public static bool DatabaseExists(string connectionString)
         {
             SqlConnectionStringBuilder builder = new SqlConnectionStringBuilder(connectionString);
             string dbName = builder.InitialCatalog;

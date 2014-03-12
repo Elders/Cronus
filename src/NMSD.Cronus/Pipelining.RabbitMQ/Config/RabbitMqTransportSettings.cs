@@ -1,27 +1,17 @@
-using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Pipelining.Transport.Config;
-using NMSD.Cronus.Transport.InMemory;
 using NMSD.Cronus.Transports.RabbitMQ;
 
 namespace NMSD.Cronus.Pipelining.RabbitMQ.Config
 {
-    public class RabbitMqTransportSettings<T> : PipelineTransportSettings<T> where T : ITransportIMessage
+    public class RabbitMqTransportSettings : PipelineTransportSettings
     {
-        public RabbitMqTransportSettings(PipelineSettings pipelineSettings = null)
-            : base(pipelineSettings)
-        { }
-
-        public override void Build()
+        public override void Build(PipelineSettings pipelineSettings)
         {
-            base.Build();
+            var rabbitSessionFactory = new RabbitMqSessionFactory();
+            var session = rabbitSessionFactory.OpenSession();
 
-            RabbitSessionFactory = new RabbitMqSessionFactory();
-            var session = RabbitSessionFactory.OpenSession();
-            PipelineFactory = new RabbitMqPipelineFactory(session, PipelineSettings.PipelineNameConvention);
-            EndpointFactory = new RabbitMqEndpointFactory(session, PipelineFactory as RabbitMqPipelineFactory, PipelineSettings.EndpointNameConvention);
+            PipelineFactory = new RabbitMqPipelineFactory(session, pipelineSettings.PipelineNameConvention);
+            EndpointFactory = new RabbitMqEndpointFactory(session, PipelineFactory as RabbitMqPipelineFactory, pipelineSettings.EndpointNameConvention);
         }
-
-        public RabbitMqSessionFactory RabbitSessionFactory { get; set; }
     }
 }

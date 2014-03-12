@@ -1,46 +1,94 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Pipelining.RabbitMQ.Config;
+using NMSD.Cronus.EventSourcing;
+using NMSD.Cronus.Pipelining.Host.Config;
 using NMSD.Cronus.Pipelining.Transport.Strategy;
 
 namespace NMSD.Cronus.Pipelining.Transport.Config
 {
-    public class PipelinePublisherSettings<T> where T : IPublisher
+    public abstract class PublisherSettings<TContract, TTransport>
+        where TContract : IMessage
+        where TTransport : TransportSettings
     {
-        public PipelinePublisherSettings()
-        {
-            TransportSettings = new PipelineTransportSettings<T>();
-
-            bool isCommand = typeof(T).GetGenericArguments()[0] == typeof(ICommand);
-            bool isEvent = typeof(T).GetGenericArguments()[0] == typeof(IEvent);
-            bool isCommit = typeof(T).GetGenericArguments()[0] == typeof(DomainMessageCommit);
-
-            if (isCommand)
-            {
-                TransportSettings.PipelineSettings.PipelineNameConvention = new CommandPipelinePerApplication();
-            }
-            else if (isEvent)
-            {
-                TransportSettings.PipelineSettings.PipelineNameConvention = new EventPipelinePerApplication();
-            }
-            else if (isCommit)
-            {
-                TransportSettings.PipelineSettings.PipelineNameConvention = new EventStorePipelinePerApplication();
-            }
-            else
-            {
-                throw new NotImplementedException();
-            }
-        }
-        public IPipelineTransportSettings<T> TransportSettings;
+        public CronusGlobalSettings GlobalSettings { get; set; }
 
         public Assembly[] MessagesAssemblies { get; set; }
 
-        public IPublisher Build()
+        public TTransport Transport { get; set; }
+
+        public abstract IPublisher<TContract> Build();
+
+        public PublisherSettings<TContract, TTransport> UseTransport<T>(Action<T> configure = null) where T : TTransport
         {
-            return null;
+            T transport = Activator.CreateInstance<T>();
+            if (configure != null)
+                configure(transport);
+            Transport = transport;
+
+            return this;
         }
 
+        protected abstract IPublisher<TContract> BuildPublisher();
+
+    }
+
+    public abstract class PipelinePublisherSetting<TContract> : PublisherSettings<TContract, PipelineTransportSettings> where TContract : IMessage
+    {
+        public PipelinePublisherSetting()
+        {
+            PipelineSettings = new PipelineSettings();
+        }
+
+        public PipelineSettings PipelineSettings { get; set; }
+
+        public override IPublisher<TContract> Build()
+        {
+            Transport.Build(PipelineSettings);
+            if (MessagesAssemblies != null)
+                MessagesAssemblies.ToList().ForEach(ass => GlobalSettings.Protoreg.RegisterAssembly(ass));
+            return BuildPublisher();
+        }
+
+    }
+
+    public class PipelineCommandPublisherSettings : PipelinePublisherSetting<ICommand>
+    {
+        public PipelineCommandPublisherSettings()
+        {
+            PipelineSettings.PipelineNameConvention = new CommandPipelinePerApplication();
+        }
+
+        protected override IPublisher<ICommand> BuildPublisher()
+        {
+            return new PipelinePublisher<ICommand>(Transport.PipelineFactory, GlobalSettings.Serializer);
+        }
+    }
+
+    public class PipelineEventPublisherSettings : PipelinePublisherSetting<IEvent>
+    {
+        public PipelineEventPublisherSettings()
+        {
+            PipelineSettings.PipelineNameConvention = new EventPipelinePerApplication();
+        }
+
+        protected override IPublisher<IEvent> BuildPublisher()
+        {
+            return new PipelinePublisher<IEvent>(Transport.PipelineFactory, GlobalSettings.Serializer);
+        }
+    }
+
+    public class PipelineEventStorePublisherSettings : PipelinePublisherSetting<DomainMessageCommit>
+    {
+        public PipelineEventStorePublisherSettings()
+        {
+            PipelineSettings.PipelineNameConvention = new EventStorePipelinePerApplication();
+        }
+
+        protected override IPublisher<DomainMessageCommit> BuildPublisher()
+        {
+            return new EventStorePublisher(Transport.PipelineFactory, GlobalSettings.Serializer);
+        }
     }
 }

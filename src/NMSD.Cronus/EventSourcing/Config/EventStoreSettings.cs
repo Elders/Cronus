@@ -1,16 +1,25 @@
 using System.Reflection;
+using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Pipelining.Host.Config;
 
 namespace NMSD.Cronus.EventSourcing.Config
 {
     public abstract class EventStoreSettings
     {
-        public CronusGlobalSettings GlobalSettings { get; set; }
+        protected Assembly aggregateStatesAssembly;
 
-        public string BoundedContext { get; set; }
+        protected string boundedContext;
+
+        protected bool createStorage;
+
+        public CronusGlobalSettings GlobalSettings { get; set; }
 
         public abstract IEventStore Build();
 
-        public Assembly AggregateStatesAssembly { get; set; }
+        protected void BuildAggregateStatesAssemblyAndBoundedContext(Assembly aggregateStatesAssembly)
+        {
+            this.aggregateStatesAssembly = aggregateStatesAssembly;
+            boundedContext = aggregateStatesAssembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
+        }
     }
 }
