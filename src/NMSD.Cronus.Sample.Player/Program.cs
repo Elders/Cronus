@@ -1,46 +1,51 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using NHibernate;
-using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.Messaging.MessageHandleScope;
-using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Persitence.MSSQL.Config;
+using NMSD.Cronus.Pipelining.Host.Config;
 using NMSD.Cronus.Pipelining.InMemory.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Cronus.Sample.Collaboration;
-using NMSD.Cronus.Sample.Collaboration.Users;
-using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Projections;
-using NMSD.Cronus.Pipelining.Host.Config;
-using NMSD.Cronus.Persitence.MSSQL.Config;
+using NMSD.Cronus.Sample.Collaboration.Users;
+using NMSD.Cronus.Sample.Collaboration.Users.Events;
 
 namespace NMSD.Cronus.Sample.Player
 {
-    public class NHibernateHandlerScope : IHandlerScope
+    public class HandlerScope : IHandlerScope
     {
         private readonly ISessionFactory sessionFactory;
         private ISession session;
         private ITransaction transaction;
 
-        public NHibernateHandlerScope(ISessionFactory sessionFactory)
+        public HandlerScope(ISessionFactory sessionFactory)
         {
             this.sessionFactory = sessionFactory;
         }
 
         public void Begin()
         {
-            session = sessionFactory.OpenSession();
-            transaction = session.BeginTransaction();
-            Context.Set<ISession>(session);
+            Context = new ScopeContext();
+
+            Lazy<ISession> lazySession = new Lazy<ISession>(() =>
+            {
+                session = sessionFactory.OpenSession();
+                transaction = session.BeginTransaction();
+                return session;
+            });
+            Context.Set<Lazy<ISession>>(lazySession);
         }
 
         public void End()
         {
-            transaction.Commit();
-            session.Clear();
-            session.Close();
+            if (session != null)
+            {
+                transaction.Commit();
+                session.Clear();
+                session.Close();
+            }
         }
 
         public IScopeContext Context { get; set; }
@@ -51,40 +56,35 @@ namespace NMSD.Cronus.Sample.Player
         static void Main(string[] args)
         {
             var sf = BuildSessionFactory();
+
             var cfg = new CronusConfiguration();
             cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
             {
-                eventStore.BoundedContext = "Collaboration";
-                eventStore.AggregateStatesAssembly = Assembly.GetAssembly(typeof(UserState));
-                eventStore.ConnectionString = ConfigurationManager.ConnectionStrings["LaCore_Hyperion_Collaboration_EventStore"].ConnectionString;
+                eventStore
+                    .SetConnectionStringName("cronus-es")
+                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)));
             });
-            cfg.ConfigurePublisher<PipelinePublisher<ICommand>>("Collaboration", publisher =>
+            cfg.PipelineEventPublisher(publisher =>
             {
-                publisher.InMemory();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
+                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
+                publisher.UseTransport<InMemoryTransportSettings>();
             });
-
-            cfg.ConfigureConsumer<EndpointConsumer<ICommand>>("Collaboration", consumer =>
+            cfg.ConfigureConsumer<EndpointEventConsumableSettings>("Collaboration", consumer =>
             {
-                //consumer.UnitOfWorkFactory
-                consumer.NumberOfWorkers = 1;
-                consumer.ScopeFactory = new ScopeFactory();
-                consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(sf);
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
+                consumer.ScopeFactory.CreateHandlerScope = () => new HandlerScope(sf);
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
                         var nhHandler = handler as IHaveNhibernateSession;
                         if (nhHandler != null)
-                        {
-                            nhHandler.Session = context.HandlerScopeContext.Get<ISession>();
-                        }
+                            nhHandler.Session = context.HandlerScopeContext.Get<Lazy<ISession>>().Value;
                         return handler;
                     });
-                consumer.InMemory();
+                consumer.UseTransport<InMemoryTransportSettings>();
             })
-            .Start();
+            .Build();
 
-            cfg.GlobalSettings.publishers["Collaboration"][typeof(ICommand)].Publish(new CreateUser(new UserId(Guid.NewGuid()), "mynkow@gmail.com"));
+            new CronusPlayer(cfg).Replay();
         }
 
         static ISessionFactory BuildSessionFactory()
@@ -92,6 +92,8 @@ namespace NMSD.Cronus.Sample.Player
             var typesThatShouldBeMapped = Assembly.GetAssembly(typeof(UserProjection)).GetExportedTypes().Where(t => t.Namespace.EndsWith("DTOs"));
             var cfg = new NHibernate.Cfg.Configuration();
             cfg = cfg.AddAutoMappings(typesThatShouldBeMapped);
+            cfg.Configure();
+            cfg.CreateDatabase_AND_OVERWRITE_EXISTING_DATABASE();
             return cfg.BuildSessionFactory();
         }
     }

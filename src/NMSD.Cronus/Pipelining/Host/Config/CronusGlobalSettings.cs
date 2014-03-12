@@ -7,7 +7,7 @@ using NMSD.Protoreg;
 
 namespace NMSD.Cronus.Pipelining.Host.Config
 {
-    public class CronusGlobalSettings : EventArgs
+    public class CronusGlobalSettings
     {
         public Dictionary<IEndpointConsumable, int> Consumers = new Dictionary<IEndpointConsumable, int>();
 

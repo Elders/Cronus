@@ -79,9 +79,10 @@ namespace NMSD.Cronus.Sample.ApplicationService
                         return handler;
                     });
                 consumer.UseTransport<RabbitMqTransportSettings>();
-            });
+            })
+            .Build();
 
-            cfg.Start();
+            new CronusHost(cfg).Start();
         }
     }
 }

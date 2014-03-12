@@ -111,6 +111,8 @@
     <Compile Include="EventSourcing\RabbitRepository.cs" />
     <Compile Include="Pipelining\Host\Config\CronusConfigurationExtensions.cs" />
     <Compile Include="Pipelining\Host\Config\CronusGlobalSettings.cs" />
+    <Compile Include="Pipelining\Host\Config\CronusHost.cs" />
+    <Compile Include="Pipelining\Host\Config\CronusPlayer.cs" />
     <Compile Include="Pipelining\IConsumer.cs" />
     <Compile Include="Pipelining\Host\IEndpointConsumable.cs" />
     <Compile Include="Pipelining.InMemory\InMemoryEndpointFactory.cs" />

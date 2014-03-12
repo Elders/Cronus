@@ -13,10 +13,10 @@ namespace NMSD.Cronus.Player
 
         public void ReplayEvents()
         {
-            //foreach (var evnt in eventStore.GetEventsFromStart("IdentityAndAccess"))
-            //{
-            //    Console.WriteLine(evnt.ToString());
-            //}
+            foreach (var evnt in eventStore.GetEventsFromStart())
+            {
+                Console.WriteLine(evnt.ToString());
+            }
         }
     }
 }

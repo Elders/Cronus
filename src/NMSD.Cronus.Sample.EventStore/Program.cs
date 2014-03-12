@@ -1,18 +1,14 @@
-﻿using System.Configuration;
-using System.Reflection;
-using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.EventSourcing;
-using NMSD.Cronus.Pipelining;
+﻿using System.Reflection;
+using NMSD.Cronus.Persitence.MSSQL.Config;
 using NMSD.Cronus.Pipelining.Host.Config;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
+using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Users.Events;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Events;
-using NMSD.Cronus.Persitence.MSSQL.Config;
-using NMSD.Cronus.Pipelining.Transport.Config;
 
 namespace NMSD.Cronus.Sample.EventStore
 {
@@ -65,9 +61,10 @@ namespace NMSD.Cronus.Sample.EventStore
                 //consumer.NumberOfWorkers = 2;
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
                 consumer.UseTransport<RabbitMqTransportSettings>();
-            });
+            })
+            .Build();
 
-            cfg.Start();
+            new CronusHost(cfg).Start();
         }
     }
 }

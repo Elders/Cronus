@@ -51,8 +51,10 @@ namespace NMSD.Cronus.Sample.Handlers
                         return handler;
                     });
                 consumer.UseTransport<RabbitMqTransportSettings>();
-            });
-            cfg.Start();
+            })
+            .Build();
+
+            new CronusHost(cfg).Start();
 
             Console.WriteLine("Started");
             Console.ReadLine();

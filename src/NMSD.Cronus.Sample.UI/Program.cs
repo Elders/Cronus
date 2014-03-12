@@ -36,7 +36,7 @@ namespace NMSD.Cronus.Sample.UI
                 publisher.UseTransport<RabbitMqTransportSettings>();
                 publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
             })
-            .Start();
+            .Build();
 
             commandPublisher = cfg.GlobalSettings.CommandPublisher;
         }

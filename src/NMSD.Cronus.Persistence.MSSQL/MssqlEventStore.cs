@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -7,9 +6,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Persitence.MSSQL;
 using NMSD.Protoreg;
 
 namespace NMSD.Cronus.EventSourcing
@@ -47,12 +44,12 @@ namespace NMSD.Cronus.EventSourcing
             this.serializer = serializer;
         }
 
-        public IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1)
+        public IEnumerable<IEvent> GetEventsFromStart(int batchPerQuery = 1)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
-                string query = String.Format(LoadEventsQueryTemplate, boundedContext + "Events", batchPerQuery);
+                string query = String.Format(LoadEventsQueryTemplate, eventsTableName, batchPerQuery);
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@offset", 0);
 
@@ -81,11 +78,6 @@ namespace NMSD.Cronus.EventSourcing
             }
         }
 
-
-        //public AR Update<AR>(IAggregateRootId aggregateId, Commanding.ICommand command, Action<AR> update, Action<IAggregateRoot> save = null) where AR : IAggregateRoot
-        //{
-        //    throw new NotImplementedException();
-        //}
         public AR Update<AR>(IAggregateRootId aggregateId, ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot
         {
             var state = LoadAggregateState(aggregateId.Id);

@@ -90,7 +90,9 @@ namespace NMSD.Cronus.Sample.InMemoryServer
                         });
                     consumer.UseTransport<InMemoryTransportSettings>();
                 })
-                .Start();
+                .Build();
+
+            new CronusHost(cfg).Start();
 
             //HostUI(cfg.GlobalSettings.CommandPublisher, 1000, 1);
             Console.WriteLine("Started");

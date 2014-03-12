@@ -16,6 +16,6 @@ namespace NMSD.Cronus.EventSourcing
         void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<List<IEvent>> postCommit, Func<IEventStream, bool> closeStreamCondition, Action<DomainMessageCommit> onPersistError);
 
         string BoundedContext { get; }
-        //IEnumerable<IEvent> GetEventsFromStart(string boundedContext, int batchPerQuery = 1);
+        IEnumerable<IEvent> GetEventsFromStart(int batchPerQuery = 1);
     }
 }

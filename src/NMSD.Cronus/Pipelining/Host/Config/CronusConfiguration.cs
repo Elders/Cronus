@@ -15,8 +15,6 @@ namespace NMSD.Cronus.Pipelining.Host.Config
 
         public List<EventStoreSettings> EventStoreConfigurations = new List<EventStoreSettings>();
 
-        public event EventHandler<CronusGlobalSettings> BeforeStart;
-
         public CronusConfiguration()
         {
             GlobalSettings = new CronusGlobalSettings();
@@ -34,14 +32,7 @@ namespace NMSD.Cronus.Pipelining.Host.Config
 
         public CronusGlobalSettings GlobalSettings { get; set; }
 
-        public virtual void OnBeforeStart(CronusGlobalSettings e)
-        {
-            EventHandler<CronusGlobalSettings> handler = BeforeStart;
-            if (handler != null)
-                handler(this, e);
-        }
-
-        public void Start()
+        public CronusConfiguration Build()
         {
             if (CommandPublisherConfiguration != null)
                 GlobalSettings.CommandPublisher = CommandPublisherConfiguration.Build();
@@ -64,21 +55,9 @@ namespace NMSD.Cronus.Pipelining.Host.Config
                 GlobalSettings.Consumers.Add(consumable, consumerSettings.NumberOfWorkers);
             }
 
-            OnBeforeStart(GlobalSettings);
             GlobalSettings.Serializer.Build();
-            foreach (var consumer in GlobalSettings.Consumers)
-            {
-                consumer.Key.Start(consumer.Value);
-            }
-        }
 
-        public void Stop()
-        {
-            foreach (var consumer in GlobalSettings.Consumers)
-            {
-                consumer.Key.Stop();
-            }
+            return this;
         }
-
     }
 }
