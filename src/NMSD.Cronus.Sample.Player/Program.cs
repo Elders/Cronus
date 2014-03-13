@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using NHibernate;
+using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Cronus.Persitence.MSSQL.Config;
 using NMSD.Cronus.Pipelining.Host.Config;
@@ -72,7 +73,7 @@ namespace NMSD.Cronus.Sample.Player
             cfg.ConfigureConsumer<EndpointEventConsumableSettings>("Collaboration", consumer =>
             {
                 consumer.ScopeFactory.CreateHandlerScope = () => new HandlerScope(sf);
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
+                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)).GetExportedTypes().Where(x => !typeof(IPort).IsAssignableFrom(x)).ToArray(), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
                         var nhHandler = handler as IHaveNhibernateSession;

@@ -70,10 +70,6 @@
       <Project>{ba1f1aee-5f4b-40bf-8f42-9c3cca157355}</Project>
       <Name>NMSD.Cronus.Persistence.MSSQL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NMSD.Cronus.Player\NMSD.Cronus.Player.csproj">
-      <Project>{931d0254-bad5-49f8-b6a2-552803fe5799}</Project>
-      <Name>NMSD.Cronus.Player</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Contracts\NMSD.Cronus.Sample.Collaboration.Contracts.csproj">
       <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>
       <Name>NMSD.Cronus.Sample.Collaboration.Contracts</Name>

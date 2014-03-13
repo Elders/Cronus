@@ -17,6 +17,11 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
             Register(consumer, assemblyContainingMessageHandlers, (x, context) => FastActivator.CreateInstance(x), (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType));
         }
 
+        public static void RegisterAllHandlersInAssembly(this IEndpointConsumerSetting consumer, Type[] messageHandlers)
+        {
+            Register(consumer, messageHandlers, (x, context) => FastActivator.CreateInstance(x), (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType));
+        }
+
         /// <summary>
         /// Registers all message handlers from a given assembly.
         /// </summary>
@@ -26,11 +31,25 @@ namespace NMSD.Cronus.Pipelining.Transport.Config
             Register(consumer, assemblyContainingMessageHandlers, messageHandlerFactory, (eventHandlerType) => { });
         }
 
+        public static void RegisterAllHandlersInAssembly(this IEndpointConsumerSetting consumer, Type[] messageHandlers, Func<Type, Context, object> messageHandlerFactory)
+        {
+            Register(consumer, messageHandlers, messageHandlerFactory, (eventHandlerType) => { });
+        }
+
         static void Register(this IEndpointConsumerSetting consumer, Assembly assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory, Action<Type> doBeforeRegister)
         {
             Type genericMarkupInterface = typeof(IMessageHandler<>);
 
             var messageHandlerTypes = assemblyContainingMessageHandlers.GetTypes().Where(x => x.IsClass && x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericMarkupInterface));
+
+            Register(consumer, messageHandlerTypes.ToArray(), messageHandlerFactory, doBeforeRegister);
+        }
+
+        static void Register(this IEndpointConsumerSetting consumer, Type[] messageHandlers, Func<Type, Context, object> messageHandlerFactory, Action<Type> doBeforeRegister)
+        {
+            Type genericMarkupInterface = typeof(IMessageHandler<>);
+
+            var messageHandlerTypes = messageHandlers.Where(x => x.IsClass && x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericMarkupInterface));
 
             foreach (var messageHandlerType in messageHandlerTypes)
             {
