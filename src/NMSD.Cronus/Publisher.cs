@@ -1,7 +1,7 @@
 ﻿using System;
 using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.DomainModelling
+namespace NMSD.Cronus
 {
     public abstract class Publisher<TMessage> : IPublisher<TMessage>
         where TMessage : IMessage

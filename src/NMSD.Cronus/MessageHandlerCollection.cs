@@ -4,7 +4,7 @@ using System.Linq;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Messaging.MessageHandleScope;
 
-namespace NMSD.Cronus.Messaging
+namespace NMSD.Cronus
 {
     public class MessageHandlerCollection<TMessage>
         where TMessage : IMessage

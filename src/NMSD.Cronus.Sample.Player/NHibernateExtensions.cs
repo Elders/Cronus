@@ -5,7 +5,7 @@ using System.Globalization;
 using NHibernate.Cfg;
 using NHibernate.Mapping.ByCode;
 using NHibernate.Tool.hbm2ddl;
-using NMSD.Cronus.Persitence.MSSQL;
+using NMSD.Cronus.Persistence.MSSQL;
 
 namespace NMSD.Cronus.Sample.Player
 {

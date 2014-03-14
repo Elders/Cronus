@@ -4,7 +4,7 @@ using System.Reflection;
 using NHibernate;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Messaging.MessageHandleScope;
-using NMSD.Cronus.Persitence.MSSQL.Config;
+using NMSD.Cronus.Persistence.MSSQL.Config;
 using NMSD.Cronus.Pipelining.Host.Config;
 using NMSD.Cronus.Pipelining.InMemory.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;

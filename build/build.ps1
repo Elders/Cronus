@@ -9,10 +9,9 @@ properties {
 	$company="NMSD"
 	$product="Cronus"
  
-	$assemblyInformationalVersion = "dev";
-	$assemblyFileVersion = "1.0.?.7200";
-	$assemblyVersion = "1.0.0.0";
-	$assemblyRevision = "54";
+	$assemblyFileVersion = "1.1.?";
+	$assemblyVersion = "1.1.0.0";
+	$assemblyRevision = "1";
 
 	$nugetSourceDir = "NMSD.Cronus"
 	$nugetSourceFiles = @("NMSD.Cronus.dll", "NMSD.Cronus.pdb")
@@ -49,7 +48,7 @@ task BuildCronus -depends ValidateConfig, AssemblyInfo -description "Builds outd
 
 task PublishNugetPackage {
     $version = $assemblyFileVersion.Replace("?",$assemblyRevision)
-    $version = "$version-Beta"
+    $version = "$version"
     Nuget-CreateNuspec `
         -authors "Nikolai Mynkow, Simeon Dimov" `
         -owners "Nikolai Mynkow, Simeon Dimov" `
@@ -61,6 +60,7 @@ task PublishNugetPackage {
         -version  $version `
         -description "Simple CQRS + EvetStore framework" `
 		-dependencies @(
+						,@("Cronus.DomainModelling", "[1.0.0, 1.1.0)")
 						,@("Protoreg", "[1.0, 1.1)")
 						,@("log4net", "[2.0.3, 2.0.4)")
 						,@("RabbitMQ.Client", "[3.2.1, 3.3)")

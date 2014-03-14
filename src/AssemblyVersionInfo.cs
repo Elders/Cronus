@@ -23,12 +23,12 @@ using System.Runtime.InteropServices;
 //		This is the first charachters of GIT revision.
 
 //	The version of the product which is released
-[assembly: AssemblyInformationalVersion("37b0aed970589dd00a2b7d5350bec3bd80af1e9d / 37b0aed")]
+[assembly: AssemblyInformationalVersion("f288b64a0e3a178e7eb7945899247dd04f11c91a / f288b64")]
 
 //	Describes file version of the assembly. If you increment Major Version 
 //	you probably want to change the AssemblyVersion as well
-[assembly: AssemblyFileVersion("1.0.54.7200")]
+[assembly: AssemblyFileVersion("1.1.1")]
 
 //	Careful! The CLR uses this version when loading assemblies. 
 //	Change this only when you introduce breaking changes.
-[assembly: AssemblyVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.1.0.0")]

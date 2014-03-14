@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using NMSD.Cronus.Persitence.MSSQL.Config;
+using NMSD.Cronus.Persistence.MSSQL.Config;
 using NMSD.Cronus.Pipelining.Host.Config;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;

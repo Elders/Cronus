@@ -46,12 +46,23 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NHibernate.3.3.3.4001\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NMSD.Protoreg">
-      <HintPath>..\packages\Protoreg.1.0.7.7400\lib\NMSD.Protoreg.dll</HintPath>
+    <Reference Include="NMSD.Cronus">
+      <HintPath>..\packages\Cronus.1.1.1\lib\NMSD.Cronus.dll</HintPath>
     </Reference>
-    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    <Reference Include="NMSD.Cronus.DomainModelling">
+      <HintPath>..\packages\Cronus.DomainModelling.1.0.0\lib\NMSD.Cronus.DomainModelling.dll</HintPath>
+    </Reference>
+    <Reference Include="NMSD.Cronus.Persistence.MSSQL">
+      <HintPath>..\packages\Cronus.Persistence.MSSQL.1.0.8\lib\NMSD.Cronus.Persistence.MSSQL.dll</HintPath>
+    </Reference>
+    <Reference Include="NMSD.Protoreg">
+      <HintPath>..\packages\Protoreg.1.0.4.7400\lib\NMSD.Protoreg.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\packages\Protoreg.1.0.4.7400\lib\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQ.Client">
+      <HintPath>..\packages\RabbitMQ.Client.3.2.1\lib\net30\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -81,10 +92,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NMSD.Cronus.DomainModelling\NMSD.Cronus.DomainModelling.csproj">
-      <Project>{3603583e-c261-4aa6-ae73-b3f4c7440d7c}</Project>
-      <Name>NMSD.Cronus.DomainModelling</Name>
-    </ProjectReference>
     <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Contracts\NMSD.Cronus.Sample.Collaboration.Contracts.csproj">
       <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>
       <Name>NMSD.Cronus.Sample.Collaboration.Contracts</Name>
@@ -96,10 +103,6 @@
     <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
       <Project>{1c59eb3d-70e6-45b4-b644-e5607dcf4713}</Project>
       <Name>NMSD.Cronus.Sample.IdentityAndAccess.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
-      <Project>{32EA2250-01B3-4171-9AE7-214037A0D524}</Project>
-      <Name>NMSD.Cronus</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

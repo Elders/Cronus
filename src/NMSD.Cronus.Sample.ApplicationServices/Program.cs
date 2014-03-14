@@ -1,10 +1,8 @@
-﻿using System.Configuration;
+﻿using System.Linq;
 using System.Reflection;
-using System.Linq;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.EventSourcing;
-using NMSD.Cronus.Persitence.MSSQL.Config;
-using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Persistence.MSSQL.Config;
 using NMSD.Cronus.Pipelining.Host.Config;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;

@@ -4,17 +4,17 @@ using System.Reflection;
 using System.Threading;
 using NHibernate;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.EventSourcing;
-using NMSD.Cronus.Persitence.MSSQL.Config;
-using NMSD.Cronus.Pipelining.Host.Config;
-using NMSD.Cronus.Pipelining.InMemory.Config;
-using NMSD.Cronus.Pipelining.Transport.Config;
+using NMSD.Cronus.Persistence.MSSQL.Config;
 using NMSD.Cronus.Sample.Collaboration;
 using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
+using NMSD.Cronus.Pipelining.InMemory.Config;
+using NMSD.Cronus.EventSourcing;
+using NMSD.Cronus.Pipelining.Transport.Config;
+using NMSD.Cronus.Pipelining.Host.Config;
 
 namespace NMSD.Cronus.Sample.InMemoryServer
 {

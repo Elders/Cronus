@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.DomainModelling
+namespace NMSD.Cronus.EventSourcing
 {
     [DataContract(Name = "6a146321-7b94-4ff6-bf2c-cd82cba1836b")]
     public class DomainMessageCommit : IMessage

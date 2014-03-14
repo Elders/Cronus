@@ -1,7 +1,5 @@
 ﻿using System;
-using NMSD.Cronus;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Messaging;
 using NMSD.Cronus.Transports;
 using NMSD.Protoreg;
 

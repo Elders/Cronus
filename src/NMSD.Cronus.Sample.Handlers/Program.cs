@@ -3,16 +3,13 @@ using System.Linq;
 using System.Reflection;
 using NHibernate;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Pipelining.Host.Config;
 using NMSD.Cronus.Pipelining.RabbitMQ.Config;
 using NMSD.Cronus.Pipelining.Transport.Config;
-using NMSD.Cronus.Sample.Collaboration;
-using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Projections;
+using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
-using NMSD.Cronus.Sample.Player;
-using NMSD.Cronus.Pipelining.Host.Config;
 
 namespace NMSD.Cronus.Sample.Handlers
 {
