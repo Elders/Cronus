@@ -15,6 +15,7 @@ using NMSD.Cronus.Pipelining.InMemory.Config;
 using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.Pipelining.Transport.Config;
 using NMSD.Cronus.Pipelining.Host.Config;
+using NMSD.Cronus.Sample.CommonFiles;
 
 namespace NMSD.Cronus.Sample.InMemoryServer
 {
@@ -92,11 +93,16 @@ namespace NMSD.Cronus.Sample.InMemoryServer
                 })
                 .Build();
 
-            new CronusHost(cfg).Start();
+            var host = new CronusHost(cfg);
+            host.Start();
 
-            //HostUI(cfg.GlobalSettings.CommandPublisher, 1000, 1);
+            Thread.Sleep(2000);
+
+            host.Stop();
+
+           // HostUI(cfg.GlobalSettings.CommandPublisher, 1000, 1);
             Console.WriteLine("Started");
-            Console.ReadLine();
+            //Console.ReadLine();
         }
 
         private static void HostUI(IPublisher commandPublisher, int messageDelayInMilliseconds = 0, int batchSize = 1)

@@ -11,7 +11,10 @@ namespace NMSD.Cronus.Messaging.MessageHandleScope
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RabbitMqConsumerWork));
 
         private IEndpointConsumer consumer;
+
         private readonly IEndpoint endpoint;
+
+        volatile bool isWorking;
 
         public RabbitMqConsumerWork(IEndpointConsumer consumer, IEndpoint endpoint)
         {
@@ -25,8 +28,9 @@ namespace NMSD.Cronus.Messaging.MessageHandleScope
         {
             try
             {
+                isWorking = true;
                 endpoint.Open();
-                while (true)
+                while (isWorking)
                 {
                     consumer.Consume(endpoint);
                 }
@@ -45,5 +49,11 @@ namespace NMSD.Cronus.Messaging.MessageHandleScope
                 endpoint.Close();
             }
         }
+
+        public void Stop()
+        {
+            isWorking = false;
+        }
+
     }
 }

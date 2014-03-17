@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Pipelining.Strategy;
 
 namespace NMSD.Cronus.Transports.RabbitMQ
 {

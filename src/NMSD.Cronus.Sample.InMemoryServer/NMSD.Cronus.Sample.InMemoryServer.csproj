@@ -49,8 +49,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NHibernate.3.3.3.4001\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NMSD.Cronus">
-      <HintPath>..\packages\Cronus.1.1.1\lib\NMSD.Cronus.dll</HintPath>
+    <Reference Include="NMSD.Cronus, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Cronus.1.1.3\lib\NMSD.Cronus.dll</HintPath>
     </Reference>
     <Reference Include="NMSD.Cronus.DomainModelling">
       <HintPath>..\packages\Cronus.DomainModelling.1.0.0\lib\NMSD.Cronus.DomainModelling.dll</HintPath>
@@ -75,8 +76,10 @@
     <Reference Include="System.Data.Entity.Design" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\NMSD.Cronus.Sample.CommonFiles\NHibernateExtensions.cs">
+      <Link>Nhibernate\NHibernateExtensions.cs</Link>
+    </Compile>
     <Compile Include="Nhibernate\NHibernateHandlerScope.cs" />
-    <Compile Include="Nhibernate\NHibernateExtensions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">

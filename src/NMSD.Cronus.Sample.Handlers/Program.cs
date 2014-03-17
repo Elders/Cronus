@@ -10,6 +10,7 @@ using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
+using NMSD.Cronus.Sample.CommonFiles;
 
 namespace NMSD.Cronus.Sample.Handlers
 {
@@ -62,7 +63,7 @@ namespace NMSD.Cronus.Sample.Handlers
             var typesThatShouldBeMapped = Assembly.GetAssembly(typeof(UserProjection)).GetExportedTypes().Where(t => t.Namespace.EndsWith("DTOs"));
             var cfg = new NHibernate.Cfg.Configuration();
             cfg = cfg.AddAutoMappings(typesThatShouldBeMapped);
-            cfg.CreateDatabaseTables();
+            cfg.CreateTables();
             return cfg.BuildSessionFactory();
         }
     }

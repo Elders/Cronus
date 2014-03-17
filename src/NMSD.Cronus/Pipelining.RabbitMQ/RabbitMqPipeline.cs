@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using NMSD.Cronus.Pipelining;
 using RabbitMQ.Client.Exceptions;
 using RabbitMQ.Client.Framing.v0_9_1;
 

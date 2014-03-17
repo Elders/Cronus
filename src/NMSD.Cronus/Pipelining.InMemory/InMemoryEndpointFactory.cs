@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NMSD.Cronus.Transports;
-using NMSD.Cronus.Transports.Conventions;
+using NMSD.Cronus.Pipelining;
 
 namespace NMSD.Cronus.Transport.InMemory
 {

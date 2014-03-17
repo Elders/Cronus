@@ -9,5 +9,6 @@ namespace NMSD.Cronus.Multithreading.Work
     {
         DateTime ScheduledStart { get; }
         void Start();
+        void Stop();
     }
 }

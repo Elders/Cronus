@@ -1,4 +1,4 @@
-using NMSD.Cronus.Pipelining.Transport.Config;
+using NMSD.Cronus.Pipelining.Config;
 using NMSD.Cronus.Transports.RabbitMQ;
 
 namespace NMSD.Cronus.Pipelining.RabbitMQ.Config

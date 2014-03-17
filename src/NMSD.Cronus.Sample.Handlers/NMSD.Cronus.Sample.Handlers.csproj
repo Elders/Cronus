@@ -72,7 +72,9 @@
     <Reference Include="System.Data.Entity.Design" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Nhibernate\NHibernateExtensions.cs" />
+    <Compile Include="..\NMSD.Cronus.Sample.CommonFiles\NHibernateExtensions.cs">
+      <Link>Nhibernate\NHibernateExtensions.cs</Link>
+    </Compile>
     <Compile Include="Nhibernate\NHibernateHandlerScope.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

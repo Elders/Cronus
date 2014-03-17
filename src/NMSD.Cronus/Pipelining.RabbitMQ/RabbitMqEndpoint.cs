@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.RabbitMQ;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;

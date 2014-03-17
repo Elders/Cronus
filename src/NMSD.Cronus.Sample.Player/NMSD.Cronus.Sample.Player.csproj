@@ -72,7 +72,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="NHibernateExtensions.cs" />
+    <Compile Include="..\NMSD.Cronus.Sample.CommonFiles\NHibernateExtensions.cs">
+      <Link>NHibernateExtensions.cs</Link>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NMSD.Cronus.Pipelining;
 using NMSD.Cronus.Transports;
 
 namespace NMSD.Cronus.Transport.InMemory
@@ -9,6 +10,8 @@ namespace NMSD.Cronus.Transport.InMemory
     {
         private static InMemoryQueue current;
 
+        public static int TotalMessagesConsumed { get; private set; }
+
         static ConcurrentDictionary<IPipeline, ConcurrentDictionary<IEndpoint, BlockingCollection<EndpointMessage>>> pipelineStorage = new ConcurrentDictionary<IPipeline, ConcurrentDictionary<IEndpoint, BlockingCollection<EndpointMessage>>>(new PipelineComparer());
 
         public static InMemoryQueue Current
@@ -16,7 +19,10 @@ namespace NMSD.Cronus.Transport.InMemory
             get
             {
                 if (current == null)
+                {
+                    TotalMessagesConsumed = 0;
                     current = new InMemoryQueue();
+                }
                 return current;
             }
         }
@@ -36,7 +42,10 @@ namespace NMSD.Cronus.Transport.InMemory
         {
             BlockingCollection<EndpointMessage> endpointStorage;
             if (TryGetEndpointStorage(endpoint, out endpointStorage))
+            {
+                TotalMessagesConsumed++;
                 return endpointStorage.Take();
+            }
             return null;
         }
 
@@ -45,7 +54,10 @@ namespace NMSD.Cronus.Transport.InMemory
             msg = null;
             BlockingCollection<EndpointMessage> endpointStorage;
             if (TryGetEndpointStorage(endpoint, out endpointStorage))
+            {
+                TotalMessagesConsumed++;
                 return endpointStorage.TryTake(out msg, timeoutInMiliseconds);
+            }
             return false;
         }
 

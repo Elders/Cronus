@@ -1,4 +1,6 @@
 ﻿using System;
+using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Pipelining.Strategy;
 using NMSD.Cronus.Transports;
 
 namespace NMSD.Cronus.Transport.InMemory

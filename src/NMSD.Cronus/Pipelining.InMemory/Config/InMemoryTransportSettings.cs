@@ -1,4 +1,4 @@
-using NMSD.Cronus.Pipelining.Transport.Config;
+using NMSD.Cronus.Pipelining.Config;
 using NMSD.Cronus.Transport.InMemory;
 
 namespace NMSD.Cronus.Pipelining.InMemory.Config

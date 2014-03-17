@@ -1,4 +1,5 @@
 using System;
+using NMSD.Cronus.Pipelining;
 
 namespace NMSD.Cronus.Transports.RabbitMQ
 {

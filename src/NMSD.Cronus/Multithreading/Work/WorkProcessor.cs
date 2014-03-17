@@ -14,6 +14,8 @@ namespace NMSD.Cronus.Multithreading.Work
 
         volatile bool shouldStop = false;
 
+        private IWork work;
+
         private Thread thread;
 
         /// <summary>
@@ -37,7 +39,6 @@ namespace NMSD.Cronus.Multithreading.Work
                 {
                     while (!shouldStop)
                     {
-                        IWork work;
                         try
                         {
                             log.Debug("Getting available work...");
@@ -76,6 +77,8 @@ namespace NMSD.Cronus.Multithreading.Work
             log.DebugFormat("Stopping crawler '{0}'...", name);
             thread = null;
             shouldStop = true;
+            if (work != null)
+                work.Stop();
         }
 
     }
