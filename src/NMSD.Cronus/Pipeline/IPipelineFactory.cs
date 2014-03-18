@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public interface IPipelineFactory<out T> where T : IPipeline
     {

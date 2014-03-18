@@ -4,10 +4,15 @@ using System.Reflection;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Messaging.MessageHandleScope;
 
-namespace NMSD.Cronus.Pipelining.Config
+namespace NMSD.Cronus.Pipeline.Config
 {
     public static class MessageHandlerRegistrations
     {
+        public static void RegisterAllHandlersInAssembly(this IEndpointConsumerSetting consumer, Type[] messageHandlers, Func<Type, Context, object> messageHandlerFactory)
+        {
+            Register(consumer, messageHandlers, messageHandlerFactory, (eventHandlerType) => { });
+        }
+
         /// <summary>
         /// Registers all message handlers from a given assembly.
         /// </summary>
@@ -15,11 +20,6 @@ namespace NMSD.Cronus.Pipelining.Config
         public static void RegisterAllHandlersInAssembly(this IEndpointConsumerSetting consumer, Assembly assemblyContainingMessageHandlers)
         {
             Register(consumer, assemblyContainingMessageHandlers, (x, context) => FastActivator.CreateInstance(x), (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType));
-        }
-
-        public static void RegisterAllHandlersInAssembly(this IEndpointConsumerSetting consumer, Type[] messageHandlers)
-        {
-            Register(consumer, messageHandlers, (x, context) => FastActivator.CreateInstance(x), (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType));
         }
 
         /// <summary>
@@ -31,9 +31,9 @@ namespace NMSD.Cronus.Pipelining.Config
             Register(consumer, assemblyContainingMessageHandlers, messageHandlerFactory, (eventHandlerType) => { });
         }
 
-        public static void RegisterAllHandlersInAssembly(this IEndpointConsumerSetting consumer, Type[] messageHandlers, Func<Type, Context, object> messageHandlerFactory)
+        public static void RegisterAllHandlersInAssembly(this IEndpointConsumerSetting consumer, Type[] messageHandlers)
         {
-            Register(consumer, messageHandlers, messageHandlerFactory, (eventHandlerType) => { });
+            Register(consumer, messageHandlers, (x, context) => FastActivator.CreateInstance(x), (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType));
         }
 
         static void Register(this IEndpointConsumerSetting consumer, Assembly assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory, Action<Type> doBeforeRegister)
@@ -65,5 +65,6 @@ namespace NMSD.Cronus.Pipelining.Config
                 }
             }
         }
+
     }
 }

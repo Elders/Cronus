@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public interface IEndpoint : IEquatable<IEndpoint>
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public interface IPipeline : IEquatable<IPipeline>
     {

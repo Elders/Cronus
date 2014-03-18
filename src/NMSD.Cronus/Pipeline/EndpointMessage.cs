@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public class EndpointMessage
     {

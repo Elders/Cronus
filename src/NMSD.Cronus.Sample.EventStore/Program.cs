@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using NMSD.Cronus.Persistence.MSSQL.Config;
-using NMSD.Cronus.Pipelining.Host.Config;
-using NMSD.Cronus.Pipelining.RabbitMQ.Config;
-using NMSD.Cronus.Pipelining.Transport.Config;
+using NMSD.Cronus.Pipeline.Host.Config;
+using NMSD.Cronus.Pipeline.RabbitMQ.Config;
+using NMSD.Cronus.Pipeline.Transport.Config;
 using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Users.Events;

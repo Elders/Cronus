@@ -1,6 +1,4 @@
-﻿using NMSD.Cronus.Transports;
-
-namespace NMSD.Cronus.Pipelining.Config
+﻿namespace NMSD.Cronus.Pipeline.Config
 {
     public abstract class PipelineTransportSettings : TransportSettings
     {

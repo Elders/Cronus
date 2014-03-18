@@ -11,10 +11,10 @@ using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
-using NMSD.Cronus.Pipelining.InMemory.Config;
+using NMSD.Cronus.Pipeline.InMemory.Config;
 using NMSD.Cronus.EventSourcing;
-using NMSD.Cronus.Pipelining.Transport.Config;
-using NMSD.Cronus.Pipelining.Host.Config;
+using NMSD.Cronus.Pipeline.Transport.Config;
+using NMSD.Cronus.Pipeline.Host.Config;
 using NMSD.Cronus.Sample.CommonFiles;
 
 namespace NMSD.Cronus.Sample.InMemoryServer

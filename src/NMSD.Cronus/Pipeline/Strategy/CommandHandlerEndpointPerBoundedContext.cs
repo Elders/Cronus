@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.Pipelining.Strategy
+namespace NMSD.Cronus.Pipeline.Strategy
 {
     public class CommandHandlerEndpointPerBoundedContext : IEndpointNameConvention
     {

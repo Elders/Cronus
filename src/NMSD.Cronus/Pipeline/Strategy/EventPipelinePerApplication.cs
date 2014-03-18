@@ -1,8 +1,7 @@
 using System;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Transports;
 
-namespace NMSD.Cronus.Pipelining.Strategy
+namespace NMSD.Cronus.Pipeline.Strategy
 {
     public class EventPipelinePerApplication : IPipelineNameConvention
     {

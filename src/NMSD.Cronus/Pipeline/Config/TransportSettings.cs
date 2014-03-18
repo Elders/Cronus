@@ -1,4 +1,4 @@
-namespace NMSD.Cronus.Pipelining.Config
+namespace NMSD.Cronus.Pipeline.Config
 {
     public abstract class TransportSettings
     {

@@ -1,4 +1,4 @@
-namespace NMSD.Cronus.Pipelining.Hosts
+namespace NMSD.Cronus.Pipeline.Hosts
 {
     public class CronusHost
     {

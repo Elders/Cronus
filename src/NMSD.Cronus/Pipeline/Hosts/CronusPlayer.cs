@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using System.Threading;
-using NMSD.Cronus.Transport.InMemory;
+using NMSD.Cronus.Pipeline.Transport.InMemory;
 
-namespace NMSD.Cronus.Pipelining.Hosts
+namespace NMSD.Cronus.Pipeline.Hosts
 {
     public class CronusPlayer
     {

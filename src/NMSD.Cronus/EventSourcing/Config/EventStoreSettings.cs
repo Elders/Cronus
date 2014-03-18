@@ -1,6 +1,6 @@
 using System.Reflection;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Pipelining.Hosts.Config;
+using NMSD.Cronus.Pipeline.Hosts;
 
 namespace NMSD.Cronus.EventSourcing.Config
 {

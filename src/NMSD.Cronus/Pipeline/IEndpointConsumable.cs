@@ -1,4 +1,4 @@
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public interface IEndpointConsumable
     {

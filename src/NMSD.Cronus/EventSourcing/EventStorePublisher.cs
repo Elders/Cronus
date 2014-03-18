@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Pipelining;
+using NMSD.Cronus.Pipeline;
 using NMSD.Protoreg;
 
 namespace NMSD.Cronus.EventSourcing

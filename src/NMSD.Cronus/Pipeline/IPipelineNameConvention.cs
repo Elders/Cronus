@@ -1,7 +1,7 @@
 using System;
 using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public interface IPipelineNameConvention
     {

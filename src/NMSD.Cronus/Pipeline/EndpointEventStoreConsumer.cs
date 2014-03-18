@@ -5,7 +5,7 @@ using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.EventSourcing;
 using NMSD.Protoreg;
 
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public class EndpointEventStoreConsumer : IEndpointConsumer<DomainMessageCommit>
     {

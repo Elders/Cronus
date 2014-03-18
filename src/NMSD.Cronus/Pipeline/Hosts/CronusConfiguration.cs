@@ -2,11 +2,10 @@ using System.Collections.Generic;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.EventSourcing.Config;
-using NMSD.Cronus.Pipelining.Config;
-using NMSD.Cronus.Pipelining.Hosts.Config;
+using NMSD.Cronus.Pipeline.Config;
 using NMSD.Protoreg;
 
-namespace NMSD.Cronus.Pipelining.Hosts
+namespace NMSD.Cronus.Pipeline.Hosts
 {
     public class CronusConfiguration
     {

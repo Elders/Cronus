@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace NMSD.Cronus.RabbitMQ
+namespace NMSD.Cronus
 {
     public delegate ShouldRetry RetryPolicy();
 

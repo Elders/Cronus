@@ -4,8 +4,9 @@ using System.IO;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Protoreg;
+using NMSD.Cronus.Pipeline.Transport;
 
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public class EndpointConsumer<T> : IEndpointConsumer<T> where T : IMessage
     {

@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.Pipelining.Strategy
+namespace NMSD.Cronus.Pipeline.Strategy
 {
     public class EventHandlerEndpointPerHandler : IEndpointNameConvention
     {

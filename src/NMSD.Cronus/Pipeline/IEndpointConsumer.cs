@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using NMSD.Cronus.DomainModelling;
 
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public interface IEndpointConsumer : ITransportIMessage
     {

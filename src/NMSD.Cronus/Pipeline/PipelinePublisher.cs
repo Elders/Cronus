@@ -2,7 +2,7 @@
 using NMSD.Cronus.DomainModelling;
 using NMSD.Protoreg;
 
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public class PipelinePublisher<T> : Publisher<T> where T : IMessage
     {

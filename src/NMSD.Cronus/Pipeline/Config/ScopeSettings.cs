@@ -1,6 +1,6 @@
 using NMSD.Cronus.Messaging.MessageHandleScope;
 
-namespace NMSD.Cronus.Pipelining.Config
+namespace NMSD.Cronus.Pipeline.Config
 {
     public class ScopeSettings
     {

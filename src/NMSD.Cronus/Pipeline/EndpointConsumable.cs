@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Cronus.Multithreading.Work;
 
-namespace NMSD.Cronus.Pipelining
+namespace NMSD.Cronus.Pipeline
 {
     public class EndpointConsumable : IEndpointConsumable
     {
@@ -34,7 +33,7 @@ namespace NMSD.Cronus.Pipelining
                 WorkPool pool = new WorkPool(poolName, numberOfWorkers);
                 for (int i = 0; i < numberOfWorkers; i++)
                 {
-                    pool.AddWork(new RabbitMqConsumerWork(consumer, endpointFactory.CreateEndpoint(endpointDefinition)));
+                    pool.AddWork(new PipelineConsumerWork(consumer, endpointFactory.CreateEndpoint(endpointDefinition)));
                 }
                 pools.Add(pool);
                 pool.StartCrawlers();
