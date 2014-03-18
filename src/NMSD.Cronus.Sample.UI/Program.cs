@@ -2,8 +2,8 @@
 using System.Reflection;
 using System.Threading;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Pipeline.Host.Config;
-using NMSD.Cronus.Pipeline.RabbitMQ.Config;
+using NMSD.Cronus.Pipeline.Hosts;
+using NMSD.Cronus.Pipeline.Transport.RabbitMQ.Config;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 
@@ -33,7 +33,7 @@ namespace NMSD.Cronus.Sample.UI
             var cfg = new CronusConfiguration();
             cfg.PipelineCommandPublisher(publisher =>
             {
-                publisher.UseTransport<RabbitMqTransportSettings>();
+                publisher.UseTransport<RabbitMq>();
                 publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
             })
             .Build();

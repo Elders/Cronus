@@ -4,18 +4,18 @@ using System.Reflection;
 using System.Threading;
 using NHibernate;
 using NMSD.Cronus.DomainModelling;
+using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.Persistence.MSSQL.Config;
+using NMSD.Cronus.Pipeline.Config;
+using NMSD.Cronus.Pipeline.Hosts;
+using NMSD.Cronus.Pipeline.Transport.InMemory.Config;
 using NMSD.Cronus.Sample.Collaboration;
 using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
+using NMSD.Cronus.Sample.CommonFiles;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.InMemoryServer.Nhibernate;
-using NMSD.Cronus.Pipeline.InMemory.Config;
-using NMSD.Cronus.EventSourcing;
-using NMSD.Cronus.Pipeline.Transport.Config;
-using NMSD.Cronus.Pipeline.Host.Config;
-using NMSD.Cronus.Sample.CommonFiles;
 
 namespace NMSD.Cronus.Sample.InMemoryServer
 {
@@ -30,7 +30,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
             var cfg = new CronusConfiguration();
             cfg.PipelineCommandPublisher(publisher =>
                 {
-                    publisher.UseTransport<InMemoryTransportSettings>();
+                    publisher.UseTransport<InMemory>();
                     publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
                 })
                 .ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
@@ -49,17 +49,17 @@ namespace NMSD.Cronus.Sample.InMemoryServer
                 })
                 .PipelineEventPublisher(publisher =>
                 {
-                    publisher.UseTransport<InMemoryTransportSettings>();
+                    publisher.UseTransport<InMemory>();
                     publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
                 })
                 .PipelineEventStorePublisher(publisher =>
                 {
-                    publisher.UseTransport<InMemoryTransportSettings>();
+                    publisher.UseTransport<InMemory>();
                 })
                 .ConfigureConsumer<EndpointEventStoreConsumableSettings>("Collaboration", consumer =>
                 {
                     consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
-                    consumer.UseTransport<InMemoryTransportSettings>();
+                    consumer.UseTransport<InMemory>();
                 })
                 .ConfigureConsumer<EndpointCommandConsumableSettings>("Collaboration", consumer =>
                 {
@@ -74,7 +74,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
                             }
                             return handler;
                         });
-                    consumer.UseTransport<InMemoryTransportSettings>();
+                    consumer.UseTransport<InMemory>();
                 })
                 .ConfigureConsumer<EndpointEventConsumableSettings>("Collaboration", consumer =>
                 {
@@ -89,7 +89,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
                             }
                             return handler;
                         });
-                    consumer.UseTransport<InMemoryTransportSettings>();
+                    consumer.UseTransport<InMemory>();
                 })
                 .Build();
 
@@ -100,7 +100,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
 
             host.Stop();
 
-           // HostUI(cfg.GlobalSettings.CommandPublisher, 1000, 1);
+            // HostUI(cfg.GlobalSettings.CommandPublisher, 1000, 1);
             Console.WriteLine("Started");
             //Console.ReadLine();
         }

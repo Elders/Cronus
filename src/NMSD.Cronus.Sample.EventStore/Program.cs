@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using NMSD.Cronus.Persistence.MSSQL.Config;
-using NMSD.Cronus.Pipeline.Host.Config;
-using NMSD.Cronus.Pipeline.RabbitMQ.Config;
-using NMSD.Cronus.Pipeline.Transport.Config;
+using NMSD.Cronus.Pipeline.Config;
+using NMSD.Cronus.Pipeline.Hosts;
+using NMSD.Cronus.Pipeline.Transport.RabbitMQ.Config;
 using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.Collaboration.Users.Events;
@@ -35,18 +35,18 @@ namespace NMSD.Cronus.Sample.EventStore
             });
             cfg.PipelineEventPublisher(publisher =>
             {
-                publisher.UseTransport<RabbitMqTransportSettings>();
+                publisher.UseTransport<RabbitMq>();
                 publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(AccountRegistered)), Assembly.GetAssembly(typeof(UserCreated)) };
             });
             cfg.PipelineCommandPublisher(publisher =>
             {
-                publisher.UseTransport<RabbitMqTransportSettings>();
+                publisher.UseTransport<RabbitMq>();
                 publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) };
             });
             cfg.ConfigureConsumer<EndpointEventStoreConsumableSettings>(IAA, consumer =>
             {
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
-                consumer.UseTransport<RabbitMqTransportSettings>();
+                consumer.UseTransport<RabbitMq>();
             });
 
             const string Collaboration = "Collaboration";
@@ -60,7 +60,7 @@ namespace NMSD.Cronus.Sample.EventStore
             {
                 //consumer.NumberOfWorkers = 2;
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
-                consumer.UseTransport<RabbitMqTransportSettings>();
+                consumer.UseTransport<RabbitMq>();
             })
             .Build();
 

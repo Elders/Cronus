@@ -36,13 +36,13 @@
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="NMSD.Cronus">
-      <HintPath>..\packages\Cronus.1.1.1\lib\NMSD.Cronus.dll</HintPath>
+      <HintPath>..\packages\Cronus.1.1.7\lib\NMSD.Cronus.dll</HintPath>
     </Reference>
     <Reference Include="NMSD.Cronus.DomainModelling">
       <HintPath>..\packages\Cronus.DomainModelling.1.0.0\lib\NMSD.Cronus.DomainModelling.dll</HintPath>
     </Reference>
     <Reference Include="NMSD.Cronus.Persistence.MSSQL">
-      <HintPath>..\packages\Cronus.Persistence.MSSQL.1.0.8\lib\NMSD.Cronus.Persistence.MSSQL.dll</HintPath>
+      <HintPath>..\packages\Cronus.Persistence.MSSQL.1.0.9\lib\NMSD.Cronus.Persistence.MSSQL.dll</HintPath>
     </Reference>
     <Reference Include="NMSD.Protoreg">
       <HintPath>..\packages\Protoreg.1.0.4.7400\lib\NMSD.Protoreg.dll</HintPath>

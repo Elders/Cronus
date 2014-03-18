@@ -3,9 +3,9 @@ using System.Reflection;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.EventSourcing;
 using NMSD.Cronus.Persistence.MSSQL.Config;
-using NMSD.Cronus.Pipeline.Host.Config;
-using NMSD.Cronus.Pipeline.RabbitMQ.Config;
-using NMSD.Cronus.Pipeline.Transport.Config;
+using NMSD.Cronus.Pipeline.Config;
+using NMSD.Cronus.Pipeline.Hosts;
+using NMSD.Cronus.Pipeline.Transport.RabbitMQ.Config;
 using NMSD.Cronus.Sample.Collaboration.Users;
 using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
@@ -38,7 +38,7 @@ namespace NMSD.Cronus.Sample.ApplicationService
             });
             cfg.PipelineEventStorePublisher(publisher =>
             {
-                publisher.UseTransport<RabbitMqTransportSettings>();
+                publisher.UseTransport<RabbitMq>();
             });
             cfg.ConfigureConsumer<EndpointCommandConsumableSettings>(IAA, consumer =>
             {
@@ -53,7 +53,7 @@ namespace NMSD.Cronus.Sample.ApplicationService
                         }
                         return handler;
                     });
-                consumer.UseTransport<RabbitMqTransportSettings>();
+                consumer.UseTransport<RabbitMq>();
             });
 
             const string Collaboration = "Collaboration";
@@ -76,7 +76,7 @@ namespace NMSD.Cronus.Sample.ApplicationService
                         }
                         return handler;
                     });
-                consumer.UseTransport<RabbitMqTransportSettings>();
+                consumer.UseTransport<RabbitMq>();
             })
             .Build();
 

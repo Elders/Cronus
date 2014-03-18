@@ -5,9 +5,9 @@ using NHibernate;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Cronus.Persistence.MSSQL.Config;
-using NMSD.Cronus.Pipeline.Host.Config;
-using NMSD.Cronus.Pipeline.InMemory.Config;
-using NMSD.Cronus.Pipeline.Transport.Config;
+using NMSD.Cronus.Pipeline.Config;
+using NMSD.Cronus.Pipeline.Hosts;
+using NMSD.Cronus.Pipeline.Transport.InMemory.Config;
 using NMSD.Cronus.Sample.Collaboration;
 using NMSD.Cronus.Sample.Collaboration.Projections;
 using NMSD.Cronus.Sample.Collaboration.Users;
@@ -69,7 +69,7 @@ namespace NMSD.Cronus.Sample.Player
             cfg.PipelineEventPublisher(publisher =>
             {
                 publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
-                publisher.UseTransport<InMemoryTransportSettings>();
+                publisher.UseTransport<InMemory>();
             });
             cfg.ConfigureConsumer<EndpointEventConsumableSettings>("Collaboration", consumer =>
             {
@@ -82,7 +82,7 @@ namespace NMSD.Cronus.Sample.Player
                             nhHandler.Session = context.HandlerScopeContext.Get<Lazy<ISession>>().Value;
                         return handler;
                     });
-                consumer.UseTransport<InMemoryTransportSettings>();
+                consumer.UseTransport<InMemory>();
             })
             .Build();
 
