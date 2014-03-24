@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using Machine.Specifications;
 using NMSD.Cronus.DomainModelling;
-using NMSD.Cronus.Sample.Collaboration.Users;
-using NMSD.Cronus.Sample.Collaboration.Users.Events;
+using NMSD.Cronus.Tests.TestModel;
 
 namespace NMSD.Cronus.Tests
 {
@@ -12,20 +11,21 @@ namespace NMSD.Cronus.Tests
     {
         Establish context = () =>
         {
-            id = new UserId(Guid.NewGuid());
+            id = new TestAggregateId();
+
             events = new List<IEvent>();
-            events.Add(new UserCreated(id, "collaborator@cronus.com"));
-            events.Add(new UserRenamed(id, "first", "last"));
+            events.Add(new TestCreateEvent(id));
+            events.Add(new TestUpdateEvent(id, "When_build_aggregate_root_from_events"));
         };
 
-        Because of = () => ar = AggregateRootFactory.Build<User>(events);
+        Because of = () => ar = AggregateRootFactory.Build<TestAggregateRoot>(events);
 
         It should_instansiate_aggregate_root = () => ar.ShouldNotBeNull();
         It should_instansiate_aggregate_root_with_valid_state = () => ((IAggregateRootStateManager)ar).State.Id.ShouldEqual(id);
 
-        static User ar;
-        static UserId id;
+        static TestAggregateId id;
         static List<IEvent> events;
+        static TestAggregateRoot ar;
     }
 
     [Subject("AggregateRoot")]
@@ -33,17 +33,19 @@ namespace NMSD.Cronus.Tests
     {
         Establish context = () =>
         {
-            id = new UserId(Guid.NewGuid());
+            id = new TestAggregateId();
             events = new List<IEvent>();
-            events.Add(new UserRenamed(id, "first", "last"));
+            events.Add(new TestUpdateEvent(id, "When_build_aggregate_root_from_history_without_the_initial_event"));
         };
 
-        Because of = () => expectedException = Catch.Exception(() => AggregateRootFactory.Build<User>(events));
+        Because of = () => expectedException = Catch.Exception(() => AggregateRootFactory.Build<TestAggregateRoot>(events));
 
-        It an__AggregateRootException__should_be_thrown = () => expectedException.ShouldBeOfType<AggregateRootException>();
+        It an__AggregateRootException__should_be_thrown = () => expectedException.ShouldBeOfExactType<AggregateRootException>();
 
-        static UserId id;
+        static TestAggregateId id;
         static List<IEvent> events;
         static Exception expectedException;
     }
+
+    
 }

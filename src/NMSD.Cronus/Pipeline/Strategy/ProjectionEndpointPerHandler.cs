@@ -7,11 +7,11 @@ using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus.Pipeline.Strategy
 {
-    public class EventHandlerEndpointPerHandler : IEndpointNameConvention
+    public class ProjectionEndpointPerHandler : IEndpointNameConvention
     {
         private IPipelineNameConvention pipelineNameConvention;
 
-        public EventHandlerEndpointPerHandler(IPipelineNameConvention pipelineNameConvention)
+        public ProjectionEndpointPerHandler(IPipelineNameConvention pipelineNameConvention)
         {
             this.pipelineNameConvention = pipelineNameConvention;
         }
@@ -24,7 +24,7 @@ namespace NMSD.Cronus.Pipeline.Strategy
                 if (boundedContext == null)
                     throw new Exception(String.Format(@"The assembly containing message type '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", handlerType.FullName));
 
-                string endpointName = String.Format("{0}.{1}", boundedContext.BoundedContextNamespace, handlerType.Name);
+                string endpointName = String.Format("{0}.Projections.{1}", boundedContext.BoundedContextNamespace, handlerType.Name);
 
                 var eventTypes = handlerType.GetMethods().Where(x => x.Name == "Handle").SelectMany(x => x.GetParameters().Select(y => y.ParameterType));
                 var eventIds = eventTypes.Select(x => (x.GetCustomAttribute(typeof(DataContractAttribute), false) as DataContractAttribute).Name);

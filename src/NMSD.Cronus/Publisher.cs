@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus
@@ -16,7 +17,7 @@ namespace NMSD.Cronus
             {
                 PublishInternal(message);
                 if (log.IsInfoEnabled)
-                    log.Info("PUBLISH => " + message.ToString());
+                    log.Info("PUBLISH => " + message);
                 return true;
             }
             catch (Exception ex)
@@ -30,5 +31,10 @@ namespace NMSD.Cronus
         {
             return Publish((TMessage)message);
         }
+    }
+
+    public interface IConsumer<T> where T : IMessage
+    {
+        bool Consume(T message);
     }
 }

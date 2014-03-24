@@ -33,22 +33,26 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    <Reference Include="Machine.Fakes">
+      <HintPath>..\packages\Machine.Fakes.2.1.0\lib\net40\Machine.Fakes.dll</HintPath>
+    </Reference>
+    <Reference Include="Machine.Fakes.Adapters.Moq">
+      <HintPath>..\packages\Machine.Fakes.Moq.2.1.0\lib\net40\Machine.Fakes.Adapters.Moq.dll</HintPath>
     </Reference>
     <Reference Include="Machine.Specifications">
-      <HintPath>..\packages\Machine.Specifications.0.5.16\lib\net40\Machine.Specifications.dll</HintPath>
+      <HintPath>..\packages\Machine.Specifications.0.7.0\lib\net45\Machine.Specifications.dll</HintPath>
     </Reference>
     <Reference Include="Machine.Specifications.Clr4">
-      <HintPath>..\packages\Machine.Specifications.0.5.16\lib\net40\Machine.Specifications.Clr4.dll</HintPath>
+      <HintPath>..\packages\Machine.Specifications.0.7.0\lib\net45\Machine.Specifications.Clr4.dll</HintPath>
     </Reference>
-    <Reference Include="NMSD.Protoreg">
-      <HintPath>..\packages\Protoreg.1.0.7.7400\lib\NMSD.Protoreg.dll</HintPath>
+    <Reference Include="Machine.Specifications.Should">
+      <HintPath>..\packages\Machine.Specifications.Should.0.7.1\lib\net45\Machine.Specifications.Should.dll</HintPath>
     </Reference>
-    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    <Reference Include="Moq">
+      <HintPath>..\packages\Moq.4.2.1312.1622\lib\net40\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="NMSD.Cronus.DomainModelling">
+      <HintPath>..\packages\Cronus.DomainModelling.1.0.0\lib\NMSD.Cronus.DomainModelling.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,7 +60,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregateRoot.cs" />
-    <Compile Include="ImplTests\AggregateRootState.cs" />
+    <Compile Include="AggregateRootState.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
       <Link>Properties\AssemblyVersionInfo.cs</Link>
@@ -64,35 +70,27 @@
     <Compile Include="$(SolutionDir)AssemblyCompanyProductInfo.cs">
       <Link>Properties\AssemblyCompanyProductInfo.cs</Link>
     </Compile>
+    <Compile Include="TestModel\TestAggregateId.cs" />
+    <Compile Include="TestModel\TestAggregateRoot.cs" />
+    <Compile Include="TestModel\TestAggregateRootState.cs" />
+    <Compile Include="TestModel\TestCreateCommand.cs" />
+    <Compile Include="TestModel\TestCreateEvent.cs" />
+    <Compile Include="TestModel\TestUpdateCommand.cs" />
+    <Compile Include="TestModel\TestUpdateEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration.Contracts\NMSD.Cronus.Sample.Collaboration.Contracts.csproj">
-      <Project>{fd8a4975-eba8-4898-a0ae-35184c11afcb}</Project>
-      <Name>NMSD.Cronus.Sample.Collaboration.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NMSD.Cronus.Sample.Collaboration\NMSD.Cronus.Sample.Collaboration.csproj">
-      <Project>{eba90c1f-5f2c-4a78-b91b-d2c3d664530d}</Project>
-      <Name>NMSD.Cronus.Sample.Collaboration</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
-      <Project>{1c59eb3d-70e6-45b4-b644-e5607dcf4713}</Project>
-      <Name>NMSD.Cronus.Sample.IdentityAndAccess.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess\NMSD.Cronus.Sample.IdentityAndAccess.csproj">
-      <Project>{4b8feb6a-874b-4acd-960a-73cbdb749049}</Project>
-      <Name>NMSD.Cronus.Sample.IdentityAndAccess</Name>
-    </ProjectReference>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
-      <Project>{32EA2250-01B3-4171-9AE7-214037A0D524}</Project>
+      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
       <Name>NMSD.Cronus</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

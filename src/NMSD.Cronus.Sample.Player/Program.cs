@@ -71,7 +71,7 @@ namespace NMSD.Cronus.Sample.Player
                 publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
                 publisher.UseTransport<InMemory>();
             });
-            cfg.ConfigureConsumer<EndpointEventConsumableSettings>("Collaboration", consumer =>
+            cfg.ConfigureConsumer<EndpointProjectionConsumableSettings>("Collaboration", consumer =>
             {
                 consumer.ScopeFactory.CreateHandlerScope = () => new HandlerScope(sf);
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)).GetExportedTypes().Where(x => !typeof(IPort).IsAssignableFrom(x)).ToArray(), (type, context) =>

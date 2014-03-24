@@ -4,5 +4,6 @@ namespace NMSD.Cronus.Messaging.MessageHandleScope
     {
         //  TODO: Code contract >= 1
         int Size { get; set; }
+        //OnError(Message[],Exception)
     }
 }

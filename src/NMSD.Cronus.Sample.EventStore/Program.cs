@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Configuration;
+using System.Reflection;
+using NMSD.Cronus.Persistence.MSSQL;
 using NMSD.Cronus.Persistence.MSSQL.Config;
 using NMSD.Cronus.Pipeline.Config;
 using NMSD.Cronus.Pipeline.Hosts;
@@ -17,6 +19,7 @@ namespace NMSD.Cronus.Sample.EventStore
         static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
+            DatabaseManager.DeleteDatabase(ConfigurationManager.ConnectionStrings["cronus-es"].ConnectionString);
             UseCronusHost();
             System.Console.WriteLine("Started Event store");
             System.Console.ReadLine();
@@ -31,7 +34,8 @@ namespace NMSD.Cronus.Sample.EventStore
             {
                 eventStore
                     .SetConnectionStringName("cronus-es")
-                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(AccountState)));
+                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(AccountState)))
+                    .CreateStorage();
             });
             cfg.PipelineEventPublisher(publisher =>
             {
@@ -45,6 +49,7 @@ namespace NMSD.Cronus.Sample.EventStore
             });
             cfg.ConfigureConsumer<EndpointEventStoreConsumableSettings>(IAA, consumer =>
             {
+                consumer.NumberOfWorkers = 2;
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
                 consumer.UseTransport<RabbitMq>();
             });
@@ -54,11 +59,12 @@ namespace NMSD.Cronus.Sample.EventStore
             {
                 eventStore
                     .SetConnectionStringName("cronus-es")
-                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)));
+                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)))
+                    .CreateStorage();
             });
             cfg.ConfigureConsumer<EndpointEventStoreConsumableSettings>(Collaboration, consumer =>
             {
-                //consumer.NumberOfWorkers = 2;
+                consumer.NumberOfWorkers = 2;
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
                 consumer.UseTransport<RabbitMq>();
             })

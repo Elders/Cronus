@@ -13,7 +13,8 @@ namespace NMSD.Cronus.Sample.Collaboration.Users.Ports
         public void Handle(AccountRegistered message)
         {
             UserId userId = new UserId(Guid.NewGuid());
-            CommandPublisher.Publish(new CreateUser(userId, message.Email));
+            var email = message.Email;
+            CommandPublisher.Publish(new CreateUser(userId, email));
         }
     }
 }

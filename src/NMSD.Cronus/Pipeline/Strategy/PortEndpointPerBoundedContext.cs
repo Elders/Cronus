@@ -5,11 +5,11 @@ using NMSD.Cronus.DomainModelling;
 
 namespace NMSD.Cronus.Pipeline.Strategy
 {
-    public class EventHandlerEndpointPerBoundedContext : IEndpointNameConvention
+    public class PortEndpointPerBoundedContext : IEndpointNameConvention
     {
         private IPipelineNameConvention pipelineNameConvention;
 
-        public EventHandlerEndpointPerBoundedContext(IPipelineNameConvention pipelineNameConvention)
+        public PortEndpointPerBoundedContext(IPipelineNameConvention pipelineNameConvention)
         {
             this.pipelineNameConvention = pipelineNameConvention;
         }
@@ -21,7 +21,7 @@ namespace NMSD.Cronus.Pipeline.Strategy
             if (boundedContext == null)
                 throw new Exception(String.Format(@"The assembly '{0}' is missing a BoundedContext attribute in AssemblyInfo.cs! Example: [BoundedContext(""Company.Product.BoundedContext"")]", handlerTypes.First().Assembly.FullName));
 
-            var endpointName = String.Format("{0}.EventHandlers", boundedContext.BoundedContextNamespace);
+            var endpointName = String.Format("{0}.Ports", boundedContext.BoundedContextNamespace);
 
             var routingHeaders = (from handlerType in handlerTypes
                                   from handlerMethod in handlerType.GetMethods()

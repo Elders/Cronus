@@ -14,10 +14,10 @@ namespace NMSD.Cronus.Pipeline.Config
 
         protected override IEndpointConsumable BuildConsumer()
         {
-            MessageHandlerCollection<ICommand> handlers = new MessageHandlerCollection<ICommand>();
+            MessageHandlerCollection<ICommand> handlers = new MessageHandlerCollection<ICommand>(1);
             foreach (var reg in registrations)
             {
-                GlobalSettings.Protoreg.RegisterCommonType(reg.Key);
+                GlobalSettings.Protoreg.RegisterAssembly(reg.Key);
                 foreach (var item in reg.Value)
                 {
                     handlers.RegisterHandler(reg.Key, item.Item1, item.Item2);

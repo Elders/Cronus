@@ -23,6 +23,7 @@ namespace NMSD.Cronus.Pipeline.Hosts
             configuration.GlobalSettings.Consumers.Single().Key.Start(1);
             var publisher = configuration.GlobalSettings.EventPublisher;
             int totalMessagesPublished = 0;
+            Thread.Sleep(2000);//   Test sleep. Remove it later if that is the bug.
             foreach (var evnt in configuration.GlobalSettings.EventStores.Single().GetEventsFromStart())
             {
                 totalMessagesPublished++;

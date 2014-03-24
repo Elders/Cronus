@@ -4,6 +4,8 @@ using System.Threading;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Pipeline.Hosts;
 using NMSD.Cronus.Pipeline.Transport.RabbitMQ.Config;
+using NMSD.Cronus.Sample.Collaboration.Users;
+using NMSD.Cronus.Sample.Collaboration.Users.Commands;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts;
 using NMSD.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 
@@ -15,15 +17,20 @@ namespace NMSD.Cronus.Sample.UI
 
         static void Main(string[] args)
         {
+            Thread.Sleep(10000);
+
             ConfigurePublisher();
 
             HostUI(/////////////////////////////////////////////////////////////////
-                               publish: SingleCreationCommand,
-                   delayBetweenBatches: 1000,
-                             batchSize: 1,
-                numberOfMessagesToSend: Int32.MaxValue
+                                publish: SingleCreationCommandFromUpstreamBC,
+                    delayBetweenBatches: 100,
+                              batchSize: 100,
+                 numberOfMessagesToSend: 10000
                 ///////////////////////////////////////////////////////////////////
-                );
+                 );
+
+            Console.WriteLine("Done");
+            Console.ReadLine();
         }
 
         private static void ConfigurePublisher()
@@ -34,18 +41,25 @@ namespace NMSD.Cronus.Sample.UI
             cfg.PipelineCommandPublisher(publisher =>
             {
                 publisher.UseTransport<RabbitMq>();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
+                publisher.MessagesAssemblies = new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) };
             })
             .Build();
 
             commandPublisher = cfg.GlobalSettings.CommandPublisher;
         }
 
-        private static void SingleCreationCommand()
+        private static void SingleCreationCommandFromUpstreamBC(int index)
         {
             AccountId accountId = new AccountId(Guid.NewGuid());
-            var email = "cronus_0_@nmsd.com";
+            var email = String.Format("cronus_{0}_@nmsd.com", index);
             commandPublisher.Publish(new RegisterAccount(accountId, email));
+        }
+
+        private static void SingleCreationCommandFromDownstreamBC(int index)
+        {
+            UserId userId = new UserId(Guid.NewGuid());
+            var email = String.Format("cronus_{0}_@nmsd.com", index);
+            commandPublisher.Publish(new CreateUser(userId, email));
         }
 
         private static void SingleCreateWithMultipleUpdateCommands()
@@ -62,7 +76,7 @@ namespace NMSD.Cronus.Sample.UI
 
         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        private static void HostUI(Action publish, int delayBetweenBatches = 0, int batchSize = 1, int numberOfMessagesToSend = Int32.MaxValue)
+        private static void HostUI(Action<int> publish, int delayBetweenBatches = 0, int batchSize = 1, int numberOfMessagesToSend = Int32.MaxValue)
         {
             Console.WriteLine("Start sending commands...");
             if (batchSize == 1)
@@ -71,14 +85,14 @@ namespace NMSD.Cronus.Sample.UI
                 {
                     for (int i = 0; i < numberOfMessagesToSend; i++)
                     {
-                        publish();
+                        publish(i);
                     }
                 }
                 else
                 {
                     for (int i = 0; i < numberOfMessagesToSend; i++)
                     {
-                        publish();
+                        publish(i);
                         Thread.Sleep(delayBetweenBatches);
                     }
                 }
@@ -87,21 +101,21 @@ namespace NMSD.Cronus.Sample.UI
             {
                 if (delayBetweenBatches == 0)
                 {
-                    for (int i = 0; i < numberOfMessagesToSend; i = i + batchSize)
+                    for (int i = 0; i <= numberOfMessagesToSend - batchSize; i = i + batchSize)
                     {
                         for (int j = 0; j < batchSize; j++)
                         {
-                            publish();
+                            publish(i + j);
                         }
                     }
                 }
                 else
                 {
-                    for (int i = 0; i < numberOfMessagesToSend; i = i + batchSize)
+                    for (int i = 0; i <= numberOfMessagesToSend - batchSize; i = i + batchSize)
                     {
                         for (int j = 0; j < batchSize; j++)
                         {
-                            publish();
+                            publish(i + j);
                         }
                         Thread.Sleep(delayBetweenBatches);
                     }

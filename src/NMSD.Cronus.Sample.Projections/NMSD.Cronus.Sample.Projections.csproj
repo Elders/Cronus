@@ -7,8 +7,8 @@
     <ProjectGuid>{DCB6988D-602C-43FD-A966-2D9446801E03}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NMSD.Cronus.Sample.Handlers</RootNamespace>
-    <AssemblyName>NMSD.Cronus.Sample.Handlers</AssemblyName>
+    <RootNamespace>NMSD.Cronus.Sample.Projections</RootNamespace>
+    <AssemblyName>NMSD.Cronus.Sample.Projections</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -46,9 +46,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\NHibernate.3.3.3.4001\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NMSD.Cronus">
-      <HintPath>..\packages\Cronus.1.1.7\lib\NMSD.Cronus.dll</HintPath>
-    </Reference>
     <Reference Include="NMSD.Cronus.DomainModelling">
       <HintPath>..\packages\Cronus.DomainModelling.1.0.0\lib\NMSD.Cronus.DomainModelling.dll</HintPath>
     </Reference>
@@ -75,7 +72,7 @@
     <Compile Include="..\NMSD.Cronus.Sample.CommonFiles\NHibernateExtensions.cs">
       <Link>Nhibernate\NHibernateExtensions.cs</Link>
     </Compile>
-    <Compile Include="Nhibernate\NHibernateHandlerScope.cs" />
+    <Compile Include="Nhibernate\BatchScope.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
@@ -105,6 +102,10 @@
     <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
       <Project>{1c59eb3d-70e6-45b4-b644-e5607dcf4713}</Project>
       <Name>NMSD.Cronus.Sample.IdentityAndAccess.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
+      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
+      <Name>NMSD.Cronus</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

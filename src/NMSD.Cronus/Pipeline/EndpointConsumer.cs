@@ -4,11 +4,11 @@ using System.IO;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Messaging.MessageHandleScope;
 using NMSD.Protoreg;
-using NMSD.Cronus.Pipeline.Transport;
 
 namespace NMSD.Cronus.Pipeline
 {
-    public class EndpointConsumer<T> : IEndpointConsumer<T> where T : IMessage
+    public class EndpointConsumer<T> : BatchConsumer<T>, IEndpointConsumer<T>
+        where T : IMessage
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EndpointConsumer<T>));
 
@@ -17,6 +17,7 @@ namespace NMSD.Cronus.Pipeline
         private readonly ProtoregSerializer serialiser;
 
         public EndpointConsumer(MessageHandlerCollection<T> messageHandlers, ScopeFactory scopeFactory, ProtoregSerializer serialiser)
+            : base(messageHandlers)
         {
             this.serialiser = serialiser;
             this.scopeFactory = scopeFactory;
@@ -26,35 +27,45 @@ namespace NMSD.Cronus.Pipeline
 
         public bool Consume(IEndpoint endpoint)
         {
-            return scopeFactory.UseBatchScope(batch =>
+            try
             {
-                for (int i = 0; i < batch.Size; i++)
+                List<EndpointMessage> rawMessages = new List<EndpointMessage>();
+                List<T> messages = new List<T>();
+                for (int i = 0; i < messageHandlers.BatchSize; i++)
                 {
-                    var rawMessage = endpoint.BlockDequeue(batch);
+                    EndpointMessage rawMessage;
+                    endpoint.BlockDequeue(30, out rawMessage);
                     if (rawMessage == null)
-                        continue;
+                        break;
+                    //EndpointMessage rawMessage = endpoint.BlockDequeue();
                     T message;
+
                     using (var stream = new MemoryStream(rawMessage.Body))
                     {
                         message = (T)serialiser.Deserialize(stream);
                     }
 
-                    try
-                    {
-                        if (!messageHandlers.Handle(message))
-                        {
-                            throw new Exception("TODO: Build a retry strategy for errors.");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        string error = String.Format("Error while handling message '{0}'", message.ToString());
-                        log.Error(error, ex);
-                    }
-                    endpoint.Acknowledge(rawMessage);
+                    messages.Add(message);
+                    rawMessages.Add(rawMessage);
                 }
+                if (messages.Count == 0)
+                    return true;
+                var result = base.Consume(messages);
+                foreach (var fail in result.FailedItems)
+                {
+                    log.Error(fail);
+                }
+
                 return true;
-            });
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            finally
+            {
+                endpoint.AcknowledgeAll();
+            }
         }
 
         public IEnumerable<Type> GetRegisteredHandlers

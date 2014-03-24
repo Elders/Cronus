@@ -98,6 +98,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BatchConsumer.cs" />
     <Compile Include="DomainModelling\AggregateRootFactory.cs" />
     <Compile Include="DomainModelling\AggregateStateFirstLevelConcurrencyException.cs" />
     <Compile Include="EventSourcing\Config\IEventStoreBuilder.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="Pipeline\Config\EndpointCommandConsumableSettings.cs" />
     <Compile Include="Pipeline\Config\EndpointConsumerSetting.cs" />
     <Compile Include="Pipeline\Config\EndpointEventStoreConsumableSettings.cs" />
+    <Compile Include="Pipeline\Config\EndpointPortConsumableSettings.cs" />
     <Compile Include="Pipeline\Config\IConsumerSettings.cs" />
     <Compile Include="Pipeline\Config\IEndpointConsumerSetting.cs" />
     <Compile Include="Pipeline\Config\PipelineCommandPublisherSettings.cs" />
@@ -127,6 +129,8 @@
     <Compile Include="Pipeline\Config\PipelinePublisherSetting.cs" />
     <Compile Include="Pipeline\Config\PublisherSettings.cs" />
     <Compile Include="Pipeline\EndpointClosedException.cs" />
+    <Compile Include="Pipeline\Strategy\PortEndpointPerBoundedContext.cs" />
+    <Compile Include="Pipeline\Strategy\PortEndpointPerHandler.cs" />
     <Compile Include="Pipeline\Transport\EndpointExtensions.cs" />
     <Compile Include="Pipeline\PipelineConsumerWork.cs" />
     <Compile Include="Pipeline\EndpointEventStoreConsumer.cs" />
@@ -150,7 +154,7 @@
     <Compile Include="Pipeline\PipelineClosedException.cs" />
     <Compile Include="Pipeline\Transport\InMemory\Config\InMemory.cs" />
     <Compile Include="Pipeline\Config\MessageHandlerRegistrations.cs" />
-    <Compile Include="Pipeline\Config\EndpointEventConsumableSettings.cs" />
+    <Compile Include="Pipeline\Config\EndpointProjectionConsumableSettings.cs" />
     <Compile Include="Pipeline\Config\PipelineEventStorePublisherSettings.cs" />
     <Compile Include="Pipeline\Config\PipelineSettings.cs" />
     <Compile Include="Pipeline\Config\PipelineTransportSettings.cs" />
@@ -159,6 +163,7 @@
     <Compile Include="Pipeline\EndpointMessageExtensions.cs" />
     <Compile Include="Pipeline.Transport.RabbitMQ\IRabbitMqPipeline.cs" />
     <Compile Include="Publisher.cs" />
+    <Compile Include="SafeBatch.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
     <Compile Include="Pipeline\PipelinePublisher.cs" />
     <Compile Include="Userfull\FastActivator.cs" />
@@ -188,8 +193,8 @@
     <Compile Include="Pipeline\IEndpoint.cs" />
     <Compile Include="Pipeline\IEndpointFactory.cs" />
     <Compile Include="Pipeline\EndpointDefinition.cs" />
-    <Compile Include="Pipeline\Strategy\EventHandlerEndpointPerBoundedContext.cs" />
-    <Compile Include="Pipeline\Strategy\EventHandlerEndpointPerHandler.cs" />
+    <Compile Include="Pipeline\Strategy\ProjectionEndpointPerBoundedContext.cs" />
+    <Compile Include="Pipeline\Strategy\ProjectionEndpointPerHandler.cs" />
     <Compile Include="Pipeline\IEndpointNameConvention.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />
     <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqEndpoint.cs" />
@@ -203,9 +208,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Pipeline\Hosts\Config\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

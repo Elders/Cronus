@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace NMSD.Cronus.Messaging.MessageHandleScope
 {
@@ -22,42 +24,67 @@ namespace NMSD.Cronus.Messaging.MessageHandleScope
 
         public Func<IMessageScope> CreateMessageScope { get; set; }
 
-        public Context CurrentContext { get; set; }
+        //public bool UseBatchScope(Func<IBatchScope, bool> action)
+        //{
+        //    CurrentContext = new Context();
+        //    return UseScope<IBatchScope>(CreateBatchScope, (scope) => CurrentContext.BatchScopeContext = scope.Context, action);
+        //}
 
-        public bool UseBatchScope(Func<IBatchScope, bool> action)
+        public SafeBatchResult<T> UseSafeBatchScope<T>(Action<T, Context> itemSource, List<T> items)
         {
-            CurrentContext = new Context();
-            return UseScope<IBatchScope>(CreateBatchScope, (scope) => CurrentContext.BatchScopeContext = scope.Context, action);
+            Context context = new Context();
+
+            IBatchScope batchScope = null;
+            SafeBatch<T> safeBatch = new SafeBatch<T>();
+            var result = safeBatch.Execute(itemSource, items,
+                () =>
+                {
+                    batchScope = CreateBatchScope();
+                    if (batchScope.Context == null)
+                        batchScope.Context = new ScopeContext();
+                    context.BatchScopeContext = batchScope.Context;
+                    batchScope.Begin();
+                    return context;
+                },
+                () =>
+                {
+                    batchScope.End();
+                    batchScope.Context.Clear();
+                    batchScope = null;
+                });
+
+            return result;
         }
 
-        public bool UseHandlerScope(Func<IHandlerScope, bool> action)
+        public bool UseHandlerScope(Context context, Func<Context, bool> action)
         {
-            return UseScope<IHandlerScope>(CreateHandlerScope, (scope) => CurrentContext.HandlerScopeContext = scope.Context, action);
+            return UseScope<IHandlerScope>(context, CreateHandlerScope, scope => context.HandlerScopeContext = scope.Context, action);
         }
 
-        public bool UseMessageScope(Func<IMessageScope, bool> action)
+        public bool UseMessageScope(Context context, Func<Context, bool> action)
         {
-            return UseScope<IMessageScope>(CreateMessageScope, (scope) => CurrentContext.MessageScopeContext = scope.Context, action);
+            return UseScope<IMessageScope>(context, CreateMessageScope, scope => context.MessageScopeContext = scope.Context, action);
         }
 
-        private bool UseScope<T>(Func<T> scopeFactory, Action<T> contextBuilder, Func<T, bool> action) where T : IScope
+        private bool UseScope<T>(Context context, Func<T> scopeFactory, Action<T> contextBuilder, Func<Context, bool> action) where T : IScope
         {
             bool result = false;
+
             T scope = scopeFactory();
             if (scope.Context == null)
                 scope.Context = new ScopeContext();
             scope.Begin();
             contextBuilder(scope);
-            result = action(scope);
+            result = action(context);
             scope.End();
             scope.Context.Clear();
             scope = default(T);
+
             return result;
         }
 
         class EmptyScope : IScope
         {
-
             public void Begin() { }
 
             public void End() { }

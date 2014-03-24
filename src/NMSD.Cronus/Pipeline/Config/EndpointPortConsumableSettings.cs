@@ -1,26 +1,27 @@
-using System.Linq;
 using NMSD.Cronus.DomainModelling;
 using NMSD.Cronus.Pipeline.Strategy;
 
 namespace NMSD.Cronus.Pipeline.Config
 {
-    public class EndpointEventConsumableSettings : EndpointConsumerSetting<IEvent>
+    public class EndpointPortConsumableSettings : EndpointConsumerSetting<IEvent>
     {
-        public EndpointEventConsumableSettings()
+        public EndpointPortConsumableSettings()
         {
             PipelineSettings.PipelineNameConvention = new EventPipelinePerApplication();
-            PipelineSettings.EndpointNameConvention = new EventHandlerEndpointPerBoundedContext(PipelineSettings.PipelineNameConvention);
+            PipelineSettings.EndpointNameConvention = new PortEndpointPerBoundedContext(PipelineSettings.PipelineNameConvention);
         }
 
         protected override IEndpointConsumable BuildConsumer()
         {
-            MessageHandlerCollection<IEvent> handlers = new MessageHandlerCollection<IEvent>();
+            MessageHandlerCollection<IEvent> handlers = new MessageHandlerCollection<IEvent>(1);
             foreach (var reg in registrations)
             {
-                GlobalSettings.Protoreg.RegisterCommonType(reg.Key);
+                GlobalSettings.Protoreg.RegisterAssembly(reg.Key);
+
                 foreach (var item in reg.Value)
                 {
-                    handlers.RegisterHandler(reg.Key, item.Item1, item.Item2);
+                    if (typeof(IPort).IsAssignableFrom(item.Item1))
+                        handlers.RegisterHandler(reg.Key, item.Item1, item.Item2);
                 }
             }
 

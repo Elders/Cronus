@@ -76,7 +76,7 @@ namespace NMSD.Cronus.Sample.InMemoryServer
                         });
                     consumer.UseTransport<InMemory>();
                 })
-                .ConfigureConsumer<EndpointEventConsumableSettings>("Collaboration", consumer =>
+                .ConfigureConsumer<EndpointProjectionConsumableSettings>("Collaboration", consumer =>
                 {
                     consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(nhSessionFactory);
                     consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
@@ -86,6 +86,26 @@ namespace NMSD.Cronus.Sample.InMemoryServer
                             if (nhHandler != null)
                             {
                                 nhHandler.Session = context.HandlerScopeContext.Get<ISession>();
+                            }
+                            return handler;
+                        });
+                    consumer.UseTransport<InMemory>();
+                })
+                .ConfigureConsumer<EndpointPortConsumableSettings>("Collaboration", consumer =>
+                {
+                    consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(nhSessionFactory);
+                    consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
+                        {
+                            var handler = FastActivator.CreateInstance(type, null);
+                            var nhHandler = handler as IHaveNhibernateSession;
+                            if (nhHandler != null)
+                            {
+                                nhHandler.Session = context.HandlerScopeContext.Get<ISession>();
+                            }
+                            var port = handler as IPort;
+                            if (port != null)
+                            {
+                                port.CommandPublisher = cfg.GlobalSettings.CommandPublisher;
                             }
                             return handler;
                         });
