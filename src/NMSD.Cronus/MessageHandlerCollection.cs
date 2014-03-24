@@ -55,8 +55,11 @@ namespace NMSD.Cronus
         {
             if (messages.Count == 0)
                 throw new Exception("Do not pass empty collection of messages. PLEASE!");
+            ISafeBatchRetryStrategy<TMessage> batchRetryStrategy = BatchSize == 1
+                ? new SafeBatch<TMessage>.NoRetryStrategy<TMessage>() as ISafeBatchRetryStrategy<TMessage>
+                : new SafeBatch<TMessage>.DefaultRetryStrategy<TMessage>() as ISafeBatchRetryStrategy<TMessage>;
 
-            return ScopeFactory.UseSafeBatchScope<TMessage>((msg, context) => Handle(msg, context), messages);
+            return ScopeFactory.UseSafeBatchScope<TMessage>((msg, context) => Handle(msg, context), messages, batchRetryStrategy);
         }
 
         public virtual void RegisterHandler(Type messageType, Type messageHandlerType, Func<Type, Context, object> handlerFactory)

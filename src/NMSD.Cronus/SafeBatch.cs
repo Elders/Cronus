@@ -16,6 +16,9 @@ namespace NMSD.Cronus
 
         public SafeBatch(ISafeBatchRetryStrategy<T> batchRetryStrategy)
         {
+            if (batchRetryStrategy == null)
+                throw new ArgumentNullException("batchRetryStrategy");
+
             this.batchRetry = new BatchTry<T>(batchRetryStrategy);
         }
 
@@ -79,7 +82,7 @@ namespace NMSD.Cronus
             }
         }
 
-        class DefaultRetryStrategy<T> : ISafeBatchRetryStrategy<T>
+        public class DefaultRetryStrategy<T> : ISafeBatchRetryStrategy<T>
         {
             public void Retry(bool isFirstTry, Action<List<T>> batchExecute, List<List<T>> batchesToRetry, out List<T> successItems, out List<List<T>> failedBatches)
             {
@@ -102,6 +105,30 @@ namespace NMSD.Cronus
                             failedBatches.Add(splittedBatch.ToList());
                         }
                     }
+                }
+            }
+        }
+
+        public class NoRetryStrategy<T> : ISafeBatchRetryStrategy<T>
+        {
+            public void Retry(bool isFirstTry, Action<List<T>> batchExecute, List<List<T>> batchesToRetry, out List<T> successItems, out List<List<T>> failedBatches)
+            {
+                List<List<T>> safeList = new List<List<T>>(batchesToRetry);
+                successItems = new List<T>();
+                failedBatches = new List<List<T>>();
+
+                if (!isFirstTry)
+                    failedBatches = batchesToRetry;
+                try
+                {
+                    var batch = safeList.Single().ToList();
+                    batchExecute(batch);
+                    successItems.AddRange(batch);
+
+                }
+                catch (Exception)
+                {
+                    failedBatches = batchesToRetry;
                 }
             }
         }

@@ -30,12 +30,12 @@ namespace NMSD.Cronus.Messaging.MessageHandleScope
         //    return UseScope<IBatchScope>(CreateBatchScope, (scope) => CurrentContext.BatchScopeContext = scope.Context, action);
         //}
 
-        public SafeBatchResult<T> UseSafeBatchScope<T>(Action<T, Context> itemSource, List<T> items)
+        public SafeBatchResult<T> UseSafeBatchScope<T>(Action<T, Context> itemSource, List<T> items, ISafeBatchRetryStrategy<T> retryStrategy)
         {
             Context context = new Context();
 
             IBatchScope batchScope = null;
-            SafeBatch<T> safeBatch = new SafeBatch<T>();
+            SafeBatch<T> safeBatch = new SafeBatch<T>(retryStrategy);
             var result = safeBatch.Execute(itemSource, items,
                 () =>
                 {

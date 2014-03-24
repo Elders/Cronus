@@ -38,6 +38,9 @@
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="NMSD.Cronus">
+      <HintPath>..\packages\Cronus.1.1.8\lib\NMSD.Cronus.dll</HintPath>
+    </Reference>
     <Reference Include="NMSD.Cronus.DomainModelling">
       <HintPath>..\packages\Cronus.DomainModelling.1.0.0\lib\NMSD.Cronus.DomainModelling.dll</HintPath>
     </Reference>
@@ -76,10 +79,6 @@
     <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
       <Project>{1c59eb3d-70e6-45b4-b644-e5607dcf4713}</Project>
       <Name>NMSD.Cronus.Sample.IdentityAndAccess.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
-      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
-      <Name>NMSD.Cronus</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
