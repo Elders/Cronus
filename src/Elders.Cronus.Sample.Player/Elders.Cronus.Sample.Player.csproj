@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{AD1B27D2-0778-46CC-B647-7A7A906F3324}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Elders.Cronus.Sample.Player</RootNamespace>
+    <AssemblyName>Elders.Cronus.Sample.Player</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>Elders.Cronus.Sample.Player.Program</StartupObject>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Elders.Cronus.DomainModelling">
+      <HintPath>..\packages\Cronus.DomainModelling.1.0.1\lib\Elders.Cronus.DomainModelling.dll</HintPath>
+    </Reference>
+    <Reference Include="Elders.Cronus.Persistence.MSSQL">
+      <HintPath>..\packages\Cronus.Persistence.MSSQL.1.0.10\lib\Elders.Cronus.Persistence.MSSQL.dll</HintPath>
+    </Reference>
+    <Reference Include="Elders.Protoreg">
+      <HintPath>..\packages\Protoreg.1.0.8\lib\Elders.Protoreg.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Iesi.Collections">
+      <HintPath>..\packages\Iesi.Collections.3.2.0.1001\lib\Net35\Iesi.Collections.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="NHibernate">
+      <HintPath>..\packages\NHibernate.3.3.3.4001\lib\Net35\NHibernate.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQ.Client, Version=3.2.4.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\RabbitMQ.Client.3.2.4\lib\net30\RabbitMQ.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Data.Entity.Design" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Elders.Cronus.Sample.CommonFiles\NHibernateExtensions.cs">
+      <Link>NHibernateExtensions.cs</Link>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Elders.Cronus.Sample.Collaboration.Contracts\Elders.Cronus.Sample.Collaboration.Contracts.csproj">
+      <Project>{3780033d-e621-4994-97f9-3f4bc0a2e88b}</Project>
+      <Name>Elders.Cronus.Sample.Collaboration.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Elders.Cronus.Sample.Collaboration.Handlers\Elders.Cronus.Sample.Collaboration.Handlers.csproj">
+      <Project>{376325b2-ab08-4fbd-b3af-749a2393164f}</Project>
+      <Name>Elders.Cronus.Sample.Collaboration.Handlers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Elders.Cronus.Sample.Collaboration\Elders.Cronus.Sample.Collaboration.csproj">
+      <Project>{23d7e91e-3ecd-4a2c-aa16-ea6a62a80ba7}</Project>
+      <Name>Elders.Cronus.Sample.Collaboration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Elders.Cronus\Elders.Cronus.csproj">
+      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
+      <Name>Elders.Cronus</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

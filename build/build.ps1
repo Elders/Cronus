@@ -2,19 +2,19 @@ properties {
 	$base_directory = Resolve-Path ..
 	$src_directory = "$base_directory\src"
  	
-	$sln="NMSD.Cronus.sln"
+	$sln="Elders.Cronus.sln"
 	
 	$config = "debug"; #debug or release or stage
 	
-	$company="NMSD"
+	$company="Elders"
 	$product="Cronus"
  
 	$assemblyFileVersion = "1.1.?";
 	$assemblyVersion = "1.1.0.0";
-	$assemblyRevision = "9";
+	$assemblyRevision = "10";
 
-	$nugetSourceDir = "NMSD.Cronus"
-	$nugetSourceFiles = @("NMSD.Cronus.dll", "NMSD.Cronus.pdb")
+	$nugetSourceDir = "Elders.Cronus"
+	$nugetSourceFiles = @("Elders.Cronus.dll", "Elders.Cronus.pdb")
 }
 
 . ".\nyx.ps1"
@@ -52,10 +52,10 @@ task PublishNugetPackage {
     Nuget-CreateNuspec `
         -authors "Nikolai Mynkow, Simeon Dimov" `
         -owners "Nikolai Mynkow, Simeon Dimov" `
-        -copyright NMSD `
+        -copyright Elders `
         -requireLicenseAcceptance false `
-        -licenseUrl https://github.com/NMSD/Cronus/blob/master/LICENSE `
-        -projectUrl http://nmsd.github.io/Cronus `
+        -licenseUrl https://github.com/Elders/Cronus/blob/master/LICENSE `
+        -projectUrl http://Elders.github.io/Cronus `
         -product $product `
         -version  $version `
         -description "Simple CQRS + EvetStore framework" `

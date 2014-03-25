@@ -1,0 +1,129 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30110.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BCs", "BCs", "{C48EE418-2275-40E9-B8E8-AF9D7047ED47}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IdentityAndAccess", "IdentityAndAccess", "{3872D688-3EB6-4FF9-9FE1-80F6174E35FC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Collaboration", "Collaboration", "{BC00FFCA-030B-48D2-951D-D335BC5DC6C8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hosts", "Hosts", "{ADD9DF68-737C-48B2-8B29-115AE24920EF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MultiNode", "MultiNode", "{F500DEF9-297B-4BCB-AD06-AF60CE197CA2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SingleNode", "SingleNode", "{E0B49807-D9E4-43CB-B6D6-929A17212D7E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CommonFiles", "CommonFiles", "{8C087A73-5BE4-427E-AFC7-2EB49B24BD86}"
+	ProjectSection(SolutionItems) = preProject
+		Elders.Cronus.Sample.CommonFiles\NHibernateExtensions.cs = Elders.Cronus.Sample.CommonFiles\NHibernateExtensions.cs
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.Collaboration", "Elders.Cronus.Sample.Collaboration\Elders.Cronus.Sample.Collaboration.csproj", "{23D7E91E-3ECD-4A2C-AA16-EA6A62A80BA7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.Collaboration.Contracts", "Elders.Cronus.Sample.Collaboration.Contracts\Elders.Cronus.Sample.Collaboration.Contracts.csproj", "{3780033D-E621-4994-97F9-3F4BC0A2E88B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.Collaboration.Handlers", "Elders.Cronus.Sample.Collaboration.Handlers\Elders.Cronus.Sample.Collaboration.Handlers.csproj", "{376325B2-AB08-4FBD-B3AF-749A2393164F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.IdentityAndAccess", "Elders.Cronus.Sample.IdentityAndAccess\Elders.Cronus.Sample.IdentityAndAccess.csproj", "{F557C7CD-A20E-481A-94C3-1ECEEAE90E4C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.IdentityAndAccess.Contracts", "Elders.Cronus.Sample.IdentityAndAccess.Contracts\Elders.Cronus.Sample.IdentityAndAccess.Contracts.csproj", "{3B7E885A-1B2A-4313-9FA2-FDFF70064994}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.ApplicationServices", "Elders.Cronus.Sample.ApplicationServices\Elders.Cronus.Sample.ApplicationServices.csproj", "{BC71BF12-E95F-4617-BCA0-5E4E4B4C0BB7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.EventStore", "Elders.Cronus.Sample.EventStore\Elders.Cronus.Sample.EventStore.csproj", "{D201DFFA-3B05-4A47-BD07-8BE6F4D9F664}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.UI", "Elders.Cronus.Sample.UI\Elders.Cronus.Sample.UI.csproj", "{15005FAF-E7E6-4199-B2DB-E2B9604C2F9C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.Ports", "Elders.Cronus.Sample.Ports\Elders.Cronus.Sample.Ports.csproj", "{B332D877-A3C3-4609-A5EA-069AE3FC32CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.Projections", "Elders.Cronus.Sample.Projections\Elders.Cronus.Sample.Projections.csproj", "{DCB6988D-602C-43FD-A966-2D9446801E03}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.Player", "Elders.Cronus.Sample.Player\Elders.Cronus.Sample.Player.csproj", "{AD1B27D2-0778-46CC-B647-7A7A906F3324}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.InMemoryServer", "Elders.Cronus.Sample.InMemoryServer\Elders.Cronus.Sample.InMemoryServer.csproj", "{0B495064-1425-465E-A2DC-36275A206F0B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus", "Elders.Cronus\Elders.Cronus.csproj", "{32EA2250-01B3-4171-9AE7-214037A0D524}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{23D7E91E-3ECD-4A2C-AA16-EA6A62A80BA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23D7E91E-3ECD-4A2C-AA16-EA6A62A80BA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23D7E91E-3ECD-4A2C-AA16-EA6A62A80BA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23D7E91E-3ECD-4A2C-AA16-EA6A62A80BA7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3780033D-E621-4994-97F9-3F4BC0A2E88B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3780033D-E621-4994-97F9-3F4BC0A2E88B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3780033D-E621-4994-97F9-3F4BC0A2E88B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3780033D-E621-4994-97F9-3F4BC0A2E88B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{376325B2-AB08-4FBD-B3AF-749A2393164F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{376325B2-AB08-4FBD-B3AF-749A2393164F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{376325B2-AB08-4FBD-B3AF-749A2393164F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{376325B2-AB08-4FBD-B3AF-749A2393164F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F557C7CD-A20E-481A-94C3-1ECEEAE90E4C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F557C7CD-A20E-481A-94C3-1ECEEAE90E4C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F557C7CD-A20E-481A-94C3-1ECEEAE90E4C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F557C7CD-A20E-481A-94C3-1ECEEAE90E4C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B7E885A-1B2A-4313-9FA2-FDFF70064994}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B7E885A-1B2A-4313-9FA2-FDFF70064994}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B7E885A-1B2A-4313-9FA2-FDFF70064994}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B7E885A-1B2A-4313-9FA2-FDFF70064994}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC71BF12-E95F-4617-BCA0-5E4E4B4C0BB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC71BF12-E95F-4617-BCA0-5E4E4B4C0BB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC71BF12-E95F-4617-BCA0-5E4E4B4C0BB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC71BF12-E95F-4617-BCA0-5E4E4B4C0BB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D201DFFA-3B05-4A47-BD07-8BE6F4D9F664}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D201DFFA-3B05-4A47-BD07-8BE6F4D9F664}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D201DFFA-3B05-4A47-BD07-8BE6F4D9F664}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D201DFFA-3B05-4A47-BD07-8BE6F4D9F664}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15005FAF-E7E6-4199-B2DB-E2B9604C2F9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15005FAF-E7E6-4199-B2DB-E2B9604C2F9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15005FAF-E7E6-4199-B2DB-E2B9604C2F9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15005FAF-E7E6-4199-B2DB-E2B9604C2F9C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B332D877-A3C3-4609-A5EA-069AE3FC32CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B332D877-A3C3-4609-A5EA-069AE3FC32CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B332D877-A3C3-4609-A5EA-069AE3FC32CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B332D877-A3C3-4609-A5EA-069AE3FC32CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCB6988D-602C-43FD-A966-2D9446801E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCB6988D-602C-43FD-A966-2D9446801E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCB6988D-602C-43FD-A966-2D9446801E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCB6988D-602C-43FD-A966-2D9446801E03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD1B27D2-0778-46CC-B647-7A7A906F3324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD1B27D2-0778-46CC-B647-7A7A906F3324}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD1B27D2-0778-46CC-B647-7A7A906F3324}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD1B27D2-0778-46CC-B647-7A7A906F3324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B495064-1425-465E-A2DC-36275A206F0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B495064-1425-465E-A2DC-36275A206F0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B495064-1425-465E-A2DC-36275A206F0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B495064-1425-465E-A2DC-36275A206F0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32EA2250-01B3-4171-9AE7-214037A0D524}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32EA2250-01B3-4171-9AE7-214037A0D524}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32EA2250-01B3-4171-9AE7-214037A0D524}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32EA2250-01B3-4171-9AE7-214037A0D524}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3872D688-3EB6-4FF9-9FE1-80F6174E35FC} = {C48EE418-2275-40E9-B8E8-AF9D7047ED47}
+		{BC00FFCA-030B-48D2-951D-D335BC5DC6C8} = {C48EE418-2275-40E9-B8E8-AF9D7047ED47}
+		{F557C7CD-A20E-481A-94C3-1ECEEAE90E4C} = {3872D688-3EB6-4FF9-9FE1-80F6174E35FC}
+		{3B7E885A-1B2A-4313-9FA2-FDFF70064994} = {3872D688-3EB6-4FF9-9FE1-80F6174E35FC}
+		{23D7E91E-3ECD-4A2C-AA16-EA6A62A80BA7} = {BC00FFCA-030B-48D2-951D-D335BC5DC6C8}
+		{3780033D-E621-4994-97F9-3F4BC0A2E88B} = {BC00FFCA-030B-48D2-951D-D335BC5DC6C8}
+		{376325B2-AB08-4FBD-B3AF-749A2393164F} = {BC00FFCA-030B-48D2-951D-D335BC5DC6C8}
+		{F500DEF9-297B-4BCB-AD06-AF60CE197CA2} = {ADD9DF68-737C-48B2-8B29-115AE24920EF}
+		{E0B49807-D9E4-43CB-B6D6-929A17212D7E} = {ADD9DF68-737C-48B2-8B29-115AE24920EF}
+		{BC71BF12-E95F-4617-BCA0-5E4E4B4C0BB7} = {F500DEF9-297B-4BCB-AD06-AF60CE197CA2}
+		{D201DFFA-3B05-4A47-BD07-8BE6F4D9F664} = {F500DEF9-297B-4BCB-AD06-AF60CE197CA2}
+		{15005FAF-E7E6-4199-B2DB-E2B9604C2F9C} = {F500DEF9-297B-4BCB-AD06-AF60CE197CA2}
+		{B332D877-A3C3-4609-A5EA-069AE3FC32CF} = {F500DEF9-297B-4BCB-AD06-AF60CE197CA2}
+		{DCB6988D-602C-43FD-A966-2D9446801E03} = {F500DEF9-297B-4BCB-AD06-AF60CE197CA2}
+		{AD1B27D2-0778-46CC-B647-7A7A906F3324} = {F500DEF9-297B-4BCB-AD06-AF60CE197CA2}
+		{0B495064-1425-465E-A2DC-36275A206F0B} = {E0B49807-D9E4-43CB-B6D6-929A17212D7E}
+	EndGlobalSection
+EndGlobal
