@@ -11,7 +11,7 @@ properties {
  
 	$assemblyFileVersion = "1.1.?";
 	$assemblyVersion = "1.1.0.0";
-	$assemblyRevision = "10";
+	$assemblyRevision = "12";
 
 	$nugetSourceDir = "Elders.Cronus"
 	$nugetSourceFiles = @("Elders.Cronus.dll", "Elders.Cronus.pdb")
@@ -52,6 +52,7 @@ task PublishNugetPackage {
     Nuget-CreateNuspec `
         -authors "Nikolai Mynkow, Simeon Dimov" `
         -owners "Nikolai Mynkow, Simeon Dimov" `
+		-icon "https://raw.githubusercontent.com/Elders/Cronus/master/build/Cronus.png" `
         -copyright Elders `
         -requireLicenseAcceptance false `
         -licenseUrl https://github.com/Elders/Cronus/blob/master/LICENSE `
