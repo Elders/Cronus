@@ -41,10 +41,6 @@
     <Reference Include="NHibernate">
       <HintPath>..\packages\NHibernate.3.3.3.4001\lib\Net35\NHibernate.dll</HintPath>
     </Reference>
-    <Reference Include="NMSD.Cronus, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Cronus.1.1.8\lib\NMSD.Cronus.dll</HintPath>
-    </Reference>
     <Reference Include="NMSD.Cronus.DomainModelling">
       <HintPath>..\packages\Cronus.DomainModelling.1.0.0\lib\NMSD.Cronus.DomainModelling.dll</HintPath>
     </Reference>
@@ -100,6 +96,10 @@
     <ProjectReference Include="..\NMSD.Cronus.Sample.IdentityAndAccess.Contracts\NMSD.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
       <Project>{1c59eb3d-70e6-45b4-b644-e5607dcf4713}</Project>
       <Name>NMSD.Cronus.Sample.IdentityAndAccess.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\NMSD.Cronus\NMSD.Cronus.csproj">
+      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
+      <Name>NMSD.Cronus</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
