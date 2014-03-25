@@ -11,7 +11,7 @@ properties {
  
 	$assemblyFileVersion = "1.1.?";
 	$assemblyVersion = "1.1.0.0";
-	$assemblyRevision = "12";
+	$assemblyRevision = "13";
 
 	$nugetSourceDir = "Elders.Cronus"
 	$nugetSourceFiles = @("Elders.Cronus.dll", "Elders.Cronus.pdb")
