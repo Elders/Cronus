@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Elders.Cronus.Messaging.MessageHandleScope;
 
 namespace Elders.Cronus
@@ -68,6 +69,16 @@ namespace Elders.Cronus
                     },
                     itemsToRetry, out successItems, out failed);
                     totalSuccess.AddRange(successItems);
+
+                    if (failed.Count > 0 && log.IsWarnEnabled)
+                    {
+                        StringBuilder warnInfo = new StringBuilder();
+                        warnInfo.AppendLine("Safe batch executtion finished with errors. The failing messages will be retried.");
+                        warnInfo.AppendLine("Details: TryCount: " + retryCount);
+                        failed.ForEach(failedBatches => failedBatches.ForEach(failedMessage => warnInfo.AppendLine(failedMessage.ToString())));
+                        log.Warn(warnInfo.ToString());
+                    }
+
                     if (firstRun && successItems.Count == 0)
                     {
                         firstRun = false;
@@ -109,7 +120,8 @@ namespace Elders.Cronus
                         }
                         catch (Exception ex)
                         {
-                            failedBatches.Add(splittedBatch.ToList());
+                            var failing = splittedBatch.ToList();
+                            failedBatches.Add(failing);
                         }
                     }
                 }

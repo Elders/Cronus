@@ -20,6 +20,7 @@ namespace Elders.Cronus.Sample.Handlers
 {
     class Program
     {
+        static CronusHost host;
         public static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
@@ -51,10 +52,12 @@ namespace Elders.Cronus.Sample.Handlers
             })
             .Build();
 
-            new CronusHost(cfg).Start();
+            host = new CronusHost(cfg);
+            host.Start();
 
             Console.WriteLine("Projections started");
             Console.ReadLine();
+            host.Stop();
         }
 
         static ISessionFactory BuildSessionFactory()

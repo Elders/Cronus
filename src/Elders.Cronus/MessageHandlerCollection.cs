@@ -1,11 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.Messaging.MessageHandleScope;
 
 namespace Elders.Cronus
 {
+    //[DataContract(Name = "598cd2c2-8fba-4b63-9fee-55be1b1c2791")]
+    //public class ErrorMessage<T> : IMessage
+    //    where T : IMessage
+    //{
+    //    [DataMember(Order = 1)]
+    //    private object SerializableMessage { get; set; }
+
+    //    public T Message { get { return (T)SerializableMessage; } }
+    //}
+
     public class MessageHandlerCollection<TMessage>
         where TMessage : IMessage
     {
@@ -46,7 +57,6 @@ namespace Elders.Cronus
                         handleMethod(message, context);
                     }
                 }
-                //  TODO: If one handle crashes then do something like propagading the error to the caller?!?
                 return true;
             });
         }

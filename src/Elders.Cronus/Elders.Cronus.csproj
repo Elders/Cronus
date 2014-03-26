@@ -84,7 +84,8 @@
     <Reference Include="protobuf-net">
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
-    <Reference Include="RabbitMQ.Client">
+    <Reference Include="RabbitMQ.Client, Version=3.2.4.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RabbitMQ.Client.3.2.4\lib\net30\RabbitMQ.Client.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -103,7 +104,7 @@
     <Compile Include="EventSourcing\Config\EventStoreSettings.cs" />
     <Compile Include="EventSourcing\EventBatchWraper.cs" />
     <Compile Include="EventSourcing\IEventStream.cs" />
-    <Compile Include="EventSourcing\MessageCommit.cs" />
+    <Compile Include="EventSourcing\DomainMessageCommit.cs" />
     <Compile Include="MessageHandlerCollection.cs" />
     <Compile Include="MessageHandleScope\Context.cs" />
     <Compile Include="MessageHandleScope\IBatchScope.cs" />

@@ -16,6 +16,7 @@ namespace Elders.Cronus.Sample.EventStore
 {
     class Program
     {
+        static CronusHost host;
         static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
@@ -23,6 +24,7 @@ namespace Elders.Cronus.Sample.EventStore
             UseCronusHost();
             System.Console.WriteLine("Started Event store");
             System.Console.ReadLine();
+            host.Stop();
         }
 
         static void UseCronusHost()
@@ -70,7 +72,8 @@ namespace Elders.Cronus.Sample.EventStore
             })
             .Build();
 
-            new CronusHost(cfg).Start();
+            host = new CronusHost(cfg);
+            host.Start();
         }
     }
 }

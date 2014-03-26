@@ -16,12 +16,15 @@ namespace Elders.Cronus.Sample.ApplicationService
 {
     class Program
     {
+        static CronusHost host;
         static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
             UseCronusHost();
             System.Console.WriteLine("Started command handlers");
             System.Console.ReadLine();
+            host.Stop();
+            host = null;
         }
 
         static void UseCronusHost()
@@ -79,7 +82,8 @@ namespace Elders.Cronus.Sample.ApplicationService
             })
             .Build();
 
-            new CronusHost(cfg).Start();
+            host = new CronusHost(cfg);
+            host.Start();
         }
     }
 }

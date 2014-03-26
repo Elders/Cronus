@@ -21,6 +21,7 @@ namespace Elders.Cronus.Sample.Ports
 {
     class Program
     {
+        static CronusHost host;
         public static void Main(string[] args)
         {
             Thread.Sleep(9000);
@@ -58,10 +59,13 @@ namespace Elders.Cronus.Sample.Ports
             })
             .Build();
 
-            new CronusHost(cfg).Start();
+            host = new CronusHost(cfg);
+            host.Start();
 
             Console.WriteLine("Ports started");
             Console.ReadLine();
+
+            host.Stop();
         }
 
         static ISessionFactory BuildSessionFactory()
