@@ -48,6 +48,12 @@ namespace Elders.Cronus
                 int retryCount = 0;
                 while (failed.Count > 0)
                 {
+                    if (retryCount > 2 && retryStrategy is NoRetryStrategy<T>)
+                        throw new Exception("NoRetryStrategy has a bug");
+
+                    if (retryCount > itemsToTry.Count)
+                        throw new Exception("Infinite loop in safe batch retry");
+
                     retryCount++;
                     List<List<T>> itemsToRetry = new List<List<T>>(failed);
 
@@ -70,7 +76,8 @@ namespace Elders.Cronus
                     else
                     {
                         bool hasNoChanceToGetMoreSuccessItems = successItems.Count == 0 && itemsToRetry.Count == failed.Count && itemsToRetry.Sum(x => x.Count) == failed.Sum(x => x.Count);
-                        if (hasNoChanceToGetMoreSuccessItems || firstRun)
+                        bool allSucceeded = itemsToTry.Count == totalSuccess.Count;
+                        if (hasNoChanceToGetMoreSuccessItems || allSucceeded)
                         {
                             totalFailed.AddRange(failed.SelectMany(x => x));
                             break;
@@ -118,7 +125,10 @@ namespace Elders.Cronus
                 failedBatches = new List<List<T>>();
 
                 if (!isFirstTry)
+                {
                     failedBatches = batchesToRetry;
+                    return;
+                }
                 try
                 {
                     var batch = safeList.Single().ToList();
