@@ -14,7 +14,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         protected override IEndpointConsumable BuildConsumer()
         {
-            MessageHandlerCollection<ICommand> handlers = new MessageHandlerCollection<ICommand>(1);
+            MessageHandlerCollection<ICommand> handlers = new MessageHandlerCollection<ICommand>(ConsumerBatchSize);
             foreach (var reg in registrations)
             {
                 GlobalSettings.Protoreg.RegisterAssembly(reg.Key);

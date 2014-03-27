@@ -118,7 +118,7 @@ namespace Elders.Cronus
                             batchExecute(splittedBatch.ToList());
                             successItems.AddRange(splittedBatch);
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             var failing = splittedBatch.ToList();
                             failedBatches.Add(failing);

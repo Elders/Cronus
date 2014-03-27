@@ -17,11 +17,14 @@ namespace Elders.Cronus.Pipeline.Config
         {
             ScopeFactory = new ScopeFactory();
             NumberOfWorkers = 1;
+            ConsumerBatchSize = 1;
         }
 
         public string BoundedContext { get; set; }
 
         public CronusGlobalSettings GlobalSettings { get; set; }
+
+        public int ConsumerBatchSize { get; set; }
 
         public Assembly[] MessagesAssemblies { get; set; }
 

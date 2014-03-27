@@ -53,8 +53,13 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             BlockingCollection<EndpointMessage> endpointStorage;
             if (TryGetEndpointStorage(endpoint, out endpointStorage))
             {
-                TotalMessagesConsumed++;
-                return endpointStorage.TryTake(out msg, timeoutInMiliseconds);
+
+                if (endpointStorage.TryTake(out msg, timeoutInMiliseconds))
+                {
+                    TotalMessagesConsumed++;
+                    return true;
+                }
+                return false;
             }
             return false;
         }

@@ -9,11 +9,12 @@ namespace Elders.Cronus.Pipeline.Config
         {
             PipelineSettings.PipelineNameConvention = new EventPipelinePerApplication();
             PipelineSettings.EndpointNameConvention = new ProjectionEndpointPerBoundedContext(PipelineSettings.PipelineNameConvention);
+            base.ConsumerBatchSize = 100;
         }
 
         protected override IEndpointConsumable BuildConsumer()
         {
-            MessageHandlerCollection<IEvent> handlers = new MessageHandlerCollection<IEvent>(100);
+            MessageHandlerCollection<IEvent> handlers = new MessageHandlerCollection<IEvent>(ConsumerBatchSize);
             foreach (var reg in registrations)
             {
                 GlobalSettings.Protoreg.RegisterAssembly(reg.Key);
