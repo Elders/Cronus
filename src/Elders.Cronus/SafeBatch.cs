@@ -96,7 +96,9 @@ namespace Elders.Cronus
                     }
                     successItems.Clear();
                 }
-                return new SafeBatchResult<T>(totalSuccess, totalFailed);
+                SafeBatchResult<T> batchResults = new SafeBatchResult<T>(totalSuccess, totalFailed);
+                log.DebugFormat("SafeBatch finished with {0} success items and {1} failing items", totalSuccess.Count, totalFailed.Count);
+                return batchResults;
             }
         }
 
@@ -118,8 +120,9 @@ namespace Elders.Cronus
                             batchExecute(splittedBatch.ToList());
                             successItems.AddRange(splittedBatch);
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            log.Warn(splittedBatch, ex);
                             var failing = splittedBatch.ToList();
                             failedBatches.Add(failing);
                         }
@@ -148,8 +151,9 @@ namespace Elders.Cronus
                     successItems.AddRange(batch);
 
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    log.Warn(safeList.Single().ToList(), ex);
                     failedBatches = batchesToRetry;
                 }
             }
