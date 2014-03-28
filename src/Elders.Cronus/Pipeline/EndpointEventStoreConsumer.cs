@@ -51,7 +51,8 @@ namespace Elders.Cronus.Pipeline
             eventStream => false,
             commit =>
             {
-                commandPublisher.Publish(commit.Command);
+                if (commit.State.Version != 1)
+                    commandPublisher.Publish(commit.Command);
                 endpoint.AcknowledgeAll();
             });
             return true;
