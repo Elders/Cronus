@@ -4,21 +4,18 @@ namespace Elders.Cronus.Pipeline
 {
     public class EndpointMessage
     {
-        public EndpointMessage(byte[] body)
+        public EndpointMessage(byte[] body, string routingKey = "", IDictionary<string, object> routingHeaders = null)
         {
-            Body = body;
-            Headers = new Dictionary<string, object>();
-        }
-
-        public EndpointMessage(byte[] body, IDictionary<string, object> headers)
-        {
-            Headers = headers;
+            RoutingKey = routingKey;
+            RoutingHeaders = routingHeaders ?? new Dictionary<string, object>();
             Body = body;
         }
 
         public byte[] Body { get; set; }
 
-        public IDictionary<string, object> Headers { get; set; }
+        public IDictionary<string, object> RoutingHeaders { get; set; }
+
+        public string RoutingKey { get; set; }
 
     }
 }

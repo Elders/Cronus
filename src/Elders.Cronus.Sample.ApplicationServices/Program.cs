@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
+using Elders.Cronus.Persistence.MSSQL;
 using Elders.Cronus.Persistence.MSSQL.Config;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
@@ -36,7 +37,8 @@ namespace Elders.Cronus.Sample.ApplicationService
             {
                 eventStore
                     .SetConnectionStringName("cronus-es")
-                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(AccountState)));
+                    .SetAggregateStatesAssembly(typeof(AccountState))
+                    .SetDomainEventsAssembly(typeof(RegisterAccount));
             });
             cfg.PipelineEventStorePublisher(publisher =>
             {
@@ -44,14 +46,14 @@ namespace Elders.Cronus.Sample.ApplicationService
             });
             cfg.ConfigureConsumer<EndpointCommandConsumableSettings>(IAA, consumer =>
             {
-                consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
+                //consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(AccountAppService)), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
                         var repositoryHandler = handler as IAggregateRootApplicationService;
                         if (repositoryHandler != null)
                         {
-                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.GlobalSettings.EventStores.Single(es => es.BoundedContext == IAA), cfg.GlobalSettings.EventStorePublisher);
+                            repositoryHandler.Repository = new RabbitRepository(cfg.GlobalSettings.AggregateRepositories[IAA], cfg.GlobalSettings.EventStorePublisher);
                         }
                         return handler;
                     });
@@ -63,18 +65,19 @@ namespace Elders.Cronus.Sample.ApplicationService
             {
                 eventStore
                     .SetConnectionStringName("cronus-es")
-                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)));
+                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)))
+                    .SetDomainEventsAssembly(typeof(CreateUser));
             });
             cfg.ConfigureConsumer<EndpointCommandConsumableSettings>(Collaboration, consumer =>
             {
-                consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
+                //consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
                     {
                         var handler = FastActivator.CreateInstance(type, null);
                         var repositoryHandler = handler as IAggregateRootApplicationService;
                         if (repositoryHandler != null)
                         {
-                            repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.GlobalSettings.EventStores.Single(es => es.BoundedContext == Collaboration), cfg.GlobalSettings.EventStorePublisher);
+                            repositoryHandler.Repository = new RabbitRepository(cfg.GlobalSettings.AggregateRepositories[Collaboration], cfg.GlobalSettings.EventStorePublisher);
                         }
                         return handler;
                     });

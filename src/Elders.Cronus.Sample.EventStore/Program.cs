@@ -1,5 +1,7 @@
 ﻿using System.Configuration;
 using System.Reflection;
+using Elders.Cronus.EventSourcing;
+using Elders.Cronus.Messaging.MessageHandleScope;
 using Elders.Cronus.Persistence.MSSQL;
 using Elders.Cronus.Persistence.MSSQL.Config;
 using Elders.Cronus.Pipeline.Config;
@@ -36,7 +38,8 @@ namespace Elders.Cronus.Sample.EventStore
             {
                 eventStore
                     .SetConnectionStringName("cronus-es")
-                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(AccountState)))
+                    .SetAggregateStatesAssembly(typeof(AccountState))
+                    .SetDomainEventsAssembly(typeof(RegisterAccount))
                     .CreateStorage();
             });
             cfg.PipelineEventPublisher(publisher =>
@@ -51,6 +54,7 @@ namespace Elders.Cronus.Sample.EventStore
             });
             cfg.ConfigureConsumer<EndpointEventStoreConsumableSettings>(IAA, consumer =>
             {
+                consumer.ConsumerBatchSize = 100;
                 consumer.NumberOfWorkers = 2;
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
                 consumer.UseTransport<RabbitMq>();
@@ -62,10 +66,12 @@ namespace Elders.Cronus.Sample.EventStore
                 eventStore
                     .SetConnectionStringName("cronus-es")
                     .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)))
+                    .SetDomainEventsAssembly(typeof(UserCreated))
                     .CreateStorage();
             });
             cfg.ConfigureConsumer<EndpointEventStoreConsumableSettings>(Collaboration, consumer =>
             {
+                consumer.ConsumerBatchSize = 100;
                 consumer.NumberOfWorkers = 2;
                 consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
                 consumer.UseTransport<RabbitMq>();

@@ -28,9 +28,20 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
             return endpoint;
         }
 
-        public IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] handlerTypes)
+        public IEndpoint CreateTopicEndpoint(EndpointDefinition definition)
         {
-            return endpointNameConvention.GetEndpointDefinitions(handlerTypes);
+            var endpoint = new RabbitMqEndpoint(definition, session);
+            endpoint.Declare();
+
+            var pipeLine = new RabbitMqPipeline(definition.PipelineName, session, RabbitMqPipeline.PipelineType.Topics);
+            pipeLine.Declare();
+            pipeLine.Bind(endpoint);
+            return endpoint;
+        }
+
+        public EndpointDefinition GetEndpointDefinition(params Type[] handlerTypes)
+        {
+            return endpointNameConvention.GetEndpointDefinition(handlerTypes);
         }
     }
 }

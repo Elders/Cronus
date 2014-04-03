@@ -14,8 +14,6 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
 
         private QueueingBasicConsumer consumer;
 
-        private RetryPolicy retryPolicy = RetryableOperation.RetryPolicyFactory.CreateInfiniteLinearRetryPolicy(new TimeSpan(500000));
-
         private Dictionary<EndpointMessage, BasicDeliverEventArgs> dequeuedMessages;
 
         private RabbitMqSession session;
@@ -27,7 +25,7 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
             Exclusive = false;
             Durable = true;
             this.session = session;
-            RoutingKey = String.Empty;
+            RoutingKey = endpointDefinition.RoutingKey;
             Name = endpointDefinition.EndpointName;
         }
 
@@ -41,7 +39,7 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
 
         public string Name { get; private set; }
 
-        public string RoutingKey { get; private set; }
+        public string RoutingKey { get; set; }
 
         public void Acknowledge(EndpointMessage message)
         {
@@ -93,14 +91,12 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
         public EndpointMessage BlockDequeue()
         {
             BasicDeliverEventArgs result;
-            if (consumer == null)
-            {
-                throw new EndpointClosedException(String.Format("The Endpoint '{0}' is closed", Name));
-            }
+            if (consumer == null) throw new EndpointClosedException(String.Format("The Endpoint '{0}' is closed", Name));
+
             try
             {
                 result = consumer.Queue.Dequeue();
-                EndpointMessage msg = new EndpointMessage(result.Body, result.BasicProperties.Headers);
+                EndpointMessage msg = new EndpointMessage(result.Body, result.RoutingKey, result.BasicProperties.Headers);
                 dequeuedMessages.Add(msg, result);
                 return msg;
             }
@@ -125,16 +121,14 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
 
         public EndpointMessage DequeueNoWait()
         {
-            if (consumer == null)
-            {
-                throw new EndpointClosedException(String.Format("The Endpoint '{0}' is closed", Name));
-            }
+            if (consumer == null) throw new EndpointClosedException(String.Format("The Endpoint '{0}' is closed", Name));
+
             try
             {
                 var result = consumer.Queue.DequeueNoWait(null);
                 if (result == null)
                     return null;
-                var msg = new EndpointMessage(result.Body, result.BasicProperties.Headers);
+                var msg = new EndpointMessage(result.Body, result.RoutingKey, result.BasicProperties.Headers);
                 dequeuedMessages.Add(msg, result);
                 return msg;
             }
@@ -157,9 +151,8 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
         public void Declare()
         {
             if (safeChannel == null)
-            {
                 safeChannel = session.OpenSafeChannel();
-            }
+
             safeChannel.Channel.QueueDeclare(Name, Durable, Exclusive, AutoDelete, RoutingHeaders);
             safeChannel.Close();
             safeChannel = null;
@@ -186,15 +179,13 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
         {
             msg = null;
             BasicDeliverEventArgs result;
-            if (consumer == null)
-            {
-                throw new EndpointClosedException(String.Format("The Endpoint '{0}' is closed", Name));
-            }
+            if (consumer == null) throw new EndpointClosedException(String.Format("The Endpoint '{0}' is closed", Name));
+
             try
             {
                 if (!consumer.Queue.Dequeue(timeoutInMiliseconds, out result))
                     return false;
-                msg = new EndpointMessage(result.Body, result.BasicProperties.Headers);
+                msg = new EndpointMessage(result.Body, result.RoutingKey, result.BasicProperties.Headers);
                 dequeuedMessages.Add(msg, result);
                 return true;
             }

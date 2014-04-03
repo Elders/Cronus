@@ -1,5 +1,4 @@
-﻿using System;
-using Elders.Cronus.DomainModelling;
+﻿using Elders.Cronus.DomainModelling;
 using Elders.Protoreg;
 
 namespace Elders.Cronus.Pipeline
@@ -20,12 +19,9 @@ namespace Elders.Cronus.Pipeline
 
         protected override bool PublishInternal(T message)
         {
-            var endpointMessage = message.AsEndpointMessage(serializer);
-            var eventType = message.GetType();
-            endpointMessage.Headers.Add(MessageInfo.GetContractId(eventType), String.Empty);
             pipelineFactory
-                .GetPipeline(eventType)
-                .Push(endpointMessage);
+                .GetPipeline(message.GetType())
+                .Push(message.AsEndpointMessage(serializer));
             return true;
         }
     }

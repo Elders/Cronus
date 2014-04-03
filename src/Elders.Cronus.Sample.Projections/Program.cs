@@ -36,6 +36,7 @@ namespace Elders.Cronus.Sample.Handlers
             });
             cfg.ConfigureConsumer<EndpointProjectionConsumableSettings>(Collaboration, consumer =>
             {
+                consumer.ConsumerBatchSize = 100;
                 consumer.NumberOfWorkers = 2;
                 consumer.ScopeFactory.CreateBatchScope = () => new BatchScope(sf);
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>

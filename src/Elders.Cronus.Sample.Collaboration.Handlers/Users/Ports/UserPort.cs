@@ -9,11 +9,15 @@ namespace Elders.Cronus.Sample.Collaboration.Users.Ports
         IMessageHandler<AccountRegistered>
     {
         public IPublisher CommandPublisher { get; set; }
-
+        static int counter = 0;
         public void Handle(AccountRegistered message)
         {
+            counter++;
             UserId userId = new UserId(Guid.NewGuid());
             var email = message.Email;
+            //if (counter % 500 == 0)
+            //    email = "cronus_2_@Elders.com";
+
             CommandPublisher.Publish(new CreateUser(userId, email));
         }
     }

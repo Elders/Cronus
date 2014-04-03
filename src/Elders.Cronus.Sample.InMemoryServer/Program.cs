@@ -16,6 +16,8 @@ using Elders.Cronus.Sample.Collaboration.Users.Commands;
 using Elders.Cronus.Sample.CommonFiles;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts;
 using Elders.Cronus.Sample.InMemoryServer.Nhibernate;
+using Elders.Cronus.Sample.IdentityAndAccess.Accounts.Events;
+using Elders.Cronus.Sample.Collaboration.Users.Events;
 
 namespace Elders.Cronus.Sample.InMemoryServer
 {
@@ -37,14 +39,16 @@ namespace Elders.Cronus.Sample.InMemoryServer
                 {
                     eventStore
                         .SetConnectionStringName("cronus-es")
-                        .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)))
+                        .SetDomainEventsAssembly(typeof(UserCreated))
+                        .SetAggregateStatesAssembly(typeof(UserState))
                         .CreateStorage();
                 })
                 .ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
                 {
                     eventStore
                         .SetConnectionStringName("cronus-es")
-                        .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(AccountState)))
+                        .SetDomainEventsAssembly(typeof(AccountRegistered))
+                        .SetAggregateStatesAssembly(typeof(AccountState))
                         .CreateStorage();
                 })
                 .PipelineEventPublisher(publisher =>
@@ -58,7 +62,6 @@ namespace Elders.Cronus.Sample.InMemoryServer
                 })
                 .ConfigureConsumer<EndpointEventStoreConsumableSettings>("Collaboration", consumer =>
                 {
-                    consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
                     consumer.UseTransport<InMemory>();
                 })
                 .ConfigureConsumer<EndpointCommandConsumableSettings>("Collaboration", consumer =>
@@ -70,7 +73,7 @@ namespace Elders.Cronus.Sample.InMemoryServer
                             var repositoryHandler = handler as IAggregateRootApplicationService;
                             if (repositoryHandler != null)
                             {
-                                repositoryHandler.Repository = new RabbitRepository((IAggregateRepository)cfg.GlobalSettings.EventStores.Single(es => es.BoundedContext == "Collaboration"), cfg.GlobalSettings.EventStorePublisher);
+                                repositoryHandler.Repository = new RabbitRepository(cfg.GlobalSettings.AggregateRepositories["Collaboration"], cfg.GlobalSettings.EventStorePublisher);
                             }
                             return handler;
                         });

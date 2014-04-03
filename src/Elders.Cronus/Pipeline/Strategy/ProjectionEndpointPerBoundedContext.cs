@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModelling;
 
@@ -14,7 +13,7 @@ namespace Elders.Cronus.Pipeline.Strategy
             this.pipelineNameConvention = pipelineNameConvention;
         }
 
-        public IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] handlerTypes)
+        public EndpointDefinition GetEndpointDefinition(params Type[] handlerTypes)
         {
             var boundedContext = handlerTypes.First().GetBoundedContext();
 
@@ -31,7 +30,8 @@ namespace Elders.Cronus.Pipeline.Strategy
                                   .Distinct()
                                  .ToDictionary<Type, string, object>(key => key.GetContractId(), val => String.Empty);
 
-            yield return new EndpointDefinition(endpointName, routingHeaders, pipelineNameConvention.GetPipelineName(boundedContext));
+            EndpointDefinition endpointDefinition = new EndpointDefinition(pipelineNameConvention.GetPipelineName(boundedContext), endpointName, routingHeaders);
+            return endpointDefinition;
         }
     }
 }

@@ -8,18 +8,26 @@ namespace Elders.Cronus.EventSourcing.Config
     {
         protected Assembly aggregateStatesAssembly;
 
-        protected string boundedContext;
+        protected Assembly domainEventsAssembly;
+
+        public string BoundedContext { get; protected set; }
 
         protected bool createStorage;
 
         public CronusGlobalSettings GlobalSettings { get; set; }
 
-        public abstract IEventStore Build();
+        public abstract IAggregateRepository BuildAggregateRepository();
+
+        public abstract IEventStorePersister BuildEventStorePersister();
+
+        public abstract IMessageProcessor<DomainMessageCommit> BuildEventStoreHandlers();
+
+        public abstract IEventStorePlayer BuildEventStorePlayer();
 
         protected void BuildAggregateStatesAssemblyAndBoundedContext(Assembly aggregateStatesAssembly)
         {
             this.aggregateStatesAssembly = aggregateStatesAssembly;
-            boundedContext = aggregateStatesAssembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
+            BoundedContext = aggregateStatesAssembly.GetAssemblyAttribute<BoundedContextAttribute>().BoundedContextName;
         }
     }
 }

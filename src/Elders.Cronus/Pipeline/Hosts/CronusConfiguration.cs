@@ -43,8 +43,10 @@ namespace Elders.Cronus.Pipeline.Hosts
 
             foreach (var esSettings in EventStoreConfigurations)
             {
-                var eventStore = esSettings.Build();
-                GlobalSettings.EventStores.Add(eventStore);
+                GlobalSettings.AggregateRepositories[esSettings.BoundedContext] = esSettings.BuildAggregateRepository();
+                GlobalSettings.EventStorePlayers[esSettings.BoundedContext] = esSettings.BuildEventStorePlayer();
+                GlobalSettings.EventStorePersisters[esSettings.BoundedContext] = esSettings.BuildEventStorePersister();
+                GlobalSettings.EventStoreHandlers[esSettings.BoundedContext] = esSettings.BuildEventStoreHandlers();
             }
 
             foreach (var consumerSettings in ConsumersConfigurations)

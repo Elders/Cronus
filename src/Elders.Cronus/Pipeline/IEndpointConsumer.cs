@@ -8,6 +8,8 @@ namespace Elders.Cronus.Pipeline
     {
         bool Consume(IEndpoint endpoint);
         IEnumerable<Type> GetRegisteredHandlers { get; }
+        IEndpointConsumerErrorStrategy ErrorStrategy { get; }
+        IEndpointConsumerSuccessStrategy SuccessStrategy { get; }
     }
 
     public interface IEndpointConsumer<out T> : IEndpointConsumer where T : IMessage

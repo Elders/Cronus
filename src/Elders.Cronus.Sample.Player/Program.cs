@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using NHibernate;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.Messaging.MessageHandleScope;
 using Elders.Cronus.Persistence.MSSQL.Config;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport.InMemory.Config;
-using Elders.Cronus.Sample.CommonFiles;
+using Elders.Cronus.Sample.Collaboration;
+using Elders.Cronus.Sample.Collaboration.Projections;
 using Elders.Cronus.Sample.Collaboration.Users;
 using Elders.Cronus.Sample.Collaboration.Users.Events;
-using Elders.Cronus.Sample.Collaboration.Projections;
-using Elders.Cronus.Sample.Collaboration;
+using Elders.Cronus.Sample.CommonFiles;
+using NHibernate;
 
 namespace Elders.Cronus.Sample.Player
 {
@@ -64,7 +64,8 @@ namespace Elders.Cronus.Sample.Player
             {
                 eventStore
                     .SetConnectionStringName("cronus-es")
-                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)));
+                    .SetDomainEventsAssembly(typeof(UserCreated))
+                    .SetAggregateStatesAssembly(typeof(UserState));
             });
             cfg.PipelineEventPublisher(publisher =>
             {

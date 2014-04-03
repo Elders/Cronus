@@ -14,13 +14,13 @@ namespace Elders.Cronus.Pipeline.Strategy
             this.pipelineNameConvention = pipelineNameConvention;
         }
 
-        public IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] eventTypes)
+        public EndpointDefinition GetEndpointDefinition(params Type[] eventTypes)
         {
             var eventType = eventTypes.First();
             var boundedContext = eventType.GetBoundedContext();
             var handlerQueueName = String.Format("{0}.EventStore", boundedContext.BoundedContextNamespace);
-            var endpoint = new EndpointDefinition(handlerQueueName, new Dictionary<string, object> { { boundedContext.BoundedContextName, String.Empty } }, pipelineNameConvention.GetPipelineName(eventType));
-            yield return endpoint;
+            EndpointDefinition endpoint = new EndpointDefinition(pipelineNameConvention.GetPipelineName(eventType), handlerQueueName, new Dictionary<string, object> { { boundedContext.BoundedContextName, String.Empty } });
+            return endpoint;
         }
 
     }

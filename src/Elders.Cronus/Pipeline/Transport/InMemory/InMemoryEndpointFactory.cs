@@ -19,9 +19,15 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             return InMemoryQueue.Current.GetOrAddEndpoint(definition);
         }
 
-        public IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] handlerTypes)
+        public EndpointDefinition GetEndpointDefinition(params Type[] handlerTypes)
         {
-            return endpointNameConvention.GetEndpointDefinitions(handlerTypes);
+            return endpointNameConvention.GetEndpointDefinition(handlerTypes);
+        }
+
+
+        public IEndpoint CreateTopicEndpoint(EndpointDefinition definition)
+        {
+            return InMemoryQueue.Current.GetOrAddEndpoint(definition);
         }
     }
 }

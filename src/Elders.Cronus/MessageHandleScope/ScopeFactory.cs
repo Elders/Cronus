@@ -24,36 +24,9 @@ namespace Elders.Cronus.Messaging.MessageHandleScope
 
         public Func<IMessageScope> CreateMessageScope { get; set; }
 
-        //public bool UseBatchScope(Func<IBatchScope, bool> action)
-        //{
-        //    CurrentContext = new Context();
-        //    return UseScope<IBatchScope>(CreateBatchScope, (scope) => CurrentContext.BatchScopeContext = scope.Context, action);
-        //}
-
-        public SafeBatchResult<T> UseSafeBatchScope<T>(Action<T, Context> itemSource, List<T> items, ISafeBatchRetryStrategy<T> retryStrategy)
+        public bool UseBatchScope(Context context, Func<Context, bool> action)
         {
-            Context context = new Context();
-
-            IBatchScope batchScope = null;
-            SafeBatch<T> safeBatch = new SafeBatch<T>(retryStrategy);
-            var result = safeBatch.Execute(itemSource, items,
-                () =>
-                {
-                    batchScope = CreateBatchScope();
-                    if (batchScope.Context == null)
-                        batchScope.Context = new ScopeContext();
-                    context.BatchScopeContext = batchScope.Context;
-                    batchScope.Begin();
-                    return context;
-                },
-                () =>
-                {
-                    batchScope.End();
-                    batchScope.Context.Clear();
-                    batchScope = null;
-                });
-
-            return result;
+            return UseScope<IBatchScope>(context, CreateBatchScope, scope => context.BatchScopeContext = scope.Context, action);
         }
 
         public bool UseHandlerScope(Context context, Func<Context, bool> action)

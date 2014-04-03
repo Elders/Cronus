@@ -1,5 +1,5 @@
-using System.Linq;
 using Elders.Cronus.DomainModelling;
+using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Strategy;
 
 namespace Elders.Cronus.Pipeline.Config
@@ -14,7 +14,8 @@ namespace Elders.Cronus.Pipeline.Config
 
         protected override IEndpointConsumable BuildConsumer()
         {
-            var consumer = new EndpointEventStoreConsumer(GlobalSettings.EventStores.Single(es => es.BoundedContext == BoundedContext), GlobalSettings.EventPublisher, GlobalSettings.CommandPublisher, MessagesAssemblies.First().ExportedTypes.First(), GlobalSettings.Serializer);
+            SuccessStrategy = new EventStorePublishEventsOnSuccessPersist(GlobalSettings.EventPublisher);
+            var consumer = new EndpointConsumer<DomainMessageCommit>(GlobalSettings.EventStoreHandlers[BoundedContext], ScopeFactory, GlobalSettings.Serializer, SuccessStrategy, ErrorStrategy);
             return new EndpointConsumable(Transport.EndpointFactory, consumer);
         }
     }

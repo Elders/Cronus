@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.Pipeline;
@@ -16,16 +17,13 @@ namespace Elders.Cronus.EventSourcing
             this.serializer = serializer;
         }
 
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EventStorePublisher));
-
         private readonly ProtoregSerializer serializer;
 
         protected override bool PublishInternal(DomainMessageCommit message)
         {
             var firstEventInCommitType = message.Events.First().GetType();
-            var endpointMessage = message.AsEndpointMessage(serializer);
             var commitBoundedContext = firstEventInCommitType.GetBoundedContext().BoundedContextName;
-            endpointMessage.Headers.Add(commitBoundedContext, String.Empty);
+            var endpointMessage = message.AsEndpointMessage(serializer, routingHeaders: new Dictionary<string, object>() { { commitBoundedContext, String.Empty } });
             pipelineFactory
                 .GetPipeline(firstEventInCommitType)
                 .Push(endpointMessage);

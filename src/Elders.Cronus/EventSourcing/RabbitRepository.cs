@@ -5,20 +5,20 @@ namespace Elders.Cronus.EventSourcing
 {
     public class RabbitRepository : IAggregateRepository
     {
-        private readonly IAggregateRepository eventStore;
+        private readonly IAggregateRepository aggregateRepository;
 
         private IPublisher eventPublisher;
 
-        public RabbitRepository(IAggregateRepository eventStore, IPublisher eventStorePublisher)
+        public RabbitRepository(IAggregateRepository aggregateRepository, IPublisher eventStorePublisher)
         {
-            this.eventStore = eventStore;
+            this.aggregateRepository = aggregateRepository;
             eventPublisher = eventStorePublisher;
         }
 
         public AR Update<AR>(IAggregateRootId aggregateId, ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot
         {
             Action<IAggregateRoot, ICommand> saveAction = save ?? this.Save;
-            return eventStore.Update<AR>(aggregateId, command, update, saveAction);
+            return aggregateRepository.Update<AR>(aggregateId, command, update, saveAction);
         }
 
         public void Save(IAggregateRoot aggregateRoot, ICommand command)

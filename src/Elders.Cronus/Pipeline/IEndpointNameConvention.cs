@@ -5,6 +5,6 @@ namespace Elders.Cronus.Pipeline
 {
     public interface IEndpointNameConvention
     {
-        IEnumerable<EndpointDefinition> GetEndpointDefinitions(params Type[] handlerTypes);
+        EndpointDefinition GetEndpointDefinition(params Type[] handlerTypes);
     }
 }

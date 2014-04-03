@@ -17,6 +17,7 @@ namespace Elders.Cronus.Pipeline.Config
             Transport.Build(PipelineSettings);
             if (MessagesAssemblies != null)
                 MessagesAssemblies.ToList().ForEach(ass => GlobalSettings.Protoreg.RegisterAssembly(ass));
+            ErrorStrategy = new ErrorEndpointPerEndpoint(Transport.PipelineFactory, GlobalSettings.Serializer);
             return BuildConsumer();
         }
     }

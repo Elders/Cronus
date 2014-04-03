@@ -14,7 +14,13 @@ namespace Elders.Cronus.Pipeline.Config
 
         protected override IEndpointConsumable BuildConsumer()
         {
-            MessageHandlerCollection<ICommand> handlers = new MessageHandlerCollection<ICommand>(ConsumerBatchSize);
+            ISafeBatchRetryStrategy<ICommand> batchRetryStrategy = ConsumerBatchSize == 1
+                    ? new NoRetryStrategy<ICommand>() as ISafeBatchRetryStrategy<ICommand>
+                    : new DefaultRetryStrategy<ICommand>() as ISafeBatchRetryStrategy<ICommand>;
+
+            var safeBatchFactory = new SafeBatchWithBatchScopeContextFactory<ICommand>(batchRetryStrategy, ScopeFactory.CreateBatchScope);
+
+            MessageHandlerCollection<ICommand> handlers = new MessageHandlerCollection<ICommand>(safeBatchFactory, ConsumerBatchSize);
             foreach (var reg in registrations)
             {
                 GlobalSettings.Protoreg.RegisterAssembly(reg.Key);
@@ -24,7 +30,7 @@ namespace Elders.Cronus.Pipeline.Config
                 }
             }
 
-            var consumer = new EndpointConsumer<ICommand>(handlers, ScopeFactory, GlobalSettings.Serializer);
+            var consumer = new EndpointConsumer<ICommand>(handlers, ScopeFactory, GlobalSettings.Serializer, SuccessStrategy, ErrorStrategy);
             return new EndpointConsumable(Transport.EndpointFactory, consumer);
         }
     }

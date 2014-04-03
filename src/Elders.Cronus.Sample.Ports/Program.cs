@@ -38,7 +38,7 @@ namespace Elders.Cronus.Sample.Ports
             });
             cfg.ConfigureConsumer<EndpointPortConsumableSettings>(Collaboration, consumer =>
             {
-                consumer.NumberOfWorkers = 2;
+                consumer.NumberOfWorkers = 1;
                 consumer.ScopeFactory.CreateBatchScope = () => new BatchScope(sf);
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                     {

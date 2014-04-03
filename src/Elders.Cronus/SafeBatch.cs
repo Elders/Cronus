@@ -1,31 +1,48 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Elders.Cronus.Messaging.MessageHandleScope;
 
 namespace Elders.Cronus
 {
-    public class SafeBatch<T>
+    public abstract class SafeBatchFactory<T, C>
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(SafeBatch<T>));
+        public abstract SafeBatch<T, C> Initialize();
+    }
+
+    public interface ISafeBatchContextAware<T, C>
+    {
+        C OnBatchBeginTry(List<T> items);
+        void OnBatchEndTry(List<T> items, C context);
+    }
+
+    public class SafeBatch<T, C>
+    {
+        private readonly ISafeBatchContextAware<T, C> contextAware;
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(SafeBatch<T, C>));
 
         BatchTry<T> batchRetry;
 
         public SafeBatch()
-            : this(new DefaultRetryStrategy<T>()) { }
+            : this(null, new DefaultRetryStrategy<T>()) { }
 
-        public SafeBatch(ISafeBatchRetryStrategy<T> batchRetryStrategy)
+        public SafeBatch(ISafeBatchContextAware<T, C> contextAware, ISafeBatchRetryStrategy<T> batchRetryStrategy)
         {
+            this.contextAware = contextAware;
             if (batchRetryStrategy == null)
                 throw new ArgumentNullException("batchRetryStrategy");
 
             this.batchRetry = new BatchTry<T>(batchRetryStrategy);
         }
 
-        public SafeBatchResult<T> Execute(Action<T, Context> itemAction, List<T> items, Func<Context> beginScope = null, Action endScope = null)
+        public SafeBatchResult<T> Execute(List<T> items)
         {
-            return batchRetry.Try(itemAction, items, beginScope, endScope);
+            return Execute(items, (item, context) => { });
+        }
+
+        public SafeBatchResult<T> Execute(List<T> items, Action<T, C> singleItemAction)
+        {
+            return batchRetry.Try(items, singleItemAction, contextAware);
         }
 
         class BatchTry<T>
@@ -37,7 +54,7 @@ namespace Elders.Cronus
                 this.retryStrategy = retryStrategy;
             }
 
-            public SafeBatchResult<T> Try(Action<T, Context> itemSource, List<T> itemsToTry, Func<Context> beginScope = null, Action endScope = null)
+            public SafeBatchResult<T> Try(List<T> itemsToTry, Action<T, C> singleItemAction, ISafeBatchContextAware<T, C> contextAware)
             {
                 List<T> totalSuccess = new List<T>();
                 List<T> totalFailed = new List<T>();
@@ -62,10 +79,9 @@ namespace Elders.Cronus
                     failed.Clear();
                     retryStrategy.Retry(firstRun, (batch) =>
                     {
-                        var context = beginScope();
-                        batch.ForEach(item => itemSource(item, context));
-                        //itemSource.Finish(batch);
-                        if (endScope != null) endScope();
+                        var context = contextAware.OnBatchBeginTry(batch);
+                        batch.ForEach(item => singleItemAction(item, context));
+                        contextAware.OnBatchEndTry(batch, context);
                     },
                     itemsToRetry, out successItems, out failed);
                     totalSuccess.AddRange(successItems);
@@ -101,64 +117,67 @@ namespace Elders.Cronus
                 return batchResults;
             }
         }
+    }
 
-        public class DefaultRetryStrategy<T> : ISafeBatchRetryStrategy<T>
+    public class DefaultRetryStrategy<T> : ISafeBatchRetryStrategy<T>
+    {
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(DefaultRetryStrategy<T>));
+
+        public void Retry(bool isFirstTry, Action<List<T>> batchExecute, List<List<T>> batchesToRetry, out List<T> successItems, out List<List<T>> failedBatches)
         {
-            public void Retry(bool isFirstTry, Action<List<T>> batchExecute, List<List<T>> batchesToRetry, out List<T> successItems, out List<List<T>> failedBatches)
+            List<List<T>> safeList = new List<List<T>>(batchesToRetry);
+            int splitCount = isFirstTry ? 1 : 2;
+            successItems = new List<T>();
+            failedBatches = new List<List<T>>();
+            foreach (var batch in safeList)
             {
-                List<List<T>> safeList = new List<List<T>>(batchesToRetry);
-                int splitCount = isFirstTry ? 1 : 2;
-                successItems = new List<T>();
-                failedBatches = new List<List<T>>();
-                foreach (var batch in safeList)
+                var splitted = batch.Split(splitCount);
+                foreach (var splittedBatch in splitted)
                 {
-                    var splitted = batch.Split(splitCount);
-                    foreach (var splittedBatch in splitted)
+                    try
                     {
-                        try
-                        {
-                            batchExecute(splittedBatch.ToList());
-                            successItems.AddRange(splittedBatch);
-                        }
-                        catch (Exception ex)
-                        {
-                            log.Warn(splittedBatch, ex);
-                            var failing = splittedBatch.ToList();
-                            failedBatches.Add(failing);
-                        }
+                        batchExecute(splittedBatch.ToList());
+                        successItems.AddRange(splittedBatch);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Warn(splittedBatch, ex);
+                        var failing = splittedBatch.ToList();
+                        failedBatches.Add(failing);
                     }
                 }
             }
         }
+    }
 
-        public class NoRetryStrategy<T> : ISafeBatchRetryStrategy<T>
+    public class NoRetryStrategy<T> : ISafeBatchRetryStrategy<T>
+    {
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(NoRetryStrategy<T>));
+
+        public void Retry(bool isFirstTry, Action<List<T>> batchExecute, List<List<T>> batchesToRetry, out List<T> successItems, out List<List<T>> failedBatches)
         {
-            public void Retry(bool isFirstTry, Action<List<T>> batchExecute, List<List<T>> batchesToRetry, out List<T> successItems, out List<List<T>> failedBatches)
+            List<List<T>> safeList = new List<List<T>>(batchesToRetry);
+            successItems = new List<T>();
+            failedBatches = new List<List<T>>();
+
+            if (!isFirstTry)
             {
-                List<List<T>> safeList = new List<List<T>>(batchesToRetry);
-                successItems = new List<T>();
-                failedBatches = new List<List<T>>();
+                failedBatches = batchesToRetry;
+                return;
+            }
+            try
+            {
+                var batch = safeList.Single().ToList();
+                batchExecute(batch);
+                successItems.AddRange(batch);
 
-                if (!isFirstTry)
-                {
-                    failedBatches = batchesToRetry;
-                    return;
-                }
-                try
-                {
-                    var batch = safeList.Single().ToList();
-                    batchExecute(batch);
-                    successItems.AddRange(batch);
-
-                }
-                catch (Exception ex)
-                {
-                    log.Warn(safeList.Single().ToList(), ex);
-                    failedBatches = batchesToRetry;
-                }
+            }
+            catch (Exception ex)
+            {
+                log.Warn(safeList.Single().ToList(), ex);
+                failedBatches = batchesToRetry;
             }
         }
-
     }
 
     public interface ISafeBatchRetryStrategy<T>

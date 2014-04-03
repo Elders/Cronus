@@ -1,21 +1,51 @@
 using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModelling;
+using Elders.Cronus.Messaging.MessageHandleScope;
 
 namespace Elders.Cronus.EventSourcing
 {
-    public interface IEventStore
+    public interface IEventStoreBatchContext
     {
-        /// <summary>
-        /// Opens an empty stream.
-        /// </summary>
-        /// <param name="getCommit">How to get a single <see cref="DomainMessageCommit"/> </param>
-        /// <param name="commitCondition">When to commit the stream. IEventStream param holds the current state of the stream. DomainMessageCommit param holds the result of getCommit.</param>
-        /// <param name="postCommit">What to do after a successful commit.</param>
-        /// <param name="closeStreamCondition">When to close the stream.</param>
-        void UseStream(Func<DomainMessageCommit> getCommit, Func<IEventStream, DomainMessageCommit, bool> commitCondition, Action<List<IEvent>> postCommit, Func<IEventStream, bool> closeStreamCondition, Action<DomainMessageCommit> onPersistError);
 
-        string BoundedContext { get; }
+    }
+
+    public interface IEventStorePlayer
+    {
         IEnumerable<IEvent> GetEventsFromStart(int batchPerQuery = 1);
+    }
+
+    public interface IEventStorePersister
+    {
+        void Persist(List<DomainMessageCommit> commits);
+    }
+
+    public class EventStoreHandler : IMessageProcessor<DomainMessageCommit>
+    {
+        private readonly Type assemblyContainingEventsByEventType;
+        private readonly SafeBatchFactory<DomainMessageCommit, IEventStoreBatchContext> safeBatchFactory;
+
+
+        public EventStoreHandler(Type assemblyContainingEventsByEventType, SafeBatchFactory<DomainMessageCommit, IEventStoreBatchContext> safeBatchFactory, int batchSize = 1)
+        {
+            this.safeBatchFactory = safeBatchFactory;
+            this.assemblyContainingEventsByEventType = assemblyContainingEventsByEventType;
+            BatchSize = batchSize;
+        }
+
+        public ScopeFactory ScopeFactory { get; set; }
+
+        public IEnumerable<Type> GetRegisteredHandlers()
+        {
+            yield return assemblyContainingEventsByEventType;
+        }
+
+        public SafeBatchResult<DomainMessageCommit> Handle(List<DomainMessageCommit> commits)
+        {
+            var safeBatch = safeBatchFactory.Initialize();
+            return safeBatch.Execute(commits);
+        }
+
+        public int BatchSize { get; private set; }
     }
 }

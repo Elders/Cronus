@@ -22,6 +22,10 @@ namespace Elders.Cronus.Pipeline.Config
 
         public string BoundedContext { get; set; }
 
+        public IEndpointConsumerErrorStrategy ErrorStrategy { get; set; }
+
+        public IEndpointConsumerSuccessStrategy SuccessStrategy { get; set; }
+
         public CronusGlobalSettings GlobalSettings { get; set; }
 
         public int ConsumerBatchSize { get; set; }

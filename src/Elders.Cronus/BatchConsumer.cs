@@ -9,9 +9,9 @@ namespace Elders.Cronus
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(BatchConsumer<T>));
 
-        private readonly MessageHandlerCollection<T> messageHandlers;
+        private readonly IMessageProcessor<T> messageHandlers;
 
-        public BatchConsumer(MessageHandlerCollection<T> messageHandlers)
+        public BatchConsumer(IMessageProcessor<T> messageHandlers)
         {
             this.messageHandlers = messageHandlers;
         }

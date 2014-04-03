@@ -7,18 +7,21 @@ using Elders.Protoreg;
 
 namespace Elders.Cronus.Pipeline
 {
+
     public class EndpointConsumer<T> : BatchConsumer<T>, IEndpointConsumer<T>
         where T : IMessage
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EndpointConsumer<T>));
 
-        private readonly MessageHandlerCollection<T> messageHandlers;
+        private readonly IMessageProcessor<T> messageHandlers;
         private readonly ScopeFactory scopeFactory;
         private readonly ProtoregSerializer serialiser;
 
-        public EndpointConsumer(MessageHandlerCollection<T> messageHandlers, ScopeFactory scopeFactory, ProtoregSerializer serialiser)
+        public EndpointConsumer(IMessageProcessor<T> messageHandlers, ScopeFactory scopeFactory, ProtoregSerializer serialiser, IEndpointConsumerSuccessStrategy successStrategy, IEndpointConsumerErrorStrategy errorStrategy)
             : base(messageHandlers)
         {
+            SuccessStrategy = successStrategy;
+            ErrorStrategy = errorStrategy;
             this.serialiser = serialiser;
             this.scopeFactory = scopeFactory;
             this.messageHandlers = messageHandlers;
@@ -37,7 +40,7 @@ namespace Elders.Cronus.Pipeline
                     endpoint.BlockDequeue(30, out rawMessage);
                     if (rawMessage == null)
                         break;
-                    //EndpointMessage rawMessage = endpoint.BlockDequeue();
+
                     T message;
 
                     using (var stream = new MemoryStream(rawMessage.Body))
@@ -50,10 +53,23 @@ namespace Elders.Cronus.Pipeline
                 }
                 if (messages.Count == 0)
                     return true;
-                var result = base.Consume(messages);
-                foreach (var fail in result.FailedItems)
+                var result = Consume(messages);
+
+                if (ErrorStrategy != null)
                 {
-                    log.Error(fail);
+                    foreach (var fail in result.FailedItems)
+                    {
+                        log.Error(fail);
+                        ErrorStrategy.Handle(new ErrorMessage(fail, null));
+                    }
+                }
+
+                if (SuccessStrategy != null)
+                {
+                    foreach (var success in result.SuccessItems)
+                    {
+                        SuccessStrategy.Handle(success);
+                    }
                 }
 
                 return true;
@@ -72,5 +88,9 @@ namespace Elders.Cronus.Pipeline
         {
             get { return messageHandlers.GetRegisteredHandlers(); }
         }
+
+
+        public IEndpointConsumerErrorStrategy ErrorStrategy { get; private set; }
+        public IEndpointConsumerSuccessStrategy SuccessStrategy { get; private set; }
     }
 }

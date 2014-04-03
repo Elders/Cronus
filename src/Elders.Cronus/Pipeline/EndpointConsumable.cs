@@ -25,19 +25,21 @@ namespace Elders.Cronus.Pipeline
         public void Start(int numberOfWorkers)
         {
             pools.Clear();
-            var endpointDefinitions = endpointFactory.GetEndpointDefinitions(consumer.GetRegisteredHandlers.ToArray());
+            var endpointDefinition = endpointFactory.GetEndpointDefinition(consumer.GetRegisteredHandlers.ToArray());
 
-            foreach (var endpointDefinition in endpointDefinitions)
+            var poolName = String.Format("Workpool {0}", endpointDefinition.EndpointName);
+            WorkPool pool = new WorkPool(poolName, numberOfWorkers);
+            for (int i = 0; i < numberOfWorkers; i++)
             {
-                var poolName = String.Format("Workpool {0}", endpointDefinition.EndpointName);
-                WorkPool pool = new WorkPool(poolName, numberOfWorkers);
-                for (int i = 0; i < numberOfWorkers; i++)
-                {
-                    pool.AddWork(new PipelineConsumerWork(consumer, endpointFactory.CreateEndpoint(endpointDefinition)));
-                }
-                pools.Add(pool);
-                pool.StartCrawlers();
+                IEndpoint endpoint = endpointFactory.CreateEndpoint(endpointDefinition);
+                if (consumer.ErrorStrategy != null)
+                    consumer.ErrorStrategy.Initialize(endpointFactory, endpointDefinition);
+                if (consumer.SuccessStrategy != null)
+                    consumer.SuccessStrategy.Initialize(endpointFactory, endpointDefinition);
+                pool.AddWork(new PipelineConsumerWork(consumer, endpoint));
             }
+            pools.Add(pool);
+            pool.StartCrawlers();
         }
 
         public void Stop()

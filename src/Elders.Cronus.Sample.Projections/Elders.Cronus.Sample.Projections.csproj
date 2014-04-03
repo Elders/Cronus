@@ -36,10 +36,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Elders.Cronus.DomainModelling">
-      <HintPath>..\packages\Cronus.DomainModelling.1.0.1\lib\Elders.Cronus.DomainModelling.dll</HintPath>
+      <HintPath>..\packages\Cronus.DomainModelling.1.0.2\lib\Elders.Cronus.DomainModelling.dll</HintPath>
     </Reference>
     <Reference Include="Elders.Cronus.Persistence.MSSQL">
-      <HintPath>..\packages\Cronus.Persistence.MSSQL.1.0.10\lib\Elders.Cronus.Persistence.MSSQL.dll</HintPath>
+      <HintPath>..\packages\Cronus.Persistence.MSSQL.1.0.11\lib\Elders.Cronus.Persistence.MSSQL.dll</HintPath>
     </Reference>
     <Reference Include="Elders.Protoreg">
       <HintPath>..\packages\Protoreg.1.0.8\lib\Elders.Protoreg.dll</HintPath>

@@ -96,7 +96,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
                     var endpoint = store.Key;
 
                     bool accept = false;
-                    foreach (var messageHeader in message.Headers)
+                    foreach (var messageHeader in message.RoutingHeaders)
                     {
                         if (endpoint.RoutingHeaders.ContainsKey(messageHeader.Key))
                             accept = endpoint.RoutingHeaders[messageHeader.Key] == messageHeader.Value;

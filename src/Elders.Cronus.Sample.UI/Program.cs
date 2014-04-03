@@ -25,7 +25,7 @@ namespace Elders.Cronus.Sample.UI
                                 publish: SingleCreationCommandFromUpstreamBC,
                     delayBetweenBatches: 100,
                               batchSize: 100,
-                 numberOfMessagesToSend: 10000
+                 numberOfMessagesToSend: int.MaxValue
                 ///////////////////////////////////////////////////////////////////
                  );
 

@@ -24,7 +24,7 @@ namespace Elders.Cronus.Pipeline.Hosts
             var publisher = configuration.GlobalSettings.EventPublisher;
             int totalMessagesPublished = 0;
             Thread.Sleep(2000);//   Test sleep. Remove it later if that is the bug.
-            foreach (var evnt in configuration.GlobalSettings.EventStores.Single().GetEventsFromStart())
+            foreach (var evnt in configuration.GlobalSettings.EventStorePlayers.Single().Value.GetEventsFromStart())
             {
                 totalMessagesPublished++;
                 publisher.Publish(evnt);

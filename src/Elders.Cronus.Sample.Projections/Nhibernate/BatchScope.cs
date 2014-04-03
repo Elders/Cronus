@@ -40,7 +40,8 @@ namespace Elders.Cronus.Sample.Handlers.Nhibernate
                 try { transaction.Commit(); }
                 catch (Exception)
                 {
-                    transaction.Rollback();
+                    if (transaction.IsActive && transaction.WasCommitted)
+                        transaction.Rollback();
                     throw;
                 }
                 finally

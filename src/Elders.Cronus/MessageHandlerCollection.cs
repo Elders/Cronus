@@ -1,23 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.Messaging.MessageHandleScope;
 
 namespace Elders.Cronus
 {
-    //[DataContract(Name = "598cd2c2-8fba-4b63-9fee-55be1b1c2791")]
-    //public class ErrorMessage<T> : IMessage
-    //    where T : IMessage
-    //{
-    //    [DataMember(Order = 1)]
-    //    private object SerializableMessage { get; set; }
-
-    //    public T Message { get { return (T)SerializableMessage; } }
-    //}
-
-    public class MessageHandlerCollection<TMessage>
+    public class MessageHandlerCollection<TMessage> : IMessageProcessor<TMessage>
         where TMessage : IMessage
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageHandlerCollection<TMessage>));
@@ -31,9 +20,11 @@ namespace Elders.Cronus
         //  Each contract/message can have several handler types/classes
         protected Dictionary<Type, HashSet<Type>> registeredHandlers = new Dictionary<Type, HashSet<Type>>();
 
-        public MessageHandlerCollection(int batchSize = 1)
+        public MessageHandlerCollection(SafeBatchFactory<TMessage, Context> safeBatchFactory, int batchSize = 1)
         {
+            this.safeBatchFactory = safeBatchFactory;
             BatchSize = batchSize;
+
         }
 
         public int BatchSize { get; private set; }
@@ -61,15 +52,14 @@ namespace Elders.Cronus
             });
         }
 
+        private readonly SafeBatchFactory<TMessage, Context> safeBatchFactory;
+
         public SafeBatchResult<TMessage> Handle(List<TMessage> messages)
         {
             if (messages.Count == 0)
                 throw new Exception("Do not pass empty collection of messages. PLEASE!");
-            ISafeBatchRetryStrategy<TMessage> batchRetryStrategy = BatchSize == 1
-                ? new SafeBatch<TMessage>.NoRetryStrategy<TMessage>() as ISafeBatchRetryStrategy<TMessage>
-                : new SafeBatch<TMessage>.DefaultRetryStrategy<TMessage>() as ISafeBatchRetryStrategy<TMessage>;
-
-            return ScopeFactory.UseSafeBatchScope<TMessage>((msg, context) => Handle(msg, context), messages, batchRetryStrategy);
+            var safeBatch = safeBatchFactory.Initialize();
+            return safeBatch.Execute(messages, (msg, context) => Handle(msg, context));
         }
 
         public virtual void RegisterHandler(Type messageType, Type messageHandlerType, Func<Type, Context, object> handlerFactory)
@@ -108,25 +98,5 @@ namespace Elders.Cronus
                 return true;
             });
         }
-
-        //public class SafeMessageHandleBatchAction : ISafeBatchItemAction<Func<TMessage, bool>>
-        //{
-        //    private readonly TMessage message;
-
-        //    public SafeMessageHandleBatchAction(TMessage message)
-        //    {
-        //        this.message = message;
-        //    }
-
-        //    public bool ItemAction(Func<TMessage, bool> item)
-        //    {
-        //        return item(message);
-        //    }
-
-        //    public bool Finish(List<Func<TMessage, bool>> allItems)
-        //    {
-        //        return true;
-        //    }
-        //}
     }
 }
