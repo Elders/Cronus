@@ -46,7 +46,7 @@ namespace Elders.Cronus.Sample.Ports
                         var nhHandler = handler as IHaveNhibernateSession;
                         if (nhHandler != null)
                         {
-                            //nhHandler.Session = nhHandler.Session = context.BatchScopeContext.Get<Lazy<ISession>>().Value;
+                            nhHandler.Session = nhHandler.Session = context.BatchScopeContext.Get<Lazy<ISession>>().Value;
                         }
                         var port = handler as IPort;
                         if (port != null)

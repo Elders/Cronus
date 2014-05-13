@@ -13,7 +13,7 @@ namespace Elders.Cronus.Sample.Collaboration.Projections
             var usr = new User();
             usr.Id = message.Id.Id;
             usr.Email = message.Email;
-           // Session.Save(usr);
+            Session.Save(usr);
         }
     }
 }
