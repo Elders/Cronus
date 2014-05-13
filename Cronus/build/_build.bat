@@ -1,0 +1,2 @@
+powershell -nologo -NoProfile -NonInteractive -ExecutionPolicy Unrestricted -Command "& {Import-Module .\psake.psm1; Invoke-psake .\build.ps1 build -properties @{ config='Debug' }; exit !($psake.build_success)}"
+PAUSE

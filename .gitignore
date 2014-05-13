@@ -30,3 +30,5 @@ _ReSharper*/
 src/packages
 *.orig
 .nuget/*.nupkg
+packages/
+*.sln.ide/

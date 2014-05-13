@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{D201DFFA-3B05-4A47-BD07-8BE6F4D9F664}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Elders.Cronus.Sample.EventStore</RootNamespace>
+    <AssemblyName>Elders.Cronus.Sample.EventStore</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\bin\$(Configuration)\Elders.Cronus.Sample.EventStore</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\$(Configuration)\Elders.Cronus.Sample.EventStore</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Elders.Protoreg">
+      <HintPath>..\packages\Protoreg.1.0.8\lib\Elders.Protoreg.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="protobuf-net">
+      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
+    </Reference>
+    <Reference Include="RabbitMQ.Client">
+      <HintPath>..\packages\RabbitMQ.Client.3.3.0\lib\net30\RabbitMQ.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
+      <Link>Properties\AssemblyVersionInfo.cs</Link>
+    </Compile>
+    <Compile Include="$(SolutionDir)AssemblyCompanyProductInfo.cs">
+      <Link>Properties\AssemblyCompanyProductInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Cronus.DomainModelling\src\Elders.Cronus.DomainModelling\Elders.Cronus.DomainModelling.csproj">
+      <Project>{3603583E-C261-4AA6-AE73-B3F4C7440D7C}</Project>
+      <Name>Elders.Cronus.DomainModelling</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Cronus\src\Elders.Cronus\Elders.Cronus.csproj">
+      <Project>{32EA2250-01B3-4171-9AE7-214037A0D524}</Project>
+      <Name>Elders.Cronus</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Elders.Cronus.Persistence.Cassandra\Elders.Cronus.Persistence.Cassandra.csproj">
+      <Project>{8a9ab214-7df8-4cec-b1ec-a4b0b0bac185}</Project>
+      <Name>Elders.Cronus.Persistence.Cassandra</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Elders.Cronus.Sample.Collaboration.Contracts\Elders.Cronus.Sample.Collaboration.Contracts.csproj">
+      <Project>{3780033d-e621-4994-97f9-3f4bc0a2e88b}</Project>
+      <Name>Elders.Cronus.Sample.Collaboration.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Elders.Cronus.Sample.Collaboration\Elders.Cronus.Sample.Collaboration.csproj">
+      <Project>{23d7e91e-3ecd-4a2c-aa16-ea6a62a80ba7}</Project>
+      <Name>Elders.Cronus.Sample.Collaboration</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Elders.Cronus.Sample.IdentityAndAccess.Contracts\Elders.Cronus.Sample.IdentityAndAccess.Contracts.csproj">
+      <Project>{3b7e885a-1b2a-4313-9fa2-fdff70064994}</Project>
+      <Name>Elders.Cronus.Sample.IdentityAndAccess.Contracts</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Elders.Cronus.Sample.IdentityAndAccess\Elders.Cronus.Sample.IdentityAndAccess.csproj">
+      <Project>{f557c7cd-a20e-481a-94c3-1eceeae90e4c}</Project>
+      <Name>Elders.Cronus.Sample.IdentityAndAccess</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
