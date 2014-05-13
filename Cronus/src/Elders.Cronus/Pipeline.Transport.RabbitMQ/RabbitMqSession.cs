@@ -37,8 +37,8 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
         {
             if (connection != null)
             {
-                connection.Close();
-                connection.Dispose();
+                if (connection.IsOpen)
+                    connection.Dispose();
                 connection = null;
             }
         }
@@ -49,8 +49,6 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
                 return;
             if (connection != null && !connection.IsOpen)
             {
-                connection.Close();
-                connection.Dispose();
                 connection = null;
             }
             if (connection == null)
