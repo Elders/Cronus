@@ -8,17 +8,18 @@ namespace Elders.Cronus
     public class SafeBatchWithBatchScopeContextFactory<T> : SafeBatchFactory<T, Context>
             where T : IMessage
     {
-        private readonly Func<IBatchScope> batchScopeFactory;
         private readonly ISafeBatchRetryStrategy<T> retryStrategy;
-        public SafeBatchWithBatchScopeContextFactory(ISafeBatchRetryStrategy<T> retryStrategy, Func<IBatchScope> batchScopeFactory)
+        public SafeBatchWithBatchScopeContextFactory(ISafeBatchRetryStrategy<T> retryStrategy, ScopeFactory scopeFactory)
         {
-            this.batchScopeFactory = batchScopeFactory;
+            this.ScopeFactory = scopeFactory;
             this.retryStrategy = retryStrategy;
         }
 
+        public ScopeFactory ScopeFactory { get; private set; }
+
         public override SafeBatch<T, Context> Initialize()
         {
-            return new SafeBatch<T, Context>(new BatchScopeContextAware(batchScopeFactory), retryStrategy);
+            return new SafeBatch<T, Context>(new BatchScopeContextAware(ScopeFactory.CreateBatchScope), retryStrategy);
         }
 
         class BatchScopeContextAware : ISafeBatchContextAware<T, Context>

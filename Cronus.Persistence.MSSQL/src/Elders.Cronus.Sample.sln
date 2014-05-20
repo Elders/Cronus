@@ -44,13 +44,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.Player
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.InMemoryServer", "Elders.Cronus.Sample.InMemoryServer\Elders.Cronus.Sample.InMemoryServer.csproj", "{0B495064-1425-465E-A2DC-36275A206F0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus", "..\..\Cronus\src\Elders.Cronus\Elders.Cronus.csproj", "{32EA2250-01B3-4171-9AE7-214037A0D524}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.DomainModelling", "..\..\Cronus.DomainModelling\src\Elders.Cronus.DomainModelling\Elders.Cronus.DomainModelling.csproj", "{3603583E-C261-4AA6-AE73-B3F4C7440D7C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Persistence.MSSQL", "Elders.Cronus.Persistence.MSSQL\Elders.Cronus.Persistence.MSSQL.csproj", "{BA1F1AEE-5F4B-40BF-8F42-9C3CCA157355}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Sample.InMemoryServerSync", "Elders.Cronus.Sample.InMemoryServerSync\Elders.Cronus.Sample.InMemoryServerSync.csproj", "{BC1BE684-046C-4E74-A302-62C269DD6C11}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus", "..\..\Cronus\src\Elders.Cronus\Elders.Cronus.csproj", "{32EA2250-01B3-4171-9AE7-214037A0D524}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -106,10 +106,6 @@ Global
 		{0B495064-1425-465E-A2DC-36275A206F0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0B495064-1425-465E-A2DC-36275A206F0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0B495064-1425-465E-A2DC-36275A206F0B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{32EA2250-01B3-4171-9AE7-214037A0D524}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{32EA2250-01B3-4171-9AE7-214037A0D524}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{32EA2250-01B3-4171-9AE7-214037A0D524}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{32EA2250-01B3-4171-9AE7-214037A0D524}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -122,6 +118,10 @@ Global
 		{BC1BE684-046C-4E74-A302-62C269DD6C11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC1BE684-046C-4E74-A302-62C269DD6C11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC1BE684-046C-4E74-A302-62C269DD6C11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32EA2250-01B3-4171-9AE7-214037A0D524}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32EA2250-01B3-4171-9AE7-214037A0D524}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32EA2250-01B3-4171-9AE7-214037A0D524}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32EA2250-01B3-4171-9AE7-214037A0D524}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

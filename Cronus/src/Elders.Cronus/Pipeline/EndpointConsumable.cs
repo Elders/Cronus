@@ -7,7 +7,7 @@ using Elders.Protoreg;
 
 namespace Elders.Cronus.Pipeline
 {
-    public class EndpointConsumable<TContract> : IEndpointConsumable<TContract> where TContract : IMessage
+    public class EndpointConsumable<TContract> : IEndpointConsumable where TContract : IMessage
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EndpointConsumable<TContract>));
 

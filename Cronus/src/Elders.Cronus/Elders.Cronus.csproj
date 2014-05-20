@@ -98,8 +98,10 @@
   <ItemGroup>
     <Compile Include="BatchConsumer.cs" />
     <Compile Include="EventSourcing\AggregateCommit.cs" />
+    <Compile Include="EventSourcing\Config\IEventStoreSettings.cs" />
     <Compile Include="EventSourcing\IEventStorePersister.cs" />
     <Compile Include="EventSourcing\IEventStorePlayer.cs" />
+    <Compile Include="IHideObjectMembers.cs" />
     <Compile Include="Pipeline.Transport.RabbitMQ\Config\RabbitMqTransportSettings.cs" />
     <Compile Include="Pipeline.Transport.RabbitMQ\IRabbitMqPipeline.cs" />
     <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqEndpoint.cs" />
@@ -109,19 +111,24 @@
     <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqSafeChannel.cs" />
     <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqSession.cs" />
     <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqSessionFactory.cs" />
-    <Compile Include="Pipeline\Config\IConsumerBuilder.cs" />
-    <Compile Include="Pipeline\Config\IEndpointPostConsumeSettings.cs" />
-    <Compile Include="Pipeline\Config\IPipelineSettings.cs" />
+    <Compile Include="Pipeline\Config\ConsumerSettings.cs" />
+    <Compile Include="Pipeline\Config\IConsumableSettings.cs" />
+    <Compile Include="Pipeline\Config\IHaveConsumer.cs" />
+    <Compile Include="Pipeline\Config\IHaveSerializer.cs" />
+    <Compile Include="Pipeline\Config\IHaveMessageProcessor.cs" />
+    <Compile Include="Pipeline\Config\IHavePipelineSettings.cs" />
+    <Compile Include="Pipeline\Config\IHaveTransport.cs" />
     <Compile Include="Pipeline\Config\IPublisherSettings.cs" />
-    <Compile Include="Pipeline\Transport\Config\ITransportConfiguration.cs" />
-    <Compile Include="Pipeline\Transport\Config\ITransportSettings.cs" />
+    <Compile Include="Pipeline\Config\ISettingsBuilder.cs" />
+    <Compile Include="Pipeline\Config\MessageProcessorWithSafeBatchSettings.cs" />
+    <Compile Include="Pipeline\Config\ConsumableSettings.cs" />
+    <Compile Include="Pipeline\Config\PipelinePublisherSettings.cs" />
+    <Compile Include="Pipeline\Config\SettingsInstanceExtensions.cs" />
     <Compile Include="Pipeline\Transport\ITransport.cs" />
     <Compile Include="SafeBatch.cs" />
     <Compile Include="DomainModelling\AggregateRootFactory.cs" />
     <Compile Include="DomainModelling\AggregateStateFirstLevelConcurrencyException.cs" />
-    <Compile Include="EventSourcing\Config\IEventStoreBuilder.cs" />
     <Compile Include="EventSourcing\IEventStoreStorageManager.cs" />
-    <Compile Include="EventSourcing\Config\EventStoreSettings.cs" />
     <Compile Include="EventSourcing\EventBatchWraper.cs" />
     <Compile Include="EventSourcing\IEventStream.cs" />
     <Compile Include="EventSourcing\DomainMessageCommit.cs" />
@@ -135,17 +142,7 @@
     <Compile Include="MessageHandleScope\IScopeContext.cs" />
     <Compile Include="MessageHandleScope\ScopeContext.cs" />
     <Compile Include="MessageHandleScope\ScopeFactory.cs" />
-    <Compile Include="Pipeline\Config\ConsumerSettings.cs" />
-    <Compile Include="Pipeline\Config\EndpointCommandConsumableSettings.cs" />
-    <Compile Include="Pipeline\Config\EndpointConsumerSetting.cs" />
-    <Compile Include="Pipeline\Config\EndpointEventStoreConsumableSettings.cs" />
-    <Compile Include="Pipeline\Config\EndpointPortConsumableSettings.cs" />
     <Compile Include="Pipeline\Config\IConsumerSettings.cs" />
-    <Compile Include="Pipeline\Config\IEndpointConsumerSetting.cs" />
-    <Compile Include="Pipeline\Config\PipelineCommandPublisherSettings.cs" />
-    <Compile Include="Pipeline\Config\PipelineEventPublisherSettings.cs" />
-    <Compile Include="Pipeline\Config\PipelinePublisherSetting.cs" />
-    <Compile Include="Pipeline\Config\PublisherSettings.cs" />
     <Compile Include="Pipeline\EndpointClosedException.cs" />
     <Compile Include="Pipeline\ErrorEndpointPerEndpoint.cs" />
     <Compile Include="Pipeline\ErrorMessage.cs" />
@@ -159,11 +156,9 @@
     <Compile Include="EventSourcing\EventStorePublisher.cs" />
     <Compile Include="EventSourcing\EventStream.cs" />
     <Compile Include="EventSourcing\RabbitRepository.cs" />
-    <Compile Include="Pipeline\Hosts\CronusConfigurationExtensions.cs" />
     <Compile Include="Pipeline\Hosts\CronusGlobalSettings.cs" />
     <Compile Include="Pipeline\Hosts\CronusHost.cs" />
     <Compile Include="Pipeline\Hosts\CronusPlayer.cs" />
-    <Compile Include="Pipeline\IEndpointConsumer.cs" />
     <Compile Include="Pipeline\IEndpointConsumable.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpointFactory.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpoint.cs" />
@@ -172,10 +167,6 @@
     <Compile Include="Pipeline\Transport\InMemory\InMemoryQueue.cs" />
     <Compile Include="Pipeline\PipelineClosedException.cs" />
     <Compile Include="Pipeline\Transport\InMemory\Config\InMemory.cs" />
-    <Compile Include="Pipeline\Config\EndpointProjectionConsumableSettings.cs" />
-    <Compile Include="Pipeline\Config\PipelineEventStorePublisherSettings.cs" />
-    <Compile Include="Pipeline\Config\PipelineSettings.cs" />
-    <Compile Include="Pipeline\Transport\Config\IPipelineTransportSettings.cs" />
     <Compile Include="Pipeline\Config\ScopeSettings.cs" />
     <Compile Include="Pipeline\EndpointMessageExtensions.cs" />
     <Compile Include="Publisher.cs" />
@@ -223,7 +214,9 @@
       <Name>Elders.Cronus.DomainModelling</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Pipeline\Transport\Config\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -16,7 +16,7 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
 
         private readonly string virtualHost;
 
-        public RabbitMqSessionFactory(string hostname = "localhost", int port = 5672, string username = ConnectionFactory.DefaultUser, string password = ConnectionFactory.DefaultPass, string virtualHost = ConnectionFactory.DefaultVHost)
+        public  RabbitMqSessionFactory(string hostname = "localhost", int port = 5672, string username = ConnectionFactory.DefaultUser, string password = ConnectionFactory.DefaultPass, string virtualHost = ConnectionFactory.DefaultVHost)
         {
             this.hostname = hostname;
             this.username = username;

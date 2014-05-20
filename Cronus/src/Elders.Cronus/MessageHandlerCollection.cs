@@ -20,11 +20,10 @@ namespace Elders.Cronus
         //  Each contract/message can have several handler types/classes
         protected Dictionary<Type, HashSet<Type>> registeredHandlers = new Dictionary<Type, HashSet<Type>>();
 
-        public MessageHandlerCollection(ScopeFactory scopeFactory, SafeBatchFactory<TMessage, Context> safeBatchFactory, int batchSize = 1)
+        public MessageHandlerCollection(SafeBatchWithBatchScopeContextFactory<TMessage> safeBatchFactory, int batchSize = 1)
         {
             this.safeBatchFactory = safeBatchFactory;
             BatchSize = batchSize;
-            ScopeFactory = scopeFactory;
         }
 
         public int BatchSize { get; private set; }
@@ -38,7 +37,7 @@ namespace Elders.Cronus
 
         public bool Handle(TMessage message, Context context)
         {
-            return ScopeFactory.UseMessageScope(context, (ctx) =>
+            return safeBatchFactory.ScopeFactory.UseMessageScope(context, (ctx) =>
             {
                 List<Func<TMessage, Context, bool>> availableHandlers;
                 if (handlers.TryGetValue(message.GetType(), out availableHandlers))
@@ -52,9 +51,9 @@ namespace Elders.Cronus
             });
         }
 
-        private readonly SafeBatchFactory<TMessage, Context> safeBatchFactory;
+        private readonly SafeBatchWithBatchScopeContextFactory<TMessage> safeBatchFactory;
 
-        public SafeBatchResult<TMessage> Handle(List<TMessage> messages)
+        public ISafeBatchResult<TMessage> Handle(List<TMessage> messages)
         {
             if (messages.Count == 0)
                 throw new Exception("Do not pass empty collection of messages. PLEASE!");
@@ -88,13 +87,12 @@ namespace Elders.Cronus
 
         protected bool Handle(TMessage message, Context context, Type eventHandlerType, Func<Type, Context, object> handlerFactory)
         {
-            return ScopeFactory.UseHandlerScope(context, (ctx) =>
+            return safeBatchFactory.ScopeFactory.UseHandlerScope(context, (ctx) =>
             {
                 var handler = handlerFactory(eventHandlerType, ctx);
-                handlerCallbacks[eventHandlerType][message.GetType()](handler, new object[] { message });
                 if (log.IsInfoEnabled)
-                    log.Info("HANDLE => " + message);
-
+                    log.Info("HANDLE => " + eventHandlerType.Name + " => " + message);
+                handlerCallbacks[eventHandlerType][message.GetType()](handler, new object[] { message });
                 return true;
             });
         }

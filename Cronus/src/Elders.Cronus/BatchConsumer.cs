@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Elders.Cronus.DomainModelling;
+using System.Linq;
 
 namespace Elders.Cronus
 {
@@ -14,7 +15,7 @@ namespace Elders.Cronus
             this.messageHandlers = messageHandlers;
         }
 
-        protected SafeBatchResult<T> BatchConsume(List<T> messages)
+        protected ISafeBatchResult<T> BatchConsume(List<T> messages)
         {
             return messageHandlers.Handle(messages);
         }

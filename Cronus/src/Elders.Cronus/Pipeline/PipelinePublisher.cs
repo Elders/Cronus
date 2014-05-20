@@ -3,7 +3,8 @@ using Elders.Protoreg;
 
 namespace Elders.Cronus.Pipeline
 {
-    public class PipelinePublisher<T> : Publisher<T> where T : IMessage
+    public class PipelinePublisher<T> : Publisher<T> 
+        where T : IMessage
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(PipelinePublisher<T>));
 

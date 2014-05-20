@@ -9,9 +9,9 @@ namespace Elders.Cronus.Pipeline.Hosts
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(CronusPlayer));
 
-        private readonly CronusConfiguration configuration;
+        private readonly CronusSettings configuration;
 
-        public CronusPlayer(CronusConfiguration configuration)
+        public CronusPlayer(CronusSettings configuration)
         {
             this.configuration = configuration;
         }
@@ -20,14 +20,14 @@ namespace Elders.Cronus.Pipeline.Hosts
         {
             Console.WriteLine("Start replaying events...");
 
-            configuration.GlobalSettings.Consumers.Single().Start(1);
+            //configuration.GlobalSettings.Consumers.Single().Start(1);
             var publisher = configuration.GlobalSettings.EventPublisher;
             int totalMessagesPublished = 0;
             Thread.Sleep(2000);//   Test sleep. Remove it later if that is the bug.
-            foreach (var evnt in configuration.GlobalSettings.EventStorePlayers.Single().Value.GetEventsFromStart())
+            foreach (var evnt in configuration.GlobalSettings.EventStores.Single().Value.Player.GetEventsFromStart())
             {
                 totalMessagesPublished++;
-                publisher.Publish(evnt);
+                //publisher.Publish(evnt);
             }
 
             //  HACK: We do not know when all messages are consumed
@@ -43,7 +43,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public void Stop()
         {
-            configuration.GlobalSettings.Consumers.Single().Stop();
+            // configuration.GlobalSettings.Consumers.Single().Stop();
         }
 
     }

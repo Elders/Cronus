@@ -14,13 +14,11 @@ namespace Elders.Cronus.Pipeline
 
         private readonly IMessageProcessor<T> messageHandlers;
         private readonly ScopeFactory scopeFactory;
-        private readonly ProtoregSerializer serialiser;
         private readonly IEndpointPostConsume postConsume;
 
-        public EndpointConsumer(IMessageProcessor<T> messageHandlers, ProtoregSerializer serialiser, IEndpointPostConsume postConsume)
+        public EndpointConsumer(IMessageProcessor<T> messageHandlers, IEndpointPostConsume postConsume)
         {
             this.postConsume = postConsume;
-            this.serialiser = serialiser;
             this.messageHandlers = messageHandlers;
         }
 
@@ -37,7 +35,7 @@ namespace Elders.Cronus.Pipeline
             }
 
             //  Post handle success
-            result.SuccessItems.ForEach(msg => postConsume.SuccessStrategy.Handle(msg));
+            result.SuccessItems.ToList().ForEach(msg => postConsume.SuccessStrategy.Handle(msg));
 
             return true;
         }

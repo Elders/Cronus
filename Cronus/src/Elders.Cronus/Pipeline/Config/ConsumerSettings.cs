@@ -1,41 +1,28 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using Elders.Cronus.Messaging.MessageHandleScope;
-using Elders.Cronus.Pipeline.Hosts;
+using Elders.Cronus.DomainModelling;
+using Elders.Protoreg;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public abstract class ConsumerSettings : IConsumerSettings
+    public class ConsumerSettings<TContract> : IConsumerSettings<TContract> where TContract : IMessage
     {
-        protected Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> registrations = new Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>>();
-
         public ConsumerSettings()
         {
-            ScopeFactory = new ScopeFactory();
-            this.SetNumberOfWorkers(1);
-            ConsumerBatchSize = 1;
+            this.WithNoEndpointPostConsume();
         }
 
-        public string BoundedContext { get; set; }
+        string IConsumerSettings.BoundedContext { get; set; }
 
-        public CronusGlobalSettings GlobalSettings { get; set; }
+        Lazy<IMessageProcessor<TContract>> IHaveMessageProcessor<TContract>.MessageHandlerProcessor { get; set; }
 
-        public int ConsumerBatchSize { get; set; }
+        Lazy<IEndpointPostConsume> IHaveEndpointPostConsumeActions.PostConsume { get; set; }
 
-        public Assembly[] MessagesAssemblies { get; set; }
+        ProtoregSerializer IHaveSerializer.Serializer { get; set; }
 
-        int IConsumerSettings.NumberOfWorkers { get; set; }
-
-        public ScopeFactory ScopeFactory { get; set; }
-
-        public void AddRegistration(Type messageType, Type messageHandlerType, Func<Type, Context, object> messageHandlerFactory)
+        Lazy<IConsumer<TContract>> ISettingsBuilder<IConsumer<TContract>>.Build()
         {
-            if (!registrations.ContainsKey(messageType))
-            {
-                registrations.Add(messageType, new List<Tuple<Type, Func<Type, Context, object>>>());
-            }
-            registrations[messageType].Add(new Tuple<Type, Func<Type, Context, object>>(messageHandlerType, messageHandlerFactory));
+            IConsumerSettings<TContract> settings = this as IConsumerSettings<TContract>;
+            return new Lazy<IConsumer<TContract>>(() => new EndpointConsumer<TContract>(settings.MessageHandlerProcessor.Value, settings.PostConsume.Value));
         }
     }
 }

@@ -38,15 +38,13 @@ namespace Elders.Cronus.Sample.UI
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            var cfg = new CronusConfiguration();
-            cfg.PipelineCommandPublisher(publisher =>
-            {
-                publisher.UseRabbitMqTransport();
-                publisher.MessagesAssemblies = new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) };
-            })
-            .Build();
+            var cronusCfg = new CronusSettings()
+                .UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) })
+                .UsePipelineCommandPublisher(cmdPublisher => cmdPublisher
+                    .UseRabbitMqTransport())
+                .GetInstance();
 
-            commandPublisher = cfg.GlobalSettings.CommandPublisher;
+            commandPublisher = cronusCfg.CommandPublisher;
         }
 
         private static void SingleCreationCommandFromUpstreamBC(int index)

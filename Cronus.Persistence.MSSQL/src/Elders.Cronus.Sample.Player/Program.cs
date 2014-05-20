@@ -69,10 +69,10 @@ namespace Elders.Cronus.Sample.Player
             });
             cfg.PipelineEventPublisher(publisher =>
             {
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
+                publisher.UseContractsFromAssemblies(new[] { Assembly.GetAssembly(typeof(UserCreated)) });
                 //publisher.UseTransport<InMemory>();
             });
-            cfg.ConfigureConsumer<EndpointProjectionConsumableSettings>("Collaboration", consumer =>
+            cfg.EventConsumable("Collaboration", consumer =>
             {
                 consumer.ScopeFactory.CreateHandlerScope = () => new HandlerScope(sf);
                 consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)).GetExportedTypes().Where(x => !typeof(IPort).IsAssignableFrom(x)).ToArray(), (type, context) =>
@@ -83,7 +83,7 @@ namespace Elders.Cronus.Sample.Player
                             nhHandler.Session = context.HandlerScopeContext.Get<Lazy<ISession>>().Value;
                         return handler;
                     });
-                //consumer.UseRabbitMqTransport();
+                consumer.UseRabbitMqTransport();
             })
             .Build();
 

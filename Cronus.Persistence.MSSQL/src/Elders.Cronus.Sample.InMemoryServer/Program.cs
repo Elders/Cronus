@@ -7,7 +7,6 @@ using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Persistence.MSSQL.Config;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
-using Elders.Cronus.Pipeline.Transport.InMemory.Config;
 using Elders.Cronus.Sample.Collaboration;
 using Elders.Cronus.Sample.Collaboration.Projections;
 using Elders.Cronus.Sample.Collaboration.Users;
@@ -33,7 +32,7 @@ namespace Elders.Cronus.Sample.InMemoryServer
             cfg.PipelineCommandPublisher(publisher =>
                 {
                     //publisher.inmemory();
-                    publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
+                    publisher.UseContractsFromAssemblies(new[] { Assembly.GetAssembly(typeof(CreateUser)) });
                 })
                 .ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
                 {
@@ -54,17 +53,17 @@ namespace Elders.Cronus.Sample.InMemoryServer
                 .PipelineEventPublisher(publisher =>
                 {
                     //publisher.UseRabbitMqTransport<InMemory>();
-                    publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(CreateUser)) };
+                    publisher.UseContractsFromAssemblies(new[] { Assembly.GetAssembly(typeof(CreateUser)) });
                 })
                 .PipelineEventStorePublisher(publisher =>
                 {
                     //publisher.UseTransport<InMemory>();
                 })
-                .ConfigureConsumer<EndpointEventStoreConsumableSettings>("Collaboration", consumer =>
+                .EventStoreConsumable("Collaboration", consumer =>
                 {
                     //consumer.UseTransport<InMemory>();
                 })
-                .ConfigureConsumer<EndpointCommandConsumableSettings>("Collaboration", consumer =>
+                .CommandConsumable("Collaboration", consumer =>
                 {
                     consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(nhSessionFactory);
                     consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
@@ -73,13 +72,13 @@ namespace Elders.Cronus.Sample.InMemoryServer
                             var repositoryHandler = handler as IAggregateRootApplicationService;
                             if (repositoryHandler != null)
                             {
-                                repositoryHandler.Repository = new RabbitRepository(cfg.GlobalSettings.AggregateRepositories["Collaboration"], cfg.GlobalSettings.EventStorePublisher);
+                                repositoryHandler.Repository = new RabbitRepository(cfg.GlobalSettings.AggregateRepositories["Collaboration"], cfg.GlobalSettings.EventStorePublisher.Value);
                             }
                             return handler;
                         });
                     //consumer.UseTransport<InMemory>();
                 })
-                .ConfigureConsumer<EndpointProjectionConsumableSettings>("Collaboration", consumer =>
+                .EventConsumable("Collaboration", consumer =>// projection
                 {
                     consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(nhSessionFactory);
                     consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
@@ -94,7 +93,7 @@ namespace Elders.Cronus.Sample.InMemoryServer
                         });
                     //consumer.UseTransport<InMemory>();
                 })
-                .ConfigureConsumer<EndpointPortConsumableSettings>("Collaboration", consumer =>
+                .EventConsumable("Collaboration", consumer => // port
                 {
                     consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(nhSessionFactory);
                     consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
@@ -108,7 +107,7 @@ namespace Elders.Cronus.Sample.InMemoryServer
                             var port = handler as IPort;
                             if (port != null)
                             {
-                                port.CommandPublisher = cfg.GlobalSettings.CommandPublisher;
+                                port.CommandPublisher = cfg.GlobalSettings.CommandPublisher.Value;
                             }
                             return handler;
                         });

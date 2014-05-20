@@ -6,7 +6,7 @@ namespace Elders.Cronus
     public interface IMessageProcessor<TMessage>
     {
         int BatchSize { get; }
-        SafeBatchResult<TMessage> Handle(List<TMessage> messages);
+        ISafeBatchResult<TMessage> Handle(List<TMessage> messages);
         IEnumerable<Type> GetRegisteredHandlers();
     }
 }

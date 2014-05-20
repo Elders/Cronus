@@ -7,11 +7,12 @@ using Elders.Protoreg;
 
 namespace Elders.Cronus.EventSourcing
 {
-    public class EventStorePublisher : Publisher<DomainMessageCommit>
+    public class EventStorePublisher : PipelinePublisher<DomainMessageCommit>
     {
         private readonly IPipelineFactory<IPipeline> pipelineFactory;
 
         public EventStorePublisher(IPipelineFactory<IPipeline> pipelineFactory, ProtoregSerializer serializer)
+            : base(pipelineFactory, serializer)
         {
             this.pipelineFactory = pipelineFactory;
             this.serializer = serializer;

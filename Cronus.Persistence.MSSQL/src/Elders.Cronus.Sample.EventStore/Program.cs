@@ -1,5 +1,8 @@
-﻿using System.Reflection;
+﻿using System.Configuration;
+using System.Reflection;
+using Elders.Cronus.Persistence.MSSQL;
 using Elders.Cronus.Persistence.MSSQL.Config;
+using Elders.Cronus.Pipeline;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
@@ -8,7 +11,6 @@ using Elders.Cronus.Sample.Collaboration.Users.Commands;
 using Elders.Cronus.Sample.Collaboration.Users.Events;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
-using Elders.Cronus.Sample.IdentityAndAccess.Accounts.Events;
 
 namespace Elders.Cronus.Sample.EventStore
 {
@@ -18,7 +20,7 @@ namespace Elders.Cronus.Sample.EventStore
         static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
-            //DatabaseManager.DeleteDatabase(ConfigurationManager.ConnectionStrings["cronus_es"].ConnectionString);
+            DatabaseManager.DeleteDatabase(ConfigurationManager.ConnectionStrings["cronus_es"].ConnectionString);
             UseCronusHost();
             System.Console.WriteLine("Started Event store");
             System.Console.ReadLine();
@@ -27,57 +29,43 @@ namespace Elders.Cronus.Sample.EventStore
 
         static void UseCronusHost()
         {
-            var cfg = new CronusConfiguration();
+            var cfg = new CronusSettings();
+            cfg.UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)), Assembly.GetAssembly(typeof(UserState)), Assembly.GetAssembly(typeof(AccountState)) });
+
+            cfg
+                .UsePipelineEventPublisher(publisher => publisher.UseRabbitMqTransport())
+                .UsePipelineCommandPublisher(publisher => publisher.UseRabbitMqTransport())
+                .UsePipelineEventStorePublisher(publisher => publisher.UseRabbitMqTransport());
 
             const string IAA = "IdentityAndAccess";
-            cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
-            {
-                eventStore
+            cfg
+                .UseMsSqlEventStore(eventStore => eventStore
                     .SetConnectionStringName("cronus_es")
                     .SetAggregateStatesAssembly(typeof(AccountState))
-                    .SetDomainEventsAssembly(typeof(RegisterAccount))
-                    .CreateStorage();
-            });
-            cfg.PipelineEventPublisher(publisher =>
-            {
-                publisher.UseRabbitMqTransport();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(AccountRegistered)), Assembly.GetAssembly(typeof(UserCreated)) };
-            });
-            cfg.PipelineCommandPublisher(publisher =>
-            {
-                publisher.UseRabbitMqTransport();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) };
-            });
-            cfg.ConfigureConsumer<EndpointEventStoreConsumableSettings>(IAA, consumer =>
-            {
-                consumer.ConsumerBatchSize = 100;
-                consumer
-                    .SetNumberOfWorkers(2)
-                    .UseRabbitMqTransport();
-                consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(RegisterAccount)) };
-            });
+                    .WithNewStorageIfNotExists())
+                .UseEventStoreConsumable(IAA, consumable => consumable
+                    .SetNumberOfConsumers(2)
+                    .UseRabbitMqTransport()
+                    .EventStoreConsumer(consumer => consumer
+                        .SetConsumeSuccessStrategy(new EndpointPostConsumeStrategy.EventStorePublishEventsOnSuccessPersist((cfg as IHaveEventPublisher).EventPublisher.Value))
+                        .UseEventStoreHandler((cfg as IHaveEventStores).EventStores[IAA], typeof(RegisterAccount).Assembly)));
+            //.SetConsumerBatchSize(100)));
 
             const string Collaboration = "Collaboration";
-            cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
-            {
-                eventStore
+            cfg
+                .UseMsSqlEventStore(eventStore => eventStore
                     .SetConnectionStringName("cronus_es")
                     .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)))
-                    .SetDomainEventsAssembly(typeof(UserCreated))
-                    .CreateStorage();
-            });
-            cfg.ConfigureConsumer<EndpointEventStoreConsumableSettings>(Collaboration, consumer =>
-            {
+                    .WithNewStorageIfNotExists())
+                .UseEventStoreConsumable(Collaboration, consumable => consumable
 
-                consumer.ConsumerBatchSize = 100;
-                consumer
-                    .SetNumberOfWorkers(2)
-                    .UseRabbitMqTransport();
-                consumer.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
-            })
-            .Build();
+                    .SetNumberOfConsumers(2)
+                    .UseRabbitMqTransport()
+                    .EventStoreConsumer(consumer => consumer
+                        .SetConsumeSuccessStrategy(new EndpointPostConsumeStrategy.EventStorePublishEventsOnSuccessPersist((cfg as IHaveEventPublisher).EventPublisher.Value))
+                        .UseEventStoreHandler((cfg as IHaveEventStores).EventStores[IAA], typeof(UserCreated).Assembly)));
 
-            host = new CronusHost(cfg);
+            host = new CronusHost(cfg.GetInstance());
             host.Start();
         }
 

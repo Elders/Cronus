@@ -1,8 +1,6 @@
-using Elders.Cronus.DomainModelling;
-
 namespace Elders.Cronus.Pipeline
 {
-    public interface IEndpointConsumable<out TContract> where TContract : IMessage
+    public interface IEndpointConsumable
     {
         int NumberOfWorkers { get; }
 

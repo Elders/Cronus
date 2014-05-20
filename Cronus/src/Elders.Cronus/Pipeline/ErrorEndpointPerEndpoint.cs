@@ -13,22 +13,6 @@ namespace Elders.Cronus.Pipeline
         IEndpointConsumerErrorStrategy ErrorStrategy { get; set; }
     }
 
-    public static class alabala
-    {
-        public static IEndpointConsumerSetting<IMessage> UseDefaultEndpointPostConsumeStrategy(this IEndpointConsumerSetting<IMessage> self)
-        {
-            self.PostConsumeInstance = () => new DefaultEndpointPostConsume(self.Transport.PipelineFactory, self.GlobalSettings.Serializer);
-            return self;
-        }
-
-        public static T OnConsumeSuccess<T>(this T self, Func<IEndpointConsumerSuccessStrategy> success)
-            where T : IEndpointPostConsumeSettings
-        {
-            self.SuccessStrategy = success;
-            return self;
-        }
-    }
-
     public class NoEndpointPostConsume : IEndpointPostConsume
     {
         public NoEndpointPostConsume()

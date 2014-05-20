@@ -207,14 +207,20 @@ namespace Elders.Cronus
         }
     }
 
-    public class SafeBatchResult<T>
+    public interface ISafeBatchResult<T>
     {
-        public List<T> SuccessItems { get; private set; }
-        public List<TryBatch<T>> FailedBatches { get; private set; }
+        IEnumerable<T> SuccessItems { get; }
+        IEnumerable<TryBatch<T>> FailedBatches { get; }
+    }
 
-        public SafeBatchResult(List<T> successItems, List<TryBatch<T>> failedBatches)
+    public class SafeBatchResult<T> : ISafeBatchResult<T>
+    {
+        public IEnumerable<T> SuccessItems { get; private set; }
+        public IEnumerable<TryBatch<T>> FailedBatches { get; private set; }
+
+        public SafeBatchResult(IEnumerable<T> successItems, IEnumerable<TryBatch<T>> failedBatches)
         {
-            this.SuccessItems = successItems;
+            this.SuccessItems = new List<T>(successItems);
             this.FailedBatches = new List<TryBatch<T>>(failedBatches);
         }
     }

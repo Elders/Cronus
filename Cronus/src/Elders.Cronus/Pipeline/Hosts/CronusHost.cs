@@ -12,7 +12,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public void Start()
         {
-            foreach (var consumer in configuration.GlobalSettings.Consumers)
+            foreach (var consumer in configuration.Consumers)
             {
                 consumer.Start();
             }
@@ -20,15 +20,15 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public void Stop()
         {
-            if (RabbitMqTransportSettings.Session != null)
+            if (NewRabbitMqTransportSettings.Session != null)
             {
-                RabbitMqTransportSettings.Session.Close();// PLS fix this, This should not be static call so the .Session prop should not be static
-                RabbitMqTransportSettings.Session = null;
+                NewRabbitMqTransportSettings.Session.Close();// PLS fix this, This should not be static call so the .Session prop should not be static
+                NewRabbitMqTransportSettings.Session = null;
             }
-            foreach (var consumer in configuration.GlobalSettings.Consumers)
-            {
-                consumer.Stop();
-            }
+            //foreach (var consumer in configuration.GlobalSettings.Consumers)
+            //{
+            //    consumer.Stop();
+            //}
         }
     }
 }
