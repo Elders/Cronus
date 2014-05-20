@@ -31,7 +31,8 @@ namespace Elders.Cronus.Sample.ApplicationService
                     Assembly.GetAssembly(typeof(RegisterAccount)),
                     Assembly.GetAssembly(typeof(CreateUser)),
                     Assembly.GetAssembly(typeof(UserState)),
-                    Assembly.GetAssembly(typeof(AccountState)) });
+                    Assembly.GetAssembly(typeof(AccountState)) })
+                .WithDefaultPublishers();
 
             const string IAA = "IdentityAndAccess";
             cfg.UseMsSqlEventStore(eventStore => eventStore

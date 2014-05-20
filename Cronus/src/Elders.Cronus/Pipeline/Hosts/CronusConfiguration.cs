@@ -70,9 +70,6 @@ namespace Elders.Cronus.Pipeline.Hosts
         {
             (this as IHaveEventStores).EventStores = new Dictionary<string, Lazy<IEventStore>>();
             (this as IHaveConsumers).Consumers = new List<Lazy<IEndpointConsumable>>();
-            this.UsePipelineEventPublisher();
-            this.UsePipelineCommandPublisher();
-            this.UsePipelineEventStorePublisher();
         }
 
         Lazy<IPublisher<ICommand>> IHaveCommandPublisher.CommandPublisher { get; set; }
@@ -197,6 +194,13 @@ namespace Elders.Cronus.Pipeline.Hosts
             return self;
         }
 
-
+        public static T WithDefaultPublishers<T>(this T self) where T : ICronusSettings
+        {
+            self
+                .UsePipelineEventPublisher(x => x.UseRabbitMqTransport())
+                .UsePipelineCommandPublisher(x => x.UseRabbitMqTransport())
+                .UsePipelineEventStorePublisher(x => x.UseRabbitMqTransport());
+            return self;
+        }
     }
 }

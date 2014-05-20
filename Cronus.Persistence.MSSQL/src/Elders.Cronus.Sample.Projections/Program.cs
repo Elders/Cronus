@@ -25,28 +25,20 @@ namespace Elders.Cronus.Sample.Handlers
             log4net.Config.XmlConfigurator.Configure();
 
             var sf = BuildSessionFactory();
-            var cfg = new CronusSettings();
-            cfg.UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) });
-            const string Collaboration = "Collaboration";
-            cfg
-                .UsePipelineCommandPublisher(publisher => publisher.UseRabbitMqTransport())
-                .UseProjectionConsumable(Collaboration, consumable => consumable
+            var cfg = new CronusSettings()
+                .UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) })
+                .WithDefaultPublishers()
+                .UseProjectionConsumable("Collaboration", consumable => consumable
                     .SetNumberOfConsumers(2)
                     .UseRabbitMqTransport()
                     .EventConsumer(c => c
-
                         .UseEventHandler(h => h
                             .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new BatchScope(sf) })
                             .SetConsumerBatchSize(100)
                             .RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                             {
-                                var handler = FastActivator.CreateInstance(type, null);
-                                var nhHandler = handler as IHaveNhibernateSession;
-                                if (nhHandler != null)
-                                {
-                                    nhHandler.Session = context.BatchScopeContext.Get<Lazy<ISession>>().Value;
-                                }
-                                return handler;
+                                return FastActivator.CreateInstance(type)
+                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.BatchScopeContext.Get<Lazy<ISession>>().Value);
                             }))));
 
             host = new CronusHost(cfg.GetInstance());

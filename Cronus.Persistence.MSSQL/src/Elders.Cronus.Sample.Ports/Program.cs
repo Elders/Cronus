@@ -28,8 +28,9 @@ namespace Elders.Cronus.Sample.Ports
             log4net.Config.XmlConfigurator.Configure();
 
             var sf = BuildSessionFactory();
-            var cfg = new CronusSettings();
-            cfg.UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) });
+            var cfg = new CronusSettings()
+                .UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) })
+                .WithDefaultPublishers();
 
             const string Collaboration = "Collaboration";
             cfg
@@ -42,18 +43,9 @@ namespace Elders.Cronus.Sample.Ports
                             .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new BatchScope(sf) })
                             .RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                             {
-                                var handler = FastActivator.CreateInstance(type, null);
-                                var nhHandler = handler as IHaveNhibernateSession;
-                                if (nhHandler != null)
-                                {
-                                    nhHandler.Session = nhHandler.Session = context.BatchScopeContext.Get<Lazy<ISession>>().Value;
-                                }
-                                var port = handler as IPort;
-                                if (port != null)
-                                {
-                                    port.CommandPublisher = (cfg as IHaveCommandPublisher).CommandPublisher.Value;
-                                }
-                                return handler;
+                                return FastActivator.CreateInstance(type)
+                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.BatchScopeContext.Get<Lazy<ISession>>().Value)
+                                    .AssignPropertySafely<IPort>(x => x.CommandPublisher = (cfg as IHaveCommandPublisher).CommandPublisher.Value);
                             }))));
 
             host = new CronusHost(cfg.GetInstance());

@@ -4,7 +4,6 @@ using System.Threading;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Config;
-using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
 using Elders.Cronus.Sample.Collaboration.Users;
 using Elders.Cronus.Sample.Collaboration.Users.Commands;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts;
@@ -18,13 +17,13 @@ namespace Elders.Cronus.Sample.UI
 
         static void Main(string[] args)
         {
-            Thread.Sleep(10000);
+            Thread.Sleep(20000);
 
             ConfigurePublisher();
 
             HostUI(/////////////////////////////////////////////////////////////////
                                 publish: SingleCreationCommandFromUpstreamBC,
-                    delayBetweenBatches: 100,
+                    delayBetweenBatches: 300,
                               batchSize: 100,
                  numberOfMessagesToSend: int.MaxValue
                  ///////////////////////////////////////////////////////////////////
@@ -40,8 +39,7 @@ namespace Elders.Cronus.Sample.UI
 
             var cronusCfg = new CronusSettings()
                 .UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) })
-                .UsePipelineCommandPublisher(cmdPublisher => cmdPublisher
-                    .UseRabbitMqTransport())
+                .WithDefaultPublishers()
                 .GetInstance();
 
             commandPublisher = cronusCfg.CommandPublisher;
@@ -50,7 +48,7 @@ namespace Elders.Cronus.Sample.UI
         private static void SingleCreationCommandFromUpstreamBC(int index)
         {
             AccountId accountId = new AccountId(Guid.NewGuid());
-            var email = String.Format("cronus_{0}_@Elders.com", index);
+            var email = String.Format("cronus_{0}_{1}_@Elders.com", index, DateTime.Now);
             commandPublisher.Publish(new RegisterAccount(accountId, email));
         }
 

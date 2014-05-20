@@ -32,7 +32,8 @@ namespace Elders.Cronus.Sample.EventStore
                     Assembly.GetAssembly(typeof(RegisterAccount)),
                     Assembly.GetAssembly(typeof(CreateUser)),
                     Assembly.GetAssembly(typeof(UserState)),
-                    Assembly.GetAssembly(typeof(AccountState)) });
+                    Assembly.GetAssembly(typeof(AccountState)) })
+                .WithDefaultPublishers();
 
             cfg
                 .UseMsSqlEventStore(eventStore => eventStore
