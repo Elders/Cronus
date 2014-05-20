@@ -57,6 +57,16 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
+        /// <summary>
+        /// Registers all message handlers from a given assembly.
+        /// </summary>
+        /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Type assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory) where T : IMessageProcessorWithSafeBatchSettings<IMessage>
+        {
+            Register(self, assemblyContainingMessageHandlers.Assembly, messageHandlerFactory, (eventHandlerType) => { });
+            return self;
+        }
+
         public static T RegisterAllHandlersInAssembly<T>(this T self, Type[] messageHandlers) where T : IMessageProcessorWithSafeBatchSettings<IMessage>
         {
             Register(self, messageHandlers, (x, context) => FastActivator.CreateInstance(x), (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType));

@@ -1,14 +1,19 @@
 using System;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
-using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Protoreg;
+using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
 
 namespace Elders.Cronus.Pipeline.Config
 {
     public abstract class PipelinePublisherSettings<TContract> : IPipelinePublisherSettings<TContract> where TContract : IMessage
     {
+        public PipelinePublisherSettings()
+        {
+            this.UseRabbitMqTransport();
+        }
+
         ProtoregSerializer IHaveSerializer.Serializer { get; set; }
 
         Lazy<IPipelineTransport> IHaveTransport<IPipelineTransport>.Transport { get; set; }
