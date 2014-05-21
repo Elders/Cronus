@@ -37,7 +37,7 @@ namespace Elders.Cronus
                 var constructors = type.GetConstructors();
                 if (constructors.Length == 1)
                 {
-                    ConstructorInfo ctor = type.GetConstructors().First();
+                    ConstructorInfo ctor = constructors.First();
                     activators.TryAdd(type, GetActivator(ctor));
                 }
             }

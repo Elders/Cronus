@@ -13,7 +13,6 @@ namespace Elders.Cronus.Pipeline
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EndpointConsumer<T>));
 
         private readonly IMessageProcessor<T> messageHandlers;
-        private readonly ScopeFactory scopeFactory;
         private readonly IEndpointPostConsume postConsume;
 
         public EndpointConsumer(IMessageProcessor<T> messageHandlers, IEndpointPostConsume postConsume)
