@@ -10,8 +10,6 @@ using Elders.Protoreg;
 
 namespace Elders.Cronus.Persistence.MSSQL
 {
-
-
     public class MsSqlPersisterContext : IEventStoreBatchContext
     {
 
@@ -20,16 +18,14 @@ namespace Elders.Cronus.Persistence.MSSQL
     public class EventStoreSafeBatchContextFactory : SafeBatchFactory<DomainMessageCommit, IEventStoreBatchContext>
     {
         private readonly IEventStorePersister persister;
-        private readonly ISafeBatchRetryStrategy<DomainMessageCommit> retryStrategy;
-        public EventStoreSafeBatchContextFactory(ISafeBatchRetryStrategy<DomainMessageCommit> retryStrategy, IEventStorePersister persister)
+        public EventStoreSafeBatchContextFactory(IEventStorePersister persister)
         {
             this.persister = persister;
-            this.retryStrategy = retryStrategy;
         }
 
         public override SafeBatch<DomainMessageCommit, IEventStoreBatchContext> Initialize()
         {
-            return new SafeBatch<DomainMessageCommit, IEventStoreBatchContext>(new MsSqlPersisterContextAware(persister), retryStrategy);
+            return new SafeBatch<DomainMessageCommit, IEventStoreBatchContext>(new MsSqlPersisterContextAware(persister));
         }
 
         class MsSqlPersisterContextAware : ISafeBatchContextAware<DomainMessageCommit, IEventStoreBatchContext>

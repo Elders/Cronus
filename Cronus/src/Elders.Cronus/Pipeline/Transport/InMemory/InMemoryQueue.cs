@@ -47,14 +47,14 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             return null;
         }
 
-        public bool BlockDequeue(IEndpoint endpoint, int timeoutInMiliseconds, out EndpointMessage msg)
+        public bool BlockDequeue(IEndpoint endpoint, uint timeoutInMiliseconds, out EndpointMessage msg)
         {
             msg = null;
             BlockingCollection<EndpointMessage> endpointStorage;
             if (TryGetEndpointStorage(endpoint, out endpointStorage))
             {
 
-                if (endpointStorage.TryTake(out msg, timeoutInMiliseconds))
+                if (endpointStorage.TryTake(out msg, (int)timeoutInMiliseconds))
                 {
                     TotalMessagesConsumed++;
                     return true;

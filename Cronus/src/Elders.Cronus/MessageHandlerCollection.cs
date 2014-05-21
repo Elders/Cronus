@@ -20,13 +20,10 @@ namespace Elders.Cronus
         //  Each contract/message can have several handler types/classes
         protected Dictionary<Type, HashSet<Type>> registeredHandlers = new Dictionary<Type, HashSet<Type>>();
 
-        public MessageHandlerCollection(SafeBatchWithBatchScopeContextFactory<TMessage> safeBatchFactory, int batchSize = 1)
+        public MessageHandlerCollection(SafeBatchWithBatchScopeContextFactory<TMessage> safeBatchFactory)
         {
             this.safeBatchFactory = safeBatchFactory;
-            BatchSize = batchSize;
         }
-
-        public int BatchSize { get; private set; }
 
         public ScopeFactory ScopeFactory { get; private set; }
 

@@ -13,7 +13,7 @@ namespace Elders.Cronus.Pipeline
 
         EndpointMessage BlockDequeue();
 
-        bool BlockDequeue(int timeoutInMiliseconds, out EndpointMessage msg);
+        bool BlockDequeue(uint timeoutInMiliseconds, out EndpointMessage msg);
 
         EndpointMessage DequeueNoWait();
 

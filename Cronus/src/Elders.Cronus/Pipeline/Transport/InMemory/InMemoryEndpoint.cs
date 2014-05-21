@@ -19,7 +19,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
 
         public void AcknowledgeAll() { }
 
-        public bool BlockDequeue(int timeoutInMiliseconds, out EndpointMessage msg)
+        public bool BlockDequeue(uint timeoutInMiliseconds, out EndpointMessage msg)
         {
             return InMemoryQueue.Current.BlockDequeue(this, timeoutInMiliseconds, out msg);
         }

@@ -21,11 +21,10 @@ namespace Elders.Cronus.EventSourcing
         private readonly Type assemblyContainingEventsByEventType;
         private readonly SafeBatchFactory<DomainMessageCommit, IEventStoreBatchContext> safeBatchFactory;
 
-        public EventStoreHandler(Type assemblyContainingEventsByEventType, SafeBatchFactory<DomainMessageCommit, IEventStoreBatchContext> safeBatchFactory, int batchSize = 1)
+        public EventStoreHandler(Type assemblyContainingEventsByEventType, SafeBatchFactory<DomainMessageCommit, IEventStoreBatchContext> safeBatchFactory)
         {
             this.safeBatchFactory = safeBatchFactory;
             this.assemblyContainingEventsByEventType = assemblyContainingEventsByEventType;
-            BatchSize = batchSize;
         }
 
         public IEnumerable<Type> GetRegisteredHandlers()
@@ -40,7 +39,5 @@ namespace Elders.Cronus.EventSourcing
         }
 
         public Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> HandlerRegistrations { get; set; }
-
-        public int BatchSize { get; set; }
     }
 }

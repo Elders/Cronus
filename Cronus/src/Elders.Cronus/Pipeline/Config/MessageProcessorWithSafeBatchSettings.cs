@@ -14,8 +14,6 @@ namespace Elders.Cronus.Pipeline.Config
             (this as IHaveScopeFactory).ScopeFactory = new Lazy<ScopeFactory>(() => new ScopeFactory());
         }
 
-        int IMessageProcessorWithSafeBatchSettings<TContract>.ConsumerBatchSize { get; set; }
-
         Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorWithSafeBatchSettings<TContract>.HandlerRegistrations { get; set; }
 
         Lazy<ScopeFactory> IHaveScopeFactory.ScopeFactory { get; set; }
@@ -23,8 +21,6 @@ namespace Elders.Cronus.Pipeline.Config
 
     public class EventStoreMessageProcessorWithSafeBatchSettings : IMessageProcessorWithSafeBatchSettings<DomainMessageCommit>
     {
-        int IMessageProcessorWithSafeBatchSettings<DomainMessageCommit>.ConsumerBatchSize { get; set; }
-
         Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorWithSafeBatchSettings<DomainMessageCommit>.HandlerRegistrations { get; set; }
     }
 
@@ -48,13 +44,9 @@ namespace Elders.Cronus.Pipeline.Config
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<IEvent>>(() =>
             {
-                var batchRetryStrategy = castedSettings.ConsumerBatchSize == 1
-                    ? new NoRetryStrategy<IEvent>() as ISafeBatchRetryStrategy<IEvent>
-                    : new DefaultRetryStrategy<IEvent>() as ISafeBatchRetryStrategy<IEvent>;
+                var safeBatchFactory = new SafeBatchWithBatchScopeContextFactory<IEvent>((settings as IHaveScopeFactory).ScopeFactory.Value);
 
-                var safeBatchFactory = new SafeBatchWithBatchScopeContextFactory<IEvent>(batchRetryStrategy, (settings as IHaveScopeFactory).ScopeFactory.Value);
-
-                var handler = new MessageHandlerCollection<IEvent>(safeBatchFactory, castedSettings.ConsumerBatchSize);
+                var handler = new MessageHandlerCollection<IEvent>(safeBatchFactory);
 
                 foreach (var reg in castedSettings.HandlerRegistrations)
                 {
@@ -80,13 +72,9 @@ namespace Elders.Cronus.Pipeline.Config
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<IEvent>>(() =>
             {
-                var batchRetryStrategy = castedSettings.ConsumerBatchSize == 1
-                    ? new NoRetryStrategy<IEvent>() as ISafeBatchRetryStrategy<IEvent>
-                    : new DefaultRetryStrategy<IEvent>() as ISafeBatchRetryStrategy<IEvent>;
+                var safeBatchFactory = new SafeBatchWithBatchScopeContextFactory<IEvent>((settings as IHaveScopeFactory).ScopeFactory.Value);
 
-                var safeBatchFactory = new SafeBatchWithBatchScopeContextFactory<IEvent>(batchRetryStrategy, (settings as IHaveScopeFactory).ScopeFactory.Value);
-
-                var handler = new MessageHandlerCollection<IEvent>(safeBatchFactory, castedSettings.ConsumerBatchSize);
+                var handler = new MessageHandlerCollection<IEvent>(safeBatchFactory);
 
                 foreach (var reg in castedSettings.HandlerRegistrations)
                 {
@@ -111,13 +99,9 @@ namespace Elders.Cronus.Pipeline.Config
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<ICommand>>(() =>
             {
-                var batchRetryStrategy = castedSettings.ConsumerBatchSize == 1
-                    ? new NoRetryStrategy<ICommand>() as ISafeBatchRetryStrategy<ICommand>
-                    : new DefaultRetryStrategy<ICommand>() as ISafeBatchRetryStrategy<ICommand>;
+                var safeBatchFactory = new SafeBatchWithBatchScopeContextFactory<ICommand>((settings as IHaveScopeFactory).ScopeFactory.Value);
 
-                var safeBatchFactory = new SafeBatchWithBatchScopeContextFactory<ICommand>(batchRetryStrategy, (settings as IHaveScopeFactory).ScopeFactory.Value);
-
-                var handler = new MessageHandlerCollection<ICommand>(safeBatchFactory, castedSettings.ConsumerBatchSize);
+                var handler = new MessageHandlerCollection<ICommand>(safeBatchFactory);
 
                 foreach (var reg in castedSettings.HandlerRegistrations)
                 {

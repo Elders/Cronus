@@ -17,18 +17,18 @@ namespace Elders.Cronus.Pipeline
 
         private readonly List<WorkPool> pools;
         private readonly ProtoregSerializer serializer;
-        private readonly int batchSize;
+        private readonly MessageThreshold messageThreshold;
 
         public int NumberOfWorkers { get; set; }
 
-        public EndpointConsumable(IEndpointFactory endpointFactory, IConsumer<TContract> consumer, ProtoregSerializer serializer, int batchSize)
+        public EndpointConsumable(IEndpointFactory endpointFactory, IConsumer<TContract> consumer, ProtoregSerializer serializer, MessageThreshold messageThreshold)
         {
             NumberOfWorkers = 1;
             this.consumer = consumer;
             this.endpointFactory = endpointFactory;
             pools = new List<WorkPool>();
             this.serializer = serializer;
-            this.batchSize = batchSize;
+            this.messageThreshold = messageThreshold;
         }
 
         public void Start(int? numberOfWorkers = null)
@@ -49,7 +49,7 @@ namespace Elders.Cronus.Pipeline
                     consumer.PostConsume.ErrorStrategy.Initialize(endpointFactory, endpointDefinition);
                 if (consumer.PostConsume.SuccessStrategy != null)
                     consumer.PostConsume.SuccessStrategy.Initialize(endpointFactory, endpointDefinition);
-                pool.AddWork(new PipelineConsumerWork<TContract>(consumer, endpoint, serializer, batchSize));
+                pool.AddWork(new PipelineConsumerWork<TContract>(consumer, endpoint, serializer, messageThreshold));
             }
             pools.Add(pool);
             pool.StartCrawlers();

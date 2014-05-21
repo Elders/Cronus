@@ -24,8 +24,7 @@ namespace Elders.Cronus.Persistence.MSSQL.Config
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<DomainMessageCommit>>(() =>
             {
-                var retryStrategy = new DefaultRetryStrategy<DomainMessageCommit>() as ISafeBatchRetryStrategy<DomainMessageCommit>;
-                var handler = new EventStoreHandler(domainEventsAssembly.ExportedTypes.First(), new EventStoreSafeBatchContextFactory(retryStrategy, eventStore.Value.Persister), castedSettings.ConsumerBatchSize);
+                var handler = new EventStoreHandler(domainEventsAssembly.ExportedTypes.First(), new EventStoreSafeBatchContextFactory(eventStore.Value.Persister));
                 return handler;
             });
             return self;

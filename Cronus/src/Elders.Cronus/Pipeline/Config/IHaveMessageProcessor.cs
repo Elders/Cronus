@@ -25,8 +25,6 @@ namespace Elders.Cronus.Pipeline.Config
     public interface IMessageProcessorWithSafeBatchSettings<out TContract> where TContract : IMessage
     {
         Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> HandlerRegistrations { get; set; }
-
-        int ConsumerBatchSize { get; set; }
     }
 
     public static class EndpointConsumerRegistrations

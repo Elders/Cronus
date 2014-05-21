@@ -23,11 +23,11 @@ namespace Elders.Cronus
 
         BatchTry<T> batchRetry;
 
-        public SafeBatch()
-            : this(null, new DefaultRetryStrategy<T>())
+        public SafeBatch(ISafeBatchContextAware<T, C> contextAware)
+            : this(contextAware, new DefaultRetryStrategy<T>())
         { }
 
-        public SafeBatch(ISafeBatchContextAware<T, C> contextAware, ISafeBatchRetryStrategy<T> batchRetryStrategy)
+        protected SafeBatch(ISafeBatchContextAware<T, C> contextAware, ISafeBatchRetryStrategy<T> batchRetryStrategy)
         {
             this.contextAware = contextAware;
             if (batchRetryStrategy == null)
@@ -57,7 +57,7 @@ namespace Elders.Cronus
 
             public SafeBatchResult<T> Try(List<T> itemsToTry, Action<T, C> singleItemAction, ISafeBatchContextAware<T, C> contextAware)
             {
-                bool isNoRetryStrategy = retryStrategy is NoRetryStrategy<T>;
+                bool noRetryOnFailure = itemsToTry.Count == 1;
 
                 List<T> totalSuccess = new List<T>();
                 List<TryBatch<T>> totalFailed = new List<TryBatch<T>>();
@@ -69,7 +69,7 @@ namespace Elders.Cronus
                 int tryCount = 0;
                 while (failed.Count > 0)
                 {
-                    if (tryCount > 1 && isNoRetryStrategy) throw new Exception("NoRetryStrategy has a bug");
+                    if (tryCount > 1 && noRetryOnFailure) throw new Exception("NoRetryStrategy has a bug. Number of retries > number of items.");
                     if (tryCount > itemsToTry.Count) throw new Exception("Infinite loop in safe batch retry");
 
                     tryCount++;
@@ -100,7 +100,7 @@ namespace Elders.Cronus
                         }
                     }
 
-                    if (firstRun && successItems.Count == 0 && !isNoRetryStrategy)
+                    if (firstRun && successItems.Count == 0 && !noRetryOnFailure)
                     {
                         firstRun = false;
                         continue;
@@ -109,7 +109,7 @@ namespace Elders.Cronus
                     {
                         bool hasNoChanceToGetMoreSuccessItems = successItems.Count == 0 && itemsToRetry.Count == failed.Count && itemsToRetry.Sum(x => x.Items.Count) == failed.Sum(x => x.Items.Count);
                         bool allSucceeded = itemsToTry.Count == totalSuccess.Count;
-                        if (isNoRetryStrategy || hasNoChanceToGetMoreSuccessItems || allSucceeded)
+                        if (noRetryOnFailure || hasNoChanceToGetMoreSuccessItems || allSucceeded)
                         {
                             totalFailed.AddRange(failed);
                             break;
@@ -151,30 +151,6 @@ namespace Elders.Cronus
                         failedBatches.Add(splittedBatch);
                     }
                 }
-            }
-        }
-    }
-
-    public class NoRetryStrategy<T> : ISafeBatchRetryStrategy<T>
-    {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(NoRetryStrategy<T>));
-
-        public void Retry(int tryCount, Action<TryBatch<T>> batchExecute, List<TryBatch<T>> batchesToRetry, out List<T> successItems, out List<TryBatch<T>> failedBatches)
-        {
-            TryBatch<T> batch = new TryBatch<T>(batchesToRetry.Single().Items);
-            successItems = new List<T>();
-            failedBatches = new List<TryBatch<T>>();
-
-            try
-            {
-                batchExecute(batch);
-                successItems.AddRange(batch.Items);
-            }
-            catch (Exception ex)
-            {
-                log.Warn(batch.Items, ex);
-                batch.MarkAsFailed(ex);
-                failedBatches.Add(batch);
             }
         }
     }

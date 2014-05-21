@@ -34,7 +34,6 @@ namespace Elders.Cronus.Sample.Handlers
                     .EventConsumer(c => c
                         .UseEventHandler(h => h
                             .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new BatchScope(sf) })
-                            .SetConsumerBatchSize(100)
                             .RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                             {
                                 return FastActivator.CreateInstance(type)

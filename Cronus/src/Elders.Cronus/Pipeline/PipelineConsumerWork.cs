@@ -7,6 +7,27 @@ using Elders.Protoreg;
 
 namespace Elders.Cronus.Pipeline
 {
+    public sealed class MessageThreshold
+    {
+        public MessageThreshold() : this(100, 30) { }
+
+        /// <summary>
+        /// If the size is > 1 and the delay is 0 could be dangerous. Use only in special cases and you should be familiar with the PipelineConsumerWork code.
+        /// </summary>
+        /// <param name="size"></param>
+        /// <param name="delay"></param>
+        public MessageThreshold(uint size, uint delay)
+        {
+            if (size == 0) throw new ArgumentException("The size cannot be 0", "size");
+
+            this.Size = size;
+            this.Delay = delay;
+        }
+
+        public uint Size { get; private set; }
+        public uint Delay { get; private set; }
+    }
+
     public class PipelineConsumerWork<TContract> : IWork where TContract : IMessage
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(PipelineConsumerWork<TContract>));
@@ -19,17 +40,27 @@ namespace Elders.Cronus.Pipeline
 
         private readonly ProtoregSerializer serializer;
 
-        private readonly int batchSize;
+        private readonly MessageThreshold messageThreshold;
 
-        public PipelineConsumerWork(IConsumer<TContract> consumer, IEndpoint endpoint, ProtoregSerializer serializer, int batchSize)
+        public PipelineConsumerWork(IConsumer<TContract> consumer, IEndpoint endpoint, ProtoregSerializer serializer, MessageThreshold messageThreshold)
         {
             this.endpoint = endpoint;
             this.consumer = consumer;
             this.serializer = serializer;
-            this.batchSize = batchSize;
+            this.messageThreshold = messageThreshold ?? new MessageThreshold();
         }
 
         public DateTime ScheduledStart { get; set; }
+
+        private bool TryPullMessageFromEndpoint(out EndpointMessage rawMessage)
+        {
+            rawMessage = null;
+            if (messageThreshold.Delay <= 0)
+                rawMessage = endpoint.BlockDequeue();
+            else
+                endpoint.BlockDequeue(messageThreshold.Delay, out rawMessage);
+            return rawMessage != null;
+        }
 
         public void Start()
         {
@@ -41,11 +72,10 @@ namespace Elders.Cronus.Pipeline
                 {
                     List<EndpointMessage> rawMessages = new List<EndpointMessage>();
                     List<TContract> messages = new List<TContract>();
-                    for (int i = 0; i < batchSize; i++)
+                    for (int i = 0; i < messageThreshold.Size; i++)
                     {
-                        EndpointMessage rawMessage;
-                        endpoint.BlockDequeue(30, out rawMessage);
-                        if (rawMessage == null)
+                        EndpointMessage rawMessage = null;
+                        if (!TryPullMessageFromEndpoint(out rawMessage))
                             break;
 
                         TContract message;

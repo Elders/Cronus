@@ -48,9 +48,12 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
                 safeChannel.Channel.BasicAck(dequeuedMessages[message].DeliveryTag, false);
                 dequeuedMessages.Remove(message);
             }
-            catch (EndOfStreamException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (AlreadyClosedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (OperationInterruptedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (EndOfStreamException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (AlreadyClosedException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (OperationInterruptedException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
             catch (Exception)
             {
                 Close();
@@ -78,9 +81,12 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
                 dequeuedMessages.Clear();
 
             }
-            catch (EndOfStreamException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (AlreadyClosedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (OperationInterruptedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (EndOfStreamException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (AlreadyClosedException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (OperationInterruptedException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
             catch (Exception)
             {
                 Close();
@@ -100,9 +106,12 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
                 dequeuedMessages.Add(msg, result);
                 return msg;
             }
-            catch (EndOfStreamException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (AlreadyClosedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (OperationInterruptedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (EndOfStreamException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (AlreadyClosedException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (OperationInterruptedException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
             catch (Exception)
             {
                 Close();
@@ -132,9 +141,12 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
                 dequeuedMessages.Add(msg, result);
                 return msg;
             }
-            catch (EndOfStreamException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (AlreadyClosedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (OperationInterruptedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (EndOfStreamException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (AlreadyClosedException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (OperationInterruptedException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
             catch (Exception ex)
             {
                 Close();
@@ -168,7 +180,7 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
             dequeuedMessages = new Dictionary<EndpointMessage, BasicDeliverEventArgs>();
         }
 
-        public bool BlockDequeue(int timeoutInMiliseconds, out EndpointMessage msg)
+        public bool BlockDequeue(uint timeoutInMiliseconds, out EndpointMessage msg)
         {
             msg = null;
             BasicDeliverEventArgs result;
@@ -176,15 +188,18 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
 
             try
             {
-                if (!consumer.Queue.Dequeue(timeoutInMiliseconds, out result))
+                if (!consumer.Queue.Dequeue((int)timeoutInMiliseconds, out result))
                     return false;
                 msg = new EndpointMessage(result.Body, result.RoutingKey, result.BasicProperties.Headers);
                 dequeuedMessages.Add(msg, result);
                 return true;
             }
-            catch (EndOfStreamException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (AlreadyClosedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (OperationInterruptedException ex) { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (EndOfStreamException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (AlreadyClosedException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
+            catch (OperationInterruptedException ex)
+            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
             catch (Exception)
             {
                 Close();

@@ -18,7 +18,7 @@ namespace Elders.Cronus.Pipeline.Config
         Lazy<IEndpointConsumable> ISettingsBuilder<IEndpointConsumable>.Build()
         {
             IConsumableSettings<TContract> settings = this as IConsumableSettings<TContract>;
-            return new Lazy<IEndpointConsumable>(() => new EndpointConsumable<TContract>(settings.Transport.Value.EndpointFactory, settings.Consumer.Value, settings.Serializer, 100));
+            return new Lazy<IEndpointConsumable>(() => new EndpointConsumable<TContract>(settings.Transport.Value.EndpointFactory, settings.Consumer.Value, settings.Serializer, settings.MessageTreshold));
         }
 
         Lazy<IPipelineNameConvention> IHavePipelineSettings.PipelineNameConvention { get; set; }
@@ -26,12 +26,15 @@ namespace Elders.Cronus.Pipeline.Config
         Lazy<IEndpointNameConvention> IHavePipelineSettings.EndpointNameConvention { get; set; }
 
         ProtoregSerializer IHaveSerializer.Serializer { get; set; }
+
+        MessageThreshold IConsumableSettings.MessageTreshold { get; set; }
     }
 
     public class CommandConsumableSettings : ConsumableSettings<ICommand>
     {
         public CommandConsumableSettings()
         {
+            this.SetMessageThreshold(100, 30);
             this.WithCommandPipelinePerApplication();
             this.WithCommandHandlerEndpointPerBoundedContext();
         }
@@ -41,6 +44,7 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public ProjectionConsumableSettings()
         {
+            this.SetMessageThreshold(100, 30);
             this.WithEventPipelinePerApplication();
             this.WithProjectionEndpointPerBoundedContext();
         }
@@ -50,6 +54,7 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public PortConsumableSettings()
         {
+            this.SetMessageThreshold(100, 30);
             this.WithEventPipelinePerApplication();
             this.WithPortEndpointPerBoundedContext();
         }
@@ -59,6 +64,7 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public EventStoreConsumableSettings()
         {
+            this.SetMessageThreshold(100, 30);
             this.WithEventStorePipelinePerApplication();
             this.WithEventStoreEndpointPerBoundedContext();
         }
@@ -69,6 +75,12 @@ namespace Elders.Cronus.Pipeline.Config
         public static T SetNumberOfConsumers<T>(this T self, int numberOfConsumers) where T : IConsumableSettings
         {
             self.NumberOfWorkers = numberOfConsumers;
+            return self;
+        }
+
+        public static T SetMessageThreshold<T>(this T self, uint size, uint delay) where T : IConsumableSettings
+        {
+            self.MessageTreshold = new MessageThreshold(size, delay);
             return self;
         }
 
@@ -104,12 +116,5 @@ namespace Elders.Cronus.Pipeline.Config
             self.Consumer = settings.GetInstanceLazy();
             return self;
         }
-
-        public static T SetConsumerBatchSize<T>(this T self, int consumerBatchSize) where T : IMessageProcessorWithSafeBatchSettings<IMessage>
-        {
-            self.ConsumerBatchSize = consumerBatchSize;
-            return self;
-        }
-
     }
 }
