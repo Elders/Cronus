@@ -13,7 +13,6 @@ namespace Elders.Cronus.Sample.Handlers.Nhibernate
         public BatchScope(ISessionFactory sessionFactory)
         {
             this.sessionFactory = sessionFactory;
-            Size = 100;
         }
 
         public void Begin()
@@ -54,7 +53,5 @@ namespace Elders.Cronus.Sample.Handlers.Nhibernate
         }
 
         public IScopeContext Context { get; set; }
-
-        public int Size { get; set; }
     }
 }
