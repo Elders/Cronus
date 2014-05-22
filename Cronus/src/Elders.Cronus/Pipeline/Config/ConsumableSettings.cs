@@ -88,6 +88,7 @@ namespace Elders.Cronus.Pipeline.Config
             where T : IConsumableSettings<ICommand>
         {
             ConsumerSettings<ICommand> settings = new ConsumerSettings<ICommand>();
+            self.CopySerializerTo(settings);
             settings.WithDefaultEndpointPostConsume(self);
             if (configure != null)
                 configure(settings);
@@ -99,6 +100,7 @@ namespace Elders.Cronus.Pipeline.Config
             where T : IConsumableSettings<IEvent>
         {
             ConsumerSettings<IEvent> settings = new ConsumerSettings<IEvent>();
+            self.CopySerializerTo(settings);
             settings.WithDefaultEndpointPostConsume(self);
             if (configure != null)
                 configure(settings);
@@ -110,6 +112,7 @@ namespace Elders.Cronus.Pipeline.Config
             where T : IConsumableSettings<DomainMessageCommit>
         {
             ConsumerSettings<DomainMessageCommit> settings = new ConsumerSettings<DomainMessageCommit>();
+            self.CopySerializerTo(settings);
             settings.WithDefaultEndpointPostConsume(self);
             if (configure != null)
                 configure(settings);

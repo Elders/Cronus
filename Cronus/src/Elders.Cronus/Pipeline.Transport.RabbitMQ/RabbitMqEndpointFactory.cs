@@ -5,14 +5,12 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
     public class RabbitMqEndpointFactory : IEndpointFactory
     {
         private readonly IEndpointNameConvention endpointNameConvention;
-        private readonly RabbitMqPipelineFactory pipeFactory;
         private readonly RabbitMqSession session;
 
-        public RabbitMqEndpointFactory(RabbitMqSession session, RabbitMqPipelineFactory pipelineFactory, IEndpointNameConvention endpointNameConvention)
+        public RabbitMqEndpointFactory(RabbitMqSession session, IEndpointNameConvention endpointNameConvention)
         {
             this.endpointNameConvention = endpointNameConvention;
             this.session = session;
-            this.pipeFactory = pipelineFactory;
         }
 
         public IEndpoint CreateEndpoint(EndpointDefinition definition)

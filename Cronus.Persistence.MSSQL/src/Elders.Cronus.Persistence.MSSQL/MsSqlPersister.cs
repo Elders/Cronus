@@ -10,46 +10,6 @@ using Elders.Protoreg;
 
 namespace Elders.Cronus.Persistence.MSSQL
 {
-    public class MsSqlPersisterContext : IEventStoreBatchContext
-    {
-
-    }
-
-    public class EventStoreSafeBatchContextFactory : SafeBatchFactory<DomainMessageCommit, IEventStoreBatchContext>
-    {
-        private readonly IEventStorePersister persister;
-        public EventStoreSafeBatchContextFactory(IEventStorePersister persister)
-        {
-            this.persister = persister;
-        }
-
-        public override SafeBatch<DomainMessageCommit, IEventStoreBatchContext> Initialize()
-        {
-            return new SafeBatch<DomainMessageCommit, IEventStoreBatchContext>(new MsSqlPersisterContextAware(persister));
-        }
-
-        class MsSqlPersisterContextAware : ISafeBatchContextAware<DomainMessageCommit, IEventStoreBatchContext>
-        {
-            private readonly IEventStorePersister persister;
-            IEventStoreBatchContext context = null;
-            public MsSqlPersisterContextAware(IEventStorePersister persister)
-            {
-                this.persister = persister;
-            }
-
-            public IEventStoreBatchContext OnBatchBeginTry(List<DomainMessageCommit> items)
-            {
-                return context;
-            }
-
-            public void OnBatchEndTry(List<DomainMessageCommit> items, IEventStoreBatchContext context)
-            {
-                persister.Persist(items);
-            }
-
-        }
-    }
-
     public class MsSqlPersister : IEventStorePersister
     {
         private readonly string connectionString;

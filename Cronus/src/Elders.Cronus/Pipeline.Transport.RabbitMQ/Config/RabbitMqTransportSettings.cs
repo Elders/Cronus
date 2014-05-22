@@ -40,17 +40,14 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ.Config
         {
             IRabbitMqTransportSettings settings = this as IRabbitMqTransportSettings;
 
-
             if (Session == null)
             {
                 var rabbitSessionFactory = new RabbitMqSessionFactory(settings.Server, settings.Port, settings.Username, settings.Password, settings.VirtualHost);
                 Session = rabbitSessionFactory.OpenSession();
             }
 
-
             var pf = new RabbitMqPipelineFactory(Session, settings.PipelineNameConvention.Value);
-
-            var ef = new RabbitMqEndpointFactory(Session, pf, settings.EndpointNameConvention.Value);
+            var ef = new RabbitMqEndpointFactory(Session, settings.EndpointNameConvention.Value);
 
             return new Lazy<IPipelineTransport>(() => new PipelineTransport(pf, ef));
         }

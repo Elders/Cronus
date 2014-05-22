@@ -19,11 +19,6 @@ namespace Elders.Cronus.Sample.Handlers.Nhibernate
         {
             Lazy<ISession> lazySession = new Lazy<ISession>(() =>
             {
-                if (session != null)
-                {
-                    int breakPoint = 0;
-                    breakPoint++;
-                }
                 session = sessionFactory.OpenSession();
 
                 transaction = session.BeginTransaction();

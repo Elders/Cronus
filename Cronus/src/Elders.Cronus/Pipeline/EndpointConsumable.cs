@@ -47,6 +47,8 @@ namespace Elders.Cronus.Pipeline
                 IEndpoint endpoint = endpointFactory.CreateEndpoint(endpointDefinition);
                 if (consumer.PostConsume.ErrorStrategy != null)
                     consumer.PostConsume.ErrorStrategy.Initialize(endpointFactory, endpointDefinition);
+                if (consumer.PostConsume.RetryStrategy != null)
+                    consumer.PostConsume.RetryStrategy.Initialize(endpointFactory, endpointDefinition);
                 if (consumer.PostConsume.SuccessStrategy != null)
                     consumer.PostConsume.SuccessStrategy.Initialize(endpointFactory, endpointDefinition);
                 pool.AddWork(new PipelineConsumerWork<TContract>(consumer, endpoint, serializer, messageThreshold));

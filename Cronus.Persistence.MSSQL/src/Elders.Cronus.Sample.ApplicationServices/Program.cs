@@ -8,9 +8,13 @@ using Elders.Cronus.Sample.Collaboration.Users.Commands;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using Elders.Cronus.Persistence.MSSQL.Config;
+using Elders.Cronus.Messaging.MessageHandleScope;
+using System;
 
 namespace Elders.Cronus.Sample.ApplicationService
 {
+
+
     class Program
     {
         static CronusHost host;
@@ -37,26 +41,28 @@ namespace Elders.Cronus.Sample.ApplicationService
             const string IAA = "IdentityAndAccess";
             cfg.UseMsSqlEventStore(eventStore => eventStore
                     .SetConnectionStringName("cronus_es")
-                    .SetAggregateStatesAssembly(typeof(AccountState)))
+                    .SetAggregateStatesAssembly(typeof(AccountState))
+                    .WithNewStorageIfNotExists())
                 .UseDefaultCommandsHost(IAA, typeof(AccountAppService), (type, context) =>
                 {
                     var handler = FastActivator.CreateInstance(type);
                     var repositoryHandler = handler as IAggregateRootApplicationService;
                     if (repositoryHandler != null)
-                        repositoryHandler.Repository = new RabbitRepository((cfg as IHaveEventStores).EventStores[IAA].Value.AggregateRepository, (cfg as IHaveEventStorePublisher).EventStorePublisher.Value);
+                        repositoryHandler.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value;
                     return handler;
                 });
 
             const string Collaboration = "Collaboration";
             cfg.UseMsSqlEventStore(eventStore => eventStore
                     .SetConnectionStringName("cronus_es")
-                    .SetAggregateStatesAssembly(typeof(UserState)))
+                    .SetAggregateStatesAssembly(typeof(UserState))
+                    .WithNewStorageIfNotExists())
                 .UseDefaultCommandsHost(Collaboration, typeof(UserAppService), (type, context) =>
                 {
                     var handler = FastActivator.CreateInstance(type);
                     var repositoryHandler = handler as IAggregateRootApplicationService;
                     if (repositoryHandler != null)
-                        repositoryHandler.Repository = new RabbitRepository((cfg as IHaveEventStores).EventStores[Collaboration].Value.AggregateRepository, (cfg as IHaveEventStorePublisher).EventStorePublisher.Value);
+                        repositoryHandler.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value;
                     return handler;
                 });
 

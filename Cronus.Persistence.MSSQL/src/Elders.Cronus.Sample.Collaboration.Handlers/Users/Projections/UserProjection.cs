@@ -1,4 +1,5 @@
-﻿using Elders.Cronus.DomainModelling;
+﻿using System;
+using Elders.Cronus.DomainModelling;
 using Elders.Cronus.Sample.Collaboration.Users.DTOs;
 using Elders.Cronus.Sample.Collaboration.Users.Events;
 
@@ -14,6 +15,7 @@ namespace Elders.Cronus.Sample.Collaboration.Projections
             usr.Id = message.Id.Id;
             usr.Email = message.Email;
             Session.Save(usr);
+            //throw new Exception();
         }
     }
 }

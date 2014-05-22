@@ -29,7 +29,12 @@ namespace Elders.Cronus.Pipeline
             //  Post handle errors
             foreach (var batch in result.FailedBatches)
             {
-                postConsume.ErrorStrategy.Handle(new ErrorMessage(batch.Items.Select(x => (object)x).ToList(), batch.Error));
+                //postConsume.RetryStrategy.Handle(new ErrorMessage(batch.Items.Select(x => (object)x).ToList(), batch.Error));
+                foreach (var msg in batch.Items)
+                {
+                    postConsume.RetryStrategy.Handle(msg);
+                }
+
                 log.Error(batch, batch.Error);
             }
 

@@ -186,10 +186,13 @@ namespace Elders.Cronus.Pipeline.Hosts
         {
             self
                 .UseCommandConsumable(boundedContext, consumable => consumable
+                    .SetMessageThreshold(100, 0)
                     .SetNumberOfConsumers(2)
                     .UseRabbitMqTransport()
                     .CommandConsumer(consumer => consumer
+                        .SetConsumeSuccessStrategy(new EndpointPostConsumeStrategy.EventStorePublishEventsOnSuccessPersist((self as IHaveEventPublisher).EventPublisher.Value))
                         .UseCommandHandler(h => h
+                            .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new RepoBatchScope((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
                             .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
             return self;
         }
@@ -202,5 +205,34 @@ namespace Elders.Cronus.Pipeline.Hosts
                 .UsePipelineEventStorePublisher(x => x.UseRabbitMqTransport());
             return self;
         }
+    }
+
+    public class RepoBatchScope : IBatchScope
+    {
+        IAggregateRepository repository;
+        IEventStorePersister persister;
+        IPublisher<IEvent> publisher;
+
+        public RepoBatchScope(IAggregateRepository repository, IEventStorePersister persister, IPublisher<IEvent> publisher)
+        {
+            this.repository = repository;
+            this.persister = persister;
+            this.publisher = publisher;
+        }
+
+        public void Begin()
+        {
+            Lazy<IAggregateRepository> lazyRepository = new Lazy<IAggregateRepository>(() => new InternalBatchRepository(repository));
+            Context.Set<Lazy<IAggregateRepository>>(lazyRepository);
+        }
+
+        public void End()
+        {
+            var currentRepo = Context.Get<Lazy<IAggregateRepository>>().Value as InternalBatchRepository;
+            persister.Persist(currentRepo.Commits);
+            currentRepo.Commits.ForEach(e => e.Events.ForEach(x => publisher.Publish(x)));
+        }
+
+        public IScopeContext Context { get; set; }
     }
 }

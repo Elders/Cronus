@@ -13,4 +13,10 @@ namespace Elders.Cronus.Pipeline
         void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition);
         bool Handle(IMessage successMessage);
     }
+
+    public interface IEndpointConsumerRetryStrategy
+    {
+        void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition);
+        bool Handle(IMessage retryMessage);
+    }
 }
