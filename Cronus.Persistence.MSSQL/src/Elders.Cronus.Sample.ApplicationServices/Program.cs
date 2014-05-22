@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using Elders.Cronus.DomainModelling;
-using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Sample.Collaboration.Users;
@@ -8,13 +7,10 @@ using Elders.Cronus.Sample.Collaboration.Users.Commands;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using Elders.Cronus.Persistence.MSSQL.Config;
-using Elders.Cronus.Messaging.MessageHandleScope;
 using System;
 
 namespace Elders.Cronus.Sample.ApplicationService
 {
-
-
     class Program
     {
         static CronusHost host;
@@ -45,11 +41,8 @@ namespace Elders.Cronus.Sample.ApplicationService
                     .WithNewStorageIfNotExists())
                 .UseDefaultCommandsHost(IAA, typeof(AccountAppService), (type, context) =>
                 {
-                    var handler = FastActivator.CreateInstance(type);
-                    var repositoryHandler = handler as IAggregateRootApplicationService;
-                    if (repositoryHandler != null)
-                        repositoryHandler.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value;
-                    return handler;
+                    return FastActivator.CreateInstance(type)
+                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value);
                 });
 
             const string Collaboration = "Collaboration";
@@ -59,11 +52,8 @@ namespace Elders.Cronus.Sample.ApplicationService
                     .WithNewStorageIfNotExists())
                 .UseDefaultCommandsHost(Collaboration, typeof(UserAppService), (type, context) =>
                 {
-                    var handler = FastActivator.CreateInstance(type);
-                    var repositoryHandler = handler as IAggregateRootApplicationService;
-                    if (repositoryHandler != null)
-                        repositoryHandler.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value;
-                    return handler;
+                    return FastActivator.CreateInstance(type)
+                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value);
                 });
 
             host = new CronusHost(cfg.GetInstance());

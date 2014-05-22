@@ -122,32 +122,6 @@ namespace Elders.Cronus.Pipeline
 
         }
 
-        public class EventStorePublishEventsOnSuccessPersist : IEndpointConsumerSuccessStrategy
-        {
-            private readonly IPublisher<IEvent> eventPublisher;
-
-            public EventStorePublishEventsOnSuccessPersist(IPublisher<IEvent> eventPublisher)
-            {
-                this.eventPublisher = eventPublisher;
-            }
-
-            public void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition) { }
-
-            public bool Handle(IMessage successMessage)
-            {
-                DomainMessageCommit successCommit = successMessage as DomainMessageCommit;
-                if (successCommit != null)
-                {
-                    successCommit.Events.ForEach(e => eventPublisher.Publish(e));
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-        }
-
         public class NoSuccessStrategy : IEndpointConsumerSuccessStrategy
         {
             public bool Handle(IMessage successMessage) { return true; }

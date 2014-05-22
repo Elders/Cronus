@@ -190,7 +190,6 @@ namespace Elders.Cronus.Pipeline.Hosts
                     .SetNumberOfConsumers(2)
                     .UseRabbitMqTransport()
                     .CommandConsumer(consumer => consumer
-                        .SetConsumeSuccessStrategy(new EndpointPostConsumeStrategy.EventStorePublishEventsOnSuccessPersist((self as IHaveEventPublisher).EventPublisher.Value))
                         .UseCommandHandler(h => h
                             .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new RepoBatchScope((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
                             .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
