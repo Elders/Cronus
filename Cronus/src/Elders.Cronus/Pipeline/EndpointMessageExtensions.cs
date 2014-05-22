@@ -10,13 +10,30 @@ namespace Elders.Cronus.Pipeline
     {
         public static EndpointMessage AsEndpointMessage(this IMessage message, ProtoregSerializer serializer, string routingKey = "", Dictionary<string, object> routingHeaders = null)
         {
+            TransportMessage transportMessage = new TransportMessage(message);
+
             byte[] body;
             using (var stream = new MemoryStream())
             {
-                serializer.Serialize(stream, message);
+                serializer.Serialize(stream, transportMessage);
                 body = stream.ToArray();
             }
-            Dictionary<string, object> headers = routingHeaders ?? new Dictionary<string, object>() { { MessageInfo.GetContractId(message.GetType()), String.Empty } };
+            Dictionary<string, object> headers = routingHeaders ?? new Dictionary<string, object>() { { MessageInfo.GetContractId(transportMessage.Payload.GetType()), String.Empty } };
+            EndpointMessage endpointMessage = new EndpointMessage(body, routingKey, headers);
+            return endpointMessage;
+        }
+
+        public static EndpointMessage AsEndpointMessage(this TransportMessage message, ProtoregSerializer serializer, string routingKey = "", Dictionary<string, object> routingHeaders = null)
+        {
+            TransportMessage transportMessage = new TransportMessage(message);
+
+            byte[] body;
+            using (var stream = new MemoryStream())
+            {
+                serializer.Serialize(stream, transportMessage);
+                body = stream.ToArray();
+            }
+            Dictionary<string, object> headers = routingHeaders ?? new Dictionary<string, object>() { { MessageInfo.GetContractId(message.Payload.GetType()), String.Empty } };
             EndpointMessage endpointMessage = new EndpointMessage(body, routingKey, headers);
             return endpointMessage;
         }

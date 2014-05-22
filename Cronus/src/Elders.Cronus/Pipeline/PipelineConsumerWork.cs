@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Elders.Cronus.DomainModelling;
@@ -71,26 +72,26 @@ namespace Elders.Cronus.Pipeline
                 while (isWorking)
                 {
                     List<EndpointMessage> rawMessages = new List<EndpointMessage>();
-                    List<TContract> messages = new List<TContract>();
+                    List<TransportMessage> transportMessages = new List<TransportMessage>();
                     for (int i = 0; i < messageThreshold.Size; i++)
                     {
                         EndpointMessage rawMessage = null;
                         if (!TryPullMessageFromEndpoint(out rawMessage))
                             break;
 
-                        TContract message;
+                        TransportMessage transportMessage;
                         using (var stream = new MemoryStream(rawMessage.Body))
                         {
-                            message = (TContract)serializer.Deserialize(stream);
+                            transportMessage = (TransportMessage)serializer.Deserialize(stream);
                         }
 
-                        messages.Add(message);
+                        transportMessages.Add(transportMessage);
                         rawMessages.Add(rawMessage);
                     }
-                    if (messages.Count == 0)
+                    if (transportMessages.Count == 0)
                         continue;
 
-                    consumer.Consume(messages);
+                    consumer.Consume(transportMessages);
                     endpoint.AcknowledgeAll();
                 }
             }

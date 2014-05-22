@@ -36,8 +36,7 @@ namespace Elders.Cronus
 
     public interface IConsumer<T> where T : IMessage
     {
-        bool Consume(T message);
-        bool Consume(List<T> messages);
+        bool Consume(List<TransportMessage> transportMessages);
         IEnumerable<Type> GetRegisteredHandlers { get; }
         IEndpointPostConsume PostConsume { get; }
     }

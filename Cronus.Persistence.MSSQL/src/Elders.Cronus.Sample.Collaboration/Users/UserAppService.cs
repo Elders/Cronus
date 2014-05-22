@@ -5,11 +5,17 @@ namespace Elders.Cronus.Sample.Collaboration.Users
 {
     public class UserAppService : AggregateRootApplicationService<User>,
         IMessageHandler<CreateUser>,
-        IMessageHandler<RenameUser>
+        IMessageHandler<RenameUser>,
+        IMessageHandler<ChangeEmail>
     {
         public void Handle(RenameUser command)
         {
             Repository.Update<User>(command, user => user.Rename(command.FirstName, command.LastName));
+        }
+
+        public void Handle(ChangeEmail command)
+        {
+            Repository.Update<User>(command, user => user.ChangeEmail(command.NewEmail));
         }
 
         public void Handle(CreateUser command)

@@ -20,5 +20,11 @@ namespace Elders.Cronus.Sample.Collaboration.Users
             var evnt = new UserRenamed(state.Id, firstName, lastName);
             Apply(evnt);
         }
+
+        public void ChangeEmail(string newEmail)
+        {
+            var evnt = new EmailChanged(state.Id, newEmail);
+            Apply(evnt);
+        }
     }
 }

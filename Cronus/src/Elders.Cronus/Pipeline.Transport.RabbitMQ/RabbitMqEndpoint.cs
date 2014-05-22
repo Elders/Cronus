@@ -173,7 +173,7 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
         public void Open()
         {
             safeChannel = session.OpenSafeChannel();
-            safeChannel.Channel.BasicQos(0, 2000, false);
+            safeChannel.Channel.BasicQos(0, 1500, false);
             consumer = new QueueingBasicConsumer(safeChannel.Channel);
 
             safeChannel.Channel.BasicConsume(Name, false, consumer);

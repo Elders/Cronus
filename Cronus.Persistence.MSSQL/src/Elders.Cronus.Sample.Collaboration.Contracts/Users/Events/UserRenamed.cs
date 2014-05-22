@@ -25,4 +25,23 @@ namespace Elders.Cronus.Sample.Collaboration.Users.Events
         [DataMember(Order = 3)]
         public string LastName { get; private set; }
     }
+
+    [DataContract(Name = "b4a07bd0-4347-4355-b7f2-05b74be38ba9")]
+    public class EmailChanged : Event
+    {
+        EmailChanged() { }
+
+        public EmailChanged(UserId id, string newEmail)
+            : base(id)
+        {
+            Id = id;
+            NewEmail = newEmail;
+        }
+
+        [DataMember(Order = 1)]
+        public UserId Id { get; set; }
+
+        [DataMember(Order = 2)]
+        public string NewEmail { get; set; }
+    }
 }

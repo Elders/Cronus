@@ -35,5 +35,10 @@ namespace Elders.Cronus.Sample.Collaboration.Users
             Id = e.Id;
             Email = e.Email;
         }
+
+        public void When(EmailChanged e)
+        {
+            Email = e.NewEmail;
+        }
     }
 }

@@ -6,9 +6,9 @@ using Elders.Cronus.Messaging.MessageHandleScope;
 namespace Elders.Cronus
 {
     public class SafeBatchWithBatchScopeContextFactory<T> : SafeBatchFactory<T, Context>
-            where T : IMessage
+            where T : TransportMessage
     {
-        private readonly ISafeBatchRetryStrategy<T> retryStrategy;
+        private readonly ISafeBatchRetryStrategy<TransportMessage> retryStrategy;
         public SafeBatchWithBatchScopeContextFactory(ScopeFactory scopeFactory)
         {
             this.ScopeFactory = scopeFactory;

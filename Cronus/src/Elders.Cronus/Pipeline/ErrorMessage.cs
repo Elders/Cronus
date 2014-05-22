@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Runtime.Serialization;
 using Elders.Cronus.DomainModelling;
 using Elders.Protoreg;
@@ -11,14 +10,14 @@ namespace Elders.Cronus.Pipeline
     {
         ErrorMessage() { }
 
-        public ErrorMessage(List<object> messages, Exception exception)
+        public ErrorMessage(object message, Exception exception)
         {
-            Messages = messages;
+            Messages = message;
             Exception = new ProtoregSerializableException(exception);
         }
 
         [DataMember(Order = 1)]
-        public List<object> Messages { get; private set; }
+        public object Messages { get; private set; }
 
         [DataMember(Order = 2)]
         public ProtoregSerializableException Exception { get; private set; }

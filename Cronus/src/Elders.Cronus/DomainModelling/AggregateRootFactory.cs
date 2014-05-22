@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
 using System.Linq;
 

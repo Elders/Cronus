@@ -6,21 +6,21 @@ using Elders.Cronus.Messaging.MessageHandleScope;
 
 namespace Elders.Cronus
 {
-    public class MessageHandlerCollection<TMessage> : IMessageProcessor<TMessage>
-        where TMessage : IMessage
+    public class MessageHandlerCollection<TContract> : IMessageProcessor<TContract>
+        where TContract : IMessage
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageHandlerCollection<TMessage>));
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageHandlerCollection<TContract>));
 
         //  Each handler can handle different contracts/messages where the actual handler body is LateBoundVoidMethod
         protected Dictionary<Type, Dictionary<Type, LateBoundVoidMethod>> handlerCallbacks = new Dictionary<Type, Dictionary<Type, LateBoundVoidMethod>>();
 
         //  Each contract/message is bound to an actual handle implementation and the reason we do it like this is because of the handlerFactory
-        private Dictionary<Type, List<Func<TMessage, Context, bool>>> handlers = new Dictionary<Type, List<Func<TMessage, Context, bool>>>();
+        private Dictionary<Type, List<Func<TContract, Context, bool>>> handlers = new Dictionary<Type, List<Func<TContract, Context, bool>>>();
 
         //  Each contract/message can have several handler types/classes
         protected Dictionary<Type, HashSet<Type>> registeredHandlers = new Dictionary<Type, HashSet<Type>>();
 
-        public MessageHandlerCollection(SafeBatchWithBatchScopeContextFactory<TMessage> safeBatchFactory)
+        public MessageHandlerCollection(SafeBatchWithBatchScopeContextFactory<TransportMessage> safeBatchFactory)
         {
             this.safeBatchFactory = safeBatchFactory;
         }
@@ -32,11 +32,11 @@ namespace Elders.Cronus
             return registeredHandlers.Keys.AsEnumerable();
         }
 
-        public bool Handle(TMessage message, Context context)
+        public bool Handle(TContract message, Context context)
         {
             return safeBatchFactory.ScopeFactory.UseMessageScope(context, (ctx) =>
             {
-                List<Func<TMessage, Context, bool>> availableHandlers;
+                List<Func<TContract, Context, bool>> availableHandlers;
                 if (handlers.TryGetValue(message.GetType(), out availableHandlers))
                 {
                     foreach (var handleMethod in availableHandlers)
@@ -48,14 +48,14 @@ namespace Elders.Cronus
             });
         }
 
-        private readonly SafeBatchWithBatchScopeContextFactory<TMessage> safeBatchFactory;
+        private readonly SafeBatchWithBatchScopeContextFactory<TransportMessage> safeBatchFactory;
 
-        public ISafeBatchResult<TMessage> Handle(List<TMessage> messages)
+        public ISafeBatchResult<TransportMessage> Handle(List<TransportMessage> messages)
         {
             if (messages.Count == 0)
                 throw new Exception("Do not pass empty collection of messages. PLEASE!");
             var safeBatch = safeBatchFactory.Initialize();
-            return safeBatch.Execute(messages, (msg, context) => Handle(msg, context));
+            return safeBatch.Execute(messages, (msg, context) => Handle((TContract)msg.Payload, context));
         }
 
         public virtual void RegisterHandler(Type messageType, Type messageHandlerType, Func<Type, Context, object> handlerFactory)
@@ -66,7 +66,7 @@ namespace Elders.Cronus
             registeredHandlers[messageHandlerType].Add(messageType);
 
             if (!handlers.ContainsKey(messageType))
-                handlers[messageType] = new List<Func<TMessage, Context, bool>>();
+                handlers[messageType] = new List<Func<TContract, Context, bool>>();
 
             handlers[messageType].Add((message, context) => Handle(message, context, messageHandlerType, handlerFactory));
             if (!handlerCallbacks.ContainsKey(messageHandlerType))
@@ -82,7 +82,7 @@ namespace Elders.Cronus
             }
         }
 
-        protected bool Handle(TMessage message, Context context, Type eventHandlerType, Func<Type, Context, object> handlerFactory)
+        protected bool Handle(TContract message, Context context, Type eventHandlerType, Func<Type, Context, object> handlerFactory)
         {
             return safeBatchFactory.ScopeFactory.UseHandlerScope(context, (ctx) =>
             {

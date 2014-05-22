@@ -17,7 +17,7 @@ namespace Elders.Cronus.Sample.UI
 
         static void Main(string[] args)
         {
-            Thread.Sleep(20000);
+            Thread.Sleep(15000);
 
             ConfigurePublisher();
 

@@ -5,18 +5,18 @@ namespace Elders.Cronus.Pipeline
     public interface IEndpointConsumerErrorStrategy
     {
         void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition);
-        bool Handle(ErrorMessage errorMessage);
+        bool Handle(TransportMessage errorMessage);
     }
 
     public interface IEndpointConsumerSuccessStrategy
     {
         void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition);
-        bool Handle(IMessage successMessage);
+        bool Handle(TransportMessage successMessage);
     }
 
     public interface IEndpointConsumerRetryStrategy
     {
         void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition);
-        bool Handle(IMessage retryMessage);
+        bool Handle(TransportMessage retryMessage);
     }
 }

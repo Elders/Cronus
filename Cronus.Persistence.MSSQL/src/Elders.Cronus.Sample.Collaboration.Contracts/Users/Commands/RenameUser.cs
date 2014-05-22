@@ -9,6 +9,7 @@ namespace Elders.Cronus.Sample.Collaboration.Users.Commands
         RenameUser() { }
 
         public RenameUser(UserId id, string firstName, string lastName)
+            : base(id)
         {
             Id = id;
             FirstName = firstName;
@@ -23,5 +24,24 @@ namespace Elders.Cronus.Sample.Collaboration.Users.Commands
 
         [DataMember(Order = 3)]
         public string LastName { get; set; }
+    }
+
+    [DataContract(Name = "67d803e9-57de-4207-8ed6-5d679b7dc552")]
+    public class ChangeEmail : Command
+    {
+        ChangeEmail() { }
+
+        public ChangeEmail(UserId id, string newEmail)
+            : base(id)
+        {
+            Id = id;
+            NewEmail = newEmail;
+        }
+
+        [DataMember(Order = 1)]
+        public UserId Id { get; set; }
+
+        [DataMember(Order = 2)]
+        public string NewEmail { get; set; }
     }
 }

@@ -65,7 +65,7 @@ namespace Elders.Cronus.Pipeline
                 this.pipelineFactory = pipelineFactory;
             }
 
-            public bool Handle(IMessage message)
+            public bool Handle(TransportMessage message)
             {
                 pipelineFactory
                     .GetPipeline(retryPipelineName)
@@ -80,7 +80,7 @@ namespace Elders.Cronus.Pipeline
 
                 Dictionary<string, object> headers = new Dictionary<string, object>();
                 headers.Add("x-dead-letter-exchange", endpointDefinition.PipelineName);
-                headers.Add("x-message-ttl", 10000);
+                headers.Add("x-message-ttl", 500);
 
                 EndpointDefinition retryEndpoint = new EndpointDefinition(retryPipelineName, endpointWhereErrorOccured + ".Retry", headers, endpointWhereErrorOccured);
                 endpointFactory.CreateTopicEndpoint(retryEndpoint);
@@ -104,7 +104,7 @@ namespace Elders.Cronus.Pipeline
                 this.pipelineFactory = pipelineFactory;
             }
 
-            public bool Handle(ErrorMessage errorMessage)
+            public bool Handle(TransportMessage errorMessage)
             {
                 pipelineFactory
                     .GetPipeline(errorPipelineName)
@@ -124,21 +124,21 @@ namespace Elders.Cronus.Pipeline
 
         public class NoSuccessStrategy : IEndpointConsumerSuccessStrategy
         {
-            public bool Handle(IMessage successMessage) { return true; }
+            public bool Handle(TransportMessage successMessage) { return true; }
 
             public void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition) { }
         }
 
         public class NoErrorStrategy : IEndpointConsumerErrorStrategy
         {
-            public bool Handle(ErrorMessage errorMessage) { return true; }
+            public bool Handle(TransportMessage errorMessage) { return true; }
 
             public void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition) { }
         }
 
         public class NoRetryStrategy : IEndpointConsumerRetryStrategy
         {
-            public bool Handle(IMessage errorMessage) { return true; }
+            public bool Handle(TransportMessage errorMessage) { return true; }
 
             public void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition) { }
         }
