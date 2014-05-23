@@ -20,20 +20,19 @@ namespace Elders.Cronus.Pipeline.Hosts
         {
             Console.WriteLine("Start replaying events...");
 
-            //configuration.GlobalSettings.Consumers.Single().Start(1);
+            configuration.Consumers.Single().Start(1);
             var publisher = configuration.EventPublisher;
             int totalMessagesPublished = 0;
             Thread.Sleep(2000);//   Test sleep. Remove it later if that is the bug.
             foreach (var evnt in configuration.EventStores.Single().Value.Player.GetEventsFromStart())
             {
                 totalMessagesPublished++;
-                //publisher.Publish(evnt);
+                configuration.EventPublisher.Publish(evnt);
             }
 
             //  HACK: We do not know when all messages are consumed
             while (InMemoryQueue.TotalMessagesConsumed < totalMessagesPublished)
             {
-
                 Thread.Sleep(2000);
             }
 
@@ -43,7 +42,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public void Stop()
         {
-            // configuration.GlobalSettings.Consumers.Single().Stop();
+            configuration.Consumers.Single().Stop();
         }
 
     }
