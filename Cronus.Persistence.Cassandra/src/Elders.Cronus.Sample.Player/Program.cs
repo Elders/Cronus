@@ -59,32 +59,27 @@ namespace Elders.Cronus.Sample.Player
         {
             var sf = BuildSessionFactory();
 
-            var cfg = new CronusSettings();
-            cfg.UseCassandraEventStore(eventStore => eventStore
+            var cfg = new CronusSettings()
+                .UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(UserState)), Assembly.GetAssembly(typeof(UserCreated)) })
+                .WithDefaultPublishersInMemory();
+
+            cfg
+                .UseCassandraEventStore(eventStore => eventStore
                     .SetConnectionStringName("cronus_es")
-                    .SetAggregateStatesAssembly(typeof(UserState)));
+                    .SetAggregateStatesAssembly(typeof(UserState)))
+                .UseProjectionConsumable("Collaboration", consumable => consumable
+                    .SetNumberOfConsumers(1)
+                    .UseInMemoryTransport()
+                    .EventConsumer(c => c
+                        .UseEventHandler(h => h
+                            .UseScopeFactory(new ScopeFactory() { CreateHandlerScope = () => new HandlerScope(sf) })
+                            .RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
+                            {
+                                return FastActivator.CreateInstance(type)
+                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.HandlerScopeContext.Get<Lazy<ISession>>().Value);
+                            }))));
 
-            cfg.PipelineEventPublisher(publisher =>
-            {
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };
-                publisher.UseTransport<InMemory>();
-            });
-            cfg.ConfigureConsumer<EndpointProjectionConsumableSettings>("Collaboration", consumer =>
-            {
-                consumer.ScopeFactory.CreateHandlerScope = () => new HandlerScope(sf);
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)).GetExportedTypes().Where(x => !typeof(IPort).IsAssignableFrom(x)).ToArray(), (type, context) =>
-                    {
-                        var handler = FastActivator.CreateInstance(type, null);
-                        var nhHandler = handler as IHaveNhibernateSession;
-                        if (nhHandler != null)
-                            nhHandler.Session = context.HandlerScopeContext.Get<Lazy<ISession>>().Value;
-                        return handler;
-                    });
-                consumer.UseTransport<InMemory>();
-            })
-            .Build();
-
-            new CronusPlayer(cfg).Replay();
+            new CronusPlayer(cfg.GetInstance()).Replay();
         }
 
         static ISessionFactory BuildSessionFactory()
