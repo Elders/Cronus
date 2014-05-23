@@ -27,7 +27,7 @@ namespace Elders.Cronus.Sample.Handlers
             var sf = BuildSessionFactory();
             var cfg = new CronusSettings()
                 .UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) })
-                .WithDefaultPublishers()
+                .WithDefaultPublishersWithRabbitMq()
                 .UseProjectionConsumable("Collaboration", consumable => consumable
                     .SetNumberOfConsumers(2)
                     .UseRabbitMqTransport()

@@ -32,14 +32,14 @@ namespace Elders.Cronus.Sample.ApplicationService
                     Assembly.GetAssembly(typeof(CreateUser)),
                     Assembly.GetAssembly(typeof(UserState)),
                     Assembly.GetAssembly(typeof(AccountState)) })
-                .WithDefaultPublishers();
+                .WithDefaultPublishersWithRabbitMq();
 
             const string IAA = "IdentityAndAccess";
             cfg.UseMsSqlEventStore(eventStore => eventStore
                     .SetConnectionStringName("cronus_es")
                     .SetAggregateStatesAssembly(typeof(AccountState))
                     .WithNewStorageIfNotExists())
-                .UseDefaultCommandsHost(IAA, typeof(AccountAppService), (type, context) =>
+                .UseDefaultCommandsHostWithRabbitMq(IAA, typeof(AccountAppService), (type, context) =>
                 {
                     return FastActivator.CreateInstance(type)
                         .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value);
@@ -50,7 +50,7 @@ namespace Elders.Cronus.Sample.ApplicationService
                     .SetConnectionStringName("cronus_es")
                     .SetAggregateStatesAssembly(typeof(UserState))
                     .WithNewStorageIfNotExists())
-                .UseDefaultCommandsHost(Collaboration, typeof(UserAppService), (type, context) =>
+                .UseDefaultCommandsHostWithRabbitMq(Collaboration, typeof(UserAppService), (type, context) =>
                 {
                     return FastActivator.CreateInstance(type)
                         .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value);

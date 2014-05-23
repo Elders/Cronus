@@ -30,7 +30,7 @@ namespace Elders.Cronus.Sample.Ports
             var sf = BuildSessionFactory();
             var cfg = new CronusSettings()
                 .UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) })
-                .WithDefaultPublishers();
+                .WithDefaultPublishersWithRabbitMq();
 
             const string Collaboration = "Collaboration";
             cfg

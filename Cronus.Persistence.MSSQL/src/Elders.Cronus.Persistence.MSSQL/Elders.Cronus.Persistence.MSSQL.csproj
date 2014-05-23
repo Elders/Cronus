@@ -52,7 +52,8 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Config\Class1.cs" />
+    <Compile Include="MsSqlEventStore.cs" />
+    <Compile Include="Config\IMsSqlEventStoreSettings.cs" />
     <Compile Include="IMsSqlEventStoreTableNameStrategy.cs" />
     <Compile Include="DatabaseManager.cs" />
     <Compile Include="MsSqlAggregateRepository.cs" />

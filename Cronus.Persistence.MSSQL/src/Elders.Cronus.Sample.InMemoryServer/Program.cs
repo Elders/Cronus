@@ -28,57 +28,30 @@ namespace Elders.Cronus.Sample.InMemoryServer
 
             ISessionFactory nhSessionFactory = BuildNHibernateSessionFactory();
 
-            var cfg = new CronusConfiguration();
-            cfg.PipelineCommandPublisher(publisher =>
-                {
-                    //publisher.inmemory();
-                    publisher.UseContractsFromAssemblies(new[] { Assembly.GetAssembly(typeof(CreateUser)) });
-                })
-                .ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
-                {
-                    eventStore
-                        .SetConnectionStringName("cronus_es")
-                        .SetDomainEventsAssembly(typeof(UserCreated))
-                        .SetAggregateStatesAssembly(typeof(UserState))
-                        .CreateStorage();
-                })
-                .ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
-                {
-                    eventStore
-                        .SetConnectionStringName("cronus_es")
-                        .SetDomainEventsAssembly(typeof(AccountRegistered))
-                        .SetAggregateStatesAssembly(typeof(AccountState))
-                        .CreateStorage();
-                })
-                .PipelineEventPublisher(publisher =>
-                {
-                    //publisher.UseRabbitMqTransport<InMemory>();
-                    publisher.UseContractsFromAssemblies(new[] { Assembly.GetAssembly(typeof(CreateUser)) });
-                })
-                .PipelineEventStorePublisher(publisher =>
-                {
-                    //publisher.UseTransport<InMemory>();
-                })
-                .EventStoreConsumable("Collaboration", consumer =>
-                {
-                    //consumer.UseTransport<InMemory>();
-                })
-                .CommandConsumable("Collaboration", consumer =>
+            var cfg = new CronusSettings()
+                .UseContractsFromAssemblies(new Assembly[] {
+                    Assembly.GetAssembly(typeof(CreateUser))})
+                .WithDefaultPublishersWithRabbitMq();
+
+            cfg.UseMsSqlEventStore(eventStore => eventStore
+                    .SetConnectionStringName("cronus_es")
+                    .SetAggregateStatesAssembly(typeof(UserState))
+                    .WithNewStorageIfNotExists())
+                .UseMsSqlEventStore(eventStore => eventStore
+                    .SetConnectionStringName("cronus_es")
+                    .SetAggregateStatesAssembly(typeof(AccountState))
+                    .WithNewStorageIfNotExists())
+
+            .CommandConsumable("Collaboration", consumer =>
                 {
                     consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(nhSessionFactory);
                     consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
                         {
-                            var handler = FastActivator.CreateInstance(type, null);
-                            var repositoryHandler = handler as IAggregateRootApplicationService;
-                            if (repositoryHandler != null)
-                            {
-                                repositoryHandler.Repository = new RabbitRepository(cfg.GlobalSettings.AggregateRepositories["Collaboration"], cfg.GlobalSettings.EventStorePublisher.Value);
-                            }
-                            return handler;
+                            return FastActivator.CreateInstance(type)
+                                .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = cfg.GlobalSettings.AggregateRepositories["Collaboration"]);
                         });
-                    //consumer.UseTransport<InMemory>();
                 })
-                .EventConsumable("Collaboration", consumer =>// projection
+            .EventConsumable("Collaboration", consumer =>// projection
                 {
                     consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(nhSessionFactory);
                     consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
@@ -93,7 +66,7 @@ namespace Elders.Cronus.Sample.InMemoryServer
                         });
                     //consumer.UseTransport<InMemory>();
                 })
-                .EventConsumable("Collaboration", consumer => // port
+            .EventConsumable("Collaboration", consumer => // port
                 {
                     consumer.ScopeFactory.CreateHandlerScope = () => new NHibernateHandlerScope(nhSessionFactory);
                     consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
@@ -113,9 +86,9 @@ namespace Elders.Cronus.Sample.InMemoryServer
                         });
                     //consumer.UseTransport<InMemory>();
                 })
-                .Build();
+            .Build();
 
-            var host = new CronusHost(cfg);
+            var host = new CronusHost(cfg.GetInstance());
             host.Start();
 
             Thread.Sleep(2000);

@@ -181,7 +181,7 @@ namespace Elders.Cronus.Pipeline.Hosts
             return self;
         }
 
-        public static T UseDefaultCommandsHost<T>(this T self, string boundedContext, Type assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory)
+        public static T UseDefaultCommandsHostWithRabbitMq<T>(this T self, string boundedContext, Type assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory)
             where T : ICronusSettings
         {
             self
@@ -195,7 +195,30 @@ namespace Elders.Cronus.Pipeline.Hosts
             return self;
         }
 
-        public static T WithDefaultPublishers<T>(this T self) where T : ICronusSettings
+        public static T WithDefaultPublishersWithRabbitMq<T>(this T self) where T : ICronusSettings
+        {
+            self
+                .UsePipelineEventPublisher(x => x.UseRabbitMqTransport())
+                .UsePipelineCommandPublisher(x => x.UseRabbitMqTransport())
+                .UsePipelineEventStorePublisher(x => x.UseRabbitMqTransport());
+            return self;
+        }
+
+        public static T UseDefaultCommandsHostInMemory<T>(this T self, string boundedContext, Type assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory)
+            where T : ICronusSettings
+        {
+            self
+                .UseCommandConsumable(boundedContext, consumable => consumable
+                    .SetNumberOfConsumers(2)
+                    .UseRabbitMqTransport()
+                    .CommandConsumer(consumer => consumer
+                        .UseCommandHandler(h => h
+                            .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new RepoBatchScope((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
+                            .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
+            return self;
+        }
+
+        public static T WithDefaultPublishersInMemory<T>(this T self) where T : ICronusSettings
         {
             self
                 .UsePipelineEventPublisher(x => x.UseRabbitMqTransport())
