@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Elders.Cronus.DomainModelling;
 using Elders.Cronus.Messaging.MessageHandleScope;
 using Elders.Cronus.Persistence.MSSQL.Config;
 using Elders.Cronus.Pipeline.Config;
@@ -61,7 +60,7 @@ namespace Elders.Cronus.Sample.Player
 
             var cfg = new CronusSettings()
                 .UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(UserState)), Assembly.GetAssembly(typeof(UserCreated)) })
-                .WithDefaultPublishersWithRabbitMq();
+                .WithDefaultPublishersInMemory();
 
             cfg
                 .UseMsSqlEventStore(eventStore => eventStore
@@ -69,14 +68,14 @@ namespace Elders.Cronus.Sample.Player
                     .SetAggregateStatesAssembly(typeof(UserState)))
                 .UseProjectionConsumable("Collaboration", consumable => consumable
                     .SetNumberOfConsumers(1)
-                    //.UseRabbitMqTransport()
+                    .UseInMemoryTransport()
                     .EventConsumer(c => c
                         .UseEventHandler(h => h
                             .UseScopeFactory(new ScopeFactory() { CreateHandlerScope = () => new HandlerScope(sf) })
                             .RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                             {
                                 return FastActivator.CreateInstance(type)
-                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.BatchScopeContext.Get<Lazy<ISession>>().Value);
+                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.HandlerScopeContext.Get<Lazy<ISession>>().Value);
                             }))));
 
             new CronusPlayer(cfg.GetInstance()).Replay();

@@ -13,9 +13,9 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ.Config
         string VirtualHost { get; set; }
     }
 
-    public class NewRabbitMqTransportSettings : IRabbitMqTransportSettings
+    public class RabbitMqTransportSettings : IRabbitMqTransportSettings
     {
-        public NewRabbitMqTransportSettings()
+        public RabbitMqTransportSettings()
         {
             this.WithDefaultConnectionSettings();
         }
@@ -55,10 +55,10 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ.Config
 
     public static class RabbitMqTransportExtensions
     {
-        public static T UseRabbitMqTransport<T>(this T self, Action<NewRabbitMqTransportSettings> configure = null)
+        public static T UseRabbitMqTransport<T>(this T self, Action<RabbitMqTransportSettings> configure = null)
                 where T : IHaveTransport<IPipelineTransport>, IHavePipelineSettings
         {
-            NewRabbitMqTransportSettings transportSettingsInstance = new NewRabbitMqTransportSettings();
+            RabbitMqTransportSettings transportSettingsInstance = new RabbitMqTransportSettings();
             if (configure != null)
                 configure(transportSettingsInstance);
 

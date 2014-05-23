@@ -7,6 +7,7 @@ using Elders.Cronus.Pipeline.Config;
 using Elders.Protoreg;
 using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
 using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.Pipeline.Transport.InMemory.Config;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
@@ -104,6 +105,9 @@ namespace Elders.Cronus.Pipeline.Hosts
                 if (settings.Consumers != null && settings.Consumers.Count > 0)
                     cronusConfiguration.Consumers = settings.Consumers.Select(x => x.Value).ToList();
 
+                if (settings.EventStores != null && settings.EventStores.Count > 0)
+                    cronusConfiguration.EventStores = settings.EventStores.ToDictionary(key => key.Key, val => val.Value.Value);
+
                 return cronusConfiguration;
             });
         }
@@ -171,16 +175,6 @@ namespace Elders.Cronus.Pipeline.Hosts
             return self;
         }
 
-        public static T UseEventStoreConsumable<T>(this T self, string boundedContext, Action<EventStoreConsumableSettings> configure = null) where T : ICronusSettings
-        {
-            EventStoreConsumableSettings settings = new EventStoreConsumableSettings();
-            self.CopySerializerTo(settings);
-            if (configure != null)
-                configure(settings);
-            self.Consumers.Add(settings.GetInstanceLazy());
-            return self;
-        }
-
         public static T UseDefaultCommandsHostWithRabbitMq<T>(this T self, string boundedContext, Type assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory)
             where T : ICronusSettings
         {
@@ -210,7 +204,7 @@ namespace Elders.Cronus.Pipeline.Hosts
             self
                 .UseCommandConsumable(boundedContext, consumable => consumable
                     .SetNumberOfConsumers(2)
-                    .UseRabbitMqTransport()
+                    .UseInMemoryTransport()
                     .CommandConsumer(consumer => consumer
                         .UseCommandHandler(h => h
                             .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new RepoBatchScope((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
@@ -221,9 +215,9 @@ namespace Elders.Cronus.Pipeline.Hosts
         public static T WithDefaultPublishersInMemory<T>(this T self) where T : ICronusSettings
         {
             self
-                .UsePipelineEventPublisher(x => x.UseRabbitMqTransport())
-                .UsePipelineCommandPublisher(x => x.UseRabbitMqTransport())
-                .UsePipelineEventStorePublisher(x => x.UseRabbitMqTransport());
+                .UsePipelineEventPublisher(x => x.UseInMemoryTransport())
+                .UsePipelineCommandPublisher(x => x.UseInMemoryTransport())
+                .UsePipelineEventStorePublisher(x => x.UseInMemoryTransport());
             return self;
         }
     }
