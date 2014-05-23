@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Threading;
 using Elders.Cronus.DomainModelling;
+using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
 using Elders.Cronus.Sample.Collaboration.Users;
@@ -37,15 +38,12 @@ namespace Elders.Cronus.Sample.UI
         {
             log4net.Config.XmlConfigurator.Configure();
 
-            var cfg = new CronusConfiguration();
-            cfg.PipelineCommandPublisher(publisher =>
-            {
-                publisher.UseTransport<RabbitMq>();
-                publisher.MessagesAssemblies = new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) };
-            })
-            .Build();
+            var cronusCfg = new CronusSettings()
+                .UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) })
+                .WithDefaultPublishersWithRabbitMq()
+                .GetInstance();
 
-            commandPublisher = cfg.GlobalSettings.CommandPublisher;
+            commandPublisher = cronusCfg.CommandPublisher;
         }
 
         private static void SingleCreationCommandFromUpstreamBC(int index)

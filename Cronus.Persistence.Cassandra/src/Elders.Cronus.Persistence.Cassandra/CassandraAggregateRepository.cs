@@ -12,8 +12,6 @@ namespace Elders.Cronus.Persistence.Cassandra
 {
     public class CassandraAggregateRepository : IAggregateRepository
     {
-
-        private readonly IPublisher<IEvent> eventPublisher;
         private readonly IEventStorePersister persister;
         private readonly ProtoregSerializer serializer;
         private readonly Session session;
@@ -21,9 +19,8 @@ namespace Elders.Cronus.Persistence.Cassandra
 
         private static AggregateVersionService versionService = new AggregateVersionService();
 
-        public CassandraAggregateRepository(Session session, IPublisher<IEvent> eventPublisher, IEventStorePersister persister, ICassandraEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer)
+        public CassandraAggregateRepository(Session session, IEventStorePersister persister, ICassandraEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer)
         {
-            this.eventPublisher = eventPublisher;
             this.persister = persister;
             this.serializer = serializer;
             this.tableNameStrategy = tableNameStrategy;
@@ -38,13 +35,12 @@ namespace Elders.Cronus.Persistence.Cassandra
             aggregateRoot.State.Version += 1;
 
             DomainMessageCommit commit = new DomainMessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents, command);
-            if (command.ExpectedAggregateRevision == -1)
-                ((Command)command).ExpectedAggregateRevision = versionService.ReserveVersion(command.AggregateId, aggregateRoot.State.Version);
+            if (command.MetaExpectedAggregateRevision == -1)
+                ((Command)command).MetaExpectedAggregateRevision = versionService.ReserveVersion(command.MetaAggregateId, aggregateRoot.State.Version);
 
-            if (aggregateRoot.State.Version == command.ExpectedAggregateRevision)
+            if (aggregateRoot.State.Version == command.MetaExpectedAggregateRevision)
             {
                 persister.Persist(new List<DomainMessageCommit>() { commit });
-                commit.Events.ForEach(e => eventPublisher.Publish(e));
             }
             else
                 throw new Exception("Retry command");
@@ -99,7 +95,7 @@ namespace Elders.Cronus.Persistence.Cassandra
 
         public AR Update<AR>(ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot
         {
-            var events = LoadAggregateCommits(command.AggregateId.Id);
+            var events = LoadAggregateCommits(command.MetaAggregateId.Id);
             AR aggregateRoot = AggregateRootFactory.Build<AR>(events);
             update(aggregateRoot);
             if (save != null)

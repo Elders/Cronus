@@ -1,14 +1,12 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.Persistence.Cassandra.Config;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
-using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
 using Elders.Cronus.Sample.Collaboration.Users;
-using Elders.Cronus.Sample.Collaboration.Users.Commands;
 using Elders.Cronus.Sample.Collaboration.Users.Events;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts;
-using Elders.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts.Events;
 
 namespace Elders.Cronus.Sample.ApplicationService
@@ -28,66 +26,34 @@ namespace Elders.Cronus.Sample.ApplicationService
 
         static void UseCronusHostWithCassandraEventStore()
         {
-            var cfg = new CronusConfiguration();
+            var cfg = new CronusSettings()
+                .UseContractsFromAssemblies(new[] { Assembly.GetAssembly(typeof(AccountRegistered)), Assembly.GetAssembly(typeof(UserCreated)) })
+                .WithDefaultPublishersWithRabbitMq();
 
-            cfg.PipelineEventPublisher(publisher =>
-            {
-                publisher.UseTransport<RabbitMq>();
-                publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(AccountRegistered)), Assembly.GetAssembly(typeof(UserCreated)) };
-            });
-
-            const string IAA = "IdentityAndAccess";
-            cfg.ConfigureEventStore<CassandraEventStoreSettings>(eventStore =>
-            {
-                eventStore
+            cfg.UseCassandraEventStore(eventStore => eventStore
                     .SetConnectionStringName("cronus_es")
                     .SetAggregateStatesAssembly(typeof(AccountState))
-                    .SetDomainEventsAssembly(typeof(RegisterAccount))
-                    .CreateStorage();
-            });
-            cfg.ConfigureConsumer<EndpointCommandConsumableSettings>(IAA, consumer =>
-            {
-                consumer.NumberOfWorkers = 1;
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(AccountAppService)), (type, context) =>
-                    {
-                        var handler = FastActivator.CreateInstance(type, null);
-                        var repositoryHandler = handler as IAggregateRootApplicationService;
-                        if (repositoryHandler != null)
-                        {
-                            repositoryHandler.Repository = cfg.GlobalSettings.AggregateRepositories[IAA];
-                        }
-                        return handler;
-                    });
-                consumer.UseTransport<RabbitMq>();
-            });
+                    .WithNewStorageIfNotExists());
 
-            const string Collaboration = "Collaboration";
-            cfg.ConfigureEventStore<CassandraEventStoreSettings>(eventStore =>
-            {
-                eventStore
+            cfg.UseDefaultCommandsHostWithRabbitMq("IdentityAndAccess", typeof(AccountAppService), (type, context) =>
+                {
+                    return FastActivator.CreateInstance(type)
+                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value);
+                });
+
+            cfg.UseCassandraEventStore(eventStore => eventStore
                     .SetConnectionStringName("cronus_es")
-                    .SetAggregateStatesAssembly(Assembly.GetAssembly(typeof(UserState)))
-                    .SetDomainEventsAssembly(typeof(CreateUser))
-                    .CreateStorage();
-            });
-            cfg.ConfigureConsumer<EndpointCommandConsumableSettings>(Collaboration, consumer =>
-            {
-                consumer.NumberOfWorkers = 1;
-                consumer.RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserAppService)), (type, context) =>
-                    {
-                        var handler = FastActivator.CreateInstance(type, null);
-                        var repositoryHandler = handler as IAggregateRootApplicationService;
-                        if (repositoryHandler != null)
-                        {
-                            repositoryHandler.Repository = cfg.GlobalSettings.AggregateRepositories[Collaboration];
-                        }
-                        return handler;
-                    });
-                consumer.UseTransport<RabbitMq>();
-            })
-            .Build();
+                    .SetAggregateStatesAssembly(typeof(UserState))
+                    .WithNewStorageIfNotExists());
 
-            host = new CronusHost(cfg);
+            cfg.UseDefaultCommandsHostWithRabbitMq("Collaboration", typeof(UserAppService), (type, context) =>
+                {
+                    return FastActivator.CreateInstance(type)
+                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value);
+                });
+
+
+            host = new CronusHost(cfg.GetInstance());
             host.Start();
         }
     }

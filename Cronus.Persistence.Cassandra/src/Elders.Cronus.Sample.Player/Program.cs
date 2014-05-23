@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.Messaging.MessageHandleScope;
-using Elders.Cronus.Persistence.MSSQL.Config;
+using Elders.Cronus.Persistence.Cassandra.Config;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport.InMemory.Config;
@@ -59,14 +59,11 @@ namespace Elders.Cronus.Sample.Player
         {
             var sf = BuildSessionFactory();
 
-            var cfg = new CronusConfiguration();
-            cfg.ConfigureEventStore<MsSqlEventStoreSettings>(eventStore =>
-            {
-                eventStore
+            var cfg = new CronusSettings();
+            cfg.UseCassandraEventStore(eventStore => eventStore
                     .SetConnectionStringName("cronus_es")
-                    .SetDomainEventsAssembly(typeof(UserCreated))
-                    .SetAggregateStatesAssembly(typeof(UserState));
-            });
+                    .SetAggregateStatesAssembly(typeof(UserState)));
+
             cfg.PipelineEventPublisher(publisher =>
             {
                 publisher.MessagesAssemblies = new[] { Assembly.GetAssembly(typeof(UserCreated)) };

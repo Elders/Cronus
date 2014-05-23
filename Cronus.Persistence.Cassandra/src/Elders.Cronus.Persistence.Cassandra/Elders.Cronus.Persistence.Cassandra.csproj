@@ -72,7 +72,7 @@
     <Compile Include="CassandraPersister.cs" />
     <Compile Include="Config\CassandraConfiguration.cs" />
     <Compile Include="Config\CassandraEventStoreSettings.cs" />
-    <Compile Include="DataMember.cs" />
+    <Compile Include="CassandraEventStore.cs" />
     <Compile Include="ICassandraEventStoreTableNameStrategy.cs" />
     <Compile Include="Obsolete.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
