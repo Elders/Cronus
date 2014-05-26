@@ -8,6 +8,7 @@ using Elders.Cronus.Sample.IdentityAndAccess.Accounts;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using Elders.Cronus.Persistence.MSSQL.Config;
 using System;
+using Elders.Cronus.Persistence.MSSQL;
 
 namespace Elders.Cronus.Sample.ApplicationService
 {
@@ -17,6 +18,7 @@ namespace Elders.Cronus.Sample.ApplicationService
         static void Main(string[] args)
         {
             log4net.Config.XmlConfigurator.Configure();
+            DatabaseManager.DeleteDatabase("Server=.;Database=CronusES;User Id=sa;Password=sa;");
             UseCronusHost();
             System.Console.WriteLine("Started command handlers");
             System.Console.ReadLine();

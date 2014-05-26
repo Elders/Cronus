@@ -17,27 +17,44 @@ namespace Elders.Cronus.Sample.PerfAnalyzer
     class Program
     {
         static IPublisher<ICommand> commandPublisher;
-        static int delayBetweenBatches = 100;
+        static int delayBetweenBatches = 150;
         static int batchSize = 100;
         static int numberOfMessagesToSend = Int32.MaxValue;
         static Thread hostUIThread;
         static Thread analysisThread;
+        static int changeRate = 10;
 
         static void Main(string[] args)
         {
-            Thread.Sleep(5000);
+            Thread.Sleep(20000);
 
             ConfigurePublisher();
+
+            queueOverloaded = IncreaseDelay;
+            queueNotReachingMaximumCapacity = DencreaseDelay;
 
             hostUIThread = new Thread(() => { HostUI(SingleCreationCommandFromUpstreamBC); });
             hostUIThread.Start();
 
             Console.WriteLine("Start analyzing...");
-            analysisThread = new Thread(() => { StartAnalysis(5000, 1, 5000); });
+            analysisThread = new Thread(() => { StartAnalysis(5000, 5000); });
             analysisThread.Start();
 
-            Console.WriteLine("Done");
             Console.ReadLine();
+        }
+
+        private static void IncreaseDelay(string queueName)
+        {
+            delayBetweenBatches -= changeRate;
+
+            Console.WriteLine(String.Format("Batch delay decreased with {1} miliseconds to {0} miliseconds", delayBetweenBatches, changeRate));
+        }
+
+        private static void DencreaseDelay(string queueName)
+        {
+            delayBetweenBatches += 2 * changeRate;
+
+            Console.WriteLine(String.Format("Batch delay increased with {1} miliseconds to {0} miliseconds", delayBetweenBatches, 2 * changeRate));
         }
 
         private static void ConfigurePublisher()
@@ -83,29 +100,62 @@ namespace Elders.Cronus.Sample.PerfAnalyzer
         private static void HostUI(Action<int> publish)
         {
             Console.WriteLine("Start sending commands...");
-        
-            for (int i = 0; i <= numberOfMessagesToSend - batchSize; i = i + batchSize)
+            if (batchSize == 1)
             {
-                for (int j = 0; j < batchSize; j++)
+                if (delayBetweenBatches == 0)
                 {
-                    publish(i + j);
+                    for (int i = 0; i < numberOfMessagesToSend; i++)
+                    {
+                        publish(i);
+                    }
                 }
-
-                Thread.Sleep(delayBetweenBatches);
+                else
+                {
+                    for (int i = 0; i < numberOfMessagesToSend; i++)
+                    {
+                        publish(i);
+                        Thread.Sleep(delayBetweenBatches);
+                    }
+                }
+            }
+            else
+            {
+                if (delayBetweenBatches == 0)
+                {
+                    for (int i = 0; i <= numberOfMessagesToSend - batchSize; i = i + batchSize)
+                    {
+                        for (int j = 0; j < batchSize; j++)
+                        {
+                            publish(i + j);
+                        }
+                    }
+                }
+                else
+                {
+                    for (int i = 0; i <= numberOfMessagesToSend - batchSize; i = i + batchSize)
+                    {
+                        for (int j = 0; j < batchSize; j++)
+                        {
+                            publish(i + j);
+                        }
+                        Thread.Sleep(delayBetweenBatches);
+                    }
+                }
             }
         }
 
-        private static void StartAnalysis(int analysisDelay, int timeToDetermineStabilityInMinutes, int maxMessagesInQueue)
+        public static Action<string> queueOverloaded;
+        public static Action<string> queueNotReachingMaximumCapacity;
+
+        private static void StartAnalysis(int analysisDelay, int maxMessagesInQueue)
         {
             var client = new RestClient("http://localhost:15672/api/");
 
             var request = new RestRequest("/queues", Method.GET);
             request.AddHeader("Authorization", "Basic Z3Vlc3Q6Z3Vlc3Q=");
-            
-            var timeToNextChangeInMiliseconds = 10000;
-            var hasOverloaded = false;
 
-            var initialStart = DateTime.UtcNow;
+            var timeToNextChangeInMiliseconds = 30000;
+            var lastChanged = DateTime.UtcNow;
 
             while (true)
             {
@@ -115,41 +165,34 @@ namespace Elders.Cronus.Sample.PerfAnalyzer
 
                 if (int.Parse(queue.messages_ready) < maxMessagesInQueue)
                 {
-                    if ((DateTime.UtcNow - initialStart).TotalMinutes >= timeToDetermineStabilityInMinutes)
+                    if ((DateTime.UtcNow - lastChanged).TotalMilliseconds >= timeToNextChangeInMiliseconds)
                     {
-                        if (!hasOverloaded)
-                        {
-                            Console.WriteLine("We are not reaching the capabilities of the machine.");
+                        if (queueOverloaded != null)
+                        { 
+                            queueOverloaded("Elders.Cronus.Sample.IdentityAndAccess.Commands");
 
-                            break;
-                        }
-                        else
-                        {
-                            Console.WriteLine(String.Format("We are able to send {0} message at a time with delay between the messages {1} miliseconds.", batchSize, delayBetweenBatches));
-
-                            break;
+                            lastChanged = DateTime.UtcNow;
                         }
                     }
                 }
                 else
                 {
-                    if ((DateTime.UtcNow - initialStart).TotalMilliseconds >= timeToNextChangeInMiliseconds)
+                    if ((DateTime.UtcNow - lastChanged).TotalMilliseconds >= timeToNextChangeInMiliseconds)
                     {
-                        delayBetweenBatches += 1;
+                        if (queueNotReachingMaximumCapacity != null)
+                        { 
+                            queueNotReachingMaximumCapacity("Elders.Cronus.Sample.IdentityAndAccess.Commands");
 
-                        hasOverloaded = true;
+                            lastChanged = DateTime.UtcNow;
 
-                        initialStart = DateTime.UtcNow;
+                            Thread.Sleep(timeToNextChangeInMiliseconds);
+                        }
+
                     }
                 }
 
                 Thread.Sleep(analysisDelay);
             }
-        }
-
-        private static void StartAnalyzing(int analysisDelay, int timeToDetermineStabilityInMinutes, Func<Queue> getQueue)
-        {
-            
         }
     }
 
