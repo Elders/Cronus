@@ -35,8 +35,9 @@
     <StartupObject>Elders.Cronus.Sample.UI.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elders.Protoreg">
-      <HintPath>..\packages\Protoreg.1.0.8\lib\Elders.Protoreg.dll</HintPath>
+    <Reference Include="Elders.Protoreg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Protoreg.1.0.9\lib\Elders.Protoreg.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>

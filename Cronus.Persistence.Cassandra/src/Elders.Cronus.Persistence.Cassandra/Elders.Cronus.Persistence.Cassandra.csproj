@@ -46,7 +46,7 @@
       <HintPath>..\packages\CassandraCSharpDriver.1.0.4\lib\Cassandra.DSE.dll</HintPath>
     </Reference>
     <Reference Include="Elders.Protoreg">
-      <HintPath>..\packages\Protoreg.1.0.8\lib\Elders.Protoreg.dll</HintPath>
+      <HintPath>..\packages\Protoreg.1.0.9\lib\Elders.Protoreg.dll</HintPath>
     </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>

@@ -23,9 +23,9 @@ namespace Elders.Cronus.Sample.UI
             ConfigurePublisher();
 
             HostUI(/////////////////////////////////////////////////////////////////
-                                publish: SingleCreateWithMultipleUpdateCommands,
-                    delayBetweenBatches: 500,
-                              batchSize: 30,
+                                publish: SingleCreationCommandFromUpstreamBC,
+                    delayBetweenBatches: 90,
+                              batchSize: 100,
                  numberOfMessagesToSend: Int32.MaxValue
                  ///////////////////////////////////////////////////////////////////
                  );
@@ -49,7 +49,7 @@ namespace Elders.Cronus.Sample.UI
         private static void SingleCreationCommandFromUpstreamBC(int index)
         {
             AccountId accountId = new AccountId(Guid.NewGuid());
-            var email = String.Format("cronus_{0}_@Elders.com", index);
+            var email = String.Format("cronus_{0}_{1}_@Elders.com", index, DateTime.Now);
             commandPublisher.Publish(new RegisterAccount(accountId, email));
         }
 
