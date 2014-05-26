@@ -11,7 +11,7 @@ properties {
 
 	$assemblyFileVersion = "1.0.?";
 	$assemblyVersion = "1.0.0.0";
-	$assemblyRevision = "18";
+	$assemblyRevision = "19";
 
 	$nugetSourceDir = "Elders.Cronus.Persistence.MSSQL"
 	$nugetSourceFiles = @("Elders.Cronus.Persistence.MSSQL.dll", "Elders.Cronus.Persistence.MSSQL.pdb")
@@ -61,7 +61,7 @@ task PublishNugetPackage {
         -description "MSSQL persistence for Cronus" `
 		-dependencies @(
 						,@("Cronus.DomainModelling", "[1.0.7, 1.1.0)")
-						,@("Cronus", "[1.1.30, 1.2.0)")
+						,@("Cronus", "[1.1.34, 1.2.0)")
 						,@("log4net", "[2.0.3, 2.0.4)")
 						,@("RabbitMQ.Client", "[3.2.1, 3.4)")
 					   ) `
