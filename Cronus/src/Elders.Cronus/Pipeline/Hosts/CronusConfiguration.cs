@@ -108,6 +108,8 @@ namespace Elders.Cronus.Pipeline.Hosts
                 if (settings.EventStores != null && settings.EventStores.Count > 0)
                     cronusConfiguration.EventStores = settings.EventStores.ToDictionary(key => key.Key, val => val.Value.Value);
 
+                cronusConfiguration.Serializer = settings.Serializer;
+
                 return cronusConfiguration;
             });
         }

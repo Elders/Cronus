@@ -11,7 +11,7 @@ properties {
  
 	$assemblyFileVersion = "1.1.?";
 	$assemblyVersion = "1.1.0.0";
-	$assemblyRevision = "34";
+	$assemblyRevision = "36";
 
 	$nugetSourceDir = "Elders.Cronus"
 	$nugetSourceFiles = @("Elders.Cronus.dll", "Elders.Cronus.pdb")
@@ -61,7 +61,7 @@ task PublishNugetPackage {
         -version  $version `
         -description "Simple CQRS + EvetStore framework" `
 		-dependencies @(
-						,@("Cronus.DomainModelling", "[1.0.7, 1.1.0)")
+						,@("Cronus.DomainModelling", "[1.0.8, 1.1.0)")
 						,@("Protoreg", "[1.0.10, 1.1)")
 						,@("log4net", "[2.0.3, 2.0.4)")
 						,@("RabbitMQ.Client", "[3.2.1, 3.4)")

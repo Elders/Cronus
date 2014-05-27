@@ -94,32 +94,6 @@ namespace Elders.Cronus.Pipeline.Transport.RabbitMQ
             }
         }
 
-        public EndpointMessage BlockDequeue()
-        {
-            BasicDeliverEventArgs result;
-            if (consumer == null) throw new EndpointClosedException(String.Format("The Endpoint '{0}' is closed", Name));
-
-            try
-            {
-                result = consumer.Queue.Dequeue();
-                EndpointMessage msg = new EndpointMessage(result.Body, result.RoutingKey, result.BasicProperties.Headers);
-                dequeuedMessages.Add(msg, result);
-                return msg;
-            }
-            catch (EndOfStreamException ex)
-            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (AlreadyClosedException ex)
-            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (OperationInterruptedException ex)
-            { Close(); throw new EndpointClosedException(String.Format("The Endpoint '{0}' was closed", Name), ex); }
-            catch (Exception)
-            {
-                Close();
-                throw;
-            }
-
-        }
-
         public void Close()
         {
             if (safeChannel != null)

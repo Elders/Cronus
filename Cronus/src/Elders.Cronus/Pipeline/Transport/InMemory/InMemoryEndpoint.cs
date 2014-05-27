@@ -24,11 +24,6 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             return InMemoryQueue.Current.BlockDequeue(this, timeoutInMiliseconds, out msg);
         }
 
-        public EndpointMessage BlockDequeue()
-        {
-            return InMemoryQueue.Current.BlockDequeue(this);
-        }
-
         public void Close() { }
 
         public EndpointMessage DequeueNoWait()

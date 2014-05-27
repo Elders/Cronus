@@ -53,16 +53,6 @@ namespace Elders.Cronus.Pipeline
 
         public DateTime ScheduledStart { get; set; }
 
-        private bool TryPullMessageFromEndpoint(out EndpointMessage rawMessage)
-        {
-            rawMessage = null;
-            if (messageThreshold.Delay <= 0)
-                rawMessage = endpoint.BlockDequeue();
-            else
-                endpoint.BlockDequeue(messageThreshold.Delay, out rawMessage);
-            return rawMessage != null;
-        }
-
         public void Start()
         {
             try
@@ -76,7 +66,7 @@ namespace Elders.Cronus.Pipeline
                     for (int i = 0; i < messageThreshold.Size; i++)
                     {
                         EndpointMessage rawMessage = null;
-                        if (!TryPullMessageFromEndpoint(out rawMessage))
+                        if (!endpoint.BlockDequeue(messageThreshold.Delay, out rawMessage))
                             break;
 
                         TransportMessage transportMessage;
@@ -114,6 +104,7 @@ namespace Elders.Cronus.Pipeline
         public void Stop()
         {
             isWorking = false;
+            endpoint.Close();
         }
 
     }
