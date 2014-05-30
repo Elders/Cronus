@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
@@ -22,7 +23,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         static ProtoregSerializer serializer = null;
 
-        public static T UseContractsFromAssemblies<T>(this T self, Assembly[] assembliesContainingContracts)
+        public static T UseContractsFromAssemblies<T>(this T self, Assembly[] assembliesContainingContracts, Type[] contracts = null)
             where T : IHaveSerializer, ICanConfigureSerializer
         {
             if (serializer != null)
@@ -36,6 +37,9 @@ namespace Elders.Cronus.Pipeline.Config
             {
                 protoreg.RegisterAssembly(ass);
             }
+
+            if (contracts != null)
+                contracts.ToList().ForEach(c => protoreg.RegisterCommonType(c));
 
             serializer = new ProtoregSerializer(protoreg);
             serializer.Build();
