@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Cassandra;
+using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
 using Elders.Protoreg;
 
@@ -35,7 +36,7 @@ APPLY BATCH;";
             insertEventsBatchPreparedStatement = session.Prepare(String.Format(InsertEventsBatchQueryTemplate, tableNameStrategy.GetEventsTableName()));
         }
 
-        public void Persist(List<DomainMessageCommit> commits)
+        public void Persist(List<IDomainMessageCommit> commits)
         {
             foreach (var commit in commits)
             {

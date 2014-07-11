@@ -9,12 +9,12 @@ namespace Elders.Cronus.Sample.Collaboration.Users
     {
         public void Handle(RenameUser command)
         {
-            var asd = Repository.Update<User>(command, user => user.Rename(command.FirstName, command.LastName));
+            Update(command.Id, user => user.Rename(command.FirstName, command.LastName));
         }
 
         public void Handle(CreateUser command)
         {
-            Repository.Save(new User(command.Id, command.Email), command);
+            Repository.Save(new User(command.Id, command.Email));
         }
     }
 }

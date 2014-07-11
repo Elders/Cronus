@@ -4,7 +4,7 @@ using Elders.Cronus.DomainModelling;
 namespace Elders.Cronus.Sample.Collaboration.Users.Commands
 {
     [DataContract(Name = "aeaae173-d790-443d-92b2-caa06d55f1a2")]
-    public class RenameUser : Command
+    public class RenameUser : ICommand
     {
         RenameUser() { }
 

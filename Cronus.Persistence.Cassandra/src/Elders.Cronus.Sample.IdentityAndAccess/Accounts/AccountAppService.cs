@@ -10,15 +10,20 @@ namespace Elders.Cronus.Sample.IdentityAndAccess.Accounts
 
         public void Handle(RegisterAccount command)
         {
-            Repository.Save(new Account(command.Id, command.Email), command);
+            Repository.Save(new Account(command.Id, command.Email));
         }
 
         public void Handle(ChangeAccountEmail command)
         {
-            var account = Repository.Load(command.Id);
+            //  Explicit
+            var account = Repository.Load<Account>(command.Id);
             account.ChangeEmail(command.OldEmail, command.NewEmail);
-            Repository.CommitChanges();
-          //  Repository.Update<Account>(command, user => user.ChangeEmail(command.OldEmail, command.NewEmail));
+            Repository.Save(account);
+
+            //  OR
+
+            //  Implicit
+            //Update(command.Id, user => user.ChangeEmail(command.OldEmail, command.NewEmail));
         }
     }
 }

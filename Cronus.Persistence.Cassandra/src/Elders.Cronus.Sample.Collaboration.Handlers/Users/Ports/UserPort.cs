@@ -12,7 +12,7 @@ namespace Elders.Cronus.Sample.Collaboration.Users.Ports
         static int counter = 0;
         public void Handle(AccountRegistered message)
         {
-            counter++;
+            //counter++;
             UserId userId = new UserId(Guid.NewGuid());
             var email = message.Email;
             //if (counter % 500 == 0)

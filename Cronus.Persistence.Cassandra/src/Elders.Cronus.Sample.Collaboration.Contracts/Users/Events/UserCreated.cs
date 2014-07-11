@@ -4,12 +4,11 @@ using Elders.Cronus.DomainModelling;
 namespace Elders.Cronus.Sample.Collaboration.Users.Events
 {
     [DataContract(Name = "8caa4c0c-4a34-4267-a8ef-b1fbe11d03c3")]
-    public class UserCreated : Event
+    public class UserCreated : IEvent
     {
         UserCreated() { }
 
         public UserCreated(UserId id, string email)
-            : base(id)
         {
             Id = id;
             Email = email;
