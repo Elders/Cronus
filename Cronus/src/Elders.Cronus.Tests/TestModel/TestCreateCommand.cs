@@ -2,12 +2,11 @@ using Elders.Cronus.DomainModelling;
 
 namespace Elders.Cronus.Tests.TestModel
 {
-    public class TestCreateCommand : Command
+    public class TestCreateCommand : ICommand
     {
         TestCreateCommand() { }
 
         public TestCreateCommand(TestAggregateId id)
-            : base(id)
         {
 
         }

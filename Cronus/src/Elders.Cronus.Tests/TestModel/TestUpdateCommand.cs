@@ -2,12 +2,11 @@ using Elders.Cronus.DomainModelling;
 
 namespace Elders.Cronus.Tests.TestModel
 {
-    public class TestUpdateCommand : Command
+    public class TestUpdateCommand : ICommand
     {
         TestUpdateCommand() { }
 
         public TestUpdateCommand(TestAggregateId id)
-            : base(id)
         {
 
         }

@@ -9,7 +9,7 @@ namespace Elders.Cronus.DomainModelling
 
         public abstract int Version { get; set; }
 
-        public void Apply(IEvent @event)
+        void IAggregateRootState.Apply(IEvent @event)
         {
             var state = (dynamic)this;
             state.When((dynamic)@event);

@@ -2,10 +2,9 @@ using Elders.Cronus.DomainModelling;
 
 namespace Elders.Cronus.Tests.TestModel
 {
-    public class TestUpdateEvent : Event
+    public class TestUpdateEvent : IEvent
     {
         public TestUpdateEvent(TestAggregateId id, string updatedFieldValue)
-            : base(id)
         {
             Id = id;
             UpdatedFieldValue = updatedFieldValue;
