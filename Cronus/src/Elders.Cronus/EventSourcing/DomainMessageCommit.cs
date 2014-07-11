@@ -8,17 +8,17 @@ using Elders.Cronus.DomainModelling;
 namespace Elders.Cronus.EventSourcing
 {
 
+
     [DataContract(Name = "6a146321-7b94-4ff6-bf2c-cd82cba1836b")]
-    public class DomainMessageCommit : IMessage
+    public class DomainMessageCommit : IDomainMessageCommit
     {
         DomainMessageCommit()
         {
             UncommittedEvents = new List<object>();
         }
 
-        public DomainMessageCommit(IAggregateRootState state, List<IEvent> events, ICommand command)
+        public DomainMessageCommit(IAggregateRootState state, List<IEvent> events)
         {
-            CommandWrap = command;
             UncommittedState = state;
             UncommittedEvents = events.Cast<object>().ToList();
         }
@@ -29,14 +29,9 @@ namespace Elders.Cronus.EventSourcing
         [DataMember(Order = 2)]
         private List<object> UncommittedEvents { get; set; }
 
-        [DataMember(Order = 3)]
-        private object CommandWrap { get; set; }
-
         public IAggregateRootState State { get { return (IAggregateRootState)UncommittedState; } }
 
         public List<IEvent> Events { get { return UncommittedEvents.Cast<IEvent>().ToList(); } }
-
-        public ICommand Command { get { return (ICommand)CommandWrap; } }
 
         public override string ToString()
         {

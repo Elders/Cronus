@@ -4,12 +4,11 @@ using Elders.Cronus.DomainModelling;
 namespace Elders.Cronus.Sample.IdentityAndAccess.Accounts.Events
 {
     [DataContract(Name = "fa54bc57-cfba-49b6-b08f-99457624de5d")]
-    public class AccountEmailChanged : Event
+    public class AccountEmailChanged : IEvent
     {
         AccountEmailChanged() { }
 
         public AccountEmailChanged(AccountId id, string oldEmail, string newEmail)
-            : base(id)
         {
             NewEmail = newEmail;
             OldEmail = oldEmail;

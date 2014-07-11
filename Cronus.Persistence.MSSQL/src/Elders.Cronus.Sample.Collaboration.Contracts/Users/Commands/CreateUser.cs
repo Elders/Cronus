@@ -4,12 +4,11 @@ using Elders.Cronus.DomainModelling;
 namespace Elders.Cronus.Sample.Collaboration.Users.Commands
 {
     [DataContract(Name = "279e6378-af27-47e8-a34f-12ca3d371714")]
-    public class CreateUser : Command
+    public class CreateUser : ICommand
     {
         CreateUser() { }
 
         public CreateUser(UserId id, string email)
-            : base(id)
         {
             Email = email;
             Id = id;

@@ -10,12 +10,12 @@ namespace Elders.Cronus.Sample.IdentityAndAccess.Accounts
 
         public void Handle(RegisterAccount message)
         {
-            Repository.Save(new Account(message.Id, message.Email), message);
+            Repository.Save(new Account(message.Id, message.Email));
         }
 
         public void Handle(ChangeAccountEmail message)
         {
-            Repository.Update<Account>(message, user => user.ChangeEmail(message.OldEmail, message.NewEmail));
+            Update(message.Id, user => user.ChangeEmail(message.OldEmail, message.NewEmail));
         }
     }
 }

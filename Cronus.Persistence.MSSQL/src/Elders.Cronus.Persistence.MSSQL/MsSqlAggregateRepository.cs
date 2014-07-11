@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
+using System.Linq;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
 using Elders.Protoreg;
@@ -19,6 +21,7 @@ namespace Elders.Cronus.Persistence.MSSQL
 
         private readonly IEventStorePersister persister;
 
+
         public MsSqlAggregateRepository(IEventStorePersister persister, IMsSqlEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer, string connectionString)
         {
             this.persister = persister;
@@ -27,32 +30,14 @@ namespace Elders.Cronus.Persistence.MSSQL
             this.serializer = serializer;
         }
 
-        public void Save(IAggregateRoot aggregateRoot, ICommand command)
-        {
-            DomainMessageCommit domainMessageCommit = new DomainMessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents, command);
-            persister.Persist(new System.Collections.Generic.List<DomainMessageCommit>() { domainMessageCommit });
-        }
-
-        public AR Update<AR>(IAggregateRootId aggregateId, ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot
-        {
-            var state = LoadAggregateState(aggregateId.Id);
-            AR aggregateRoot = AggregateRootFactory.Build<AR>(state);
-            update(aggregateRoot);
-            if (save != null)
-                save(aggregateRoot, command);
-            else
-                Save(aggregateRoot, command);
-            return aggregateRoot;
-        }
-
-        private IAggregateRootState LoadAggregateState(Guid aggregateId)
+        private IAggregateRootState LoadAggregateState(IAggregateRootId aggregateId)
         {
             using (SqlConnection connection = new SqlConnection(connectionString))
             {
                 connection.Open();
                 string query = String.Format(LoadAggregateStateQueryTemplate, tableNameStrategy.GetSnapshotsTableName());
                 SqlCommand command = new SqlCommand(query, connection);
-                command.Parameters.AddWithValue("@aggregateId", aggregateId);
+                command.Parameters.AddWithValue("@aggregateId", aggregateId.Id);
 
                 using (var reader = command.ExecuteReader())
                 {
@@ -74,17 +59,21 @@ namespace Elders.Cronus.Persistence.MSSQL
             }
         }
 
-
-
-        public AR Update<AR>(ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot
+        public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
-            var state = LoadAggregateState(command.MetaAggregateId.Id);
+
+            if (ReferenceEquals(null, aggregateRoot)) throw new ArgumentNullException("aggregateRoot");
+            if (aggregateRoot.UncommittedEvents.Count > 0)
+            {
+                var dmc = new DomainMessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents);
+                persister.Persist(new List<IDomainMessageCommit>() { dmc });
+            }
+        }
+
+        public AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        {
+            var state = LoadAggregateState(id);
             AR aggregateRoot = AggregateRootFactory.Build<AR>(state);
-            update(aggregateRoot);
-            if (save != null)
-                save(aggregateRoot, command);
-            else
-                Save(aggregateRoot, command);
             return aggregateRoot;
         }
     }

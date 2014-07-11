@@ -7,7 +7,7 @@ namespace Elders.Cronus.DomainModelling
     /// </summary>
     public interface IEvent : IMessage
     {
-        IAggregateRootId MetaAggregateId { get; }
-        long MetaTimestamp { get; }
+        //IAggregateRootId MetaAggregateId { get; }
+        //long MetaTimestamp { get; }
     }
 }

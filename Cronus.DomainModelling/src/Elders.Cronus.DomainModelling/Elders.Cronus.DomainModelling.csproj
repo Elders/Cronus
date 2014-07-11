@@ -42,13 +42,13 @@
     <Compile Include="AggregateRootId.cs" />
     <Compile Include="AggregateRootState.cs" />
     <Compile Include="BoundedContextAttribute.cs" />
-    <Compile Include="Command.cs" />
     <Compile Include="IAggregateRepository.cs" />
     <Compile Include="IAggregateRoot.cs" />
     <Compile Include="IAggregateRootId.cs" />
     <Compile Include="IAggregateRootState.cs" />
     <Compile Include="IAggregateRootStateManager.cs" />
     <Compile Include="ICommand.cs" />
+    <Compile Include="IDomainMessageCommit.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="IMessageHandler.cs" />

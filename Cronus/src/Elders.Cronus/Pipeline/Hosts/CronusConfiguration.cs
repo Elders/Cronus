@@ -186,7 +186,7 @@ namespace Elders.Cronus.Pipeline.Hosts
                     .UseRabbitMqTransport()
                     .CommandConsumer(consumer => consumer
                         .UseCommandHandler(h => h
-                            .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new RepoBatchScope((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
+                            .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new ApplicationServiceBatchScope((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
                             .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
             return self;
         }
@@ -209,7 +209,7 @@ namespace Elders.Cronus.Pipeline.Hosts
                     .UseInMemoryTransport()
                     .CommandConsumer(consumer => consumer
                         .UseCommandHandler(h => h
-                            .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new RepoBatchScope((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
+                            .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new ApplicationServiceBatchScope((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
                             .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
             return self;
         }
@@ -224,13 +224,13 @@ namespace Elders.Cronus.Pipeline.Hosts
         }
     }
 
-    public class RepoBatchScope : IBatchScope
+    public class ApplicationServiceBatchScope : IBatchScope
     {
         IAggregateRepository repository;
         IEventStorePersister persister;
         IPublisher<IEvent> publisher;
 
-        public RepoBatchScope(IAggregateRepository repository, IEventStorePersister persister, IPublisher<IEvent> publisher)
+        public ApplicationServiceBatchScope(IAggregateRepository repository, IEventStorePersister persister, IPublisher<IEvent> publisher)
         {
             this.repository = repository;
             this.persister = persister;
@@ -239,15 +239,17 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public void Begin()
         {
-            Lazy<IAggregateRepository> lazyRepository = new Lazy<IAggregateRepository>(() => new InternalBatchRepository(repository));
+            var appServiceGateway = new ApplicationServiceGateway(repository, persister);
+            Lazy<IAggregateRepository> lazyRepository = new Lazy<IAggregateRepository>(() => (appServiceGateway));
+            Lazy<IApplicationServiceGateway> gateway = new Lazy<IApplicationServiceGateway>(() => (appServiceGateway));
             Context.Set<Lazy<IAggregateRepository>>(lazyRepository);
+            Context.Set<Lazy<IApplicationServiceGateway>>(gateway);
         }
 
         public void End()
         {
-            var currentRepo = Context.Get<Lazy<IAggregateRepository>>().Value as InternalBatchRepository;
-            persister.Persist(currentRepo.Commits);
-            currentRepo.Commits.ForEach(e => e.Events.ForEach(x => publisher.Publish(x)));
+            var currentRepo = Context.Get<Lazy<IApplicationServiceGateway>>().Value;
+            currentRepo.CommitChanges(@event => publisher.Publish(@event));
         }
 
         public IScopeContext Context { get; set; }

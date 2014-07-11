@@ -4,12 +4,11 @@ using Elders.Cronus.DomainModelling;
 namespace Elders.Cronus.Sample.IdentityAndAccess.Accounts.Commands
 {
     [DataContract(Name = "645b65a5-9381-44c5-9d11-7c67c1e3ce34")]
-    public class ChangeAccountEmail : Command
+    public class ChangeAccountEmail : ICommand
     {
         ChangeAccountEmail() { }
 
         public ChangeAccountEmail(AccountId id, string oldEmail, string newEmail)
-            : base(id)
         {
             NewEmail = newEmail;
             OldEmail = oldEmail;

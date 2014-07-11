@@ -4,12 +4,12 @@ using Elders.Cronus.DomainModelling;
 namespace Elders.Cronus.Sample.IdentityAndAccess.Accounts.Commands
 {
     [DataContract(Name = "2826a407-4eb1-4e28-a296-40be4ec9f23f")]
-    public class RegisterAccount : Command
+    public class RegisterAccount : ICommand
     {
         RegisterAccount() { }
 
         public RegisterAccount(AccountId id, string email)
-            : base(id)
+
         {
             Email = email;
             Id = id;

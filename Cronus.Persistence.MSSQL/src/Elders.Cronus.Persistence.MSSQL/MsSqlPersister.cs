@@ -130,7 +130,7 @@ namespace Elders.Cronus.Persistence.MSSQL
         //    }
         //}
 
-        public void Persist(List<DomainMessageCommit> commits)
+        public void Persist(List<IDomainMessageCommit> commits)
         {
             //ValidateSnapshotsBoundedContext
             //#if DEBUG

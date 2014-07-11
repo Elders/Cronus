@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Elders.Cronus.DomainModelling
 {
@@ -10,11 +11,14 @@ namespace Elders.Cronus.DomainModelling
     /// </remarks>
     public interface IAggregateRepository
     {
-        [Obsolete("Use the overload without IAggreagteRootId parameter. The ICommand now holds the aggregate id.")]
-        AR Update<AR>(IAggregateRootId aggregateId, ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot;
-        AR Update<AR>(ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot;
+        void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot;
 
-        void Save(IAggregateRoot aggregateRoot, ICommand command);
+        AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot;
+    }
+
+    public interface IApplicationServiceGateway
+    {
+        void CommitChanges(Action<IEvent> publish);
     }
 
 }

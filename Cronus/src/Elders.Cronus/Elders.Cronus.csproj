@@ -155,7 +155,7 @@
     <Compile Include="Pipeline\EndpointConsumer.cs" />
     <Compile Include="EventSourcing\EventStorePublisher.cs" />
     <Compile Include="EventSourcing\EventStream.cs" />
-    <Compile Include="EventSourcing\RabbitRepository.cs" />
+    <Compile Include="EventSourcing\CronusProxyRepository.cs" />
     <Compile Include="Pipeline\Hosts\CronusHost.cs" />
     <Compile Include="Pipeline\Hosts\CronusPlayer.cs" />
     <Compile Include="Pipeline\IEndpointConsumable.cs" />
@@ -215,6 +215,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pipeline\Transport\Config\" />
+    <Folder Include="Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

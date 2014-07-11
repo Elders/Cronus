@@ -34,16 +34,13 @@ namespace Elders.Cronus.Persistence.Cassandra
                 return;
             aggregateRoot.State.Version += 1;
 
-            DomainMessageCommit commit = new DomainMessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents, command);
-            if (command.MetaExpectedAggregateRevision == -1)
-                ((Command)command).MetaExpectedAggregateRevision = versionService.ReserveVersion(command.MetaAggregateId, aggregateRoot.State.Version);
-
-            if (aggregateRoot.State.Version == command.MetaExpectedAggregateRevision)
+            int reservedVersion = versionService.ReserveVersion(aggregateRoot.State.Id, aggregateRoot.State.Version);
+            if (reservedVersion != aggregateRoot.State.Version)
             {
-                persister.Persist(new List<DomainMessageCommit>() { commit });
-            }
-            else
                 throw new Exception("Retry command");
+            }
+            DomainMessageCommit commit = new DomainMessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents, command);
+            persister.Persist(new List<DomainMessageCommit>() { commit });
         }
 
         public AR Update<AR>(IAggregateRootId aggregateId, ICommand command, Action<AR> update, Action<IAggregateRoot, ICommand> save = null) where AR : IAggregateRoot
