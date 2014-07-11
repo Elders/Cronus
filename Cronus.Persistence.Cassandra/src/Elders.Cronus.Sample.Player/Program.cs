@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using Elders.Cronus.DomainModelling;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 using Elders.Cronus.Persistence.Cassandra.Config;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
@@ -16,7 +16,7 @@ using NHibernate;
 
 namespace Elders.Cronus.Sample.Player
 {
-    public class HandlerScope : IHandlerScope
+    public class HandlerScope : IHandlerUnitOfWork
     {
         private readonly ISessionFactory sessionFactory;
         private ISession session;
@@ -29,7 +29,7 @@ namespace Elders.Cronus.Sample.Player
 
         public void Begin()
         {
-            Context = new ScopeContext();
+            Context = new UnitOfWorkContext();
 
             Lazy<ISession> lazySession = new Lazy<ISession>(() =>
             {
@@ -50,7 +50,7 @@ namespace Elders.Cronus.Sample.Player
             }
         }
 
-        public IScopeContext Context { get; set; }
+        public IUnitOfWorkContext Context { get; set; }
     }
 
     class Program
@@ -72,11 +72,11 @@ namespace Elders.Cronus.Sample.Player
                     .UseInMemoryTransport()
                     .EventConsumer(c => c
                         .UseEventHandler(h => h
-                            .UseScopeFactory(new ScopeFactory() { CreateHandlerScope = () => new HandlerScope(sf) })
+                            .UseUnitOfWork(new UnitOfWorkFactory() { CreateHandlerUnitOfWork = () => new HandlerScope(sf) })
                             .RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                             {
                                 return FastActivator.CreateInstance(type)
-                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.HandlerScopeContext.Get<Lazy<ISession>>().Value);
+                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.HandlerContext.Get<Lazy<ISession>>().Value);
                             }))));
 
             new CronusPlayer(cfg.GetInstance()).Replay();

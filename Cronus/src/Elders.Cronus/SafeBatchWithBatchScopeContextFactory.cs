@@ -1,55 +1,54 @@
 using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModelling;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus
 {
-    public class SafeBatchWithBatchScopeContextFactory<T> : SafeBatchFactory<T, Context>
+    public class SafeBatchWithBatchUnitOfWorkContextFactory<T> : SafeBatchFactory<T, Context>
             where T : TransportMessage
     {
-        private readonly ISafeBatchRetryStrategy<TransportMessage> retryStrategy;
-        public SafeBatchWithBatchScopeContextFactory(ScopeFactory scopeFactory)
+        public SafeBatchWithBatchUnitOfWorkContextFactory(UnitOfWorkFactory unitOfWorkFactory)
         {
-            this.ScopeFactory = scopeFactory;
+            this.UnitOfWorkFactory = unitOfWorkFactory;
         }
 
-        public ScopeFactory ScopeFactory { get; private set; }
+        public UnitOfWorkFactory UnitOfWorkFactory { get; private set; }
 
-        public override SafeBatch<T, Context> Initialize()
+        public override SafeBatch<T, Context> CreateSafeBatch()
         {
-            return new SafeBatch<T, Context>(new BatchScopeContextAware(ScopeFactory.CreateBatchScope));
+            return new SafeBatch<T, Context>(new BatchUnitOfWorkContextAware(UnitOfWorkFactory.CreateBatchUnitOfWork));
         }
 
-        class BatchScopeContextAware : ISafeBatchContextAware<T, Context>
+        class BatchUnitOfWorkContextAware : ISafeBatchContextAware<T, Context>
         {
-            IBatchScope batchScope = null;
+            IBatchUnitOfWork batchUnitOfWork = null;
 
-            private readonly Func<IBatchScope> batchScopeFactory;
+            private readonly Func<IBatchUnitOfWork> batchUnitOfWorkFactory;
 
             Context context = null;
 
-            public BatchScopeContextAware(Func<IBatchScope> batchScopeFactory)
+            public BatchUnitOfWorkContextAware(Func<IBatchUnitOfWork> batchUnitOfWorkFactory)
             {
-                this.batchScopeFactory = batchScopeFactory;
+                this.batchUnitOfWorkFactory = batchUnitOfWorkFactory;
             }
 
-            public Context OnBatchBeginTry(List<T> items)
+            public Context OnBeginTry(List<T> items)
             {
                 context = new Context();
-                batchScope = batchScopeFactory();
-                if (batchScope.Context == null)
-                    batchScope.Context = new ScopeContext();
-                context.BatchScopeContext = batchScope.Context;
-                batchScope.Begin();
+                batchUnitOfWork = batchUnitOfWorkFactory();
+                if (batchUnitOfWork.Context == null)
+                    batchUnitOfWork.Context = new UnitOfWorkContext();
+                context.BatchContext = batchUnitOfWork.Context;
+                batchUnitOfWork.Begin();
                 return context;
             }
 
-            public void OnBatchEndTry(List<T> items, Context context)
+            public void OnEndTry(List<T> items, Context context)
             {
-                batchScope.End();
-                batchScope.Context.Clear();
-                batchScope = null;
+                batchUnitOfWork.End();
+                batchUnitOfWork.Context.Clear();
+                batchUnitOfWork = null;
             }
 
         }

@@ -2,21 +2,21 @@ using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 using Elders.Cronus.Pipeline.Hosts;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public class MessageProcessorWithSafeBatchSettings<TContract> : IMessageProcessorWithSafeBatchSettings<TContract>, IHaveScopeFactory where TContract : IMessage
+    public class MessageProcessorWithSafeBatchSettings<TContract> : IMessageProcessorWithSafeBatchSettings<TContract>, IHaveUnitOfWorkFactory where TContract : IMessage
     {
         public MessageProcessorWithSafeBatchSettings()
         {
-            (this as IHaveScopeFactory).ScopeFactory = new Lazy<ScopeFactory>(() => new ScopeFactory());
+            (this as IHaveUnitOfWorkFactory).UnitOfWorkFactory = new Lazy<UnitOfWorkFactory>(() => new UnitOfWorkFactory());
         }
 
         Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorWithSafeBatchSettings<TContract>.HandlerRegistrations { get; set; }
 
-        Lazy<ScopeFactory> IHaveScopeFactory.ScopeFactory { get; set; }
+        Lazy<UnitOfWorkFactory> IHaveUnitOfWorkFactory.UnitOfWorkFactory { get; set; }
     }
 
     public class EventStoreMessageProcessorWithSafeBatchSettings : IMessageProcessorWithSafeBatchSettings<DomainMessageCommit>
@@ -26,9 +26,9 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class MessageProcessorWithSafeBatchSettingsExtensions
     {
-        public static T UseScopeFactory<T>(this T self, ScopeFactory instance) where T : IHaveScopeFactory
+        public static T UseUnitOfWork<T>(this T self, UnitOfWorkFactory instance) where T : IHaveUnitOfWorkFactory
         {
-            self.ScopeFactory = new Lazy<ScopeFactory>(() => instance);
+            self.UnitOfWorkFactory = new Lazy<UnitOfWorkFactory>(() => instance);
 
             return self;
         }
@@ -44,7 +44,7 @@ namespace Elders.Cronus.Pipeline.Config
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<IEvent>>(() =>
             {
-                var safeBatchFactory = new SafeBatchWithBatchScopeContextFactory<TransportMessage>((settings as IHaveScopeFactory).ScopeFactory.Value);
+                var safeBatchFactory = new SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage>((settings as IHaveUnitOfWorkFactory).UnitOfWorkFactory.Value);
 
                 var handler = new MessageHandlerCollection<IEvent>(safeBatchFactory);
 
@@ -72,7 +72,7 @@ namespace Elders.Cronus.Pipeline.Config
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<IEvent>>(() =>
             {
-                var safeBatchFactory = new SafeBatchWithBatchScopeContextFactory<TransportMessage>((settings as IHaveScopeFactory).ScopeFactory.Value);
+                var safeBatchFactory = new SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage>((settings as IHaveUnitOfWorkFactory).UnitOfWorkFactory.Value);
 
                 var handler = new MessageHandlerCollection<IEvent>(safeBatchFactory);
 
@@ -99,7 +99,7 @@ namespace Elders.Cronus.Pipeline.Config
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<ICommand>>(() =>
             {
-                var safeBatchFactory = new SafeBatchWithBatchScopeContextFactory<TransportMessage>((settings as IHaveScopeFactory).ScopeFactory.Value);
+                var safeBatchFactory = new SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage>((settings as IHaveUnitOfWorkFactory).UnitOfWorkFactory.Value);
 
                 var handler = new MessageHandlerCollection<ICommand>(safeBatchFactory);
 

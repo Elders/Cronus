@@ -13,7 +13,7 @@ using Elders.Cronus.Sample.CommonFiles;
 using Elders.Cronus.Sample.Handlers.Nhibernate;
 using Elders.Cronus.Sample.IdentityAndAccess.Accounts.Commands;
 using Elders.Cronus.Sample.Collaboration.Users.Commands;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Sample.Handlers
 {
@@ -33,11 +33,11 @@ namespace Elders.Cronus.Sample.Handlers
                     .UseRabbitMqTransport()
                     .EventConsumer(c => c
                         .UseEventHandler(h => h
-                            .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new BatchScope(sf) })
+                            .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new BatchScope(sf) })
                             .RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                             {
                                 return FastActivator.CreateInstance(type)
-                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.BatchScopeContext.Get<Lazy<ISession>>().Value);
+                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.BatchContext.Get<Lazy<ISession>>().Value);
                             }))));
 
             host = new CronusHost(cfg.GetInstance());

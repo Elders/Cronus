@@ -38,7 +38,7 @@ namespace Elders.Cronus.Sample.ApplicationService
             cfg.UseDefaultCommandsHostWithRabbitMq("IdentityAndAccess", typeof(AccountAppService), (type, context) =>
                 {
                     return FastActivator.CreateInstance(type)
-                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value);
+                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchContext.Get<Lazy<IAggregateRepository>>().Value);
                 });
 
             cfg.UseCassandraEventStore(eventStore => eventStore
@@ -49,7 +49,7 @@ namespace Elders.Cronus.Sample.ApplicationService
             cfg.UseDefaultCommandsHostWithRabbitMq("Collaboration", typeof(UserAppService), (type, context) =>
                 {
                     return FastActivator.CreateInstance(type)
-                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value);
+                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchContext.Get<Lazy<IAggregateRepository>>().Value);
                 });
 
 

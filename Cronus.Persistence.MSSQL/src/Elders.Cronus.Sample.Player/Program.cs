@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 using Elders.Cronus.Persistence.MSSQL.Config;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
@@ -15,20 +15,20 @@ using NHibernate;
 
 namespace Elders.Cronus.Sample.Player
 {
-    public class HandlerScope : IHandlerScope
+    public class HandlerUnitOfWork : IHandlerUnitOfWork
     {
         private readonly ISessionFactory sessionFactory;
         private ISession session;
         private ITransaction transaction;
 
-        public HandlerScope(ISessionFactory sessionFactory)
+        public HandlerUnitOfWork(ISessionFactory sessionFactory)
         {
             this.sessionFactory = sessionFactory;
         }
 
         public void Begin()
         {
-            Context = new ScopeContext();
+            Context = new UnitOfWorkContext();
 
             Lazy<ISession> lazySession = new Lazy<ISession>(() =>
             {
@@ -49,7 +49,7 @@ namespace Elders.Cronus.Sample.Player
             }
         }
 
-        public IScopeContext Context { get; set; }
+        public IUnitOfWorkContext Context { get; set; }
     }
 
     class Program
@@ -71,11 +71,11 @@ namespace Elders.Cronus.Sample.Player
                     .UseInMemoryTransport()
                     .EventConsumer(c => c
                         .UseEventHandler(h => h
-                            .UseScopeFactory(new ScopeFactory() { CreateHandlerScope = () => new HandlerScope(sf) })
+                            .UseUnitOfWork(new UnitOfWorkFactory() { CreateHandlerUnitOfWork = () => new HandlerUnitOfWork(sf) })
                             .RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                             {
                                 return FastActivator.CreateInstance(type)
-                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.HandlerScopeContext.Get<Lazy<ISession>>().Value);
+                                    .AssignPropertySafely<IHaveNhibernateSession>(x => x.Session = context.HandlerContext.Get<Lazy<ISession>>().Value);
                             }))));
 
             new CronusPlayer(cfg.GetInstance()).Replay();

@@ -6,7 +6,7 @@ using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Protoreg;
 using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 using Elders.Cronus.Pipeline.Transport.InMemory.Config;
 
 namespace Elders.Cronus.Pipeline.Hosts
@@ -186,7 +186,7 @@ namespace Elders.Cronus.Pipeline.Hosts
                     .UseRabbitMqTransport()
                     .CommandConsumer(consumer => consumer
                         .UseCommandHandler(h => h
-                            .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new ApplicationServiceBatchScope((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
+                            .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new ApplicationServiceBatchUnitOfWork((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
                             .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
             return self;
         }
@@ -209,7 +209,7 @@ namespace Elders.Cronus.Pipeline.Hosts
                     .UseInMemoryTransport()
                     .CommandConsumer(consumer => consumer
                         .UseCommandHandler(h => h
-                            .UseScopeFactory(new ScopeFactory() { CreateBatchScope = () => new ApplicationServiceBatchScope((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
+                            .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new ApplicationServiceBatchUnitOfWork((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
                             .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
             return self;
         }
@@ -224,13 +224,13 @@ namespace Elders.Cronus.Pipeline.Hosts
         }
     }
 
-    public class ApplicationServiceBatchScope : IBatchScope
+    public class ApplicationServiceBatchUnitOfWork : IBatchUnitOfWork
     {
         IAggregateRepository repository;
         IEventStorePersister persister;
         IPublisher<IEvent> publisher;
 
-        public ApplicationServiceBatchScope(IAggregateRepository repository, IEventStorePersister persister, IPublisher<IEvent> publisher)
+        public ApplicationServiceBatchUnitOfWork(IAggregateRepository repository, IEventStorePersister persister, IPublisher<IEvent> publisher)
         {
             this.repository = repository;
             this.persister = persister;
@@ -252,6 +252,6 @@ namespace Elders.Cronus.Pipeline.Hosts
             currentRepo.CommitChanges(@event => publisher.Publish(@event));
         }
 
-        public IScopeContext Context { get; set; }
+        public IUnitOfWorkContext Context { get; set; }
     }
 }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModelling;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus
 {
@@ -20,12 +20,12 @@ namespace Elders.Cronus
         //  Each contract/message can have several handler types/classes
         protected Dictionary<Type, HashSet<Type>> registeredHandlers = new Dictionary<Type, HashSet<Type>>();
 
-        public MessageHandlerCollection(SafeBatchWithBatchScopeContextFactory<TransportMessage> safeBatchFactory)
+        public MessageHandlerCollection(SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage> safeBatchFactory)
         {
             this.safeBatchFactory = safeBatchFactory;
         }
 
-        public ScopeFactory ScopeFactory { get; private set; }
+        public UnitOfWorkFactory UnitOfWorkFactory { get; private set; }
 
         public IEnumerable<Type> GetRegisteredHandlers()
         {
@@ -34,7 +34,7 @@ namespace Elders.Cronus
 
         public bool Handle(TContract message, Context context)
         {
-            return safeBatchFactory.ScopeFactory.UseMessageScope(context, (ctx) =>
+            return safeBatchFactory.UnitOfWorkFactory.UseMessageUnitOfWork(context, (ctx) =>
             {
                 List<Func<TContract, Context, bool>> availableHandlers;
                 if (handlers.TryGetValue(message.GetType(), out availableHandlers))
@@ -48,13 +48,13 @@ namespace Elders.Cronus
             });
         }
 
-        private readonly SafeBatchWithBatchScopeContextFactory<TransportMessage> safeBatchFactory;
+        private readonly SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage> safeBatchFactory;
 
         public ISafeBatchResult<TransportMessage> Handle(List<TransportMessage> messages)
         {
             if (messages.Count == 0)
                 throw new Exception("Do not pass empty collection of messages. PLEASE!");
-            var safeBatch = safeBatchFactory.Initialize();
+            var safeBatch = safeBatchFactory.CreateSafeBatch();
             return safeBatch.Execute(messages, (msg, context) => Handle((TContract)msg.Payload, context));
         }
 
@@ -84,7 +84,7 @@ namespace Elders.Cronus
 
         protected bool Handle(TContract message, Context context, Type eventHandlerType, Func<Type, Context, object> handlerFactory)
         {
-            return safeBatchFactory.ScopeFactory.UseHandlerScope(context, (ctx) =>
+            return safeBatchFactory.UnitOfWorkFactory.UseHandlerUnitOfWork(context, (ctx) =>
             {
                 var handler = handlerFactory(eventHandlerType, ctx);
                 if (log.IsInfoEnabled)

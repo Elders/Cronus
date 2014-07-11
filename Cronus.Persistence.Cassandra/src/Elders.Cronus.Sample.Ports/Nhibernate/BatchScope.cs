@@ -1,10 +1,10 @@
 ﻿using System;
 using NHibernate;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Sample.Ports.Nhibernate
 {
-    public class BatchScope : IBatchScope
+    public class BatchScope : IBatchUnitOfWork
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(BatchScope));
 
@@ -54,7 +54,7 @@ namespace Elders.Cronus.Sample.Ports.Nhibernate
             }
         }
 
-        public IScopeContext Context { get; set; }
+        public IUnitOfWorkContext Context { get; set; }
 
         public int Size { get; set; }
     }

@@ -1,11 +1,11 @@
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public class ScopeSettings : HideObectMembers
+    public class UnitOfWorkSettings : HideObectMembers
     {
-        public IBatchScope BatchScope { get; set; }
-        public IMessageScope MessageScope { get; set; }
-        public IHandlerScope HandlerScope { get; set; }
+        public IBatchUnitOfWork BatchUnitOfWork { get; set; }
+        public IMessageUnitOfWork MessageUnitOfWork { get; set; }
+        public IHandlerUnitOfWork HandlerUnitOfWork { get; set; }
     }
 }

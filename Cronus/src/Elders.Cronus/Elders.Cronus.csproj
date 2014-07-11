@@ -134,14 +134,14 @@
     <Compile Include="EventSourcing\DomainMessageCommit.cs" />
     <Compile Include="IMessageProcessor.cs" />
     <Compile Include="MessageHandlerCollection.cs" />
-    <Compile Include="MessageHandleScope\Context.cs" />
-    <Compile Include="MessageHandleScope\IBatchScope.cs" />
-    <Compile Include="MessageHandleScope\IHandlerScope.cs" />
-    <Compile Include="MessageHandleScope\IMessageScope.cs" />
-    <Compile Include="MessageHandleScope\IScope.cs" />
-    <Compile Include="MessageHandleScope\IScopeContext.cs" />
-    <Compile Include="MessageHandleScope\ScopeContext.cs" />
-    <Compile Include="MessageHandleScope\ScopeFactory.cs" />
+    <Compile Include="UnitOfWork\Context.cs" />
+    <Compile Include="UnitOfWork\IBatchUnitOfWork.cs" />
+    <Compile Include="UnitOfWork\IHandlerUnitOfWork.cs" />
+    <Compile Include="UnitOfWork\IMessageUnitOfWork.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWork.cs" />
+    <Compile Include="UnitOfWork\IUnitOfWorkContext.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkContext.cs" />
+    <Compile Include="UnitOfWork\UnitOfWorkFactory.cs" />
     <Compile Include="Pipeline\Config\IConsumerSettings.cs" />
     <Compile Include="Pipeline\EndpointClosedException.cs" />
     <Compile Include="Pipeline\ErrorEndpointPerEndpoint.cs" />
@@ -215,7 +215,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pipeline\Transport\Config\" />
-    <Folder Include="Services\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

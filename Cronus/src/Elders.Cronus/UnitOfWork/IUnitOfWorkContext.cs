@@ -1,6 +1,6 @@
-namespace Elders.Cronus.Messaging.MessageHandleScope
+namespace Elders.Cronus.UnitOfWork
 {
-    public interface IScopeContext
+    public interface IUnitOfWorkContext
     {
         void Set<T>(T obj);
         void Set<T>(string name, T obj);

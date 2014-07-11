@@ -1,10 +1,10 @@
 ﻿using System;
 using NHibernate;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Sample.Handlers.Nhibernate
 {
-    public class BatchScope : IBatchScope
+    public class BatchScope : IBatchUnitOfWork
     {
         private readonly ISessionFactory sessionFactory;
         private ISession session;
@@ -53,7 +53,7 @@ namespace Elders.Cronus.Sample.Handlers.Nhibernate
             }
         }
 
-        public IScopeContext Context { get; set; }
+        public IUnitOfWorkContext Context { get; set; }
 
         public int Size { get; set; }
     }

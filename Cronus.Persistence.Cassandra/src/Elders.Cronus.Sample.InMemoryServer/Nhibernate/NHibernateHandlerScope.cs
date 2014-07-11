@@ -1,9 +1,9 @@
 ﻿using NHibernate;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Sample.InMemoryServer.Nhibernate
 {
-    public class NHibernateHandlerScope : IHandlerScope
+    public class NHibernateHandlerScope : IHandlerUnitOfWork
     {
         private readonly ISessionFactory sessionFactory;
         private ISession session;
@@ -28,6 +28,6 @@ namespace Elders.Cronus.Sample.InMemoryServer.Nhibernate
             session.Close();
         }
 
-        public IScopeContext Context { get; set; }
+        public IUnitOfWorkContext Context { get; set; }
     }
 }

@@ -1,18 +1,18 @@
 ﻿using System;
 using NHibernate;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Sample.Ports.Nhibernate
 {
-    public class BatchScope : IBatchScope
+    public class BatchUnitOfWork : IBatchUnitOfWork
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(BatchScope));
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(BatchUnitOfWork));
 
         private readonly ISessionFactory sessionFactory;
         private ISession session;
         private ITransaction transaction;
 
-        public BatchScope(ISessionFactory sessionFactory)
+        public BatchUnitOfWork(ISessionFactory sessionFactory)
         {
             this.sessionFactory = sessionFactory;
         }
@@ -53,6 +53,6 @@ namespace Elders.Cronus.Sample.Ports.Nhibernate
             }
         }
 
-        public IScopeContext Context { get; set; }
+        public IUnitOfWorkContext Context { get; set; }
     }
 }

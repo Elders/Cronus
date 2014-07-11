@@ -44,7 +44,7 @@ namespace Elders.Cronus.Sample.ApplicationService
                 .UseDefaultCommandsHostWithRabbitMq(IAA, typeof(AccountAppService), (type, context) =>
                 {
                     return FastActivator.CreateInstance(type)
-                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value);
+                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchContext.Get<Lazy<IAggregateRepository>>().Value);
                 });
 
             const string Collaboration = "Collaboration";
@@ -55,7 +55,7 @@ namespace Elders.Cronus.Sample.ApplicationService
                 .UseDefaultCommandsHostWithRabbitMq(Collaboration, typeof(UserAppService), (type, context) =>
                 {
                     return FastActivator.CreateInstance(type)
-                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchScopeContext.Get<Lazy<IAggregateRepository>>().Value);
+                        .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchContext.Get<Lazy<IAggregateRepository>>().Value);
                 });
 
             host = new CronusHost(cfg.GetInstance());

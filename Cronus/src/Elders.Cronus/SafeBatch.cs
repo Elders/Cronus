@@ -7,13 +7,13 @@ namespace Elders.Cronus
 {
     public abstract class SafeBatchFactory<T, C>
     {
-        public abstract SafeBatch<T, C> Initialize();
+        public abstract SafeBatch<T, C> CreateSafeBatch();
     }
 
     public interface ISafeBatchContextAware<T, C>
     {
-        C OnBatchBeginTry(List<T> items);
-        void OnBatchEndTry(List<T> items, C context);
+        C OnBeginTry(List<T> items);
+        void OnEndTry(List<T> items, C context);
     }
 
     public class SafeBatch<T, C>
@@ -80,10 +80,10 @@ namespace Elders.Cronus
                     failed.Clear();
                     retryStrategy.Retry(tryCount, (batch) =>
                     {
-                        var context = contextAware.OnBatchBeginTry(batch.Items);
+                        var context = contextAware.OnBeginTry(batch.Items);
                         if (singleItemAction != null)
                             batch.Items.ForEach(item => singleItemAction(item, context));
-                        contextAware.OnBatchEndTry(batch.Items, context);
+                        contextAware.OnEndTry(batch.Items, context);
                     },
                     itemsToRetry, out successItems, out failed);
                     totalSuccess.AddRange(successItems);

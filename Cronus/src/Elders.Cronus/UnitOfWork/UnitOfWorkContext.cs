@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 
-namespace Elders.Cronus.Messaging.MessageHandleScope
+namespace Elders.Cronus.UnitOfWork
 {
-    public class ScopeContext : IScopeContext
+    public class UnitOfWorkContext : IUnitOfWorkContext
     {
         Dictionary<string, Dictionary<Type, object>> context = new Dictionary<string, Dictionary<Type, object>>();
 
-        public ScopeContext()
+        public UnitOfWorkContext()
         {
             context = new Dictionary<string, Dictionary<Type, object>>();
         }

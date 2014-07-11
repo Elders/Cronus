@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Elders.Cronus.DomainModelling;
-using Elders.Cronus.Messaging.MessageHandleScope;
+using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -17,9 +17,9 @@ namespace Elders.Cronus.Pipeline.Config
 
     }
 
-    public interface IHaveScopeFactory
+    public interface IHaveUnitOfWorkFactory
     {
-        Lazy<ScopeFactory> ScopeFactory { get; set; }
+        Lazy<UnitOfWorkFactory> UnitOfWorkFactory { get; set; }
     }
 
     public interface IMessageProcessorWithSafeBatchSettings<out TContract> where TContract : IMessage

@@ -6,7 +6,7 @@ namespace Elders.Cronus.EventSourcing
 {
 
     /// <summary>
-    /// Handles changes in aggregates using batches. This implementation works explicitly with IBatchScope.
+    /// Handles changes in aggregates using batches. This implementation works explicitly with IBatchUnitOfWork.
     /// </summary>
     /// <remarks>The class is NOT THREAD SAFE.</remarks>
     public class ApplicationServiceGateway : IApplicationServiceGateway, IAggregateRepository
