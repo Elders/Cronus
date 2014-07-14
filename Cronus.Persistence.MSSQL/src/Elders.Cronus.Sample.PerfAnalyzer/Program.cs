@@ -63,7 +63,7 @@ namespace Elders.Cronus.Sample.PerfAnalyzer
 
             var cronusCfg = new CronusSettings()
                 .UseContractsFromAssemblies(new Assembly[] { Assembly.GetAssembly(typeof(RegisterAccount)), Assembly.GetAssembly(typeof(CreateUser)) })
-                .WithDefaultPublishers()
+                .WithDefaultPublishersWithRabbitMq()
                 .GetInstance();
 
             commandPublisher = cronusCfg.CommandPublisher;
