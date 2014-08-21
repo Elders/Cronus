@@ -73,6 +73,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Elders.Multithreading.Scheduler">
+      <HintPath>..\packages\Multithreading.Scheduler.1.0.0\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
+    </Reference>
     <Reference Include="Elders.Protoreg">
       <HintPath>..\..\..\Cronus.Persistence.MSSQL\src\packages\Protoreg.1.0.10\lib\Elders.Protoreg.dll</HintPath>
     </Reference>
@@ -173,12 +176,6 @@
     <Compile Include="Userfull\LateBoundMethod.cs" />
     <Compile Include="Pipeline\PipelinePublisher.cs" />
     <Compile Include="Userfull\FastActivator.cs" />
-    <Compile Include="Multithreading\Work\IWork.cs" />
-    <Compile Include="Multithreading\Work\WorkExtensions.cs" />
-    <Compile Include="Multithreading\Work\WorkPool.cs" />
-    <Compile Include="Multithreading\Work\WorkProcessor.cs" />
-    <Compile Include="Multithreading\Work\WorkSource.cs" />
-    <Compile Include="Multithreading\Work\WorkSourceScheduler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
       <Link>Properties\AssemblyVersionInfo.cs</Link>

@@ -1,10 +1,9 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Elders.Cronus.DomainModelling;
-using Elders.Cronus.Multithreading.Work;
 using Elders.Protoreg;
+using Elders.Multithreading.Scheduler;
 
 namespace Elders.Cronus.Pipeline
 {
