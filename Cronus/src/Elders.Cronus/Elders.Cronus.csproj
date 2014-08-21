@@ -177,12 +177,6 @@
     <Compile Include="Pipeline\PipelinePublisher.cs" />
     <Compile Include="Userfull\FastActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
-      <Link>Properties\AssemblyVersionInfo.cs</Link>
-    </Compile>
-    <Compile Include="$(SolutionDir)AssemblyCompanyProductInfo.cs">
-      <Link>Properties\AssemblyCompanyProductInfo.cs</Link>
-    </Compile>
     <Compile Include="Userfull\RetryableOperation.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
     <Compile Include="Pipeline\Strategy\CommandHandlerEndpointPerBoundedContext.cs" />
