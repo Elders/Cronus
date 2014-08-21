@@ -30,20 +30,19 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Cassandra, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CassandraCSharpDriver.1.0.4\lib\Cassandra.dll</HintPath>
+    <Reference Include="Cassandra">
+      <HintPath>..\packages\CassandraCSharpDriver.2.1.0-beta1\lib\net40\Cassandra.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Cassandra.Data, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CassandraCSharpDriver.1.0.4\lib\Cassandra.Data.dll</HintPath>
+      <HintPath>..\packages\CassandraCSharpDriver.2.1.0-beta1\lib\net40\Cassandra.Data.dll</HintPath>
     </Reference>
-    <Reference Include="Cassandra.Data.Linq, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\CassandraCSharpDriver.1.0.4\lib\Cassandra.Data.Linq.dll</HintPath>
+    <Reference Include="Cassandra.Data.Linq">
+      <HintPath>..\packages\CassandraCSharpDriver.2.1.0-beta1\lib\net40\Cassandra.Data.Linq.dll</HintPath>
     </Reference>
-    <Reference Include="Cassandra.DSE">
-      <HintPath>..\packages\CassandraCSharpDriver.1.0.4\lib\Cassandra.DSE.dll</HintPath>
+    <Reference Include="Crc32C.NET">
+      <HintPath>..\packages\Crc32C.NET.1.0.5.0\lib\net20\Crc32C.NET.dll</HintPath>
     </Reference>
     <Reference Include="Elders.Protoreg">
       <HintPath>..\packages\Protoreg.1.0.9\lib\Elders.Protoreg.dll</HintPath>
@@ -51,12 +50,18 @@
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="LZ4">
+      <HintPath>..\packages\lz4net.1.0.3.93\lib\net40-client\LZ4.dll</HintPath>
+    </Reference>
     <Reference Include="protobuf-net">
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client, Version=3.2.4.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RabbitMQ.Client.3.3.0\lib\net30\RabbitMQ.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Snappy.NET">
+      <HintPath>..\packages\Snappy.NET.1.1.1.8\lib\net45\Snappy.NET.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />

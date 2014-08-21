@@ -4,15 +4,15 @@ using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Sample.Ports.Nhibernate
 {
-    public class BatchScope : IBatchUnitOfWork
+    public class BatchUnitOfWork : IBatchUnitOfWork
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(BatchScope));
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(BatchUnitOfWork));
 
         private readonly ISessionFactory sessionFactory;
         private ISession session;
         private ITransaction transaction;
 
-        public BatchScope(ISessionFactory sessionFactory)
+        public BatchUnitOfWork(ISessionFactory sessionFactory)
         {
             this.sessionFactory = sessionFactory;
             Size = 100;
@@ -39,7 +39,8 @@ namespace Elders.Cronus.Sample.Ports.Nhibernate
         {
             if (session != null)
             {
-                try { transaction.Commit(); }
+                try
+                { transaction.Commit(); }
                 catch (Exception)
                 {
                     transaction.Rollback();

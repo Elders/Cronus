@@ -63,7 +63,7 @@
     <Compile Include="..\Elders.Cronus.Sample.CommonFiles\NHibernateExtensions.cs">
       <Link>Nhibernate\NHibernateExtensions.cs</Link>
     </Compile>
-    <Compile Include="Nhibernate\BatchScope.cs" />
+    <Compile Include="Nhibernate\BatchUnitOfWork.cs" />
     <Compile Include="Program.cs">
       <SubType>
       </SubType>

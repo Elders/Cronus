@@ -14,14 +14,14 @@ namespace Elders.Cronus.Persistence.Cassandra
 
         private readonly IEventStorePersister persister;
         private readonly ProtoregSerializer serializer;
-        private readonly Session session;
+        private readonly ISession session;
         private readonly ICassandraEventStoreTableNameStrategy tableNameStrategy;
 
         private PreparedStatement loadAggregateEventsPreparedStatement;
 
         private static AggregateVersionService versionService = new AggregateVersionService();
 
-        public CassandraAggregateRepository(Session session, IEventStorePersister persister, ICassandraEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer)
+        public CassandraAggregateRepository(ISession session, IEventStorePersister persister, ICassandraEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer)
         {
             this.persister = persister;
             this.serializer = serializer;

@@ -40,7 +40,7 @@ namespace Elders.Cronus.Sample.Ports
                     .UseRabbitMqTransport()
                     .EventConsumer(consumer => consumer
                         .UsePortHandler(h => h
-                            .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new BatchScope(sf) })
+                            .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new BatchUnitOfWork(sf) })
                             .RegisterAllHandlersInAssembly(Assembly.GetAssembly(typeof(UserProjection)), (type, context) =>
                             {
                                 return FastActivator.CreateInstance(type)

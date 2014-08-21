@@ -23,11 +23,11 @@ APPLY BATCH;";
 
         private readonly ProtoregSerializer serializer;
 
-        private readonly Session session;
+        private readonly ISession session;
 
         private readonly ICassandraEventStoreTableNameStrategy tableNameStrategy;
 
-        public CassandraPersister(Session session, ICassandraEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer)
+        public CassandraPersister(ISession session, ICassandraEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer)
         {
             this.tableNameStrategy = tableNameStrategy;
             this.session = session;

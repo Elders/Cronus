@@ -182,6 +182,7 @@ namespace Elders.Cronus.Pipeline.Hosts
         {
             self
                 .UseCommandConsumable(boundedContext, consumable => consumable
+
                     .SetNumberOfConsumers(2)
                     .UseRabbitMqTransport()
                     .CommandConsumer(consumer => consumer

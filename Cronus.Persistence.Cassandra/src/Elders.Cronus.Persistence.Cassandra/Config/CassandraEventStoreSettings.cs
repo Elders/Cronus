@@ -67,7 +67,7 @@ namespace Elders.Cronus.Persistence.Cassandra.Config
     {
         string ConnectionString { get; set; }
         string KeySpace { get; set; }
-        Session Session { get; set; }
+        ISession Session { get; set; }
         ICassandraEventStoreTableNameStrategy EventStoreTableNameStrategy { get; set; }
     }
 
@@ -83,7 +83,7 @@ namespace Elders.Cronus.Persistence.Cassandra.Config
 
         ProtoregSerializer IHaveSerializer.Serializer { get; set; }
 
-        Session ICassandraEventStoreSettings.Session { get; set; }
+        ISession ICassandraEventStoreSettings.Session { get; set; }
 
         Lazy<IEventStore> ISettingsBuilder<IEventStore>.Build()
         {

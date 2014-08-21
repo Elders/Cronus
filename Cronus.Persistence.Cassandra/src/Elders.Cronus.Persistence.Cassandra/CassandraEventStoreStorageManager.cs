@@ -11,10 +11,10 @@ namespace Elders.Cronus.Persistence.Cassandra
         private const string CreateReplayEventsTableTemplate = @"CREATE TABLE IF NOT EXISTS ""{0}player"" (date text, events list<blob>, PRIMARY KEY (date)) WITH compression = {{ 'sstable_compression' : '' }};";
         //private const string CreateSnapshotsTableTemplate = @"CREATE TABLE IF NOT EXISTS ""{0}"" (id uuid, ver int, ts bigint, data blob, PRIMARY KEY (id,ver));";
 
-        private readonly Session session;
+        private readonly ISession session;
         private readonly ICassandraEventStoreTableNameStrategy tableNameStrategy;
 
-        public CassandraEventStoreStorageManager(Session session, ICassandraEventStoreTableNameStrategy tableNameStrategy)
+        public CassandraEventStoreStorageManager(ISession session, ICassandraEventStoreTableNameStrategy tableNameStrategy)
         {
             this.session = session;
             this.tableNameStrategy = tableNameStrategy;

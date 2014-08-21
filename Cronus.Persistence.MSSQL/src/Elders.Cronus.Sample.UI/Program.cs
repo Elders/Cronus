@@ -22,7 +22,7 @@ namespace Elders.Cronus.Sample.UI
             ConfigurePublisher();
 
             HostUI(/////////////////////////////////////////////////////////////////
-                                publish: SingleCreationCommandFromUpstreamBC,
+                                publish: SingleCreateWithMultipleUpdateCommands,
                     delayBetweenBatches: 200,
                               batchSize: 100,
                  numberOfMessagesToSend: int.MaxValue
