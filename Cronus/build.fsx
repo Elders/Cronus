@@ -10,6 +10,16 @@ open Fake.ReleaseNotesHelper
 open System
 open System.IO
 
+type System.String with 
+    member x.contains (comp:System.StringComparison) str = 
+        x.IndexOf(str,comp) >= 0
+        
+let excludePaths (pathsToExclude : string list) (path: string) =
+    pathsToExclude 
+        |> List.exists (path.contains StringComparison.OrdinalIgnoreCase)
+        |> not
+
+let buildDir  = @"./bin/Release"
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
 
 let projectName = "Cronus"
@@ -18,11 +28,10 @@ let projectDescription = "CQRS + EvetStore framework"
 let projectAuthors = ["Nikolai Mynkow"; "Simeon Dimov";]
 
 let packages = ["Cronus", projectDescription]
-
-let buildDir  = @"./bin/Release"
 let nugetDir = "./bin/nuget"
 let nugetDependencies = getDependencies "./src/Elders.Cronus/packages.config"
-let excludeLog4net (path : string) = path.Contains "log4net" |> not
+let nugetDependenciesFlat, _ = nugetDependencies |> List.unzip
+let excludeNugetDependencies = excludePaths nugetDependenciesFlat
 
 Target "Clean" (fun _ -> CleanDirs [buildDir])
 
@@ -56,7 +65,7 @@ Target "CreateNuGet" (fun _ ->
 
         match package with
         | p when p = projectName ->
-            CopyDir nugetToolsDir (buildDir @@ ("Elders." + package)) excludeLog4net
+            CopyDir nugetToolsDir (buildDir @@ ("Elders." + package)) excludeNugetDependencies
         !! (nugetToolsDir @@ "*.srcsv") |> DeleteFiles
 
         NuGet (fun p ->
@@ -72,7 +81,7 @@ Target "CreateNuGet" (fun _ ->
                 Publish = hasBuildParam "nugetkey"
                 ToolPath = "./tools/NuGet/nuget.exe"
                 OutputPath = nugetDir
-                WorkingDir = nugetDir }) "Multithreading.Scheduler.nuspec"
+                WorkingDir = nugetDir }) "Cronus.nuspec"
 )
 
 Target "Release" (fun _ ->

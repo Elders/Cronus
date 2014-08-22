@@ -32,3 +32,4 @@ src/packages
 .nuget/*.nupkg
 packages/
 *.sln.ide/
+release.cmd
