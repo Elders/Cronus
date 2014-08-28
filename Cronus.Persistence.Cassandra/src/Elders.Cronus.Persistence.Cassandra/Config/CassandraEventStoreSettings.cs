@@ -8,7 +8,7 @@ using Elders.Cronus.EventSourcing;
 using Elders.Cronus.EventSourcing.Config;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Persistence.Cassandra.Config
 {
@@ -81,7 +81,7 @@ namespace Elders.Cronus.Persistence.Cassandra.Config
 
         string ICassandraEventStoreSettings.KeySpace { get; set; }
 
-        ProtoregSerializer IHaveSerializer.Serializer { get; set; }
+        ISerializer IHaveSerializer.Serializer { get; set; }
 
         ISession ICassandraEventStoreSettings.Session { get; set; }
 

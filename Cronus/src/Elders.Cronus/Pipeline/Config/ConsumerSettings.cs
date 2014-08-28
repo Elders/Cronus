@@ -1,6 +1,6 @@
 using System;
 using Elders.Cronus.DomainModelling;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -17,7 +17,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         Lazy<IEndpointPostConsume> IHaveEndpointPostConsumeActions.PostConsume { get; set; }
 
-        ProtoregSerializer IHaveSerializer.Serializer { get; set; }
+        ISerializer IHaveSerializer.Serializer { get; set; }
 
         Lazy<IConsumer<TContract>> ISettingsBuilder<IConsumer<TContract>>.Build()
         {

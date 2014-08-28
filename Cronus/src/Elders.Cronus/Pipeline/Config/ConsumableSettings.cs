@@ -2,7 +2,7 @@
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Transport;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -25,7 +25,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         Lazy<IEndpointNameConvention> IHavePipelineSettings.EndpointNameConvention { get; set; }
 
-        ProtoregSerializer IHaveSerializer.Serializer { get; set; }
+        ISerializer IHaveSerializer.Serializer { get; set; }
 
         MessageThreshold IConsumableSettings.MessageTreshold { get; set; }
     }

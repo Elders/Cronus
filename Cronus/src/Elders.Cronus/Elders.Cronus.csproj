@@ -76,15 +76,17 @@
     <Reference Include="Elders.Multithreading.Scheduler">
       <HintPath>..\packages\Multithreading.Scheduler.1.0.0\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
     </Reference>
-    <Reference Include="Elders.Protoreg">
-      <HintPath>..\..\..\Cronus.Persistence.MSSQL\src\packages\Protoreg.1.0.10\lib\Elders.Protoreg.dll</HintPath>
+    <Reference Include="Elders.Protoreg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Protoreg.1.0.10\lib\Elders.Protoreg.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="protobuf-net">
+    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="RabbitMQ.Client, Version=3.3.0.0, Culture=neutral, PublicKeyToken=89e7d7c5feba84ce, processorArchitecture=MSIL">
@@ -137,6 +139,8 @@
     <Compile Include="EventSourcing\DomainMessageCommit.cs" />
     <Compile Include="IMessageProcessor.cs" />
     <Compile Include="MessageHandlerCollection.cs" />
+    <Compile Include="Serializer\ISerializer.cs" />
+    <Compile Include="Serializer\Protoreg\ProtoregSerializer.cs" />
     <Compile Include="UnitOfWork\Context.cs" />
     <Compile Include="UnitOfWork\IBatchUnitOfWork.cs" />
     <Compile Include="UnitOfWork\IHandlerUnitOfWork.cs" />

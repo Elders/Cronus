@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline
 {
@@ -33,7 +33,7 @@ namespace Elders.Cronus.Pipeline
 
     public class DefaultEndpointPostConsume : IEndpointPostConsume
     {
-        public DefaultEndpointPostConsume(IPipelineFactory<IPipeline> pipelineFactory, ProtoregSerializer serializer)
+        public DefaultEndpointPostConsume(IPipelineFactory<IPipeline> pipelineFactory, ISerializer serializer)
         {
             this.ErrorStrategy = new EndpointPostConsumeStrategy.ErrorEndpointPerEndpoint(pipelineFactory, serializer);
             this.RetryStrategy = new EndpointPostConsumeStrategy.RetryEndpointPerEndpoint(pipelineFactory, serializer);
@@ -57,9 +57,9 @@ namespace Elders.Cronus.Pipeline
 
             private readonly IPipelineFactory<IPipeline> pipelineFactory;
 
-            private readonly ProtoregSerializer serializer;
+            private readonly ISerializer serializer;
 
-            public RetryEndpointPerEndpoint(IPipelineFactory<IPipeline> pipelineFactory, ProtoregSerializer serializer)
+            public RetryEndpointPerEndpoint(IPipelineFactory<IPipeline> pipelineFactory, ISerializer serializer)
             {
                 this.serializer = serializer;
                 this.pipelineFactory = pipelineFactory;
@@ -96,9 +96,9 @@ namespace Elders.Cronus.Pipeline
 
             private readonly IPipelineFactory<IPipeline> pipelineFactory;
 
-            private readonly ProtoregSerializer serializer;
+            private readonly ISerializer serializer;
 
-            public ErrorEndpointPerEndpoint(IPipelineFactory<IPipeline> pipelineFactory, ProtoregSerializer serializer)
+            public ErrorEndpointPerEndpoint(IPipelineFactory<IPipeline> pipelineFactory, ISerializer serializer)
             {
                 this.serializer = serializer;
                 this.pipelineFactory = pipelineFactory;

@@ -4,7 +4,7 @@ using System.Data.SqlClient;
 using System.IO;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Persistence.MSSQL
 {
@@ -14,10 +14,10 @@ namespace Elders.Cronus.Persistence.MSSQL
 
         private readonly string connectionString;
 
-        private readonly ProtoregSerializer serializer;
+        private readonly ISerializer serializer;
         private readonly IMsSqlEventStoreTableNameStrategy tableNameStrategy;
 
-        public MsSqlEventStorePlayer(IMsSqlEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer, string connectionString)
+        public MsSqlEventStorePlayer(IMsSqlEventStoreTableNameStrategy tableNameStrategy, ISerializer serializer, string connectionString)
         {
             this.tableNameStrategy = tableNameStrategy;
             this.connectionString = connectionString;

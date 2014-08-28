@@ -4,7 +4,7 @@ using System.IO;
 using Cassandra;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Persistence.Cassandra
 {
@@ -21,13 +21,13 @@ APPLY BATCH;";
         private PreparedStatement insertEventsPreparedStatement;
         private PreparedStatement insertEventsBatchPreparedStatement;
 
-        private readonly ProtoregSerializer serializer;
+        private readonly ISerializer serializer;
 
         private readonly ISession session;
 
         private readonly ICassandraEventStoreTableNameStrategy tableNameStrategy;
 
-        public CassandraPersister(ISession session, ICassandraEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer)
+        public CassandraPersister(ISession session, ICassandraEventStoreTableNameStrategy tableNameStrategy, ISerializer serializer)
         {
             this.tableNameStrategy = tableNameStrategy;
             this.session = session;

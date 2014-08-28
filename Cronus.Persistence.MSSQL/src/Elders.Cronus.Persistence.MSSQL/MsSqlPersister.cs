@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
+using Elders.Cronus.Serializer;
 using Elders.Protoreg;
 
 namespace Elders.Cronus.Persistence.MSSQL
@@ -13,10 +14,10 @@ namespace Elders.Cronus.Persistence.MSSQL
     public class MsSqlPersister : IEventStorePersister
     {
         private readonly string connectionString;
-        private readonly ProtoregSerializer serializer;
+        private readonly ISerializer serializer;
         private readonly IMsSqlEventStoreTableNameStrategy tableNameStrategy;
 
-        public MsSqlPersister(IMsSqlEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer, string connectionString)
+        public MsSqlPersister(IMsSqlEventStoreTableNameStrategy tableNameStrategy, ISerializer serializer, string connectionString)
         {
             this.connectionString = connectionString;
             this.tableNameStrategy = tableNameStrategy;

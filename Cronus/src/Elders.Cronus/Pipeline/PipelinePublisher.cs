@@ -1,5 +1,5 @@
 ﻿using Elders.Cronus.DomainModelling;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline
 {
@@ -10,9 +10,9 @@ namespace Elders.Cronus.Pipeline
 
         private readonly IPipelineFactory<IPipeline> pipelineFactory;
 
-        private readonly ProtoregSerializer serializer;
+        private readonly ISerializer serializer;
 
-        public PipelinePublisher(IPipelineFactory<IPipeline> pipelineFactory, ProtoregSerializer serializer)
+        public PipelinePublisher(IPipelineFactory<IPipeline> pipelineFactory, ISerializer serializer)
         {
             this.pipelineFactory = pipelineFactory;
             this.serializer = serializer;

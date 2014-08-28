@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 using Elders.Cronus.DomainModelling;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline
 {
@@ -12,14 +12,15 @@ namespace Elders.Cronus.Pipeline
 
         public ErrorMessage(object message, Exception exception)
         {
+            System.Diagnostics.Trace.WriteLine("We should move Elders.Protoreg.ProtoregSerializableException from protoreg to Cronus");
             Messages = message;
-            Exception = new ProtoregSerializableException(exception);
+            Exception = new Elders.Protoreg.ProtoregSerializableException(exception);
         }
 
         [DataMember(Order = 1)]
         public object Messages { get; private set; }
 
         [DataMember(Order = 2)]
-        public ProtoregSerializableException Exception { get; private set; }
+        public Elders.Protoreg.ProtoregSerializableException Exception { get; private set; }
     }
 }

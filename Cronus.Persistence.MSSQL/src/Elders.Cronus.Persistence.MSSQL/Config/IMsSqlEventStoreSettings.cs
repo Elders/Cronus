@@ -6,7 +6,7 @@ using Elders.Cronus.EventSourcing;
 using Elders.Cronus.EventSourcing.Config;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Persistence.MSSQL.Config
 {
@@ -70,7 +70,7 @@ namespace Elders.Cronus.Persistence.MSSQL.Config
 
         IMsSqlEventStoreTableNameStrategy IMsSqlEventStoreSettings.EventStoreTableNameStrategy { get; set; }
 
-        ProtoregSerializer IHaveSerializer.Serializer { get; set; }
+        ISerializer IHaveSerializer.Serializer { get; set; }
 
         Lazy<IEventStore> ISettingsBuilder<IEventStore>.Build()
         {

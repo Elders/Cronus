@@ -4,7 +4,8 @@ using System.Reflection;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Transport;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
+using Elders.Cronus.Serializer.Protoreg;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -21,7 +22,7 @@ namespace Elders.Cronus.Pipeline.Config
             destination.Serializer = self.Serializer;
         }
 
-        static ProtoregSerializer serializer = null;
+        static ISerializer serializer = null;
 
         public static T UseContractsFromAssemblies<T>(this T self, Assembly[] assembliesContainingContracts, Type[] contracts = null)
             where T : IHaveSerializer, ICanConfigureSerializer
@@ -29,7 +30,7 @@ namespace Elders.Cronus.Pipeline.Config
             if (serializer != null)
                 throw new InvalidOperationException("Protoreg serializer is already initialized.");
 
-            var protoreg = new ProtoRegistration();
+            var protoreg = new Elders.Protoreg.ProtoRegistration();
             protoreg.RegisterAssembly(typeof(EventBatchWraper));
             protoreg.RegisterAssembly(typeof(IMessage));
 
@@ -41,9 +42,10 @@ namespace Elders.Cronus.Pipeline.Config
             if (contracts != null)
                 contracts.ToList().ForEach(c => protoreg.RegisterCommonType(c));
 
-            serializer = new ProtoregSerializer(protoreg);
-            serializer.Build();
-            self.Serializer = serializer;
+            var ser = new ProtoregSerializer(protoreg);
+            ser.Build();
+            self.Serializer = ser;
+            serializer = ser;
             return self;
         }
     }

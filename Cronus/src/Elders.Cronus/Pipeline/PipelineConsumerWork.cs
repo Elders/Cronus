@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Elders.Cronus.DomainModelling;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 using Elders.Multithreading.Scheduler;
 
 namespace Elders.Cronus.Pipeline
@@ -38,11 +38,11 @@ namespace Elders.Cronus.Pipeline
 
         volatile bool isWorking;
 
-        private readonly ProtoregSerializer serializer;
+        private readonly ISerializer serializer;
 
         private readonly MessageThreshold messageThreshold;
 
-        public PipelineConsumerWork(IConsumer<TContract> consumer, IEndpoint endpoint, ProtoregSerializer serializer, MessageThreshold messageThreshold)
+        public PipelineConsumerWork(IConsumer<TContract> consumer, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold)
         {
             this.endpoint = endpoint;
             this.consumer = consumer;
@@ -68,11 +68,7 @@ namespace Elders.Cronus.Pipeline
                         if (!endpoint.BlockDequeue(messageThreshold.Delay, out rawMessage))
                             break;
 
-                        TransportMessage transportMessage;
-                        using (var stream = new MemoryStream(rawMessage.Body))
-                        {
-                            transportMessage = (TransportMessage)serializer.Deserialize(stream);
-                        }
+                        TransportMessage transportMessage = (TransportMessage)serializer.DeserializeFromBytes(rawMessage.Body);
 
                         transportMessages.Add(transportMessage);
                         rawMessages.Add(rawMessage);

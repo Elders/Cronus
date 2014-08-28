@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.Pipeline;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.EventSourcing
 {
@@ -11,14 +11,14 @@ namespace Elders.Cronus.EventSourcing
     {
         private readonly IPipelineFactory<IPipeline> pipelineFactory;
 
-        public EventStorePublisher(IPipelineFactory<IPipeline> pipelineFactory, ProtoregSerializer serializer)
+        public EventStorePublisher(IPipelineFactory<IPipeline> pipelineFactory, ISerializer serializer)
             : base(pipelineFactory, serializer)
         {
             this.pipelineFactory = pipelineFactory;
             this.serializer = serializer;
         }
 
-        private readonly ProtoregSerializer serializer;
+        private readonly ISerializer serializer;
 
         protected override bool PublishInternal(DomainMessageCommit message)
         {

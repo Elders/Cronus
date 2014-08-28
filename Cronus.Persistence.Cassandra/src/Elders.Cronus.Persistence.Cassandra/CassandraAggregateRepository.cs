@@ -4,7 +4,7 @@ using System.IO;
 using Cassandra;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Persistence.Cassandra
 {
@@ -13,7 +13,7 @@ namespace Elders.Cronus.Persistence.Cassandra
         private const string LoadAggregateEventsQueryTemplate = @"SELECT data FROM {0} WHERE id = ?;";
 
         private readonly IEventStorePersister persister;
-        private readonly ProtoregSerializer serializer;
+        private readonly ISerializer serializer;
         private readonly ISession session;
         private readonly ICassandraEventStoreTableNameStrategy tableNameStrategy;
 
@@ -21,7 +21,7 @@ namespace Elders.Cronus.Persistence.Cassandra
 
         private static AggregateVersionService versionService = new AggregateVersionService();
 
-        public CassandraAggregateRepository(ISession session, IEventStorePersister persister, ICassandraEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer)
+        public CassandraAggregateRepository(ISession session, IEventStorePersister persister, ICassandraEventStoreTableNameStrategy tableNameStrategy, ISerializer serializer)
         {
             this.persister = persister;
             this.serializer = serializer;

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModelling;
 using Elders.Multithreading.Scheduler;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline
 {
@@ -16,12 +16,12 @@ namespace Elders.Cronus.Pipeline
         private readonly IEndpointFactory endpointFactory;
 
         private readonly List<WorkPool> pools;
-        private readonly ProtoregSerializer serializer;
+        private readonly ISerializer serializer;
         private readonly MessageThreshold messageThreshold;
 
         public int NumberOfWorkers { get; set; }
 
-        public EndpointConsumable(IEndpointFactory endpointFactory, IConsumer<TContract> consumer, ProtoregSerializer serializer, MessageThreshold messageThreshold)
+        public EndpointConsumable(IEndpointFactory endpointFactory, IConsumer<TContract> consumer, ISerializer serializer, MessageThreshold messageThreshold)
         {
             NumberOfWorkers = 1;
             this.consumer = consumer;

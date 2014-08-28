@@ -2,13 +2,13 @@ using System;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Transport;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
     public abstract class PipelinePublisherSettings<TContract> : IPipelinePublisherSettings<TContract> where TContract : IMessage
     {
-        ProtoregSerializer IHaveSerializer.Serializer { get; set; }
+        ISerializer IHaveSerializer.Serializer { get; set; }
 
         Lazy<IPipelineTransport> IHaveTransport<IPipelineTransport>.Transport { get; set; }
 
@@ -49,7 +49,7 @@ namespace Elders.Cronus.Pipeline.Config
             this.WithEventStoreEndpointPerBoundedContext();
         }
 
-        ProtoregSerializer IHaveSerializer.Serializer { get; set; }
+        ISerializer IHaveSerializer.Serializer { get; set; }
 
         Lazy<IPipelineTransport> IHaveTransport<IPipelineTransport>.Transport { get; set; }
 

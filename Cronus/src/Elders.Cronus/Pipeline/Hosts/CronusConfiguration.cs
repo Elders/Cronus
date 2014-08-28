@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Config;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
 using Elders.Cronus.UnitOfWork;
 using Elders.Cronus.Pipeline.Transport.InMemory.Config;
@@ -24,9 +24,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public List<IEndpointConsumable> Consumers { get; set; }
 
-        public ProtoRegistration Protoreg { get; set; }
-
-        public ProtoregSerializer Serializer { get; set; }
+        public ISerializer Serializer { get; set; }
 
         public IPublisher<ICommand> CommandPublisher { get; set; }
 
@@ -83,7 +81,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         Dictionary<string, Lazy<IEventStore>> IHaveEventStores.EventStores { get; set; }
 
-        ProtoregSerializer IHaveSerializer.Serializer { get; set; }
+        ISerializer IHaveSerializer.Serializer { get; set; }
 
         Lazy<CronusConfiguration> ISettingsBuilder<CronusConfiguration>.Build()
         {

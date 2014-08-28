@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using Elders.Cronus.DomainModelling;
 using Elders.Cronus.EventSourcing;
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Persistence.MSSQL
 {
@@ -15,14 +15,14 @@ namespace Elders.Cronus.Persistence.MSSQL
 
         private readonly string connectionString;
 
-        private readonly ProtoregSerializer serializer;
+        private readonly ISerializer serializer;
 
         private readonly IMsSqlEventStoreTableNameStrategy tableNameStrategy;
 
         private readonly IEventStorePersister persister;
 
 
-        public MsSqlAggregateRepository(IEventStorePersister persister, IMsSqlEventStoreTableNameStrategy tableNameStrategy, ProtoregSerializer serializer, string connectionString)
+        public MsSqlAggregateRepository(IEventStorePersister persister, IMsSqlEventStoreTableNameStrategy tableNameStrategy, ISerializer serializer, string connectionString)
         {
             this.persister = persister;
             this.tableNameStrategy = tableNameStrategy;

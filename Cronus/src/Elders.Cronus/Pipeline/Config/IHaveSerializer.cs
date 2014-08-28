@@ -1,10 +1,10 @@
-using Elders.Protoreg;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
     public interface IHaveSerializer
     {
-        ProtoregSerializer Serializer { get; set; }
+        ISerializer Serializer { get; set; }
     }
 
     public interface ICanConfigureSerializer : IHaveSerializer { }
