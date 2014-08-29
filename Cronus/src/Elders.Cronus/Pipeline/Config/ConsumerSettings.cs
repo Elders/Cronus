@@ -22,6 +22,7 @@ namespace Elders.Cronus.Pipeline.Config
         Lazy<IConsumer<TContract>> ISettingsBuilder<IConsumer<TContract>>.Build()
         {
             IConsumerSettings<TContract> settings = this as IConsumerSettings<TContract>;
+            this.CopySerializerTo(settings);
             return new Lazy<IConsumer<TContract>>(() => new EndpointConsumer<TContract>(settings.MessageHandlerProcessor.Value, settings.PostConsume.Value));
         }
     }

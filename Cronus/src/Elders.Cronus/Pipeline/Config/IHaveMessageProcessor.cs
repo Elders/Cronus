@@ -35,6 +35,12 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Assembly[] messageHandlers, Func<Type, Context, object> messageHandlerFactory) where T : IMessageProcessorWithSafeBatchSettings<IMessage>
+        {
+            Register(self, messageHandlers, messageHandlerFactory, (eventHandlerType) => { });
+            return self;
+        }
+
         /// <summary>
         /// Registers all message handlers from a given assembly.
         /// </summary>
@@ -77,6 +83,17 @@ namespace Elders.Cronus.Pipeline.Config
             Type genericMarkupInterface = typeof(IMessageHandler<>);
 
             var messageHandlerTypes = assemblyContainingMessageHandlers.GetTypes().Where(x => x.IsClass && x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericMarkupInterface));
+
+            Register(self, messageHandlerTypes.ToArray(), messageHandlerFactory, doBeforeRegister);
+
+            return self;
+        }
+
+        static T Register<T>(this T self, Assembly[] assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IMessageProcessorWithSafeBatchSettings<IMessage>
+        {
+            Type genericMarkupInterface = typeof(IMessageHandler<>);
+            var types = assemblyContainingMessageHandlers.SelectMany(x => x.GetTypes());
+            var messageHandlerTypes = types.Where(x => x.IsClass && x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericMarkupInterface));
 
             Register(self, messageHandlerTypes.ToArray(), messageHandlerFactory, doBeforeRegister);
 

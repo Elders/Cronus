@@ -8,6 +8,7 @@ using Elders.Cronus.Serializer;
 using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
 using Elders.Cronus.UnitOfWork;
 using Elders.Cronus.Pipeline.Transport.InMemory.Config;
+using System.Reflection;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
@@ -199,28 +200,64 @@ namespace Elders.Cronus.Pipeline.Hosts
             return self;
         }
 
-        public static T UseDefaultCommandsHostInMemory<T>(this T self, string boundedContext, Type assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory)
-            where T : ICronusSettings
+
+        //public static T UseDefaultCommandsHostInMemory<T>(this T self, string boundedContext, Type assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory)
+        //    where T : ICronusSettings
+        //{
+        //    self
+        //        .UseCommandConsumable(boundedContext, consumable => consumable
+        //            .SetNumberOfConsumers(2)
+        //            .UseInMemoryTransport()
+        //            .CommandConsumer(consumer => consumer
+        //                .UseCommandHandler(h => h
+        //                    .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new ApplicationServiceBatchUnitOfWork((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
+        //                    .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
+        //    return self;
+        //}
+
+        //public static T WithDefaultPublishersInMemory<T>(this T self) where T : ICronusSettings
+        //{
+        //    self
+        //        .UsePipelineEventPublisher(x => x.UseInMemoryTransport())
+        //        .UsePipelineCommandPublisher(x => x.UseInMemoryTransport())
+        //        .UsePipelineEventStorePublisher(x => x.UseInMemoryTransport());
+        //    return self;
+        //}
+        public static T UseInMemoryCommandPublisher<T>(this T self, string boundedContext, Action<InMemoryCommandPublisherSettings> configure = null) where T : ICronusSettings
         {
-            self
-                .UseCommandConsumable(boundedContext, consumable => consumable
-                    .SetNumberOfConsumers(2)
-                    .UseInMemoryTransport()
-                    .CommandConsumer(consumer => consumer
-                        .UseCommandHandler(h => h
-                            .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new ApplicationServiceBatchUnitOfWork((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
-                            .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
+            InMemoryCommandPublisherSettings settings = new InMemoryCommandPublisherSettings();
+            self.CopySerializerTo(settings);
+            if (configure != null)
+                configure(settings);
+            self.CommandPublisher = settings.GetInstanceLazy();
+            return self;
+        }
+        public static T UseInMemoryEventPublisher<T>(this T self, string boundedContext, Action<InMemoryEventPublisherSettings> configure = null) where T : ICronusSettings
+        {
+            InMemoryEventPublisherSettings settings = new InMemoryEventPublisherSettings();
+            self.CopySerializerTo(settings);
+            if (configure != null)
+                configure(settings);
+            self.EventPublisher = settings.GetInstanceLazy();
             return self;
         }
 
-        public static T WithDefaultPublishersInMemory<T>(this T self) where T : ICronusSettings
+        public static T WithDefaultPublishersInMemory<T>(this T self, string boundedContext, Assembly[] assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory, UnitOfWorkFactory eventsHandlersUnitOfWorkFactory)
+            where T : ICronusSettings
         {
-            self
-                .UsePipelineEventPublisher(x => x.UseInMemoryTransport())
-                .UsePipelineCommandPublisher(x => x.UseInMemoryTransport())
-                .UsePipelineEventStorePublisher(x => x.UseInMemoryTransport());
+            self.UseInMemoryCommandPublisher(boundedContext, publisherSettings => publisherSettings
+                .UseCommandHandler(handler => handler
+                    .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new ApplicationServiceBatchUnitOfWork((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
+                    .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory)));
+            self.UseInMemoryEventPublisher(boundedContext, publisherSettings => publisherSettings
+                .UseInMemoryPortAndEventHandler(handler => handler
+                    .UseUnitOfWork(eventsHandlersUnitOfWorkFactory)
+                    .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory)
+                ));
+
             return self;
         }
+
     }
 
     public class ApplicationServiceBatchUnitOfWork : IBatchUnitOfWork
@@ -247,8 +284,8 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public void End()
         {
-            var currentRepo = Context.Get<Lazy<IApplicationServiceGateway>>().Value;
-            currentRepo.CommitChanges(@event => publisher.Publish(@event));
+            var gateway = Context.Get<Lazy<IApplicationServiceGateway>>().Value;
+            gateway.CommitChanges(@event => publisher.Publish(@event));
         }
 
         public IUnitOfWorkContext Context { get; set; }

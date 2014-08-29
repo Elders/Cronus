@@ -61,6 +61,33 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
+        public static T UseInMemoryPortAndEventHandler<T>(this T self, Action<MessageProcessorWithSafeBatchSettings<IEvent>> configure) where T : IHaveMessageProcessor<IEvent>
+        {
+            MessageProcessorWithSafeBatchSettings<IEvent> settings = new MessageProcessorWithSafeBatchSettings<IEvent>();
+            if (configure != null)
+                configure(settings);
+
+            var castedSettings = settings as IMessageProcessorWithSafeBatchSettings<IEvent>;
+
+
+            self.MessageHandlerProcessor = new Lazy<IMessageProcessor<IEvent>>(() =>
+            {
+                var safeBatchFactory = new SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage>((settings as IHaveUnitOfWorkFactory).UnitOfWorkFactory.Value);
+
+                var handler = new MessageHandlerCollection<IEvent>(safeBatchFactory);
+
+                foreach (var reg in castedSettings.HandlerRegistrations)
+                {
+                    foreach (var item in reg.Value)
+                    {
+                        handler.RegisterHandler(reg.Key, item.Item1, item.Item2);
+                    }
+                }
+                return handler;
+            });
+            return self;
+        }
+
         public static T UsePortHandler<T>(this T self, Action<MessageProcessorWithSafeBatchSettings<IEvent>> configure) where T : IHaveMessageProcessor<IEvent>
         {
             MessageProcessorWithSafeBatchSettings<IEvent> settings = new MessageProcessorWithSafeBatchSettings<IEvent>();

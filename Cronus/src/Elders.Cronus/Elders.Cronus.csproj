@@ -107,6 +107,7 @@
     <Compile Include="EventSourcing\IEventStorePersister.cs" />
     <Compile Include="EventSourcing\IEventStorePlayer.cs" />
     <Compile Include="IHideObjectMembers.cs" />
+    <Compile Include="InMemory\InMemoryPublisher.cs" />
     <Compile Include="Pipeline.Transport.RabbitMQ\Config\RabbitMqTransportSettings.cs" />
     <Compile Include="Pipeline.Transport.RabbitMQ\IRabbitMqPipeline.cs" />
     <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqEndpoint.cs" />
@@ -123,6 +124,7 @@
     <Compile Include="Pipeline\Config\IHaveMessageProcessor.cs" />
     <Compile Include="Pipeline\Config\IHavePipelineSettings.cs" />
     <Compile Include="Pipeline\Config\IHaveTransport.cs" />
+    <Compile Include="Pipeline\Config\Class1.cs" />
     <Compile Include="Pipeline\Config\IPublisherSettings.cs" />
     <Compile Include="Pipeline\Config\ISettingsBuilder.cs" />
     <Compile Include="Pipeline\Config\MessageProcessorWithSafeBatchSettings.cs" />
@@ -162,7 +164,7 @@
     <Compile Include="Pipeline\EndpointConsumer.cs" />
     <Compile Include="EventSourcing\EventStorePublisher.cs" />
     <Compile Include="EventSourcing\EventStream.cs" />
-    <Compile Include="EventSourcing\CronusProxyRepository.cs" />
+    <Compile Include="EventSourcing\ApplicationServiceGateway.cs" />
     <Compile Include="Pipeline\Hosts\CronusHost.cs" />
     <Compile Include="Pipeline\Hosts\CronusPlayer.cs" />
     <Compile Include="Pipeline\IEndpointConsumable.cs" />
@@ -173,7 +175,7 @@
     <Compile Include="Pipeline\Transport\InMemory\InMemoryQueue.cs" />
     <Compile Include="Pipeline\PipelineClosedException.cs" />
     <Compile Include="Pipeline\Transport\InMemory\Config\InMemory.cs" />
-    <Compile Include="Pipeline\Config\ScopeSettings.cs" />
+    <Compile Include="Pipeline\Config\UnitOfWorkSettings.cs" />
     <Compile Include="Pipeline\EndpointMessageExtensions.cs" />
     <Compile Include="Publisher.cs" />
     <Compile Include="SafeBatchWithBatchScopeContextFactory.cs" />
