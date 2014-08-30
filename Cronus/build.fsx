@@ -10,14 +10,8 @@ open Fake.ReleaseNotesHelper
 open System
 open System.IO
 
-type System.String with 
-    member x.contains (comp:System.StringComparison) str = 
-        x.IndexOf(str,comp) >= 0
-        
-let excludePaths (pathsToExclude : string list) (path: string) =
-    pathsToExclude 
-        |> List.exists (path.contains StringComparison.OrdinalIgnoreCase)
-        |> not
+type System.String with member x.contains (comp:System.StringComparison) str = x.IndexOf(str,comp) >= 0        
+let excludePaths (pathsToExclude : string list) (path: string) = pathsToExclude |> List.exists (path.contains StringComparison.OrdinalIgnoreCase)|> not
 
 let buildDir  = @"./bin/Release"
 let release = LoadReleaseNotes "RELEASE_NOTES.md"
@@ -39,7 +33,6 @@ Target "AssemblyInfo" (fun _ ->
     CreateCSharpAssemblyInfo @"./src/Elders.Cronus/Properties/AssemblyInfo.cs"
            [Attribute.Title "Elders.Cronus"
             Attribute.Description "Elders.Cronus"
-            Attribute.Guid "b422fc04-22de-40ec-978f-bf89fc017411"
             Attribute.Product "Elders.Cronus"
             Attribute.Version release.AssemblyVersion
             Attribute.InformationalVersion release.AssemblyVersion
@@ -67,7 +60,8 @@ Target "CreateNuGet" (fun _ ->
         | p when p = projectName ->
             CopyDir nugetToolsDir (buildDir @@ ("Elders." + package)) excludeNugetDependencies
         !! (nugetToolsDir @@ "*.srcsv") |> DeleteFiles
-
+        
+        let nuspecFile = package + ".nuspec"
         NuGet (fun p ->
             {p with
                 Authors = projectAuthors
@@ -81,7 +75,7 @@ Target "CreateNuGet" (fun _ ->
                 Publish = hasBuildParam "nugetkey"
                 ToolPath = "./tools/NuGet/nuget.exe"
                 OutputPath = nugetDir
-                WorkingDir = nugetDir }) "Cronus.nuspec"
+                WorkingDir = nugetDir }) nuspecFile
 )
 
 Target "Release" (fun _ ->
