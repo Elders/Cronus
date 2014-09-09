@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Elders.Cronus.DomainModelling
+namespace Elders.Cronus.DomainModeling
 {
     /// <summary>
     /// Indicates the ability to store and retreive a stream of events.
@@ -9,7 +9,7 @@ namespace Elders.Cronus.DomainModelling
     /// <remarks>
     /// Instances of this class must be designed to be multi-thread safe such that they can be shared between threads.
     /// </remarks>
-    public interface IAggregateRepository: ICommitChanges
+    public interface IAggregateRepository
     {
         void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot;
 

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <metadata xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <description>@description@</description>
+    <id>@project@</id>
+    <version>@build.number@</version>
+    <authors>@authors@</authors>
+    <language>en-US</language>
+    <summary>@summary@</summary>
+    <iconUrl>https://raw.githubusercontent.com/Elders/Cronus/master/Cronus.png</iconUrl>
+    <licenseUrl>https://github.com/Elders/Cronus/blob/master/LICENSE</licenseUrl>
+    <projectUrl>http://Elders.github.io/Cronus</projectUrl>
+    <releaseNotes>@releaseNotes@</releaseNotes>
+    <tags>multithreading, schedule, c#</tags>
+    @dependencies@
+  </metadata>
+</package>

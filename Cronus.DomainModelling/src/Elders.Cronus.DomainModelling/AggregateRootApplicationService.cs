@@ -2,14 +2,14 @@
 
 namespace Elders.Cronus.DomainModelling
 {
-    public interface IAggregateRootApplicationService
+    public interface IAggregateRootApplicationService<AR> where AR : IAggregateRoot
     {
-        IAggregateRepository Repository { get; set; }
+        IAggregateRepository<AR> Repository { get; set; }
     }
 
-    public class AggregateRootApplicationService<AR> : IAggregateRootApplicationService where AR : IAggregateRoot
+    public class AggregateRootApplicationService<AR> : IAggregateRootApplicationService<AR> where AR : IAggregateRoot
     {
-        public IAggregateRepository Repository { get; set; }
+        public IAggregateRepository<AR> Repository { get; set; }
 
         public void Update(IAggregateRootId id, Action<AR> update)
         {

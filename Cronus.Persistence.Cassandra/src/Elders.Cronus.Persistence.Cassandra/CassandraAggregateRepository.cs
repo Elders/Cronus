@@ -30,7 +30,9 @@ namespace Elders.Cronus.Persistence.Cassandra
             this.loadAggregateEventsPreparedStatement = session.Prepare(String.Format(LoadAggregateEventsQueryTemplate, tableNameStrategy.GetEventsTableName()));
         }
 
-
+            }
+            DomainMessageCommit commit = new DomainMessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents, command);
+            persister.Persist(new List<DomainMessageCommit>() { commit });
 
         //private List<IEvent> LoadAggregateEvents(Guid aggregateId)
         //{

@@ -165,6 +165,7 @@
     <Compile Include="EventSourcing\EventStorePublisher.cs" />
     <Compile Include="EventSourcing\EventStream.cs" />
     <Compile Include="EventSourcing\ApplicationServiceGateway.cs" />
+    <Compile Include="EventSourcing\CronusProxyRepository.cs" />
     <Compile Include="Pipeline\Hosts\CronusHost.cs" />
     <Compile Include="Pipeline\Hosts\CronusPlayer.cs" />
     <Compile Include="Pipeline\IEndpointConsumable.cs" />
