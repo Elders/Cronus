@@ -33,6 +33,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Elders.Cronus.DomainModeling">
+      <HintPath>..\packages\Cronus.DomainModeling.1.0.0\lib\net40-full\Elders.Cronus.DomainModeling.dll</HintPath>
+    </Reference>
     <Reference Include="Machine.Specifications, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Machine.Specifications.0.9.0-Unstable0070\lib\net45\Machine.Specifications.dll</HintPath>
@@ -76,10 +79,6 @@
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Cronus.DomainModeling\src\Elders.Cronus.DomainModeling\Elders.Cronus.DomainModeling.csproj">
-      <Project>{3603583e-c261-4aa6-ae73-b3f4c7440d7c}</Project>
-      <Name>Elders.Cronus.DomainModeling</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Elders.Cronus\Elders.Cronus.csproj">
       <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
       <Name>Elders.Cronus</Name>
