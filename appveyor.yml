@@ -4,3 +4,4 @@ build_script:
   - cd ..
   - cd Cronus
   - build.cmd
+test: off
