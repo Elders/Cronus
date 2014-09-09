@@ -46,8 +46,8 @@ Target "Build" (fun _ ->
 )
 
 Target "RestorePackages" (fun _ ->
-     "./src/Elders.Cronus/packages.config"
-     |> RestorePackage (fun p -> { p with OutputPath = "./src/packages" })
+    !! "./**/packages.config"
+    |> Seq.iter (RestorePackage (fun p -> { p with OutputPath = "./src/packages" }))
 )
 
 Target "CreateNuGet" (fun _ ->

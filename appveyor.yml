@@ -1,6 +1,6 @@
 build_script:
-  - cd Cronus
+  - cd Cronus.DomainModelling
   - build.cmd
   - cd ..
-  - cd Cronus.DomainModelling
+  - cd Cronus
   - build.cmd
