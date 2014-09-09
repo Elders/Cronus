@@ -1,7 +1,3 @@
 build_script:
-  - cd Cronus.DomainModelling
-  - build.cmd
-  - cd ..
-  - cd Cronus
   - build.cmd
 test: off

@@ -1,4 +1,0 @@
-Cronus
-======
-
-CQRS framework

@@ -1,2 +1,0 @@
-Cronus.DomainModelling
-======================
