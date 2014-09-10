@@ -1,5 +1,3 @@
-using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
-
 namespace Elders.Cronus.Pipeline.Hosts
 {
     public class CronusHost
@@ -11,6 +9,8 @@ namespace Elders.Cronus.Pipeline.Hosts
             this.configuration = configuration;
         }
 
+        protected virtual void OnHostStop() { }
+
         public void Start()
         {
             foreach (var consumer in configuration.Consumers)
@@ -21,11 +21,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public void Stop()
         {
-            if (RabbitMqTransportSettings.Session != null)
-            {
-                RabbitMqTransportSettings.Session.Close();// PLS fix this, This should not be static call so the .Session prop should not be static
-                RabbitMqTransportSettings.Session = null;
-            }
+            OnHostStop();
             foreach (var consumer in configuration.Consumers)
             {
                 consumer.Stop();

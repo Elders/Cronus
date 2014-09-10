@@ -92,9 +92,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
-    <Reference Include="RabbitMQ.Client">
-      <HintPath>..\..\..\Cronus.Persistence.Cassandra\src\packages\RabbitMQ.Client.3.3.5\lib\net30\RabbitMQ.Client.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -110,15 +107,6 @@
     <Compile Include="EventSourcing\IEventStorePlayer.cs" />
     <Compile Include="IHideObjectMembers.cs" />
     <Compile Include="InMemory\InMemoryPublisher.cs" />
-    <Compile Include="Pipeline.Transport.RabbitMQ\Config\RabbitMqTransportSettings.cs" />
-    <Compile Include="Pipeline.Transport.RabbitMQ\IRabbitMqPipeline.cs" />
-    <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqEndpoint.cs" />
-    <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqEndpointFactory.cs" />
-    <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqPipeline.cs" />
-    <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqPipelineFactory.cs" />
-    <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqSafeChannel.cs" />
-    <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqSession.cs" />
-    <Compile Include="Pipeline.Transport.RabbitMQ\RabbitMqSessionFactory.cs" />
     <Compile Include="Pipeline\Config\ConsumerSettings.cs" />
     <Compile Include="Pipeline\Config\IConsumableSettings.cs" />
     <Compile Include="Pipeline\Config\IHaveConsumer.cs" />

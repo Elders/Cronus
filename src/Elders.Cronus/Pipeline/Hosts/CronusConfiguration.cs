@@ -5,9 +5,7 @@ using Elders.Cronus.DomainModeling;
 using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Serializer;
-using Elders.Cronus.Pipeline.Transport.RabbitMQ.Config;
 using Elders.Cronus.UnitOfWork;
-using Elders.Cronus.Pipeline.Transport.InMemory.Config;
 using System.Reflection;
 
 namespace Elders.Cronus.Pipeline.Hosts
@@ -173,30 +171,6 @@ namespace Elders.Cronus.Pipeline.Hosts
             if (configure != null)
                 configure(settings);
             self.Consumers.Add(settings.GetInstanceLazy());
-            return self;
-        }
-
-        public static T UseDefaultCommandsHostWithRabbitMq<T>(this T self, string boundedContext, Type assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory)
-            where T : ICronusSettings
-        {
-            self
-                .UseCommandConsumable(boundedContext, consumable => consumable
-
-                    .SetNumberOfConsumers(2)
-                    .UseRabbitMqTransport()
-                    .CommandConsumer(consumer => consumer
-                        .UseCommandHandler(h => h
-                            .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new ApplicationServiceBatchUnitOfWork((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
-                            .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
-            return self;
-        }
-
-        public static T WithDefaultPublishersWithRabbitMq<T>(this T self) where T : ICronusSettings
-        {
-            self
-                .UsePipelineEventPublisher(x => x.UseRabbitMqTransport())
-                .UsePipelineCommandPublisher(x => x.UseRabbitMqTransport())
-                .UsePipelineEventStorePublisher(x => x.UseRabbitMqTransport());
             return self;
         }
 

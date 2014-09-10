@@ -1,2 +1,2 @@
-#### 1.1.37 - 21.06.2014
-* What?
+#### 1.1.38 - 10.09.2014
+* Moved rabbitmq to its own repository
