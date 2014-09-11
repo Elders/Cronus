@@ -1,29 +1,17 @@
-using System.Collections.Concurrent;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Elders.Cronus.Pipeline.Transport.InMemory
 {
-    public class InMemoryQueue
+    public class InMemoryPipelineTransport : IPipelineTransport
     {
-        private static InMemoryQueue current;
-
         public static int TotalMessagesConsumed { get; private set; }
 
         static ConcurrentDictionary<IPipeline, ConcurrentDictionary<IEndpoint, BlockingCollection<EndpointMessage>>> pipelineStorage = new ConcurrentDictionary<IPipeline, ConcurrentDictionary<IEndpoint, BlockingCollection<EndpointMessage>>>(new PipelineComparer());
-
-        public static InMemoryQueue Current
-        {
-            get
-            {
-                if (current == null)
-                {
-                    TotalMessagesConsumed = 0;
-                    current = new InMemoryQueue();
-                }
-                return current;
-            }
-        }
 
         public void Bind(IPipeline pipeline, IEndpoint endpoint)
         {
@@ -59,7 +47,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             IEndpoint endpoint;
             if (!TryGetEndpoint(endpointDefinition.EndpointName, out endpoint))
             {
-                endpoint = new InMemoryEndpoint(endpointDefinition.EndpointName, endpointDefinition.RoutingHeaders);
+                endpoint = new InMemoryEndpoint(this, endpointDefinition.EndpointName, endpointDefinition.RoutingHeaders);
                 Bind(pipeline, endpoint);
             }
             return endpoint;
@@ -67,7 +55,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
 
         public IPipeline GetOrAddPipeline(string pipelineName)
         {
-            var pipeline = new InMemoryPipeline(pipelineName);
+            var pipeline = new InMemoryPipeline(this, pipelineName);
             if (!pipelineStorage.ContainsKey(pipeline))
             {
                 pipelineStorage.TryAdd(pipeline, new ConcurrentDictionary<IEndpoint, BlockingCollection<EndpointMessage>>(new EndpointComparer()));
@@ -153,5 +141,18 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             }
         }
 
+        public InMemoryPipelineTransport(IPipelineNameConvention pipelineNameConvention, IEndpointNameConvention endpointNameConvention)
+        {
+            this.EndpointFactory = new InMemoryEndpointFactory(this, endpointNameConvention);
+            this.PipelineFactory = new InMemoryPipelineFactory(this, pipelineNameConvention);
+        }
+
+        public IEndpointFactory EndpointFactory { get; private set; }
+
+        public IPipelineFactory<IPipeline> PipelineFactory { get; private set; }
+
+        public void Dispose()
+        {
+        }
     }
 }

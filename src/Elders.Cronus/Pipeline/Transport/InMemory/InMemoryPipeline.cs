@@ -3,20 +3,22 @@
     public class InMemoryPipeline : IPipeline
     {
         private readonly string name;
+        private readonly InMemoryPipelineTransport transport;
 
-        public InMemoryPipeline(string name)
+        public InMemoryPipeline(InMemoryPipelineTransport transport, string name)
         {
+            this.transport = transport;
             this.name = name;
         }
 
         public void Bind(IEndpoint endpoint)
         {
-            InMemoryQueue.Current.Bind(this, endpoint);
+            transport.Bind(this, endpoint);
         }
 
         public void Push(EndpointMessage message)
         {
-            InMemoryQueue.Current.SendMessage(this, message);
+            transport.SendMessage(this, message);
         }
 
         public string Name

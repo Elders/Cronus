@@ -1,29 +1,36 @@
-﻿using Elders.Cronus.DomainModeling;
+﻿using System;
+using Elders.Cronus.DomainModeling;
+using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline
 {
-    public class PipelinePublisher<T> : Publisher<T> 
+    public class PipelinePublisher<T> : Publisher<T>, IDisposable
         where T : IMessage
     {
         private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(PipelinePublisher<T>));
 
-        private readonly IPipelineFactory<IPipeline> pipelineFactory;
+        private readonly IPipelineTransport transport;
 
         private readonly ISerializer serializer;
 
-        public PipelinePublisher(IPipelineFactory<IPipeline> pipelineFactory, ISerializer serializer)
+        public PipelinePublisher(IPipelineTransport transport, ISerializer serializer)
         {
-            this.pipelineFactory = pipelineFactory;
+            this.transport = transport;
             this.serializer = serializer;
         }
 
         protected override bool PublishInternal(T message)
         {
-            pipelineFactory
+            transport.PipelineFactory
                 .GetPipeline(message.GetType())
                 .Push(message.AsEndpointMessage(serializer));
             return true;
+        }
+
+        public void Dispose()
+        {
+            transport.Dispose();
         }
     }
 }

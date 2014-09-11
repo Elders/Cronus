@@ -1,6 +1,6 @@
 namespace Elders.Cronus.Pipeline
 {
-    public interface IEndpointConsumable
+    public interface IEndpointConsumerHost
     {
         int NumberOfWorkers { get; }
 

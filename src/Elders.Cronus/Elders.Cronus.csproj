@@ -121,6 +121,7 @@
     <Compile Include="Pipeline\Config\ConsumableSettings.cs" />
     <Compile Include="Pipeline\Config\PipelinePublisherSettings.cs" />
     <Compile Include="Pipeline\Config\SettingsInstanceExtensions.cs" />
+    <Compile Include="Pipeline\Transport\InMemory\Class1.cs" />
     <Compile Include="Pipeline\Transport\ITransport.cs" />
     <Compile Include="SafeBatch.cs" />
     <Compile Include="DomainModelling\AggregateRootFactory.cs" />
@@ -150,7 +151,7 @@
     <Compile Include="Pipeline\Strategy\PortEndpointPerHandler.cs" />
     <Compile Include="Pipeline\PipelineConsumerWork.cs" />
     <Compile Include="Pipeline\Hosts\CronusConfiguration.cs" />
-    <Compile Include="Pipeline\EndpointConsumable.cs" />
+    <Compile Include="Pipeline\EndpointConsumerHost.cs" />
     <Compile Include="Pipeline\EndpointConsumer.cs" />
     <Compile Include="EventSourcing\EventStorePublisher.cs" />
     <Compile Include="EventSourcing\EventStream.cs" />
@@ -163,7 +164,6 @@
     <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpoint.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryPipeline.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineFactory.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryQueue.cs" />
     <Compile Include="Pipeline\PipelineClosedException.cs" />
     <Compile Include="Pipeline\Transport\InMemory\Config\InMemory.cs" />
     <Compile Include="Pipeline\Config\UnitOfWorkSettings.cs" />

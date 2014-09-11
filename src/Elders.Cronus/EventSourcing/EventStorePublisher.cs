@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Pipeline;
+using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.EventSourcing
 {
     public class EventStorePublisher : PipelinePublisher<DomainMessageCommit>
     {
-        private readonly IPipelineFactory<IPipeline> pipelineFactory;
+        private readonly IPipelineTransport transport;
 
-        public EventStorePublisher(IPipelineFactory<IPipeline> pipelineFactory, ISerializer serializer)
+        public EventStorePublisher(IPipelineTransport pipelineFactory, ISerializer serializer)
             : base(pipelineFactory, serializer)
         {
-            this.pipelineFactory = pipelineFactory;
+            this.transport = pipelineFactory;
             this.serializer = serializer;
         }
 
@@ -25,7 +26,7 @@ namespace Elders.Cronus.EventSourcing
             var firstEventInCommitType = message.Events.First().GetType();
             var commitBoundedContext = firstEventInCommitType.GetBoundedContext().BoundedContextName;
             var endpointMessage = message.AsEndpointMessage(serializer, routingHeaders: new Dictionary<string, object>() { { commitBoundedContext, String.Empty } });
-            pipelineFactory
+            transport.PipelineFactory
                 .GetPipeline(firstEventInCommitType)
                 .Push(endpointMessage);
             return true;

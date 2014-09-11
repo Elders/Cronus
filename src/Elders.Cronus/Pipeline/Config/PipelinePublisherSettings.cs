@@ -19,7 +19,7 @@ namespace Elders.Cronus.Pipeline.Config
         Lazy<IPublisher<TContract>> ISettingsBuilder<IPublisher<TContract>>.Build()
         {
             IPipelinePublisherSettings<TContract> settings = this as IPipelinePublisherSettings<TContract>;
-            return new Lazy<IPublisher<TContract>>(() => new PipelinePublisher<TContract>(settings.Transport.Value.PipelineFactory, settings.Serializer));
+            return new Lazy<IPublisher<TContract>>(() => new PipelinePublisher<TContract>(settings.Transport.Value, settings.Serializer));
         }
     }
 
@@ -60,7 +60,7 @@ namespace Elders.Cronus.Pipeline.Config
         Lazy<IPublisher<DomainMessageCommit>> ISettingsBuilder<IPublisher<DomainMessageCommit>>.Build()
         {
             IPipelinePublisherSettings<DomainMessageCommit> settings = this as IPipelinePublisherSettings<DomainMessageCommit>;
-            return new Lazy<IPublisher<DomainMessageCommit>>(() => new EventStorePublisher(settings.Transport.Value.PipelineFactory, settings.Serializer));
+            return new Lazy<IPublisher<DomainMessageCommit>>(() => new EventStorePublisher(settings.Transport.Value, settings.Serializer));
         }
     }
 }

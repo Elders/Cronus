@@ -18,10 +18,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory.Config
         {
             IInMemoryTransportSettings settings = this as IInMemoryTransportSettings;
 
-            var pf = new InMemoryPipelineFactory(settings.PipelineNameConvention.Value);
-            var ef = new InMemoryEndpointFactory(settings.EndpointNameConvention.Value);
-
-            return new Lazy<IPipelineTransport>(() => new PipelineTransport(pf, ef));
+            return new Lazy<IPipelineTransport>(() => new InMemoryPipelineTransport(settings.PipelineNameConvention.Value, settings.EndpointNameConvention.Value));
         }
     }
 

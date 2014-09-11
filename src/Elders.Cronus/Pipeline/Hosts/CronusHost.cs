@@ -13,7 +13,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public void Start()
         {
-            foreach (var consumer in configuration.Consumers)
+            foreach (var consumer in configuration.ConsumerHosts)
             {
                 consumer.Start();
             }
@@ -22,7 +22,7 @@ namespace Elders.Cronus.Pipeline.Hosts
         public void Stop()
         {
             OnHostStop();
-            foreach (var consumer in configuration.Consumers)
+            foreach (var consumer in configuration.ConsumerHosts)
             {
                 consumer.Stop();
             }

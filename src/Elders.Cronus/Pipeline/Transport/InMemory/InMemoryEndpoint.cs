@@ -5,8 +5,10 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
 {
     public class InMemoryEndpoint : IEndpoint
     {
-        public InMemoryEndpoint(string name, Dictionary<string, object> routingHeaders)
+        private readonly InMemoryPipelineTransport transport;
+        public InMemoryEndpoint(InMemoryPipelineTransport transport, string name, Dictionary<string, object> routingHeaders)
         {
+            this.transport = transport;
             Name = name;
             RoutingHeaders = routingHeaders;
         }
@@ -21,7 +23,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
 
         public bool BlockDequeue(uint timeoutInMiliseconds, out EndpointMessage msg)
         {
-            return InMemoryQueue.Current.BlockDequeue(this, timeoutInMiliseconds, out msg);
+            return transport.BlockDequeue(this, timeoutInMiliseconds, out msg);
         }
 
         public void Close() { }
@@ -29,7 +31,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
         public EndpointMessage DequeueNoWait()
         {
             EndpointMessage msg;
-            InMemoryQueue.Current.BlockDequeue(this, 10, out msg);
+            transport.BlockDequeue(this, 10, out msg);
             return msg;
         }
 

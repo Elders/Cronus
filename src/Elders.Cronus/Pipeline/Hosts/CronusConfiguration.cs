@@ -10,18 +10,18 @@ using System.Reflection;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
-    public class CronusConfiguration
+    public class CronusConfiguration : IDisposable
     {
         public CronusConfiguration()
         {
             EventStores = new Dictionary<string, IEventStore>();
-            Consumers = new List<IEndpointConsumable>();
+            ConsumerHosts = new List<IEndpointConsumerHost>();
         }
 
 
         public Dictionary<string, IEventStore> EventStores { get; set; }
 
-        public List<IEndpointConsumable> Consumers { get; set; }
+        public List<IEndpointConsumerHost> ConsumerHosts { get; set; }
 
         public ISerializer Serializer { get; set; }
 
@@ -30,6 +30,48 @@ namespace Elders.Cronus.Pipeline.Hosts
         public IPublisher<IEvent> EventPublisher { get; set; }
 
         public IPublisher<DomainMessageCommit> EventStorePublisher { get; set; }
+
+        public void Dispose()
+        {
+            if (EventStores != null)
+                foreach (var es in EventStores)
+                {
+                    var asDisposable = es.Value as IDisposable;
+                    if (asDisposable != null)
+                        asDisposable.Dispose();
+                }
+            if (ConsumerHosts != null)
+                foreach (var consumer in ConsumerHosts)
+                {
+                    var asDisposable = consumer as IDisposable;
+                    if (asDisposable != null)
+                        asDisposable.Dispose();
+                }
+            if (Serializer != null)
+            {
+                var asDisposable = Serializer as IDisposable;
+                if (asDisposable != null)
+                    asDisposable.Dispose();
+            }
+            if (CommandPublisher != null)
+            {
+                var asDisposable = CommandPublisher as IDisposable;
+                if (asDisposable != null)
+                    asDisposable.Dispose();
+            }
+            if (EventPublisher != null)
+            {
+                var asDisposable = EventPublisher as IDisposable;
+                if (asDisposable != null)
+                    asDisposable.Dispose();
+            }
+            if (EventStorePublisher != null)
+            {
+                var asDisposable = EventStorePublisher as IDisposable;
+                if (asDisposable != null)
+                    asDisposable.Dispose();
+            }
+        }
     }
 
     public interface IHaveCommandPublisher
@@ -49,7 +91,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
     public interface IHaveConsumers
     {
-        List<Lazy<IEndpointConsumable>> Consumers { get; set; }
+        List<Lazy<IEndpointConsumerHost>> Consumers { get; set; }
     }
 
     public interface IHaveEventStores
@@ -67,12 +109,12 @@ namespace Elders.Cronus.Pipeline.Hosts
         public CronusSettings()
         {
             (this as IHaveEventStores).EventStores = new Dictionary<string, Lazy<IEventStore>>();
-            (this as IHaveConsumers).Consumers = new List<Lazy<IEndpointConsumable>>();
+            (this as IHaveConsumers).Consumers = new List<Lazy<IEndpointConsumerHost>>();
         }
 
         Lazy<IPublisher<ICommand>> IHaveCommandPublisher.CommandPublisher { get; set; }
 
-        List<Lazy<IEndpointConsumable>> IHaveConsumers.Consumers { get; set; }
+        List<Lazy<IEndpointConsumerHost>> IHaveConsumers.Consumers { get; set; }
 
         Lazy<IPublisher<IEvent>> IHaveEventPublisher.EventPublisher { get; set; }
 
@@ -100,7 +142,7 @@ namespace Elders.Cronus.Pipeline.Hosts
                     cronusConfiguration.EventStorePublisher = settings.EventStorePublisher.Value;
 
                 if (settings.Consumers != null && settings.Consumers.Count > 0)
-                    cronusConfiguration.Consumers = settings.Consumers.Select(x => x.Value).ToList();
+                    cronusConfiguration.ConsumerHosts = settings.Consumers.Select(x => x.Value).ToList();
 
                 if (settings.EventStores != null && settings.EventStores.Count > 0)
                     cronusConfiguration.EventStores = settings.EventStores.ToDictionary(key => key.Key, val => val.Value.Value);
@@ -144,9 +186,9 @@ namespace Elders.Cronus.Pipeline.Hosts
             return self;
         }
 
-        public static T UseCommandConsumable<T>(this T self, string boundedContext, Action<CommandConsumableSettings> configure = null) where T : ICronusSettings
+        public static T UseCommandConsumerHost<T>(this T self, string boundedContext, Action<CommandConsumerHostSettings> configure = null) where T : ICronusSettings
         {
-            CommandConsumableSettings settings = new CommandConsumableSettings();
+            CommandConsumerHostSettings settings = new CommandConsumerHostSettings();
             self.CopySerializerTo(settings);
             if (configure != null)
                 configure(settings);
@@ -154,9 +196,9 @@ namespace Elders.Cronus.Pipeline.Hosts
             return self;
         }
 
-        public static T UseProjectionConsumable<T>(this T self, string boundedContext, Action<ProjectionConsumableSettings> configure = null) where T : ICronusSettings
+        public static T UseProjectionConsumerHost<T>(this T self, string boundedContext, Action<ProjectionConsumerHostSettings> configure = null) where T : ICronusSettings
         {
-            ProjectionConsumableSettings settings = new ProjectionConsumableSettings();
+            ProjectionConsumerHostSettings settings = new ProjectionConsumerHostSettings();
             self.CopySerializerTo(settings);
             if (configure != null)
                 configure(settings);
@@ -164,9 +206,9 @@ namespace Elders.Cronus.Pipeline.Hosts
             return self;
         }
 
-        public static T UsePortConsumable<T>(this T self, string boundedContext, Action<PortConsumableSettings> configure = null) where T : ICronusSettings
+        public static T UsePortConsumerHost<T>(this T self, string boundedContext, Action<PortConsumerHostSettings> configure = null) where T : ICronusSettings
         {
-            PortConsumableSettings settings = new PortConsumableSettings();
+            PortConsumerHostSettings settings = new PortConsumerHostSettings();
             self.CopySerializerTo(settings);
             if (configure != null)
                 configure(settings);
@@ -179,7 +221,7 @@ namespace Elders.Cronus.Pipeline.Hosts
         //    where T : ICronusSettings
         //{
         //    self
-        //        .UseCommandConsumable(boundedContext, consumable => consumable
+        //        .UseCommandConsumerHost(boundedContext, ConsumerHost => ConsumerHost
         //            .SetNumberOfConsumers(2)
         //            .UseInMemoryTransport()
         //            .CommandConsumer(consumer => consumer

@@ -5,15 +5,17 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
     public class InMemoryEndpointFactory : IEndpointFactory
     {
         private readonly IEndpointNameConvention endpointNameConvention;
+        private readonly InMemoryPipelineTransport transport;
 
-        public InMemoryEndpointFactory(IEndpointNameConvention endpointNameConvention)
+        public InMemoryEndpointFactory(InMemoryPipelineTransport transport, IEndpointNameConvention endpointNameConvention)
         {
+            this.transport = transport;
             this.endpointNameConvention = endpointNameConvention;
         }
 
         public IEndpoint CreateEndpoint(EndpointDefinition definition)
         {
-            return InMemoryQueue.Current.GetOrAddEndpoint(definition);
+            return transport.GetOrAddEndpoint(definition);
         }
 
         public EndpointDefinition GetEndpointDefinition(params Type[] handlerTypes)
@@ -24,7 +26,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
 
         public IEndpoint CreateTopicEndpoint(EndpointDefinition definition)
         {
-            return InMemoryQueue.Current.GetOrAddEndpoint(definition);
+            return transport.GetOrAddEndpoint(definition);
         }
     }
 }
