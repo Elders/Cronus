@@ -121,6 +121,9 @@
     <Compile Include="Pipeline\Config\ConsumableSettings.cs" />
     <Compile Include="Pipeline\Config\PipelinePublisherSettings.cs" />
     <Compile Include="Pipeline\Config\SettingsInstanceExtensions.cs" />
+    <Compile Include="Pipeline\Hosts\ICronusPlayer.cs" />
+    <Compile Include="Pipeline\Hosts\ICronusHost.cs" />
+    <Compile Include="Pipeline\Hosts\CronusHost.cs" />
     <Compile Include="Pipeline\Transport\InMemory\Class1.cs" />
     <Compile Include="Pipeline\Transport\ITransport.cs" />
     <Compile Include="SafeBatch.cs" />
@@ -150,15 +153,13 @@
     <Compile Include="Pipeline\Strategy\PortEndpointPerBoundedContext.cs" />
     <Compile Include="Pipeline\Strategy\PortEndpointPerHandler.cs" />
     <Compile Include="Pipeline\PipelineConsumerWork.cs" />
-    <Compile Include="Pipeline\Hosts\CronusConfiguration.cs" />
+    <Compile Include="Pipeline\Hosts\CronusSettings.cs" />
     <Compile Include="Pipeline\EndpointConsumerHost.cs" />
     <Compile Include="Pipeline\EndpointConsumer.cs" />
     <Compile Include="EventSourcing\EventStorePublisher.cs" />
     <Compile Include="EventSourcing\EventStream.cs" />
     <Compile Include="EventSourcing\ApplicationServiceGateway.cs" />
     <Compile Include="EventSourcing\CronusProxyRepository.cs" />
-    <Compile Include="Pipeline\Hosts\CronusHost.cs" />
-    <Compile Include="Pipeline\Hosts\CronusPlayer.cs" />
     <Compile Include="Pipeline\IEndpointConsumable.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpointFactory.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpoint.cs" />

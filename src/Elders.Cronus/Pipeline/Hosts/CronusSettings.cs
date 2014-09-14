@@ -10,69 +10,6 @@ using System.Reflection;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
-    public class CronusConfiguration : IDisposable
-    {
-        public CronusConfiguration()
-        {
-            EventStores = new Dictionary<string, IEventStore>();
-            ConsumerHosts = new List<IEndpointConsumerHost>();
-        }
-
-
-        public Dictionary<string, IEventStore> EventStores { get; set; }
-
-        public List<IEndpointConsumerHost> ConsumerHosts { get; set; }
-
-        public ISerializer Serializer { get; set; }
-
-        public IPublisher<ICommand> CommandPublisher { get; set; }
-
-        public IPublisher<IEvent> EventPublisher { get; set; }
-
-        public IPublisher<DomainMessageCommit> EventStorePublisher { get; set; }
-
-        public void Dispose()
-        {
-            if (EventStores != null)
-                foreach (var es in EventStores)
-                {
-                    var asDisposable = es.Value as IDisposable;
-                    if (asDisposable != null)
-                        asDisposable.Dispose();
-                }
-            if (ConsumerHosts != null)
-                foreach (var consumer in ConsumerHosts)
-                {
-                    var asDisposable = consumer as IDisposable;
-                    if (asDisposable != null)
-                        asDisposable.Dispose();
-                }
-            if (Serializer != null)
-            {
-                var asDisposable = Serializer as IDisposable;
-                if (asDisposable != null)
-                    asDisposable.Dispose();
-            }
-            if (CommandPublisher != null)
-            {
-                var asDisposable = CommandPublisher as IDisposable;
-                if (asDisposable != null)
-                    asDisposable.Dispose();
-            }
-            if (EventPublisher != null)
-            {
-                var asDisposable = EventPublisher as IDisposable;
-                if (asDisposable != null)
-                    asDisposable.Dispose();
-            }
-            if (EventStorePublisher != null)
-            {
-                var asDisposable = EventStorePublisher as IDisposable;
-                if (asDisposable != null)
-                    asDisposable.Dispose();
-            }
-        }
-    }
 
     public interface IHaveCommandPublisher
     {
@@ -99,7 +36,7 @@ namespace Elders.Cronus.Pipeline.Hosts
         Dictionary<string, Lazy<IEventStore>> EventStores { get; set; }
     }
 
-    public interface ICronusSettings : ICanConfigureSerializer, IHaveCommandPublisher, IHaveEventPublisher, IHaveEventStorePublisher, IHaveConsumers, IHaveEventStores, ISettingsBuilder<CronusConfiguration>
+    public interface ICronusSettings : ICanConfigureSerializer, IHaveCommandPublisher, IHaveEventPublisher, IHaveEventStorePublisher, IHaveConsumers, IHaveEventStores, ISettingsBuilder<CronusHost>
     {
 
     }
@@ -124,13 +61,13 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         ISerializer IHaveSerializer.Serializer { get; set; }
 
-        Lazy<CronusConfiguration> ISettingsBuilder<CronusConfiguration>.Build()
+        Lazy<CronusHost> ISettingsBuilder<CronusHost>.Build()
         {
             ICronusSettings settings = this as ICronusSettings;
 
-            return new Lazy<CronusConfiguration>(() =>
+            return new Lazy<CronusHost>(() =>
             {
-                var cronusConfiguration = new CronusConfiguration();
+                var cronusConfiguration = new CronusHost();
 
                 if (settings.CommandPublisher != null)
                     cronusConfiguration.CommandPublisher = settings.CommandPublisher.Value;
