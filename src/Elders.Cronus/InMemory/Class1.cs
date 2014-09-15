@@ -5,22 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.InMemory;
+using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Pipeline.Hosts;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public interface IInMemoryCommandPublisherSettings : IConsumerSettings, IHaveMessageProcessor<ICommand>, ISettingsBuilder<IPublisher<ICommand>>
+    public interface IInMemoryCommandPublisherSettings :  IHaveMessageProcessor<ICommand>, ISettingsBuilder<IPublisher<ICommand>>
     {
     }
 
     public class InMemoryCommandPublisherSettings : IInMemoryCommandPublisherSettings
     {
-        string IConsumerSettings.BoundedContext { get; set; }
-
-        Lazy<IEndpointPostConsume> IHaveEndpointPostConsumeActions.PostConsume { get; set; }
-
-        Serializer.ISerializer IHaveSerializer.Serializer { get; set; }
-
         Lazy<IMessageProcessor<ICommand>> IHaveMessageProcessor<ICommand>.MessageHandlerProcessor { get; set; }
 
         Lazy<IPublisher<ICommand>> ISettingsBuilder<IPublisher<ICommand>>.Build()
@@ -30,18 +25,12 @@ namespace Elders.Cronus.Pipeline.Config
         }
     }
 
-    public interface IInMemoryEventPublisherSettings : IConsumerSettings, IHaveMessageProcessor<IEvent>, ISettingsBuilder<IPublisher<IEvent>>
+    public interface IInMemoryEventPublisherSettings :  IHaveMessageProcessor<IEvent>, ISettingsBuilder<IPublisher<IEvent>>
     {
     }
 
     public class InMemoryEventPublisherSettings : IInMemoryEventPublisherSettings
     {
-        string IConsumerSettings.BoundedContext { get; set; }
-
-        Lazy<IEndpointPostConsume> IHaveEndpointPostConsumeActions.PostConsume { get; set; }
-
-        Serializer.ISerializer IHaveSerializer.Serializer { get; set; }
-
         Lazy<IMessageProcessor<IEvent>> IHaveMessageProcessor<IEvent>.MessageHandlerProcessor { get; set; }
 
         Lazy<IPublisher<IEvent>> ISettingsBuilder<IPublisher<IEvent>>.Build()

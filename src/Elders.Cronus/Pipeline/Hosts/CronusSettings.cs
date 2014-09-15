@@ -28,7 +28,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
     public interface IHaveConsumers
     {
-        List<Lazy<IEndpointConsumerHost>> Consumers { get; set; }
+        List<Lazy<IEndpointConsumer>> Consumers { get; set; }
     }
 
     public interface IHaveEventStores
@@ -46,12 +46,12 @@ namespace Elders.Cronus.Pipeline.Hosts
         public CronusSettings()
         {
             (this as IHaveEventStores).EventStores = new Dictionary<string, Lazy<IEventStore>>();
-            (this as IHaveConsumers).Consumers = new List<Lazy<IEndpointConsumerHost>>();
+            (this as IHaveConsumers).Consumers = new List<Lazy<IEndpointConsumer>>();
         }
 
         Lazy<IPublisher<ICommand>> IHaveCommandPublisher.CommandPublisher { get; set; }
 
-        List<Lazy<IEndpointConsumerHost>> IHaveConsumers.Consumers { get; set; }
+        List<Lazy<IEndpointConsumer>> IHaveConsumers.Consumers { get; set; }
 
         Lazy<IPublisher<IEvent>> IHaveEventPublisher.EventPublisher { get; set; }
 
@@ -79,7 +79,7 @@ namespace Elders.Cronus.Pipeline.Hosts
                     cronusConfiguration.EventStorePublisher = settings.EventStorePublisher.Value;
 
                 if (settings.Consumers != null && settings.Consumers.Count > 0)
-                    cronusConfiguration.ConsumerHosts = settings.Consumers.Select(x => x.Value).ToList();
+                    cronusConfiguration.Consumers = settings.Consumers.Select(x => x.Value).ToList();
 
                 if (settings.EventStores != null && settings.EventStores.Count > 0)
                     cronusConfiguration.EventStores = settings.EventStores.ToDictionary(key => key.Key, val => val.Value.Value);
@@ -123,63 +123,10 @@ namespace Elders.Cronus.Pipeline.Hosts
             return self;
         }
 
-        public static T UseCommandConsumerHost<T>(this T self, string boundedContext, Action<CommandConsumerHostSettings> configure = null) where T : ICronusSettings
-        {
-            CommandConsumerHostSettings settings = new CommandConsumerHostSettings();
-            self.CopySerializerTo(settings);
-            if (configure != null)
-                configure(settings);
-            self.Consumers.Add(settings.GetInstanceLazy());
-            return self;
-        }
 
-        public static T UseProjectionConsumerHost<T>(this T self, string boundedContext, Action<ProjectionConsumerHostSettings> configure = null) where T : ICronusSettings
-        {
-            ProjectionConsumerHostSettings settings = new ProjectionConsumerHostSettings();
-            self.CopySerializerTo(settings);
-            if (configure != null)
-                configure(settings);
-            self.Consumers.Add(settings.GetInstanceLazy());
-            return self;
-        }
-
-        public static T UsePortConsumerHost<T>(this T self, string boundedContext, Action<PortConsumerHostSettings> configure = null) where T : ICronusSettings
-        {
-            PortConsumerHostSettings settings = new PortConsumerHostSettings();
-            self.CopySerializerTo(settings);
-            if (configure != null)
-                configure(settings);
-            self.Consumers.Add(settings.GetInstanceLazy());
-            return self;
-        }
-
-
-        //public static T UseDefaultCommandsHostInMemory<T>(this T self, string boundedContext, Type assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory)
-        //    where T : ICronusSettings
-        //{
-        //    self
-        //        .UseCommandConsumerHost(boundedContext, ConsumerHost => ConsumerHost
-        //            .SetNumberOfConsumers(2)
-        //            .UseInMemoryTransport()
-        //            .CommandConsumer(consumer => consumer
-        //                .UseCommandHandler(h => h
-        //                    .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new ApplicationServiceBatchUnitOfWork((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
-        //                    .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory))));
-        //    return self;
-        //}
-
-        //public static T WithDefaultPublishersInMemory<T>(this T self) where T : ICronusSettings
-        //{
-        //    self
-        //        .UsePipelineEventPublisher(x => x.UseInMemoryTransport())
-        //        .UsePipelineCommandPublisher(x => x.UseInMemoryTransport())
-        //        .UsePipelineEventStorePublisher(x => x.UseInMemoryTransport());
-        //    return self;
-        //}
         public static T UseInMemoryCommandPublisher<T>(this T self, string boundedContext, Action<InMemoryCommandPublisherSettings> configure = null) where T : ICronusSettings
         {
             InMemoryCommandPublisherSettings settings = new InMemoryCommandPublisherSettings();
-            self.CopySerializerTo(settings);
             if (configure != null)
                 configure(settings);
             self.CommandPublisher = settings.GetInstanceLazy();
@@ -188,26 +135,9 @@ namespace Elders.Cronus.Pipeline.Hosts
         public static T UseInMemoryEventPublisher<T>(this T self, string boundedContext, Action<InMemoryEventPublisherSettings> configure = null) where T : ICronusSettings
         {
             InMemoryEventPublisherSettings settings = new InMemoryEventPublisherSettings();
-            self.CopySerializerTo(settings);
             if (configure != null)
                 configure(settings);
             self.EventPublisher = settings.GetInstanceLazy();
-            return self;
-        }
-
-        public static T WithDefaultPublishersInMemory<T>(this T self, string boundedContext, Assembly[] assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory, UnitOfWorkFactory eventsHandlersUnitOfWorkFactory)
-            where T : ICronusSettings
-        {
-            self.UseInMemoryCommandPublisher(boundedContext, publisherSettings => publisherSettings
-                .UseCommandHandler(handler => handler
-                    .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new ApplicationServiceBatchUnitOfWork((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
-                    .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory)));
-            self.UseInMemoryEventPublisher(boundedContext, publisherSettings => publisherSettings
-                .UseInMemoryPortAndEventHandler(handler => handler
-                    .UseUnitOfWork(eventsHandlersUnitOfWorkFactory)
-                    .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory)
-                ));
-
             return self;
         }
 

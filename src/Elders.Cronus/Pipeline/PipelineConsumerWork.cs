@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Elders.Cronus.DomainModeling;
+using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Serializer;
 using Elders.Multithreading.Scheduler;
 
@@ -32,7 +33,7 @@ namespace Elders.Cronus.Pipeline
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(PipelineConsumerWork<TContract>));
 
-        private IConsumer<TContract> consumer;
+        private IMessageProcessor<TContract> processor;
 
         private readonly IEndpoint endpoint;
 
@@ -42,10 +43,13 @@ namespace Elders.Cronus.Pipeline
 
         private readonly MessageThreshold messageThreshold;
 
-        public PipelineConsumerWork(IConsumer<TContract> consumer, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold)
+        private readonly IEndpointCircuitBreaker circuitBreaker;
+
+        public PipelineConsumerWork(IMessageProcessor<TContract> processor, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold, IEndpointCircuitBreaker circuitBreaker)
         {
             this.endpoint = endpoint;
-            this.consumer = consumer;
+            this.processor = processor;
+            this.processor = processor;
             this.serializer = serializer;
             this.messageThreshold = messageThreshold ?? new MessageThreshold();
         }
@@ -75,8 +79,8 @@ namespace Elders.Cronus.Pipeline
                     }
                     if (transportMessages.Count == 0)
                         continue;
-
-                    consumer.Consume(transportMessages);
+                    var result = processor.Handle(transportMessages);
+                    circuitBreaker.PostConsume(result);
                     endpoint.AcknowledgeAll();
                 }
             }

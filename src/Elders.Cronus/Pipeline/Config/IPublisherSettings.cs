@@ -17,7 +17,7 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class PublisherSettingsExtensions
     {
-        public static void CopySerializerTo(this IHaveSerializer self, IHaveSerializer destination)
+        internal static void CopySerializerTo(this IHaveSerializer self, IHaveSerializer destination)
         {
             destination.Serializer = self.Serializer;
         }

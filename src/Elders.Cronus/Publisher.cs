@@ -34,12 +34,7 @@ namespace Elders.Cronus
         }
     }
 
-    public interface IConsumer<T> where T : IMessage
-    {
-        bool Consume(List<TransportMessage> transportMessages);
-        IEnumerable<Type> GetRegisteredHandlers { get; }
-        IEndpointPostConsume PostConsume { get; }
-    }
+   
 
     public static class ObjectExtensions
     {

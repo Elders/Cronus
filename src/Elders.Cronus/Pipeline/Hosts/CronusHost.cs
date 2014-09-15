@@ -7,7 +7,7 @@ using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.UnitOfWork;
 using System.Reflection;
-
+using Elders.Cronus.Pipeline.Hosts.DisposableExtensions;
 namespace Elders.Cronus.Pipeline.Hosts
 {
     public class CronusHost : ICronusPlayer, ICronusHost
@@ -17,13 +17,13 @@ namespace Elders.Cronus.Pipeline.Hosts
         public CronusHost()
         {
             EventStores = new Dictionary<string, IEventStore>();
-            ConsumerHosts = new List<IEndpointConsumerHost>();
+            Consumers = new List<IEndpointConsumer>();
         }
 
 
         public Dictionary<string, IEventStore> EventStores { get; set; }
 
-        public List<IEndpointConsumerHost> ConsumerHosts { get; set; }
+        public List<IEndpointConsumer> Consumers { get; set; }
 
         public ISerializer Serializer { get; set; }
 
@@ -35,7 +35,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public bool Start()
         {
-            foreach (var consumer in ConsumerHosts)
+            foreach (var consumer in Consumers)
             {
                 consumer.Start();
             }
@@ -59,7 +59,7 @@ namespace Elders.Cronus.Pipeline.Hosts
         }
         public bool Stop()
         {
-            foreach (var consumer in ConsumerHosts)
+            foreach (var consumer in Consumers)
             {
                 consumer.Stop();
             }
@@ -70,7 +70,7 @@ namespace Elders.Cronus.Pipeline.Hosts
         public void Dispose()
         {
             EventStores.TryDisposeCollection(x => x.Value);
-            ConsumerHosts.TryDisposeCollection(x => x);
+            Consumers.TryDisposeCollection(x => x);
             Serializer.TryDispose();
             CommandPublisher.TryDispose();
             EventPublisher.TryDispose();
@@ -78,6 +78,10 @@ namespace Elders.Cronus.Pipeline.Hosts
         }
     }
 
+
+}
+namespace Elders.Cronus.Pipeline.Hosts.DisposableExtensions
+{
     public static class IDisposableExtensions
     {
         public static void TryDispose<T>(this T @self)

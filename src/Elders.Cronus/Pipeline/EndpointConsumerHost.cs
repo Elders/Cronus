@@ -5,31 +5,34 @@ using Elders.Cronus.DomainModeling;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.Pipeline.Transport;
+using Elders.Cronus.Pipeline.CircuitBreaker;
 
 namespace Elders.Cronus.Pipeline
 {
-    public class EndpointConsumerHost<TContract> : IEndpointConsumerHost, IDisposable where TContract : IMessage
+    public class EndpointConsumer<TContract> : IEndpointConsumer, IDisposable where TContract : IMessage
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EndpointConsumerHost<TContract>));
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EndpointConsumer<TContract>));
 
-        private readonly IConsumer<TContract> consumer;
+        private readonly IMessageProcessor<TContract> messageProcessor;
 
         private readonly IPipelineTransport transport;
 
+        private readonly IEndpontCircuitBreakerFactrory circuitBreakerFactory;
         private readonly List<WorkPool> pools;
         private readonly ISerializer serializer;
         private readonly MessageThreshold messageThreshold;
 
         public int NumberOfWorkers { get; set; }
 
-        public EndpointConsumerHost(IPipelineTransport transport, IConsumer<TContract> consumer, ISerializer serializer, MessageThreshold messageThreshold)
+        public EndpointConsumer(IPipelineTransport transport, IMessageProcessor<TContract> messageProcessor, ISerializer serializer, MessageThreshold messageThreshold, IEndpontCircuitBreakerFactrory circuitBreakerFactory)
         {
             NumberOfWorkers = 1;
-            this.consumer = consumer;
+            this.messageProcessor = messageProcessor;
             this.transport = transport;
             pools = new List<WorkPool>();
             this.serializer = serializer;
             this.messageThreshold = messageThreshold;
+            this.circuitBreakerFactory = circuitBreakerFactory;
         }
 
         public void Start(int? numberOfWorkers = null)
@@ -39,20 +42,14 @@ namespace Elders.Cronus.Pipeline
                 : NumberOfWorkers;
 
             pools.Clear();
-            var endpointDefinition = transport.EndpointFactory.GetEndpointDefinition(consumer.GetRegisteredHandlers.ToArray());
+            var endpointDefinition = transport.EndpointFactory.GetEndpointDefinition(messageProcessor.GetRegisteredHandlers().ToArray());
 
             var poolName = String.Format("Workpool {0}", endpointDefinition.EndpointName);
             WorkPool pool = new WorkPool(poolName, workers);
             for (int i = 0; i < workers; i++)
             {
                 IEndpoint endpoint = transport.EndpointFactory.CreateEndpoint(endpointDefinition);
-                if (consumer.PostConsume.ErrorStrategy != null)
-                    consumer.PostConsume.ErrorStrategy.Initialize(transport.EndpointFactory, endpointDefinition);
-                if (consumer.PostConsume.RetryStrategy != null)
-                    consumer.PostConsume.RetryStrategy.Initialize(transport.EndpointFactory, endpointDefinition);
-                if (consumer.PostConsume.SuccessStrategy != null)
-                    consumer.PostConsume.SuccessStrategy.Initialize(transport.EndpointFactory, endpointDefinition);
-                pool.AddWork(new PipelineConsumerWork<TContract>(consumer, endpoint, serializer, messageThreshold));
+                pool.AddWork(new PipelineConsumerWork<TContract>(messageProcessor, endpoint, serializer, messageThreshold, circuitBreakerFactory.Create(transport, serializer, endpointDefinition)));
             }
             pools.Add(pool);
             pool.StartCrawlers();

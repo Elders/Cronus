@@ -4,24 +4,25 @@ using Elders.Cronus.DomainModeling;
 using Elders.Cronus.EventSourcing;
 using Elders.Cronus.UnitOfWork;
 using Elders.Cronus.Pipeline.Hosts;
+using Elders.Cronus.Pipeline.Config;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public class MessageProcessorWithSafeBatchSettings<TContract> : IMessageProcessorWithSafeBatchSettings<TContract>, IHaveUnitOfWorkFactory where TContract : IMessage
+    public class MessageProcessorSettings<TContract> : IMessageProcessorSettings<TContract>, IHaveUnitOfWorkFactory where TContract : IMessage
     {
-        public MessageProcessorWithSafeBatchSettings()
+        public MessageProcessorSettings()
         {
             (this as IHaveUnitOfWorkFactory).UnitOfWorkFactory = new Lazy<UnitOfWorkFactory>(() => new UnitOfWorkFactory());
         }
 
-        Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorWithSafeBatchSettings<TContract>.HandlerRegistrations { get; set; }
+        Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorSettings<TContract>.HandlerRegistrations { get; set; }
 
         Lazy<UnitOfWorkFactory> IHaveUnitOfWorkFactory.UnitOfWorkFactory { get; set; }
     }
 
-    public class EventStoreMessageProcessorWithSafeBatchSettings : IMessageProcessorWithSafeBatchSettings<DomainMessageCommit>
+    public class EventStoreMessageProcessorWithSafeBatchSettings : IMessageProcessorSettings<DomainMessageCommit>
     {
-        Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorWithSafeBatchSettings<DomainMessageCommit>.HandlerRegistrations { get; set; }
+        Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorSettings<DomainMessageCommit>.HandlerRegistrations { get; set; }
     }
 
     public static class MessageProcessorWithSafeBatchSettingsExtensions
@@ -33,13 +34,13 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UseEventHandler<T>(this T self, Action<MessageProcessorWithSafeBatchSettings<IEvent>> configure) where T : IHaveMessageProcessor<IEvent>
+        public static T UseProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IHaveMessageProcessor<IEvent>
         {
-            MessageProcessorWithSafeBatchSettings<IEvent> settings = new MessageProcessorWithSafeBatchSettings<IEvent>();
+            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>();
             if (configure != null)
                 configure(settings);
 
-            var castedSettings = settings as IMessageProcessorWithSafeBatchSettings<IEvent>;
+            var castedSettings = settings as IMessageProcessorSettings<IEvent>;
 
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<IEvent>>(() =>
@@ -61,13 +62,13 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UseInMemoryPortAndEventHandler<T>(this T self, Action<MessageProcessorWithSafeBatchSettings<IEvent>> configure) where T : IHaveMessageProcessor<IEvent>
+        public static T UsePortsAndProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IHaveMessageProcessor<IEvent>
         {
-            MessageProcessorWithSafeBatchSettings<IEvent> settings = new MessageProcessorWithSafeBatchSettings<IEvent>();
+            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>();
             if (configure != null)
                 configure(settings);
 
-            var castedSettings = settings as IMessageProcessorWithSafeBatchSettings<IEvent>;
+            var castedSettings = settings as IMessageProcessorSettings<IEvent>;
 
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<IEvent>>(() =>
@@ -88,13 +89,13 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UsePortHandler<T>(this T self, Action<MessageProcessorWithSafeBatchSettings<IEvent>> configure) where T : IHaveMessageProcessor<IEvent>
+        public static T UsePorts<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IHaveMessageProcessor<IEvent>
         {
-            MessageProcessorWithSafeBatchSettings<IEvent> settings = new MessageProcessorWithSafeBatchSettings<IEvent>();
+            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>();
             if (configure != null)
                 configure(settings);
 
-            var castedSettings = settings as IMessageProcessorWithSafeBatchSettings<IEvent>;
+            var castedSettings = settings as IMessageProcessorSettings<IEvent>;
 
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<IEvent>>(() =>
@@ -116,13 +117,13 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UseCommandHandler<T>(this T self, Action<MessageProcessorWithSafeBatchSettings<ICommand>> configure) where T : IHaveMessageProcessor<ICommand>
+        public static T UseApplicationServices<T>(this T self, Action<MessageProcessorSettings<ICommand>> configure) where T : IHaveMessageProcessor<ICommand>
         {
-            MessageProcessorWithSafeBatchSettings<ICommand> settings = new MessageProcessorWithSafeBatchSettings<ICommand>();
+            MessageProcessorSettings<ICommand> settings = new MessageProcessorSettings<ICommand>();
             if (configure != null)
                 configure(settings);
 
-            var castedSettings = settings as IMessageProcessorWithSafeBatchSettings<ICommand>;
+            var castedSettings = settings as IMessageProcessorSettings<ICommand>;
 
             self.MessageHandlerProcessor = new Lazy<IMessageProcessor<ICommand>>(() =>
             {
