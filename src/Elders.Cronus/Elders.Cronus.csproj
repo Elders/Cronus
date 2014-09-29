@@ -73,8 +73,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elders.Cronus.DomainModeling">
-      <HintPath>..\packages\Cronus.DomainModeling.1.0.0\lib\net40-full\Elders.Cronus.DomainModeling.dll</HintPath>
+    <Reference Include="Elders.Cronus.DomainModeling, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Cronus.DomainModeling.1.0.1\lib\net40-full\Elders.Cronus.DomainModeling.dll</HintPath>
     </Reference>
     <Reference Include="Elders.Multithreading.Scheduler">
       <HintPath>..\packages\Multithreading.Scheduler.1.0.0\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
@@ -128,7 +129,6 @@
     <Compile Include="EventSourcing\IEventStoreStorageManager.cs" />
     <Compile Include="EventSourcing\EventBatchWraper.cs" />
     <Compile Include="EventSourcing\IEventStream.cs" />
-    <Compile Include="EventSourcing\DomainMessageCommit.cs" />
     <Compile Include="IMessageProcessor.cs" />
     <Compile Include="MessageHandlerCollection.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
@@ -152,7 +152,6 @@
     <Compile Include="Pipeline\Hosts\CronusConfiguration.cs" />
     <Compile Include="Pipeline\EndpointConsumable.cs" />
     <Compile Include="Pipeline\EndpointConsumer.cs" />
-    <Compile Include="EventSourcing\EventStorePublisher.cs" />
     <Compile Include="EventSourcing\EventStream.cs" />
     <Compile Include="EventSourcing\ApplicationServiceGateway.cs" />
     <Compile Include="EventSourcing\CronusProxyRepository.cs" />

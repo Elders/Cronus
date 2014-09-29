@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.EventSourcing;
 using Elders.Cronus.UnitOfWork;
-using Elders.Cronus.Pipeline.Hosts;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -17,11 +15,6 @@ namespace Elders.Cronus.Pipeline.Config
         Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorWithSafeBatchSettings<TContract>.HandlerRegistrations { get; set; }
 
         Lazy<UnitOfWorkFactory> IHaveUnitOfWorkFactory.UnitOfWorkFactory { get; set; }
-    }
-
-    public class EventStoreMessageProcessorWithSafeBatchSettings : IMessageProcessorWithSafeBatchSettings<DomainMessageCommit>
-    {
-        Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorWithSafeBatchSettings<DomainMessageCommit>.HandlerRegistrations { get; set; }
     }
 
     public static class MessageProcessorWithSafeBatchSettingsExtensions

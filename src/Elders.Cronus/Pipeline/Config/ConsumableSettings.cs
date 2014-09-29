@@ -60,16 +60,6 @@ namespace Elders.Cronus.Pipeline.Config
         }
     }
 
-    public class EventStoreConsumableSettings : ConsumableSettings<DomainMessageCommit>
-    {
-        public EventStoreConsumableSettings()
-        {
-            this.SetMessageThreshold(100, 30);
-            this.WithEventStorePipelinePerApplication();
-            this.WithEventStoreEndpointPerBoundedContext();
-        }
-    }
-
     public static class ConsumableSettingsExtensions
     {
         public static T SetNumberOfConsumers<T>(this T self, int numberOfConsumers) where T : IConsumableSettings
@@ -100,18 +90,6 @@ namespace Elders.Cronus.Pipeline.Config
             where T : IConsumableSettings<IEvent>
         {
             ConsumerSettings<IEvent> settings = new ConsumerSettings<IEvent>();
-            self.CopySerializerTo(settings);
-            settings.WithDefaultEndpointPostConsume(self);
-            if (configure != null)
-                configure(settings);
-            self.Consumer = settings.GetInstanceLazy();
-            return self;
-        }
-
-        public static T EventStoreConsumer<T>(this T self, Action<ConsumerSettings<DomainMessageCommit>> configure)
-            where T : IConsumableSettings<DomainMessageCommit>
-        {
-            ConsumerSettings<DomainMessageCommit> settings = new ConsumerSettings<DomainMessageCommit>();
             self.CopySerializerTo(settings);
             settings.WithDefaultEndpointPostConsume(self);
             if (configure != null)

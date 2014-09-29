@@ -41,18 +41,6 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T WithEventStoreEndpointPerBoundedContext<T>(this T self) where T : IHavePipelineSettings<DomainMessageCommit>
-        {
-            self.EndpointNameConvention = new Lazy<IEndpointNameConvention>(() => new EventStoreEndpointPerBoundedContext(self.PipelineNameConvention.Value));
-            return self;
-        }
-
-        public static T WithEventStorePipelinePerApplication<T>(this T self) where T : IHavePipelineSettings<DomainMessageCommit>
-        {
-            self.PipelineNameConvention = new Lazy<IPipelineNameConvention>(() => new EventStorePipelinePerApplication());
-            return self;
-        }
-
         public static T WithPortEndpointPerBoundedContext<T>(this T self) where T : IHavePipelineSettings<IEvent>
         {
             self.EndpointNameConvention = new Lazy<IEndpointNameConvention>(() => new PortEndpointPerBoundedContext(self.PipelineNameConvention.Value));

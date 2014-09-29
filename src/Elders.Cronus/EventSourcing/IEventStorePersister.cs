@@ -5,6 +5,6 @@ namespace Elders.Cronus.EventSourcing
 {
     public interface IEventStorePersister
     {
-        void Persist(List<IDomainMessageCommit> commits);
+        void Persist(List<IAggregateRoot> aggregates);
     }
 }
