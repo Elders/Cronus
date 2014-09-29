@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.EventSourcing;
 using Elders.Cronus.UnitOfWork;
-using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Config;
 
 namespace Elders.Cronus.Pipeline.Config
@@ -21,10 +19,7 @@ namespace Elders.Cronus.Pipeline.Config
     }
 
     public class EventStoreMessageProcessorWithSafeBatchSettings : IMessageProcessorSettings<DomainMessageCommit>
-    {
         Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorSettings<DomainMessageCommit>.HandlerRegistrations { get; set; }
-    }
-
     public static class MessageProcessorWithSafeBatchSettingsExtensions
     {
         public static T UseUnitOfWork<T>(this T self, UnitOfWorkFactory instance) where T : IHaveUnitOfWorkFactory

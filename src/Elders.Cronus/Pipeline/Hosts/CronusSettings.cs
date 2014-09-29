@@ -21,11 +21,6 @@ namespace Elders.Cronus.Pipeline.Hosts
         Lazy<IPublisher<IEvent>> EventPublisher { get; set; }
     }
 
-    public interface IHaveEventStorePublisher
-    {
-        Lazy<IPublisher<DomainMessageCommit>> EventStorePublisher { get; set; }
-    }
-
     public interface IHaveConsumers
     {
         List<Lazy<IEndpointConsumer>> Consumers { get; set; }
@@ -55,8 +50,6 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         Lazy<IPublisher<IEvent>> IHaveEventPublisher.EventPublisher { get; set; }
 
-        Lazy<IPublisher<DomainMessageCommit>> IHaveEventStorePublisher.EventStorePublisher { get; set; }
-
         Dictionary<string, Lazy<IEventStore>> IHaveEventStores.EventStores { get; set; }
 
         ISerializer IHaveSerializer.Serializer { get; set; }
@@ -74,9 +67,6 @@ namespace Elders.Cronus.Pipeline.Hosts
 
                 if (settings.EventPublisher != null)
                     cronusConfiguration.EventPublisher = settings.EventPublisher.Value;
-
-                if (settings.EventStorePublisher != null)
-                    cronusConfiguration.EventStorePublisher = settings.EventStorePublisher.Value;
 
                 if (settings.Consumers != null && settings.Consumers.Count > 0)
                     cronusConfiguration.Consumers = settings.Consumers.Select(x => x.Value).ToList();
@@ -110,16 +100,6 @@ namespace Elders.Cronus.Pipeline.Hosts
             if (configure != null)
                 configure(settings);
             self.CommandPublisher = settings.GetInstanceLazy();
-            return self;
-        }
-
-        public static T UsePipelineEventStorePublisher<T>(this T self, Action<EventStorePipelinePublisherSettings> configure = null) where T : ICronusSettings
-        {
-            EventStorePipelinePublisherSettings settings = new EventStorePipelinePublisherSettings();
-            self.CopySerializerTo(settings);
-            if (configure != null)
-                configure(settings);
-            self.EventStorePublisher = settings.GetInstanceLazy();
             return self;
         }
 

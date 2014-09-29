@@ -40,27 +40,5 @@ namespace Elders.Cronus.Pipeline.Config
             this.WithProjectionEndpointPerBoundedContext();
         }
     }
-
-    public class EventStorePipelinePublisherSettings : IPipelinePublisherSettings<DomainMessageCommit>
-    {
-        public EventStorePipelinePublisherSettings()
-        {
-            this.WithEventStorePipelinePerApplication();
-            this.WithEventStoreEndpointPerBoundedContext();
-        }
-
-        ISerializer IHaveSerializer.Serializer { get; set; }
-
-        Lazy<IPipelineTransport> IHaveTransport<IPipelineTransport>.Transport { get; set; }
-
-        Lazy<IPipelineNameConvention> IHavePipelineSettings.PipelineNameConvention { get; set; }
-
-        Lazy<IEndpointNameConvention> IHavePipelineSettings.EndpointNameConvention { get; set; }
-
-        Lazy<IPublisher<DomainMessageCommit>> ISettingsBuilder<IPublisher<DomainMessageCommit>>.Build()
-        {
-            IPipelinePublisherSettings<DomainMessageCommit> settings = this as IPipelinePublisherSettings<DomainMessageCommit>;
             return new Lazy<IPublisher<DomainMessageCommit>>(() => new EventStorePublisher(settings.Transport.Value, settings.Serializer));
-        }
-    }
 }

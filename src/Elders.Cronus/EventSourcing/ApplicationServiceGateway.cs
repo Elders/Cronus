@@ -11,7 +11,7 @@ namespace Elders.Cronus.EventSourcing
     /// <remarks>The class is NOT THREAD SAFE.</remarks>
     public class ApplicationServiceGateway : IApplicationServiceGateway, IAggregateRepository
     {
-        private readonly List<IDomainMessageCommit> commits;
+        private readonly List<IAggregateRoot> aggregates;
 
         private readonly IAggregateRepository aggregateRepository;
 
@@ -21,13 +21,12 @@ namespace Elders.Cronus.EventSourcing
         {
             this.aggregateRepository = aggregateRepository;
             this.eventStorePersister = eventStorePersister;
-            commits = new List<IDomainMessageCommit>();
+            aggregates = new List<IAggregateRoot>();
         }
 
         public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
-            var dmc = new DomainMessageCommit(aggregateRoot.State, aggregateRoot.UncommittedEvents);
-            commits.Add(dmc);
+            aggregates.Add(aggregateRoot);
         }
 
         public AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
@@ -37,8 +36,8 @@ namespace Elders.Cronus.EventSourcing
 
         public void CommitChanges(Action<IEvent> publish)
         {
-            eventStorePersister.Persist(commits);
-            commits.ForEach(e => e.Events.ForEach(x => publish(x)));
+            eventStorePersister.Persist(aggregates);
+            aggregates.ForEach(e => e.UncommittedEvents.ForEach(x => publish(x)));
         }
     }
 }
