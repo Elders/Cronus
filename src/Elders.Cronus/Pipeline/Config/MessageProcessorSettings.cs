@@ -18,8 +18,6 @@ namespace Elders.Cronus.Pipeline.Config
         Lazy<UnitOfWorkFactory> IHaveUnitOfWorkFactory.UnitOfWorkFactory { get; set; }
     }
 
-    public class EventStoreMessageProcessorWithSafeBatchSettings : IMessageProcessorSettings<DomainMessageCommit>
-        Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorSettings<DomainMessageCommit>.HandlerRegistrations { get; set; }
     public static class MessageProcessorWithSafeBatchSettingsExtensions
     {
         public static T UseUnitOfWork<T>(this T self, UnitOfWorkFactory instance) where T : IHaveUnitOfWorkFactory

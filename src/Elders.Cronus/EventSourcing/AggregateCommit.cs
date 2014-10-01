@@ -16,14 +16,14 @@ namespace Elders.Cronus.EventSourcing
 
         public AggregateCommit(IAggregateRootId aggregateId, int revision, List<IEvent> events)
         {
-            AggregateId = aggregateId.Id;
+            AggregateId = aggregateId.RawId;
             Revision = revision;
             UncommittedEvents = events.Cast<object>().ToList();
             Timestamp = DateTime.UtcNow.ToFileTimeUtc();
         }
 
         [DataMember(Order = 1)]
-        public Guid AggregateId { get; private set; }
+        public byte[] AggregateId { get; private set; }
 
         [DataMember(Order = 2)]
         public int Revision { get; private set; }

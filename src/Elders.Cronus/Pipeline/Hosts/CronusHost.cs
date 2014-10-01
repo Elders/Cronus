@@ -31,8 +31,6 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public IPublisher<IEvent> EventPublisher { get; set; }
 
-        public IPublisher<DomainMessageCommit> EventStorePublisher { get; set; }
-
         public bool Start()
         {
             foreach (var consumer in Consumers)
@@ -74,7 +72,6 @@ namespace Elders.Cronus.Pipeline.Hosts
             Serializer.TryDispose();
             CommandPublisher.TryDispose();
             EventPublisher.TryDispose();
-            EventStorePublisher.TryDispose();
         }
     }
 

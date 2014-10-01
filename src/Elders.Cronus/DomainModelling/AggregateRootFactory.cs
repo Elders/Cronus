@@ -35,7 +35,7 @@ namespace Elders.Cronus.DomainModeling
         private static TAggregateRoot Build<TAggregateRoot>(TAggregateRoot aggregateRoot, IAggregateRootState state)
             where TAggregateRoot : IAggregateRoot
         {
-            if (state == null || state.Id == null || state.Id.Id == default(Guid))
+            if (state == null || state.Id == null || state.Id.RawId == default(byte[]))
                 throw new AggregateRootException("Invalid aggregate root state. The initial event which created the aggregate root is missing.");
 
             aggregateRoot.State = state;

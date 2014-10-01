@@ -40,5 +40,5 @@ namespace Elders.Cronus.Pipeline.Config
             this.WithProjectionEndpointPerBoundedContext();
         }
     }
-            return new Lazy<IPublisher<DomainMessageCommit>>(() => new EventStorePublisher(settings.Transport.Value, settings.Serializer));
+
 }

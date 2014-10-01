@@ -31,7 +31,7 @@ namespace Elders.Cronus.Pipeline.Hosts
         Dictionary<string, Lazy<IEventStore>> EventStores { get; set; }
     }
 
-    public interface ICronusSettings : ICanConfigureSerializer, IHaveCommandPublisher, IHaveEventPublisher, IHaveEventStorePublisher, IHaveConsumers, IHaveEventStores, ISettingsBuilder<CronusHost>
+    public interface ICronusSettings : ICanConfigureSerializer, IHaveCommandPublisher, IHaveEventPublisher, IHaveConsumers, IHaveEventStores, ISettingsBuilder<CronusHost>
     {
 
     }

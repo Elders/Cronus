@@ -64,16 +64,6 @@ namespace Elders.Cronus.Pipeline.Config
         }
     }
 
-    public class EventStoreConsumerSettings : ConsumerSettings<DomainMessageCommit>
-    {
-        public EventStoreConsumerSettings()
-        {
-            this.WithMessageThreshold(100, 30);
-            this.WithEventStorePipelinePerApplication();
-            this.WithEventStoreEndpointPerBoundedContext();
-        }
-    }
-
     public static class ConsumerSettingsExtensions
     {
         public static T WithNumberOfConsumersThreads<T>(this T self, int numberOfConsumers) where T : IConsumerSettings
