@@ -49,7 +49,7 @@ namespace Elders.Cronus.Pipeline
         {
             this.endpoint = endpoint;
             this.processor = processor;
-            this.processor = processor;
+            this.circuitBreaker = circuitBreaker;
             this.serializer = serializer;
             this.messageThreshold = messageThreshold ?? new MessageThreshold();
         }

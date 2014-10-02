@@ -3,11 +3,9 @@ using System.Linq;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.EventSourcing;
-using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Serializer;
-using Elders.Cronus.UnitOfWork;
-using System.Reflection;
 using Elders.Cronus.Pipeline.Hosts.DisposableExtensions;
+
 namespace Elders.Cronus.Pipeline.Hosts
 {
     public class CronusHost : ICronusPlayer, ICronusHost

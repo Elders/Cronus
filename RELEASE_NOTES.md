@@ -1,3 +1,6 @@
+#### 1.1.41 - 02.10.2014
+* Fix bug with CB
+
 #### 1.1.40 - 01.10.2014
 * Rework how we use the aggregate Ids
 
