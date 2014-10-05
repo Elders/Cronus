@@ -66,15 +66,15 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory.Config
         public static T WithDefaultPublishersInMemory<T>(this T self, string boundedContext, Assembly[] assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory, UnitOfWorkFactory eventsHandlersUnitOfWorkFactory)
             where T : ICronusSettings
         {
-            self.UseInMemoryCommandPublisher(boundedContext, publisherSettings => publisherSettings
-                .UseApplicationServices(handler => handler
-                    .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new ApplicationServiceBatchUnitOfWork((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
-                    .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory)));
-            self.UseInMemoryEventPublisher(boundedContext, publisherSettings => publisherSettings
-                .UsePortsAndProjections(handler => handler
-                    .UseUnitOfWork(eventsHandlersUnitOfWorkFactory)
-                    .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory)
-                ));
+            //self.UseInMemoryCommandPublisher(boundedContext, publisherSettings => publisherSettings
+            //    .UseApplicationServices(handler => handler
+            //        .UseUnitOfWork(new UnitOfWorkFactory() { CreateBatchUnitOfWork = () => new ApplicationServiceBatchUnitOfWork((self as IHaveEventStores).EventStores[boundedContext].Value.AggregateRepository, (self as IHaveEventStores).EventStores[boundedContext].Value.Persister, self.EventPublisher.Value) })
+            //        .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory)));
+            //self.UseInMemoryEventPublisher(boundedContext, publisherSettings => publisherSettings
+            //    .UsePortsAndProjections(handler => handler
+            //        .UseUnitOfWork(eventsHandlersUnitOfWorkFactory)
+            //        .RegisterAllHandlersInAssembly(assemblyContainingMessageHandlers, messageHandlerFactory)
+            //    ));
 
             return self;
         }

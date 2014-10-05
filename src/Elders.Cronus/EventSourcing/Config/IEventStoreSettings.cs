@@ -1,4 +1,3 @@
-using System.Reflection;
 using Elders.Cronus.Pipeline.Config;
 
 namespace Elders.Cronus.EventSourcing.Config

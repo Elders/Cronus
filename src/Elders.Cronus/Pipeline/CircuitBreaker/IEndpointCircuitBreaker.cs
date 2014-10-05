@@ -10,11 +10,11 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
 {
     public interface IEndpointCircuitBreaker
     {
-        ICircuitBreakerSuccessStrategy SuccessStrategy { get; set; }
+        //ICircuitBreakerSuccessStrategy SuccessStrategy { get; set; }
 
-        ICircuitBreakerRetryStrategy RetryStrategy { get; set; }
+        //ICircuitBreakerRetryStrategy RetryStrategy { get; set; }
 
-        ICircuitBreakerErrorStrategy ErrorStrategy { get; set; }
+        //ICircuitBreakerErrorStrategy ErrorStrategy { get; set; }
 
         void PostConsume(ISafeBatchResult<TransportMessage> mesages);
     }

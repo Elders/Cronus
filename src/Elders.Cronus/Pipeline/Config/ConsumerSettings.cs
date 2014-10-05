@@ -34,21 +34,21 @@ namespace Elders.Cronus.Pipeline.Config
         Lazy<CircuitBreaker.IEndpontCircuitBreakerFactrory> IHaveCircuitBreaker.CircuitBreakerFactory { get; set; }
     }
 
-    public class CommandConsumerSettings : ConsumerSettings<ICommand>
+    public class CommandConsumerSettings : ConsumerSettings<ICommand>, IHaveEventStore
     {
         public CommandConsumerSettings()
         {
-            this.WithMessageThreshold(100, 30);
             this.WithCommandPipelinePerApplication();
             this.WithCommandHandlerEndpointPerBoundedContext();
         }
+
+        Lazy<IEventStore> IHaveEventStore.EventStore { get; set; }
     }
 
     public class ProjectionConsumerSettings : ConsumerSettings<IEvent>
     {
         public ProjectionConsumerSettings()
         {
-            this.WithMessageThreshold(100, 30);
             this.WithEventPipelinePerApplication();
             this.WithProjectionEndpointPerBoundedContext();
         }
@@ -58,7 +58,6 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public PortConsumerSettings()
         {
-            this.WithMessageThreshold(100, 30);
             this.WithEventPipelinePerApplication();
             this.WithPortEndpointPerBoundedContext();
         }
@@ -66,19 +65,19 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class ConsumerSettingsExtensions
     {
-        public static T WithNumberOfConsumersThreads<T>(this T self, int numberOfConsumers) where T : IConsumerSettings
+        public static T SetNumberOfConsumerThreads<T>(this T self, int numberOfConsumers) where T : IConsumerSettings
         {
             self.NumberOfWorkers = numberOfConsumers;
             return self;
         }
 
-        public static T WithMessageThreshold<T>(this T self, uint size, uint delay) where T : IConsumerSettings
+        public static T SetMessageThreshold<T>(this T self, uint size, uint delay) where T : IConsumerSettings
         {
             self.MessageTreshold = new MessageThreshold(size, delay);
             return self;
         }
 
-        public static T UseCommandConsumer<T>(this T self, string boundedContext, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
+        public static T UseCommandConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
         {
             CommandConsumerSettings settings = new CommandConsumerSettings();
             self.CopySerializerTo(settings);
@@ -89,7 +88,7 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UseProjectionConsumer<T>(this T self, string boundedContext, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
+        public static T UseProjectionConsumer<T>(this T self, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
         {
             ProjectionConsumerSettings settings = new ProjectionConsumerSettings();
             self.CopySerializerTo(settings);
@@ -100,7 +99,7 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UsePortConsumer<T>(this T self, string boundedContext, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
+        public static T UsePortConsumer<T>(this T self, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
         {
             PortConsumerSettings settings = new PortConsumerSettings();
             self.CopySerializerTo(settings);

@@ -29,6 +29,8 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public IPublisher<IEvent> EventPublisher { get; set; }
 
+        public ICronusPlayer Player { get; set; }
+
         public bool Start()
         {
             foreach (var consumer in Consumers)
@@ -72,8 +74,6 @@ namespace Elders.Cronus.Pipeline.Hosts
             EventPublisher.TryDispose();
         }
     }
-
-
 }
 namespace Elders.Cronus.Pipeline.Hosts.DisposableExtensions
 {

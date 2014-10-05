@@ -189,7 +189,6 @@
     <Compile Include="Pipeline\EndpointConsumerHost.cs" />
     <Compile Include="EventSourcing\EventStream.cs" />
     <Compile Include="EventSourcing\ApplicationServiceGateway.cs" />
-    <Compile Include="EventSourcing\CronusProxyRepository.cs" />
     <Compile Include="Pipeline\IEndpointConsumable.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpointFactory.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpoint.cs" />

@@ -26,12 +26,7 @@ namespace Elders.Cronus.Pipeline.Hosts
         List<Lazy<IEndpointConsumer>> Consumers { get; set; }
     }
 
-    public interface IHaveEventStores
-    {
-        Dictionary<string, Lazy<IEventStore>> EventStores { get; set; }
-    }
-
-    public interface ICronusSettings : ICanConfigureSerializer, IHaveCommandPublisher, IHaveEventPublisher, IHaveConsumers, IHaveEventStores, ISettingsBuilder<CronusHost>
+    public interface ICronusSettings : ICanConfigureSerializer, IHaveCommandPublisher, IHaveEventPublisher, IHaveConsumers, ISettingsBuilder<CronusHost>
     {
 
     }
@@ -40,7 +35,6 @@ namespace Elders.Cronus.Pipeline.Hosts
     {
         public CronusSettings()
         {
-            (this as IHaveEventStores).EventStores = new Dictionary<string, Lazy<IEventStore>>();
             (this as IHaveConsumers).Consumers = new List<Lazy<IEndpointConsumer>>();
         }
 
@@ -49,8 +43,6 @@ namespace Elders.Cronus.Pipeline.Hosts
         List<Lazy<IEndpointConsumer>> IHaveConsumers.Consumers { get; set; }
 
         Lazy<IPublisher<IEvent>> IHaveEventPublisher.EventPublisher { get; set; }
-
-        Dictionary<string, Lazy<IEventStore>> IHaveEventStores.EventStores { get; set; }
 
         ISerializer IHaveSerializer.Serializer { get; set; }
 
@@ -70,9 +62,6 @@ namespace Elders.Cronus.Pipeline.Hosts
 
                 if (settings.Consumers != null && settings.Consumers.Count > 0)
                     cronusConfiguration.Consumers = settings.Consumers.Select(x => x.Value).ToList();
-
-                if (settings.EventStores != null && settings.EventStores.Count > 0)
-                    cronusConfiguration.EventStores = settings.EventStores.ToDictionary(key => key.Key, val => val.Value.Value);
 
                 cronusConfiguration.Serializer = settings.Serializer;
 
@@ -103,7 +92,6 @@ namespace Elders.Cronus.Pipeline.Hosts
             return self;
         }
 
-
         public static T UseInMemoryCommandPublisher<T>(this T self, string boundedContext, Action<InMemoryCommandPublisherSettings> configure = null) where T : ICronusSettings
         {
             InMemoryCommandPublisherSettings settings = new InMemoryCommandPublisherSettings();
@@ -112,6 +100,7 @@ namespace Elders.Cronus.Pipeline.Hosts
             self.CommandPublisher = settings.GetInstanceLazy();
             return self;
         }
+
         public static T UseInMemoryEventPublisher<T>(this T self, string boundedContext, Action<InMemoryEventPublisherSettings> configure = null) where T : ICronusSettings
         {
             InMemoryEventPublisherSettings settings = new InMemoryEventPublisherSettings();
@@ -120,7 +109,6 @@ namespace Elders.Cronus.Pipeline.Hosts
             self.EventPublisher = settings.GetInstanceLazy();
             return self;
         }
-
     }
 
     public class ApplicationServiceBatchUnitOfWork : IBatchUnitOfWork

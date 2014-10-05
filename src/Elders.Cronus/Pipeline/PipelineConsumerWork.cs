@@ -10,7 +10,7 @@ namespace Elders.Cronus.Pipeline
 {
     public sealed class MessageThreshold
     {
-        public MessageThreshold() : this(100, 30) { }
+        public MessageThreshold() : this(1, 30) { }
 
         /// <summary>
         /// If the size is > 1 and the delay is 0 could be dangerous. Use only in special cases and you should be familiar with the PipelineConsumerWork code.
