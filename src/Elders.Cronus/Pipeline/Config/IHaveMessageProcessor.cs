@@ -27,6 +27,30 @@ namespace Elders.Cronus.Pipeline.Config
         Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> HandlerRegistrations { get; set; }
     }
 
+    public class InternalApplicationServiceFactory : IMessageHandlerFactory
+    {
+        private readonly IMessageHandlerFactory externalFactory;
+
+        public InternalApplicationServiceFactory(IMessageHandlerFactory externalFactory)
+        {
+            this.externalFactory = externalFactory;
+        }
+
+        public object CreateHandler(Type t, Context context)
+        {
+            object instance = externalFactory == null
+                ? FastActivator.CreateInstance(t)
+                : externalFactory.CreateHandler(t, context);
+
+            instance.AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = context.BatchContext.Get<Lazy<IAggregateRepository>>().Value);
+            return instance;
+        }
+    }
+    public interface IMessageHandlerFactory
+    {
+        object CreateHandler(Type t, Context ctx);
+    }
+
     public static class EndpointConsumerRegistrations
     {
         public static T RegisterAllHandlersInAssembly<T>(this T self, Type[] messageHandlers, Func<Type, Context, object> messageHandlerFactory) where T : IMessageProcessorSettings<IMessage>
@@ -38,6 +62,17 @@ namespace Elders.Cronus.Pipeline.Config
         public static T RegisterAllHandlersInAssembly<T>(this T self, Assembly[] messageHandlers, Func<Type, Context, object> messageHandlerFactory) where T : IMessageProcessorSettings<IMessage>
         {
             Register(self, messageHandlers, messageHandlerFactory, (eventHandlerType) => { });
+            return self;
+        }
+
+        /// <summary>
+        /// Registers all command handlers from a given assembly.
+        /// </summary>
+        /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Type assemblyContainingMessageHandlers, IMessageHandlerFactory messageHandlerFactory = null) where T : IMessageProcessorSettings<ICommand>
+        {
+            var factory = new InternalApplicationServiceFactory(messageHandlerFactory);
+            Register(self, assemblyContainingMessageHandlers.Assembly, factory.CreateHandler, (eventHandlerType) => { });
             return self;
         }
 

@@ -102,6 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BatchConsumer.cs" />
+    <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Pipeline\CircuitBreaker\Class1.cs" />
     <Compile Include="Pipeline\CircuitBreaker\IEndpontCircuitBreakerFactrory.cs" />
     <Compile Include="Pipeline\CircuitBreaker\EndpointPostConsumeStrategy.cs" />
@@ -159,7 +160,7 @@
     <Compile Include="Pipeline\Hosts\ICronusPlayer.cs" />
     <Compile Include="Pipeline\Hosts\ICronusHost.cs" />
     <Compile Include="Pipeline\Hosts\CronusHost.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\Class1.cs" />
+    <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineTransport.cs" />
     <Compile Include="Pipeline\Transport\ITransport.cs" />
     <Compile Include="SafeBatch.cs" />
     <Compile Include="DomainModelling\AggregateRootFactory.cs" />

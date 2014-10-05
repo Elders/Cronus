@@ -1,4 +1,7 @@
-#### 1.1.42-alpha1 - 02.10.2014
+#### 1.1.42-alpha2 - 05.10.2014
+* Introduce IMessageHandlerFactory
+
+#### 1.1.42-alpha1 - 05.10.2014
 * Move the event store configuration to the command consumer
 
 #### 1.1.41 - 02.10.2014

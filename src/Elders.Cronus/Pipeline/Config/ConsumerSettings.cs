@@ -81,7 +81,9 @@ namespace Elders.Cronus.Pipeline.Config
         {
             CommandConsumerSettings settings = new CommandConsumerSettings();
             self.CopySerializerTo(settings);
-            settings.WithDefaultCircuitBreaker();
+            settings
+                .SetNumberOfConsumerThreads(2)
+                .WithDefaultCircuitBreaker();
             if (configure != null)
                 configure(settings);
             self.Consumers.Add(settings.GetInstanceLazy());
