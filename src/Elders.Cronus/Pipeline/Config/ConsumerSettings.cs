@@ -34,15 +34,13 @@ namespace Elders.Cronus.Pipeline.Config
         Lazy<CircuitBreaker.IEndpontCircuitBreakerFactrory> IHaveCircuitBreaker.CircuitBreakerFactory { get; set; }
     }
 
-    public class CommandConsumerSettings : ConsumerSettings<ICommand>, IHaveEventStore
+    public class CommandConsumerSettings : ConsumerSettings<ICommand>
     {
         public CommandConsumerSettings()
         {
             this.WithCommandPipelinePerApplication();
             this.WithCommandHandlerEndpointPerBoundedContext();
         }
-
-        Lazy<IEventStore> IHaveEventStore.EventStore { get; set; }
     }
 
     public class ProjectionConsumerSettings : ConsumerSettings<IEvent>

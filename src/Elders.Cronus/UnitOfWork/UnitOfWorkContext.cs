@@ -52,7 +52,6 @@ namespace Elders.Cronus.UnitOfWork
             }
             else
                 return default(T);
-
         }
 
         public void Clear()

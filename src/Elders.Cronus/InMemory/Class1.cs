@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.InMemory;
-using Elders.Cronus.Pipeline.CircuitBreaker;
-using Elders.Cronus.Pipeline.Hosts;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public interface IInMemoryCommandPublisherSettings :  IHaveMessageProcessor<ICommand>, ISettingsBuilder<IPublisher<ICommand>>
+    public interface IInMemoryCommandPublisherSettings : IHaveMessageProcessor<ICommand>, ISettingsBuilder<IPublisher<ICommand>>
     {
     }
 
@@ -25,7 +19,7 @@ namespace Elders.Cronus.Pipeline.Config
         }
     }
 
-    public interface IInMemoryEventPublisherSettings :  IHaveMessageProcessor<IEvent>, ISettingsBuilder<IPublisher<IEvent>>
+    public interface IInMemoryEventPublisherSettings : IHaveMessageProcessor<IEvent>, ISettingsBuilder<IPublisher<IEvent>>
     {
     }
 
