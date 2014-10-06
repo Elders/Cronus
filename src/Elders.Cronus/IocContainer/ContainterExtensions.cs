@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Elders.Cronus.Container
+namespace Elders.Cronus.IocContainer
 {
     public static class ContainterExtensions
     {

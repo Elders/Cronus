@@ -6,7 +6,7 @@ using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.UnitOfWork;
-using System.Reflection;
+using Elders.Cronus.IocContainer;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
@@ -28,7 +28,7 @@ namespace Elders.Cronus.Pipeline.Hosts
 
     public interface ICronusSettings : ICanConfigureSerializer, IHaveCommandPublisher, IHaveEventPublisher, IHaveConsumers, ISettingsBuilder<CronusHost>
     {
-
+        IContainer Container { get; set; }
     }
 
     public class CronusSettings : ICronusSettings
@@ -36,7 +36,10 @@ namespace Elders.Cronus.Pipeline.Hosts
         public CronusSettings()
         {
             (this as IHaveConsumers).Consumers = new List<Lazy<IEndpointConsumer>>();
+            Container = new Container();
         }
+
+        public IContainer Container { get; set; }
 
         Lazy<IPublisher<ICommand>> IHaveCommandPublisher.CommandPublisher { get; set; }
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Elders.Cronus.Container
+namespace Elders.Cronus.IocContainer
 {
     /// <summary>
     /// Mapping key. See <see cref="IocContainer"/>

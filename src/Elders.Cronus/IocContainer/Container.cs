@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Elders.Cronus.Container
+namespace Elders.Cronus.IocContainer
 {
     /// <summary>
     /// IoC container

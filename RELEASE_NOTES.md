@@ -1,3 +1,6 @@
+#### 1.1.42-alpha4 - 06.10.2014
+* Add the ioc container to the Cronus settings
+
 #### 1.1.42-alpha3 - 06.10.2014
 * Add simple ioc container
 

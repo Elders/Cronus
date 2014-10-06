@@ -102,10 +102,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BatchConsumer.cs" />
-    <Compile Include="Container\Container.cs" />
-    <Compile Include="Container\ContainterExtensions.cs" />
-    <Compile Include="Container\IContainer.cs" />
-    <Compile Include="Container\MappingKey.cs" />
+    <Compile Include="IocContainer\Container.cs" />
+    <Compile Include="IocContainer\ContainterExtensions.cs" />
+    <Compile Include="IocContainer\IContainer.cs" />
+    <Compile Include="IocContainer\MappingKey.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Pipeline\CircuitBreaker\Class1.cs" />
     <Compile Include="Pipeline\CircuitBreaker\IEndpontCircuitBreakerFactrory.cs" />
