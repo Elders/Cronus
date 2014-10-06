@@ -1,3 +1,6 @@
+#### 1.1.42-alpha3 - 06.10.2014
+* Add simple ioc container
+
 #### 1.1.42-alpha2 - 05.10.2014
 * Introduce IMessageHandlerFactory
 
