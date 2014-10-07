@@ -62,7 +62,7 @@ public static class CronusConfigurationExtensions
 {
     public static T UsePipelineEventPublisher<T>(this T self, Action<EventPipelinePublisherSettings> configure = null) where T : ICronusSettings
     {
-        EventPipelinePublisherSettings settings = new EventPipelinePublisherSettings();
+        EventPipelinePublisherSettings settings = new EventPipelinePublisherSettings(self);
         if (configure != null)
             configure(settings);
         (settings as ISettingsBuilder).Build();
@@ -71,7 +71,7 @@ public static class CronusConfigurationExtensions
 
     public static T UsePipelineCommandPublisher<T>(this T self, Action<CommandPipelinePublisherSettings> configure = null) where T : ICronusSettings
     {
-        CommandPipelinePublisherSettings settings = new CommandPipelinePublisherSettings();
+        CommandPipelinePublisherSettings settings = new CommandPipelinePublisherSettings(self);
         if (configure != null)
             configure(settings);
         (settings as ISettingsBuilder).Build();

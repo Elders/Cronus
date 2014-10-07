@@ -1,3 +1,6 @@
+#### 1.1.42-alpha8 - 07.10.2014
+* Copy the container to all setting classes
+
 #### 1.1.42-alpha7 - 07.10.2014
 * Refactor all settings and how we build objects.
 

@@ -9,9 +9,11 @@ using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public abstract class ConsumerSettings<TContract> : HideObectMembers, IConsumerSettings<TContract>
+    public abstract class ConsumerSettings<TContract> : SettingsBuilder, IConsumerSettings<TContract>
         where TContract : IMessage
     {
+        public ConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
+
         int IConsumerSettings.NumberOfWorkers { get; set; }
 
         MessageThreshold IConsumerSettings.MessageTreshold { get; set; }
@@ -20,7 +22,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         string ISettingsBuilder.Name { get; set; }
 
-        void ISettingsBuilder.Build()
+        public override void Build()
         {
             var builder = this as ISettingsBuilder;
             var transport = builder.Container.Resolve<IPipelineTransport>(builder.Name);
@@ -33,7 +35,7 @@ namespace Elders.Cronus.Pipeline.Config
 
     public class CommandConsumerSettings : ConsumerSettings<ICommand>
     {
-        public CommandConsumerSettings(string name = null)
+        public CommandConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
         {
             this.WithCommandPipelinePerApplication();
             this.WithCommandHandlerEndpointPerBoundedContext();
@@ -42,7 +44,7 @@ namespace Elders.Cronus.Pipeline.Config
 
     public class ProjectionConsumerSettings : ConsumerSettings<IEvent>
     {
-        public ProjectionConsumerSettings(string name = null)
+        public ProjectionConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
         {
             this.WithEventPipelinePerApplication();
             this.WithProjectionEndpointPerBoundedContext();
@@ -51,7 +53,7 @@ namespace Elders.Cronus.Pipeline.Config
 
     public class PortConsumerSettings : ConsumerSettings<IEvent>
     {
-        public PortConsumerSettings(string name = null)
+        public PortConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
         {
             this.WithEventPipelinePerApplication();
             this.WithPortEndpointPerBoundedContext();
@@ -74,7 +76,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseCommandConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
         {
-            CommandConsumerSettings settings = new CommandConsumerSettings();
+            CommandConsumerSettings settings = new CommandConsumerSettings(self);
             settings
                 .SetNumberOfConsumerThreads(2)
                 .WithDefaultCircuitBreaker();
@@ -86,7 +88,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseProjectionConsumer<T>(this T self, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
         {
-            ProjectionConsumerSettings settings = new ProjectionConsumerSettings();
+            ProjectionConsumerSettings settings = new ProjectionConsumerSettings(self);
             settings.WithDefaultCircuitBreaker();
             if (configure != null)
                 configure(settings);
@@ -96,7 +98,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UsePortConsumer<T>(this T self, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
         {
-            PortConsumerSettings settings = new PortConsumerSettings();
+            PortConsumerSettings settings = new PortConsumerSettings(self);
             settings.WithDefaultCircuitBreaker();
             if (configure != null)
                 configure(settings);

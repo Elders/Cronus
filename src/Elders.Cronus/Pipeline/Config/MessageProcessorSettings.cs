@@ -6,9 +6,9 @@ using Elders.Cronus.IocContainer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public class MessageProcessorSettings<TContract> : IMessageProcessorSettings<TContract>, IHaveUnitOfWorkFactory where TContract : IMessage
+    public class MessageProcessorSettings<TContract> : SettingsBuilder, IMessageProcessorSettings<TContract>, IHaveUnitOfWorkFactory where TContract : IMessage
     {
-        public MessageProcessorSettings()
+        public MessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
             (this as IHaveUnitOfWorkFactory).UnitOfWorkFactory = new Lazy<UnitOfWorkFactory>(() => new UnitOfWorkFactory());
         }
@@ -17,11 +17,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         Lazy<UnitOfWorkFactory> IHaveUnitOfWorkFactory.UnitOfWorkFactory { get; set; }
 
-        IContainer ISettingsBuilder.Container { get; set; }
-
-        string ISettingsBuilder.Name { get; set; }
-
-        void ISettingsBuilder.Build()
+        public override void Build()
         {
             var builder = this as ISettingsBuilder;
 
@@ -53,9 +49,9 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UseProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IMessageProcessorSettings<IEvent>
+        public static T UseProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IConsumerSettings<IEvent>
         {
-            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>();
+            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self);
             if (configure != null)
                 configure(settings);
 
@@ -63,9 +59,9 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UsePortsAndProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IMessageProcessorSettings<IEvent>
+        public static T UsePortsAndProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IConsumerSettings<IEvent>
         {
-            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>();
+            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self);
             if (configure != null)
                 configure(settings);
 
@@ -73,9 +69,9 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UsePorts<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IMessageProcessorSettings<IEvent>
+        public static T UsePorts<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IConsumerSettings<IEvent>
         {
-            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>();
+            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self);
             if (configure != null)
                 configure(settings);
 
@@ -83,9 +79,9 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UseApplicationServices<T>(this T self, Action<MessageProcessorSettings<ICommand>> configure) where T : IMessageProcessorSettings<ICommand>
+        public static T UseApplicationServices<T>(this T self, Action<MessageProcessorSettings<ICommand>> configure) where T : IConsumerSettings<ICommand>
         {
-            MessageProcessorSettings<ICommand> settings = new MessageProcessorSettings<ICommand>();
+            MessageProcessorSettings<ICommand> settings = new MessageProcessorSettings<ICommand>(self);
             if (configure != null)
                 configure(settings);
 

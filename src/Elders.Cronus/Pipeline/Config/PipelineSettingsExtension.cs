@@ -1,6 +1,4 @@
-﻿using System;
-using Elders.Cronus.DomainModeling;
-using Elders.Cronus.EventSourcing;
+﻿using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Pipeline.Strategy;
 using Elders.Cronus.IocContainer;
 

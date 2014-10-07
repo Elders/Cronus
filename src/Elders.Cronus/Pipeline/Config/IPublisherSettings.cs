@@ -9,8 +9,7 @@ using Elders.Cronus.IocContainer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public interface IPipelinePublisherSettings<TContract> : ISettingsBuilder
-        where TContract : IMessage
+    public interface IPipelinePublisherSettings<TContract> : ISettingsBuilder where TContract : IMessage
     {
 
     }
