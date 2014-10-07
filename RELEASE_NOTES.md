@@ -1,3 +1,6 @@
+#### 1.1.42-alpha6 - 07.10.2014
+* You can specify consumer name using the extenstion methods
+
 #### 1.1.42-alpha5 - 07.10.2014
 * You can now specify a consumer name in ConsumerSettings
 

@@ -158,5 +158,11 @@ namespace Elders.Cronus.Pipeline.Config
              );
             return self;
         }
+
+        public static T SetName<T>(this T self, string name) where T : IConsumerSettings
+        {
+            self.Name = name;
+            return self;
+        }
     }
 }
