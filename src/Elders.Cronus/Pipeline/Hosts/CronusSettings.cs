@@ -26,9 +26,14 @@ namespace Elders.Cronus.Pipeline.Hosts
         List<Lazy<IEndpointConsumer>> Consumers { get; set; }
     }
 
-    public interface ICronusSettings : ICanConfigureSerializer, IHaveCommandPublisher, IHaveEventPublisher, IHaveConsumers, ISettingsBuilder<CronusHost>
+    public interface IHaveContainer
     {
         IContainer Container { get; set; }
+    }
+
+    public interface ICronusSettings : IHaveContainer, ICanConfigureSerializer, IHaveCommandPublisher, IHaveEventPublisher, IHaveConsumers, ISettingsBuilder<CronusHost>
+    {
+
     }
 
     public class CronusSettings : ICronusSettings
@@ -36,14 +41,14 @@ namespace Elders.Cronus.Pipeline.Hosts
         public CronusSettings()
         {
             (this as IHaveConsumers).Consumers = new List<Lazy<IEndpointConsumer>>();
-            Container = new Container();
+            (this as IHaveContainer).Container = new Container();
         }
-
-        public IContainer Container { get; set; }
 
         Lazy<IPublisher<ICommand>> IHaveCommandPublisher.CommandPublisher { get; set; }
 
         List<Lazy<IEndpointConsumer>> IHaveConsumers.Consumers { get; set; }
+
+        IContainer IHaveContainer.Container { get; set; }
 
         Lazy<IPublisher<IEvent>> IHaveEventPublisher.EventPublisher { get; set; }
 

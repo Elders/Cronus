@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.EventSourcing;
+using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.Serializer.Protoreg;
@@ -20,6 +21,11 @@ namespace Elders.Cronus.Pipeline.Config
         internal static void CopySerializerTo(this IHaveSerializer self, IHaveSerializer destination)
         {
             destination.Serializer = self.Serializer;
+        }
+
+        internal static void CopyContainerTo(this IHaveContainer self, IHaveContainer destination)
+        {
+            destination.Container = self.Container;
         }
 
         static ISerializer serializer = null;

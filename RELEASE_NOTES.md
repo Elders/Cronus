@@ -1,3 +1,6 @@
+#### 1.1.42-alpha5 - 07.10.2014
+* You can now specify a consumer name in ConsumerSettings
+
 #### 1.1.42-alpha4 - 06.10.2014
 * Add the ioc container to the Cronus settings
 

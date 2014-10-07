@@ -2,6 +2,7 @@
 using System.Reflection;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.EventSourcing;
+using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
@@ -32,12 +33,17 @@ namespace Elders.Cronus.Pipeline.Config
         MessageThreshold IConsumerSettings.MessageTreshold { get; set; }
 
         Lazy<CircuitBreaker.IEndpontCircuitBreakerFactrory> IHaveCircuitBreaker.CircuitBreakerFactory { get; set; }
+
+        IContainer IHaveContainer.Container { get; set; }
+
+        string IConsumerSettings.Name { get; set; }
     }
 
     public class CommandConsumerSettings : ConsumerSettings<ICommand>
     {
-        public CommandConsumerSettings()
+        public CommandConsumerSettings(string name = null)
         {
+            (this as IConsumerSettings<ICommand>).Name = name;
             this.WithCommandPipelinePerApplication();
             this.WithCommandHandlerEndpointPerBoundedContext();
         }
@@ -45,8 +51,9 @@ namespace Elders.Cronus.Pipeline.Config
 
     public class ProjectionConsumerSettings : ConsumerSettings<IEvent>
     {
-        public ProjectionConsumerSettings()
+        public ProjectionConsumerSettings(string name = null)
         {
+            (this as IConsumerSettings<IEvent>).Name = name;
             this.WithEventPipelinePerApplication();
             this.WithProjectionEndpointPerBoundedContext();
         }
@@ -54,8 +61,9 @@ namespace Elders.Cronus.Pipeline.Config
 
     public class PortConsumerSettings : ConsumerSettings<IEvent>
     {
-        public PortConsumerSettings()
+        public PortConsumerSettings(string name = null)
         {
+            (this as IConsumerSettings<IEvent>).Name = name;
             this.WithEventPipelinePerApplication();
             this.WithPortEndpointPerBoundedContext();
         }
@@ -79,6 +87,7 @@ namespace Elders.Cronus.Pipeline.Config
         {
             CommandConsumerSettings settings = new CommandConsumerSettings();
             self.CopySerializerTo(settings);
+            self.CopyContainerTo(settings);
             settings
                 .SetNumberOfConsumerThreads(2)
                 .WithDefaultCircuitBreaker();
