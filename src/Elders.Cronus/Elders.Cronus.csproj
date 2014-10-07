@@ -140,9 +140,6 @@
     <Compile Include="Pipeline\Config\IHaveSerializer.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Pipeline\Config\IHaveTransport.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Pipeline\Config\IPublisherSettings.cs">
       <SubType>Code</SubType>
     </Compile>

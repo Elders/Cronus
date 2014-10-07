@@ -7,11 +7,6 @@ using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public interface IHaveMessageProcessor<TContract> where TContract : IMessage
-    {
-        Lazy<IMessageProcessor<TContract>> MessageHandlerProcessor { get; set; }
-    }
-
     public interface IMessageProcessorSettings
     {
 
@@ -22,7 +17,7 @@ namespace Elders.Cronus.Pipeline.Config
         Lazy<UnitOfWorkFactory> UnitOfWorkFactory { get; set; }
     }
 
-    public interface IMessageProcessorSettings<out TContract> where TContract : IMessage
+    public interface IMessageProcessorSettings<out TContract> : ISettingsBuilder where TContract : IMessage
     {
         Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> HandlerRegistrations { get; set; }
     }

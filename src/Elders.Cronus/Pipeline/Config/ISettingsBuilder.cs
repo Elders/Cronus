@@ -1,9 +1,11 @@
-using System;
+using Elders.Cronus.IocContainer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public interface ISettingsBuilder<T>
+    public interface ISettingsBuilder
     {
-        Lazy<T> Build();
+        IContainer Container { get; set; }
+        string Name { get; set; }
+        void Build();
     }
 }

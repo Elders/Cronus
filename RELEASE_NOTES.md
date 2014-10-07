@@ -1,3 +1,6 @@
+#### 1.1.42-alpha7 - 07.10.2014
+* Refactor all settings and how we build objects.
+
 #### 1.1.42-alpha6 - 07.10.2014
 * You can specify consumer name using the extenstion methods
 

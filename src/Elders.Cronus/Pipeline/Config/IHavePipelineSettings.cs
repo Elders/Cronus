@@ -2,54 +2,39 @@
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Strategy;
+using Elders.Cronus.IocContainer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public interface IHavePipelineSettings
-    {
-        Lazy<IPipelineNameConvention> PipelineNameConvention { get; set; }
-        Lazy<IEndpointNameConvention> EndpointNameConvention { get; set; }
-    }
-
-    public interface IHavePipelineSettings<TContract> : IHavePipelineSettings
-    {
-    }
-
     public static class PipelineSettingsExtension
     {
-        internal static void CopyPipelineSettingsTo(this IHavePipelineSettings self, IHavePipelineSettings destination)
+        public static T WithCommandHandlerEndpointPerBoundedContext<T>(this T self) where T : IPipelinePublisherSettings<ICommand>
         {
-            destination.PipelineNameConvention = self.PipelineNameConvention;
-            destination.EndpointNameConvention = self.EndpointNameConvention;
-        }
-
-        public static T WithCommandHandlerEndpointPerBoundedContext<T>(this T self) where T : IHavePipelineSettings<ICommand>
-        {
-            self.EndpointNameConvention = new Lazy<IEndpointNameConvention>(() => new CommandHandlerEndpointPerBoundedContext(self.PipelineNameConvention.Value));
+            self.Container.RegisterSingleton<IEndpointNameConvention>(() => new CommandHandlerEndpointPerBoundedContext(self.Container.Resolve<IPipelineNameConvention>(self.Name)), self.Name);
             return self;
         }
 
-        public static T WithCommandPipelinePerApplication<T>(this T self) where T : IHavePipelineSettings<ICommand>
+        public static T WithCommandPipelinePerApplication<T>(this T self) where T : IPipelinePublisherSettings<ICommand>
         {
-            self.PipelineNameConvention = new Lazy<IPipelineNameConvention>(() => new CommandPipelinePerApplication());
+            self.Container.RegisterSingleton<IPipelineNameConvention>(() => new CommandPipelinePerApplication(), self.Name);
             return self;
         }
 
-        public static T WithEventPipelinePerApplication<T>(this T self) where T : IHavePipelineSettings<IEvent>
+        public static T WithEventPipelinePerApplication<T>(this T self) where T : IPipelinePublisherSettings<IEvent>
         {
-            self.PipelineNameConvention = new Lazy<IPipelineNameConvention>(() => new EventPipelinePerApplication());
+            self.Container.RegisterSingleton<IPipelineNameConvention>(() => new EventPipelinePerApplication(), self.Name);
             return self;
         }
 
-        public static T WithPortEndpointPerBoundedContext<T>(this T self) where T : IHavePipelineSettings<IEvent>
+        public static T WithPortEndpointPerBoundedContext<T>(this T self) where T : IPipelinePublisherSettings<IEvent>
         {
-            self.EndpointNameConvention = new Lazy<IEndpointNameConvention>(() => new PortEndpointPerBoundedContext(self.PipelineNameConvention.Value));
+            self.Container.RegisterSingleton<IEndpointNameConvention>(() => new PortEndpointPerBoundedContext(self.Container.Resolve<IPipelineNameConvention>(self.Name)), self.Name);
             return self;
         }
 
-        public static T WithProjectionEndpointPerBoundedContext<T>(this T self) where T : IHavePipelineSettings<IEvent>
+        public static T WithProjectionEndpointPerBoundedContext<T>(this T self) where T : IPipelinePublisherSettings<IEvent>
         {
-            self.EndpointNameConvention = new Lazy<IEndpointNameConvention>(() => new ProjectionEndpointPerBoundedContext(self.PipelineNameConvention.Value));
+            self.Container.RegisterSingleton<IEndpointNameConvention>(() => new ProjectionEndpointPerBoundedContext(self.Container.Resolve<IPipelineNameConvention>(self.Name)), self.Name);
             return self;
         }
     }

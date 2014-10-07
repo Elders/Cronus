@@ -1,49 +1,40 @@
 ﻿using System;
 using System.Reflection;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.EventSourcing;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.UnitOfWork;
+
 namespace Elders.Cronus.Pipeline.Config
 {
     public abstract class ConsumerSettings<TContract> : HideObectMembers, IConsumerSettings<TContract>
         where TContract : IMessage
     {
-        Lazy<IMessageProcessor<TContract>> IHaveMessageProcessor<TContract>.MessageHandlerProcessor { get; set; }
-
         int IConsumerSettings.NumberOfWorkers { get; set; }
-
-        Lazy<IPipelineTransport> IHaveTransport<IPipelineTransport>.Transport { get; set; }
-
-        Lazy<IEndpointConsumer> ISettingsBuilder<IEndpointConsumer>.Build()
-        {
-            IConsumerSettings<TContract> settings = this as IConsumerSettings<TContract>;
-            return new Lazy<IEndpointConsumer>(() => new EndpointConsumer<TContract>(settings.Transport.Value, settings.MessageHandlerProcessor.Value, settings.Serializer, settings.MessageTreshold, settings.CircuitBreakerFactory.Value));
-        }
-
-        Lazy<IPipelineNameConvention> IHavePipelineSettings.PipelineNameConvention { get; set; }
-
-        Lazy<IEndpointNameConvention> IHavePipelineSettings.EndpointNameConvention { get; set; }
-
-        ISerializer IHaveSerializer.Serializer { get; set; }
 
         MessageThreshold IConsumerSettings.MessageTreshold { get; set; }
 
-        Lazy<CircuitBreaker.IEndpontCircuitBreakerFactrory> IHaveCircuitBreaker.CircuitBreakerFactory { get; set; }
+        IContainer ISettingsBuilder.Container { get; set; }
 
-        IContainer IHaveContainer.Container { get; set; }
+        string ISettingsBuilder.Name { get; set; }
 
-        string IConsumerSettings.Name { get; set; }
+        void ISettingsBuilder.Build()
+        {
+            var builder = this as ISettingsBuilder;
+            var transport = builder.Container.Resolve<IPipelineTransport>(builder.Name);
+            var serializer = builder.Container.Resolve<ISerializer>();
+            var messageHandlerProcessor = builder.Container.Resolve<IMessageProcessor<TContract>>(builder.Name);
+            var consumer = new EndpointConsumer<TContract>(transport, messageHandlerProcessor, serializer, (this as IConsumerSettings<TContract>).MessageTreshold, null);
+            builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer, builder.Name);
+        }
     }
 
     public class CommandConsumerSettings : ConsumerSettings<ICommand>
     {
         public CommandConsumerSettings(string name = null)
         {
-            (this as IConsumerSettings<ICommand>).Name = name;
             this.WithCommandPipelinePerApplication();
             this.WithCommandHandlerEndpointPerBoundedContext();
         }
@@ -53,7 +44,6 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public ProjectionConsumerSettings(string name = null)
         {
-            (this as IConsumerSettings<IEvent>).Name = name;
             this.WithEventPipelinePerApplication();
             this.WithProjectionEndpointPerBoundedContext();
         }
@@ -63,7 +53,6 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public PortConsumerSettings(string name = null)
         {
-            (this as IConsumerSettings<IEvent>).Name = name;
             this.WithEventPipelinePerApplication();
             this.WithPortEndpointPerBoundedContext();
         }
@@ -86,39 +75,35 @@ namespace Elders.Cronus.Pipeline.Config
         public static T UseCommandConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
         {
             CommandConsumerSettings settings = new CommandConsumerSettings();
-            self.CopySerializerTo(settings);
-            self.CopyContainerTo(settings);
             settings
                 .SetNumberOfConsumerThreads(2)
                 .WithDefaultCircuitBreaker();
             if (configure != null)
                 configure(settings);
-            self.Consumers.Add(settings.GetInstanceLazy());
+            (settings as ISettingsBuilder).Build();
             return self;
         }
 
         public static T UseProjectionConsumer<T>(this T self, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
         {
             ProjectionConsumerSettings settings = new ProjectionConsumerSettings();
-            self.CopySerializerTo(settings);
             settings.WithDefaultCircuitBreaker();
             if (configure != null)
                 configure(settings);
-            self.Consumers.Add(settings.GetInstanceLazy());
+            (settings as ISettingsBuilder).Build();
             return self;
         }
 
         public static T UsePortConsumer<T>(this T self, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
         {
             PortConsumerSettings settings = new PortConsumerSettings();
-            self.CopySerializerTo(settings);
             settings.WithDefaultCircuitBreaker();
             if (configure != null)
                 configure(settings);
-            self.Consumers.Add(settings.GetInstanceLazy());
+            (settings as ISettingsBuilder).Build();
             return self;
         }
-        public static T WithProjections<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : ProjectionConsumerSettings, IHaveMessageProcessor<IEvent>
+        public static T WithProjections<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : ProjectionConsumerSettings, IMessageProcessorSettings<IEvent>
         {
             if (messageHandlerFactory == null)
                 messageHandlerFactory = (x, y) => FastActivator.CreateInstance(x);
@@ -133,7 +118,7 @@ namespace Elders.Cronus.Pipeline.Config
         }
 
 
-        public static T WithPorts<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : PortConsumerSettings, IHaveMessageProcessor<IEvent>
+        public static T WithPorts<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : PortConsumerSettings, IMessageProcessorSettings<IEvent>
         {
             if (messageHandlerFactory == null)
                 messageHandlerFactory = (x, y) => FastActivator.CreateInstance(x);
@@ -146,20 +131,19 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T WithApplicationServices<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : CommandConsumerSettings, IHaveMessageProcessor<ICommand>
+        public static T WithApplicationServices<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : CommandConsumerSettings, IMessageProcessorSettings<ICommand>
         {
             if (messageHandlerFactory == null)
                 messageHandlerFactory = (x, y) => FastActivator.CreateInstance(x);
             if (unitOfWorkFactory == null)
                 unitOfWorkFactory = new UnitOfWorkFactory();
             self.UseApplicationServices(configure => configure
-              .UseUnitOfWork(unitOfWorkFactory)
-            .RegisterAllHandlersInAssembly(asselbyContaintingPorts, messageHandlerFactory)
-             );
+                .UseUnitOfWork(unitOfWorkFactory)
+                .RegisterAllHandlersInAssembly(asselbyContaintingPorts, messageHandlerFactory));
             return self;
         }
 
-        public static T SetName<T>(this T self, string name) where T : IConsumerSettings
+        public static T SetName<T>(this T self, string name) where T : ISettingsBuilder
         {
             self.Name = name;
             return self;
