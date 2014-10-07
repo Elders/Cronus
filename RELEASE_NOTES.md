@@ -1,3 +1,6 @@
+#### 1.1.42-alpha9 - 07.10.2014
+* Split Pipeline and Endpoint conventions
+
 #### 1.1.42-alpha8 - 07.10.2014
 * Copy the container to all setting classes
 

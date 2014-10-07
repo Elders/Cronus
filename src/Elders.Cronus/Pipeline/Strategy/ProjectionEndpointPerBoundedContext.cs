@@ -4,11 +4,11 @@ using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Pipeline.Strategy
 {
-    public class ProjectionEndpointPerBoundedContext : IEndpointNameConvention
+    public class ProjectionEndpointPerBoundedContext : IProjectionEndpointNameConvention
     {
-        private IPipelineNameConvention pipelineNameConvention;
+        private IEventPipelineNameConvention pipelineNameConvention;
 
-        public ProjectionEndpointPerBoundedContext(IPipelineNameConvention pipelineNameConvention)
+        public ProjectionEndpointPerBoundedContext(IEventPipelineNameConvention pipelineNameConvention)
         {
             this.pipelineNameConvention = pipelineNameConvention;
         }

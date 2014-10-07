@@ -3,7 +3,7 @@ using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Pipeline.Strategy
 {
-    public class EventPipelinePerApplication : IPipelineNameConvention
+    public class EventPipelinePerApplication : IEventPipelineNameConvention
     {
         public string GetPipelineName(Type messageType)
         {

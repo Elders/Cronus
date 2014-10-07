@@ -1,15 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Pipeline.Strategy
 {
-    public class CommandHandlerEndpointPerBoundedContext : IEndpointNameConvention
+    public class AppServiceEndpointPerBoundedContext : IAppServiceEndpointNameConvention
     {
-        private IPipelineNameConvention pipelineNameConvention;
+        private ICommandPipelineNameConvention pipelineNameConvention;
 
-        public CommandHandlerEndpointPerBoundedContext(IPipelineNameConvention pipelineNameConvention)
+        public AppServiceEndpointPerBoundedContext(ICommandPipelineNameConvention pipelineNameConvention)
         {
             this.pipelineNameConvention = pipelineNameConvention;
         }

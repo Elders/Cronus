@@ -1,15 +1,14 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Pipeline.Strategy
 {
-    public class PortEndpointPerBoundedContext : IEndpointNameConvention
+    public class PortEndpointPerBoundedContext : IPortEndpointNameConvention
     {
-        private IPipelineNameConvention pipelineNameConvention;
+        private IEventPipelineNameConvention pipelineNameConvention;
 
-        public PortEndpointPerBoundedContext(IPipelineNameConvention pipelineNameConvention)
+        public PortEndpointPerBoundedContext(IEventPipelineNameConvention pipelineNameConvention)
         {
             this.pipelineNameConvention = pipelineNameConvention;
         }

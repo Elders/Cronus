@@ -3,7 +3,7 @@ using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Pipeline.Strategy
 {
-    public class CommandPipelinePerApplication : IPipelineNameConvention
+    public class CommandPipelinePerApplication : ICommandPipelineNameConvention
     {
         public string GetPipelineName(Type commandType)
         {

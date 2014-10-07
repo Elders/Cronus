@@ -8,4 +8,7 @@ namespace Elders.Cronus.Pipeline
         string GetPipelineName(Type messageType);
         string GetPipelineName(BoundedContextAttribute boundedContext);
     }
+
+    public interface ICommandPipelineNameConvention : IPipelineNameConvention { }
+    public interface IEventPipelineNameConvention : IPipelineNameConvention { }
 }

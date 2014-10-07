@@ -207,8 +207,6 @@
     <Compile Include="Pipeline\Strategy\CommandHandlerEndpointPerBoundedContext.cs" />
     <Compile Include="Pipeline\Strategy\CommandPipelinePerApplication.cs" />
     <Compile Include="Pipeline\Strategy\EventPipelinePerApplication.cs" />
-    <Compile Include="Pipeline\Strategy\EventStoreEndpointPerBoundedContext.cs" />
-    <Compile Include="Pipeline\Strategy\EventStorePipelinePerApplication.cs" />
     <Compile Include="Pipeline\IPipelineNameConvention.cs" />
     <Compile Include="Pipeline\IEndpoint.cs" />
     <Compile Include="Pipeline\IEndpointFactory.cs" />
