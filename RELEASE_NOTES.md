@@ -1,8 +1,11 @@
+#### 1.1.42-beta2 - 08.10.2014
+* Rework the initialization of the consumer instances
+
 #### 1.1.42-beta1 - 08.10.2014
-* Remove pipeline and endpoint strategies because they are rabbimq specific
+* Remove pipeline and endpoint strategies because they are rabbitmq specific
 
 #### 1.1.42-alpha10 - 08.10.2014
-* Remove pipeline and endpoint strategies because they are rabbimq specific
+* Remove pipeline and endpoint strategies because they are rabbitmq specific
 
 #### 1.1.42-alpha9 - 07.10.2014
 * Split Pipeline and Endpoint conventions

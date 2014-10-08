@@ -2,6 +2,7 @@
 using System.Reflection;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
+using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
@@ -12,7 +13,11 @@ namespace Elders.Cronus.Pipeline.Config
     public abstract class ConsumerSettings<TContract> : SettingsBuilder, IConsumerSettings<TContract>
         where TContract : IMessage
     {
-        public ConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
+        public ConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
+        {
+            this.WithDefaultCircuitBreaker();
+            this.SetNumberOfConsumerThreads(2);
+        }
 
         int IConsumerSettings.NumberOfWorkers { get; set; }
 
@@ -25,36 +30,28 @@ namespace Elders.Cronus.Pipeline.Config
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            var transport = builder.Container.Resolve<IPipelineTransport>(builder.Name);
-            var serializer = builder.Container.Resolve<ISerializer>();
-            var messageHandlerProcessor = builder.Container.Resolve<IMessageProcessor<TContract>>(builder.Name);
-            var consumer = new EndpointConsumer<TContract>(transport, messageHandlerProcessor, serializer, (this as IConsumerSettings<TContract>).MessageTreshold, null);
-            builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer, builder.Name);
+            Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
+            Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
+            Func<IMessageProcessor<TContract>> messageHandlerProcessor = () => builder.Container.Resolve<IMessageProcessor<TContract>>(builder.Name);
+            Func<IEndpontCircuitBreakerFactrory> endpointCircuitBreaker = () => builder.Container.Resolve<IEndpontCircuitBreakerFactrory>(builder.Name);
+            Func<IEndpointConsumer> consumer = () => new EndpointConsumer<TContract>(transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold, endpointCircuitBreaker());
+            builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer(), builder.Name);
         }
     }
 
     public class CommandConsumerSettings : ConsumerSettings<ICommand>
     {
-        public CommandConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
-        {
-
-        }
+        public CommandConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
     }
 
     public class ProjectionConsumerSettings : ConsumerSettings<IEvent>
     {
-        public ProjectionConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
-        {
-
-        }
+        public ProjectionConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
     }
 
     public class PortConsumerSettings : ConsumerSettings<IEvent>
     {
-        public PortConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
-        {
-
-        }
+        public PortConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
     }
 
     public static class ConsumerSettingsExtensions
@@ -74,9 +71,6 @@ namespace Elders.Cronus.Pipeline.Config
         public static T UseCommandConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
         {
             CommandConsumerSettings settings = new CommandConsumerSettings(self);
-            settings
-                .SetNumberOfConsumerThreads(2)
-                .WithDefaultCircuitBreaker();
             if (configure != null)
                 configure(settings);
             (settings as ISettingsBuilder).Build();
@@ -86,7 +80,6 @@ namespace Elders.Cronus.Pipeline.Config
         public static T UseProjectionConsumer<T>(this T self, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
         {
             ProjectionConsumerSettings settings = new ProjectionConsumerSettings(self);
-            settings.WithDefaultCircuitBreaker();
             if (configure != null)
                 configure(settings);
             (settings as ISettingsBuilder).Build();
@@ -96,12 +89,12 @@ namespace Elders.Cronus.Pipeline.Config
         public static T UsePortConsumer<T>(this T self, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
         {
             PortConsumerSettings settings = new PortConsumerSettings(self);
-            settings.WithDefaultCircuitBreaker();
             if (configure != null)
                 configure(settings);
             (settings as ISettingsBuilder).Build();
             return self;
         }
+
         public static T WithProjections<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : ProjectionConsumerSettings, IMessageProcessorSettings<IEvent>
         {
             if (messageHandlerFactory == null)
@@ -115,7 +108,6 @@ namespace Elders.Cronus.Pipeline.Config
 
             return self;
         }
-
 
         public static T WithPorts<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : PortConsumerSettings, IMessageProcessorSettings<IEvent>
         {
