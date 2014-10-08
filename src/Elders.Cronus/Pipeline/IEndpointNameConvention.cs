@@ -4,10 +4,15 @@ namespace Elders.Cronus.Pipeline
 {
     public interface IEndpointNameConvention
     {
-        EndpointDefinition GetEndpointDefinition(params Type[] handlerTypes);
+        System.Collections.Generic.IEnumerable<EndpointDefinition> GetEndpointDefinition(Type[] handlerTypes);
     }
 
-    public interface IAppServiceEndpointNameConvention : IEndpointNameConvention { }
-    public interface IPortEndpointNameConvention : IEndpointNameConvention { }
-    public interface IProjectionEndpointNameConvention : IEndpointNameConvention { }
+    public abstract class EndpointNameConvention : IEndpointNameConvention
+    {
+        protected abstract string GetPortEndpointName(Type handlerType);
+        protected abstract string GetProjectionEndpointName(Type handlerType);
+        protected abstract string GetAppServiceEndpointName(Type handlerType);
+
+        public abstract System.Collections.Generic.IEnumerable<EndpointDefinition> GetEndpointDefinition(Type[] handlerTypes);
+    }
 }

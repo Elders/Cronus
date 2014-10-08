@@ -73,9 +73,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elders.Cronus.DomainModeling, Version=1.0.2.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Elders.Cronus.DomainModeling, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Cronus.DomainModeling.1.0.2\lib\net40-full\Elders.Cronus.DomainModeling.dll</HintPath>
+      <HintPath>..\packages\Cronus.DomainModeling.1.0.4-alpha1\lib\net40-full\Elders.Cronus.DomainModeling.dll</HintPath>
     </Reference>
     <Reference Include="Elders.Multithreading.Scheduler">
       <HintPath>..\packages\Multithreading.Scheduler.1.0.0\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
@@ -181,8 +181,6 @@
     <Compile Include="Pipeline\EndpointClosedException.cs" />
     <Compile Include="Pipeline\ErrorMessage.cs" />
     <Compile Include="Pipeline\CircuitBreaker\IEndpointConsumerErrorStrategy.cs" />
-    <Compile Include="Pipeline\Strategy\PortEndpointPerBoundedContext.cs" />
-    <Compile Include="Pipeline\Strategy\PortEndpointPerHandler.cs" />
     <Compile Include="Pipeline\PipelineConsumerWork.cs" />
     <Compile Include="Pipeline\Hosts\CronusSettings.cs" />
     <Compile Include="Pipeline\EndpointConsumer.cs" />
@@ -204,15 +202,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Userfull\RetryableOperation.cs" />
     <Compile Include="EventSourcing\IEventStore.cs" />
-    <Compile Include="Pipeline\Strategy\CommandHandlerEndpointPerBoundedContext.cs" />
-    <Compile Include="Pipeline\Strategy\CommandPipelinePerApplication.cs" />
-    <Compile Include="Pipeline\Strategy\EventPipelinePerApplication.cs" />
     <Compile Include="Pipeline\IPipelineNameConvention.cs" />
     <Compile Include="Pipeline\IEndpoint.cs" />
     <Compile Include="Pipeline\IEndpointFactory.cs" />
     <Compile Include="Pipeline\EndpointDefinition.cs" />
-    <Compile Include="Pipeline\Strategy\ProjectionEndpointPerBoundedContext.cs" />
-    <Compile Include="Pipeline\Strategy\ProjectionEndpointPerHandler.cs" />
     <Compile Include="Pipeline\IEndpointNameConvention.cs" />
     <Compile Include="Pipeline\IPipeline.cs" />
     <Compile Include="Pipeline\EndpointMessage.cs" />

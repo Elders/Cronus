@@ -37,8 +37,7 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public CommandConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
         {
-            this.WithCommandPipelinePerApplication();
-            this.WithCommandHandlerEndpointPerBoundedContext();
+
         }
     }
 
@@ -46,8 +45,7 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public ProjectionConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
         {
-            this.WithEventPipelinePerApplication();
-            this.WithProjectionEndpointPerBoundedContext();
+
         }
     }
 
@@ -55,8 +53,7 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public PortConsumerSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
         {
-            this.WithEventPipelinePerApplication();
-            this.WithPortEndpointPerBoundedContext();
+
         }
     }
 

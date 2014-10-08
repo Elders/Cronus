@@ -1,3 +1,6 @@
+#### 1.1.42-alpha10 - 08.10.2014
+* Remove pipeline and endpoint strategies because they are rabbimq specific
+
 #### 1.1.42-alpha9 - 07.10.2014
 * Split Pipeline and Endpoint conventions
 

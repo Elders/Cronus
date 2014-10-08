@@ -1,3 +1,4 @@
+using System;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Transport;
@@ -9,34 +10,23 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public PipelinePublisherSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
 
-        IContainer ISettingsBuilder.Container { get; set; }
-
-        string ISettingsBuilder.Name { get; set; }
-
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
+            Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
+            Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
             builder.Container.RegisterSingleton<IPublisher<TContract>>(() =>
-                new PipelinePublisher<TContract>(builder.Container.Resolve<IPipelineTransport>(builder.Name), builder.Container.Resolve<ISerializer>(builder.Name)), builder.Name);
+                new PipelinePublisher<TContract>(transport(), serializer()), builder.Name);
         }
     }
 
     public class CommandPipelinePublisherSettings : PipelinePublisherSettings<ICommand>
     {
-        public CommandPipelinePublisherSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
-        {
-            this.WithCommandPipelinePerApplication();
-            this.WithCommandHandlerEndpointPerBoundedContext();
-        }
+        public CommandPipelinePublisherSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
     }
 
     public class EventPipelinePublisherSettings : PipelinePublisherSettings<IEvent>
     {
-        public EventPipelinePublisherSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
-        {
-            this.WithEventPipelinePerApplication();
-            this.WithProjectionEndpointPerBoundedContext();
-        }
+        public EventPipelinePublisherSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
     }
-
 }

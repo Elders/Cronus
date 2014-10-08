@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Elders.Cronus.Pipeline.Transport.InMemory
 {
@@ -18,11 +19,10 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             return transport.GetOrAddEndpoint(definition);
         }
 
-        public EndpointDefinition GetEndpointDefinition(params Type[] handlerTypes)
+        public IEnumerable<EndpointDefinition> GetEndpointDefinition(Type[] handlerTypes)
         {
             return endpointNameConvention.GetEndpointDefinition(handlerTypes);
         }
-
 
         public IEndpoint CreateTopicEndpoint(EndpointDefinition definition)
         {

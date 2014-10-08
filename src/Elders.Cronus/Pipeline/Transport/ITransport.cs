@@ -1,4 +1,5 @@
 ﻿using System;
+
 namespace Elders.Cronus.Pipeline.Transport
 {
     public interface ITransport
@@ -11,6 +12,4 @@ namespace Elders.Cronus.Pipeline.Transport
 
         IPipelineFactory<IPipeline> PipelineFactory { get; }
     }
-
-   
 }
