@@ -1,3 +1,6 @@
+#### 1.1.42-beta3 - 08.10.2014
+* Fix IMessageHandlerProcessor registration in IOC
+
 #### 1.1.42-beta2 - 08.10.2014
 * Rework the initialization of the consumer instances
 

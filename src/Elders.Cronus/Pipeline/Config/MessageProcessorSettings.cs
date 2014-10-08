@@ -21,11 +21,11 @@ namespace Elders.Cronus.Pipeline.Config
         {
             var builder = this as ISettingsBuilder;
 
-            var messageHandlerProcessor = new Lazy<IMessageProcessor<IEvent>>(() =>
+            Func<IMessageProcessor<TContract>> messageHandlerProcessorFactory = () =>
             {
                 var safeBatchFactory = new SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage>((this as IHaveUnitOfWorkFactory).UnitOfWorkFactory.Value);
 
-                var handler = new MessageHandlerCollection<IEvent>(safeBatchFactory);
+                var handler = new MessageHandlerCollection<TContract>(safeBatchFactory);
 
                 foreach (var reg in (this as IMessageProcessorSettings<TContract>).HandlerRegistrations)
                 {
@@ -36,7 +36,8 @@ namespace Elders.Cronus.Pipeline.Config
                     }
                 }
                 return handler;
-            });
+            };
+            builder.Container.RegisterSingleton<IMessageProcessor<TContract>>(() => messageHandlerProcessorFactory(), builder.Name);
         }
     }
 
