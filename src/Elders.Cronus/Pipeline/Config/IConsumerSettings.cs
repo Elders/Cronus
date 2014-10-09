@@ -2,7 +2,7 @@ using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public interface IConsumerSettings
+    public interface IConsumerSettings : ISettingsBuilder
     {
         int NumberOfWorkers { get; set; }
         MessageThreshold MessageTreshold { get; set; }
@@ -13,7 +13,7 @@ namespace Elders.Cronus.Pipeline.Config
 
     }
 
-    public interface IConsumerSettings<TContract> : ISettingsBuilder, IConsumerSettings, IPipelinePublisherSettings<TContract>, ICanConfigureCircuitBreaker
+    public interface IConsumerSettings<TContract> : IConsumerSettings, IPipelinePublisherSettings<TContract>, ICanConfigureCircuitBreaker
         where TContract : IMessage
     {
 

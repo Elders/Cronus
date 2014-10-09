@@ -1,3 +1,6 @@
+#### 1.1.42-beta6 - 09.10.2014
+* Add overload methods to configure named publishers
+
 #### 1.1.42-beta5 - 09.10.2014
 * Add overload methods to configure named consumers
 

@@ -8,7 +8,7 @@ namespace Elders.Cronus.Pipeline.Config
 {
     public abstract class PipelinePublisherSettings<TContract> : SettingsBuilder, IPipelinePublisherSettings<TContract> where TContract : IMessage
     {
-        public PipelinePublisherSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
+        public PipelinePublisherSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
 
         public override void Build()
         {
@@ -22,11 +22,11 @@ namespace Elders.Cronus.Pipeline.Config
 
     public class CommandPipelinePublisherSettings : PipelinePublisherSettings<ICommand>
     {
-        public CommandPipelinePublisherSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
+        public CommandPipelinePublisherSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 
     public class EventPipelinePublisherSettings : PipelinePublisherSettings<IEvent>
     {
-        public EventPipelinePublisherSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder) { }
+        public EventPipelinePublisherSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 }

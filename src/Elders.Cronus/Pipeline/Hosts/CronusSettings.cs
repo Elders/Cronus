@@ -60,18 +60,28 @@ namespace Elders.Cronus.Pipeline.Hosts
 
 public static class CronusConfigurationExtensions
 {
-    public static T UsePipelineEventPublisher<T>(this T self, Action<EventPipelinePublisherSettings> configure = null) where T : ICronusSettings
+    public static T UsePipelineEventPublisher<T>(this T self, Action<EventPipelinePublisherSettings> configure = null) where T : IConsumerSettings
     {
-        EventPipelinePublisherSettings settings = new EventPipelinePublisherSettings(self);
+        return UsePipelineEventPublisher(self, null, configure);
+    }
+
+    public static T UsePipelineEventPublisher<T>(this T self, string name, Action<EventPipelinePublisherSettings> configure = null) where T : IConsumerSettings
+    {
+        EventPipelinePublisherSettings settings = new EventPipelinePublisherSettings(self, name);
         if (configure != null)
             configure(settings);
         (settings as ISettingsBuilder).Build();
         return self;
     }
 
-    public static T UsePipelineCommandPublisher<T>(this T self, Action<CommandPipelinePublisherSettings> configure = null) where T : ICronusSettings
+    public static T UsePipelineCommandPublisher<T>(this T self, Action<CommandPipelinePublisherSettings> configure = null) where T : IConsumerSettings
     {
-        CommandPipelinePublisherSettings settings = new CommandPipelinePublisherSettings(self);
+        return UsePipelineCommandPublisher(self, null, configure);
+    }
+
+    public static T UsePipelineCommandPublisher<T>(this T self, string name, Action<CommandPipelinePublisherSettings> configure = null) where T : IConsumerSettings
+    {
+        CommandPipelinePublisherSettings settings = new CommandPipelinePublisherSettings(self, name);
         if (configure != null)
             configure(settings);
         (settings as ISettingsBuilder).Build();
