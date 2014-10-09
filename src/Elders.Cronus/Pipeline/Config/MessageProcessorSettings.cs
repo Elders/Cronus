@@ -8,10 +8,12 @@ namespace Elders.Cronus.Pipeline.Config
 {
     public class MessageProcessorSettings<TContract> : SettingsBuilder, IMessageProcessorSettings<TContract>, IHaveUnitOfWorkFactory where TContract : IMessage
     {
-        public MessageProcessorSettings(ISettingsBuilder builder) : base(builder)
+        public MessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
         {
             (this as IHaveUnitOfWorkFactory).UnitOfWorkFactory = new Lazy<UnitOfWorkFactory>(() => new UnitOfWorkFactory());
+            this.discriminator = discriminator;
         }
+        private Func<Type, bool> discriminator;
 
         Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> IMessageProcessorSettings<TContract>.HandlerRegistrations { get; set; }
 
@@ -31,7 +33,7 @@ namespace Elders.Cronus.Pipeline.Config
                 {
                     foreach (var item in reg.Value)
                     {
-                        if (!typeof(IPort).IsAssignableFrom(item.Item1))
+                        if (discriminator == null || discriminator(item.Item1))
                             handler.RegisterHandler(reg.Key, item.Item1, item.Item2);
                     }
                 }
@@ -52,7 +54,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IConsumerSettings<IEvent>
         {
-            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self);
+            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self, t => typeof(IProjection).IsAssignableFrom(t));
             if (configure != null)
                 configure(settings);
 
@@ -62,7 +64,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UsePortsAndProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IConsumerSettings<IEvent>
         {
-            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self);
+            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self, t => typeof(IPort).IsAssignableFrom(t) || typeof(IProjection).IsAssignableFrom(t));
             if (configure != null)
                 configure(settings);
 
@@ -70,9 +72,9 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UsePorts<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IConsumerSettings<IEvent>
+        public static T UsePorts<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : PortConsumerSettings
         {
-            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self);
+            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self, t => typeof(IPort).IsAssignableFrom(t));
             if (configure != null)
                 configure(settings);
 
@@ -82,7 +84,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseApplicationServices<T>(this T self, Action<MessageProcessorSettings<ICommand>> configure) where T : IConsumerSettings<ICommand>
         {
-            MessageProcessorSettings<ICommand> settings = new MessageProcessorSettings<ICommand>(self);
+            MessageProcessorSettings<ICommand> settings = new MessageProcessorSettings<ICommand>(self, t => typeof(IAggregateRootApplicationService).IsAssignableFrom(t));
             if (configure != null)
                 configure(settings);
 

@@ -1,3 +1,6 @@
+#### 1.1.42-beta7- 09.10.2014
+* Fix bug with registering message handlers
+
 #### 1.1.42-beta6 - 09.10.2014
 * Add overload methods to configure named publishers
 
