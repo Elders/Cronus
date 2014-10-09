@@ -11,10 +11,10 @@ namespace Elders.Cronus.Pipeline.Config
 
     public abstract class SettingsBuilder : ISettingsBuilder
     {
-        public SettingsBuilder(ISettingsBuilder settingsBuilder)
+        public SettingsBuilder(ISettingsBuilder settingsBuilder, string name = null)
         {
             (this as ISettingsBuilder).Container = settingsBuilder.Container;
-            (this as ISettingsBuilder).Name = settingsBuilder.Name;
+            (this as ISettingsBuilder).Name = name ?? settingsBuilder.Name;
         }
 
         IContainer ISettingsBuilder.Container { get; set; }
