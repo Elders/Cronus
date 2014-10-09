@@ -1,3 +1,6 @@
+#### 1.1.42-beta4 - 09.10.2014
+* Add overload methods to configure named consumers
+
 #### 1.1.42-beta3 - 08.10.2014
 * Fix IMessageHandlerProcessor registration in IOC
 

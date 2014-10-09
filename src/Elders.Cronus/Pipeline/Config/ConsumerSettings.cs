@@ -70,6 +70,11 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseCommandConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
         {
+            return UseCommandConsumer(self, null, configure);
+        }
+
+        public static T UseCommandConsumer<T>(this T self, string name, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
+        {
             CommandConsumerSettings settings = new CommandConsumerSettings(self);
             if (configure != null)
                 configure(settings);
@@ -79,6 +84,11 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseProjectionConsumer<T>(this T self, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
         {
+            return UseProjectionConsumer(self, null, configure);
+        }
+
+        public static T UseProjectionConsumer<T>(this T self, string name, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
+        {
             ProjectionConsumerSettings settings = new ProjectionConsumerSettings(self);
             if (configure != null)
                 configure(settings);
@@ -87,6 +97,11 @@ namespace Elders.Cronus.Pipeline.Config
         }
 
         public static T UsePortConsumer<T>(this T self, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
+        {
+            return UsePortConsumer(self, null, configure);
+        }
+
+        public static T UsePortConsumer<T>(this T self, string name, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
         {
             PortConsumerSettings settings = new PortConsumerSettings(self);
             if (configure != null)
@@ -131,12 +146,6 @@ namespace Elders.Cronus.Pipeline.Config
             self.UseApplicationServices(configure => configure
                 .UseUnitOfWork(unitOfWorkFactory)
                 .RegisterAllHandlersInAssembly(asselbyContaintingPorts, messageHandlerFactory));
-            return self;
-        }
-
-        public static T SetName<T>(this T self, string name) where T : ISettingsBuilder
-        {
-            self.Name = name;
             return self;
         }
     }
