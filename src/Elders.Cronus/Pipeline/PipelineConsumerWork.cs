@@ -103,7 +103,8 @@ namespace Elders.Cronus.Pipeline
         public void Stop()
         {
             isWorking = false;
-            endpoint.Close();
+            if (endpoint != null)
+                endpoint.Close();
         }
 
     }
