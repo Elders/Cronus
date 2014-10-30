@@ -1,3 +1,6 @@
+#### 1.1.42-beta9- 30.10.2014
+* Check the pipeline endpoint before trying to close it
+
 #### 1.1.42-beta8- 30.10.2014
 * Check the pipeline endpoint before trying to close it
 
