@@ -1,3 +1,6 @@
+#### 1.1.42-rc01 - 31.10.2014
+* Revert the the endpoint check
+
 #### 1.1.42-beta9- 30.10.2014
 * Check the pipeline endpoint before trying to close it
 
