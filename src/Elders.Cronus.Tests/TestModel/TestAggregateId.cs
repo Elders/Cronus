@@ -3,16 +3,16 @@ using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Tests.TestModel
 {
-    public class TestAggregateId : AggregateRootId
+    public class TestAggregateId : GuidId
     {
         public TestAggregateId(Guid id)
-            : base(id)
+            : base(id, "TestAggregateId")
         {
 
         }
 
         public TestAggregateId()
-            : base(Guid.NewGuid())
+            : base(Guid.NewGuid(), "TestAggregateId")
         {
 
         }

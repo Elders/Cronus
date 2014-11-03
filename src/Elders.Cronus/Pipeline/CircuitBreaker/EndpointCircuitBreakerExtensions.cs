@@ -1,27 +1,19 @@
-using System;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Pipeline.CircuitBreaker;
-using Elders.Cronus.Pipeline.Transport;
+using Elders.Cronus.IocContainer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public interface IHaveCircuitBreaker
-    {
-        Lazy<IEndpontCircuitBreakerFactrory> CircuitBreakerFactory { get; set; }
-    }
-
     public static class EndpointCircuitBreakerExtensions
     {
-        public static T WithDefaultCircuitBreaker<T>(this T self) where T : IHaveCircuitBreaker, IHaveSerializer, IHaveTransport<IPipelineTransport>
+        public static T WithDefaultCircuitBreaker<T>(this T self) where T : ICanConfigureCircuitBreaker
         {
-
-            self.CircuitBreakerFactory = new Lazy<IEndpontCircuitBreakerFactrory>(() => new DefaultCircuitBreakerFactory());
+            self.Container.RegisterSingleton<IEndpontCircuitBreakerFactrory>(() => new DefaultCircuitBreakerFactory(), self.Name);
             return self;
         }
 
-        public static T WithNoCircuitBreaker<T>(this T self) where T : IHaveCircuitBreaker
+        public static T WithNoCircuitBreaker<T>(this T self) where T : ICanConfigureCircuitBreaker
         {
-            self.CircuitBreakerFactory = new Lazy<IEndpontCircuitBreakerFactrory>(() => new NoCircuitBreakerFactory());
+            self.Container.RegisterSingleton<IEndpontCircuitBreakerFactrory>(() => new NoCircuitBreakerFactory(), self.Name);
             return self;
         }
     }

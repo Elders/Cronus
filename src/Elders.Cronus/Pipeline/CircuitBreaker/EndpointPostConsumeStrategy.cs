@@ -30,7 +30,8 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
                 endpointWhereErrorOccured = endpointDefinition.EndpointName;
                 retryPipelineName = endpointDefinition.PipelineName + ".RetryScheduler";
                 Dictionary<string, object> headers = new Dictionary<string, object>();
-
+                headers.Add("x-dead-letter-exchange", endpointDefinition.PipelineName);
+                headers.Add("x-message-ttl", 500);
 
                 EndpointDefinition retryEndpoint = new EndpointDefinition(retryPipelineName, endpointWhereErrorOccured + ".Retry", headers, endpointWhereErrorOccured);
                 transport.EndpointFactory.CreateEndpoint(retryEndpoint);

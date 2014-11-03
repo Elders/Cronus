@@ -1,44 +1,32 @@
 using System;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.EventSourcing;
+using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public abstract class PipelinePublisherSettings<TContract> : IPipelinePublisherSettings<TContract> where TContract : IMessage
+    public abstract class PipelinePublisherSettings<TContract> : SettingsBuilder, IPipelinePublisherSettings<TContract> where TContract : IMessage
     {
-        ISerializer IHaveSerializer.Serializer { get; set; }
+        public PipelinePublisherSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
 
-        Lazy<IPipelineTransport> IHaveTransport<IPipelineTransport>.Transport { get; set; }
-
-        Lazy<IPipelineNameConvention> IHavePipelineSettings.PipelineNameConvention { get; set; }
-
-        Lazy<IEndpointNameConvention> IHavePipelineSettings.EndpointNameConvention { get; set; }
-
-        Lazy<IPublisher<TContract>> ISettingsBuilder<IPublisher<TContract>>.Build()
+        public override void Build()
         {
-            IPipelinePublisherSettings<TContract> settings = this as IPipelinePublisherSettings<TContract>;
-            return new Lazy<IPublisher<TContract>>(() => new PipelinePublisher<TContract>(settings.Transport.Value, settings.Serializer));
+            var builder = this as ISettingsBuilder;
+            Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
+            Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
+            builder.Container.RegisterSingleton<IPublisher<TContract>>(() =>
+                new PipelinePublisher<TContract>(transport(), serializer()), builder.Name);
         }
     }
 
     public class CommandPipelinePublisherSettings : PipelinePublisherSettings<ICommand>
     {
-        public CommandPipelinePublisherSettings()
-        {
-            this.WithCommandPipelinePerApplication();
-            this.WithCommandHandlerEndpointPerBoundedContext();
-        }
+        public CommandPipelinePublisherSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 
     public class EventPipelinePublisherSettings : PipelinePublisherSettings<IEvent>
     {
-        public EventPipelinePublisherSettings()
-        {
-            this.WithEventPipelinePerApplication();
-            this.WithProjectionEndpointPerBoundedContext();
-        }
+        public EventPipelinePublisherSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
-
 }

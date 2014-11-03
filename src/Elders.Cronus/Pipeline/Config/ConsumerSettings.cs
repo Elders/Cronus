@@ -1,66 +1,57 @@
 ﻿using System;
 using System.Reflection;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.EventSourcing;
+using Elders.Cronus.IocContainer;
+using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.UnitOfWork;
+
 namespace Elders.Cronus.Pipeline.Config
 {
-    public abstract class ConsumerSettings<TContract> : HideObectMembers, IConsumerSettings<TContract>
+    public abstract class ConsumerSettings<TContract> : SettingsBuilder, IConsumerSettings<TContract>
         where TContract : IMessage
     {
-        Lazy<IMessageProcessor<TContract>> IHaveMessageProcessor<TContract>.MessageHandlerProcessor { get; set; }
+        public ConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name)
+        {
+            this.WithDefaultCircuitBreaker();
+            this.SetNumberOfConsumerThreads(2);
+        }
 
         int IConsumerSettings.NumberOfWorkers { get; set; }
 
-        Lazy<IPipelineTransport> IHaveTransport<IPipelineTransport>.Transport { get; set; }
-
-        Lazy<IEndpointConsumer> ISettingsBuilder<IEndpointConsumer>.Build()
-        {
-            IConsumerSettings<TContract> settings = this as IConsumerSettings<TContract>;
-            return new Lazy<IEndpointConsumer>(() => new EndpointConsumer<TContract>(settings.Transport.Value, settings.MessageHandlerProcessor.Value, settings.Serializer, settings.MessageTreshold, settings.CircuitBreakerFactory.Value));
-        }
-
-        Lazy<IPipelineNameConvention> IHavePipelineSettings.PipelineNameConvention { get; set; }
-
-        Lazy<IEndpointNameConvention> IHavePipelineSettings.EndpointNameConvention { get; set; }
-
-        ISerializer IHaveSerializer.Serializer { get; set; }
-
         MessageThreshold IConsumerSettings.MessageTreshold { get; set; }
 
-        Lazy<CircuitBreaker.IEndpontCircuitBreakerFactrory> IHaveCircuitBreaker.CircuitBreakerFactory { get; set; }
+        IContainer ISettingsBuilder.Container { get; set; }
+
+        string ISettingsBuilder.Name { get; set; }
+
+        public override void Build()
+        {
+            var builder = this as ISettingsBuilder;
+            Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
+            Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
+            Func<IMessageProcessor<TContract>> messageHandlerProcessor = () => builder.Container.Resolve<IMessageProcessor<TContract>>(builder.Name);
+            Func<IEndpontCircuitBreakerFactrory> endpointCircuitBreaker = () => builder.Container.Resolve<IEndpontCircuitBreakerFactrory>(builder.Name);
+            Func<IEndpointConsumer> consumer = () => new EndpointConsumer<TContract>(transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold, endpointCircuitBreaker());
+            builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer(), builder.Name);
+        }
     }
 
-    public class CommandConsumerSettings : ConsumerSettings<ICommand>, IHaveEventStore
+    public class CommandConsumerSettings : ConsumerSettings<ICommand>
     {
-        public CommandConsumerSettings()
-        {
-            this.WithCommandPipelinePerApplication();
-            this.WithCommandHandlerEndpointPerBoundedContext();
-        }
-
-        Lazy<IEventStore> IHaveEventStore.EventStore { get; set; }
+        public CommandConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 
     public class ProjectionConsumerSettings : ConsumerSettings<IEvent>
     {
-        public ProjectionConsumerSettings()
-        {
-            this.WithEventPipelinePerApplication();
-            this.WithProjectionEndpointPerBoundedContext();
-        }
+        public ProjectionConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 
     public class PortConsumerSettings : ConsumerSettings<IEvent>
     {
-        public PortConsumerSettings()
-        {
-            this.WithEventPipelinePerApplication();
-            this.WithPortEndpointPerBoundedContext();
-        }
+        public PortConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 
     public static class ConsumerSettingsExtensions
@@ -79,39 +70,47 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseCommandConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
         {
-            CommandConsumerSettings settings = new CommandConsumerSettings();
-            self.CopySerializerTo(settings);
-            settings
-                .SetNumberOfConsumerThreads(2)
-                .WithDefaultCircuitBreaker();
+            return UseCommandConsumer(self, null, configure);
+        }
+
+        public static T UseCommandConsumer<T>(this T self, string name, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
+        {
+            CommandConsumerSettings settings = new CommandConsumerSettings(self, name);
             if (configure != null)
                 configure(settings);
-            self.Consumers.Add(settings.GetInstanceLazy());
+            (settings as ISettingsBuilder).Build();
             return self;
         }
 
         public static T UseProjectionConsumer<T>(this T self, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
         {
-            ProjectionConsumerSettings settings = new ProjectionConsumerSettings();
-            self.CopySerializerTo(settings);
-            settings.WithDefaultCircuitBreaker();
+            return UseProjectionConsumer(self, null, configure);
+        }
+
+        public static T UseProjectionConsumer<T>(this T self, string name, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
+        {
+            ProjectionConsumerSettings settings = new ProjectionConsumerSettings(self, name);
             if (configure != null)
                 configure(settings);
-            self.Consumers.Add(settings.GetInstanceLazy());
+            (settings as ISettingsBuilder).Build();
             return self;
         }
 
         public static T UsePortConsumer<T>(this T self, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
         {
-            PortConsumerSettings settings = new PortConsumerSettings();
-            self.CopySerializerTo(settings);
-            settings.WithDefaultCircuitBreaker();
+            return UsePortConsumer(self, null, configure);
+        }
+
+        public static T UsePortConsumer<T>(this T self, string name, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
+        {
+            PortConsumerSettings settings = new PortConsumerSettings(self, name);
             if (configure != null)
                 configure(settings);
-            self.Consumers.Add(settings.GetInstanceLazy());
+            (settings as ISettingsBuilder).Build();
             return self;
         }
-        public static T WithProjections<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : ProjectionConsumerSettings, IHaveMessageProcessor<IEvent>
+
+        public static T WithProjections<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : ProjectionConsumerSettings, IMessageProcessorSettings<IEvent>
         {
             if (messageHandlerFactory == null)
                 messageHandlerFactory = (x, y) => FastActivator.CreateInstance(x);
@@ -125,8 +124,7 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-
-        public static T WithPorts<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : PortConsumerSettings, IHaveMessageProcessor<IEvent>
+        public static T WithPorts<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : PortConsumerSettings, IMessageProcessorSettings<IEvent>
         {
             if (messageHandlerFactory == null)
                 messageHandlerFactory = (x, y) => FastActivator.CreateInstance(x);
@@ -139,16 +137,15 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T WithApplicationServices<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : CommandConsumerSettings, IHaveMessageProcessor<ICommand>
+        public static T WithApplicationServices<T>(this T self, Assembly asselbyContaintingPorts, Func<Type, Context, object> messageHandlerFactory = null, UnitOfWorkFactory unitOfWorkFactory = null) where T : CommandConsumerSettings, IMessageProcessorSettings<ICommand>
         {
             if (messageHandlerFactory == null)
                 messageHandlerFactory = (x, y) => FastActivator.CreateInstance(x);
             if (unitOfWorkFactory == null)
                 unitOfWorkFactory = new UnitOfWorkFactory();
             self.UseApplicationServices(configure => configure
-              .UseUnitOfWork(unitOfWorkFactory)
-            .RegisterAllHandlersInAssembly(asselbyContaintingPorts, messageHandlerFactory)
-             );
+                .UseUnitOfWork(unitOfWorkFactory)
+                .RegisterAllHandlersInAssembly(asselbyContaintingPorts, messageHandlerFactory));
             return self;
         }
     }

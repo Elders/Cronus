@@ -1,44 +1,40 @@
 using System;
 using System.Reflection;
+using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.UnitOfWork;
 namespace Elders.Cronus.Pipeline.Transport.InMemory.Config
 {
-    public interface IInMemoryTransportSettings : ISettingsBuilder<IPipelineTransport>, IHavePipelineSettings
+    public interface IInMemoryTransportSettings : ISettingsBuilder
     {
 
     }
 
     public class InMemoryTransportSettings : IInMemoryTransportSettings
     {
-        Lazy<IPipelineNameConvention> IHavePipelineSettings.PipelineNameConvention { get; set; }
+        IContainer ISettingsBuilder.Container { get; set; }
 
-        Lazy<IEndpointNameConvention> IHavePipelineSettings.EndpointNameConvention { get; set; }
+        string ISettingsBuilder.Name { get; set; }
 
-        Lazy<IPipelineTransport> ISettingsBuilder<IPipelineTransport>.Build()
+        void ISettingsBuilder.Build()
         {
-            IInMemoryTransportSettings settings = this as IInMemoryTransportSettings;
-
-            return new Lazy<IPipelineTransport>(() => new InMemoryPipelineTransport(settings.PipelineNameConvention.Value, settings.EndpointNameConvention.Value));
+            var builder = this as ISettingsBuilder;
+            var pipelineNameConvention = builder.Container.Resolve<IPipelineNameConvention>(builder.Name);
+            var endpointNameConvention = builder.Container.Resolve<IEndpointNameConvention>(builder.Name);
+            var transport = new InMemoryPipelineTransport(pipelineNameConvention, endpointNameConvention);
+            builder.Container.RegisterSingleton<IPipelineTransport>(() => transport, builder.Name);
         }
     }
 
     public static class InMemoryTransportExtensions
     {
         public static T UseInMemoryTransport<T>(this T self, Action<InMemoryTransportSettings> configure = null)
-                where T : IHaveTransport<IPipelineTransport>, IHavePipelineSettings
         {
-            InMemoryTransportSettings transportSettingsInstance = new InMemoryTransportSettings();
+            InMemoryTransportSettings settings = new InMemoryTransportSettings();
             if (configure != null)
-                configure(transportSettingsInstance);
-
-            self.Transport = new Lazy<IPipelineTransport>(() =>
-            {
-                self.CopyPipelineSettingsTo(transportSettingsInstance);
-                return transportSettingsInstance.GetInstanceLazy().Value;
-            });
-
+                configure(settings);
+            (settings as ISettingsBuilder).Build();
             return self;
         }
     }
@@ -51,7 +47,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory.Config
             InMemoryCommandPublisherSettings settings = new InMemoryCommandPublisherSettings();
             if (configure != null)
                 configure(settings);
-            self.CommandPublisher = settings.GetInstanceLazy();
+            (settings as ISettingsBuilder).Build();
             return self;
         }
         public static T UseInMemoryEventPublisher<T>(this T self, string boundedContext, Action<InMemoryEventPublisherSettings> configure = null) where T : ICronusSettings
@@ -59,7 +55,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory.Config
             InMemoryEventPublisherSettings settings = new InMemoryEventPublisherSettings();
             if (configure != null)
                 configure(settings);
-            self.EventPublisher = settings.GetInstanceLazy();
+            (settings as ISettingsBuilder).Build();
             return self;
         }
 

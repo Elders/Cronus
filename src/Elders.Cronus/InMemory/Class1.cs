@@ -1,43 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Elders.Cronus.DomainModeling;
+﻿using Elders.Cronus.DomainModeling;
 using Elders.Cronus.InMemory;
-using Elders.Cronus.Pipeline.CircuitBreaker;
-using Elders.Cronus.Pipeline.Hosts;
+using Elders.Cronus.IocContainer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public interface IInMemoryCommandPublisherSettings :  IHaveMessageProcessor<ICommand>, ISettingsBuilder<IPublisher<ICommand>>
-    {
-    }
+    public interface IInMemoryCommandPublisherSettings : ISettingsBuilder { }
 
     public class InMemoryCommandPublisherSettings : IInMemoryCommandPublisherSettings
     {
-        Lazy<IMessageProcessor<ICommand>> IHaveMessageProcessor<ICommand>.MessageHandlerProcessor { get; set; }
+        IContainer ISettingsBuilder.Container { get; set; }
 
-        Lazy<IPublisher<ICommand>> ISettingsBuilder<IPublisher<ICommand>>.Build()
+        string ISettingsBuilder.Name { get; set; }
+
+        void ISettingsBuilder.Build()
         {
-            IInMemoryCommandPublisherSettings settings = this as IInMemoryCommandPublisherSettings;
-            return new Lazy<IPublisher<ICommand>>(() => new InMemoryCommandPublisher(settings.MessageHandlerProcessor.Value));
+            var builder = this as ISettingsBuilder;
+            builder.Container.RegisterSingleton<IPublisher<ICommand>>(() => new InMemoryCommandPublisher(builder.Container.Resolve<IMessageProcessor<ICommand>>(builder.Name)));
         }
     }
 
-    public interface IInMemoryEventPublisherSettings :  IHaveMessageProcessor<IEvent>, ISettingsBuilder<IPublisher<IEvent>>
-    {
-    }
+    public interface IInMemoryEventPublisherSettings : ISettingsBuilder { }
 
     public class InMemoryEventPublisherSettings : IInMemoryEventPublisherSettings
     {
-        Lazy<IMessageProcessor<IEvent>> IHaveMessageProcessor<IEvent>.MessageHandlerProcessor { get; set; }
+        IContainer ISettingsBuilder.Container { get; set; }
 
-        Lazy<IPublisher<IEvent>> ISettingsBuilder<IPublisher<IEvent>>.Build()
+        string ISettingsBuilder.Name { get; set; }
+
+        void ISettingsBuilder.Build()
         {
-            IInMemoryEventPublisherSettings settings = this as IInMemoryEventPublisherSettings;
-            return new Lazy<IPublisher<IEvent>>(() => new InMemoryEventPublisher(settings.MessageHandlerProcessor.Value));
+            var builder = this as ISettingsBuilder;
+            builder.Container.RegisterSingleton<IPublisher<IEvent>>(() => new InMemoryEventPublisher(builder.Container.Resolve<IMessageProcessor<IEvent>>(builder.Name)));
         }
     }
-
 }

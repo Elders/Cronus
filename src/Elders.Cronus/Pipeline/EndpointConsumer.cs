@@ -42,17 +42,18 @@ namespace Elders.Cronus.Pipeline
                 : NumberOfWorkers;
 
             pools.Clear();
-            var endpointDefinition = transport.EndpointFactory.GetEndpointDefinition(messageProcessor.GetRegisteredHandlers().ToArray());
-
-            var poolName = String.Format("Workpool {0}", endpointDefinition.EndpointName);
-            WorkPool pool = new WorkPool(poolName, workers);
-            for (int i = 0; i < workers; i++)
+            foreach (var endpointDefinition in transport.EndpointFactory.GetEndpointDefinition(messageProcessor.GetRegisteredHandlers().ToArray()))
             {
-                IEndpoint endpoint = transport.EndpointFactory.CreateEndpoint(endpointDefinition);
-                pool.AddWork(new PipelineConsumerWork<TContract>(messageProcessor, endpoint, serializer, messageThreshold, circuitBreakerFactory.Create(transport, serializer, endpointDefinition)));
+                var poolName = String.Format("Workpool {0}", endpointDefinition.EndpointName);
+                WorkPool pool = new WorkPool(poolName, workers);
+                for (int i = 0; i < workers; i++)
+                {
+                    IEndpoint endpoint = transport.EndpointFactory.CreateEndpoint(endpointDefinition);
+                    pool.AddWork(new PipelineConsumerWork<TContract>(messageProcessor, endpoint, serializer, messageThreshold, circuitBreakerFactory.Create(transport, serializer, endpointDefinition)));
+                }
+                pools.Add(pool);
+                pool.StartCrawlers();
             }
-            pools.Add(pool);
-            pool.StartCrawlers();
         }
 
         public void Stop()

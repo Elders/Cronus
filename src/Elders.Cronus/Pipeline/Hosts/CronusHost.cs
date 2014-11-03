@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using Elders.Cronus.DomainModeling;
-using Elders.Cronus.EventSourcing;
-using Elders.Cronus.Serializer;
 using Elders.Cronus.Pipeline.Hosts.DisposableExtensions;
 
 namespace Elders.Cronus.Pipeline.Hosts
@@ -14,22 +10,10 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public CronusHost()
         {
-            EventStores = new Dictionary<string, IEventStore>();
             Consumers = new List<IEndpointConsumer>();
         }
 
-
-        public Dictionary<string, IEventStore> EventStores { get; set; }
-
         public List<IEndpointConsumer> Consumers { get; set; }
-
-        public ISerializer Serializer { get; set; }
-
-        public IPublisher<ICommand> CommandPublisher { get; set; }
-
-        public IPublisher<IEvent> EventPublisher { get; set; }
-
-        public ICronusPlayer Player { get; set; }
 
         public bool Start()
         {
@@ -42,17 +26,17 @@ namespace Elders.Cronus.Pipeline.Hosts
         }
         public bool Replay()
         {
-            log.Info("Start replaying events...");
-            var publisher = EventPublisher;
-            int totalMessagesPublished = 0;
-            //TODO: when we start making hosts per BC  configuration.EventStores will no be collection
-            foreach (var evnt in EventStores.Single().Value.Player.GetEventsFromStart())
-            {
-                totalMessagesPublished++;
-                EventPublisher.Publish(evnt);
-            }
+            //log.Info("Start replaying events...");
+            //var publisher = EventPublisher;
+            //int totalMessagesPublished = 0;
+            ////TODO: when we start making hosts per BC  configuration.EventStores will no be collection
+            //foreach (var evnt in EventStores.Single().Value.Player.GetEventsFromStart())
+            //{
+            //    totalMessagesPublished++;
+            //    EventPublisher.Publish(evnt);
+            //}
 
-            log.Info("Replay finished.");
+            //log.Info("Replay finished.");
             return true;
         }
         public bool Stop()
@@ -67,11 +51,11 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public void Dispose()
         {
-            EventStores.TryDisposeCollection(x => x.Value);
+            //EventStores.TryDisposeCollection(x => x.Value);
             Consumers.TryDisposeCollection(x => x);
-            Serializer.TryDispose();
-            CommandPublisher.TryDispose();
-            EventPublisher.TryDispose();
+            //Serializer.TryDispose();
+            //CommandPublisher.TryDispose();
+            //EventPublisher.TryDispose();
         }
     }
 }
