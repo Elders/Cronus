@@ -122,7 +122,7 @@ public class ApplicationServiceBatchUnitOfWork : IBatchUnitOfWork
 
     public void Begin()
     {
-        var appServiceGateway = new ApplicationServiceGateway(repository, persister);
+        var appServiceGateway = new ApplicationServiceGateway(repository);
         Lazy<IAggregateRepository> lazyRepository = new Lazy<IAggregateRepository>(() => (appServiceGateway));
         Lazy<IApplicationServiceGateway> gateway = new Lazy<IApplicationServiceGateway>(() => (appServiceGateway));
         Context.Set<Lazy<IAggregateRepository>>(lazyRepository);

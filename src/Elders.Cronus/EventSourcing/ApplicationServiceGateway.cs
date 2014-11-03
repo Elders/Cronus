@@ -17,10 +17,9 @@ namespace Elders.Cronus.EventSourcing
 
         private readonly IEventStorePersister eventStorePersister;
 
-        public ApplicationServiceGateway(IAggregateRepository aggregateRepository, IEventStorePersister eventStorePersister)
+        public ApplicationServiceGateway(IAggregateRepository aggregateRepository)
         {
             this.aggregateRepository = aggregateRepository;
-            this.eventStorePersister = eventStorePersister;
             aggregates = new List<IAggregateRoot>();
         }
 
@@ -36,7 +35,7 @@ namespace Elders.Cronus.EventSourcing
 
         public void CommitChanges(Action<IEvent> publish)
         {
-            eventStorePersister.Persist(aggregates);
+            aggregates.ForEach(ar => aggregateRepository.Save(ar));
             aggregates.ForEach(e => e.UncommittedEvents.ForEach(x => publish(x)));
         }
     }

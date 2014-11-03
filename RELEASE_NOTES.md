@@ -1,3 +1,6 @@
+#### 1.1.42-rc02 - 03.11.2014
+* Fix bug with state version
+
 #### 1.1.42-rc01 - 31.10.2014
 * Revert the the endpoint check
 
