@@ -44,5 +44,7 @@ namespace Elders.Cronus.IocContainer
         object Resolve(Type type, string instanceName = null);
 
         List<T> ResolveAll<T>();
+
+        void Destroy();
     }
 }

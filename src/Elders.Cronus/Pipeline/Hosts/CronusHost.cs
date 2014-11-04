@@ -45,6 +45,7 @@ namespace Elders.Cronus.Pipeline.Hosts
             {
                 consumer.Stop();
             }
+            Consumers.Clear();
             log.Info("Cronus hosts stopped succesfully.");
             return true;
         }

@@ -161,5 +161,18 @@ namespace Elders.Cronus.IocContainer
             return string.Join(Environment.NewLine, transientMappings.Keys);
         }
 
+        public void Destroy()
+        {
+            foreach (var item in singletonMappings)
+            {
+                var toDispose = item.Value.Value as IDisposable;
+                if (toDispose != null)
+                    toDispose.Dispose();
+            }
+
+            singletonMappings.Clear();
+            transientMappings.Clear();
+            mappings.Clear();
+        }
     }
 }

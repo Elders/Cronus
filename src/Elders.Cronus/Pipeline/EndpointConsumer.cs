@@ -9,7 +9,7 @@ using Elders.Cronus.Pipeline.CircuitBreaker;
 
 namespace Elders.Cronus.Pipeline
 {
-    public class EndpointConsumer<TContract> : IEndpointConsumer, IDisposable where TContract : IMessage
+    public class EndpointConsumer<TContract> : IEndpointConsumer where TContract : IMessage
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EndpointConsumer<TContract>));
 
@@ -60,12 +60,6 @@ namespace Elders.Cronus.Pipeline
         {
             pools.ForEach(pool => pool.Stop());
             pools.Clear();
-        }
-
-
-        public void Dispose()
-        {
-            transport.Dispose();
         }
     }
 }

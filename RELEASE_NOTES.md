@@ -1,3 +1,6 @@
+#### 1.1.42-rc03 - 04.11.2014
+* Release container resources for singleton objects
+
 #### 1.1.42-rc02 - 03.11.2014
 * Fix bug with state version
 
