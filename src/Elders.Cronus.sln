@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Tests", "Elde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Tests.Sanity", "Elders.Cronus.Tests.Sanity\Elders.Cronus.Tests.Sanity.csproj", "{BE6F798D-A851-4232-AC26-0E4BF0F49F45}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.DomainModeling", "Elders.Cronus.DomainModeling\src\Elders.Cronus.DomainModeling\Elders.Cronus.DomainModeling.csproj", "{3603583E-C261-4AA6-AE73-B3F4C7440D7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -34,6 +36,12 @@ Global
 		{BE6F798D-A851-4232-AC26-0E4BF0F49F45}.Internal|Any CPU.Build.0 = Internal|Any CPU
 		{BE6F798D-A851-4232-AC26-0E4BF0F49F45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE6F798D-A851-4232-AC26-0E4BF0F49F45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Internal|Any CPU.ActiveCfg = Release|Any CPU
+		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Internal|Any CPU.Build.0 = Release|Any CPU
+		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3603583E-C261-4AA6-AE73-B3F4C7440D7C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
