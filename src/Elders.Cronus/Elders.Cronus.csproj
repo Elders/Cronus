@@ -73,10 +73,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elders.Cronus.DomainModeling, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Cronus.DomainModeling.1.0.4-alpha1\lib\net40-full\Elders.Cronus.DomainModeling.dll</HintPath>
-    </Reference>
     <Reference Include="Elders.Multithreading.Scheduler">
       <HintPath>..\packages\Multithreading.Scheduler.1.0.0\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
     </Reference>
@@ -216,6 +212,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pipeline\Transport\Config\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Elders.Cronus.DomainModeling\src\Elders.Cronus.DomainModeling\Elders.Cronus.DomainModeling.csproj">
+      <Project>{3603583e-c261-4aa6-ae73-b3f4c7440d7c}</Project>
+      <Name>Elders.Cronus.DomainModeling</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

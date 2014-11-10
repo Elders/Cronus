@@ -64,7 +64,7 @@ namespace Elders.Cronus.Pipeline.Config
         /// Registers all command handlers from a given assembly.
         /// </summary>
         /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
-        public static T RegisterAllHandlersInAssembly<T>(this T self, Type assemblyContainingMessageHandlers, IMessageHandlerFactory messageHandlerFactory = null) where T : IMessageProcessorSettings<ICommand>
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Type assemblyContainingMessageHandlers, IMessageHandlerFactory messageHandlerFactory = null) where T : IMessageProcessorSettings<IMessage>
         {
             var factory = new InternalApplicationServiceFactory(messageHandlerFactory);
             Register(self, assemblyContainingMessageHandlers.Assembly, factory.CreateHandler, (eventHandlerType) => { });
@@ -110,22 +110,16 @@ namespace Elders.Cronus.Pipeline.Config
 
         static T Register<T>(this T self, Assembly assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IMessageProcessorSettings<IMessage>
         {
-            Type genericMarkupInterface = typeof(IMessageHandler<>);
-
-            var messageHandlerTypes = assemblyContainingMessageHandlers.GetTypes().Where(x => x.IsClass && x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericMarkupInterface));
-
-            Register(self, messageHandlerTypes.ToArray(), messageHandlerFactory, doBeforeRegister);
+            var types = assemblyContainingMessageHandlers.GetTypes().ToArray();
+            Register(self, types, messageHandlerFactory, doBeforeRegister);
 
             return self;
         }
 
         static T Register<T>(this T self, Assembly[] assemblyContainingMessageHandlers, Func<Type, Context, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IMessageProcessorSettings<IMessage>
         {
-            Type genericMarkupInterface = typeof(IMessageHandler<>);
-            var types = assemblyContainingMessageHandlers.SelectMany(x => x.GetTypes());
-            var messageHandlerTypes = types.Where(x => x.IsClass && x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericMarkupInterface));
-
-            Register(self, messageHandlerTypes.ToArray(), messageHandlerFactory, doBeforeRegister);
+            var types = assemblyContainingMessageHandlers.SelectMany(x => x.GetTypes()).ToArray();
+            Register(self, types, messageHandlerFactory, doBeforeRegister);
 
             return self;
         }
@@ -134,15 +128,17 @@ namespace Elders.Cronus.Pipeline.Config
         {
             Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>> registrations = new Dictionary<Type, List<Tuple<Type, Func<Type, Context, object>>>>();
 
-            Type genericMarkupInterface = typeof(IMessageHandler<>);
+            var contractType = self.GetType().GetInterfaces().Where(x => x.GetGenericTypeDefinition() == typeof(IMessageProcessorSettings<>)).Single().GetGenericArguments().Single();
 
-            var messageHandlerTypes = messageHandlers.Where(x => x.IsClass && x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == genericMarkupInterface));
+            var contractHandlerMethodType = typeof(IEvent).IsAssignableFrom(contractType) ? typeof(IEventHandler<>) : typeof(ICommandHandler<>);
+
+            var messageHandlerTypes = messageHandlers.Where(x => x.IsClass && x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == contractHandlerMethodType));
 
             foreach (var messageHandlerType in messageHandlerTypes)
             {
                 var fpMessageHandlerType = messageHandlerType;
                 doBeforeRegister(fpMessageHandlerType);
-                var interfaces = fpMessageHandlerType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericMarkupInterface);
+                var interfaces = fpMessageHandlerType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == contractHandlerMethodType);
 
                 foreach (var @interface in interfaces)
                 {
