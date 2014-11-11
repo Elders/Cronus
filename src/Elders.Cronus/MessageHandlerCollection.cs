@@ -39,6 +39,9 @@ namespace Elders.Cronus
                 List<Func<TContract, Context, bool>> availableHandlers;
                 if (handlers.TryGetValue(message.GetType(), out availableHandlers))
                 {
+                    if (availableHandlers == null || availableHandlers.Count == 0)
+                        log.WarnFormat("There is no handler for {0}", message);
+
                     foreach (var handleMethod in availableHandlers)
                     {
                         handleMethod(message, context);
