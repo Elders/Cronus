@@ -9,6 +9,7 @@ open Fake.AssemblyInfoFile
 open Fake.ReleaseNotesHelper
 open System
 open System.IO
+open System.Collections.Generic
 
 type System.String with member x.contains (comp:System.StringComparison) str = x.IndexOf(str,comp) >= 0        
 let excludePaths (pathsToExclude : string list) (path: string) = pathsToExclude |> List.exists (path.contains StringComparison.OrdinalIgnoreCase)|> not
@@ -23,10 +24,9 @@ let projectAuthors = ["Nikolai Mynkow"; "Simeon Dimov";]
 
 let packages = ["Cronus", projectDescription]
 let nugetDir = "./bin/nuget"
-let nugetDependencies = getDependencies "./src/Elders.Cronus/packages.config"
+let nugetDependencies = ["log4net", "2.0.3"; "Multithreading.Scheduler", "1.0.0"; "protobuf-net", "2.0.0.668"; "Protoreg", "1.0.10";]
 let nugetDependenciesFlat, _ = nugetDependencies |> List.unzip
 let excludeNugetDependencies = excludePaths nugetDependenciesFlat
-
 Target "Clean" (fun _ -> CleanDirs [buildDir])
 
 Target "AssemblyInfo" (fun _ ->
