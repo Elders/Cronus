@@ -48,10 +48,5 @@ namespace Elders.Cronus.EventSourcing.InMemory
                 return aggregateRoot;
             }
         }
-
-        public void Dispose()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
