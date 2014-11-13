@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.EventSourcing;
+using Elders.Cronus.Pipeline.Config;
+using Elders.Cronus.EventSourcing.InMemory.Config;
 
 namespace Elders.Cronus.Tests.InMemoryEventStore
 {
@@ -16,8 +18,8 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
         {
             container = new Container();
             var settings = new CronusSettings(container);
-
-            settings.UseInMemoryEventStore();
+            var eventStoreSettings = new InMemoryEventStoreSettings(settings);
+            eventStoreSettings.Build();
         };
 
         Because of = () => eventStore = (IEventStore)container.Resolve(typeof(IEventStore));

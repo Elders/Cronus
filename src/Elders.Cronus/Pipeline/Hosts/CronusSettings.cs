@@ -106,13 +106,6 @@ public static class CronusConfigurationExtensions
         (settings as ISettingsBuilder).Build();
         return self;
     }
-
-    public static T UseInMemoryEventStore<T>(this T self) where T : ICronusSettings
-    {
-        InMemoryEventStoreSettings settings = new InMemoryEventStoreSettings(self);
-        (settings as ISettingsBuilder).Build();
-        return self;
-    }
 }
 
 public class ApplicationServiceBatchUnitOfWork : IBatchUnitOfWork
