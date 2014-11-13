@@ -1,6 +1,7 @@
 ﻿using Elders.Cronus.DomainModeling;
 using Elders.Cronus.EventSourcing;
 using Elders.Cronus.EventSourcing.InMemory;
+using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Tests.TestModel;
 using Machine.Specifications;
 using System;
@@ -16,11 +17,10 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
     {
         Establish context = () =>
         {
-            var eventStore = new Elders.Cronus.EventSourcing.InMemory.InMemoryEventStore();
-            eventStorePersister = eventStore;
-            eventStoreManager = eventStore;
-            eventStorePlayer = eventStore;
-            aggregateRepository = eventStore;
+            eventStorePersister = new InMemoryEventStorePersister();
+            eventStoreManager = new InMemoryEventStoreStorageManager();
+            eventStorePlayer = new InMemoryEventStorePlayer();
+            aggregateRepository = new InMemoryAggregateRepository(eventStorePersister);
             eventStoreManager.CreateStorage();
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);

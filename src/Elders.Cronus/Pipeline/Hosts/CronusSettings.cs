@@ -6,6 +6,7 @@ using Elders.Cronus.Serializer;
 using Elders.Cronus.UnitOfWork;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Hosts;
+using Elders.Cronus.EventSourcing.InMemory.Config;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
@@ -102,6 +103,13 @@ public static class CronusConfigurationExtensions
         InMemoryEventPublisherSettings settings = new InMemoryEventPublisherSettings();
         if (configure != null)
             configure(settings);
+        (settings as ISettingsBuilder).Build();
+        return self;
+    }
+
+    public static T UseInMemoryEventStore<T>(this T self) where T : ICronusSettings
+    {
+        InMemoryEventStoreSettings settings = new InMemoryEventStoreSettings(self);
         (settings as ISettingsBuilder).Build();
         return self;
     }

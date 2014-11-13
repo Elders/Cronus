@@ -16,14 +16,13 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
     {
         Establish context = () =>
         {
+            eventStorePersister = new InMemoryEventStorePersister();
+            eventStoreManager = new InMemoryEventStoreStorageManager();
+            eventStorePlayer = new InMemoryEventStorePlayer();
+            aggregateRepository = new InMemoryAggregateRepository(eventStorePersister);
+            eventStoreManager.CreateStorage();
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
-            var eventStore = new Elders.Cronus.EventSourcing.InMemory.InMemoryEventStore();
-            eventStorePersister = eventStore;
-            eventStoreManager = eventStore;
-            eventStorePlayer = eventStore;
-            aggregateRepository = eventStore;
-            eventStoreManager.CreateStorage();
         };
 
         Because of = () => aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);

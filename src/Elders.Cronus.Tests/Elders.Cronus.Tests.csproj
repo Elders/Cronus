@@ -58,6 +58,7 @@
     <Compile Include="AggregateRootState.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="InMemoryEventStore\When_using_in_memory_event_store.cs" />
     <Compile Include="InMemoryEventStore\When_loading_events_for_replay.cs" />
     <Compile Include="InMemoryEventStore\When_loading_aggregate_root_from_event_store.cs" />
     <Compile Include="InMemoryEventStore\When_saving_aggregate_root_in_event_store.cs" />

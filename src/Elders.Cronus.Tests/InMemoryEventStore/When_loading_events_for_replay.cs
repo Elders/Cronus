@@ -16,11 +16,10 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
     {
         Establish context = () =>
         {
-            var eventStore = new Elders.Cronus.EventSourcing.InMemory.InMemoryEventStore();
-            eventStorePersister = eventStore;
-            eventStoreManager = eventStore;
-            eventStorePlayer = eventStore;
-            aggregateRepository = eventStore;
+            eventStorePersister = new InMemoryEventStorePersister();
+            eventStoreManager = new InMemoryEventStoreStorageManager();
+            eventStorePlayer = new InMemoryEventStorePlayer();
+            aggregateRepository = new InMemoryAggregateRepository(eventStorePersister);
             eventStoreManager.CreateStorage();
             aggregateRoot = new TestAggregateRoot(new TestAggregateId());
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);

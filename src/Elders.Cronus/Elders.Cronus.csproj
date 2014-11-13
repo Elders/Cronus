@@ -98,7 +98,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BatchConsumer.cs" />
+    <Compile Include="EventSourcing\InMemory\AggregateVersionService.cs" />
+    <Compile Include="EventSourcing\InMemory\InMemoryAggregateRepository.cs" />
     <Compile Include="EventSourcing\InMemory\InMemoryEventStore.cs" />
+    <Compile Include="EventSourcing\InMemory\InMemoryEventStorePersister.cs" />
+    <Compile Include="EventSourcing\InMemory\InMemoryEventStorePlayer.cs" />
+    <Compile Include="EventSourcing\InMemory\Config\InMemoryEventStoreSettings.cs" />
+    <Compile Include="EventSourcing\InMemory\InMemoryEventStoreStorage.cs" />
+    <Compile Include="EventSourcing\InMemory\InMemoryEventStoreStorageManager.cs" />
     <Compile Include="IocContainer\Container.cs" />
     <Compile Include="IocContainer\ContainterExtensions.cs" />
     <Compile Include="IocContainer\IContainer.cs" />
