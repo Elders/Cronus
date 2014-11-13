@@ -58,7 +58,9 @@
     <Compile Include="AggregateRootState.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="InMemoryEventStore\When_build_aggregate_root_from_events.cs" />
+    <Compile Include="InMemoryEventStore\When_loading_events_for_replay.cs" />
+    <Compile Include="InMemoryEventStore\When_loading_aggregate_root_from_event_store.cs" />
+    <Compile Include="InMemoryEventStore\When_saving_aggregate_root_in_event_store.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
       <Link>Properties\AssemblyVersionInfo.cs</Link>

@@ -99,7 +99,6 @@
   <ItemGroup>
     <Compile Include="BatchConsumer.cs" />
     <Compile Include="EventSourcing\InMemory\InMemoryEventStore.cs" />
-    <Compile Include="EventSourcing\InMemory\InMemoryRepository.cs" />
     <Compile Include="IocContainer\Container.cs" />
     <Compile Include="IocContainer\ContainterExtensions.cs" />
     <Compile Include="IocContainer\IContainer.cs" />

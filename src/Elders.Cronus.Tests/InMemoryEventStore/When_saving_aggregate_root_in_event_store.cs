@@ -12,19 +12,18 @@ using System.Threading.Tasks;
 namespace Elders.Cronus.Tests.InMemoryEventStore
 {
     [Subject("AggregateRoot")]
-    public class When_build_aggregate_root_from_events
+    public class When_saving_aggregate_root_in_event_store
     {
         Establish context = () =>
         {
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
-            var eventStore = new InMemoryEventStore();
+            var eventStore = new Elders.Cronus.EventSourcing.InMemory.InMemoryEventStore();
             eventStorePersister = eventStore;
             eventStoreManager = eventStore;
             eventStorePlayer = eventStore;
             aggregateRepository = eventStore;
             eventStoreManager.CreateStorage();
-
         };
 
         Because of = () => aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
@@ -34,7 +33,6 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
         It should_instansiate_aggregate_root_with_valid_state = () => ((IAggregateRootStateManager)aggregateRepository.Load<TestAggregateRoot>(id)).State.Id.ShouldEqual(id);
 
         static TestAggregateId id;
-        static List<IEvent> events;
         static IEventStorePersister eventStorePersister;
         static IEventStoreStorageManager eventStoreManager;
         static IEventStorePlayer eventStorePlayer;
