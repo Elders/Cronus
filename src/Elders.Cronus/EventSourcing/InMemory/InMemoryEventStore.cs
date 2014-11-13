@@ -25,7 +25,7 @@ namespace Elders.Cronus.EventSourcing.InMemory
     public class InMemoryEventStore : IAggregateRepository, IEventStorePersister, IEventStorePlayer, IEventStoreStorageManager
     {
         private static AggregateVersionService versionService = new AggregateVersionService();
-        private static ConcurrentDictionary<IAggregateRootId, ConcurrentQueue<EventsStream>> events;
+        private static ConcurrentDictionary<IAggregateRootId, ConcurrentQueue<EventsStream>> eventsStreams = new ConcurrentDictionary<IAggregateRootId, ConcurrentQueue<EventsStream>>();
         private static ConcurrentQueue<IEvent> eventsForReplay = new ConcurrentQueue<IEvent>();
 
         public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
@@ -45,13 +45,13 @@ namespace Elders.Cronus.EventSourcing.InMemory
 
         public AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
-            if (!events.ContainsKey(id))
+            if (!eventsStreams.ContainsKey(id))
                 return default(AR);
             else
             {
                 var evnts = new ConcurrentQueue<IEvent>();
 
-                var eventsStreams = events[id];
+                var eventsStreams = eventsStreams[id];
 
                 AR aggregateRoot = AggregateRootFactory.Build<AR>(eventsStreams.SelectMany(x => x.Events).ToList());
                 aggregateRoot.State.Version = eventsStreams.Last().Version;
@@ -63,12 +63,12 @@ namespace Elders.Cronus.EventSourcing.InMemory
         {
             foreach (var aggregate in aggregates)
             {
-                if (events.ContainsKey(aggregate.State.Id))
+                if (eventsStreams.ContainsKey(aggregate.State.Id))
                 {
-                    var evnts = events[aggregate.State.Id];
+                    var evnts = eventsStreams[aggregate.State.Id];
 
                     if (evnts == null)
-                        events[aggregate.State.Id] = new ConcurrentQueue<EventsStream>();
+                        eventsStreams[aggregate.State.Id] = new ConcurrentQueue<EventsStream>();
 
                     var eventsStream = new EventsStream();
                     eventsStream.Version = aggregate.State.Version;
@@ -79,7 +79,7 @@ namespace Elders.Cronus.EventSourcing.InMemory
                         eventsForReplay.Enqueue(evnt);
                     }
 
-                    events[aggregate.State.Id].Enqueue(eventsStream);
+                    eventsStreams[aggregate.State.Id].Enqueue(eventsStream);
                 }
                 else
                 {
@@ -96,7 +96,7 @@ namespace Elders.Cronus.EventSourcing.InMemory
 
                     evnts.Enqueue(eventsStream);
 
-                    events.TryAdd(aggregate.State.Id, evnts);
+                    eventsStreams.TryAdd(aggregate.State.Id, evnts);
                 }
             }
         }
@@ -108,7 +108,7 @@ namespace Elders.Cronus.EventSourcing.InMemory
 
         public void CreateEventsStorage()
         {
-            events = new ConcurrentDictionary<IAggregateRootId, ConcurrentQueue<EventsStream>>();
+
         }
 
         public void CreateStorage()
