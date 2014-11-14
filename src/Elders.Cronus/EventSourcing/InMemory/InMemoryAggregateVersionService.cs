@@ -8,9 +8,9 @@ using System.Collections.Concurrent;
 
 namespace Elders.Cronus.EventSourcing.InMemory
 {
-    public class AggregateVersionService
+    public class InMemoryAggregateVersionService : IAggregateVersionService
     {
-        ConcurrentDictionary<IAggregateRootId, int> reservedRevisions = new ConcurrentDictionary<IAggregateRootId, int>();
+        private static ConcurrentDictionary<IAggregateRootId, int> reservedRevisions = new ConcurrentDictionary<IAggregateRootId, int>();
 
         public int ReserveVersion(IAggregateRootId aggregateId, int requestedVersion)
         {
@@ -19,6 +19,12 @@ namespace Elders.Cronus.EventSourcing.InMemory
                 return reservedVersion;
             else
                 return reservedVersion - 1;
+        }
+
+        public void Dispose()
+        {
+            if (reservedRevisions != null)
+                reservedRevisions = null;
         }
     }
 }

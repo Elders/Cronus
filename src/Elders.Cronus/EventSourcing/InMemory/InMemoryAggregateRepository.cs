@@ -10,14 +10,15 @@ namespace Elders.Cronus.EventSourcing.InMemory
 {
     public class InMemoryAggregateRepository : IAggregateRepository
     {
-        private static AggregateVersionService versionService = new AggregateVersionService();
+        private IAggregateVersionService versionService;
         private IEventStorePersister persister;
         private InMemoryEventStoreStorage eventStoreStorage;
 
-        public InMemoryAggregateRepository(IEventStorePersister persister, InMemoryEventStoreStorage eventStoreStorage)
+        public InMemoryAggregateRepository(IEventStorePersister persister, InMemoryEventStoreStorage eventStoreStorage, IAggregateVersionService versionService)
         {
             this.persister = persister;
             this.eventStoreStorage = eventStoreStorage;
+            this.versionService = versionService;
         }
 
         public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot

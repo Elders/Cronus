@@ -23,8 +23,9 @@ namespace Elders.Cronus.EventSourcing.InMemory.Config
             var builder = this as ISettingsBuilder;
 
             builder.Container.RegisterSingleton<InMemoryEventStoreStorage>(() => new InMemoryEventStoreStorage());
+            builder.Container.RegisterSingleton<IAggregateVersionService>(() => new InMemoryAggregateVersionService());
             builder.Container.RegisterSingleton<IEventStorePersister>(() => new InMemoryEventStorePersister(builder.Container.Resolve<InMemoryEventStoreStorage>()));
-            builder.Container.RegisterSingleton<IAggregateRepository>(() => new InMemoryAggregateRepository(builder.Container.Resolve<IEventStorePersister>(), builder.Container.Resolve<InMemoryEventStoreStorage>()));
+            builder.Container.RegisterSingleton<IAggregateRepository>(() => new InMemoryAggregateRepository(builder.Container.Resolve<IEventStorePersister>(), builder.Container.Resolve<InMemoryEventStoreStorage>(), builder.Container.Resolve<IAggregateVersionService>()));
             builder.Container.RegisterSingleton<IEventStorePlayer>(() => new InMemoryEventStorePlayer(builder.Container.Resolve<InMemoryEventStoreStorage>()));
             builder.Container.RegisterSingleton<IEventStoreStorageManager>(() => new InMemoryEventStoreStorageManager());
             builder.Container.RegisterSingleton<IEventStore>(() => new InMemoryEventStore(

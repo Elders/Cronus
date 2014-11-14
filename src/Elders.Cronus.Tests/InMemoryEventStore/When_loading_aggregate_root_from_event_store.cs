@@ -17,11 +17,12 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
     {
         Establish context = () =>
         {
+            versionService = new InMemoryAggregateVersionService();
             eventStoreStorage = new InMemoryEventStoreStorage();
             eventStorePersister = new InMemoryEventStorePersister(eventStoreStorage);
             eventStoreManager = new InMemoryEventStoreStorageManager();
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
-            aggregateRepository = new InMemoryAggregateRepository(eventStorePersister, eventStoreStorage);
+            aggregateRepository = new InMemoryAggregateRepository(eventStorePersister, eventStoreStorage, versionService);
             eventStoreManager.CreateStorage();
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
@@ -42,6 +43,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
 
         static TestAggregateId id;
         static InMemoryEventStoreStorage eventStoreStorage;
+        static IAggregateVersionService versionService;
         static IEventStorePersister eventStorePersister;
         static IEventStoreStorageManager eventStoreManager;
         static IEventStorePlayer eventStorePlayer;
