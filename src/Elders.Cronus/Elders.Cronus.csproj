@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BatchConsumer.cs" />
+    <Compile Include="EventSourcing\IAggregateVersionService.cs" />
     <Compile Include="EventSourcing\InMemory\InMemoryAggregateVersionService.cs" />
     <Compile Include="EventSourcing\InMemory\InMemoryAggregateRepository.cs" />
     <Compile Include="EventSourcing\InMemory\InMemoryEventStore.cs" />
