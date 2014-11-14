@@ -10,16 +10,23 @@ namespace Elders.Cronus.EventSourcing.InMemory
 {
     public class InMemoryEventStorePersister : IEventStorePersister
     {
+        private InMemoryEventStoreStorage eventStoreStorage;
+
+        public InMemoryEventStorePersister(InMemoryEventStoreStorage eventStoreStorage)
+        {
+            this.eventStoreStorage = eventStoreStorage;
+        }
+
         public void Persist(List<IAggregateRoot> aggregates)
         {
             foreach (var aggregate in aggregates)
             {
-                if (InMemoryEventStoreStorage.EventsStreams.ContainsKey(aggregate.State.Id))
+                if (eventStoreStorage.EventsStreams.ContainsKey(aggregate.State.Id))
                 {
-                    var evnts = InMemoryEventStoreStorage.EventsStreams[aggregate.State.Id];
+                    var evnts = eventStoreStorage.EventsStreams[aggregate.State.Id];
 
                     if (evnts == null)
-                        InMemoryEventStoreStorage.EventsStreams[aggregate.State.Id] = new ConcurrentQueue<EventsStream>();
+                        eventStoreStorage.EventsStreams[aggregate.State.Id] = new ConcurrentQueue<EventsStream>();
 
                     var eventsStream = new EventsStream();
                     eventsStream.Version = aggregate.State.Version;
@@ -27,10 +34,10 @@ namespace Elders.Cronus.EventSourcing.InMemory
                     foreach (var evnt in aggregate.UncommittedEvents)
                     {
                         eventsStream.Events.Enqueue(evnt);
-                        InMemoryEventStoreStorage.EventsForReplay.Enqueue(evnt);
+                        eventStoreStorage.EventsForReplay.Enqueue(evnt);
                     }
 
-                    InMemoryEventStoreStorage.EventsStreams[aggregate.State.Id].Enqueue(eventsStream);
+                    eventStoreStorage.EventsStreams[aggregate.State.Id].Enqueue(eventsStream);
                 }
                 else
                 {
@@ -42,12 +49,12 @@ namespace Elders.Cronus.EventSourcing.InMemory
                     foreach (var evnt in aggregate.UncommittedEvents)
                     {
                         eventsStream.Events.Enqueue(evnt);
-                        InMemoryEventStoreStorage.EventsForReplay.Enqueue(evnt);
+                        eventStoreStorage.EventsForReplay.Enqueue(evnt);
                     }
 
                     evnts.Enqueue(eventsStream);
 
-                    InMemoryEventStoreStorage.EventsStreams.TryAdd(aggregate.State.Id, evnts);
+                    eventStoreStorage.EventsStreams.TryAdd(aggregate.State.Id, evnts);
                 }
             }
         }

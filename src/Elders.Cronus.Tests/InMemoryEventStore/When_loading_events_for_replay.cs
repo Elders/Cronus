@@ -16,10 +16,11 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
     {
         Establish context = () =>
         {
-            eventStorePersister = new InMemoryEventStorePersister();
+            eventStoreStorage = new InMemoryEventStoreStorage();
+            eventStorePersister = new InMemoryEventStorePersister(eventStoreStorage);
             eventStoreManager = new InMemoryEventStoreStorageManager();
-            eventStorePlayer = new InMemoryEventStorePlayer();
-            aggregateRepository = new InMemoryAggregateRepository(eventStorePersister);
+            eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
+            aggregateRepository = new InMemoryAggregateRepository(eventStorePersister, eventStoreStorage);
             eventStoreManager.CreateStorage();
             aggregateRoot = new TestAggregateRoot(new TestAggregateId());
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
@@ -35,6 +36,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
         It should_load_all_events = () => events.Count.ShouldEqual(3);
 
         static TestAggregateId id;
+        static InMemoryEventStoreStorage eventStoreStorage;
         static IEventStorePersister eventStorePersister;
         static IEventStoreStorageManager eventStoreManager;
         static IEventStorePlayer eventStorePlayer;

@@ -12,10 +12,12 @@ namespace Elders.Cronus.EventSourcing.InMemory
     {
         private static AggregateVersionService versionService = new AggregateVersionService();
         private IEventStorePersister persister;
+        private InMemoryEventStoreStorage eventStoreStorage;
 
-        public InMemoryAggregateRepository(IEventStorePersister persister)
+        public InMemoryAggregateRepository(IEventStorePersister persister, InMemoryEventStoreStorage eventStoreStorage)
         {
             this.persister = persister;
+            this.eventStoreStorage = eventStoreStorage;
         }
 
         public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
@@ -35,13 +37,13 @@ namespace Elders.Cronus.EventSourcing.InMemory
 
         public AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
-            if (!InMemoryEventStoreStorage.EventsStreams.ContainsKey(id))
+            if (!eventStoreStorage.EventsStreams.ContainsKey(id))
                 return default(AR);
             else
             {
                 var evnts = new ConcurrentQueue<IEvent>();
 
-                var streams = InMemoryEventStoreStorage.EventsStreams[id];
+                var streams = eventStoreStorage.EventsStreams[id];
 
                 AR aggregateRoot = AggregateRootFactory.Build<AR>(streams.SelectMany(x => x.Events).ToList());
                 aggregateRoot.State.Version = streams.Last().Version;

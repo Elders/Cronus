@@ -8,13 +8,43 @@ using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventSourcing.InMemory
 {
-    internal static class InMemoryEventStoreStorage
+    public class InMemoryEventStoreStorage : IDisposable
     {
-        public static ConcurrentDictionary<IAggregateRootId, ConcurrentQueue<EventsStream>> EventsStreams = new ConcurrentDictionary<IAggregateRootId, ConcurrentQueue<EventsStream>>();
-        public static ConcurrentQueue<IEvent> EventsForReplay = new ConcurrentQueue<IEvent>();
+        private static ConcurrentDictionary<IAggregateRootId, ConcurrentQueue<EventsStream>> eventsStreams;
+        public ConcurrentDictionary<IAggregateRootId, ConcurrentQueue<EventsStream>> EventsStreams
+        {
+            get
+            {
+                if (eventsStreams == null)
+                    eventsStreams = new ConcurrentDictionary<IAggregateRootId, ConcurrentQueue<EventsStream>>();
+
+                return eventsStreams;
+            }
+        }
+
+        private static ConcurrentQueue<IEvent> eventsForReplay;
+        public ConcurrentQueue<IEvent> EventsForReplay
+        {
+            get
+            {
+                if (eventsForReplay == null)
+                    eventsForReplay = new ConcurrentQueue<IEvent>();
+
+                return eventsForReplay;
+            }
+        }
+
+        public void Dispose()
+        {
+            if (eventsStreams != null)
+                eventsStreams = null;
+
+            if (eventsForReplay != null)
+                eventsForReplay = null;
+        }
     }
 
-    internal class EventsStream
+    public class EventsStream
     {
         public EventsStream()
         {
