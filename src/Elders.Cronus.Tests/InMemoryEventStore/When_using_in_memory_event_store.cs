@@ -9,6 +9,8 @@ using Elders.Cronus.IocContainer;
 using Elders.Cronus.EventSourcing;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.EventSourcing.InMemory.Config;
+using Elders.Cronus.EventSourcing.InMemory;
+using Elders.Cronus.Tests.TestModel;
 
 namespace Elders.Cronus.Tests.InMemoryEventStore
 {
@@ -20,11 +22,14 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
             var settings = new CronusSettings(container);
             var eventStoreSettings = new InMemoryEventStoreSettings(settings);
             eventStoreSettings.Build();
+            eventStoreStorage = (InMemoryEventStoreStorage)container.Resolve(typeof(InMemoryEventStoreStorage));
         };
 
         Because of = () => eventStore = (IEventStore)container.Resolve(typeof(IEventStore));
 
         It should_instansiate_in_memory_event_store = () => eventStore.ShouldBeOfExactType<Elders.Cronus.EventSourcing.InMemory.InMemoryEventStore>();
+
+        It should_have_in_memory_event_store_storage = () => eventStoreStorage.ShouldBeOfExactType<Elders.Cronus.EventSourcing.InMemory.InMemoryEventStoreStorage>();
 
         It should_have_in_memory_aggregate_repository = () => eventStore.AggregateRepository.ShouldBeOfExactType<Elders.Cronus.EventSourcing.InMemory.InMemoryAggregateRepository>();
 
@@ -36,5 +41,6 @@ namespace Elders.Cronus.Tests.InMemoryEventStore
 
         static Container container;
         static IEventStore eventStore;
+        static InMemoryEventStoreStorage eventStoreStorage;
     }
 }
