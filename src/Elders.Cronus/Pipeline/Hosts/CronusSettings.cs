@@ -6,6 +6,7 @@ using Elders.Cronus.Serializer;
 using Elders.Cronus.UnitOfWork;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Hosts;
+using Elders.Cronus.EventSourcing.InMemory.Config;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
