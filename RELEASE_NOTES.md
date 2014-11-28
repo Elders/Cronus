@@ -1,3 +1,6 @@
+#### 1.1.42-rc04 - 28.11.2014
+* Refactor the Aggregate repository
+
 #### 1.1.42-rc03 - 04.11.2014
 * Release container resources for singleton objects
 

@@ -24,7 +24,7 @@ let projectAuthors = ["Nikolai Mynkow"; "Simeon Dimov";]
 
 let packages = ["Cronus", projectDescription]
 let nugetDir = "./bin/nuget"
-let nugetDependencies = ["log4net", "2.0.3"; "Multithreading.Scheduler", "1.0.0"; "protobuf-net", "2.0.0.668"; "Protoreg", "1.0.10";]
+let nugetDependencies = ["Cronus.DomainModeling", "1.0.4-beta02"; "log4net", "2.0.3"; "Multithreading.Scheduler", "1.0.0"; "protobuf-net", "2.0.0.668"; "Protoreg", "1.0.10";]
 let nugetDependenciesFlat, _ = nugetDependencies |> List.unzip
 let excludeNugetDependencies = excludePaths nugetDependenciesFlat
 Target "Clean" (fun _ -> CleanDirs [buildDir])
@@ -53,7 +53,7 @@ Target "RestorePackages" (fun _ ->
 Target "CreateNuGet" (fun _ ->
     for package,description in packages do
     
-        let nugetToolsDir = nugetDir @@ "lib" @@ "net40-full"
+        let nugetToolsDir = nugetDir @@ "lib" @@ "net45-full"
         CleanDir nugetToolsDir
 
         match package with
