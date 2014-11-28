@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\Elders.Cronus</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -66,7 +66,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\bin\$(Configuration)\Elders.Cronus</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -97,16 +97,16 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BatchConsumer.cs" />
-    <Compile Include="EventSourcing\IAggregateVersionService.cs" />
-    <Compile Include="EventSourcing\InMemory\InMemoryAggregateVersionService.cs" />
-    <Compile Include="EventSourcing\InMemory\InMemoryAggregateRepository.cs" />
-    <Compile Include="EventSourcing\InMemory\InMemoryEventStore.cs" />
-    <Compile Include="EventSourcing\InMemory\InMemoryEventStorePersister.cs" />
-    <Compile Include="EventSourcing\InMemory\InMemoryEventStorePlayer.cs" />
-    <Compile Include="EventSourcing\InMemory\Config\InMemoryEventStoreSettings.cs" />
-    <Compile Include="EventSourcing\InMemory\InMemoryEventStoreStorage.cs" />
-    <Compile Include="EventSourcing\InMemory\InMemoryEventStoreStorageManager.cs" />
+    <Compile Include="DomainModeling\IAggregateVersionService.cs" />
+    <Compile Include="DomainModeling\InMemoryAggregateRevisionService.cs" />
+    <Compile Include="EventStore\AggregateRepository.cs" />
+    <Compile Include="EventStore\InMemory\Config\InMemoryEventStoreSettings.cs" />
+    <Compile Include="EventStore\InMemory\InMemoryEventStore.cs" />
+    <Compile Include="EventStore\InMemory\InMemoryEventStorePersister.cs" />
+    <Compile Include="EventStore\InMemory\InMemoryEventStorePlayer.cs" />
+    <Compile Include="EventStore\InMemory\InMemoryEventStoreStorage.cs" />
+    <Compile Include="EventStore\InMemory\InMemoryEventStoreStorageManager.cs" />
+    <Compile Include="InMemory\Config\InMemoryConsumerSettings.cs" />
     <Compile Include="IocContainer\Container.cs" />
     <Compile Include="IocContainer\ContainterExtensions.cs" />
     <Compile Include="IocContainer\IContainer.cs" />
@@ -118,16 +118,13 @@
     <Compile Include="Pipeline\CircuitBreaker\DefaultEndpointCircuitBreaker.cs" />
     <Compile Include="Pipeline\CircuitBreaker\NoEndpointPostConsume.cs" />
     <Compile Include="Pipeline\CircuitBreaker\IEndpointCircuitBreaker.cs" />
-    <Compile Include="EventSourcing\AggregateCommit.cs" />
-    <Compile Include="EventSourcing\Config\IEventStoreSettings.cs" />
-    <Compile Include="EventSourcing\IEventStorePersister.cs" />
-    <Compile Include="EventSourcing\IEventStorePlayer.cs" />
+    <Compile Include="EventStore\AggregateCommit.cs" />
+    <Compile Include="EventStore\Config\IEventStoreSettings.cs" />
+    <Compile Include="EventStore\IEventStorePersister.cs" />
+    <Compile Include="EventStore\IEventStorePlayer.cs" />
     <Compile Include="IHideObjectMembers.cs" />
     <Compile Include="InMemory\InMemoryPublisher.cs" />
-    <Compile Include="InMemory\Class1.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Pipeline\Config\ConsumerSettings.cs">
+    <Compile Include="Pipeline\Config\PipelineConsumerSettings.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Pipeline\Config\IConsumerSettings.cs">
@@ -137,9 +134,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Pipeline\Config\IHaveMessageProcessor.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Pipeline\Config\PipelineSettingsExtension.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Pipeline\Config\IHaveSerializer.cs">
@@ -157,22 +151,19 @@
     <Compile Include="Pipeline\Config\PipelinePublisherSettings.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Pipeline\Config\UnitOfWorkSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Pipeline\Hosts\ICronusPlayer.cs" />
     <Compile Include="Pipeline\Hosts\ICronusHost.cs" />
     <Compile Include="Pipeline\Hosts\CronusHost.cs" />
+    <Compile Include="Pipeline\MessageThreshold.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineTransport.cs" />
-    <Compile Include="Pipeline\Transport\ITransport.cs" />
+    <Compile Include="Pipeline\Transport\IPipelineTransport.cs" />
+    <Compile Include="ITransport.cs" />
     <Compile Include="SafeBatch.cs" />
-    <Compile Include="DomainModelling\AggregateRootFactory.cs" />
-    <Compile Include="DomainModelling\AggregateStateFirstLevelConcurrencyException.cs" />
-    <Compile Include="EventSourcing\IEventStoreStorageManager.cs" />
-    <Compile Include="EventSourcing\EventBatchWraper.cs" />
-    <Compile Include="EventSourcing\IEventStream.cs" />
+    <Compile Include="DomainModeling\AggregateStateFirstLevelConcurrencyException.cs" />
+    <Compile Include="EventStore\IEventStoreStorageManager.cs" />
+    <Compile Include="CronusAssemby.cs" />
     <Compile Include="IMessageProcessor.cs" />
-    <Compile Include="MessageHandlerCollection.cs" />
+    <Compile Include="MessageProcessor.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
     <Compile Include="Serializer\Protoreg\ProtoregSerializer.cs" />
     <Compile Include="UnitOfWork\Context.cs" />
@@ -189,9 +180,7 @@
     <Compile Include="Pipeline\PipelineConsumerWork.cs" />
     <Compile Include="Pipeline\Hosts\CronusSettings.cs" />
     <Compile Include="Pipeline\EndpointConsumer.cs" />
-    <Compile Include="EventSourcing\EventStream.cs" />
-    <Compile Include="EventSourcing\ApplicationServiceGateway.cs" />
-    <Compile Include="Pipeline\IEndpointConsumable.cs" />
+    <Compile Include="Pipeline\IEndpointConsumer.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpointFactory.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpoint.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryPipeline.cs" />
@@ -206,7 +195,7 @@
     <Compile Include="Userfull\FastActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Userfull\RetryableOperation.cs" />
-    <Compile Include="EventSourcing\IEventStore.cs" />
+    <Compile Include="EventStore\IEventStore.cs" />
     <Compile Include="Pipeline\IPipelineNameConvention.cs" />
     <Compile Include="Pipeline\IEndpoint.cs" />
     <Compile Include="Pipeline\IEndpointFactory.cs" />
@@ -219,9 +208,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Pipeline\Transport\Config\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Elders.Cronus.DomainModeling\src\Elders.Cronus.DomainModeling\Elders.Cronus.DomainModeling.csproj">
       <Project>{3603583e-c261-4aa6-ae73-b3f4c7440d7c}</Project>

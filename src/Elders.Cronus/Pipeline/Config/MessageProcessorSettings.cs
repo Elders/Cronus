@@ -27,7 +27,7 @@ namespace Elders.Cronus.Pipeline.Config
             {
                 var safeBatchFactory = new SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage>((this as IHaveUnitOfWorkFactory).UnitOfWorkFactory.Value);
 
-                var handler = new MessageHandlerCollection<TContract>(safeBatchFactory);
+                var handler = new MessageProcessor<TContract>(safeBatchFactory);
 
                 foreach (var reg in (this as IMessageProcessorSettings<TContract>).HandlerRegistrations)
                 {
@@ -55,16 +55,6 @@ namespace Elders.Cronus.Pipeline.Config
         public static T UseProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IConsumerSettings<IEvent>
         {
             MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self, t => typeof(IProjection).IsAssignableFrom(t));
-            if (configure != null)
-                configure(settings);
-
-            (settings as ISettingsBuilder).Build();
-            return self;
-        }
-
-        public static T UsePortsAndProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IConsumerSettings<IEvent>
-        {
-            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self, t => typeof(IPort).IsAssignableFrom(t) || typeof(IProjection).IsAssignableFrom(t));
             if (configure != null)
                 configure(settings);
 

@@ -51,14 +51,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregateRoot.cs" />
-    <Compile Include="AggregateRootState.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="InMemoryEventStore\When_using_in_memory_aggregate_version_service.cs" />
-    <Compile Include="InMemoryEventStore\When_using_in_memory_event_store.cs" />
-    <Compile Include="InMemoryEventStore\When_loading_events_for_replay.cs" />
-    <Compile Include="InMemoryEventStore\When_loading_aggregate_root_from_event_store.cs" />
-    <Compile Include="InMemoryEventStore\When_saving_aggregate_root_in_event_store.cs" />
+    <Compile Include="Class1.cs" />
+    <Compile Include="InMemoryEventStoreSuite\When_using_in_memory_aggregate_version_service.cs" />
+    <Compile Include="InMemoryEventStoreSuite\When_using_in_memory_event_store.cs" />
+    <Compile Include="InMemoryEventStoreSuite\When_loading_events_for_replay.cs" />
+    <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_from_event_store.cs" />
+    <Compile Include="InMemoryEventStoreSuite\When_saving_aggregate_root_in_event_store.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
       <Link>Properties\AssemblyVersionInfo.cs</Link>

@@ -24,6 +24,15 @@ namespace Elders.Cronus.Pipeline
 
         public int NumberOfWorkers { get; set; }
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EndpointConsumer{TContract}"/> class.
+        /// </summary>
+        /// <param name="transport">The transport.</param>
+        /// <param name="messageProcessor">The message processor.</param>
+        /// <param name="serializer">The serializer.</param>
+        /// <param name="messageThreshold">The message threshold.</param>
+        /// <param name="circuitBreakerFactory">The circuit breaker factory.</param>
         public EndpointConsumer(IPipelineTransport transport, IMessageProcessor<TContract> messageProcessor, ISerializer serializer, MessageThreshold messageThreshold, IEndpontCircuitBreakerFactrory circuitBreakerFactory)
         {
             NumberOfWorkers = 1;

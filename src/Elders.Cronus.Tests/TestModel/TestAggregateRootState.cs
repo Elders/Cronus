@@ -8,8 +8,6 @@ namespace Elders.Cronus.Tests.TestModel
 
         public override TestAggregateId Id { get; set; }
 
-        public override int Version { get; set; }
-
         public void When(TestCreateEvent e)
         {
             Id = e.Id;

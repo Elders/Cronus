@@ -6,7 +6,7 @@ using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public abstract class PipelinePublisherSettings<TContract> : SettingsBuilder, IPipelinePublisherSettings<TContract> where TContract : IMessage
+    public abstract class PipelinePublisherSettings<TContract> : SettingsBuilder where TContract : IMessage
     {
         public PipelinePublisherSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
 

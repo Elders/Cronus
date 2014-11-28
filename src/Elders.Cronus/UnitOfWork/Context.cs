@@ -1,5 +1,3 @@
-using System;
-
 namespace Elders.Cronus.UnitOfWork
 {
     public class Context

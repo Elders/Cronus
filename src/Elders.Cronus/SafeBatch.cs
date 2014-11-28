@@ -55,6 +55,19 @@ namespace Elders.Cronus
                 this.retryStrategy = retryStrategy;
             }
 
+
+            /// <summary>
+            /// Tries the specified items to try.
+            /// </summary>
+            /// <param name="itemsToTry">The items to try.</param>
+            /// <param name="singleItemAction">The single item action.</param>
+            /// <param name="contextAware">The context aware.</param>
+            /// <returns></returns>
+            /// <exception cref="System.Exception">
+            /// NoRetryStrategy has a bug. Number of retries > number of items.
+            /// or
+            /// Infinite loop in safe batch retry
+            /// </exception>
             public SafeBatchResult<T> Try(List<T> itemsToTry, Action<T, C> singleItemAction, ISafeBatchContextAware<T, C> contextAware)
             {
                 bool noRetryOnFailure = itemsToTry.Count == 1;
@@ -128,6 +141,15 @@ namespace Elders.Cronus
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(DefaultRetryStrategy<T>));
 
+
+        /// <summary>
+        /// Retries the specified try count.
+        /// </summary>
+        /// <param name="tryCount">The try count.</param>
+        /// <param name="batchExecute">The batch execute.</param>
+        /// <param name="batchesToRetry">The batches to retry.</param>
+        /// <param name="successItems">The success items.</param>
+        /// <param name="failedBatches">The failed batches.</param>
         public void Retry(int tryCount, Action<TryBatch<T>> batchExecute, List<TryBatch<T>> batchesToRetry, out List<T> successItems, out List<TryBatch<T>> failedBatches)
         {
             List<TryBatch<T>> safeList = new List<TryBatch<T>>(batchesToRetry);
@@ -162,19 +184,46 @@ namespace Elders.Cronus
 
     public class TryBatch<T>
     {
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TryBatch{T}"/> class.
+        /// </summary>
+        /// <param name="items">The items.</param>
+        /// <param name="error">The error.</param>
         public TryBatch(List<T> items, Exception error = null)
         {
             Items = new List<T>(items);
             Error = error;
         }
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TryBatch{T}"/> class.
+        /// </summary>
+        /// <param name="batch">The batch.</param>
+        /// <param name="error">The error.</param>
         public TryBatch(TryBatch<T> batch, Exception error = null)
         {
             Items = new List<T>(batch.Items);
             Error = error;
         }
 
+
+        /// <summary>
+        /// Gets the items.
+        /// </summary>
+        /// <value>
+        /// The items.
+        /// </value>
         public List<T> Items { get; private set; }
+
+
+        /// <summary>
+        /// Gets the error.
+        /// </summary>
+        /// <value>
+        /// The error.
+        /// </value>
         public Exception Error { get; private set; }
 
         public void MarkAsFailed(Exception error)

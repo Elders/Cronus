@@ -14,6 +14,12 @@ namespace Elders.Cronus.Pipeline
 
         private readonly ISerializer serializer;
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PipelinePublisher{T}"/> class.
+        /// </summary>
+        /// <param name="transport">The transport.</param>
+        /// <param name="serializer">The serializer.</param>
         public PipelinePublisher(IPipelineTransport transport, ISerializer serializer)
         {
             this.transport = transport;

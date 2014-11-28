@@ -13,7 +13,7 @@ namespace Elders.Cronus.Pipeline.Config
 
     }
 
-    public interface IConsumerSettings<TContract> : IConsumerSettings, IPipelinePublisherSettings<TContract>, ICanConfigureCircuitBreaker
+    public interface IConsumerSettings<TContract> : IConsumerSettings, ICanConfigureCircuitBreaker
         where TContract : IMessage
     {
 

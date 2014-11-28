@@ -12,5 +12,11 @@ namespace Elders.Cronus.Tests.TestModel
             var @event = new TestCreateEvent(id);
             Apply(@event);
         }
+
+        public void Update(string text)
+        {
+            var @event = new TestUpdateEvent(state.Id, text);
+            Apply(@event);
+        }
     }
 }
