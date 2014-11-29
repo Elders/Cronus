@@ -1,3 +1,6 @@
+#### 1.1.42-rc05 - 29.11.2014
+* Add BoundedContext to the AggregateCommit
+
 #### 1.1.42-rc04 - 28.11.2014
 * Refactor the Aggregate repository
 
