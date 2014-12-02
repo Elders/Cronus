@@ -1,3 +1,6 @@
+#### 1.1.42-rc06 - 02.12.2014
+* Fixed bug when registering handlers
+
 #### 1.1.42-rc05 - 29.11.2014
 * Add BoundedContext to the AggregateCommit
 

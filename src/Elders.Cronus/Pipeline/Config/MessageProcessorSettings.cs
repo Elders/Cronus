@@ -27,7 +27,7 @@ namespace Elders.Cronus.Pipeline.Config
             {
                 var safeBatchFactory = new SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage>((this as IHaveUnitOfWorkFactory).UnitOfWorkFactory.Value);
 
-                var handler = new MessageProcessor<TContract>(safeBatchFactory);
+                var handler = new InMemoryMessageProcessor<TContract>(safeBatchFactory);
 
                 foreach (var reg in (this as IMessageProcessorSettings<TContract>).HandlerRegistrations)
                 {

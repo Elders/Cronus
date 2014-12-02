@@ -163,7 +163,7 @@
     <Compile Include="EventStore\IEventStoreStorageManager.cs" />
     <Compile Include="CronusAssemby.cs" />
     <Compile Include="IMessageProcessor.cs" />
-    <Compile Include="MessageProcessor.cs" />
+    <Compile Include="InMemoryMessageProcessor.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
     <Compile Include="Serializer\Protoreg\ProtoregSerializer.cs" />
     <Compile Include="UnitOfWork\Context.cs" />

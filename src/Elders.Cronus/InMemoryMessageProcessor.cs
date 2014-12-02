@@ -6,10 +6,10 @@ using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus
 {
-    public class MessageProcessor<TContract> : IMessageProcessor<TContract>
+    public class InMemoryMessageProcessor<TContract> : IMessageProcessor<TContract>
         where TContract : IMessage
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageProcessor<TContract>));
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(InMemoryMessageProcessor<TContract>));
 
         //  Each handler can handle different contracts/messages where the actual handler body is LateBoundVoidMethod
         protected Dictionary<Type, Dictionary<Type, LateBoundVoidMethod>> handlerCallbacks = new Dictionary<Type, Dictionary<Type, LateBoundVoidMethod>>();
@@ -20,7 +20,7 @@ namespace Elders.Cronus
         //  Each contract/message can have several handler types/classes
         protected Dictionary<Type, HashSet<Type>> registeredHandlers = new Dictionary<Type, HashSet<Type>>();
 
-        public MessageProcessor(SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage> safeBatchFactory)
+        public InMemoryMessageProcessor(SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage> safeBatchFactory)
         {
             this.safeBatchFactory = safeBatchFactory;
         }

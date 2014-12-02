@@ -17,7 +17,7 @@ namespace Elders.Cronus.EventStore
         public AggregateCommit(IAggregateRootId aggregateId, int revision, List<IEvent> events)
         {
             AggregateId = aggregateId.RawId;
-            BoundedContext = events.First().GetType().GetBoundedContext().BoundedContextName;
+            BoundedContext = aggregateId.GetType().GetBoundedContext().BoundedContextName;
             Revision = revision;
             UncommittedEvents = events.Cast<object>().ToList();
             Timestamp = DateTime.UtcNow.ToFileTimeUtc();
