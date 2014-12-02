@@ -1,3 +1,6 @@
+#### 1.1.42-rc07 - 02.12.2014
+* Fixed bug when registering handlers Try2
+
 #### 1.1.42-rc06 - 02.12.2014
 * Fixed bug when registering handlers
 
