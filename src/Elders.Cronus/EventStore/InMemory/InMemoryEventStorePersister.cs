@@ -1,19 +1,17 @@
-using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.EventStore.InMemory
 {
 
-    public class InMemoryEventStorePersister : IEventStorePersister
+    public class InMemoryEventStore : IEventStore
     {
         private InMemoryEventStoreStorage eventStoreStorage;
 
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="InMemoryEventStorePersister"/> class.
+        /// Initializes a new instance of the <see cref="InMemoryEventStore"/> class.
         /// </summary>
         /// <param name="eventStoreStorage">The event store storage.</param>
-        public InMemoryEventStorePersister(InMemoryEventStoreStorage eventStoreStorage)
+        public InMemoryEventStore(InMemoryEventStoreStorage eventStoreStorage)
         {
             this.eventStoreStorage = eventStoreStorage;
         }
@@ -23,9 +21,9 @@ namespace Elders.Cronus.EventStore.InMemory
         /// </summary>
         /// <param name="aggregateId">The aggregate identifier.</param>
         /// <returns></returns>
-        public List<AggregateCommit> Load(IAggregateRootId aggregateId)
+        public EventStream Load(IAggregateRootId aggregateId)
         {
-            return eventStoreStorage.Seek(aggregateId);
+            return new EventStream(eventStoreStorage.Seek(aggregateId));
         }
 
 
@@ -33,7 +31,7 @@ namespace Elders.Cronus.EventStore.InMemory
         /// Persists the specified aggregate commit.
         /// </summary>
         /// <param name="aggregateCommit">The aggregate commit.</param>
-        public void Persist(AggregateCommit aggregateCommit)
+        public void Append(AggregateCommit aggregateCommit)
         {
             eventStoreStorage.Flush(aggregateCommit);
         }

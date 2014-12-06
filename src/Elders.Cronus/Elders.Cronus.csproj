@@ -100,8 +100,8 @@
     <Compile Include="DomainModeling\IAggregateVersionService.cs" />
     <Compile Include="DomainModeling\InMemoryAggregateRevisionService.cs" />
     <Compile Include="EventStore\AggregateRepository.cs" />
+    <Compile Include="EventStore\EventStream.cs" />
     <Compile Include="EventStore\InMemory\Config\InMemoryEventStoreSettings.cs" />
-    <Compile Include="EventStore\InMemory\InMemoryEventStore.cs" />
     <Compile Include="EventStore\InMemory\InMemoryEventStorePersister.cs" />
     <Compile Include="EventStore\InMemory\InMemoryEventStorePlayer.cs" />
     <Compile Include="EventStore\InMemory\InMemoryEventStoreStorage.cs" />
@@ -111,6 +111,9 @@
     <Compile Include="IocContainer\ContainterExtensions.cs" />
     <Compile Include="IocContainer\IContainer.cs" />
     <Compile Include="IocContainer\MappingKey.cs" />
+    <Compile Include="MessageStreaming\MessageStream.cs" />
+    <Compile Include="MessageStreaming\ProcessedItemsReulst.cs" />
+    <Compile Include="MessageStreaming\Subscription.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Pipeline\CircuitBreaker\Class1.cs" />
     <Compile Include="Pipeline\CircuitBreaker\IEndpontCircuitBreakerFactrory.cs" />
@@ -120,7 +123,7 @@
     <Compile Include="Pipeline\CircuitBreaker\IEndpointCircuitBreaker.cs" />
     <Compile Include="EventStore\AggregateCommit.cs" />
     <Compile Include="EventStore\Config\IEventStoreSettings.cs" />
-    <Compile Include="EventStore\IEventStorePersister.cs" />
+    <Compile Include="EventStore\IEventStore.cs" />
     <Compile Include="EventStore\IEventStorePlayer.cs" />
     <Compile Include="IHideObjectMembers.cs" />
     <Compile Include="InMemory\InMemoryPublisher.cs" />
@@ -195,7 +198,6 @@
     <Compile Include="Userfull\FastActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Userfull\RetryableOperation.cs" />
-    <Compile Include="EventStore\IEventStore.cs" />
     <Compile Include="Pipeline\IPipelineNameConvention.cs" />
     <Compile Include="Pipeline\IEndpoint.cs" />
     <Compile Include="Pipeline\IEndpointFactory.cs" />

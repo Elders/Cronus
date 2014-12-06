@@ -48,15 +48,25 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregateRoot.cs" />
     <Compile Include="Class1.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_using_in_memory_aggregate_version_service.cs" />
-    <Compile Include="InMemoryEventStoreSuite\When_using_in_memory_event_store.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_events_for_replay.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_from_event_store.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_saving_aggregate_root_in_event_store.cs" />
+    <Compile Include="IocContainer\BatchComponent.cs" />
+    <Compile Include="IocContainer\When_resolve_scoped_component_out_of_scope.cs" />
+    <Compile Include="IocContainer\When_resolve_scoped_component_within_scope.cs" />
+    <Compile Include="IocContainer\When_resolve_scoped_component_within_two_nested_scopes.cs" />
+    <Compile Include="IocContainer\When_resolve_scoped_component_within_two_not_nested_scopes.cs" />
+    <Compile Include="IocContainer\When_resolve_scoped_component_with_specific_type.cs" />
+    <Compile Include="MessageStreaming\Models.cs" />
+    <Compile Include="MessageStreaming\When_subscription_subscribes_to__MessageStream__more_than_once.cs" />
+    <Compile Include="MessageStreaming\When__MessageStream__has_subscription_which_does_not_care_about_current_feed_messages.cs" />
+    <Compile Include="MessageStreaming\When__MessageStream__receives_a_batch_of__TransportMessages__.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
       <Link>Properties\AssemblyVersionInfo.cs</Link>

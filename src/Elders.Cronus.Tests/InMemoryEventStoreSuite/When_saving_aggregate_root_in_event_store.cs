@@ -13,10 +13,10 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
         {
             versionService = new InMemoryAggregateRevisionService();
             eventStoreStorage = new InMemoryEventStoreStorage();
-            eventStorePersister = new InMemoryEventStorePersister(eventStoreStorage);
+            eventStore = new InMemoryEventStore(eventStoreStorage);
             eventStoreManager = new InMemoryEventStoreStorageManager();
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
-            aggregateRepository = new AggregateRepository(eventStorePersister, new NulllEventPublisher(), versionService);
+            aggregateRepository = new AggregateRepository(eventStore, new NulllEventPublisher(), versionService);
             eventStoreManager.CreateStorage();
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
@@ -26,12 +26,12 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 
         It should_instansiate_aggregate_root = () => aggregateRepository.Load<TestAggregateRoot>(id).ShouldNotBeNull();
 
-        It should_instansiate_aggregate_root_with_valid_state = () => ((IAggregateRootStateManager)aggregateRepository.Load<TestAggregateRoot>(id)).State.Id.ShouldEqual(id);
+        It should_instansiate_aggregate_root_with_valid_state = () => aggregateRepository.Load<TestAggregateRoot>(id).State.Id.ShouldEqual(id);
 
         static TestAggregateId id;
         static InMemoryEventStoreStorage eventStoreStorage;
         static IAggregateRevisionService versionService;
-        static IEventStorePersister eventStorePersister;
+        static IEventStore eventStore;
         static IEventStoreStorageManager eventStoreManager;
         static IEventStorePlayer eventStorePlayer;
         static IAggregateRepository aggregateRepository;

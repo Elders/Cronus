@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.EventStore
@@ -7,12 +6,12 @@ namespace Elders.Cronus.EventStore
     public sealed class AggregateRepository : IAggregateRepository
     {
         private readonly IAggregateRevisionService revisionService;
-        private readonly IEventStorePersister persister;
+        private readonly IEventStore eventStore;
         private readonly IPublisher<IEvent> eventPublisher;
 
-        public AggregateRepository(IEventStorePersister persister, IPublisher<IEvent> eventPublisher, IAggregateRevisionService revisionService)
+        public AggregateRepository(IEventStore eventStore, IPublisher<IEvent> eventPublisher, IAggregateRevisionService revisionService)
         {
-            this.persister = persister;
+            this.eventStore = eventStore;
             this.eventPublisher = eventPublisher;
             this.revisionService = revisionService;
         }
@@ -36,8 +35,8 @@ namespace Elders.Cronus.EventStore
             }
 
             AggregateCommit arCommit = new AggregateCommit(aggregateRoot.State.Id, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList());
-            persister.Persist(arCommit);
-            PublishNewEvents(aggregateRoot);
+            eventStore.Append(arCommit);
+            PublishNewEvents(arCommit);
         }
 
         /// <summary>
@@ -48,28 +47,15 @@ namespace Elders.Cronus.EventStore
         /// <returns></returns>
         public AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
-            List<AggregateCommit> commits = persister.Load(id);
-            AR aggregateRoot = Build<AR>(commits);
+            EventStream eventStream = eventStore.Load(id);
+            AR aggregateRoot = eventStream.RestoreFromHistory<AR>();
             return aggregateRoot;
         }
 
-        private TAggregateRoot Build<TAggregateRoot>(List<AggregateCommit> commits) where TAggregateRoot : IAggregateRoot
+        public void PublishNewEvents(AggregateCommit aggregateCommit)
         {
-            var ar = (TAggregateRoot)FastActivator.CreateInstance(typeof(TAggregateRoot), true);
-            var events = commits.SelectMany(x => x.Events).ToList();
-            ar.BuildStateFromHistory(events, commits.Last().Revision);
-            return ar;
-        }
-
-
-        /// <summary>
-        /// Publishes the new events.
-        /// </summary>
-        /// <typeparam name="AR">The type of the r.</typeparam>
-        /// <param name="aggregateRoot">The aggregate root.</param>
-        public void PublishNewEvents<AR>(AR aggregateRoot) where AR : IAggregateRoot
-        {
-            aggregateRoot.UncommittedEvents.ToList().ForEach(e => eventPublisher.Publish(e));
+            aggregateCommit.Events.ForEach(e => eventPublisher.Publish(e));
         }
     }
+
 }

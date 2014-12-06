@@ -17,6 +17,8 @@ namespace Elders.Cronus.IocContainer
         /// <param name="instanceName">Instance name (optional)</param>
         void RegisterTransient(Type type, Func<object> createInstanceDelegate, string instanceName = null);
 
+        void RegisterScoped(Type type, Func<object> createInstanceDelegate, string scopeType = null);
+
         /// <summary>
         /// Register a type with singleton life style
         /// </summary>
@@ -46,5 +48,7 @@ namespace Elders.Cronus.IocContainer
         List<T> ResolveAll<T>();
 
         void Destroy();
+
+        IDisposable BeginScope(string scopeType);
     }
 }

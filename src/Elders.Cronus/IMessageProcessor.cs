@@ -9,46 +9,4 @@ namespace Elders.Cronus
         ISafeBatchResult<TransportMessage> Handle(List<TransportMessage> messages);
         IEnumerable<Type> GetRegisteredHandlers();
     }
-
-
-
-    //public interface IProjectionStore
-    //{
-    //    void Persist(ProjectionCommit commit);
-    //}
-
-    //public class ProjectionEventStreamProcessor : IMessageProcessor<IEvent>
-    //{
-    //    IProjectionStore projectionStore;
-
-    //    public ProjectionEventStreamProcessor(IProjectionStore projectionStore)
-    //    {
-
-    //    }
-
-    //    public IEnumerable<Type> GetRegisteredHandlers()
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-
-    //    public ISafeBatchResult<TransportMessage> Handle(List<TransportMessage> messages)
-    //    {
-    //        object proj = null;
-    //        ProjectionCommit projCommit = null;
-    //        projectionStore.Persist(projCommit);
-    //    }
-    //}
-
-    //public class ProjectionId
-    //{
-
-    //}
-
-    //public class ProjectionCommit
-    //{
-    //    public ProjectionCommit(ProjectionId id, List<IEvent> events)
-    //    {
-
-    //    }
-    //}
 }

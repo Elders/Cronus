@@ -44,7 +44,7 @@ namespace Elders.Cronus.EventStore.InMemory
         /// <param name="aggregateCommit">The aggregate commit.</param>
         internal protected void Flush(AggregateCommit aggregateCommit)
         {
-            var idHash = Convert.ToBase64String(aggregateCommit.AggregateId);
+            var idHash = Convert.ToBase64String(aggregateCommit.AggregateRootId);
             if (!eventsStreams.ContainsKey(idHash))
             {
                 eventsStreams.TryAdd(idHash, new ConcurrentQueue<AggregateCommit>());

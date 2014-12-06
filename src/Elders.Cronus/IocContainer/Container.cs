@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Elders.Cronus.IocContainer
 {
@@ -14,6 +16,8 @@ namespace Elders.Cronus.IocContainer
         /// </summary>
         private readonly Dictionary<MappingKey, Func<object>> transientMappings;
         private readonly Dictionary<MappingKey, Lazy<object>> singletonMappings;
+        private readonly Dictionary<MappingKey, Func<object>> scopedMappings;
+        private readonly Dictionary<Type, MappingKey> typeToScopedMapping;
         private readonly Dictionary<Type, List<MappingKey>> mappings;
 
         /// <summary>
@@ -23,6 +27,8 @@ namespace Elders.Cronus.IocContainer
         {
             this.transientMappings = new Dictionary<MappingKey, Func<object>>();
             this.singletonMappings = new Dictionary<MappingKey, Lazy<object>>();
+            this.scopedMappings = new Dictionary<MappingKey, Func<object>>();
+            this.typeToScopedMapping = new Dictionary<Type, MappingKey>();
             this.mappings = new Dictionary<Type, List<MappingKey>>();
         }
 
@@ -39,12 +45,7 @@ namespace Elders.Cronus.IocContainer
             if (createInstanceDelegate == null) throw new ArgumentNullException("createInstanceDelegate");
 
             var key = new MappingKey(type, instanceName);
-
-            if (transientMappings.ContainsKey(key) || transientMappings.ContainsKey(key))
-            {
-                const string errorMessageFormat = "The requested mapping already exists - {0}";
-                throw new InvalidOperationException(string.Format(errorMessageFormat, key.ToTraceString()));
-            }
+            Guard_AlreadyRegistered(key);
 
             transientMappings.Add(key, createInstanceDelegate);
             AddMapping(type, key);
@@ -52,7 +53,7 @@ namespace Elders.Cronus.IocContainer
 
         private void AddMapping(Type type, MappingKey key)
         {
-            List<MappingKey> mapsForCurrentType; ;
+            List<MappingKey> mapsForCurrentType;
             if (mappings.TryGetValue(type, out mapsForCurrentType))
                 mapsForCurrentType.Add(key);
             else
@@ -72,15 +73,31 @@ namespace Elders.Cronus.IocContainer
             if (createInstanceDelegate == null) throw new ArgumentNullException("createInstanceDelegate");
 
             var key = new MappingKey(type, instanceName);
+            Guard_AlreadyRegistered(key);
 
-            if (transientMappings.ContainsKey(key) || transientMappings.ContainsKey(key))
+            singletonMappings.Add(key, new Lazy<object>(createInstanceDelegate, true));
+            AddMapping(type, key);
+        }
+
+        public void RegisterScoped(Type type, Func<object> createInstanceDelegate, string scopeType = null)
+        {
+            if (type == null) throw new ArgumentNullException("type");
+            if (createInstanceDelegate == null) throw new ArgumentNullException("createInstanceDelegate");
+
+            var key = new MappingKey(type, scopeType);
+            Guard_AlreadyRegistered(key);
+
+            scopedMappings.Add(key, createInstanceDelegate);
+            typeToScopedMapping.Add(type, key);
+        }
+
+        private void Guard_AlreadyRegistered(MappingKey key)
+        {
+            if (singletonMappings.ContainsKey(key) || transientMappings.ContainsKey(key) || scopedMappings.ContainsKey(key))
             {
                 const string errorMessageFormat = "The requested mapping already exists - {0}";
                 throw new InvalidOperationException(string.Format(errorMessageFormat, key.ToTraceString()));
             }
-
-            singletonMappings.Add(key, new Lazy<object>(createInstanceDelegate, true));
-            AddMapping(type, key);
         }
 
         /// <summary>
@@ -134,6 +151,14 @@ namespace Elders.Cronus.IocContainer
             {
                 return createTransientInstance();
             }
+            else if (String.IsNullOrEmpty(key.InstanceName) && Scope.IsInScope)
+            {
+                MappingKey scopedKey;
+                if (typeToScopedMapping.TryGetValue(key.Type, out scopedKey))
+                    return Scope.GetCurrentScope().GetInstance(scopedKey);
+                else
+                    return null;
+            }
             else
                 return null;
         }
@@ -172,7 +197,136 @@ namespace Elders.Cronus.IocContainer
 
             singletonMappings.Clear();
             transientMappings.Clear();
+            scopedMappings.Clear();
             mappings.Clear();
+        }
+
+        public IDisposable BeginScope(string scopeType)
+        {
+            return new Scope(scopedMappings, scopeType);
+        }
+    }
+
+    internal class Scope : IDisposable
+    {
+        private readonly Dictionary<MappingKey, Lazy<object>> scopedMappings;
+
+        public Scope(Dictionary<MappingKey, Func<object>> mappings, string scopeType)
+        {
+            ScopeId = Guid.NewGuid();
+            ScopeType = scopeType;
+
+            this.scopedMappings = IsInScope
+                ? new Dictionary<MappingKey, Lazy<object>>(GetCurrentScope().scopedMappings)
+                : mappings.ToDictionary(key => key.Key, value => new Lazy<object>(value.Value, true));
+            Scope.ScopeHolder.SetCurrentScope(this);
+        }
+
+        public string ScopeType { get; private set; }
+        public Guid ScopeId { get; private set; }
+        public Guid ParentScopeId { get; private set; }
+
+        public bool IsRoot
+        {
+            get { return ScopeId == ParentScopeId; }
+        }
+
+        internal object GetInstance(MappingKey key)
+        {
+            Lazy<object> createScopedInstance;
+            if (scopedMappings.TryGetValue(key, out createScopedInstance))
+            {
+                return createScopedInstance.Value;
+            }
+            else
+            {
+                //  If we do cannot create an instance there is a possibility the requested key to be registered in a parent scope.
+                //  If that is the case the instance is created within the correct scope without switching the current scope.
+                Scope scopeContainingMappingKey;
+                if (ScopeHolder.TryFindWithinParents(key, ScopeHolder.CurrentScope, out scopeContainingMappingKey))
+                {
+                    return scopeContainingMappingKey.GetInstance(key);
+                }
+            }
+            return null;
+        }
+
+        public void Dispose()
+        {
+            scopedMappings.Clear();
+            ScopeHolder.EndScope();
+        }
+
+        public static bool IsInScope { get { return !ReferenceEquals(null, ScopeHolder.CurrentScope); } }
+
+        public static Scope GetCurrentScope()
+        {
+            return ScopeHolder.CurrentScope;
+        }
+
+        class ScopeHolder
+        {
+            private static ConcurrentDictionary<Guid, Scope> scopes = new ConcurrentDictionary<Guid, Scope>();
+
+            [ThreadStatic]
+            public static Scope CurrentScope;
+
+            public static void SetCurrentScope(Scope scope)
+            {
+                if (!IsInScope)
+                    CurrentScope = scope;
+
+                if (scopes.TryAdd(scope.ScopeId, scope))
+                {
+                    scope.ParentScopeId = CurrentScope.ScopeId;
+                    CurrentScope = scope;
+                }
+                else
+                {
+                    throw new InvalidProgramException("TheScopeHolder.SetCurrentScope(scope)");
+                }
+            }
+
+            public static bool TryFindWithinParents(MappingKey key, Scope startingScope, out Scope scopeContainingMappingKey)
+            {
+                scopeContainingMappingKey = null;
+                Scope scopeToTest = startingScope;
+                while (!scopeToTest.IsRoot)
+                {
+                    if (scopes.TryGetValue(scopeToTest.ParentScopeId, out scopeToTest))
+                    {
+                        if (scopeToTest.scopedMappings.ContainsKey(key))
+                        {
+                            scopeContainingMappingKey = scopeToTest;
+                            return true;
+                        }
+                    }
+                    else
+                        break;
+                }
+                return false;
+            }
+
+            public static void EndScope()
+            {
+                Scope scope;
+                if (scopes.TryRemove(CurrentScope.ScopeId, out scope))
+                {
+                    Scope parent;
+                    if (scopes.TryGetValue(scope.ParentScopeId, out parent))
+                        CurrentScope = parent;
+                    else if (scope.IsRoot)
+                        CurrentScope = null;
+                    else
+                    {
+                        throw new InvalidProgramException("TheScopeHolder.EndScope()");
+                    }
+                }
+                else
+                {
+                    throw new InvalidProgramException("TheScopeHolder.EndScope()");
+                }
+            }
         }
     }
 }

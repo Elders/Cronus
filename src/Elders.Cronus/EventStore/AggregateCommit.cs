@@ -11,20 +11,20 @@ namespace Elders.Cronus.EventStore
     {
         AggregateCommit()
         {
-            UncommittedEvents = new List<object>();
+            InternalEvents = new List<object>();
         }
 
         public AggregateCommit(IAggregateRootId aggregateId, int revision, List<IEvent> events)
         {
-            AggregateId = aggregateId.RawId;
+            AggregateRootId = aggregateId.RawId;
             BoundedContext = aggregateId.GetType().GetBoundedContext().BoundedContextName;
             Revision = revision;
-            UncommittedEvents = events.Cast<object>().ToList();
+            InternalEvents = events.Cast<object>().ToList();
             Timestamp = DateTime.UtcNow.ToFileTimeUtc();
         }
 
         [DataMember(Order = 1)]
-        public byte[] AggregateId { get; private set; }
+        public byte[] AggregateRootId { get; private set; }
 
         [DataMember(Order = 2)]
         public string BoundedContext { get; private set; }
@@ -33,11 +33,11 @@ namespace Elders.Cronus.EventStore
         public int Revision { get; private set; }
 
         [DataMember(Order = 4)]
-        private List<object> UncommittedEvents { get; set; }
+        private List<object> InternalEvents { get; set; }
 
         [DataMember(Order = 5)]
         public long Timestamp { get; private set; }
 
-        public List<IEvent> Events { get { return UncommittedEvents.Cast<IEvent>().ToList(); } }
+        public List<IEvent> Events { get { return InternalEvents.Cast<IEvent>().ToList(); } }
     }
 }

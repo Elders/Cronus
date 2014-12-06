@@ -18,5 +18,7 @@ namespace Elders.Cronus.Tests.TestModel
             var @event = new TestUpdateEvent(state.Id, text);
             Apply(@event);
         }
+
+        public TestAggregateRootState State { get { return base.state; } }
     }
 }

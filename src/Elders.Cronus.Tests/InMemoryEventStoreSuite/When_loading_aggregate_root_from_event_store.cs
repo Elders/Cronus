@@ -14,10 +14,10 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 
             versionService = new InMemoryAggregateRevisionService();
             eventStoreStorage = new InMemoryEventStoreStorage();
-            eventStorePersister = new InMemoryEventStorePersister(eventStoreStorage);
+            eventStore = new InMemoryEventStore(eventStoreStorage);
             eventStoreManager = new InMemoryEventStoreStorageManager();
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
-            aggregateRepository = new AggregateRepository(eventStorePersister, new NulllEventPublisher(), versionService);
+            aggregateRepository = new AggregateRepository(eventStore, new NulllEventPublisher(), versionService);
             eventStoreManager.CreateStorage();
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
@@ -31,16 +31,16 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 
         It should_instansiate_aggregate_root = () => loadedAggregateRoot.ShouldNotBeNull();
 
-        It should_instansiate_aggregate_root_with_valid_state = () => ((IAggregateRootStateManager)loadedAggregateRoot).State.Id.ShouldEqual(id);
+        It should_instansiate_aggregate_root_with_valid_state = () => loadedAggregateRoot.State.Id.ShouldEqual(id);
 
-        It should_instansiate_aggregate_root_with_latest_state = () => ((TestAggregateRootState)((IAggregateRootStateManager)loadedAggregateRoot).State).UpdatableField.ShouldEqual("When_build_aggregate_root_from_events");
+        It should_instansiate_aggregate_root_with_latest_state = () => loadedAggregateRoot.State.UpdatableField.ShouldEqual("When_build_aggregate_root_from_events");
 
         It should_instansiate_aggregate_root_with_latest_state_version = () => (loadedAggregateRoot as IAggregateRoot).Revision.ShouldEqual(2);
 
         static TestAggregateId id;
         static InMemoryEventStoreStorage eventStoreStorage;
         static IAggregateRevisionService versionService;
-        static IEventStorePersister eventStorePersister;
+        static IEventStore eventStore;
         static IEventStoreStorageManager eventStoreManager;
         static IEventStorePlayer eventStorePlayer;
         static IAggregateRepository aggregateRepository;
