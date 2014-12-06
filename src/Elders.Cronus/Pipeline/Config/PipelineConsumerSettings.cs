@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Reflection;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
-using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Pipeline.Config
 {

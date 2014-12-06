@@ -1,7 +1,5 @@
 using System;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Pipeline.Config;
-using Elders.Cronus.UnitOfWork;
 using Elders.Cronus.IocContainer;
 
 namespace Elders.Cronus.Pipeline.Hosts
@@ -59,26 +57,4 @@ public static class CronusConfigurationExtensions
         (settings as ISettingsBuilder).Build();
         return self;
     }
-}
-
-public class ApplicationServiceBatchUnitOfWork : IBatchUnitOfWork
-{
-    IAggregateRepository repository;
-    IPublisher<IEvent> publisher;
-
-    public ApplicationServiceBatchUnitOfWork(IAggregateRepository repository, IPublisher<IEvent> publisher)
-    {
-        this.repository = repository;
-        this.publisher = publisher;
-    }
-
-    public void Begin()
-    {
-        Lazy<IAggregateRepository> lazyRepository = new Lazy<IAggregateRepository>(() => (repository));
-        Context.Set<Lazy<IAggregateRepository>>(lazyRepository);
-    }
-
-    public void End() { }
-
-    public IUnitOfWorkContext Context { get; set; }
 }

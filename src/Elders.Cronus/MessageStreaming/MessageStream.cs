@@ -6,7 +6,7 @@ using Elders.Cronus.IocContainer;
 
 namespace Elders.Cronus
 {
-    public class MessageStream : IObservable<Subscription>, IDisposable
+    public class MessageStream : IObservable<Subscription>, IDisposable, IMessageProcessor<IMessage>
     {
         private readonly IContainer container;
         private readonly List<Subscription> subscriptions;
@@ -24,8 +24,9 @@ namespace Elders.Cronus
             return new Unsubscriber(subscriptions, subscription);
         }
 
-        public void Feed(List<TransportMessage> messages)
+        public ISafeBatchResult<TransportMessage> Feed(List<TransportMessage> messages)
         {
+            var feedResult = new FeedReslt();
             using (container.BeginScope(ScopeType.PerBatch))
             {
                 foreach (var transportMessage in messages)
@@ -44,16 +45,19 @@ namespace Elders.Cronus
                                 try
                                 {
                                     x.OnNext(transportMessage);
+                                    feedResult.SuccessItems.ToList().Add(transportMessage);
                                 }
                                 catch (Exception ex)
                                 {
                                     x.OnError(ex);
+                                    feedResult.FailedBatches.ToList().Add(new TryBatch<TransportMessage>(new List<TransportMessage>() { transportMessage }, ex));
                                 }
                             }
                         });
                     }
                 }
             }
+            return feedResult;
         }
 
         public void Dispose()
@@ -67,6 +71,32 @@ namespace Elders.Cronus
 
         //  Tova e taka narochno.
         IDisposable IObservable<Subscription>.Subscribe(IObserver<Subscription> subscription) { throw new NotImplementedException(); }
+
+        public ISafeBatchResult<TransportMessage> Handle(List<TransportMessage> messages)
+        {
+            return Feed(messages);
+        }
+
+        public IEnumerable<Type> GetRegisteredHandlers()
+        {
+            var handlerTypes = (from subscription in subscriptions
+                                select subscription.MessageHandlerType)
+                               .Distinct();
+            return handlerTypes;
+        }
+
+        private class FeedReslt : ISafeBatchResult<TransportMessage>
+        {
+            public FeedReslt()
+            {
+                SuccessItems = new List<TransportMessage>();
+                FailedBatches = new List<TryBatch<TransportMessage>>();
+            }
+
+            public IEnumerable<TryBatch<TransportMessage>> FailedBatches { get; set; }
+
+            public IEnumerable<TransportMessage> SuccessItems { get; set; }
+        }
 
         private class Unsubscriber : IDisposable
         {

@@ -1,3 +1,6 @@
+#### 1.1.42-rc08 - 06.12.2014
+* Completely rework IEventStore and IMessageProcessor (MessageStream)
+
 #### 1.1.42-rc07 - 02.12.2014
 * Fixed bug when registering handlers Try2
 

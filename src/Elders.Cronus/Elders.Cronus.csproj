@@ -112,7 +112,7 @@
     <Compile Include="IocContainer\IContainer.cs" />
     <Compile Include="IocContainer\MappingKey.cs" />
     <Compile Include="MessageStreaming\MessageStream.cs" />
-    <Compile Include="MessageStreaming\ProcessedItemsReulst.cs" />
+    <Compile Include="MessageStreaming\FeedResult.cs" />
     <Compile Include="MessageStreaming\Subscription.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Pipeline\CircuitBreaker\Class1.cs" />
@@ -166,17 +166,8 @@
     <Compile Include="EventStore\IEventStoreStorageManager.cs" />
     <Compile Include="CronusAssemby.cs" />
     <Compile Include="IMessageProcessor.cs" />
-    <Compile Include="InMemoryMessageProcessor.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
     <Compile Include="Serializer\Protoreg\ProtoregSerializer.cs" />
-    <Compile Include="UnitOfWork\Context.cs" />
-    <Compile Include="UnitOfWork\IBatchUnitOfWork.cs" />
-    <Compile Include="UnitOfWork\IHandlerUnitOfWork.cs" />
-    <Compile Include="UnitOfWork\IMessageUnitOfWork.cs" />
-    <Compile Include="UnitOfWork\IUnitOfWork.cs" />
-    <Compile Include="UnitOfWork\IUnitOfWorkContext.cs" />
-    <Compile Include="UnitOfWork\UnitOfWorkContext.cs" />
-    <Compile Include="UnitOfWork\UnitOfWorkFactory.cs" />
     <Compile Include="Pipeline\EndpointClosedException.cs" />
     <Compile Include="Pipeline\ErrorMessage.cs" />
     <Compile Include="Pipeline\CircuitBreaker\IEndpointConsumerErrorStrategy.cs" />
@@ -192,7 +183,6 @@
     <Compile Include="Pipeline\Transport\InMemory\Config\InMemory.cs" />
     <Compile Include="Pipeline\EndpointMessageExtensions.cs" />
     <Compile Include="Publisher.cs" />
-    <Compile Include="SafeBatchWithBatchScopeContextFactory.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
     <Compile Include="Pipeline\PipelinePublisher.cs" />
     <Compile Include="Userfull\FastActivator.cs" />

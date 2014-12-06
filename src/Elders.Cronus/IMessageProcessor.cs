@@ -8,5 +8,6 @@ namespace Elders.Cronus
     {
         ISafeBatchResult<TransportMessage> Handle(List<TransportMessage> messages);
         IEnumerable<Type> GetRegisteredHandlers();
+        IDisposable Subscribe(Subscription subscription);
     }
 }
