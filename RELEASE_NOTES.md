@@ -1,3 +1,6 @@
+#### 1.1.42-rc12 - 15.12.2014
+* Bug: Properly increment message's age on error
+
 #### 1.1.42-rc11 - 15.12.2014
 * Make the TransportMessage error origin to depend on ID of type string
 
