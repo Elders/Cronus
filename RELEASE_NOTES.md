@@ -1,3 +1,6 @@
+#### 1.1.42-rc10 - 15.12.2014
+* IMessageProcessor is not generic interface anymore
+
 #### 1.1.42-rc09 - 15.12.2014
 * Tests for MessageProcessor
 
