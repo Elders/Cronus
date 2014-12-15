@@ -28,7 +28,7 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
                 headers.Add("x-message-ttl", 500);
 
                 EndpointDefinition retryEndpoint = new EndpointDefinition(retryPipelineName, endpointWhereErrorOccured + ".Retry", headers, endpointWhereErrorOccured);
-                transport.EndpointFactory.CreateEndpoint(retryEndpoint);
+                transport.EndpointFactory.CreateTopicEndpoint(retryEndpoint);
             }
 
             public bool Handle(TransportMessage message)

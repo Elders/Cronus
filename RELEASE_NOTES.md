@@ -1,3 +1,6 @@
+#### 1.1.42-rc13 - 15.12.2014
+* Fix endpoint type for retries
+
 #### 1.1.42-rc12 - 15.12.2014
 * Bug: Properly increment message's age on error
 
