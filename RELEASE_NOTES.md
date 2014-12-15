@@ -1,3 +1,6 @@
+#### 1.1.42-rc09 - 15.12.2014
+* Tests for MessageProcessor
+
 #### 1.1.42-rc08 - 06.12.2014
 * Completely rework IEventStore and IMessageProcessor (MessageStream)
 
