@@ -31,9 +31,9 @@ namespace Elders.Cronus.Pipeline.Config
             var builder = this as ISettingsBuilder;
             Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
             Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
-            Func<IMessageProcessor<TContract>> messageHandlerProcessor = () => builder.Container.Resolve<IMessageProcessor<TContract>>(builder.Name);
+            Func<IMessageProcessor> messageHandlerProcessor = () => builder.Container.Resolve<IMessageProcessor>(builder.Name);
             Func<IEndpontCircuitBreakerFactrory> endpointCircuitBreaker = () => builder.Container.Resolve<IEndpontCircuitBreakerFactrory>(builder.Name);
-            Func<IEndpointConsumer> consumer = () => new EndpointConsumer<TContract>(transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold, endpointCircuitBreaker());
+            Func<IEndpointConsumer> consumer = () => new EndpointConsumer(transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold, endpointCircuitBreaker());
             builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer(), builder.Name);
         }
     }

@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.MessageProcessing
 {
-    public class MessageProcessor : IObservable<MessageProcessorSubscription>, IDisposable, IMessageProcessor<IMessage>
+    public class MessageProcessor : IObservable<MessageProcessorSubscription>, IDisposable, IMessageProcessor
     {
         private readonly IContainer container;
         private readonly List<MessageProcessorSubscription> subscriptions;

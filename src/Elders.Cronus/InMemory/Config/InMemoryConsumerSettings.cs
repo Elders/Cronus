@@ -26,7 +26,7 @@ namespace Elders.Cronus.InMemory.Config
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            Func<IMessageProcessor<TContract>> messageHandlerProcessor = () => builder.Container.Resolve<IMessageProcessor<TContract>>(builder.Name);
+            Func<IMessageProcessor> messageHandlerProcessor = () => builder.Container.Resolve<IMessageProcessor>(builder.Name);
             Func<IPublisher<TContract>> consumer = () => new InMemoryPublisher<TContract>(messageHandlerProcessor());
             builder.Container.RegisterSingleton<IPublisher<TContract>>(() => consumer(), builder.Name);
         }

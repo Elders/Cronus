@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Serializer;
 using Elders.Multithreading.Scheduler;
@@ -8,11 +7,11 @@ using Elders.Multithreading.Scheduler;
 namespace Elders.Cronus.Pipeline
 {
 
-    public class PipelineConsumerWork<TContract> : IWork where TContract : IMessage
+    public class PipelineConsumerWork : IWork
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(PipelineConsumerWork<TContract>));
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(PipelineConsumerWork));
 
-        private IMessageProcessor<TContract> processor;
+        private IMessageProcessor processor;
 
         private readonly IEndpoint endpoint;
 
@@ -24,7 +23,7 @@ namespace Elders.Cronus.Pipeline
 
         private readonly IEndpointCircuitBreaker circuitBreaker;
 
-        public PipelineConsumerWork(IMessageProcessor<TContract> processor, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold, IEndpointCircuitBreaker circuitBreaker)
+        public PipelineConsumerWork(IMessageProcessor processor, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold, IEndpointCircuitBreaker circuitBreaker)
         {
             this.endpoint = endpoint;
             this.processor = processor;

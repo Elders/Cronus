@@ -5,7 +5,7 @@ using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus
 {
-    public interface IMessageProcessor<TMessage> where TMessage : IMessage
+    public interface IMessageProcessor
     {
         IFeedResult Feed(List<TransportMessage> messages);
         IEnumerable<Type> GetRegisteredHandlers();

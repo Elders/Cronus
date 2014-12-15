@@ -8,9 +8,9 @@ namespace Elders.Cronus.InMemory
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(InMemoryCommandPublisher));
 
-        IMessageProcessor<ICommand> messageProcessor;
+        IMessageProcessor messageProcessor;
 
-        public InMemoryCommandPublisher(IMessageProcessor<ICommand> messageProcessor)
+        public InMemoryCommandPublisher(IMessageProcessor messageProcessor)
         {
             this.messageProcessor = messageProcessor;
         }
@@ -27,9 +27,9 @@ namespace Elders.Cronus.InMemory
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(InMemoryEventPublisher));
 
-        IMessageProcessor<IEvent> messageProcessor;
+        IMessageProcessor messageProcessor;
 
-        public InMemoryEventPublisher(IMessageProcessor<IEvent> messageProcessor)
+        public InMemoryEventPublisher(IMessageProcessor messageProcessor)
         {
             this.messageProcessor = messageProcessor;
         }
@@ -46,9 +46,9 @@ namespace Elders.Cronus.InMemory
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(InMemoryEventPublisher));
 
-        IMessageProcessor<TContract> messageProcessor;
+        IMessageProcessor messageProcessor;
 
-        public InMemoryPublisher(IMessageProcessor<TContract> messageProcessor)
+        public InMemoryPublisher(IMessageProcessor messageProcessor)
         {
             this.messageProcessor = messageProcessor;
         }
