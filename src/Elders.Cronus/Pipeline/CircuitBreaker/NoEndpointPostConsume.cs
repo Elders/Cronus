@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Elders.Cronus.DomainModeling;
-using Elders.Cronus.Pipeline;
+﻿using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline.CircuitBreaker
 {
@@ -30,7 +24,7 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
 
         public ICircuitBreakerSuccessStrategy SuccessStrategy { get; set; }
 
-        public void PostConsume(ISafeBatchResult<TransportMessage> mesages)
+        public void PostConsume(IFeedResult mesages)
         {
 
         }

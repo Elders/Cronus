@@ -1,53 +1,70 @@
-﻿using Elders.Cronus.DomainModeling;
+﻿using System;
+using Elders.Cronus.DomainModeling;
+using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Tests.MessageStreaming
 {
-    public class HandleResult
+    public class CalculatorState
     {
-        public static int Total = 0;
+        public int Total = 0;
     }
 
-    public class TestAddHandler1
+    public class CalculatorHandlerFactory
     {
-        public void Handle(TestIntMessage1 message)
+        public CalculatorState State { get; private set; }
+        public CalculatorHandlerFactory() { State = new CalculatorState(); }
+        public object CreateInstance(Type t)
         {
-            HandleResult.Total += message.Value;
+            object instance = FastActivator.CreateInstance(t);
+            ((dynamic)instance).State = (dynamic)State;
+            return instance;
         }
     }
 
-    public class TestAddHandler2
+    public class StandardCalculatorAddHandler
     {
-        public void Handle(TestIntMessage1 message)
-        {
-            HandleResult.Total += message.Value;
-        }
+        public CalculatorState State { get; set; }
+        public void Handle(CalculatorNumber1 message) { State.Total += message.Value; }
+        public void Handle(CalculatorNumber2 message) { State.Total += message.Value; }
     }
 
-    public class TestSubstractHandler1
+    public class ScientificCalculatorHandler
     {
-        public void Handle(TestIntMessage2 message)
-        {
-            HandleResult.Total -= message.Value;
-        }
+        public CalculatorState State { get; set; }
+        public void Handle(CalculatorNumber1 message) { State.Total += message.Value; }
     }
 
-    public class TestIntMessage1 : IMessage
+    public class StandardCalculatorSubstractHandler
     {
-        public TestIntMessage1(int value)
-        {
-            Value = value;
-        }
+        public CalculatorState State { get; set; }
+        public void Handle(CalculatorNumber2 message) { State.Total -= message.Value; }
+    }
 
+    public class CalculatorHandler_ThrowsException
+    {
+        public CalculatorState State { get; set; }
+        public void Handle(CalculatorNumber1 message) { throw new Exception(); }
+        public void Handle(CalculatorNumber2 message) { throw new Exception(); }
+    }
+
+    public class CalculatorNumber1 : IMessage
+    {
+        public CalculatorNumber1(int value) { Value = value; }
         public int Value { get; set; }
     }
 
-    public class TestIntMessage2 : IMessage
+    public class CalculatorNumber2 : IMessage
     {
-        public TestIntMessage2(int value)
-        {
-            Value = value;
-        }
-
+        public CalculatorNumber2(int value) { Value = value; }
         public int Value { get; set; }
+    }
+
+    public class TestPerBatchUnitOfWork_ThrowsExceptoin : IUnitOfWork
+    {
+        public IUnitOfWorkContext Context { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+        public Guid Id { get { return Guid.NewGuid(); } }
+
+        public IDisposable Begin() { return this; }
+        public void Dispose() { throw new NotImplementedException(); }
     }
 }

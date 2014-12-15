@@ -16,8 +16,8 @@ namespace Elders.Cronus.InMemory
         }
         protected override bool PublishInternal(ICommand message)
         {
-            var result = messageProcessor.Handle(new List<TransportMessage>() { new TransportMessage(message) });
-            if (result.FailedBatches != null && result.FailedBatches.Count() > 0)
+            var result = messageProcessor.Feed(new List<TransportMessage>() { new TransportMessage(message) });
+            if (result.FailedMessages != null && result.FailedMessages.Count() > 0)
                 return false;
             return true;
         }
@@ -35,8 +35,8 @@ namespace Elders.Cronus.InMemory
         }
         protected override bool PublishInternal(IEvent message)
         {
-            var result = messageProcessor.Handle(new List<TransportMessage>() { new TransportMessage(message) });
-            if (result.FailedBatches != null && result.FailedBatches.Count() > 0)
+            var result = messageProcessor.Feed(new List<TransportMessage>() { new TransportMessage(message) });
+            if (result.FailedMessages != null && result.FailedMessages.Count() > 0)
                 return false;
             return true;
         }
@@ -54,8 +54,8 @@ namespace Elders.Cronus.InMemory
         }
         protected override bool PublishInternal(TContract message)
         {
-            var result = messageProcessor.Handle(new List<TransportMessage>() { new TransportMessage(message) });
-            if (result.FailedBatches != null && result.FailedBatches.Count() > 0)
+            var result = messageProcessor.Feed(new List<TransportMessage>() { new TransportMessage(message) });
+            if (result.FailedMessages != null && result.FailedMessages.Count() > 0)
                 return false;
             return true;
         }

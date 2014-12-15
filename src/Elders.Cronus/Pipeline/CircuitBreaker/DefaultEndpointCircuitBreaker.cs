@@ -1,4 +1,5 @@
-﻿using Elders.Cronus.DomainModeling;
+﻿using System.Linq;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 
@@ -20,23 +21,19 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
 
         public ICircuitBreakerSuccessStrategy SuccessStrategy { get; set; }
 
-        public void PostConsume(ISafeBatchResult<TransportMessage> mesages)
+        public void PostConsume(IFeedResult mesages)
         {
-            foreach (var batch in mesages.FailedBatches)
+            foreach (var msg in mesages.FailedMessages)
             {
-                foreach (var msg in batch.Items)
+                if (msg.Age > 5)
                 {
-                    if (msg.Age > 5)
-                    {
-                        log.Error(msg.Payload, batch.Error);
-                        ErrorMessage errorMessage = new ErrorMessage(msg.Payload, batch.Error);
-                        TransportMessage error = new TransportMessage(errorMessage);
-                        ErrorStrategy.Handle(error);
-                    }
-                    else
-                    {
-                        RetryStrategy.Handle(msg);
-                    }
+                    log.Error(msg.Payload, msg.Errors.First().Error);
+                    ErrorStrategy.Handle(msg);
+                }
+                else
+                {
+                    msg.Age = msg.Age++;
+                    RetryStrategy.Handle(msg);
                 }
             }
         }

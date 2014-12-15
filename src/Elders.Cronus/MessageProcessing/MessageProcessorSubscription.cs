@@ -1,23 +1,24 @@
 using System;
-using Elders.Cronus.DomainModeling;
 
-namespace Elders.Cronus
+namespace Elders.Cronus.MessageProcessing
 {
-    public class Subscription : IObserver<TransportMessage>
+    public class MessageProcessorSubscription : IObserver<TransportMessage>
     {
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageProcessorSubscription));
+
         private IDisposable unsubscriber;
         private readonly Func<Type, object> handlerFactory;
 
-        public Subscription(Type messageType, Type messageHandlerType, Func<Type, object> handlerFactory)
+        public MessageProcessorSubscription(Type messageType, Type messageHandlerType, Func<Type, object> handlerFactory)
         {
             MessageType = messageType;
             MessageHandlerType = messageHandlerType;
             this.handlerFactory = handlerFactory;
+            Id = messageHandlerType.FullName;
         }
-
+        public string Id { get; private set; }
         public Type MessageType { get; private set; }
         public Type MessageHandlerType { get; private set; }
-
 
         public virtual void OnNext(TransportMessage value)
         {
@@ -31,12 +32,12 @@ namespace Elders.Cronus
             this.Unsubscribe();
         }
 
-        public virtual void OnError(Exception e)
+        public virtual void OnError(Exception ex)
         {
-            //Console.WriteLine("{0}: The location cannot be determined.", this.Name);
+
         }
 
-        public virtual void Subscribe(MessageStream provider)
+        public virtual void Subscribe(MessageProcessor provider)
         {
             if (provider != null)
                 unsubscriber = provider.Subscribe(this);

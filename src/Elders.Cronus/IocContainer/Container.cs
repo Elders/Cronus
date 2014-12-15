@@ -17,7 +17,6 @@ namespace Elders.Cronus.IocContainer
         private readonly Dictionary<MappingKey, Func<object>> transientMappings;
         private readonly Dictionary<MappingKey, Lazy<object>> singletonMappings;
         private readonly Dictionary<MappingKey, Func<object>> scopedMappings;
-        private readonly Dictionary<Type, MappingKey> typeToScopedMapping;
         private readonly Dictionary<Type, List<MappingKey>> mappings;
 
         /// <summary>
@@ -28,7 +27,6 @@ namespace Elders.Cronus.IocContainer
             this.transientMappings = new Dictionary<MappingKey, Func<object>>();
             this.singletonMappings = new Dictionary<MappingKey, Lazy<object>>();
             this.scopedMappings = new Dictionary<MappingKey, Func<object>>();
-            this.typeToScopedMapping = new Dictionary<Type, MappingKey>();
             this.mappings = new Dictionary<Type, List<MappingKey>>();
         }
 
@@ -88,7 +86,6 @@ namespace Elders.Cronus.IocContainer
             Guard_AlreadyRegistered(key);
 
             scopedMappings.Add(key, createInstanceDelegate);
-            typeToScopedMapping.Add(type, key);
         }
 
         private void Guard_AlreadyRegistered(MappingKey key)
@@ -141,26 +138,24 @@ namespace Elders.Cronus.IocContainer
 
         private object GetInstance(MappingKey key)
         {
+            object instance = null;
             Lazy<object> createSingletonInstance;
             Func<object> createTransientInstance;
-            if (singletonMappings.TryGetValue(key, out createSingletonInstance))
+            if (Scope.IsInScope)
             {
-                return createSingletonInstance.Value;
+                instance = Scope.GetCurrentScope().GetInstance(key);
             }
-            else if (transientMappings.TryGetValue(key, out createTransientInstance))
+
+            if (instance == null && singletonMappings.TryGetValue(key, out createSingletonInstance))
             {
-                return createTransientInstance();
+                instance = createSingletonInstance.Value;
             }
-            else if (String.IsNullOrEmpty(key.InstanceName) && Scope.IsInScope)
+            else if (instance == null && transientMappings.TryGetValue(key, out createTransientInstance))
             {
-                MappingKey scopedKey;
-                if (typeToScopedMapping.TryGetValue(key.Type, out scopedKey))
-                    return Scope.GetCurrentScope().GetInstance(scopedKey);
-                else
-                    return null;
+                instance = createTransientInstance();
             }
-            else
-                return null;
+
+            return instance;
         }
 
         public List<T> ResolveAll<T>()
@@ -240,12 +235,24 @@ namespace Elders.Cronus.IocContainer
             }
             else
             {
-                //  If we do cannot create an instance there is a possibility the requested key to be registered in a parent scope.
-                //  If that is the case the instance is created within the correct scope without switching the current scope.
-                Scope scopeContainingMappingKey;
-                if (ScopeHolder.TryFindWithinParents(key, ScopeHolder.CurrentScope, out scopeContainingMappingKey))
+                if (String.IsNullOrEmpty(key.InstanceName))
                 {
-                    return scopeContainingMappingKey.GetInstance(key);
+                    var scopedKey = new MappingKey(key.Type, Scope.GetCurrentScope().ScopeType);
+                    if (scopedMappings.TryGetValue(scopedKey, out createScopedInstance))
+                    {
+                        return createScopedInstance.Value;
+                    }
+                    else
+                    {
+                        //  If we do cannot create an instance there is a possibility the requested key to be registered in a parent scope.
+                        //  If that is the case the instance is created within the correct scope without switching the current scope.
+                        Scope scopeContainingMappingKey;
+                        MappingKey keyToResolveFromFoundScope;
+                        if (ScopeHolder.TryFindWithinParents(scopedKey, ScopeHolder.CurrentScope, out scopeContainingMappingKey, out keyToResolveFromFoundScope))
+                        {
+                            return scopeContainingMappingKey.GetInstance(keyToResolveFromFoundScope);
+                        }
+                    }
                 }
             }
             return null;
@@ -287,15 +294,17 @@ namespace Elders.Cronus.IocContainer
                 }
             }
 
-            public static bool TryFindWithinParents(MappingKey key, Scope startingScope, out Scope scopeContainingMappingKey)
+            public static bool TryFindWithinParents(MappingKey key, Scope startingScope, out Scope scopeContainingMappingKey, out MappingKey keyToResolveFromFoundScope)
             {
                 scopeContainingMappingKey = null;
+                keyToResolveFromFoundScope = key;
                 Scope scopeToTest = startingScope;
                 while (!scopeToTest.IsRoot)
                 {
                     if (scopes.TryGetValue(scopeToTest.ParentScopeId, out scopeToTest))
                     {
-                        if (scopeToTest.scopedMappings.ContainsKey(key))
+                        keyToResolveFromFoundScope = new MappingKey(key.Type, scopeToTest.ScopeType);
+                        if (scopeToTest.scopedMappings.ContainsKey(keyToResolveFromFoundScope))
                         {
                             scopeContainingMappingKey = scopeToTest;
                             return true;

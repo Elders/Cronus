@@ -4,7 +4,6 @@ using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.IocContainer
 {
-
     [Subject("IocContainer")]
     public class When_resolve_scoped_component_out_of_scope
     {

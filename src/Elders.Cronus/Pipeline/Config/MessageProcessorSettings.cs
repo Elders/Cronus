@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
+using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -23,14 +24,14 @@ namespace Elders.Cronus.Pipeline.Config
             {
                 //var safeBatchFactory = new SafeBatchWithBatchUnitOfWorkContextFactory<TransportMessage>((this as IHaveUnitOfWorkFactory).UnitOfWorkFactory.Value);
 
-                IMessageProcessor<IMessage> handler = new MessageStream(builder.Container);
+                IMessageProcessor<IMessage> handler = new MessageProcessor(builder.Container);
 
                 foreach (var reg in (this as IMessageProcessorSettings<TContract>).HandlerRegistrations)
                 {
                     foreach (var item in reg.Value)
                     {
                         if (discriminator == null || discriminator(item.Item1))
-                            handler.Subscribe(new Subscription(reg.Key, item.Item1, item.Item2));
+                            handler.Subscribe(new MessageProcessorSubscription(reg.Key, item.Item1, item.Item2));
                     }
                 }
                 return handler;

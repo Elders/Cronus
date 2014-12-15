@@ -58,7 +58,8 @@ namespace Elders.Cronus.Pipeline
                     }
                     if (transportMessages.Count == 0)
                         continue;
-                    var result = processor.Handle(transportMessages);
+
+                    var result = processor.Feed(transportMessages);
                     circuitBreaker.PostConsume(result);
                     endpoint.AcknowledgeAll();
                 }

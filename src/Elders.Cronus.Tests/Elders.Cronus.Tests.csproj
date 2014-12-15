@@ -63,9 +63,12 @@
     <Compile Include="IocContainer\When_resolve_scoped_component_within_two_nested_scopes.cs" />
     <Compile Include="IocContainer\When_resolve_scoped_component_within_two_not_nested_scopes.cs" />
     <Compile Include="IocContainer\When_resolve_scoped_component_with_specific_type.cs" />
+    <Compile Include="IocContainer\When_resolve_two_scoped_components_with_common_interface.cs" />
     <Compile Include="MessageStreaming\Models.cs" />
     <Compile Include="MessageStreaming\When_subscription_subscribes_to__MessageStream__more_than_once.cs" />
     <Compile Include="MessageStreaming\When__MessageStream__has_subscription_which_does_not_care_about_current_feed_messages.cs" />
+    <Compile Include="MessageStreaming\When__MessageStream__has_subscription_which_fails_to_handle_a_message.cs" />
+    <Compile Include="MessageStreaming\When__MessageStream__is_feeded_with_failed_messages_with_origin_type__handler__.cs" />
     <Compile Include="MessageStreaming\When__MessageStream__receives_a_batch_of__TransportMessages__.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">

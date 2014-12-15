@@ -204,7 +204,7 @@ namespace Elders.Cronus.IocContainer
         public static readonly ScopeType PerBatch = new ScopeType("perbatch");
         public static readonly ScopeType PerMessage = new ScopeType("permessage");
         public static readonly ScopeType PerHandler = new ScopeType("perhandler");
-        public static readonly ScopeType Default = new ScopeType("default");
+        public static readonly ScopeType Default = new ScopeType(null);
 
         private ScopeType(string name)
         {

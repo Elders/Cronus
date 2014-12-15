@@ -3,7 +3,6 @@ using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.IocContainer
 {
-
     [Subject("IocContainer")]
     public class When_resolve_scoped_component_with_specific_type
     {

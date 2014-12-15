@@ -1,7 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
+using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.UnitOfWork;
 using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.MessageStreaming
@@ -11,17 +12,19 @@ namespace Elders.Cronus.Tests.MessageStreaming
     {
         Establish context = () =>
             {
-                HandleResult.Total = 0;
+                handlerFacotry = new CalculatorHandlerFactory();
                 IContainer container = new Container();
-                messageStream = new MessageStream(container);
-                var subscription1 = new Subscription(typeof(TestIntMessage1), typeof(TestAddHandler1), (t) => FastActivator.CreateInstance(t));
-                var subscription2 = new Subscription(typeof(TestIntMessage1), typeof(TestAddHandler2), (t) => FastActivator.CreateInstance(t));
-                var subscription3 = new Subscription(typeof(TestIntMessage2), typeof(TestSubstractHandler1), (t) => FastActivator.CreateInstance(t));
+                container.RegisterSingleton<IUnitOfWork>(() => new NoUnitOfWork());
+
+                messageStream = new MessageProcessor(container);
+                var subscription1 = new MessageProcessorSubscription(typeof(CalculatorNumber1), typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance);
+                var subscription2 = new MessageProcessorSubscription(typeof(CalculatorNumber1), typeof(ScientificCalculatorHandler), handlerFacotry.CreateInstance);
+                var subscription3 = new MessageProcessorSubscription(typeof(CalculatorNumber2), typeof(StandardCalculatorSubstractHandler), handlerFacotry.CreateInstance);
 
                 messages = new List<TransportMessage>();
-                for (int i = 0; i < numberOfMessages; i++)
+                for (int i = 1; i < numberOfMessages + 1; i++)
                 {
-                    messages.Add(new TransportMessage(new TestIntMessage2(i)));
+                    messages.Add(new TransportMessage(new CalculatorNumber2(i)));
                 }
                 messageStream.Subscribe(subscription1);
                 messageStream.Subscribe(subscription2);
@@ -30,13 +33,56 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
         Because of = () =>
             {
-                messageStream.Feed(messages);
+                feedResult = messageStream.Feed(messages);
             };
 
-        It should_feed_only_interested_handlers = () => HandleResult.Total.ShouldEqual(Enumerable.Range(0, numberOfMessages).Sum() * -1);
+        It should_feed_only_interested_handlers = () => handlerFacotry.State.Total.ShouldEqual(Enumerable.Range(1, numberOfMessages).Sum() * -1);
+        It should_report_about_all_successes = () => feedResult.SuccessfulMessages.Count().ShouldEqual(numberOfMessages);
 
+        static IFeedResult feedResult;
         static int numberOfMessages = 100;
-        static MessageStream messageStream;
+        static MessageProcessor messageStream;
         static List<TransportMessage> messages;
+        static CalculatorHandlerFactory handlerFacotry;
+    }
+
+    [Subject("")]
+    public class When__MessageStream_
+    {
+        Establish context = () =>
+            {
+                handlerFacotry = new CalculatorHandlerFactory();
+                IContainer container = new Container();
+                container.RegisterSingleton<IUnitOfWork>(() => new NoUnitOfWork());
+
+                messageStream = new MessageProcessor(container);
+                var subscription1 = new MessageProcessorSubscription(typeof(CalculatorNumber1), typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance);
+                var subscription2 = new MessageProcessorSubscription(typeof(CalculatorNumber1), typeof(ScientificCalculatorHandler), handlerFacotry.CreateInstance);
+                var subscription3 = new MessageProcessorSubscription(typeof(CalculatorNumber2), typeof(StandardCalculatorSubstractHandler), handlerFacotry.CreateInstance);
+
+                messages = new List<TransportMessage>();
+                for (int i = 1; i < numberOfMessages + 1; i++)
+                {
+                    messages.Add(new TransportMessage(new CalculatorNumber2(i)));
+                }
+                messageStream.Subscribe(subscription1);
+                messageStream.Subscribe(subscription2);
+                messageStream.Subscribe(subscription3);
+            };
+
+        Because of = () =>
+            {
+                feedResult = messageStream.Feed(messages);
+            };
+
+        It should_feed_only_interested_handlers = () => handlerFacotry.State.Total.ShouldEqual(Enumerable.Range(1, numberOfMessages).Sum() * -1);
+
+        It should_report_about_all_successes = () => feedResult.SuccessfulMessages.Count().ShouldEqual(numberOfMessages);
+
+        static IFeedResult feedResult;
+        static int numberOfMessages = 100;
+        static MessageProcessor messageStream;
+        static List<TransportMessage> messages;
+        static CalculatorHandlerFactory handlerFacotry;
     }
 }

@@ -1,11 +1,24 @@
+using System;
+
 namespace Elders.Cronus.UnitOfWork
 {
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
-        void Begin();
+        IDisposable Begin();
 
-        void End();
+        Guid Id { get; }
 
         IUnitOfWorkContext Context { get; set; }
+    }
+
+    public class NoUnitOfWork : IUnitOfWork
+    {
+        public IDisposable Begin() { return this; }
+
+        public void Dispose() { }
+
+        public IUnitOfWorkContext Context { get; set; }
+
+        public Guid Id { get { return Guid.Empty; } }
     }
 }
