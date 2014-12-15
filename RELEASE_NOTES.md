@@ -1,3 +1,6 @@
+#### 1.1.42-rc11 - 15.12.2014
+* Make the TransportMessage error origin to depend on ID of type string
+
 #### 1.1.42-rc10 - 15.12.2014
 * IMessageProcessor is not generic interface anymore
 

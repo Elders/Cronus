@@ -62,7 +62,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
     public class TestPerBatchUnitOfWork_ThrowsExceptoin : IUnitOfWork
     {
         public IUnitOfWorkContext Context { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
-        public Guid Id { get { return Guid.NewGuid(); } }
+        public string Id { get { return Guid.NewGuid().ToString(); } }
 
         public IDisposable Begin() { return this; }
         public void Dispose() { throw new NotImplementedException(); }

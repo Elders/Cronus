@@ -108,14 +108,14 @@ namespace Elders.Cronus
     {
         ErrorOrigin() { }
 
-        public ErrorOrigin(object id, string type)
+        public ErrorOrigin(string id, string type)
         {
             Id = id;
             Type = type;
         }
 
         [DataMember(Order = 1)]
-        public object Id { get; set; }
+        public string Id { get; set; }
 
         [DataMember(Order = 2)]
         public string Type { get; set; }

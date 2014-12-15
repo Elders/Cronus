@@ -6,7 +6,7 @@ namespace Elders.Cronus.UnitOfWork
     {
         IDisposable Begin();
 
-        Guid Id { get; }
+        string Id { get; }
 
         IUnitOfWorkContext Context { get; set; }
     }
@@ -19,6 +19,6 @@ namespace Elders.Cronus.UnitOfWork
 
         public IUnitOfWorkContext Context { get; set; }
 
-        public Guid Id { get { return Guid.Empty; } }
+        public string Id { get { return Guid.Empty.ToString(); } }
     }
 }
