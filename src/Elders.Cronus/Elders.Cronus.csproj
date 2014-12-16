@@ -73,8 +73,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elders.Multithreading.Scheduler">
-      <HintPath>..\packages\Multithreading.Scheduler.1.0.0\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
+    <Reference Include="Elders.Multithreading.Scheduler, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Multithreading.Scheduler.1.0.1\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
     </Reference>
     <Reference Include="Elders.Protoreg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
