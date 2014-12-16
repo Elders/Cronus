@@ -33,7 +33,6 @@ namespace Elders.Cronus.ProjectionStore
         [DataMember(Order = 5)]
         public long Timestamp { get; private set; }
 
-        [DataMember(Order = 6)]
         public IEvent Event { get { return InternalEvent as IEvent; } }
     }
 }

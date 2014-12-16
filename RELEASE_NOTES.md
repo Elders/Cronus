@@ -1,3 +1,6 @@
+#### 1.2.2 - 16.12.2014
+* Fixed bug with registering types in the serializer
+
 #### 1.2.1 - 16.12.2014
 * Fixed bug with registering handlers
 
