@@ -1,3 +1,6 @@
+#### 1.2.1 - 16.12.2014
+* Fixed bug with registering handlers
+
 #### 1.2.0 - 16.12.2014
 * Add ability to specify a consumer name in ConsumerSettings.
 * Add simple ioc container (not a real ioc container).
