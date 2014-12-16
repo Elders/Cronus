@@ -15,6 +15,7 @@ namespace Elders.Cronus.Pipeline
         {
             if (size == 0) throw new ArgumentException("The size cannot be 0", "size");
 
+            if (size != 1) throw new Exception("Ask Simo, hahahahaha");
             this.Size = size;
             this.Delay = delay;
         }

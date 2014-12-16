@@ -91,9 +91,9 @@ namespace Elders.Cronus.InMemory.Config
             return self;
         }
 
-        public static T UsePortsAndProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IConsumerSettings<IEvent>
+        public static T UsePortsAndProjections<T>(this T self, Action<MessageProcessorSettings> configure) where T : IConsumerSettings<IEvent>
         {
-            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self, t => typeof(IPort).IsAssignableFrom(t) || typeof(IProjection).IsAssignableFrom(t));
+            MessageProcessorSettings settings = new MessageProcessorSettings(self, t => typeof(IPort).IsAssignableFrom(t) || typeof(IProjection).IsAssignableFrom(t));
             if (configure != null)
                 configure(settings);
 

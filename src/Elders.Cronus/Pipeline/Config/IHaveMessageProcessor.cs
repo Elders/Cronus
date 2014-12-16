@@ -6,12 +6,7 @@ using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public interface IMessageProcessorSettings
-    {
-
-    }
-
-    public interface IMessageProcessorSettings<out TContract> : ISettingsBuilder where TContract : IMessage
+    public interface IMessageProcessorSettings : ISettingsBuilder
     {
         Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> HandlerRegistrations { get; set; }
     }
@@ -41,13 +36,13 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class EndpointConsumerRegistrations
     {
-        public static T RegisterAllHandlersInAssembly<T>(this T self, Type[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : IMessageProcessorSettings<IMessage>
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Type[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : IMessageProcessorSettings
         {
             Register(self, messageHandlers, messageHandlerFactory, (eventHandlerType) => { });
             return self;
         }
 
-        public static T RegisterAllHandlersInAssembly<T>(this T self, Assembly[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : IMessageProcessorSettings<IMessage>
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Assembly[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : IMessageProcessorSettings
         {
             Register(self, messageHandlers, messageHandlerFactory, (eventHandlerType) => { });
             return self;
@@ -57,7 +52,7 @@ namespace Elders.Cronus.Pipeline.Config
         /// Registers all command handlers from a given assembly.
         /// </summary>
         /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
-        public static T RegisterAllHandlersInAssembly<T>(this T self, Type assemblyContainingMessageHandlers, IMessageHandlerFactory messageHandlerFactory = null) where T : IMessageProcessorSettings<IMessage>
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Type assemblyContainingMessageHandlers, IMessageHandlerFactory messageHandlerFactory = null) where T : IMessageProcessorSettings
         {
             var factory = new InternalApplicationServiceFactory(messageHandlerFactory);
             Register(self, assemblyContainingMessageHandlers.Assembly, factory.CreateHandler, (eventHandlerType) => { });
@@ -68,7 +63,7 @@ namespace Elders.Cronus.Pipeline.Config
         /// Registers all message handlers from a given assembly.
         /// </summary>
         /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
-        public static T RegisterAllHandlersInAssembly<T>(this T self, Assembly assemblyContainingMessageHandlers) where T : IMessageProcessorSettings<IMessage>
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Assembly assemblyContainingMessageHandlers) where T : IMessageProcessorSettings
         {
             Register(self, assemblyContainingMessageHandlers, (x) => FastActivator.CreateInstance(x), (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType));
             return self;
@@ -78,7 +73,7 @@ namespace Elders.Cronus.Pipeline.Config
         /// Registers all message handlers from a given assembly.
         /// </summary>
         /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
-        public static T RegisterAllHandlersInAssembly<T>(this T self, Assembly assemblyContainingMessageHandlers, Func<Type, object> messageHandlerFactory) where T : IMessageProcessorSettings<IMessage>
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Assembly assemblyContainingMessageHandlers, Func<Type, object> messageHandlerFactory) where T : IMessageProcessorSettings
         {
             Register(self, assemblyContainingMessageHandlers, messageHandlerFactory, (eventHandlerType) => { });
             return self;
@@ -88,20 +83,20 @@ namespace Elders.Cronus.Pipeline.Config
         /// Registers all message handlers from a given assembly.
         /// </summary>
         /// <param name="asemblyContainingEventHandlers">Assembly containing event handlers</param>
-        public static T RegisterAllHandlersInAssembly<T>(this T self, Type assemblyContainingMessageHandlers, Func<Type, object> messageHandlerFactory) where T : IMessageProcessorSettings<IMessage>
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Type assemblyContainingMessageHandlers, Func<Type, object> messageHandlerFactory) where T : IMessageProcessorSettings
         {
             Register(self, assemblyContainingMessageHandlers.Assembly, messageHandlerFactory, (eventHandlerType) => { });
             return self;
         }
 
-        public static T RegisterAllHandlersInAssembly<T>(this T self, Type[] messageHandlers) where T : IMessageProcessorSettings<IMessage>
+        public static T RegisterAllHandlersInAssembly<T>(this T self, Type[] messageHandlers) where T : IMessageProcessorSettings
         {
             Register(self, messageHandlers, (x) => FastActivator.CreateInstance(x), (messageHandlerType) => FastActivator.WarmInstanceConstructor(messageHandlerType));
 
             return self;
         }
 
-        static T Register<T>(this T self, Assembly assemblyContainingMessageHandlers, Func<Type, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IMessageProcessorSettings<IMessage>
+        static T Register<T>(this T self, Assembly assemblyContainingMessageHandlers, Func<Type, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IMessageProcessorSettings
         {
             var types = assemblyContainingMessageHandlers.GetTypes().ToArray();
             Register(self, types, messageHandlerFactory, doBeforeRegister);
@@ -109,7 +104,7 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        static T Register<T>(this T self, Assembly[] assemblyContainingMessageHandlers, Func<Type, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IMessageProcessorSettings<IMessage>
+        static T Register<T>(this T self, Assembly[] assemblyContainingMessageHandlers, Func<Type, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IMessageProcessorSettings
         {
             var types = assemblyContainingMessageHandlers.SelectMany(x => x.GetTypes()).ToArray();
             Register(self, types, messageHandlerFactory, doBeforeRegister);
@@ -117,11 +112,11 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        static T Register<T>(this T self, Type[] messageHandlers, Func<Type, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IMessageProcessorSettings<IMessage>
+        static T Register<T>(this T self, Type[] messageHandlers, Func<Type, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IMessageProcessorSettings
         {
             Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> registrations = new Dictionary<Type, List<Tuple<Type, Func<Type, object>>>>();
 
-            var contractType = self.GetType().GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IMessageProcessorSettings<>)).Single().GetGenericArguments().Single();
+            var contractType = self.GetType().GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IMessageProcessorSettings)).Single().GetGenericArguments().Single();
 
             var contractHandlerMethodType = typeof(IEvent).IsAssignableFrom(contractType) ? typeof(IEventHandler<>) : typeof(ICommandHandler<>);
 

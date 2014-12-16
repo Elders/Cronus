@@ -32,6 +32,7 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
                 }
                 else
                 {
+                    log.Warn(msg.Payload, msg.Errors.First().Error);
                     msg.Age = msg.Age + 1;
                     RetryStrategy.Handle(msg);
                 }

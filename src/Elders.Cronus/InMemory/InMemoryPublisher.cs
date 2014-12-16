@@ -4,47 +4,9 @@ using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.InMemory
 {
-    public class InMemoryCommandPublisher : Publisher<ICommand>
-    {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(InMemoryCommandPublisher));
-
-        IMessageProcessor messageProcessor;
-
-        public InMemoryCommandPublisher(IMessageProcessor messageProcessor)
-        {
-            this.messageProcessor = messageProcessor;
-        }
-        protected override bool PublishInternal(ICommand message)
-        {
-            var result = messageProcessor.Feed(new List<TransportMessage>() { new TransportMessage(message) });
-            if (result.FailedMessages != null && result.FailedMessages.Count() > 0)
-                return false;
-            return true;
-        }
-    }
-
-    public class InMemoryEventPublisher : Publisher<IEvent>
-    {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(InMemoryEventPublisher));
-
-        IMessageProcessor messageProcessor;
-
-        public InMemoryEventPublisher(IMessageProcessor messageProcessor)
-        {
-            this.messageProcessor = messageProcessor;
-        }
-        protected override bool PublishInternal(IEvent message)
-        {
-            var result = messageProcessor.Feed(new List<TransportMessage>() { new TransportMessage(message) });
-            if (result.FailedMessages != null && result.FailedMessages.Count() > 0)
-                return false;
-            return true;
-        }
-    }
-
     public class InMemoryPublisher<TContract> : Publisher<TContract> where TContract : IMessage
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(InMemoryEventPublisher));
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(InMemoryPublisher<TContract>));
 
         IMessageProcessor messageProcessor;
 
@@ -56,7 +18,13 @@ namespace Elders.Cronus.InMemory
         {
             var result = messageProcessor.Feed(new List<TransportMessage>() { new TransportMessage(message) });
             if (result.FailedMessages != null && result.FailedMessages.Count() > 0)
+            {
+                foreach (var msg in result.FailedMessages)
+                {
+                    log.Error(msg.Payload, msg.Errors.First().Error);
+                }
                 return false;
+            }
             return true;
         }
     }

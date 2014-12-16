@@ -10,11 +10,5 @@ namespace Elders.Cronus.Pipeline.Config
             self.Container.RegisterSingleton<IEndpontCircuitBreakerFactrory>(() => new DefaultCircuitBreakerFactory(), self.Name);
             return self;
         }
-
-        public static T WithNoCircuitBreaker<T>(this T self) where T : ICanConfigureCircuitBreaker
-        {
-            self.Container.RegisterSingleton<IEndpontCircuitBreakerFactrory>(() => new NoCircuitBreakerFactory(), self.Name);
-            return self;
-        }
     }
 }

@@ -8,6 +8,8 @@ namespace Elders.Cronus.MessageProcessing
 {
     public class MessageProcessor : IObservable<MessageProcessorSubscription>, IDisposable, IMessageProcessor
     {
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageProcessor));
+
         private readonly IContainer container;
         private readonly List<MessageProcessorSubscription> subscriptions;
 
@@ -78,7 +80,12 @@ namespace Elders.Cronus.MessageProcessing
                         if (handlerIds.Count() > 0)
                             subscribers = subscribers.Where(subscription => handlerIds.Contains(subscription.Id));
 
-                        subscribers.ToList().ForEach(subscriber =>
+
+                        var subscriberList = subscribers.ToList();
+                        if (subscriberList.Count == 0)
+                            log.WarnFormat("There is no handler for {0}", message.Payload);
+
+                        subscriberList.ForEach(subscriber =>
                         {
                             var handlerFeedResult = PerHandlerUnitOfWork(subscriber, message);
                             feedResult = feedResult.With(handlerFeedResult);
@@ -191,61 +198,6 @@ namespace Elders.Cronus.MessageProcessing
                 if (subscription != null && subscriptions.Contains(subscription))
                     subscriptions.Remove(subscription);
             }
-        }
-    }
-
-    public static class FeedResultExtentions
-    {
-        public static IFeedResult AppendSuccess(this IFeedResult self, TransportMessage message)
-        {
-            var successItems = new HashSet<TransportMessage>(self.SuccessfulMessages);
-            successItems.Add(message);
-            return new MessageProcessor.FeedResult(successItems, self.FailedMessages);
-        }
-
-        public static IFeedResult AppendError(this IFeedResult self, TransportMessage message, FeedError error)
-        {
-            var errorItems = new HashSet<TransportMessage>(self.FailedMessages);
-            var errorMessage = errorItems.Where(x => x == message).SingleOrDefault() ?? message;
-            errorItems.Add(new TransportMessage(errorMessage, error));
-
-            return new MessageProcessor.FeedResult(self.SuccessfulMessages, errorItems);
-        }
-
-        public static IFeedResult AppendUnitOfWorkError(this IFeedResult self, IUnitOfWork uow, TransportMessage message, Exception ex)
-        {
-            return self.AppendError(message, new FeedError()
-            {
-                Origin = new ErrorOrigin(uow.Id, ErrorOriginType.UnitOfWork),
-                Error = new Protoreg.ProtoregSerializableException(ex)
-            });
-        }
-
-        public static IFeedResult AppendUnitOfWorkError(this IFeedResult self, IUnitOfWork uow, IEnumerable<TransportMessage> messages, Exception ex)
-        {
-            return self.AppendError(messages, new FeedError()
-            {
-                Origin = new ErrorOrigin(uow.Id, ErrorOriginType.UnitOfWork),
-                Error = new Protoreg.ProtoregSerializableException(ex)
-            });
-        }
-
-        public static IFeedResult AppendError(this IFeedResult self, IEnumerable<TransportMessage> messages, FeedError error)
-        {
-            var errorItems = new HashSet<TransportMessage>(self.FailedMessages);
-            foreach (var failedMessage in messages)
-            {
-                var errorMessage = errorItems.Where(x => x == failedMessage).SingleOrDefault() ?? failedMessage;
-                errorItems.Add(new TransportMessage(errorMessage, error));
-            }
-            return new MessageProcessor.FeedResult(self.SuccessfulMessages, errorItems);
-        }
-
-        public static IFeedResult With(this IFeedResult self, IFeedResult feedResult)
-        {
-            var successMessages = new HashSet<TransportMessage>(self.SuccessfulMessages.Union(feedResult.SuccessfulMessages));
-            var failedMessages = new HashSet<TransportMessage>(self.FailedMessages.Union(feedResult.FailedMessages));
-            return new MessageProcessor.FeedResult(successMessages, failedMessages);
         }
     }
 }
