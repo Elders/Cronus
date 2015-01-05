@@ -77,9 +77,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Multithreading.Scheduler.1.0.1\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
     </Reference>
-    <Reference Include="Elders.Protoreg, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Protoreg.1.0.10\lib\Elders.Protoreg.dll</HintPath>
+    <Reference Include="Elders.Proteus">
+      <HintPath>..\packages\Proteus.1.0.2\lib\net40-full\Elders.Proteus.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -172,7 +171,7 @@
     <Compile Include="CronusAssemby.cs" />
     <Compile Include="IMessageProcessor.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
-    <Compile Include="Serializer\Protoreg\ProtoregSerializer.cs" />
+    <Compile Include="Serializer\ProteusSerializer.cs" />
     <Compile Include="Pipeline\EndpointClosedException.cs" />
     <Compile Include="Pipeline\CircuitBreaker\IEndpointConsumerErrorStrategy.cs" />
     <Compile Include="Pipeline\PipelineConsumerWork.cs" />
@@ -209,6 +208,7 @@
     <Compile Include="Pipeline\IPipeline.cs" />
     <Compile Include="Pipeline\EndpointMessage.cs" />
     <Compile Include="Pipeline\IPipelineFactory.cs" />
+    <Compile Include="Userfull\SerializableException.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
