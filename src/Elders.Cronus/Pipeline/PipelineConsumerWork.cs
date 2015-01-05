@@ -6,7 +6,6 @@ using Elders.Multithreading.Scheduler;
 
 namespace Elders.Cronus.Pipeline
 {
-
     public class PipelineConsumerWork : IWork
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(PipelineConsumerWork));
@@ -65,7 +64,7 @@ namespace Elders.Cronus.Pipeline
             }
             catch (EndpointClosedException ex)
             {
-                log.Error("Endpoint Closed", ex);
+                log.Warn("Endpoint Closed", ex);
             }
             catch (Exception ex)
             {
@@ -84,6 +83,5 @@ namespace Elders.Cronus.Pipeline
             isWorking = false;
             endpoint.Close();
         }
-
     }
 }

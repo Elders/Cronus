@@ -7,13 +7,15 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
 {
     public class DefaultEndpointCircuitBreaker : IEndpointCircuitBreaker
     {
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(DefaultEndpointCircuitBreaker));
+
         public DefaultEndpointCircuitBreaker(IPipelineTransport transport, ISerializer serializer, EndpointDefinition definitioin)
         {
             this.ErrorStrategy = new EndpointPostConsumeStrategy.ErrorEndpointPerEndpoint(transport, serializer, definitioin);
             this.RetryStrategy = new EndpointPostConsumeStrategy.RetryEndpointPerEndpoint(transport, serializer, definitioin);
             this.SuccessStrategy = new EndpointPostConsumeStrategy.NoSuccessStrategy();
+            this.MaximumMessageAge = 5;
         }
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(DefaultEndpointCircuitBreaker));
 
         public ICircuitBreakerErrorStrategy ErrorStrategy { get; set; }
 
@@ -21,11 +23,13 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
 
         public ICircuitBreakerSuccessStrategy SuccessStrategy { get; set; }
 
+        public int MaximumMessageAge { get; private set; }
+
         public void PostConsume(IFeedResult mesages)
         {
             foreach (var msg in mesages.FailedMessages)
             {
-                if (msg.Age > 5)
+                if (msg.Age > MaximumMessageAge)
                 {
                     log.Error(msg.Payload, msg.Errors.First().Error);
                     ErrorStrategy.Handle(msg);
