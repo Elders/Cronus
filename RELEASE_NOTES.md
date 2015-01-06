@@ -1,3 +1,6 @@
+#### 2.0.0-alpha02 - 06.01.2015
+* Fix nuget dependencies
+
 #### 2.0.0-alpha01 - 06.01.2015
 * Replace Protoreg with Proteus
 
