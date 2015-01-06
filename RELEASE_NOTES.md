@@ -1,3 +1,6 @@
+#### 2.0.0-alpha01 - 06.01.2015
+* Replace Protoreg with Proteus
+
 #### 1.2.2 - 16.12.2014
 * Fixed bug with registering types in the serializer
 
