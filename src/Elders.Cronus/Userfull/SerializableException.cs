@@ -10,7 +10,7 @@ namespace Elders.Cronus
 
         public SerializableException(Exception ex)
         {
-            ExType = ex.GetType();
+            ExType = ex.GetType().FullName;
             ExMessage = ex.Message;
             ExStackTrace = ex.StackTrace;
             //ExTargetSite = ex.TargetSite.ToString();
@@ -22,7 +22,7 @@ namespace Elders.Cronus
         }
 
         [DataMember(Order = 1)]
-        public Type ExType { get; private set; }
+        public string ExType { get; private set; }
 
         [DataMember(Order = 2)]
         public string ExMessage { get; private set; }

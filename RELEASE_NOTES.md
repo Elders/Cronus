@@ -1,3 +1,6 @@
+#### 2.0.0-alpha05 - 12.01.2015
+* Fix bug when serializing Exception type
+
 #### 2.0.0-alpha04 - 12.01.2015
 * Properly register cronus and domain modeling in Proteus
 
