@@ -1,3 +1,6 @@
+#### 2.0.0-alpha06 - 12.01.2015
+* Update Proteus
+
 #### 2.0.0-alpha05 - 12.01.2015
 * Fix bug when serializing Exception type
 
