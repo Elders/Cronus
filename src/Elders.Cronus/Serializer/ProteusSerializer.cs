@@ -16,7 +16,7 @@ namespace Elders.Cronus.Serializer.Protoreg
             internalAssemblies.Add(typeof(CronusAssembly).Assembly);
             internalAssemblies.Add(typeof(Proteus.Serializer).Assembly);
 
-            var identifier = new GuidTypeIdentifier(assembliesContainingContracts);
+            var identifier = new GuidTypeIdentifier(internalAssemblies.ToArray());
             serializer = new Proteus.Serializer(identifier);
         }
 

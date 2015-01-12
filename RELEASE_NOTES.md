@@ -1,3 +1,6 @@
+#### 2.0.0-alpha04 - 12.01.2015
+* Properly register cronus and domain modeling in Proteus
+
 #### 2.0.0-alpha03 - 12.01.2015
 * Update to Proteus 1.0.4
 * Fix Proteus registrations
