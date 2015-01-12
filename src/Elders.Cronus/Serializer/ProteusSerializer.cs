@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
+using Elders.Cronus.DomainModeling;
 using Elders.Proteus;
 
 namespace Elders.Cronus.Serializer.Protoreg
@@ -7,22 +9,15 @@ namespace Elders.Cronus.Serializer.Protoreg
     {
         Proteus.Serializer serializer;
 
-        public ProteusSerializer()
-        {
-            serializer = new Proteus.Serializer();
-        }
-
         public ProteusSerializer(Assembly[] assembliesContainingContracts)
         {
-            if (assembliesContainingContracts == null)
-            {
-                serializer = new Proteus.Serializer();
-            }
-            else
-            {
-                var identifier = new GuidTypeIdentifier(assembliesContainingContracts);
-                serializer = new Proteus.Serializer(identifier);
-            }
+            var internalAssemblies = assembliesContainingContracts.ToList();
+            internalAssemblies.Add(typeof(IAggregateRoot).Assembly);
+            internalAssemblies.Add(typeof(CronusAssembly).Assembly);
+            internalAssemblies.Add(typeof(Proteus.Serializer).Assembly);
+
+            var identifier = new GuidTypeIdentifier(assembliesContainingContracts);
+            serializer = new Proteus.Serializer(identifier);
         }
 
         public object Deserialize(System.IO.Stream str)

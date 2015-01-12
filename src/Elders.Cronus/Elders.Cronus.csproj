@@ -77,18 +77,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Multithreading.Scheduler.1.0.1\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
     </Reference>
-    <Reference Include="Elders.Proteus">
-      <HintPath>..\packages\Proteus.1.0.2\lib\net40-full\Elders.Proteus.dll</HintPath>
+    <Reference Include="Elders.Proteus, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Proteus.1.0.4\lib\net45-full\Elders.Proteus.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="protobuf-net, Version=2.0.0.668, Culture=neutral, PublicKeyToken=257b51d87d2e4d67, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
@@ -168,7 +165,7 @@
     <Compile Include="SafeBatch.cs" />
     <Compile Include="DomainModeling\AggregateStateFirstLevelConcurrencyException.cs" />
     <Compile Include="EventStore\IEventStoreStorageManager.cs" />
-    <Compile Include="CronusAssemby.cs" />
+    <Compile Include="CronusAssembly.cs" />
     <Compile Include="IMessageProcessor.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
     <Compile Include="Serializer\ProteusSerializer.cs" />

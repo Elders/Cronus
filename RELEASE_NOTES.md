@@ -1,3 +1,7 @@
+#### 2.0.0-alpha03 - 12.01.2015
+* Update to Proteus 1.0.4
+* Fix Proteus registrations
+
 #### 2.0.0-alpha02 - 06.01.2015
 * Fix nuget dependencies
 
