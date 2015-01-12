@@ -1,3 +1,25 @@
+#### 2.0.0-alpha07 - 12.01.2015
+* Update Proteus
+
+#### 2.0.0-alpha06 - 12.01.2015
+* Update Proteus
+
+#### 2.0.0-alpha05 - 12.01.2015
+* Fix bug when serializing Exception type
+
+#### 2.0.0-alpha04 - 12.01.2015
+* Properly register cronus and domain modeling in Proteus
+
+#### 2.0.0-alpha03 - 12.01.2015
+* Update to Proteus 1.0.4
+* Fix Proteus registrations
+
+#### 2.0.0-alpha02 - 06.01.2015
+* Fix nuget dependencies
+
+#### 2.0.0-alpha01 - 06.01.2015
+* Replace Protoreg with Proteus
+
 #### 1.2.2 - 16.12.2014
 * Fixed bug with registering types in the serializer
 

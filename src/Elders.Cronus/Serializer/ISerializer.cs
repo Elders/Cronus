@@ -7,6 +7,7 @@ namespace Elders.Cronus.Serializer
         object Deserialize(Stream str);
         void Serialize<T>(Stream str, T message);
     }
+
     public static class ISerializerExtensions
     {
         public static object DeserializeFromBytes(this ISerializer self, byte[] bytes)

@@ -2,7 +2,14 @@ namespace Elders.Cronus.Tests.IocContainer
 {
     public class BatchComponent
     {
+        public BatchComponent() { }
 
+        public BatchComponent(string name)
+        {
+            Name = name;
+        }
+
+        public string Name { get; set; }
     }
 
     public interface ITestUntOfWork
