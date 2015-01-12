@@ -1,3 +1,6 @@
+#### 2.0.0-alpha07 - 12.01.2015
+* Update Proteus
+
 #### 2.0.0-alpha06 - 12.01.2015
 * Update Proteus
 
