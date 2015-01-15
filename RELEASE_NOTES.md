@@ -1,3 +1,6 @@
+#### 1.2.3 - 15.01.2015
+* Fixed minor issues.
+
 #### 1.2.2 - 16.12.2014
 * Fixed bug with registering types in the serializer
 
