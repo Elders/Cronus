@@ -81,7 +81,7 @@ Target "CreateNuGet" (fun _ ->
 Target "Release" (fun _ ->
     StageAll ""
     let notes = String.concat "; " release.Notes
-    Commit "" (sprintf "Bump version to %s. %s" release.NugetVersion notes)
+    Commit "" (sprintf "%s" notes)
     Branches.push ""
 
     Branches.tag "" release.NugetVersion

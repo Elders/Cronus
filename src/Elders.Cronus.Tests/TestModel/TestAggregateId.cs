@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Tests.TestModel
 {
-    [DataContract(Name = "bb2daebe-ef38-4648-b92a-204ac4ceae72")]
+    [DataContract(Name = "9bc4ea72-575d-4577-9440-63f867f0e415")]
     public class TestAggregateId : GuidId
     {
         public TestAggregateId(Guid id)
