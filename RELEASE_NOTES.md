@@ -1,3 +1,6 @@
+#### 1.2.4 - 15.01.2015
+* Fixed issue when unsubscribing from MessageProcessor
+
 #### 1.2.3 - 15.01.2015
 * Fixed minor issues.
 

@@ -45,7 +45,8 @@ namespace Elders.Cronus.MessageProcessing
 
         public virtual void Unsubscribe()
         {
-            unsubscriber.Dispose();
+            if (unsubscriber != null)
+                unsubscriber.Dispose();
         }
     }
 }
