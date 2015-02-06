@@ -1,5 +1,6 @@
 ; Check http://editorconfig.org/ for more informations
 ; Top-most EditorConfig file
+; Use with VisualStudio https://visualstudiogallery.msdn.microsoft.com/c8bccfe2-650c-4b42-bc5c-845e21f96328
 root = true
 
 ; 4-column space indentation
@@ -13,3 +14,12 @@ insert_final_newline = true
 [*.{sln,csroj}]
 trim_trailing_whitespace = false
 insert_final_newline = false
+
+[*.cs]
+indent_size = 4
+
+[*.csproj]
+indent_size = 2
+
+[*.nuspec]
+indent_size = 2
