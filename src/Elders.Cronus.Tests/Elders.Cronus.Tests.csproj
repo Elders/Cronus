@@ -65,7 +65,6 @@
     <Compile Include="AggregateRoot.cs" />
     <Compile Include="NulllEventPublisher.cs" />
     <Compile Include="DomainModeling\When_resolve_scoped_component_out_of_scope.cs" />
-    <Compile Include="InMemoryEventStoreSuite\When_using_in_memory_aggregate_version_service.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_events_for_replay.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_from_event_store.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_saving_aggregate_root_in_event_store.cs" />

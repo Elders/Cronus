@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus

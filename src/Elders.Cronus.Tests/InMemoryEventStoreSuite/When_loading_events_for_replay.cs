@@ -13,7 +13,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
     {
         Establish context = () =>
         {
-            versionService = new InMemoryAggregateRevisionService();
+            versionService = new InMemoryAggregateRootAtomicAction();
             eventStoreStorage = new InMemoryEventStoreStorage();
             eventStore = new InMemoryEventStore(eventStoreStorage);
             eventStoreManager = new InMemoryEventStoreStorageManager();
@@ -44,7 +44,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 
         static TestAggregateId id;
         static InMemoryEventStoreStorage eventStoreStorage;
-        static IAggregateRevisionService versionService;
+        static IAggregateRootAtomicAction versionService;
         static IEventStore eventStore;
         static IEventStoreStorageManager eventStoreManager;
         static IEventStorePlayer eventStorePlayer;

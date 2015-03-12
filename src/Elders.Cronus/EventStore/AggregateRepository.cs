@@ -1,15 +1,16 @@
 ﻿using System.Linq;
 using Elders.Cronus.DomainModeling;
+using System;
 
 namespace Elders.Cronus.EventStore
 {
     public sealed class AggregateRepository : IAggregateRepository
     {
-        private readonly IAggregateRevisionService revisionService;
+        private readonly IAggregateRootAtomicAction revisionService;
         private readonly IEventStore eventStore;
         private readonly IPublisher<IEvent> eventPublisher;
 
-        public AggregateRepository(IEventStore eventStore, IPublisher<IEvent> eventPublisher, IAggregateRevisionService revisionService)
+        public AggregateRepository(IEventStore eventStore, IPublisher<IEvent> eventPublisher, IAggregateRootAtomicAction revisionService)
         {
             this.eventStore = eventStore;
             this.eventPublisher = eventPublisher;
@@ -28,15 +29,18 @@ namespace Elders.Cronus.EventStore
             if (aggregateRoot.UncommittedEvents == null || aggregateRoot.UncommittedEvents.Count() == 0)
                 return;
 
-            int reservedVersion = revisionService.ReserveRevision(aggregateRoot.State.Id, aggregateRoot.Revision);
-            if (reservedVersion != aggregateRoot.Revision)
-            {
-                throw new AggregateStateFirstLevelConcurrencyException();
-            }
-
             AggregateCommit arCommit = new AggregateCommit(aggregateRoot.State.Id, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList());
-            eventStore.Append(arCommit);
-            PublishNewEvents(arCommit);
+
+            Exception error;
+            bool success = revisionService.AtomicAction(
+                aggregateRoot.State.Id,
+                () => eventStore.Append(arCommit),
+                out error);
+
+            if (success)
+                PublishNewEvents(arCommit);
+            else
+                throw new AggregateStateFirstLevelConcurrencyException("", error);
         }
 
         /// <summary>

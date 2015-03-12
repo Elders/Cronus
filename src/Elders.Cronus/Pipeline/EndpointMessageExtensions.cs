@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Serializer;
 

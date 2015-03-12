@@ -98,8 +98,8 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DomainModeling\IAggregateVersionService.cs" />
-    <Compile Include="DomainModeling\InMemoryAggregateRevisionService.cs" />
+    <Compile Include="DomainModeling\IAggregateRootAtomicAction.cs" />
+    <Compile Include="DomainModeling\InMemoryAggregateRootAtomicAction.cs" />
     <Compile Include="EventStore\AggregateRepository.cs" />
     <Compile Include="EventStore\EventStream.cs" />
     <Compile Include="EventStore\InMemory\Config\InMemoryEventStoreSettings.cs" />
@@ -221,7 +221,7 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>

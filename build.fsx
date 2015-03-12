@@ -1,6 +1,5 @@
 ﻿#I @"./bin/tools/FAKE/tools/"
 #r @"./bin/tools/FAKE/tools/FakeLib.dll"
-#load @"./bin/tools/SourceLink.Fake/tools/SourceLink.fsx"
 
 open Fake
 open Fake.Git
@@ -27,6 +26,7 @@ let nugetDir = "./bin/nuget"
 let nugetDependencies = ["Cronus.DomainModeling", "1.2.1"; "log4net", "2.0.3"; "Multithreading.Scheduler", "1.0.1"; "Protoreg", "1.0.11";]
 let nugetDependenciesFlat, _ = nugetDependencies |> List.unzip
 let excludeNugetDependencies = excludePaths nugetDependenciesFlat
+
 Target "Clean" (fun _ -> CleanDirs [buildDir])
 
 Target "AssemblyInfo" (fun _ ->
