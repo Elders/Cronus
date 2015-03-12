@@ -1,3 +1,9 @@
+#### 1.2.6 - 12.03.2015
+* Remove the AggregateRevisionService and put really simple lock
+
+#### 1.2.5 - 12.03.2015
+* Failed to release properly the package
+
 #### 1.2.4 - 15.01.2015
 * Fixed issue when unsubscribing from MessageProcessor
 
