@@ -1,3 +1,6 @@
+#### 1.2.7 - 13.03.2015
+* Cronus is now responsible for initializing the AggregateRepository
+
 #### 1.2.6 - 12.03.2015
 * Remove the AggregateRevisionService and put really simple lock
 
