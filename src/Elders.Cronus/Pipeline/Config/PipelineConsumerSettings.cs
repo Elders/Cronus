@@ -36,16 +36,22 @@ namespace Elders.Cronus.Pipeline.Config
             Func<IEndpontCircuitBreakerFactrory> endpointCircuitBreaker = () => builder.Container.Resolve<IEndpontCircuitBreakerFactrory>(builder.Name);
             Func<IEndpointConsumer> consumer = () => new EndpointConsumer(transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold, endpointCircuitBreaker());
             builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer(), builder.Name);
-
-            builder.Container.RegisterSingleton<IAggregateRootAtomicAction>(() => new InMemoryAggregateRootAtomicAction(), builder.Name);
-            var aggregateRepository = new AggregateRepository(builder.Container.Resolve<IEventStore>(builder.Name), builder.Container.Resolve<IPublisher<IEvent>>(builder.Name), builder.Container.Resolve<IAggregateRootAtomicAction>(builder.Name));
-            builder.Container.RegisterSingleton<IAggregateRepository>(() => aggregateRepository, builder.Name);
         }
     }
 
     public class CommandConsumerSettings : PipelineConsumerSettings<ICommand>
     {
         public CommandConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
+
+        public override void Build()
+        {
+            base.Build();
+
+            var builder = this as ISettingsBuilder;
+            builder.Container.RegisterSingleton<IAggregateRootAtomicAction>(() => new InMemoryAggregateRootAtomicAction(), builder.Name);
+            var aggregateRepository = new AggregateRepository(builder.Container.Resolve<IEventStore>(builder.Name), builder.Container.Resolve<IPublisher<IEvent>>(builder.Name), builder.Container.Resolve<IAggregateRootAtomicAction>(builder.Name));
+            builder.Container.RegisterSingleton<IAggregateRepository>(() => aggregateRepository, builder.Name);
+        }
     }
 
     public class ProjectionConsumerSettings : PipelineConsumerSettings<IEvent>
