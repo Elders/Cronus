@@ -1,3 +1,6 @@
+#### 1.2.8 - 13.03.2015
+* Initialize AggregateRepository only for CommandConsumer
+
 #### 1.2.7 - 13.03.2015
 * Cronus is now responsible for initializing the AggregateRepository
 
