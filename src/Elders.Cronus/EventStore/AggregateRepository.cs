@@ -34,6 +34,7 @@ namespace Elders.Cronus.EventStore
             Exception error;
             bool success = revisionService.AtomicAction(
                 aggregateRoot.State.Id,
+                aggregateRoot.Revision,
                 () => eventStore.Append(arCommit),
                 out error);
 
