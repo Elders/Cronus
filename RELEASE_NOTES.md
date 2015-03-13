@@ -1,3 +1,6 @@
+#### 1.2.9 - 13.03.2015
+* Fix issue with AggregateAtomicAction
+
 #### 1.2.8 - 13.03.2015
 * Initialize AggregateRepository only for CommandConsumer
 
