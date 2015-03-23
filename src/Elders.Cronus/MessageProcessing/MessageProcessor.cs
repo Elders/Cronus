@@ -15,6 +15,8 @@ namespace Elders.Cronus.MessageProcessing
 
         public MessageProcessor(string name, IContainer container)
         {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+
             Name = name;
             subscriptions = new List<MessageProcessorSubscription>();
             this.container = container;

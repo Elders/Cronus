@@ -1,3 +1,6 @@
+#### 1.2.11 - 23.03.2015
+* Minor fixes and added checks
+
 #### 1.2.10 - 13.03.2015
 * MessageProcessor now exposes its subscriptions instead of handler types
 
