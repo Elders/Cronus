@@ -16,7 +16,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
                 IContainer container = new Container();
                 container.RegisterSingleton<IUnitOfWork>(() => new NoUnitOfWork());
 
-                messageStream = new MessageProcessor(container);
+                messageStream = new MessageProcessor("test", container);
                 var subscription1 = new MessageProcessorSubscription(typeof(CalculatorNumber2), typeof(StandardCalculatorSubstractHandler), handlerFacotry.CreateInstance);
                 var subscription2 = new MessageProcessorSubscription(typeof(CalculatorNumber2), typeof(CalculatorHandler_ThrowsException), handlerFacotry.CreateInstance);
 

@@ -6,8 +6,9 @@ namespace Elders.Cronus
 {
     public interface IMessageProcessor
     {
+        string Name { get; }
         IFeedResult Feed(List<TransportMessage> messages);
-        IEnumerable<Type> GetRegisteredHandlers();
+        IEnumerable<MessageProcessorSubscription> GetSubscriptions();
         IDisposable Subscribe(MessageProcessorSubscription subscription);
     }
 }

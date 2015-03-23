@@ -14,6 +14,8 @@ namespace Elders.Cronus.Pipeline.Config
     public interface IMessageProcessorSettings<out TContract> : ISettingsBuilder where TContract : IMessage
     {
         Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> HandlerRegistrations { get; set; }
+
+        string MessageProcessorName { get; set; }
     }
 
     public class InternalApplicationServiceFactory : IMessageHandlerFactory

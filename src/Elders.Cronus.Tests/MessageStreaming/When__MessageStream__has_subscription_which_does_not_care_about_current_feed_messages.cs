@@ -16,7 +16,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
                 IContainer container = new Container();
                 container.RegisterSingleton<IUnitOfWork>(() => new NoUnitOfWork());
 
-                messageStream = new MessageProcessor(container);
+                messageStream = new MessageProcessor("test", container);
                 var subscription1 = new MessageProcessorSubscription(typeof(CalculatorNumber1), typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance);
                 var subscription2 = new MessageProcessorSubscription(typeof(CalculatorNumber1), typeof(ScientificCalculatorHandler), handlerFacotry.CreateInstance);
                 var subscription3 = new MessageProcessorSubscription(typeof(CalculatorNumber2), typeof(StandardCalculatorSubstractHandler), handlerFacotry.CreateInstance);
@@ -55,7 +55,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
                 IContainer container = new Container();
                 container.RegisterSingleton<IUnitOfWork>(() => new NoUnitOfWork());
 
-                messageStream = new MessageProcessor(container);
+                messageStream = new MessageProcessor("test", container);
                 var subscription1 = new MessageProcessorSubscription(typeof(CalculatorNumber1), typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance);
                 var subscription2 = new MessageProcessorSubscription(typeof(CalculatorNumber1), typeof(ScientificCalculatorHandler), handlerFacotry.CreateInstance);
                 var subscription3 = new MessageProcessorSubscription(typeof(CalculatorNumber2), typeof(StandardCalculatorSubstractHandler), handlerFacotry.CreateInstance);

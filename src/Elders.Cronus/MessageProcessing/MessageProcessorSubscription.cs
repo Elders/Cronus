@@ -16,14 +16,18 @@ namespace Elders.Cronus.MessageProcessing
             this.handlerFactory = handlerFactory;
             Id = messageHandlerType.FullName;
         }
+
         public string Id { get; private set; }
+
         public Type MessageType { get; private set; }
+
         public Type MessageHandlerType { get; private set; }
 
         public virtual void OnNext(TransportMessage value)
         {
             dynamic handler = handlerFactory(MessageHandlerType);
             handler.Handle((dynamic)value.Payload);
+            log.Info("HANDLE => " + MessageHandlerType.Name + "( " + value.Payload + " )");
         }
 
         public virtual void OnCompleted()

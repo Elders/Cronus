@@ -50,7 +50,7 @@ namespace Elders.Cronus.Pipeline
                 : NumberOfWorkers;
 
             pools.Clear();
-            foreach (var endpointDefinition in transport.EndpointFactory.GetEndpointDefinition(messageProcessor.GetRegisteredHandlers().ToArray()))
+            foreach (var endpointDefinition in transport.EndpointFactory.GetEndpointDefinition(messageProcessor))
             {
                 var poolName = String.Format("Workpool {0}", endpointDefinition.EndpointName);
                 WorkPool pool = new WorkPool(poolName, workers);

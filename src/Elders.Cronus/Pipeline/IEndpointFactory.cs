@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Elders.Cronus.Pipeline
@@ -7,7 +6,6 @@ namespace Elders.Cronus.Pipeline
     {
         IEndpoint CreateEndpoint(EndpointDefinition definition);
         IEndpoint CreateTopicEndpoint(EndpointDefinition definition);
-
-        IEnumerable<EndpointDefinition> GetEndpointDefinition(Type[] handlerTypes);
+        IEnumerable<EndpointDefinition> GetEndpointDefinition(IMessageProcessor messageProcessor);
     }
 }

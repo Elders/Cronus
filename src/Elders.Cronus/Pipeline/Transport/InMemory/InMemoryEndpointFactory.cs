@@ -19,9 +19,9 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             return transport.GetOrAddEndpoint(definition);
         }
 
-        public IEnumerable<EndpointDefinition> GetEndpointDefinition(Type[] handlerTypes)
+        public IEnumerable<EndpointDefinition> GetEndpointDefinition(IMessageProcessor messageProcessor)
         {
-            return endpointNameConvention.GetEndpointDefinition(handlerTypes);
+            return endpointNameConvention.GetEndpointDefinition(messageProcessor);
         }
 
         public IEndpoint CreateTopicEndpoint(EndpointDefinition definition)

@@ -6,18 +6,21 @@ using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.MessageProcessing
 {
-    public class MessageProcessor : IObservable<MessageProcessorSubscription>, IDisposable, IMessageProcessor
+    public sealed class MessageProcessor : IObservable<MessageProcessorSubscription>, IDisposable, IMessageProcessor
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageProcessor));
 
         private readonly IContainer container;
         private readonly List<MessageProcessorSubscription> subscriptions;
 
-        public MessageProcessor(IContainer container)
+        public MessageProcessor(string name, IContainer container)
         {
+            Name = name;
             subscriptions = new List<MessageProcessorSubscription>();
             this.container = container;
         }
+
+        public string Name { get; private set; }
 
         public IDisposable Subscribe(MessageProcessorSubscription subscription)
         {
@@ -146,12 +149,9 @@ namespace Elders.Cronus.MessageProcessing
         //  Tova e taka narochno.
         IDisposable IObservable<MessageProcessorSubscription>.Subscribe(IObserver<MessageProcessorSubscription> subscription) { throw new NotImplementedException(); }
 
-        public IEnumerable<Type> GetRegisteredHandlers()
+        public IEnumerable<MessageProcessorSubscription> GetSubscriptions()
         {
-            var handlerTypes = (from subscription in subscriptions
-                                select subscription.MessageHandlerType)
-                               .Distinct();
-            return handlerTypes;
+            return subscriptions.AsReadOnly();
         }
 
         public class FeedResult : IFeedResult
