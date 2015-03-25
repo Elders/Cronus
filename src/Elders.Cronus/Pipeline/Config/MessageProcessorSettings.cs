@@ -147,7 +147,8 @@ namespace Elders.Cronus.Pipeline.Config
         public static T UseApplicationServices<T>(this T self, Action<ApplicationServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
         {
             ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self, t => typeof(IAggregateRootApplicationService).IsAssignableFrom(t));
-            (settings as IMessageProcessorSettings<IEvent>).MessageProcessorName = "Commands";
+            IMessageProcessorSettings<ICommand> casted = settings;
+            casted.MessageProcessorName = "Commands";
             if (configure != null)
                 configure(settings);
 

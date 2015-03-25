@@ -1,3 +1,6 @@
+#### 1.2.14 - 25.03.2015
+* Fix minor issue with hosting a application services
+
 #### 1.2.13 - 25.03.2015
 * Fix broken contract with RabbitMQ
 
