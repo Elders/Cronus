@@ -6,32 +6,112 @@ using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public class MessageProcessorSettings<TContract> : SettingsBuilder, IMessageProcessorSettings<TContract> where TContract : IMessage
+    public class ProjectionMessageProcessorSettings : SettingsBuilder, IMessageProcessorSettings<IEvent>
     {
-        public MessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
+        public ProjectionMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
         {
             this.discriminator = discriminator;
         }
         private Func<Type, bool> discriminator;
 
-        Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> IMessageProcessorSettings<TContract>.HandlerRegistrations { get; set; }
+        Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> IMessageProcessorSettings<IEvent>.HandlerRegistrations { get; set; }
 
-        string IMessageProcessorSettings<TContract>.MessageProcessorName { get; set; }
+        string IMessageProcessorSettings<IEvent>.MessageProcessorName { get; set; }
 
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            var processorSettings = this as IMessageProcessorSettings<TContract>;
+            var processorSettings = this as IMessageProcessorSettings<IEvent>;
             Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
             {
                 IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName, builder.Container);
 
-                foreach (var reg in (this as IMessageProcessorSettings<TContract>).HandlerRegistrations)
+                foreach (var reg in (this as IMessageProcessorSettings<IEvent>).HandlerRegistrations)
                 {
                     foreach (var item in reg.Value)
                     {
                         if (discriminator == null || discriminator(item.Item1))
-                            handler.Subscribe(new MessageProcessorSubscription(reg.Key, item.Item1, item.Item2));
+                        {
+                            var handlerFactory = new DefaultHandlerFactory(item.Item1, item.Item2);
+                            handler.Subscribe(new ProjectionSubscription(reg.Key, handlerFactory));
+                        }
+                    }
+                }
+                return handler;
+            };
+            builder.Container.RegisterSingleton<IMessageProcessor>(() => messageHandlerProcessorFactory(), builder.Name);
+        }
+    }
+
+    public class PortMessageProcessorSettings : SettingsBuilder, IMessageProcessorSettings<IEvent>
+    {
+        public PortMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
+        {
+            this.discriminator = discriminator;
+        }
+        private Func<Type, bool> discriminator;
+
+        Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> IMessageProcessorSettings<IEvent>.HandlerRegistrations { get; set; }
+
+        string IMessageProcessorSettings<IEvent>.MessageProcessorName { get; set; }
+
+        public override void Build()
+        {
+            var builder = this as ISettingsBuilder;
+            var processorSettings = this as IMessageProcessorSettings<IEvent>;
+            Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
+            {
+                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName, builder.Container);
+
+                foreach (var reg in (this as IMessageProcessorSettings<IEvent>).HandlerRegistrations)
+                {
+                    foreach (var item in reg.Value)
+                    {
+                        if (discriminator == null || discriminator(item.Item1))
+                        {
+                            var handlerFactory = new DefaultHandlerFactory(item.Item1, item.Item2);
+                            var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
+                            handler.Subscribe(new PortSubscription(reg.Key, handlerFactory, publisher));
+                        }
+                    }
+                }
+                return handler;
+            };
+            builder.Container.RegisterSingleton<IMessageProcessor>(() => messageHandlerProcessorFactory(), builder.Name);
+        }
+    }
+
+    public class ApplicationServiceMessageProcessorSettings : SettingsBuilder, IMessageProcessorSettings<ICommand>
+    {
+        public ApplicationServiceMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
+        {
+            this.discriminator = discriminator;
+        }
+        private Func<Type, bool> discriminator;
+
+        Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> IMessageProcessorSettings<ICommand>.HandlerRegistrations { get; set; }
+
+        string IMessageProcessorSettings<ICommand>.MessageProcessorName { get; set; }
+
+        public override void Build()
+        {
+            var builder = this as ISettingsBuilder;
+            var processorSettings = this as IMessageProcessorSettings<ICommand>;
+            Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
+            {
+                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName, builder.Container);
+
+                foreach (var reg in (this as IMessageProcessorSettings<ICommand>).HandlerRegistrations)
+                {
+                    foreach (var item in reg.Value)
+                    {
+                        if (discriminator == null || discriminator(item.Item1))
+                        {
+                            var handlerFactory = new DefaultHandlerFactory(item.Item1, item.Item2);
+                            var repository = builder.Container.Resolve<IAggregateRepository>(builder.Name);
+                            var publisher = builder.Container.Resolve<IPublisher<IEvent>>(builder.Name);
+                            handler.Subscribe(new ApplicationServiceSubscription(reg.Key, handlerFactory, repository, publisher));
+                        }
                     }
                 }
                 return handler;
@@ -42,9 +122,9 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class MessageProcessorWithSafeBatchSettingsExtensions
     {
-        public static T UseProjections<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : IConsumerSettings<IEvent>
+        public static T UseProjections<T>(this T self, Action<ProjectionMessageProcessorSettings> configure) where T : IConsumerSettings<IEvent>
         {
-            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self, t => typeof(IProjection).IsAssignableFrom(t));
+            ProjectionMessageProcessorSettings settings = new ProjectionMessageProcessorSettings(self, t => typeof(IProjection).IsAssignableFrom(t));
             (settings as IMessageProcessorSettings<IEvent>).MessageProcessorName = "Projections";
             if (configure != null)
                 configure(settings);
@@ -53,9 +133,9 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UsePorts<T>(this T self, Action<MessageProcessorSettings<IEvent>> configure) where T : PortConsumerSettings
+        public static T UsePorts<T>(this T self, Action<PortMessageProcessorSettings> configure) where T : PortConsumerSettings
         {
-            MessageProcessorSettings<IEvent> settings = new MessageProcessorSettings<IEvent>(self, t => typeof(IPort).IsAssignableFrom(t));
+            PortMessageProcessorSettings settings = new PortMessageProcessorSettings(self, t => typeof(IPort).IsAssignableFrom(t));
             (settings as IMessageProcessorSettings<IEvent>).MessageProcessorName = "Ports";
             if (configure != null)
                 configure(settings);
@@ -64,9 +144,9 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UseApplicationServices<T>(this T self, Action<MessageProcessorSettings<ICommand>> configure) where T : IConsumerSettings<ICommand>
+        public static T UseApplicationServices<T>(this T self, Action<ApplicationServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
         {
-            MessageProcessorSettings<ICommand> settings = new MessageProcessorSettings<ICommand>(self, t => typeof(IAggregateRootApplicationService).IsAssignableFrom(t));
+            ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self, t => typeof(IAggregateRootApplicationService).IsAssignableFrom(t));
             (settings as IMessageProcessorSettings<IEvent>).MessageProcessorName = "Commands";
             if (configure != null)
                 configure(settings);

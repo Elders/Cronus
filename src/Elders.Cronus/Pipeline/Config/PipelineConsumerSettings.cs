@@ -49,7 +49,7 @@ namespace Elders.Cronus.Pipeline.Config
 
             var builder = this as ISettingsBuilder;
             builder.Container.RegisterSingleton<IAggregateRootAtomicAction>(() => new InMemoryAggregateRootAtomicAction(), builder.Name);
-            var aggregateRepository = new AggregateRepository(builder.Container.Resolve<IEventStore>(builder.Name), builder.Container.Resolve<IPublisher<IEvent>>(builder.Name), builder.Container.Resolve<IAggregateRootAtomicAction>(builder.Name));
+            var aggregateRepository = new AggregateRepository(builder.Container.Resolve<IEventStore>(builder.Name), builder.Container.Resolve<IAggregateRootAtomicAction>(builder.Name));
             builder.Container.RegisterSingleton<IAggregateRepository>(() => aggregateRepository, builder.Name);
         }
     }

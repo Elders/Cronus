@@ -25,7 +25,7 @@ namespace Elders.Cronus
                 InternalErrors.Add(error);
         }
 
-        public TransportMessage(Guid id, IMessage message)
+        public TransportMessage(Guid id, Message message)
         {
             Id = id;
             Age = 1;
@@ -33,7 +33,7 @@ namespace Elders.Cronus
             InternalErrors = new List<object>();
         }
 
-        public TransportMessage(IMessage message)
+        public TransportMessage(Message message)
         {
             Id = Guid.NewGuid();
             Age = 1;
@@ -47,13 +47,16 @@ namespace Elders.Cronus
         [DataMember(Order = 2)]
         public int Age { get; set; }
 
+        [Obsolete("Do not use this. Will be removed after 2015-07-01")]
         [DataMember(Order = 3)]
-        public object Payload { get; private set; }
+        public object Obsolete { get; private set; }
 
         [DataMember(Order = 4)]
         private List<object> InternalErrors { get; set; }
         public List<FeedError> Errors { get { return InternalErrors.Cast<FeedError>().ToList(); } }
 
+        [DataMember(Order = 5)]
+        public Message Payload { get; private set; }
 
         public override bool Equals(System.Object obj)
         {

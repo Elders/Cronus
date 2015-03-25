@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Tests.TestModel;
 using Elders.Cronus.UnitOfWork;
 using Machine.Specifications;
 
@@ -17,14 +19,14 @@ namespace Elders.Cronus.Tests.MessageStreaming
                 container.RegisterSingleton<IUnitOfWork>(() => new NoUnitOfWork());
 
                 messageStream = new MessageProcessor("test", container);
-                var subscription1 = new MessageProcessorSubscription(typeof(CalculatorNumber1), typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance);
-                var subscription2 = new MessageProcessorSubscription(typeof(CalculatorNumber1), typeof(ScientificCalculatorHandler), handlerFacotry.CreateInstance);
+                var subscription1 = new TestSubscription(typeof(CalculatorNumber1), new DefaultHandlerFactory(typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance));
+                var subscription2 = new TestSubscription(typeof(CalculatorNumber1), new DefaultHandlerFactory(typeof(ScientificCalculatorHandler), handlerFacotry.CreateInstance));
 
                 messages = new List<TransportMessage>();
                 for (int i = 1; i < numberOfMessages + 1; i++)
                 {
-                    messages.Add(new TransportMessage(new CalculatorNumber1(i)));
-                    messages.Add(new TransportMessage(new CalculatorNumber2(i)));
+                    messages.Add(new TransportMessage(new Message(new CalculatorNumber1(i))));
+                    messages.Add(new TransportMessage(new Message(new CalculatorNumber2(i))));
                 }
                 messageStream.Subscribe(subscription1);
                 messageStream.Subscribe(subscription2);

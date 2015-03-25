@@ -17,7 +17,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             eventStore = new InMemoryEventStore(eventStoreStorage);
             eventStoreManager = new InMemoryEventStoreStorageManager();
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
-            aggregateRepository = new AggregateRepository(eventStore, new NulllEventPublisher(), versionService);
+            aggregateRepository = new AggregateRepository(eventStore, versionService);
             eventStoreManager.CreateStorage();
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);

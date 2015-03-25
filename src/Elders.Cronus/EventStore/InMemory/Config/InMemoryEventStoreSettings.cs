@@ -30,7 +30,7 @@ namespace Elders.Cronus.EventStore.InMemory.Config
             builder.Container.RegisterSingleton<InMemoryEventStoreStorage>(() => new InMemoryEventStoreStorage());
             builder.Container.RegisterSingleton<IAggregateRootAtomicAction>(() => new InMemoryAggregateRootAtomicAction());
             builder.Container.RegisterSingleton<IEventStore>(() => new InMemoryEventStore(builder.Container.Resolve<InMemoryEventStoreStorage>()));
-            builder.Container.RegisterSingleton<IAggregateRepository>(() => new AggregateRepository(builder.Container.Resolve<IEventStore>(), builder.Container.Resolve<IPublisher<IEvent>>(), builder.Container.Resolve<IAggregateRootAtomicAction>()));
+            builder.Container.RegisterSingleton<IAggregateRepository>(() => new AggregateRepository(builder.Container.Resolve<IEventStore>(), builder.Container.Resolve<IAggregateRootAtomicAction>()));
             builder.Container.RegisterSingleton<IEventStorePlayer>(() => new InMemoryEventStorePlayer(builder.Container.Resolve<InMemoryEventStoreStorage>()));
             builder.Container.RegisterSingleton<IEventStoreStorageManager>(() => new InMemoryEventStoreStorageManager());
         }

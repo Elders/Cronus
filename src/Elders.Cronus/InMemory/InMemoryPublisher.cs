@@ -14,9 +14,10 @@ namespace Elders.Cronus.InMemory
         {
             this.messageProcessor = messageProcessor;
         }
-        protected override bool PublishInternal(TContract message)
+
+        protected override bool PublishInternal(TContract message, Dictionary<string, string> messageHeaders)
         {
-            var result = messageProcessor.Feed(new List<TransportMessage>() { new TransportMessage(message) });
+            var result = messageProcessor.Feed(new List<TransportMessage>() { new TransportMessage(new Message(message)) });
             if (result.FailedMessages != null && result.FailedMessages.Count() > 0)
             {
                 foreach (var msg in result.FailedMessages)

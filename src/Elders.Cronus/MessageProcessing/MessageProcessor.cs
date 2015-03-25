@@ -77,7 +77,7 @@ namespace Elders.Cronus.MessageProcessing
                                          where feedError.Origin.Type == ErrorOriginType.MessageHandler && !isUnitOfWorkError
                                          select feedError.Origin.Id.ToString();
 
-                        var messageType = message.Payload.GetType();
+                        var messageType = message.Payload.Payload.GetType();
                         var subscribers = from subscription in subscriptions
                                           where messageType == subscription.MessageType
                                           select subscription;
@@ -117,7 +117,7 @@ namespace Elders.Cronus.MessageProcessing
                     {
                         try
                         {
-                            handlerSubscription.OnNext(message);
+                            handlerSubscription.OnNext(message.Payload);
                             feedResult = feedResult.AppendSuccess(message);
                         }
                         catch (Exception ex)

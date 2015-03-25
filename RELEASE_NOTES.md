@@ -1,3 +1,7 @@
+#### 1.2.12 - 25.03.2015
+* MessageProcessor now works with Message
+* Introduce different MessageProcessorSubsctipyions for each type of handlers.
+
 #### 1.2.11 - 23.03.2015
 * Minor fixes and added checks
 

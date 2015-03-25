@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
@@ -26,11 +27,17 @@ namespace Elders.Cronus.Pipeline
             this.serializer = serializer;
         }
 
-        protected override bool PublishInternal(T message)
+        protected override bool PublishInternal(T message, Dictionary<string, string> messageHeaders)
         {
+            TransportMessage transportMessage = new TransportMessage(new Message(message, messageHeaders));
+
+            byte[] body = serializer.SerializeToBytes(transportMessage);
+            Dictionary<string, object> headers = new Dictionary<string, object>() { { MessageInfo.GetContractId(transportMessage.Payload.Payload.GetType()), String.Empty } };
+            EndpointMessage endpointMessage = new EndpointMessage(body, string.Empty, headers);
+
             transport.PipelineFactory
                 .GetPipeline(message.GetType())
-                .Push(message.AsEndpointMessage(serializer));
+                .Push(endpointMessage);
             return true;
         }
 

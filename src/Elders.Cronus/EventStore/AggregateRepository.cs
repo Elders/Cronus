@@ -8,15 +8,12 @@ namespace Elders.Cronus.EventStore
     {
         private readonly IAggregateRootAtomicAction revisionService;
         private readonly IEventStore eventStore;
-        private readonly IPublisher<IEvent> eventPublisher;
 
-        public AggregateRepository(IEventStore eventStore, IPublisher<IEvent> eventPublisher, IAggregateRootAtomicAction revisionService)
+        public AggregateRepository(IEventStore eventStore, IAggregateRootAtomicAction revisionService)
         {
             this.eventStore = eventStore;
-            this.eventPublisher = eventPublisher;
             this.revisionService = revisionService;
         }
-
 
         /// <summary>
         /// Saves the specified aggregate root.
@@ -38,10 +35,13 @@ namespace Elders.Cronus.EventStore
                 () => eventStore.Append(arCommit),
                 out error);
 
-            if (success)
-                PublishNewEvents(arCommit);
-            else
+            if (success == false)
                 throw new AggregateStateFirstLevelConcurrencyException("", error);
+            else
+            {
+                //  #prodalzavameNapred
+                //  #bravoKobra
+            }
         }
 
         /// <summary>
@@ -56,11 +56,5 @@ namespace Elders.Cronus.EventStore
             AR aggregateRoot = eventStream.RestoreFromHistory<AR>();
             return aggregateRoot;
         }
-
-        public void PublishNewEvents(AggregateCommit aggregateCommit)
-        {
-            aggregateCommit.Events.ForEach(e => eventPublisher.Publish(e));
-        }
     }
-
 }

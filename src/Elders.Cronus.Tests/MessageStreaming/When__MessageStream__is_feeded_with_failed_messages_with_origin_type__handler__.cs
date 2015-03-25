@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
+using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Tests.TestModel;
 using Elders.Cronus.UnitOfWork;
 using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.MessageStreaming
 {
-
     [Subject("")]
     public class When__MessageStream__is_feeded_with_failed_messages_with_origin_type__handler__
     {
@@ -18,14 +19,14 @@ namespace Elders.Cronus.Tests.MessageStreaming
                 container.RegisterSingleton<IUnitOfWork>(() => new NoUnitOfWork());
                 messageStream = new MessageProcessor("test", container);
                 messages = new List<TransportMessage>();
-                var subscription3 = new MessageProcessorSubscription(typeof(CalculatorNumber2), typeof(StandardCalculatorSubstractHandler), handlerFacotry.CreateInstance);
-                var subscription4 = new MessageProcessorSubscription(typeof(CalculatorNumber2), typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance);
+                var subscription3 = new TestSubscription(typeof(CalculatorNumber2), new DefaultHandlerFactory(typeof(StandardCalculatorSubstractHandler), handlerFacotry.CreateInstance));
+                var subscription4 = new TestSubscription(typeof(CalculatorNumber2), new DefaultHandlerFactory(typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance));
 
                 messageStream.Subscribe(subscription3);
                 messageStream.Subscribe(subscription4);
                 for (int i = 1; i < numberOfMessages + 1; i++)
                 {
-                    var normalMessage = new TransportMessage(new CalculatorNumber2(i));
+                    var normalMessage = new TransportMessage(new Message(new CalculatorNumber2(i)));
                     var failedMessage = new TransportMessage(normalMessage, new FeedError() { Origin = new ErrorOrigin(subscription4.Id, "handler") });
                     failedMessage.Age = 2;
                     messages.Add(failedMessage);
