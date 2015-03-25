@@ -23,7 +23,7 @@ let projectAuthors = ["Nikolai Mynkow"; "Simeon Dimov";]
 
 let packages = ["Cronus", projectDescription]
 let nugetDir = "./bin/nuget"
-let nugetDependencies = ["Cronus.DomainModeling", "1.2.1"; "log4net", "2.0.3"; "Multithreading.Scheduler", "1.0.1"; "Protoreg", "1.0.11";]
+let nugetDependencies = ["Cronus.DomainModeling", "1.2.3"; "log4net", "2.0.3"; "Multithreading.Scheduler", "1.0.1"; "Protoreg", "1.0.11";]
 let nugetDependenciesFlat, _ = nugetDependencies |> List.unzip
 let excludeNugetDependencies = excludePaths nugetDependenciesFlat
 

@@ -1,3 +1,6 @@
+#### 1.2.13 - 25.03.2015
+* Fix broken contract with RabbitMQ
+
 #### 1.2.12 - 25.03.2015
 * MessageProcessor now works with Message
 * Introduce different MessageProcessorSubsctipyions for each type of handlers.

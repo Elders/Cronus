@@ -15,7 +15,7 @@ namespace Elders.Cronus.MessageProcessing
         public MessageProcessorSubscription(Type messageType, Type handlerType)
         {
             MessageType = messageType;
-            HandlerType = handlerType;
+            MessageHandlerType = handlerType;
             Id = BuildId();
         }
 
@@ -29,12 +29,12 @@ namespace Elders.Cronus.MessageProcessing
         /// </value>
         public Type MessageType { get; private set; }
 
-        public Type HandlerType { get; private set; }
+        public Type MessageHandlerType { get; private set; }
 
         public void OnNext(Message value)
         {
             InternalOnNext(value);
-            log.Info("HANDLE => " + HandlerType.Name + "( " + value.Payload + " )");
+            log.Info("HANDLE => " + MessageHandlerType.Name + "( " + value.Payload + " )");
         }
 
         public void OnCompleted()
@@ -68,7 +68,7 @@ namespace Elders.Cronus.MessageProcessing
 
         protected virtual string BuildId()
         {
-            return HandlerType.FullName;
+            return MessageHandlerType.FullName;
         }
 
         protected abstract void InternalOnNext(Message value);
