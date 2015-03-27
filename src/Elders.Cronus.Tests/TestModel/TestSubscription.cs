@@ -9,7 +9,7 @@ namespace Elders.Cronus.Tests.TestModel
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(TestSubscription));
 
         public TestSubscription(Type messageType, IHandlerFactory factory)
-            : base(messageType, factory.MessageHandlerType)
+            : base("Elders.Cronus.Tests", messageType, factory.MessageHandlerType)
         {
             Factory = factory;
         }

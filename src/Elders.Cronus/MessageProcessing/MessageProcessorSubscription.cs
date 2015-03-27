@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.EventStore;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -10,13 +9,16 @@ namespace Elders.Cronus.MessageProcessing
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageProcessorSubscription));
 
+        private readonly Type messageHandlerType;
+
         private IDisposable unsubscriber;
 
-        public MessageProcessorSubscription(Type messageType, Type handlerType)
+        public MessageProcessorSubscription(string name, Type messageType, Type handlerType)
         {
             MessageType = messageType;
-            MessageHandlerType = handlerType;
+            messageHandlerType = handlerType;
             Id = BuildId();
+            Name = name;
         }
 
         public string Id { get; private set; }
@@ -29,12 +31,12 @@ namespace Elders.Cronus.MessageProcessing
         /// </value>
         public Type MessageType { get; private set; }
 
-        public Type MessageHandlerType { get; private set; }
+        public string Name { get; set; }
 
         public void OnNext(Message value)
         {
             InternalOnNext(value);
-            log.Info("HANDLE => " + MessageHandlerType.Name + "( " + value.Payload + " )");
+            log.Info("HANDLE => " + messageHandlerType.Name + "( " + value.Payload + " )");
         }
 
         public void OnCompleted()
@@ -68,7 +70,7 @@ namespace Elders.Cronus.MessageProcessing
 
         protected virtual string BuildId()
         {
-            return MessageHandlerType.FullName;
+            return messageHandlerType.FullName;
         }
 
         protected abstract void InternalOnNext(Message value);
@@ -84,8 +86,8 @@ namespace Elders.Cronus.MessageProcessing
 
         private readonly IAggregateRepository aggregateRepository;
 
-        public ApplicationServiceSubscription(Type messageType, IHandlerFactory factory, IAggregateRepository aggregateRepository, IPublisher<IEvent> eventPublisher)
-            : base(messageType, factory.MessageHandlerType)
+        public ApplicationServiceSubscription(string name, Type messageType, IHandlerFactory factory, IAggregateRepository aggregateRepository, IPublisher<IEvent> eventPublisher)
+            : base(name, messageType, factory.MessageHandlerType)
         {
             handlerFactory = factory;
             this.aggregateRepository = new RepositoryProxy(aggregateRepository, eventPublisher);
@@ -144,8 +146,8 @@ namespace Elders.Cronus.MessageProcessing
     {
         private readonly IHandlerFactory handlerFactory;
 
-        public ProjectionSubscription(Type messageType, IHandlerFactory factory)
-            : base(messageType, factory.MessageHandlerType)
+        public ProjectionSubscription(string name, Type messageType, IHandlerFactory factory)
+            : base(name, messageType, factory.MessageHandlerType)
         {
             handlerFactory = factory;
         }
@@ -162,8 +164,8 @@ namespace Elders.Cronus.MessageProcessing
         private readonly IHandlerFactory handlerFactory;
         private readonly IPublisher<ICommand> commandPublisher;
 
-        public PortSubscription(Type messageType, IHandlerFactory factory, IPublisher<ICommand> commandPublisher)
-            : base(messageType, factory.MessageHandlerType)
+        public PortSubscription(string name, Type messageType, IHandlerFactory factory, IPublisher<ICommand> commandPublisher)
+            : base(name, messageType, factory.MessageHandlerType)
         {
             handlerFactory = factory;
             this.commandPublisher = commandPublisher;

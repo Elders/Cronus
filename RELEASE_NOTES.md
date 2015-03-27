@@ -1,3 +1,6 @@
+#### 1.2.15 - 27.03.2015
+* Add Subscription name and remove MessageHanderType from public members of the subscription.
+
 #### 1.2.14 - 25.03.2015
 * Fix minor issue with hosting a application services
 

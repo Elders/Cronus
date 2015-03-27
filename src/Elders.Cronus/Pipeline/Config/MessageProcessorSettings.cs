@@ -33,7 +33,8 @@ namespace Elders.Cronus.Pipeline.Config
                         if (discriminator == null || discriminator(item.Item1))
                         {
                             var handlerFactory = new DefaultHandlerFactory(item.Item1, item.Item2);
-                            handler.Subscribe(new ProjectionSubscription(reg.Key, handlerFactory));
+                            var subscriptionName = String.Format("{0}.{1}", handlerFactory.MessageHandlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
+                            handler.Subscribe(new ProjectionSubscription(subscriptionName, reg.Key, handlerFactory));
                         }
                     }
                 }
@@ -71,7 +72,8 @@ namespace Elders.Cronus.Pipeline.Config
                         {
                             var handlerFactory = new DefaultHandlerFactory(item.Item1, item.Item2);
                             var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
-                            handler.Subscribe(new PortSubscription(reg.Key, handlerFactory, publisher));
+                            var subscriptionName = String.Format("{0}.{1}", handlerFactory.MessageHandlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
+                            handler.Subscribe(new PortSubscription(subscriptionName, reg.Key, handlerFactory, publisher));
                         }
                     }
                 }
@@ -110,7 +112,8 @@ namespace Elders.Cronus.Pipeline.Config
                             var handlerFactory = new DefaultHandlerFactory(item.Item1, item.Item2);
                             var repository = builder.Container.Resolve<IAggregateRepository>(builder.Name);
                             var publisher = builder.Container.Resolve<IPublisher<IEvent>>(builder.Name);
-                            handler.Subscribe(new ApplicationServiceSubscription(reg.Key, handlerFactory, repository, publisher));
+                            var subscriptionName = String.Format("{0}.{1}", handlerFactory.MessageHandlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
+                            handler.Subscribe(new ApplicationServiceSubscription(subscriptionName, reg.Key, handlerFactory, repository, publisher));
                         }
                     }
                 }
