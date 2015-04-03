@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 
@@ -18,9 +19,14 @@ namespace Elders.Cronus.EventStore.InMemory
         /// </summary>
         /// <param name="batchPerQuery">The batch per query.</param>
         /// <returns></returns>
-        public IEnumerable<IEvent> GetEventsFromStart(int batchPerQuery = 1)
+        public IEnumerable<AggregateCommit> GetFromStart(int batchPerQuery = 1)
         {
             return this.eventStoreStorage.GetOrderedEvents();
+        }
+
+        public IEnumerable<AggregateCommit> GetFromStart(DateTime start, DateTime end, int batchPerQuery = 1)
+        {
+            throw new NotImplementedException();
         }
     }
 }

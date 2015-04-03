@@ -1,3 +1,6 @@
+#### 1.2.16 - 04.04.2015
+* Replaying events now returns the entire AggregateCommit
+
 #### 1.2.15 - 27.03.2015
 * Add Subscription name and remove MessageHanderType from public members of the subscription.
 

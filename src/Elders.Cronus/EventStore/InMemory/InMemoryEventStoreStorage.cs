@@ -22,17 +22,14 @@ namespace Elders.Cronus.EventStore.InMemory
         /// Gets the ordered events.
         /// </summary>
         /// <returns></returns>
-        internal protected IEnumerable<IEvent> GetOrderedEvents()
+        internal protected IEnumerable<AggregateCommit> GetOrderedEvents()
         {
             while (!eventsForReplay.IsEmpty)
             {
                 AggregateCommit commit;
                 if (eventsForReplay.TryDequeue(out commit))
                 {
-                    foreach (var @event in commit.Events)
-                    {
-                        yield return @event;
-                    }
+                    yield return commit;
                 }
             }
         }

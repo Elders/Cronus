@@ -38,7 +38,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
         };
 
-        Because of = () => events = eventStorePlayer.GetEventsFromStart().ToList();
+        Because of = () => events = eventStorePlayer.GetFromStart().ToList();
 
         It should_load_all_events = () => events.Count.ShouldEqual(3);
 
@@ -51,6 +51,6 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
         static IAggregateRepository aggregateRepository;
         static TestAggregateRoot aggregateRoot;
         static TestAggregateRoot secondAggregateRoot;
-        static List<IEvent> events;
+        static List<AggregateCommit> events;
     }
 }
