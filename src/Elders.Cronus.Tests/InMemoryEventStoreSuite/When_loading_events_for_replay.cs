@@ -38,7 +38,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
         };
 
-        Because of = () => events = eventStorePlayer.GetFromStart().ToList();
+        Because of = () => events = eventStorePlayer.LoadAggregateCommits().ToList();
 
         It should_load_all_events = () => events.Count.ShouldEqual(3);
 

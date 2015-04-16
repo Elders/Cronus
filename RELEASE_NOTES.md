@@ -1,3 +1,6 @@
+#### 1.2.17 - 04.16.2015
+* Replaying events now returns unordered list of AggregateCommit
+
 #### 1.2.16 - 04.04.2015
 * Replaying events now returns the entire AggregateCommit
 
