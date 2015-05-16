@@ -1,11 +1,5 @@
-#### 2.0.0-alpha10 - 16.05.2015
-* Externalize the serialization intto a separate nuget package
-
-#### 2.0.0-alpha09 - 15.05.2015
-* Update Proteus
-
-#### 2.0.0-alpha08 - 15.05.2015
-* Update Proteus
+#### 2.0.0 - 15.05.2015
+* Externalize the serialization into a separate nuget package
 
 #### 1.2.17 - 04.16.2015
 * Replaying events now returns unordered list of AggregateCommit
