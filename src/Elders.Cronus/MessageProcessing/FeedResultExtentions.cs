@@ -28,7 +28,7 @@ namespace Elders.Cronus.MessageProcessing
             return self.AppendError(message, new FeedError()
             {
                 Origin = new ErrorOrigin(uow.Id, ErrorOriginType.UnitOfWork),
-                Error = new Protoreg.ProtoregSerializableException(ex)
+                Error = new SerializableException(ex)
             });
         }
 
@@ -37,7 +37,7 @@ namespace Elders.Cronus.MessageProcessing
             return self.AppendError(messages, new FeedError()
             {
                 Origin = new ErrorOrigin(uow.Id, ErrorOriginType.UnitOfWork),
-                Error = new Protoreg.ProtoregSerializableException(ex)
+                Error = new SerializableException(ex)
             });
         }
 

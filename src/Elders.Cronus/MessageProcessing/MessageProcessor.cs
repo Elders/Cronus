@@ -126,7 +126,7 @@ namespace Elders.Cronus.MessageProcessing
                             feedResult = feedResult.AppendError(message, new FeedError()
                             {
                                 Origin = new ErrorOrigin(handlerSubscription.Id, ErrorOriginType.MessageHandler),
-                                Error = new Protoreg.ProtoregSerializableException(ex)
+                                Error = new SerializableException(ex)
                             });
                         }
                     }

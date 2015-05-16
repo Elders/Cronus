@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using Elders.Cronus.DomainModeling;
-using Elders.Protoreg;
 
 namespace Elders.Cronus
 {
@@ -103,7 +102,7 @@ namespace Elders.Cronus
         public ErrorOrigin Origin { get; set; }
 
         [DataMember(Order = 2)]
-        public ProtoregSerializableException Error { get; set; }
+        public SerializableException Error { get; set; }
     }
 
     [DataContract(Name = "a4ede1c9-38cb-4f45-a201-e79133bb8b20")]
