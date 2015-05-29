@@ -1,6 +1,0 @@
-install:
-  - cmd: git submodule -q update --init
-
-build_script:
-  - build.cmd
-test: off
