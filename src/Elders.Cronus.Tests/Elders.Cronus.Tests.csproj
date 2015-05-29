@@ -33,9 +33,23 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elders.Protoreg, Version=1.0.11.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Elders.Cronus, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Protoreg.1.0.11\lib\net45-full\Elders.Protoreg.dll</HintPath>
+      <HintPath>..\packages\Cronus.2.0.0\lib\net45-full\Elders.Cronus.dll</HintPath>
+    </Reference>
+    <Reference Include="Elders.Cronus.DomainModeling, Version=1.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Cronus.DomainModeling.1.2.3\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
+    </Reference>
+    <Reference Include="Elders.Cronus.Serialization.Proteus">
+      <HintPath>..\packages\Cronus.Serialization.Proteus.2.0.0\lib\net45-full\Elders.Cronus.Serialization.Proteus.dll</HintPath>
+    </Reference>
+    <Reference Include="Elders.Multithreading.Scheduler, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Multithreading.Scheduler.1.0.1\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
+    </Reference>
+    <Reference Include="Elders.Proteus">
+      <HintPath>..\packages\Proteus.1.0.6\lib\net45-full\Elders.Proteus.dll</HintPath>
     </Reference>
     <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -52,9 +66,6 @@
     <Reference Include="Machine.Specifications.Should, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Machine.Specifications.Should.0.8.0-Unstable0011\lib\net45\Machine.Specifications.Should.dll</HintPath>
-    </Reference>
-    <Reference Include="protobuf-net">
-      <HintPath>..\packages\protobuf-net.2.0.0.668\lib\net40\protobuf-net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -103,16 +114,6 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Elders.Cronus.DomainModeling\src\Elders.Cronus.DomainModeling\Elders.Cronus.DomainModeling.csproj">
-      <Project>{3603583e-c261-4aa6-ae73-b3f4c7440d7c}</Project>
-      <Name>Elders.Cronus.DomainModeling</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Elders.Cronus\Elders.Cronus.csproj">
-      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
-      <Name>Elders.Cronus</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
