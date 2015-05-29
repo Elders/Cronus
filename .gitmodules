@@ -1,4 +1,4 @@
 [submodule "src/Elders.Cronus.DomainModeling"]
 	path = src/Elders.Cronus.DomainModeling
-	url = git@github.com:Elders/Cronus.DomainModeling.git
+	url = git://github.com/Elders/Cronus.DomainModeling.git
 	branch = master
