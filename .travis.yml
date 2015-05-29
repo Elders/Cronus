@@ -1,3 +1,9 @@
 language: csharp
 script:
   - ./build.cmd
+notifications:
+  email:
+    recipients:
+      - elders.oss@gmail.com
+    on_success: [always]
+    on_failure: [always]
