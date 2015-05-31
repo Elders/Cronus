@@ -6,8 +6,6 @@ namespace Elders.Cronus.Tests.TestModel
 {
     public class TestSubscription : MessageProcessorSubscription
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(TestSubscription));
-
         public TestSubscription(Type messageType, IHandlerFactory factory)
             : base("Elders.Cronus.Tests", messageType, factory.MessageHandlerType)
         {
@@ -20,8 +18,6 @@ namespace Elders.Cronus.Tests.TestModel
         {
             object handler = Factory.Create();
             ((dynamic)handler).Handle((dynamic)value.Payload);
-
-            log.Info("HANDLE => " + Factory.MessageHandlerType.Name + "( " + value.Payload + " )");
         }
     }
 }
