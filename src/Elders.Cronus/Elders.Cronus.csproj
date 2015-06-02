@@ -152,11 +152,6 @@
     <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineTransport.cs" />
     <Compile Include="Pipeline\Transport\IPipelineTransport.cs" />
     <Compile Include="ITransport.cs" />
-    <Compile Include="ProjectionStore\ProjectionCommit.cs" />
-    <Compile Include="ProjectionStore\AggregateRepository.cs" />
-    <Compile Include="ProjectionStore\ProjectionStream.cs" />
-    <Compile Include="ProjectionStore\IProjectionStore.cs" />
-    <Compile Include="SafeBatch.cs" />
     <Compile Include="DomainModeling\AggregateStateFirstLevelConcurrencyException.cs" />
     <Compile Include="EventStore\IEventStoreStorageManager.cs" />
     <Compile Include="CronusAssembly.cs" />
@@ -177,14 +172,6 @@
     <Compile Include="Pipeline\EndpointMessageExtensions.cs" />
     <Compile Include="Publisher.cs" />
     <Compile Include="TransportMessage.cs" />
-    <Compile Include="UnitOfWork\Context.cs" />
-    <Compile Include="UnitOfWork\IBatchUnitOfWork.cs" />
-    <Compile Include="UnitOfWork\IHandlerUnitOfWork.cs" />
-    <Compile Include="UnitOfWork\IMessageUnitOfWork.cs" />
-    <Compile Include="UnitOfWork\IUnitOfWork.cs" />
-    <Compile Include="UnitOfWork\IUnitOfWorkContext.cs" />
-    <Compile Include="UnitOfWork\UnitOfWorkContext.cs" />
-    <Compile Include="UnitOfWork\UnitOfWorkFactory.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
     <Compile Include="Pipeline\PipelinePublisher.cs" />
     <Compile Include="Userfull\FastActivator.cs" />

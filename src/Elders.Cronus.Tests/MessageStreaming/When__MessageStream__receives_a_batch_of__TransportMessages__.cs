@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Tests.TestModel;
-using Elders.Cronus.UnitOfWork;
 using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.MessageStreaming
@@ -15,10 +13,8 @@ namespace Elders.Cronus.Tests.MessageStreaming
         Establish context = () =>
             {
                 handlerFacotry = new CalculatorHandlerFactory();
-                IContainer container = new Container();
-                container.RegisterSingleton<IUnitOfWork>(() => new NoUnitOfWork());
 
-                messageStream = new MessageProcessor("test", container);
+                messageStream = new MessageProcessor("test");
                 var subscription1 = new TestSubscription(typeof(CalculatorNumber1), new DefaultHandlerFactory(typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance));
                 var subscription2 = new TestSubscription(typeof(CalculatorNumber1), new DefaultHandlerFactory(typeof(ScientificCalculatorHandler), handlerFacotry.CreateInstance));
 

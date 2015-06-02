@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Pipeline.CircuitBreaker;
+using Elders.Multithreading.Scheduler;
 
 namespace Elders.Cronus.Pipeline
 {

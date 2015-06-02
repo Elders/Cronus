@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -23,20 +22,11 @@ namespace Elders.Cronus.MessageProcessing
             return new MessageProcessor.FeedResult(self.SuccessfulMessages, errorItems);
         }
 
-        public static IFeedResult AppendUnitOfWorkError(this IFeedResult self, IUnitOfWork uow, TransportMessage message, Exception ex)
-        {
-            return self.AppendError(message, new FeedError()
-            {
-                Origin = new ErrorOrigin(uow.Id, ErrorOriginType.UnitOfWork),
-                Error = new SerializableException(ex)
-            });
-        }
-
-        public static IFeedResult AppendUnitOfWorkError(this IFeedResult self, IUnitOfWork uow, IEnumerable<TransportMessage> messages, Exception ex)
+        public static IFeedResult AppendUnitOfWorkError(this IFeedResult self, IEnumerable<TransportMessage> messages, Exception ex)
         {
             return self.AppendError(messages, new FeedError()
             {
-                Origin = new ErrorOrigin(uow.Id, ErrorOriginType.UnitOfWork),
+                Origin = new ErrorOrigin(ErrorOriginType.UnitOfWork, ErrorOriginType.UnitOfWork),
                 Error = new SerializableException(ex)
             });
         }

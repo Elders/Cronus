@@ -24,7 +24,7 @@ namespace Elders.Cronus.Pipeline.Config
             var processorSettings = this as IMessageProcessorSettings<IEvent>;
             Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
             {
-                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName, builder.Container);
+                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName);
 
                 foreach (var reg in (this as IMessageProcessorSettings<IEvent>).HandlerRegistrations)
                 {
@@ -62,7 +62,7 @@ namespace Elders.Cronus.Pipeline.Config
             var processorSettings = this as IMessageProcessorSettings<IEvent>;
             Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
             {
-                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName, builder.Container);
+                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName);
 
                 foreach (var reg in (this as IMessageProcessorSettings<IEvent>).HandlerRegistrations)
                 {
@@ -101,7 +101,7 @@ namespace Elders.Cronus.Pipeline.Config
             var processorSettings = this as IMessageProcessorSettings<ICommand>;
             Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
             {
-                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName, builder.Container);
+                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName);
 
                 foreach (var reg in (this as IMessageProcessorSettings<ICommand>).HandlerRegistrations)
                 {

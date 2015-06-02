@@ -1,6 +1,5 @@
 ﻿using System;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.Tests.MessageStreaming
 {
@@ -57,14 +56,5 @@ namespace Elders.Cronus.Tests.MessageStreaming
     {
         public CalculatorNumber2(int value) { Value = value; }
         public int Value { get; set; }
-    }
-
-    public class TestPerBatchUnitOfWork_ThrowsExceptoin : IUnitOfWork
-    {
-        public IUnitOfWorkContext Context { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
-        public string Id { get { return Guid.NewGuid().ToString(); } }
-
-        public IDisposable Begin() { return this; }
-        public void Dispose() { throw new NotImplementedException(); }
     }
 }

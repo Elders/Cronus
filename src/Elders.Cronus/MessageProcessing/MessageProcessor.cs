@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.IocContainer;
-using Elders.Cronus.UnitOfWork;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -10,16 +8,14 @@ namespace Elders.Cronus.MessageProcessing
     {
         static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageProcessor));
 
-        private readonly IContainer container;
         private readonly List<MessageProcessorSubscription> subscriptions;
 
-        public MessageProcessor(string name, IContainer container)
+        public MessageProcessor(string name)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
 
             Name = name;
             subscriptions = new List<MessageProcessorSubscription>();
-            this.container = container;
         }
 
         public string Name { get; private set; }
@@ -40,24 +36,17 @@ namespace Elders.Cronus.MessageProcessing
         private IFeedResult PerBatchUnitOfWork(List<TransportMessage> messages)
         {
             IFeedResult feedResult = FeedResult.Empty();
-            using (container.BeginScope(ScopeType.PerBatch))
+            try
             {
-                var uow = container.Resolve<IUnitOfWork>();
-                try
+                messages.ForEach(msg =>
                 {
-                    using (uow.Begin())
-                    {
-                        messages.ForEach(msg =>
-                        {
-                            var messageFeedResult = PerMessageUnitOfWork(msg);
-                            feedResult = feedResult.With(messageFeedResult);
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    feedResult = feedResult.AppendUnitOfWorkError(uow, messages, ex);
-                }
+                    var messageFeedResult = PerMessageUnitOfWork(msg);
+                    feedResult = feedResult.With(messageFeedResult);
+                });
+            }
+            catch (Exception ex)
+            {
+                feedResult = feedResult.AppendUnitOfWorkError(messages, ex);
             }
             return feedResult;
         }
@@ -65,42 +54,36 @@ namespace Elders.Cronus.MessageProcessing
         private IFeedResult PerMessageUnitOfWork(TransportMessage message)
         {
             IFeedResult feedResult = FeedResult.Empty();
-            using (container.BeginScope(ScopeType.PerMessage))
+            try
             {
-                var uow = container.Resolve<IUnitOfWork>();
-                try
+                var handlerIds = from feedError in message.Errors
+                                 let isUnitOfWorkError = message.Errors.Where(x => x.Origin.Type == ErrorOriginType.UnitOfWork).Any()
+                                 where feedError.Origin.Type == ErrorOriginType.MessageHandler && !isUnitOfWorkError
+                                 select feedError.Origin.Id.ToString();
+
+                var messageType = message.Payload.Payload.GetType();
+                var subscribers = from subscription in subscriptions
+                                  where messageType == subscription.MessageType
+                                  select subscription;
+
+                if (handlerIds.Count() > 0)
+                    subscribers = subscribers.Where(subscription => handlerIds.Contains(subscription.Id));
+
+
+                var subscriberList = subscribers.ToList();
+                if (subscriberList.Count == 0)
+                    log.WarnFormat("There is no handler for {0}", message.Payload);
+
+                subscriberList.ForEach(subscriber =>
                 {
-                    using (uow.Begin())
-                    {
-                        var handlerIds = from feedError in message.Errors
-                                         let isUnitOfWorkError = message.Errors.Where(x => x.Origin.Type == ErrorOriginType.UnitOfWork).Any()
-                                         where feedError.Origin.Type == ErrorOriginType.MessageHandler && !isUnitOfWorkError
-                                         select feedError.Origin.Id.ToString();
+                    var handlerFeedResult = PerHandlerUnitOfWork(subscriber, message);
+                    feedResult = feedResult.With(handlerFeedResult);
+                });
 
-                        var messageType = message.Payload.Payload.GetType();
-                        var subscribers = from subscription in subscriptions
-                                          where messageType == subscription.MessageType
-                                          select subscription;
-
-                        if (handlerIds.Count() > 0)
-                            subscribers = subscribers.Where(subscription => handlerIds.Contains(subscription.Id));
-
-
-                        var subscriberList = subscribers.ToList();
-                        if (subscriberList.Count == 0)
-                            log.WarnFormat("There is no handler for {0}", message.Payload);
-
-                        subscriberList.ForEach(subscriber =>
-                        {
-                            var handlerFeedResult = PerHandlerUnitOfWork(subscriber, message);
-                            feedResult = feedResult.With(handlerFeedResult);
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    feedResult = feedResult.AppendUnitOfWorkError(uow, message, ex);
-                }
+            }
+            catch (Exception ex)
+            {
+                feedResult = feedResult.AppendUnitOfWorkError(new List<TransportMessage>() { message }, ex);
             }
             return feedResult;
         }
@@ -108,34 +91,21 @@ namespace Elders.Cronus.MessageProcessing
         private IFeedResult PerHandlerUnitOfWork(MessageProcessorSubscription handlerSubscription, TransportMessage message)
         {
             var feedResult = FeedResult.Empty();
-            using (container.BeginScope(ScopeType.PerHandler))
+            try
             {
-                var uow = container.Resolve<IUnitOfWork>();
-                try
-                {
-                    using (uow.Begin())
-                    {
-                        try
-                        {
-                            handlerSubscription.OnNext(message.Payload);
-                            feedResult = feedResult.AppendSuccess(message);
-                        }
-                        catch (Exception ex)
-                        {
-                            handlerSubscription.OnError(ex);
-                            feedResult = feedResult.AppendError(message, new FeedError()
-                            {
-                                Origin = new ErrorOrigin(handlerSubscription.Id, ErrorOriginType.MessageHandler),
-                                Error = new SerializableException(ex)
-                            });
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    feedResult = feedResult.AppendUnitOfWorkError(uow, message, ex);
-                }
+                handlerSubscription.OnNext(message.Payload);
+                feedResult = feedResult.AppendSuccess(message);
             }
+            catch (Exception ex)
+            {
+                handlerSubscription.OnError(ex);
+                feedResult = feedResult.AppendError(message, new FeedError()
+                {
+                    Origin = new ErrorOrigin(handlerSubscription.Id, ErrorOriginType.MessageHandler),
+                    Error = new SerializableException(ex)
+                });
+            }
+
             return feedResult;
         }
 
