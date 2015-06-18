@@ -1,3 +1,6 @@
+#### 2.1.0 - 18.06.2015
+* Add method TryLoad when loading aggregates from the event store
+
 #### 2.0.0 - 15.05.2015
 * Externalize the serialization into a separate nuget package
 

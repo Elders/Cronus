@@ -128,6 +128,11 @@ namespace Elders.Cronus.MessageProcessing
                 }
             }
 
+            public bool TryLoad<AR>(IAggregateRootId id, out AR aggregateRoot) where AR : IAggregateRoot
+            {
+                return aggregateRepository.TryLoad<AR>(id, out aggregateRoot);
+            }
+
             private Dictionary<string, string> BuildHeaders(IAggregateRoot aggregateRoot, int eventPosition)
             {
                 Dictionary<string, string> messageHeaders = new Dictionary<string, string>();

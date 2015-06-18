@@ -21,5 +21,23 @@ namespace Elders.Cronus.EventStore
             ar.ReplayEvents(events, currentRevision);
             return ar;
         }
+
+        public bool TryRestoreFromHistory<T>(out T aggregateRoot) where T : ICanRestoreStateFromEvents<IAggregateRootState>
+        {
+            aggregateRoot = default(T);
+            var events = eventStream.Values.SelectMany(x => x.Events).ToList();
+            if (events.Count > 0)
+            {
+
+                int currentRevision = eventStream.Last().Key;
+                aggregateRoot = (T)FastActivator.CreateInstance(typeof(T), true);
+                aggregateRoot.ReplayEvents(events, currentRevision);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 }

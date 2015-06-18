@@ -56,5 +56,18 @@ namespace Elders.Cronus.EventStore
             AR aggregateRoot = eventStream.RestoreFromHistory<AR>();
             return aggregateRoot;
         }
+
+        /// <summary>
+        /// Loads an aggregate with the specified identifier.
+        /// </summary>
+        /// <typeparam name="AR">The type of the r.</typeparam>
+        /// <param name="id">The identifier.</param>
+        /// <returns></returns>
+        public bool TryLoad<AR>(IAggregateRootId id, out AR aggregateRoot) where AR : IAggregateRoot
+        {
+            aggregateRoot = default(AR);
+            EventStream eventStream = eventStore.Load(id);
+            return eventStream.TryRestoreFromHistory<AR>(out aggregateRoot);
+        }
     }
 }
