@@ -26,36 +26,42 @@ namespace Elders.Cronus.DomainModeling
 
                 if (acquired.CompareAndSet(false, true))
                 {
-                    AtomicInteger revision = null;
-                    if (!aggregateRevisions.TryGetValue(aggregateRootId, out revision))
+                    try
                     {
-                        revision = new AtomicInteger(aggregateRootRevision - 1);
-                        if (!aggregateRevisions.TryAdd(aggregateRootId, revision))
-                            return false;
+                        AtomicInteger revision = null;
+                        if (!aggregateRevisions.TryGetValue(aggregateRootId, out revision))
+                        {
+                            revision = new AtomicInteger(aggregateRootRevision - 1);
+                            if (!aggregateRevisions.TryAdd(aggregateRootId, revision))
+                                return false;
+                        }
+                        var currentRevision = revision.Value;
+                        if (revision.CompareAndSet(aggregateRootRevision - 1, aggregateRootRevision))
+                        {
+                            try
+                            {
+                                action();
+                                return true;
+                            }
+                            catch (Exception)
+                            {
+                                revision.GetAndSet(currentRevision);
+                                throw;
+                            }
+                        }
                     }
-                    var currentRevision = revision.Value;
-                    if (revision.CompareAndSet(aggregateRootRevision - 1, aggregateRootRevision))
+                    finally
                     {
-                        try
-                        {
-                            action();
-                            return true;
-                        }
-                        catch (Exception)
-                        {
-                            revision.GetAndSet(currentRevision);
-                            throw;
-                        }
+                        acquired.GetAndSet(false);
                     }
                 }
 
                 return false;
             }
-            catch (Exception ex) { error = ex; return false; }
-            finally
+            catch (Exception ex)
             {
-                if (acquired)
-                    acquired.GetAndSet(false);
+                error = ex;
+                return false;
             }
         }
 
