@@ -1,3 +1,6 @@
+#### 2.2.1 - 02.07.2015
+* Update DomainModeling
+
 #### 2.1.1 - 23.06.2015
 * Fix issue with AR revision lock
 

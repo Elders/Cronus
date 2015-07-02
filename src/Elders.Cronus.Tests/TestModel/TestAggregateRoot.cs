@@ -1,3 +1,4 @@
+using System;
 using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Tests.TestModel
@@ -7,10 +8,14 @@ namespace Elders.Cronus.Tests.TestModel
         TestAggregateRoot() { }
         public TestAggregateRoot(TestAggregateId id)
         {
-            state = new TestAggregateRootState();
-
             var @event = new TestCreateEvent(id);
             Apply(@event);
+        }
+
+        public void CreateEntity(TestEntityId id)
+        {
+            var evnt = new TestCreateEntityEvent(id);
+            Apply(evnt);
         }
 
         public void Update(string text)
@@ -21,4 +26,19 @@ namespace Elders.Cronus.Tests.TestModel
 
         public TestAggregateRootState State { get { return base.state; } }
     }
+
+    public class TestEntity : Entity<TestAggregateRoot, TestEntityState>
+    {
+        public TestEntity(TestAggregateRoot root, TestEntityId entityId)
+            : base(root)
+        {
+
+        }
+    }
+
+    public class TestEntityState : EntityState<TestEntityId>
+    {
+        public override TestEntityId EntityId { get; set; }
+    }
+
 }

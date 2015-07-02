@@ -1,9 +1,17 @@
+using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Tests.TestModel
 {
-    public class TestAggregateRootState : AggregateRootState<TestAggregateId>
+    public class TestAggregateRootState : AggregateRootState<TestAggregateRoot, TestAggregateId>
     {
+        public TestAggregateRootState()
+        {
+            Entities = new List<TestEntity>();
+        }
+
+        public List<TestEntity> Entities { get; set; }
+
         public string UpdatableField { get; private set; }
 
         public override TestAggregateId Id { get; set; }
@@ -16,6 +24,12 @@ namespace Elders.Cronus.Tests.TestModel
         public void When(TestUpdateEvent e)
         {
             UpdatableField = e.UpdatedFieldValue;
+        }
+
+        public void When(TestCreateEntityEvent e)
+        {
+            var entity = new TestEntity(Root, e.EntityId);
+            Entities.Add(entity);
         }
     }
 }

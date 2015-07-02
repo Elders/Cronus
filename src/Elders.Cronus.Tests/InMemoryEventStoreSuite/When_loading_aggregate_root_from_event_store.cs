@@ -47,4 +47,49 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
         static TestAggregateRoot aggregateRoot;
         static TestAggregateRoot loadedAggregateRoot;
     }
+
+    [Subject("Entity")]
+    public class When_loading_aggregate_root_with_entity_from_event_store
+    {
+        Establish context = () =>
+        {
+
+            versionService = new InMemoryAggregateRootAtomicAction();
+            eventStoreStorage = new InMemoryEventStoreStorage();
+            eventStore = new InMemoryEventStore(eventStoreStorage);
+            eventStoreManager = new InMemoryEventStoreStorageManager();
+            eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
+            aggregateRepository = new AggregateRepository(eventStore, versionService);
+            eventStoreManager.CreateStorage();
+
+            id = new TestAggregateId();
+            aggregateRoot = new TestAggregateRoot(id);
+            aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
+
+            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id);
+            var entityId = new TestEntityId(id);
+            aggregateRoot.CreateEntity(entityId);
+            aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
+        };
+
+        Because of = () => loadedAggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id);
+
+        It should_instansiate_aggregate_root = () => loadedAggregateRoot.ShouldNotBeNull();
+
+        It should_instansiate_aggregate_root_with_valid_state = () => loadedAggregateRoot.State.Id.ShouldEqual(id);
+
+        It should_instansiate_aggregate_root_with_latest_state = () => loadedAggregateRoot.State.Entities.Count.ShouldEqual(1);
+
+        It should_instansiate_aggregate_root_with_latest_state_version = () => (loadedAggregateRoot as IAggregateRoot).Revision.ShouldEqual(2);
+
+        static TestAggregateId id;
+        static InMemoryEventStoreStorage eventStoreStorage;
+        static IAggregateRootAtomicAction versionService;
+        static IEventStore eventStore;
+        static IEventStoreStorageManager eventStoreManager;
+        static IEventStorePlayer eventStorePlayer;
+        static IAggregateRepository aggregateRepository;
+        static TestAggregateRoot aggregateRoot;
+        static TestAggregateRoot loadedAggregateRoot;
+    }
 }
