@@ -50,7 +50,6 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
         static IEventStorePlayer eventStorePlayer;
         static IAggregateRepository aggregateRepository;
         static TestAggregateRoot aggregateRoot;
-        static TestAggregateRoot secondAggregateRoot;
         static List<AggregateCommit> events;
     }
 }

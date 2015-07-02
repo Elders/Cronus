@@ -57,7 +57,7 @@
   <ItemGroup>
     <Reference Include="Elders.Cronus.DomainModeling, Version=1.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Cronus.DomainModeling.2.0.0\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
+      <HintPath>..\packages\Cronus.DomainModeling.2.0.4\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
