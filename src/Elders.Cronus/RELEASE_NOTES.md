@@ -1,3 +1,6 @@
+#### 2.2.4 - 06.07.2015
+* Update DomainModeling
+
 #### 2.2.3 - 03.07.2015
 * Update DomainModeling
 

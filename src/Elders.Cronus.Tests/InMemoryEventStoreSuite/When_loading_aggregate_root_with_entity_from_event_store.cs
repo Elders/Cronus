@@ -1,4 +1,4 @@
-﻿using Elders.Cronus.DomainModeling;
+using Elders.Cronus.DomainModeling;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.InMemory;
 using Elders.Cronus.Tests.TestModel;
@@ -6,8 +6,9 @@ using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 {
-    [Subject("AggregateRoot")]
-    public class When_loading_aggregate_root_from_event_store
+
+    [Subject("Entity")]
+    public class When_loading_aggregate_root_with_entity_from_event_store
     {
         Establish context = () =>
         {
@@ -19,11 +20,19 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
             aggregateRepository = new AggregateRepository(eventStore, versionService);
             eventStoreManager.CreateStorage();
+
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
+
             aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id);
-            aggregateRoot.Update("When_build_aggregate_root_from_events");
+            var entityId0 = new TestEntityId(id);
+            aggregateRoot.CreateEntity(entityId0);
+            aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
+
+            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id);
+            var entityId1 = new TestEntityId(id);
+            aggregateRoot.CreateEntity(entityId1);
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
         };
 
@@ -33,9 +42,9 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 
         It should_instansiate_aggregate_root_with_valid_state = () => loadedAggregateRoot.State.Id.ShouldEqual(id);
 
-        It should_instansiate_aggregate_root_with_latest_state = () => loadedAggregateRoot.State.UpdatableField.ShouldEqual("When_build_aggregate_root_from_events");
+        It should_instansiate_aggregate_root_with_latest_state = () => loadedAggregateRoot.State.Entities.Count.ShouldEqual(2);
 
-        It should_instansiate_aggregate_root_with_latest_state_version = () => (loadedAggregateRoot as IAggregateRoot).Revision.ShouldEqual(2);
+        It should_instansiate_aggregate_root_with_latest_state_version = () => (loadedAggregateRoot as IAggregateRoot).Revision.ShouldEqual(3);
 
         static TestAggregateId id;
         static InMemoryEventStoreStorage eventStoreStorage;

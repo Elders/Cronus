@@ -13,7 +13,7 @@ namespace Elders.Cronus.EventStore
             eventStream = new SortedList<int, AggregateCommit>(aggregateCommits.ToDictionary(x => x.Revision), Comparer<int>.Default);
         }
 
-        public T RestoreFromHistory<T>() where T : ICanRestoreStateFromEvents<IAggregateRootState>
+        public T RestoreFromHistory<T>() where T : IAmEventSourced
         {
             var ar = (T)FastActivator.CreateInstance(typeof(T), true);
             var events = eventStream.Values.SelectMany(x => x.Events).ToList();
@@ -22,7 +22,7 @@ namespace Elders.Cronus.EventStore
             return ar;
         }
 
-        public bool TryRestoreFromHistory<T>(out T aggregateRoot) where T : ICanRestoreStateFromEvents<IAggregateRootState>
+        public bool TryRestoreFromHistory<T>(out T aggregateRoot) where T : IAmEventSourced
         {
             aggregateRoot = default(T);
             var events = eventStream.Values.SelectMany(x => x.Events).ToList();

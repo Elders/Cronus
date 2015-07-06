@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Tests.TestModel;
 using Machine.Specifications;

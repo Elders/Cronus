@@ -35,7 +35,7 @@
   <ItemGroup>
     <Reference Include="Elders.Cronus.DomainModeling, Version=1.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Cronus.DomainModeling.2.1.0\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
+      <HintPath>..\packages\Cronus.DomainModeling.2.1.1\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
     </Reference>
     <Reference Include="Machine.Specifications, Version=0.9.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="AggregateRoot.cs" />
     <Compile Include="DomainModeling\When_resolve_scoped_component_out_of_scope.cs" />
+    <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_with_entity_from_event_store.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_events_for_replay.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_from_event_store.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_saving_aggregate_root_in_event_store.cs" />
