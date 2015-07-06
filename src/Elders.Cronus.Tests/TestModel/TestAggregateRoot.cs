@@ -30,7 +30,7 @@ namespace Elders.Cronus.Tests.TestModel
     public class TestEntity : Entity<TestAggregateRoot, TestEntityState>
     {
         public TestEntity(TestAggregateRoot root, TestEntityId entityId)
-            : base(root)
+            : base(root, entityId)
         {
 
         }

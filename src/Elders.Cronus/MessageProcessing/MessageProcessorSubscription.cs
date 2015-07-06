@@ -124,7 +124,11 @@ namespace Elders.Cronus.MessageProcessing
                 var events = aggregateRoot.UncommittedEvents.ToList();
                 for (int i = 0; i < events.Count; i++)
                 {
-                    eventPublisher.Publish(events[i], BuildHeaders(aggregateRoot, i));
+                    var theEvent = events[i];
+                    var entityEvent = theEvent as EntityEvent;
+                    if (ReferenceEquals(null, entityEvent) == false)
+                        theEvent = entityEvent.Event;
+                    eventPublisher.Publish(theEvent, BuildHeaders(aggregateRoot, i));
                 }
             }
 

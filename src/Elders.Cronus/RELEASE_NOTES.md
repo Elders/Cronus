@@ -1,3 +1,6 @@
+#### 2.2.5 - 06.07.2015
+* Publish the real event when EntityEvent comes
+
 #### 2.2.4 - 06.07.2015
 * Update DomainModeling
 
