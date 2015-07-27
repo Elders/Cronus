@@ -234,4 +234,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Directories which start with '.'
 /.*/
