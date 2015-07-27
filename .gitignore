@@ -231,9 +231,10 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
+!*.msi/
 
 # Windows shortcuts
 *.lnk
 
 # Directories which start with '.'
-/.*/
+**/.*/
