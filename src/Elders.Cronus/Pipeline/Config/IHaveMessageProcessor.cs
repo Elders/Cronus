@@ -43,6 +43,13 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class EndpointConsumerRegistrations
     {
+        public static T SetMessageProcessorName<T>(this T self, string name) where T : IMessageProcessorSettings<IMessage>
+        {
+            if (string.IsNullOrEmpty(name) == false)
+                self.MessageProcessorName = name;
+            return self;
+        }
+
         public static T RegisterAllHandlersInAssembly<T>(this T self, Type[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : IMessageProcessorSettings<IMessage>
         {
             Register(self, messageHandlers, messageHandlerFactory, (eventHandlerType) => { });

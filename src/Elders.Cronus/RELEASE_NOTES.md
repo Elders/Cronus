@@ -1,3 +1,6 @@
+#### 2.3.0 - 28.09.2015
+* SetMessageProcessorName extension method
+
 #### 2.2.5 - 06.07.2015
 * Publish the real event when EntityEvent comes
 
