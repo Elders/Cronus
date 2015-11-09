@@ -1,3 +1,6 @@
+#### 2.4.0-beta0001 - 09.11.2015
+* Prepare for new implementation of Aggregate Atomic Action
+
 #### 2.3.0 - 28.09.2015
 * SetMessageProcessorName extension method
 

@@ -94,9 +94,13 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DomainModeling\IAggregateRootAtomicAction.cs" />
-    <Compile Include="DomainModeling\InMemoryAggregateRootAtomicAction.cs" />
+    <Compile Include="AtomicAction\IAggregateRootAtomicAction.cs" />
+    <Compile Include="AtomicAction\IAggregateRootLock.cs" />
+    <Compile Include="AtomicAction\InMemory\InMemoryRevisionStore.cs" />
+    <Compile Include="AtomicAction\InMemory\InMemoryAggregateRootAtomicAction.cs" />
+    <Compile Include="AtomicAction\IRevisionStore.cs" />
     <Compile Include="EventStore\AggregateRepository.cs" />
+    <Compile Include="AtomicAction\DefaultAggregateRootAtomicAction.cs" />
     <Compile Include="EventStore\EventStream.cs" />
     <Compile Include="EventStore\InMemory\Config\InMemoryEventStoreSettings.cs" />
     <Compile Include="EventStore\InMemory\InMemoryEventStorePersister.cs" />
@@ -156,7 +160,7 @@
     <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineTransport.cs" />
     <Compile Include="Pipeline\Transport\IPipelineTransport.cs" />
     <Compile Include="ITransport.cs" />
-    <Compile Include="DomainModeling\AggregateStateFirstLevelConcurrencyException.cs" />
+    <Compile Include="AtomicAction\AggregateStateFirstLevelConcurrencyException.cs" />
     <Compile Include="EventStore\IEventStoreStorageManager.cs" />
     <Compile Include="CronusAssembly.cs" />
     <Compile Include="IMessageProcessor.cs" />
@@ -180,6 +184,7 @@
     <Compile Include="Pipeline\PipelinePublisher.cs" />
     <Compile Include="Userfull\FastActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Userfull\Result.cs" />
     <Compile Include="Userfull\RetryableOperation.cs" />
     <Compile Include="Pipeline\IPipelineNameConvention.cs" />
     <Compile Include="Pipeline\IEndpoint.cs" />

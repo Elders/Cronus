@@ -2,25 +2,27 @@ using System;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Threading;
+using Elders.Cronus.DomainModeling;
+using Elders.Cronus.Userfull;
 
-namespace Elders.Cronus.DomainModeling
+namespace Elders.Cronus.AtomicAction.InMemory
 {
     public class InMemoryAggregateRootAtomicAction : IAggregateRootAtomicAction
     {
         static ConcurrentDictionary<IAggregateRootId, AtomicBoolean> aggregateLock = new ConcurrentDictionary<IAggregateRootId, AtomicBoolean>();
         static ConcurrentDictionary<IAggregateRootId, AtomicInteger> aggregateRevisions = new ConcurrentDictionary<IAggregateRootId, AtomicInteger>();
 
-        public bool AtomicAction(IAggregateRootId aggregateRootId, int aggregateRootRevision, Action action, out Exception error)
+        public Result<bool> Execute(IAggregateRootId aggregateRootId, int aggregateRootRevision, Action action)
         {
-            error = null;
-            AtomicBoolean acquired = new AtomicBoolean(false);
+            var result = new Result<bool>(false);
+            var acquired = new AtomicBoolean(false);
 
             try
             {
-                if (!aggregateLock.TryGetValue(aggregateRootId, out acquired))
+                if (aggregateLock.TryGetValue(aggregateRootId, out acquired) == false)
                 {
                     acquired = acquired ?? new AtomicBoolean(false);
-                    if (!aggregateLock.TryAdd(aggregateRootId, acquired))
+                    if (aggregateLock.TryAdd(aggregateRootId, acquired) == false)
                         aggregateLock.TryGetValue(aggregateRootId, out acquired);
                 }
 
@@ -29,11 +31,11 @@ namespace Elders.Cronus.DomainModeling
                     try
                     {
                         AtomicInteger revision = null;
-                        if (!aggregateRevisions.TryGetValue(aggregateRootId, out revision))
+                        if (aggregateRevisions.TryGetValue(aggregateRootId, out revision) == false)
                         {
                             revision = new AtomicInteger(aggregateRootRevision - 1);
-                            if (!aggregateRevisions.TryAdd(aggregateRootId, revision))
-                                return false;
+                            if (aggregateRevisions.TryAdd(aggregateRootId, revision) == false)
+                                return result;
                         }
                         var currentRevision = revision.Value;
                         if (revision.CompareAndSet(aggregateRootRevision - 1, aggregateRootRevision))
@@ -41,7 +43,7 @@ namespace Elders.Cronus.DomainModeling
                             try
                             {
                                 action();
-                                return true;
+                                return Result.Success;
                             }
                             catch (Exception)
                             {
@@ -56,12 +58,11 @@ namespace Elders.Cronus.DomainModeling
                     }
                 }
 
-                return false;
+                return result;
             }
             catch (Exception ex)
             {
-                error = ex;
-                return false;
+                return result.WithError(ex);
             }
         }
 

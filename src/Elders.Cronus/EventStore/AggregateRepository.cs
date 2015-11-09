@@ -1,18 +1,19 @@
 ﻿using System.Linq;
 using Elders.Cronus.DomainModeling;
-using System;
+using Elders.Cronus.AtomicAction;
+using Elders.Cronus.Userfull;
 
 namespace Elders.Cronus.EventStore
 {
     public sealed class AggregateRepository : IAggregateRepository
     {
-        private readonly IAggregateRootAtomicAction revisionService;
+        private readonly IAggregateRootAtomicAction atomicAction;
         private readonly IEventStore eventStore;
 
-        public AggregateRepository(IEventStore eventStore, IAggregateRootAtomicAction revisionService)
+        public AggregateRepository(IEventStore eventStore, IAggregateRootAtomicAction atomicAction)
         {
             this.eventStore = eventStore;
-            this.revisionService = revisionService;
+            this.atomicAction = atomicAction;
         }
 
         /// <summary>
@@ -23,24 +24,21 @@ namespace Elders.Cronus.EventStore
         /// <exception cref="Elders.Cronus.DomainModeling.AggregateStateFirstLevelConcurrencyException"></exception>
         public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
-            if (aggregateRoot.UncommittedEvents == null || aggregateRoot.UncommittedEvents.Count() == 0)
+            if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Count() == 0)
                 return;
 
-            AggregateCommit arCommit = new AggregateCommit(aggregateRoot.State.Id, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList());
+            var arCommit = new AggregateCommit(aggregateRoot.State.Id, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList());
+            var result = atomicAction.Execute(aggregateRoot.State.Id, aggregateRoot.Revision, () => eventStore.Append(arCommit));
 
-            Exception error;
-            bool success = revisionService.AtomicAction(
-                aggregateRoot.State.Id,
-                aggregateRoot.Revision,
-                () => eventStore.Append(arCommit),
-                out error);
-
-            if (success == false)
-                throw new AggregateStateFirstLevelConcurrencyException("", error);
+            if (result.IsSuccessful)
+            {
+                // #prodalzavameNapred
+                // #bravoKobra
+                // https://www.youtube.com/watch?v=2wWusHu_3w8
+            }
             else
             {
-                //  #prodalzavameNapred
-                //  #bravoKobra
+                throw new AggregateStateFirstLevelConcurrencyException("", result.Errors.MakeJustOneException());
             }
         }
 
