@@ -14,7 +14,9 @@ namespace Elders.Cronus.AtomicAction
         /// </summary>
         /// <param name="message">The exception message</param>
         /// <param name="innerException">The inner exception</param>
-        public AggregateStateFirstLevelConcurrencyException(string message, Exception innerException) : base(message, innerException) { }
+        public AggregateStateFirstLevelConcurrencyException(string message, Exception innerException)
+            : base(message, innerException)
+        { }
 
         /// <summary>
         /// Constructs a new AggregateStateFirstLevelConcurrencyException.
@@ -25,7 +27,9 @@ namespace Elders.Cronus.AtomicAction
         /// <summary>
         /// Serialization constructor.
         /// </summary>
-        protected AggregateStateFirstLevelConcurrencyException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        protected AggregateStateFirstLevelConcurrencyException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
 
         /// <summary>
         /// Constructs a new AggregateStateFirstLevelConcurrencyException.

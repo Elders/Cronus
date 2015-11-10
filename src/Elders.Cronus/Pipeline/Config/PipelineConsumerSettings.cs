@@ -7,7 +7,6 @@ using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
-using Elders.Cronus.AtomicAction.InMemory;
 
 namespace Elders.Cronus.Pipeline.Config
 {

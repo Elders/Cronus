@@ -96,10 +96,7 @@
   <ItemGroup>
     <Compile Include="AtomicAction\Config\IAggregateRootAtomicActionSettings.cs" />
     <Compile Include="AtomicAction\IAggregateRootAtomicAction.cs" />
-    <Compile Include="AtomicAction\IAggregateRootLock.cs" />
-    <Compile Include="AtomicAction\InMemory\InMemoryRevisionStore.cs" />
     <Compile Include="AtomicAction\InMemory\InMemoryAggregateRootAtomicAction.cs" />
-    <Compile Include="AtomicAction\IRevisionStore.cs" />
     <Compile Include="Cluster\Config\IClusterSettings.cs" />
     <Compile Include="EventStore\AggregateRepository.cs" />
     <Compile Include="EventStore\EventStream.cs" />

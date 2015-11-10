@@ -25,7 +25,7 @@ namespace Elders.Cronus.AtomicAction.Config
         {
             var builder = this as ISettingsBuilder;
             var casted = this as IAggregateRootAtomicActionSettings;
-            builder.Container.RegisterSingleton<IAggregateRootAtomicAction>(() => casted.AggregateRootAtomicAtion, builder.Name);
+            builder.Container.RegisterSingleton(() => casted.AggregateRootAtomicAtion, builder.Name);
         }
     }
 
@@ -37,7 +37,8 @@ namespace Elders.Cronus.AtomicAction.Config
             return self;
         }
 
-        public static T UseAggregateRootAtomicAction<T>(this T self, Action<AggregateRootAtomicActionSettings> configure = null) where T : IClusterSettings
+        public static T UseAggregateRootAtomicAction<T>(this T self, Action<AggregateRootAtomicActionSettings> configure = null)
+            where T : IClusterSettings
         {
             var settings = new AggregateRootAtomicActionSettings(self);
 

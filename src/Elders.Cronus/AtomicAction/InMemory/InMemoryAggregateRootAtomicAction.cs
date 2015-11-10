@@ -9,8 +9,11 @@ namespace Elders.Cronus.AtomicAction.InMemory
 {
     public class InMemoryAggregateRootAtomicAction : IAggregateRootAtomicAction
     {
-        static ConcurrentDictionary<IAggregateRootId, AtomicBoolean> aggregateLock = new ConcurrentDictionary<IAggregateRootId, AtomicBoolean>();
-        static ConcurrentDictionary<IAggregateRootId, AtomicInteger> aggregateRevisions = new ConcurrentDictionary<IAggregateRootId, AtomicInteger>();
+        static ConcurrentDictionary<IAggregateRootId, AtomicBoolean> aggregateLock =
+            new ConcurrentDictionary<IAggregateRootId, AtomicBoolean>();
+
+        static ConcurrentDictionary<IAggregateRootId, AtomicInteger> aggregateRevisions =
+            new ConcurrentDictionary<IAggregateRootId, AtomicInteger>();
 
         public Result<bool> Execute(IAggregateRootId aggregateRootId, int aggregateRootRevision, Action action)
         {
