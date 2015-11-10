@@ -1,6 +1,8 @@
 using System;
 using Elders.Cronus.IocContainer;
+using Elders.Cronus.Cluster.Config;
 using Elders.Cronus.Pipeline.Config;
+using Elders.Cronus.AtomicAction.Config;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
@@ -11,6 +13,9 @@ namespace Elders.Cronus.Pipeline.Hosts
         public CronusSettings(IContainer container)
         {
             (this as ISettingsBuilder).Container = container;
+
+            this.UseCluster(cluster => cluster
+                .UseAggregateRootAtomicAction(atomic => atomic.WithInMemory()));
         }
 
         IContainer ISettingsBuilder.Container { get; set; }
