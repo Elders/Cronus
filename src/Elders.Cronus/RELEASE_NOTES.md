@@ -1,3 +1,8 @@
+#### 2.4.0-beta0002 - 11.11.2015
+* Moved DefaultAggregateRootAtomicAction to the Cronus.AtocmicAction.Redis project.
+* Added support for cluster configuration and atomic action. In memory atomic action by default.
+* IAggregateRootLock and IRevisionStore interfaces moved to the Elders.Cronus.AtomicAction.Redis project.
+
 #### 2.4.0-beta0001 - 09.11.2015
 * Prepare for new implementation of Aggregate Atomic Action
 
