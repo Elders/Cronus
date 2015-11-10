@@ -1,6 +1,6 @@
 using System;
-using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.IocContainer;
+using Elders.Cronus.Pipeline.Config;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {

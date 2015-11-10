@@ -1,8 +1,4 @@
-﻿using NUnit.Framework;
-using System;
-using System.Linq;
-
-namespace Elders.Cronus.Tests.Sanity
+﻿namespace Elders.Cronus.Tests.Sanity
 {
     public class Program
     {

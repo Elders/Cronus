@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Userfull;
 

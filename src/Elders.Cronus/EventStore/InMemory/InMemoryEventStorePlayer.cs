@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.EventStore.InMemory
 {
