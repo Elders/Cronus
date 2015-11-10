@@ -13,7 +13,6 @@ namespace Elders.Cronus.AtomicAction.Config
 
     public class AggregateRootAtomicActionSettings : SettingsBuilder, IAggregateRootAtomicActionSettings
     {
-
         public AggregateRootAtomicActionSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
         {
             this.WithInMemory();
