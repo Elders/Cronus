@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.MessageProcessing
 {
     public sealed class MessageProcessor : IObservable<MessageProcessorSubscription>, IDisposable, IMessageProcessor
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageProcessor));
+        static readonly ILog log = LogProvider.GetLogger(typeof(MessageProcessor));
 
         private readonly List<MessageProcessorSubscription> subscriptions;
 

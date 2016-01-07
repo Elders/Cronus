@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Elders.Cronus.Pipeline.Hosts.DisposableExtensions;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
     public class CronusHost : ICronusHost
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(CronusHost));
+        static readonly ILog log = LogProvider.GetLogger(typeof(CronusHost));
 
         public CronusHost()
         {

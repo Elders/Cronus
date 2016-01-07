@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Serializer;
 using Elders.Multithreading.Scheduler;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Pipeline
 {
     public class PipelineConsumerWork : IWork
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(PipelineConsumerWork));
+        static readonly ILog log = LogProvider.GetLogger(typeof(PipelineConsumerWork));
 
         private IMessageProcessor processor;
 
@@ -64,11 +65,11 @@ namespace Elders.Cronus.Pipeline
             }
             catch (EndpointClosedException ex)
             {
-                log.Warn("Endpoint Closed", ex);
+                log.WarnException("Endpoint Closed", ex);
             }
             catch (Exception ex)
             {
-                log.Error("Unexpected Exception.", ex);
+                log.ErrorException("Unexpected Exception.", ex);
             }
             finally
             {
@@ -79,7 +80,7 @@ namespace Elders.Cronus.Pipeline
                 }
                 catch (EndpointClosedException ex)
                 {
-                    log.Warn("Endpoint Closed", ex);
+                    log.WarnException("Endpoint Closed", ex);
                 }
                 ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
             }

@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus
 {
@@ -9,7 +10,7 @@ namespace Elders.Cronus
 
     public static class RetryableOperation
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(RetryableOperation));
+        static readonly ILog log = LogProvider.GetLogger(typeof(RetryableOperation));
 
         static RetryPolicy defaultExponentialRetryPolicy = RetryPolicyFactory.CreateExponentialRetryPolicy(5, new TimeSpan(0, 0, 3), new TimeSpan(0, 0, 90), new TimeSpan(0, 0, 6));
         static RetryPolicy defaultLinearRetryPolicy = RetryPolicyFactory.CreateLinearRetryPolicy(5, new TimeSpan(0, 0, 1));

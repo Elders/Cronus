@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.MessageProcessing
 {
     public abstract class MessageProcessorSubscription : IObserver<Message>
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageProcessorSubscription));
+        static readonly ILog log = LogProvider.GetLogger(typeof(MessageProcessorSubscription));
 
         private readonly Type messageHandlerType;
 
