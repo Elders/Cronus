@@ -12,7 +12,7 @@ namespace Elders.Cronus.MessageProcessing
 
         public MessageProcessor(string name)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
             Name = name;
             subscriptions = new List<MessageProcessorSubscription>();
@@ -28,12 +28,6 @@ namespace Elders.Cronus.MessageProcessing
         }
 
         public IFeedResult Feed(List<TransportMessage> messages)
-        {
-            var feedResult = new FeedResult(PerBatchUnitOfWork(messages));
-            return feedResult;
-        }
-
-        private IFeedResult PerBatchUnitOfWork(List<TransportMessage> messages)
         {
             IFeedResult feedResult = FeedResult.Empty();
             try
@@ -79,7 +73,6 @@ namespace Elders.Cronus.MessageProcessing
                     var handlerFeedResult = PerHandlerUnitOfWork(subscriber, message);
                     feedResult = feedResult.With(handlerFeedResult);
                 });
-
             }
             catch (Exception ex)
             {
