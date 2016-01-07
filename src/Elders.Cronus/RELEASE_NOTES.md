@@ -1,3 +1,7 @@
+#### 2.4.0-beta0003 - 07.01.2016
+* Remove ICronusPlayer. The new interface IEventStorePlayer provides everything for replaying events. #94
+* Fix bug where PipelineConsumerWork throw unnecessary exceptions when endpoint is closed. #87
+
 #### 2.4.0-beta0002 - 11.11.2015
 * Moved DefaultAggregateRootAtomicAction to the Cronus.AtocmicAction.Redis project.
 * Added support for cluster configuration and atomic action. In memory atomic action by default.
