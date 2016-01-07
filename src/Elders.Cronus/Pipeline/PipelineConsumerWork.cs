@@ -72,9 +72,16 @@ namespace Elders.Cronus.Pipeline
             }
             finally
             {
-                endpoint.AcknowledgeAll();
+                try
+                {
+                    endpoint.AcknowledgeAll();
+                    endpoint.Close();
+                }
+                catch (EndpointClosedException ex)
+                {
+                    log.Warn("Endpoint Closed", ex);
+                }
                 ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
-                endpoint.Close();
             }
         }
 
