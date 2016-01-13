@@ -1,18 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.MessageProcessing
 {
     public sealed class MessageProcessor : IObservable<MessageProcessorSubscription>, IDisposable, IMessageProcessor
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageProcessor));
+        static readonly ILog log = LogProvider.GetLogger(typeof(MessageProcessor));
 
-        private readonly List<MessageProcessorSubscription> subscriptions;
+        readonly List<MessageProcessorSubscription> subscriptions;
 
         public MessageProcessor(string name)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("name");
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
             Name = name;
             subscriptions = new List<MessageProcessorSubscription>();
@@ -28,12 +29,6 @@ namespace Elders.Cronus.MessageProcessing
         }
 
         public IFeedResult Feed(List<TransportMessage> messages)
-        {
-            var feedResult = new FeedResult(PerBatchUnitOfWork(messages));
-            return feedResult;
-        }
-
-        private IFeedResult PerBatchUnitOfWork(List<TransportMessage> messages)
         {
             IFeedResult feedResult = FeedResult.Empty();
             try
@@ -57,7 +52,7 @@ namespace Elders.Cronus.MessageProcessing
             try
             {
                 var handlerIds = from feedError in message.Errors
-                                 let isUnitOfWorkError = message.Errors.Where(x => x.Origin.Type == ErrorOriginType.UnitOfWork).Any()
+                                 let isUnitOfWorkError = message.Errors.Any(x => x.Origin.Type == ErrorOriginType.UnitOfWork)
                                  where feedError.Origin.Type == ErrorOriginType.MessageHandler && !isUnitOfWorkError
                                  select feedError.Origin.Id.ToString();
 
@@ -69,7 +64,6 @@ namespace Elders.Cronus.MessageProcessing
                 if (handlerIds.Count() > 0)
                     subscribers = subscribers.Where(subscription => handlerIds.Contains(subscription.Id));
 
-
                 var subscriberList = subscribers.ToList();
                 if (subscriberList.Count == 0)
                     log.WarnFormat("There is no handler for {0}", message.Payload);
@@ -79,7 +73,6 @@ namespace Elders.Cronus.MessageProcessing
                     var handlerFeedResult = PerHandlerUnitOfWork(subscriber, message);
                     feedResult = feedResult.With(handlerFeedResult);
                 });
-
             }
             catch (Exception ex)
             {

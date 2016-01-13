@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.InMemory
 {
     public class InMemoryPublisher<TContract> : Publisher<TContract> where TContract : IMessage
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(InMemoryPublisher<TContract>));
+        static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<TContract>));
 
         IMessageProcessor messageProcessor;
 
@@ -22,7 +23,7 @@ namespace Elders.Cronus.InMemory
             {
                 foreach (var msg in result.FailedMessages)
                 {
-                    log.Error(msg.Payload, msg.Errors.First().Error);
+                    log.ErrorException(msg.Payload.ToString(), msg.Errors.First().Error);
                 }
                 return false;
             }

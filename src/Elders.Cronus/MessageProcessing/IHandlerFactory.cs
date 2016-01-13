@@ -5,12 +5,12 @@ namespace Elders.Cronus.MessageProcessing
     public interface IHandlerFactory
     {
         Type MessageHandlerType { get; }
-        object Create();
+        IHandlerInstance Create();
     }
 
     public class DefaultHandlerFactory : IHandlerFactory
     {
-        private readonly Func<Type, object> handlerFctory;
+        readonly Func<Type, object> handlerFctory;
 
         public DefaultHandlerFactory(Type messageHandlerType, Func<Type, object> handlerFactory)
         {
@@ -20,9 +20,9 @@ namespace Elders.Cronus.MessageProcessing
 
         public Type MessageHandlerType { get; private set; }
 
-        public object Create()
+        public IHandlerInstance Create()
         {
-            return handlerFctory(MessageHandlerType);
+            return new DefaultHandlerInstance(handlerFctory(MessageHandlerType));
         }
     }
 }

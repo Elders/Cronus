@@ -2,12 +2,13 @@
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Pipeline.CircuitBreaker
 {
     public class DefaultEndpointCircuitBreaker : IEndpointCircuitBreaker
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(DefaultEndpointCircuitBreaker));
+        static readonly ILog log = LogProvider.GetLogger(typeof(DefaultEndpointCircuitBreaker));
 
         public DefaultEndpointCircuitBreaker(IPipelineTransport transport, ISerializer serializer, EndpointDefinition definitioin)
         {
@@ -31,12 +32,12 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
             {
                 if (msg.Age > MaximumMessageAge)
                 {
-                    log.Error(msg.Payload, msg.Errors.First().Error);
+                    log.ErrorException(msg.Payload.ToString(), msg.Errors.First().Error);
                     ErrorStrategy.Handle(msg);
                 }
                 else
                 {
-                    log.Warn(msg.Payload, msg.Errors.First().Error);
+                    log.WarnException(msg.Payload.ToString(), msg.Errors.First().Error);
                     msg.Age = msg.Age + 1;
                     RetryStrategy.Handle(msg);
                 }
