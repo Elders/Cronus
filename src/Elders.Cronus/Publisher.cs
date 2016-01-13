@@ -16,8 +16,7 @@ namespace Elders.Cronus
             try
             {
                 PublishInternal(message, messageHeaders);
-                if (log.IsInfoEnabled())
-                    log.Info("PUBLISH => " + message);
+                log.Info(() => "PUBLISH => " + message);
                 return true;
             }
             catch (Exception ex)

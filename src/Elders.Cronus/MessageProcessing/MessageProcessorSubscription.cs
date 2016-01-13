@@ -6,6 +6,7 @@ using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.MessageProcessing
 {
+    // override equals and gethashcode. Interesuvame se ot ID za equality
     public abstract class MessageProcessorSubscription : IObserver<Message>
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(MessageProcessorSubscription));
@@ -37,7 +38,7 @@ namespace Elders.Cronus.MessageProcessing
         public void OnNext(Message value)
         {
             InternalOnNext(value);
-            log.Info("HANDLE => " + messageHandlerType.Name + "( " + value.Payload + " )");
+            log.Info(() => "HANDLE => " + messageHandlerType.Name + "( " + value.Payload + " )");
         }
 
         public void OnCompleted()
