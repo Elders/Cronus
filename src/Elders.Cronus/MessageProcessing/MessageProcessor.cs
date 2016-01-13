@@ -9,7 +9,7 @@ namespace Elders.Cronus.MessageProcessing
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(MessageProcessor));
 
-        private readonly List<MessageProcessorSubscription> subscriptions;
+        readonly List<MessageProcessorSubscription> subscriptions;
 
         public MessageProcessor(string name)
         {
@@ -52,7 +52,7 @@ namespace Elders.Cronus.MessageProcessing
             try
             {
                 var handlerIds = from feedError in message.Errors
-                                 let isUnitOfWorkError = message.Errors.Where(x => x.Origin.Type == ErrorOriginType.UnitOfWork).Any()
+                                 let isUnitOfWorkError = message.Errors.Any(x => x.Origin.Type == ErrorOriginType.UnitOfWork)
                                  where feedError.Origin.Type == ErrorOriginType.MessageHandler && !isUnitOfWorkError
                                  select feedError.Origin.Id.ToString();
 
@@ -63,7 +63,6 @@ namespace Elders.Cronus.MessageProcessing
 
                 if (handlerIds.Count() > 0)
                     subscribers = subscribers.Where(subscription => handlerIds.Contains(subscription.Id));
-
 
                 var subscriberList = subscribers.ToList();
                 if (subscriberList.Count == 0)
