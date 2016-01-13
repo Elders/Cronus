@@ -107,6 +107,7 @@
     <Compile Include="IocContainer\MappingKey.cs" />
     <Compile Include="MessageProcessing\FeedResultExtentions.cs" />
     <Compile Include="MessageProcessing\IHandlerFactory.cs" />
+    <Compile Include="MessageProcessing\IHandlerInstance.cs" />
     <Compile Include="MessageProcessing\MessageProcessor.cs" />
     <Compile Include="MessageProcessing\IFeedResult.cs" />
     <Compile Include="MessageProcessing\MessageProcessorSubscription.cs" />

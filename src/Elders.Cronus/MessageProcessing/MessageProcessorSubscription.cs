@@ -97,10 +97,11 @@ namespace Elders.Cronus.MessageProcessing
 
         protected override void InternalOnNext(Message value)
         {
-            dynamic handler = handlerFactory
-                .Create()
-                .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = aggregateRepository);
-            handler.Handle((dynamic)value.Payload);
+            using (var handlerInstance = handlerFactory.Create())
+            {
+                dynamic handler = handlerInstance.Current.AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = aggregateRepository);
+                handler.Handle((dynamic)value.Payload);
+            }
         }
 
         class RepositoryProxy : IAggregateRepository
@@ -165,8 +166,11 @@ namespace Elders.Cronus.MessageProcessing
 
         protected override void InternalOnNext(Message value)
         {
-            dynamic handler = handlerFactory.Create();
-            handler.Handle((dynamic)value.Payload);
+            using (var handlerInstance = handlerFactory.Create())
+            {
+                dynamic handler = handlerInstance.Current;
+                handler.Handle((dynamic)value.Payload);
+            }
         }
     }
 
@@ -184,10 +188,11 @@ namespace Elders.Cronus.MessageProcessing
 
         protected override void InternalOnNext(Message value)
         {
-            dynamic handler = handlerFactory
-                .Create()
-                .AssignPropertySafely<IPort>(x => x.CommandPublisher = commandPublisher); ;
-            handler.Handle((dynamic)value.Payload);
+            using (var handlerInstance = handlerFactory.Create())
+            {
+                dynamic handler = handlerInstance.Current.AssignPropertySafely<IPort>(x => x.CommandPublisher = commandPublisher);
+                handler.Handle((dynamic)value.Payload);
+            }
         }
     }
 }

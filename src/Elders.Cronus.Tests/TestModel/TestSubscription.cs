@@ -16,8 +16,11 @@ namespace Elders.Cronus.Tests.TestModel
 
         protected override void InternalOnNext(Message value)
         {
-            object handler = Factory.Create();
-            ((dynamic)handler).Handle((dynamic)value.Payload);
+            using (var handlerInstance = Factory.Create())
+            {
+                dynamic handler = handlerInstance.Current;
+                handler.Handle((dynamic)value.Payload);
+            }
         }
     }
 }
