@@ -36,7 +36,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
     public class DisposableHandlerFactory : IHandlerFactory
     {
-        public Type MessageHandlerType { get { return typeof(StandardCalculatorAddHandler); } }
+        public Type MessageHandlerType { get { return typeof(DisposableHandler); } }
 
         public IHandlerInstance State { get; set; }
 
