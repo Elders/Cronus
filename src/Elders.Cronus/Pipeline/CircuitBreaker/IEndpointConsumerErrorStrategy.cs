@@ -1,5 +1,3 @@
-using Elders.Cronus.DomainModeling;
-
 namespace Elders.Cronus.Pipeline.CircuitBreaker
 {
     public interface ICircuitBreakerErrorStrategy

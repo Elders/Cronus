@@ -4,12 +4,13 @@ using Elders.Cronus.Serializer;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Multithreading.Scheduler;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Pipeline
 {
     public class EndpointConsumer : IEndpointConsumer
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(EndpointConsumer));
+        static readonly ILog log = LogProvider.GetLogger(typeof(EndpointConsumer));
 
         private readonly IMessageProcessor messageProcessor;
 

@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Pipeline
 {
     public class PipelinePublisher<T> : Publisher<T>, IDisposable
         where T : IMessage
     {
-        private static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(PipelinePublisher<T>));
+        private static readonly ILog log = LogProvider.GetLogger(typeof(PipelinePublisher<T>));
 
         private readonly IPipelineTransport transport;
 

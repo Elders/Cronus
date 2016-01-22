@@ -77,25 +77,22 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Cronus.DomainModeling.2.1.6\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
     </Reference>
-    <Reference Include="Elders.Multithreading.Scheduler, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Multithreading.Scheduler.1.0.1\lib\net40-full\Elders.Multithreading.Scheduler.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    <Reference Include="Elders.Multithreading.Scheduler, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Multithreading.Scheduler.1.1.0\lib\net45-full\Elders.Multithreading.Scheduler.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DomainModeling\IAggregateRootAtomicAction.cs" />
-    <Compile Include="DomainModeling\InMemoryAggregateRootAtomicAction.cs" />
+    <Compile Include="App_Packages\LibLog.4.2\LibLog.cs" />
+    <Compile Include="AtomicAction\Config\IAggregateRootAtomicActionSettings.cs" />
+    <Compile Include="AtomicAction\IAggregateRootAtomicAction.cs" />
+    <Compile Include="AtomicAction\InMemory\InMemoryAggregateRootAtomicAction.cs" />
+    <Compile Include="Cluster\Config\IClusterSettings.cs" />
     <Compile Include="EventStore\AggregateRepository.cs" />
     <Compile Include="EventStore\EventStream.cs" />
     <Compile Include="EventStore\InMemory\Config\InMemoryEventStoreSettings.cs" />
@@ -110,6 +107,7 @@
     <Compile Include="IocContainer\MappingKey.cs" />
     <Compile Include="MessageProcessing\FeedResultExtentions.cs" />
     <Compile Include="MessageProcessing\IHandlerFactory.cs" />
+    <Compile Include="MessageProcessing\IHandlerInstance.cs" />
     <Compile Include="MessageProcessing\MessageProcessor.cs" />
     <Compile Include="MessageProcessing\IFeedResult.cs" />
     <Compile Include="MessageProcessing\MessageProcessorSubscription.cs" />
@@ -149,14 +147,13 @@
     <Compile Include="Pipeline\Config\PipelinePublisherSettings.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Pipeline\Hosts\ICronusPlayer.cs" />
     <Compile Include="Pipeline\Hosts\ICronusHost.cs" />
     <Compile Include="Pipeline\Hosts\CronusHost.cs" />
     <Compile Include="Pipeline\MessageThreshold.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineTransport.cs" />
     <Compile Include="Pipeline\Transport\IPipelineTransport.cs" />
     <Compile Include="ITransport.cs" />
-    <Compile Include="DomainModeling\AggregateStateFirstLevelConcurrencyException.cs" />
+    <Compile Include="AtomicAction\AggregateStateFirstLevelConcurrencyException.cs" />
     <Compile Include="EventStore\IEventStoreStorageManager.cs" />
     <Compile Include="CronusAssembly.cs" />
     <Compile Include="IMessageProcessor.cs" />
@@ -180,6 +177,7 @@
     <Compile Include="Pipeline\PipelinePublisher.cs" />
     <Compile Include="Userfull\FastActivator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Userfull\Result.cs" />
     <Compile Include="Userfull\RetryableOperation.cs" />
     <Compile Include="Pipeline\IPipelineNameConvention.cs" />
     <Compile Include="Pipeline\IEndpoint.cs" />

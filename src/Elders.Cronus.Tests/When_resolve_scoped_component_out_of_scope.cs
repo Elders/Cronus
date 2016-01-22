@@ -8,12 +8,12 @@
 //    [Subject("IocContainer")]
 //    public class When_an_exception_is_serialized
 //    {
-//        static log4net.ILog log = log4net.LogManager.GetLogger(typeof(When_an_exception_is_serialized));
+//        static ILog log = LogProvider.GetLogger(typeof(When_an_exception_is_serialized));
 
 //        Establish context = () =>
 //            {
 //                log4net.Config.XmlConfigurator.Configure();
-//                log = log4net.LogManager.GetLogger(typeof(When_an_exception_is_serialized));
+//                log = LogProvider.GetLogger(typeof(When_an_exception_is_serialized));
 //                ProtoRegistration reg = new ProtoRegistration();
 //                reg.RegisterAssembly<When_an_exception_is_serialized>();
 //                serializer = new ProtoregSerializer(reg);

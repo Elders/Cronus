@@ -1,6 +1,8 @@
 using System;
-using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.IocContainer;
+using Elders.Cronus.Cluster.Config;
+using Elders.Cronus.Pipeline.Config;
+using Elders.Cronus.AtomicAction.Config;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
@@ -11,6 +13,9 @@ namespace Elders.Cronus.Pipeline.Hosts
         public CronusSettings(IContainer container)
         {
             (this as ISettingsBuilder).Container = container;
+
+            this.UseCluster(cluster => cluster
+                .UseAggregateRootAtomicAction(atomic => atomic.WithInMemory()));
         }
 
         IContainer ISettingsBuilder.Container { get; set; }
@@ -30,12 +35,15 @@ namespace Elders.Cronus.Pipeline.Hosts
 
 public static class CronusConfigurationExtensions
 {
-    public static T UsePipelineEventPublisher<T>(this T self, Action<EventPipelinePublisherSettings> configure = null) where T : IConsumerSettings
+    public static T UsePipelineEventPublisher<T>(this T self, Action<EventPipelinePublisherSettings> configure = null)
+        where T : IConsumerSettings
     {
         return UsePipelineEventPublisher(self, null, configure);
     }
 
-    public static T UsePipelineEventPublisher<T>(this T self, string name, Action<EventPipelinePublisherSettings> configure = null) where T : IConsumerSettings
+    public static T UsePipelineEventPublisher<T>(this T self, string name,
+        Action<EventPipelinePublisherSettings> configure = null)
+        where T : IConsumerSettings
     {
         EventPipelinePublisherSettings settings = new EventPipelinePublisherSettings(self, name);
         if (configure != null)
@@ -44,12 +52,15 @@ public static class CronusConfigurationExtensions
         return self;
     }
 
-    public static T UsePipelineCommandPublisher<T>(this T self, Action<CommandPipelinePublisherSettings> configure = null) where T : IConsumerSettings
+    public static T UsePipelineCommandPublisher<T>(this T self, Action<CommandPipelinePublisherSettings> configure = null)
+        where T : IConsumerSettings
     {
         return UsePipelineCommandPublisher(self, null, configure);
     }
 
-    public static T UsePipelineCommandPublisher<T>(this T self, string name, Action<CommandPipelinePublisherSettings> configure = null) where T : IConsumerSettings
+    public static T UsePipelineCommandPublisher<T>(this T self, string name,
+        Action<CommandPipelinePublisherSettings> configure = null)
+        where T : IConsumerSettings
     {
         CommandPipelinePublisherSettings settings = new CommandPipelinePublisherSettings(self, name);
         if (configure != null)

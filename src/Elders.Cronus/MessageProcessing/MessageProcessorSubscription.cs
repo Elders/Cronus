@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.MessageProcessing
 {
+    // override equals and gethashcode. Interesuvame se ot ID za equality
     public abstract class MessageProcessorSubscription : IObserver<Message>
     {
-        static readonly log4net.ILog log = log4net.LogManager.GetLogger(typeof(MessageProcessorSubscription));
+        static readonly ILog log = LogProvider.GetLogger(typeof(MessageProcessorSubscription));
 
         private readonly Type messageHandlerType;
 
@@ -36,7 +38,7 @@ namespace Elders.Cronus.MessageProcessing
         public void OnNext(Message value)
         {
             InternalOnNext(value);
-            log.Info("HANDLE => " + messageHandlerType.Name + "( " + value.Payload + " )");
+            log.Info(() => "HANDLE => " + messageHandlerType.Name + "( " + value.Payload + " )");
         }
 
         public void OnCompleted()
@@ -95,10 +97,11 @@ namespace Elders.Cronus.MessageProcessing
 
         protected override void InternalOnNext(Message value)
         {
-            dynamic handler = handlerFactory
-                .Create()
-                .AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = aggregateRepository);
-            handler.Handle((dynamic)value.Payload);
+            using (var handlerInstance = handlerFactory.Create())
+            {
+                dynamic handler = handlerInstance.Current.AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = aggregateRepository);
+                handler.Handle((dynamic)value.Payload);
+            }
         }
 
         class RepositoryProxy : IAggregateRepository
@@ -163,8 +166,11 @@ namespace Elders.Cronus.MessageProcessing
 
         protected override void InternalOnNext(Message value)
         {
-            dynamic handler = handlerFactory.Create();
-            handler.Handle((dynamic)value.Payload);
+            using (var handlerInstance = handlerFactory.Create())
+            {
+                dynamic handler = handlerInstance.Current;
+                handler.Handle((dynamic)value.Payload);
+            }
         }
     }
 
@@ -182,10 +188,11 @@ namespace Elders.Cronus.MessageProcessing
 
         protected override void InternalOnNext(Message value)
         {
-            dynamic handler = handlerFactory
-                .Create()
-                .AssignPropertySafely<IPort>(x => x.CommandPublisher = commandPublisher); ;
-            handler.Handle((dynamic)value.Payload);
+            using (var handlerInstance = handlerFactory.Create())
+            {
+                dynamic handler = handlerInstance.Current.AssignPropertySafely<IPort>(x => x.CommandPublisher = commandPublisher);
+                handler.Handle((dynamic)value.Payload);
+            }
         }
     }
 }

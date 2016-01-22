@@ -1,3 +1,12 @@
+#### 2.4.0 - 22.01.2016
+* Remove ICronusPlayer. The new interface IEventStorePlayer provides everything for replaying events. #94
+* Fix bug where PipelineConsumerWork throw unnecessary exceptions when endpoint is closed. #87
+* Remove log4net dependency by using LibLog #95
+* Moved DefaultAggregateRootAtomicAction, IAggregateRootLock and IRevisionStore to the Cronus.AtocmicAction.Redis project.
+* Added support for cluster configuration and atomic action. In memory atomic action by default.
+* Prepare for new implementation of Aggregate Atomic Action #93
+* Disposable MessageHander #96 #97
+
 #### 2.3.0 - 28.09.2015
 * SetMessageProcessorName extension method
 

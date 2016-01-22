@@ -39,7 +39,6 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
         It should_report_about_all_successes = () => secondFeedResult.SuccessfulMessages.Count().ShouldEqual(numberOfMessages);
 
-        static IFeedResult firstFeedResult;
         static IFeedResult secondFeedResult;
         static int numberOfMessages = 3;
         static MessageProcessor messageStream;

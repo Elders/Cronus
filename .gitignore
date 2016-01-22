@@ -2,9 +2,13 @@
 ## CURRENT PROJECT ##
 #####################
 
-release.cmd
 *.orig
 
+################
+## Elders.Nyx ##
+################
+release.cmd
+*/**/AssemblyInfo.cs
 
 ##############################################################
 ## Ignore Visual Studio temporary files, build results, and ##

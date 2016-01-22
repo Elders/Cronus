@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Elders.Cronus.DomainModeling
+namespace Elders.Cronus.AtomicAction
 {
     /// <summary>
     /// 
@@ -14,7 +14,9 @@ namespace Elders.Cronus.DomainModeling
         /// </summary>
         /// <param name="message">The exception message</param>
         /// <param name="innerException">The inner exception</param>
-        public AggregateStateFirstLevelConcurrencyException(string message, Exception innerException) : base(message, innerException) { }
+        public AggregateStateFirstLevelConcurrencyException(string message, Exception innerException)
+            : base(message, innerException)
+        { }
 
         /// <summary>
         /// Constructs a new AggregateStateFirstLevelConcurrencyException.
@@ -25,7 +27,9 @@ namespace Elders.Cronus.DomainModeling
         /// <summary>
         /// Serialization constructor.
         /// </summary>
-        protected AggregateStateFirstLevelConcurrencyException(SerializationInfo info, StreamingContext context) : base(info, context) { }
+        protected AggregateStateFirstLevelConcurrencyException(SerializationInfo info, StreamingContext context)
+            : base(info, context)
+        { }
 
         /// <summary>
         /// Constructs a new AggregateStateFirstLevelConcurrencyException.
