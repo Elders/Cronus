@@ -14,10 +14,24 @@ namespace Elders.Cronus.EventStore
             InternalEvents = new List<object>();
         }
 
+        [Obsolete("Use the other overloads. This will be removed in version 3.*")]
         public AggregateCommit(IAggregateRootId aggregateId, int revision, List<IEvent> events)
         {
             AggregateRootId = aggregateId.RawId;
             BoundedContext = aggregateId.GetType().GetBoundedContext().BoundedContextName;
+            Revision = revision;
+            InternalEvents = events.Cast<object>().ToList();
+            Timestamp = DateTime.UtcNow.ToFileTimeUtc();
+        }
+
+        public AggregateCommit(IBlobId aggregateId, int revision, List<IEvent> events)
+            : this(aggregateId.RawId, aggregateId.GetType().GetBoundedContext().BoundedContextName, revision, events)
+        { }
+
+        public AggregateCommit(byte[] aggregateRootId, string boundedContext, int revision, List<IEvent> events)
+        {
+            AggregateRootId = aggregateRootId;
+            BoundedContext = boundedContext;
             Revision = revision;
             InternalEvents = events.Cast<object>().ToList();
             Timestamp = DateTime.UtcNow.ToFileTimeUtc();
