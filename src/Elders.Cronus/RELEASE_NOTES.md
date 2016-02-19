@@ -1,3 +1,6 @@
+#### 2.5.0 - 19.02.2016
+* Add additional ctors for AggregateCommit and mark the current as obsolete
+
 #### 2.4.0 - 22.01.2016
 * Remove ICronusPlayer. The new interface IEventStorePlayer provides everything for replaying events. #94
 * Fix bug where PipelineConsumerWork throw unnecessary exceptions when endpoint is closed. #87
