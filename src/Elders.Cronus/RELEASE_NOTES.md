@@ -1,3 +1,8 @@
+#### 2.6.0-beta0001 - 29.02.2016
+* Introduce EventStreamIntegrityPolicy which should take care about validation upon AggregateRoot loading. The resolvers only 
+apply InMemory fixes without writing to the database. At the moment this policy is a fact only in the UnitTests because we 
+need a configuration settings for this feature.
+
 #### 2.5.0 - 19.02.2016
 * Add additional ctors for AggregateCommit and mark the current as obsolete
 
