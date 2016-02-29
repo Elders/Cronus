@@ -94,13 +94,26 @@
     <Compile Include="AtomicAction\InMemory\InMemoryAggregateRootAtomicAction.cs" />
     <Compile Include="Cluster\Config\IClusterSettings.cs" />
     <Compile Include="EventStore\AggregateRepository.cs" />
+    <Compile Include="EventStore\BruteForceDuplicateRevisionResolver.cs" />
+    <Compile Include="EventStore\DuplicateRevisionsValidator.cs" />
     <Compile Include="EventStore\EventStream.cs" />
+    <Compile Include="EventStore\EventStreamIntegrityPolicy.cs" />
+    <Compile Include="EventStore\EventStreamIntegrityViolationException.cs" />
     <Compile Include="EventStore\InMemory\Config\InMemoryEventStoreSettings.cs" />
     <Compile Include="EventStore\InMemory\InMemoryEventStorePersister.cs" />
     <Compile Include="EventStore\InMemory\InMemoryEventStorePlayer.cs" />
     <Compile Include="EventStore\InMemory\InMemoryEventStoreStorage.cs" />
     <Compile Include="EventStore\InMemory\InMemoryEventStoreStorageManager.cs" />
+    <Compile Include="EventStore\MissingRevisionsValidator.cs" />
+    <Compile Include="EventStore\OrderedRevisionsValidator.cs" />
     <Compile Include="InMemory\Config\InMemoryConsumerSettings.cs" />
+    <Compile Include="IntegrityValidation\IIntegrityPolicy.cs" />
+    <Compile Include="IntegrityValidation\IntegrityResult.cs" />
+    <Compile Include="IntegrityValidation\IntegrityRule.cs" />
+    <Compile Include="IntegrityValidation\IResolver.cs" />
+    <Compile Include="IntegrityValidation\IValidator.cs" />
+    <Compile Include="IntegrityValidation\IValidatorResult.cs" />
+    <Compile Include="IntegrityValidation\ValidatorResult.cs" />
     <Compile Include="IocContainer\Container.cs" />
     <Compile Include="IocContainer\ContainterExtensions.cs" />
     <Compile Include="IocContainer\IContainer.cs" />
@@ -176,7 +189,6 @@
     <Compile Include="Userfull\LateBoundMethod.cs" />
     <Compile Include="Pipeline\PipelinePublisher.cs" />
     <Compile Include="Userfull\FastActivator.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Userfull\Result.cs" />
     <Compile Include="Userfull\RetryableOperation.cs" />
     <Compile Include="Pipeline\IPipelineNameConvention.cs" />
@@ -192,7 +204,9 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
