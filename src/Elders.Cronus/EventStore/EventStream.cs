@@ -1,19 +1,21 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Elders.Cronus.DomainModeling;
-using System;
 
 namespace Elders.Cronus.EventStore
 {
     public class EventStream
     {
-        internal IList<AggregateCommit> aggregateCommits;
+        IList<AggregateCommit> aggregateCommits;
 
         public EventStream(IList<AggregateCommit> aggregateCommits)
         {
             this.aggregateCommits = aggregateCommits;
         }
+
+        public IEnumerable<AggregateCommit> Commits { get { return aggregateCommits.ToList().AsReadOnly(); } }
 
         public T RestoreFromHistory<T>() where T : IAmEventSourced
         {
@@ -45,7 +47,6 @@ namespace Elders.Cronus.EventStore
 
         public override string ToString()
         {
-
             var performanceCriticalOutputBuilder = new StringBuilder();
             AggregateCommit firstCommit = aggregateCommits.First();
             string boundedContext = firstCommit.BoundedContext;
@@ -58,10 +59,11 @@ namespace Elders.Cronus.EventStore
             performanceCriticalOutputBuilder.AppendLine($"- Aggregate root ID (base64): `{base64AggregateRootId}`");
             performanceCriticalOutputBuilder.AppendLine($"- Aggregate name: `{aggregateName}`");
             performanceCriticalOutputBuilder.AppendLine();
+            performanceCriticalOutputBuilder.AppendLine("## Commits");
 
             foreach (var commit in aggregateCommits)
             {
-                performanceCriticalOutputBuilder.AppendLine("## Commits");
+
                 performanceCriticalOutputBuilder.AppendLine();
                 performanceCriticalOutputBuilder.AppendLine($"#### Revision {commit.Revision}");
 

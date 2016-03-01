@@ -18,7 +18,7 @@ namespace Elders.Cronus.EventStore
 
         public IValidatorResult Validate(EventStream candidate)
         {
-            var possibleConflicts = candidate.aggregateCommits
+            var possibleConflicts = candidate.Commits
                 .GroupBy(x => x.Revision).ToList()
                 .Where(g => g.Count() > 1);
 

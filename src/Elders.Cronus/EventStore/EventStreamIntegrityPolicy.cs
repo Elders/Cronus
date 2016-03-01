@@ -81,6 +81,7 @@ namespace Elders.Cronus.EventStore
                     {
                         log.Debug($"[INTEGRITY-ERROR: {validatorResult.ErrorType}] {errorMessage}");
                     }
+                    log.Debug(eventStream.ToString());
                 }
 
                 return new IntegrityResult<EventStream>(eventStream, true);

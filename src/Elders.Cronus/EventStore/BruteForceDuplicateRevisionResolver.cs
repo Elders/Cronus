@@ -26,7 +26,7 @@ namespace Elders.Cronus.EventStore
 
         public EventStream Resolve(EventStream eventStream)
         {
-            var errors = eventStream.aggregateCommits
+            var errors = eventStream.Commits
                 .GroupBy(x => x.Revision)
                 .OrderBy(x => x.Key)
                 .Select(x => x.First())

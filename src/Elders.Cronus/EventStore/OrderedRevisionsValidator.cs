@@ -23,13 +23,16 @@ namespace Elders.Cronus.EventStore
 
         private IEnumerable<string> GetErrorMessages(EventStream eventStream)
         {
-            for (int expectedRevision = 1; expectedRevision <= eventStream.aggregateCommits.Count; expectedRevision++)
+            List<AggregateCommit> commits = eventStream.Commits.ToList();
+
+            int previousRevision = 0;
+            foreach (var current in commits)
             {
-                if (eventStream.aggregateCommits[expectedRevision - 1].Revision != expectedRevision)
+                if (previousRevision > current.Revision)
                 {
                     if (log.IsDebugEnabled())
                     {
-                        yield return $"Unordered event stream.";
+                        yield return $"Unordered event stream. Expected revision `{previousRevision}` but received revision `{current.Revision}`";
                     }
                     else
                     {
@@ -37,6 +40,7 @@ namespace Elders.Cronus.EventStore
                         break;
                     }
                 }
+                previousRevision = current.Revision;
             }
         }
     }
@@ -52,7 +56,7 @@ namespace Elders.Cronus.EventStore
 
         public IntegrityResult<EventStream> Resolve(EventStream eventStream, IValidatorResult validatorResult)
         {
-            var orderedRevisions = eventStream.aggregateCommits.OrderBy(x => x.Revision);
+            var orderedRevisions = eventStream.Commits.OrderBy(x => x.Revision);
             var result = new IntegrityResult<EventStream>(new EventStream(orderedRevisions.ToList()), false);
             return result;
         }

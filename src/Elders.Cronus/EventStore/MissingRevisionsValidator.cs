@@ -23,11 +23,11 @@ namespace Elders.Cronus.EventStore
 
         private IEnumerable<string> GetErrorMessages(EventStream eventStream)
         {
-            int maxRevision = eventStream.aggregateCommits.Max(r => r.Revision);
+            int maxRevision = eventStream.Commits.Max(r => r.Revision);
 
             for (int expectedRevision = 1; expectedRevision <= maxRevision; expectedRevision++)
             {
-                if (eventStream.aggregateCommits.Any(x => x.Revision == expectedRevision) == false)
+                if (eventStream.Commits.Any(x => x.Revision == expectedRevision) == false)
                 {
                     if (log.IsDebugEnabled())
                     {

@@ -14,9 +14,8 @@ namespace Elders.Cronus.Tests.ValidatorsAndResolvers
                 byte[] aggregateId = Guid.NewGuid().ToByteArray();
                 AggregateCommit commit1 = new AggregateCommit(aggregateId, "UnitTests", 1, new List<Cronus.DomainModeling.IEvent>());
                 AggregateCommit commit2 = new AggregateCommit(aggregateId, "UnitTests", 2, new List<Cronus.DomainModeling.IEvent>());
-                AggregateCommit commit3 = new AggregateCommit(aggregateId, "UnitTests", 3, new List<Cronus.DomainModeling.IEvent>());
                 AggregateCommit commit4 = new AggregateCommit(aggregateId, "UnitTests", 4, new List<Cronus.DomainModeling.IEvent>());
-                eventStream = new EventStream(new[] { commit2, commit4, commit1, commit3 });
+                eventStream = new EventStream(new[] { commit2, commit4, commit1 });
                 validator = new OrderedRevisionsValidator();
                 validationResult = validator.Validate(eventStream);
                 resolver = new UnorderedRevisionsResolver();
