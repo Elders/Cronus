@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Elders.Cronus.DomainModeling;
+using System;
 
 namespace Elders.Cronus.EventStore
 {
@@ -44,14 +45,32 @@ namespace Elders.Cronus.EventStore
 
         public override string ToString()
         {
+
             var performanceCriticalOutputBuilder = new StringBuilder();
+            AggregateCommit firstCommit = aggregateCommits.First();
+            string boundedContext = firstCommit.BoundedContext;
+            string base64AggregateRootId = Convert.ToBase64String(firstCommit.AggregateRootId);
+            string aggregateName = Encoding.UTF8.GetString(firstCommit.AggregateRootId).Split('@')[0];
+
+            performanceCriticalOutputBuilder.AppendLine("Aggregate Info");
+            performanceCriticalOutputBuilder.AppendLine("==============");
+            performanceCriticalOutputBuilder.AppendLine($"- Bounded Context: `{boundedContext}`");
+            performanceCriticalOutputBuilder.AppendLine($"- Aggregate root ID (base64): `{base64AggregateRootId}`");
+            performanceCriticalOutputBuilder.AppendLine($"- Aggregate name: `{aggregateName}`");
+            performanceCriticalOutputBuilder.AppendLine();
+
             foreach (var commit in aggregateCommits)
             {
+                performanceCriticalOutputBuilder.AppendLine("## Commits");
+                performanceCriticalOutputBuilder.AppendLine();
+                performanceCriticalOutputBuilder.AppendLine($"#### Revision {commit.Revision}");
+
                 foreach (var @event in commit.Events)
                 {
-                    performanceCriticalOutputBuilder.AppendLine($"\t-{@event}");
+                    performanceCriticalOutputBuilder.AppendLine($"- {@event}");
                 }
             }
+            performanceCriticalOutputBuilder.AppendLine("-------------------------------------------------------------------------------------------------------------------");
             return performanceCriticalOutputBuilder.ToString();
         }
     }
