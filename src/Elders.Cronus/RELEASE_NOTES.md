@@ -1,3 +1,7 @@
+#### 2.6.0-beta0002 - 13.03.2016
+When message is published we now attach GUID byte array as Base64 string in the message headers. Also if a message is schedules 
+or published with delay the publish timestamp is also attached to the message headers.
+
 #### 2.6.0-beta0001 - 29.02.2016
 * Introduce EventStreamIntegrityPolicy which should take care about validation upon AggregateRoot loading. The resolvers only 
 apply InMemory fixes without writing to the database. At the moment this policy is a fact only in the UnitTests because we 
