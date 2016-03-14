@@ -34,7 +34,7 @@ namespace Elders.Cronus.Pipeline
 
             byte[] body = serializer.SerializeToBytes(transportMessage);
             Dictionary<string, object> routingHeaders = new Dictionary<string, object>() { { transportMessage.Payload.Payload.GetType().GetContractId(), String.Empty } };
-            EndpointMessage endpointMessage = new EndpointMessage(body, string.Empty, routingHeaders);
+            EndpointMessage endpointMessage = new EndpointMessage(body, string.Empty, routingHeaders, payload.GetPublishDelay());
 
             transport.PipelineFactory
                 .GetPipeline(message.GetType())
@@ -45,6 +45,19 @@ namespace Elders.Cronus.Pipeline
         public void Dispose()
         {
             transport.Dispose();
+        }
+    }
+
+    public static class MessageExtentions
+    {
+        public static long GetPublishDelay(this Message message)
+        {
+            string publishAt = "0";
+            if (message.Headers.TryGetValue(MessageHeader.PublishTimestamp, out publishAt))
+            {
+                return (DateTime.UtcNow - DateTime.FromFileTimeUtc(long.Parse(publishAt))).Milliseconds;
+            }
+            return 0;
         }
     }
 }
