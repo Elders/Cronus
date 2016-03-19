@@ -1,5 +1,8 @@
+#### 2.6.0-beta0004 - 19.03.2016
+* Set default EventStreamIntegrityPolicy when Cronus starts.
+
 #### 2.6.0-beta0003 - 14.03.2016
-* Send the publish delay directly with the EndpointMessage
+* Send the publish delay directly with the EndpointMessage.
 
 #### 2.6.0-beta0002 - 13.03.2016
 * When message is published we now attach GUID byte array as Base64 string in the message headers. Also if a message is schedules 
