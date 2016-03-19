@@ -1,3 +1,6 @@
+#### 2.6.1 - 19.03.2016
+* Set default EventStreamIntegrityPolicy when Cronus starts. Do this inside the ctor of CronusSettings.
+
 #### 2.6.0 - 19.03.2016
 * Set default EventStreamIntegrityPolicy when Cronus starts.
 * Send the publish delay directly with the EndpointMessage.

@@ -12,6 +12,9 @@ namespace Elders.Cronus.Pipeline.Hosts
     {
         public CronusSettings(IContainer container)
         {
+            // This is temporary instantiated here. We need to think where is the best place to set the default EventStreamIntegrityPolicy.
+            container.RegisterSingleton<IntegrityValidation.IIntegrityPolicy<EventStore.EventStream>>(() => new EventStore.EventStreamIntegrityPolicy());
+
             (this as ISettingsBuilder).Container = container;
 
             this.UseCluster(cluster => cluster
@@ -29,9 +32,6 @@ namespace Elders.Cronus.Pipeline.Hosts
             CronusHost host = new CronusHost();
             host.Consumers = consumers;
             builder.Container.RegisterSingleton(typeof(CronusHost), () => host);
-
-            // This is temporary instantiated here. We need to think where is the best place to set the default EventStreamIntegrityPolicy.
-            builder.Container.RegisterSingleton<IntegrityValidation.IIntegrityPolicy<EventStore.EventStream>>(() => new EventStore.EventStreamIntegrityPolicy());
         }
     }
 }
