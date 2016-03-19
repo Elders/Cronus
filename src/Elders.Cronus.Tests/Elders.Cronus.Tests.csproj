@@ -33,21 +33,25 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Elders.Cronus.DomainModeling, Version=1.2.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Cronus.DomainModeling.2.1.6\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
+    <Reference Include="Elders.Cronus.DomainModeling, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Cronus.DomainModeling.2.3.0-beta0001\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Machine.Specifications, Version=0.9.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Machine.Specifications.0.9.1\lib\net45\Machine.Specifications.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+      <Private>True</Private>
     </Reference>
-    <Reference Include="Machine.Specifications.Clr4, Version=0.9.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Machine.Specifications.0.9.1\lib\net45\Machine.Specifications.Clr4.dll</HintPath>
+    <Reference Include="Machine.Specifications, Version=0.9.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Machine.Specifications.0.9.3\lib\net45\Machine.Specifications.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Machine.Specifications.Clr4, Version=0.9.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Machine.Specifications.0.9.3\lib\net45\Machine.Specifications.Clr4.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Machine.Specifications.Should, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Machine.Specifications.Should.0.8.0-Unstable0011\lib\net45\Machine.Specifications.Should.dll</HintPath>
+      <HintPath>..\packages\Machine.Specifications.Should.0.8.0\lib\net45\Machine.Specifications.Should.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -61,6 +65,12 @@
     <Compile Include="InMemoryEventStoreSuite\When_loading_events_for_replay.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_from_event_store.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_saving_aggregate_root_in_event_store.cs" />
+    <Compile Include="IntegrityValidation\When_comparing_two__IntegrityRules__are_identical.cs" />
+    <Compile Include="IntegrityValidation\When_two_identical__IntegrityRules__are_registered_in__IntegrityPolicy__.cs" />
+    <Compile Include="IntegrityValidation\When__AggregateCommit__has_duplicate_revisions.cs" />
+    <Compile Include="IntegrityValidation\When__AggregateCommit__has_missing_revisions.cs" />
+    <Compile Include="IntegrityValidation\When__AggregateCommit__has_unordered_revisions_and_resolving_them.cs" />
+    <Compile Include="IntegrityValidation\When__EventStreamPolicy_is_applied_to_a_correct__EventStream__.cs" />
     <Compile Include="IocContainer\BatchComponent.cs" />
     <Compile Include="IocContainer\When_resolve_scoped_component_out_of_scope.cs" />
     <Compile Include="IocContainer\When_resolve_scoped_component_within_scope.cs" />
@@ -75,13 +85,6 @@
     <Compile Include="MessageStreaming\When__MessageStream__has_subscription_which_fails_to_handle_a_message.cs" />
     <Compile Include="MessageStreaming\When__MessageStream__is_feeded_with_failed_messages_with_origin_type__handler__.cs" />
     <Compile Include="MessageStreaming\When__MessageStream__receives_a_batch_of__TransportMessages__.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="$(SolutionDir)AssemblyVersionInfo.cs">
-      <Link>Properties\AssemblyVersionInfo.cs</Link>
-    </Compile>
-    <Compile Include="$(SolutionDir)AssemblyCompanyProductInfo.cs">
-      <Link>Properties\AssemblyCompanyProductInfo.cs</Link>
-    </Compile>
     <Compile Include="TestModel\TestEntityId.cs" />
     <Compile Include="TestModel\TestSubscription.cs" />
     <Compile Include="TestModel\TestAggregateId.cs" />
@@ -91,6 +94,7 @@
     <Compile Include="TestModel\TestCreateEvent.cs" />
     <Compile Include="TestModel\TestUpdateCommand.cs" />
     <Compile Include="TestModel\TestUpdateEvent.cs" />
+    <Compile Include="IntegrityValidation\When__AggregateCommit__has_unordered_revisions.cs" />
     <Compile Include="When_resolve_scoped_component_out_of_scope.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -105,6 +109,9 @@
       <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
       <Name>Elders.Cronus</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

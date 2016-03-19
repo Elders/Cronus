@@ -7,6 +7,7 @@ using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
+using Elders.Cronus.IntegrityValidation;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -50,7 +51,8 @@ namespace Elders.Cronus.Pipeline.Config
 
             var builder = this as ISettingsBuilder;
             Func<IAggregateRootAtomicAction> atomicAction = () => builder.Container.Resolve<IAggregateRootAtomicAction>();
-            Func<IAggregateRepository> aggregateRepository = () => new AggregateRepository(builder.Container.Resolve<IEventStore>(builder.Name), atomicAction());
+            Func<IIntegrityPolicy<EventStream>> eventStreamIntegrityPolicy = () => builder.Container.Resolve<IIntegrityPolicy<EventStream>>();
+            Func<IAggregateRepository> aggregateRepository = () => new AggregateRepository(builder.Container.Resolve<IEventStore>(builder.Name), atomicAction(), eventStreamIntegrityPolicy());
             builder.Container.RegisterSingleton<IAggregateRepository>(() => aggregateRepository(), builder.Name);
         }
     }

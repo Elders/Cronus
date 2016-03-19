@@ -1,3 +1,12 @@
+#### 2.6.0 - 19.03.2016
+* Set default EventStreamIntegrityPolicy when Cronus starts.
+* Send the publish delay directly with the EndpointMessage.
+* When message is published we now attach GUID byte array as Base64 string in the message headers. Also if a message is schedules 
+or published with delay the publish timestamp is also attached to the message headers.
+* Introduce EventStreamIntegrityPolicy which should take care about validation upon AggregateRoot loading. The resolvers only 
+apply InMemory fixes without writing to the database. At the moment this policy is a fact only in the UnitTests because we 
+need a configuration settings for this feature.
+
 #### 2.5.0 - 19.02.2016
 * Add additional ctors for AggregateCommit and mark the current as obsolete
 

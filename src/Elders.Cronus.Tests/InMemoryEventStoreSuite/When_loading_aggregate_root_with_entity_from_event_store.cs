@@ -3,6 +3,7 @@ using Elders.Cronus.AtomicAction.InMemory;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.InMemory;
+using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.Tests.TestModel;
 using Machine.Specifications;
 
@@ -20,7 +21,8 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             eventStore = new InMemoryEventStore(eventStoreStorage);
             eventStoreManager = new InMemoryEventStoreStorageManager();
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
-            aggregateRepository = new AggregateRepository(eventStore, versionService);
+            integrityPpolicy = new EventStreamIntegrityPolicy();
+            aggregateRepository = new AggregateRepository(eventStore, versionService, integrityPpolicy);
             eventStoreManager.CreateStorage();
 
             id = new TestAggregateId();
@@ -57,5 +59,6 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
         static IAggregateRepository aggregateRepository;
         static TestAggregateRoot aggregateRoot;
         static TestAggregateRoot loadedAggregateRoot;
+        static IIntegrityPolicy<EventStream> integrityPpolicy;
     }
 }

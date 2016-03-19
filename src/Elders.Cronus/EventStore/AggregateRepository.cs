@@ -2,18 +2,21 @@
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.Userfull;
+using Elders.Cronus.IntegrityValidation;
 
 namespace Elders.Cronus.EventStore
 {
     public sealed class AggregateRepository : IAggregateRepository
     {
-        private readonly IAggregateRootAtomicAction atomicAction;
-        private readonly IEventStore eventStore;
+        readonly IAggregateRootAtomicAction atomicAction;
+        readonly IEventStore eventStore;
+        readonly IIntegrityPolicy<EventStream> integrityPolicy;
 
-        public AggregateRepository(IEventStore eventStore, IAggregateRootAtomicAction atomicAction)
+        public AggregateRepository(IEventStore eventStore, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
         {
             this.eventStore = eventStore;
             this.atomicAction = atomicAction;
+            this.integrityPolicy = integrityPolicy;
         }
 
         /// <summary>
@@ -27,7 +30,7 @@ namespace Elders.Cronus.EventStore
             if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Count() == 0)
                 return;
 
-            var arCommit = new AggregateCommit(aggregateRoot.State.Id, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList());
+            var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList());
             var result = atomicAction.Execute(aggregateRoot.State.Id, aggregateRoot.Revision, () => eventStore.Append(arCommit));
 
             if (result.IsSuccessful)
@@ -51,7 +54,13 @@ namespace Elders.Cronus.EventStore
         public AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
             EventStream eventStream = eventStore.Load(id);
+            var integrityResult = integrityPolicy.Apply(eventStream);
+            if (integrityResult.IsIntegrityViolated)
+                throw new EventStreamIntegrityViolationException("asd");
+            eventStream = integrityResult.Output;
             AR aggregateRoot = eventStream.RestoreFromHistory<AR>();
+
+
             return aggregateRoot;
         }
 
@@ -65,6 +74,9 @@ namespace Elders.Cronus.EventStore
         {
             aggregateRoot = default(AR);
             EventStream eventStream = eventStore.Load(id);
+            var integrityResult = integrityPolicy.Apply(eventStream);
+            if (integrityResult.IsIntegrityViolated)
+                return false;
             return eventStream.TryRestoreFromHistory<AR>(out aggregateRoot);
         }
     }

@@ -16,7 +16,6 @@ namespace Elders.Cronus.Pipeline
 
         private readonly ISerializer serializer;
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="PipelinePublisher{T}"/> class.
         /// </summary>
@@ -30,11 +29,12 @@ namespace Elders.Cronus.Pipeline
 
         protected override bool PublishInternal(T message, Dictionary<string, string> messageHeaders)
         {
-            TransportMessage transportMessage = new TransportMessage(new Message(message, messageHeaders));
+            var payload = new Message(message, messageHeaders);
+            var transportMessage = new TransportMessage(payload);
 
             byte[] body = serializer.SerializeToBytes(transportMessage);
-            Dictionary<string, object> headers = new Dictionary<string, object>() { { MessageInfo.GetContractId(transportMessage.Payload.Payload.GetType()), String.Empty } };
-            EndpointMessage endpointMessage = new EndpointMessage(body, string.Empty, headers);
+            Dictionary<string, object> routingHeaders = new Dictionary<string, object>() { { transportMessage.Payload.Payload.GetType().GetContractId(), String.Empty } };
+            EndpointMessage endpointMessage = new EndpointMessage(body, string.Empty, routingHeaders, payload.GetPublishDelay());
 
             transport.PipelineFactory
                 .GetPipeline(message.GetType())
@@ -45,6 +45,19 @@ namespace Elders.Cronus.Pipeline
         public void Dispose()
         {
             transport.Dispose();
+        }
+    }
+
+    public static class MessageExtentions
+    {
+        public static long GetPublishDelay(this Message message)
+        {
+            string publishAt = "0";
+            if (message.Headers.TryGetValue(MessageHeader.PublishTimestamp, out publishAt))
+            {
+                return (long)(DateTime.FromFileTimeUtc(long.Parse(publishAt)) - DateTime.UtcNow).TotalMilliseconds;
+            }
+            return 0;
         }
     }
 }

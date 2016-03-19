@@ -15,8 +15,8 @@ namespace Elders.Cronus.Tests
             id = new TestAggregateId();
 
             var commits = new List<AggregateCommit>();
-            commits.Add(new AggregateCommit(id, 1, new List<IEvent>() { new TestCreateEvent(id) }));
-            commits.Add(new AggregateCommit(id, 2, new List<IEvent>() { new TestUpdateEvent(id, "When_build_aggregate_root_from_events") }));
+            commits.Add(new AggregateCommit(id as IBlobId, 1, new List<IEvent>() { new TestCreateEvent(id) }));
+            commits.Add(new AggregateCommit(id as IBlobId, 2, new List<IEvent>() { new TestUpdateEvent(id, "When_build_aggregate_root_from_events") }));
 
             eventStream = new EventStream(commits);
         };
@@ -38,7 +38,7 @@ namespace Elders.Cronus.Tests
         {
             id = new TestAggregateId();
             var commits = new List<AggregateCommit>();
-            commits.Add(new AggregateCommit(id, 2, new List<IEvent>() { new TestUpdateEvent(id, "When_build_aggregate_root_from_history_without_the_initial_event") }));
+            commits.Add(new AggregateCommit(id as IBlobId, 2, new List<IEvent>() { new TestUpdateEvent(id, "When_build_aggregate_root_from_history_without_the_initial_event") }));
             eventStream = new EventStream(commits);
         };
 
