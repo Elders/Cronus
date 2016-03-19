@@ -55,7 +55,7 @@ namespace Elders.Cronus.Pipeline
             string publishAt = "0";
             if (message.Headers.TryGetValue(MessageHeader.PublishTimestamp, out publishAt))
             {
-                return (DateTime.UtcNow - DateTime.FromFileTimeUtc(long.Parse(publishAt))).Milliseconds;
+                return (long)(DateTime.FromFileTimeUtc(long.Parse(publishAt)) - DateTime.UtcNow).TotalMilliseconds;
             }
             return 0;
         }
