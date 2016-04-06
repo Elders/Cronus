@@ -72,6 +72,10 @@
     <Compile Include="IntegrityValidation\When__AggregateCommit__has_unordered_revisions_and_resolving_them.cs" />
     <Compile Include="IntegrityValidation\When__EventStreamPolicy_is_applied_to_a_correct__EventStream__.cs" />
     <Compile Include="IocContainer\BatchComponent.cs" />
+    <Compile Include="IocContainer\When_asking_if_registered_on_scoped.cs" />
+    <Compile Include="IocContainer\When_asking_if_registered_on_singleton.cs" />
+    <Compile Include="IocContainer\When_asking_if_registered_on_something_that_is_not_registered.cs" />
+    <Compile Include="IocContainer\When_asking_if_registered_on_transient.cs" />
     <Compile Include="IocContainer\When_resolve_scoped_component_out_of_scope.cs" />
     <Compile Include="IocContainer\When_resolve_scoped_component_within_scope.cs" />
     <Compile Include="IocContainer\When_resolve_scoped_component_within_two_nested_scopes.cs" />
@@ -95,6 +99,7 @@
     <Compile Include="TestModel\TestUpdateCommand.cs" />
     <Compile Include="TestModel\TestUpdateEvent.cs" />
     <Compile Include="IntegrityValidation\When__AggregateCommit__has_unordered_revisions.cs" />
+    <Compile Include="TestsBoundedContext.cs" />
     <Compile Include="When_resolve_scoped_component_out_of_scope.cs" />
   </ItemGroup>
   <ItemGroup>

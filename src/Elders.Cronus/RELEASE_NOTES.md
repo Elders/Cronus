@@ -1,3 +1,6 @@
+#### 2.6.2 - 06.04.2016
+* Fixed bug where Container.IsRegistered does not checks the singleton and the scoped registrations.
+
 #### 2.6.1 - 19.03.2016
 * Set default EventStreamIntegrityPolicy when Cronus starts. Do this inside the ctor of CronusSettings.
 

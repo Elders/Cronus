@@ -112,7 +112,7 @@ namespace Elders.Cronus.IocContainer
 
             var key = new MappingKey(type, instanceName);
 
-            return transientMappings.ContainsKey(key);
+            return transientMappings.ContainsKey(key) || singletonMappings.ContainsKey(key) || scopedMappings.ContainsKey(key);
         }
 
         /// <summary>

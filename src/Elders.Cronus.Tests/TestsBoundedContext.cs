@@ -1,0 +1,1 @@
+﻿[assembly: Elders.Cronus.DomainModeling.BoundedContext("Elders", "Cronus", "Tests")]
