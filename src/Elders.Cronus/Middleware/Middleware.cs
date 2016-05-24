@@ -2,7 +2,12 @@
 
 namespace Elders.Cronus.Middleware
 {
-    public abstract class Middleware<TContext> : AbstractMiddleware<TContext>
+    public interface IMiddleware<TContext>
+    {
+        void Invoke(TContext context);
+    }
+
+    public abstract class Middleware<TContext> : AbstractMiddleware<TContext>, IMiddleware<TContext>
     {
         protected override object AbstractInvoke(TContext context, MiddlewareExecution<TContext> middlewareControl)
         {
@@ -17,7 +22,12 @@ namespace Elders.Cronus.Middleware
         protected abstract void Invoke(TContext context, MiddlewareExecution<TContext> middlewareControl);
     }
 
-    public abstract class Middleware<TContext, TResult> : AbstractMiddleware<TContext>
+    public interface IMiddleware<TContext, TResult>
+    {
+        TResult Invoke(TContext context);
+    }
+
+    public abstract class Middleware<TContext, TResult> : AbstractMiddleware<TContext>, IMiddleware<TContext, TResult>
     {
         protected override object AbstractInvoke(TContext context, MiddlewareExecution<TContext> middlewareControl)
         {

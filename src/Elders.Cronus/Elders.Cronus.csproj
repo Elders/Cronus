@@ -90,12 +90,6 @@
     <Compile Include="MessageProcessingMiddleware\TransportMessageProcessorMiddleware.cs" />
     <Compile Include="MessageProcessingMiddleware\SubscriberMiddleware.cs" />
     <Compile Include="MessageProcessingMiddleware\MessageSubscriptionsMiddleware.cs" />
-    <Compile Include="MessageProcessing\FeedResultExtentions.cs" />
-    <Compile Include="MessageProcessing\IFeedResult.cs" />
-    <Compile Include="MessageProcessing\IHandlerFactory.cs" />
-    <Compile Include="MessageProcessing\IHandlerInstance.cs" />
-    <Compile Include="MessageProcessing\MessageProcessor.cs" />
-    <Compile Include="MessageProcessing\MessageProcessorSubscription.cs" />
     <Compile Include="Middleware\AbstractMiddleware.cs" />
     <Compile Include="Middleware\Middleware.cs" />
     <Compile Include="Middleware\MiddlewareExecution.cs" />

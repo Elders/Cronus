@@ -6,15 +6,20 @@ using System.Linq;
 
 namespace Elders.Cronus.MessageProcessingMiddleware
 {
-    public class CronusMessageProcessorMiddleware : Middleware<List<TransportMessage>, IFeedResult>
+    public class CronusMessageProcessorMiddleware : Middleware<List<TransportMessage>, IFeedResult>, IMessageProcessor
     {
         Middleware<TransportMessage, IFeedResult> transportMessageMiddleware;
 
-        public CronusMessageProcessorMiddleware()
+        public CronusMessageProcessorMiddleware(string name, Middleware<TransportMessage, IFeedResult> transportMessageMiddleware)
         {
-            ///Expose those with the constructor so we could attach and configure
-            transportMessageMiddleware = new TransportMessageProcessorMiddleware();
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
+
+            Name = name;
+
+            this.transportMessageMiddleware = transportMessageMiddleware;
         }
+
+        public string Name { get; private set; }
 
         protected override IFeedResult Invoke(List<TransportMessage> messages, MiddlewareExecution<List<TransportMessage>, IFeedResult> middlewareControl)
         {

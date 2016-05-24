@@ -1,8 +1,8 @@
 ﻿using System.Linq;
-using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.Logging;
+using Elders.Cronus.MessageProcessingMiddleware;
 
 namespace Elders.Cronus.Pipeline.CircuitBreaker
 {

@@ -13,7 +13,9 @@ namespace Elders.Cronus.Pipeline.Config
 
     public interface IMessageProcessorSettings<out TContract> : ISettingsBuilder where TContract : IMessage
     {
-        Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> HandlerRegistrations { get; set; }
+        Dictionary<Type, List<Type>> HandlerRegistrations { get; set; }
+
+        Func<Type, object> HandlerFactory { get; set; }
 
         string MessageProcessorName { get; set; }
     }
@@ -128,7 +130,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         static T Register<T>(this T self, Type[] messageHandlers, Func<Type, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : IMessageProcessorSettings<IMessage>
         {
-            Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> registrations = new Dictionary<Type, List<Tuple<Type, Func<Type, object>>>>();
+            Dictionary<Type, List<Type>> registrations = new Dictionary<Type, List<Type>>();
 
             var contractType = self.GetType().GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IMessageProcessorSettings<>)).Single().GetGenericArguments().Single();
 
@@ -149,9 +151,9 @@ namespace Elders.Cronus.Pipeline.Config
                     {
                         if (!registrations.ContainsKey(eventType))
                         {
-                            registrations.Add(eventType, new List<Tuple<Type, Func<Type, object>>>());
+                            registrations.Add(eventType, new List<Type>());
                         }
-                        registrations[eventType].Add(new Tuple<Type, Func<Type, object>>(fpMessageHandlerType, messageHandlerFactory));
+                        registrations[eventType].Add(fpMessageHandlerType);
                     }
                 }
             }

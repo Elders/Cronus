@@ -1,4 +1,4 @@
-﻿using Elders.Cronus.MessageProcessing;
+﻿using Elders.Cronus.MessageProcessingMiddleware;
 
 namespace Elders.Cronus.Pipeline.CircuitBreaker
 {

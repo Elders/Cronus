@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
-using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.MessageProcessingMiddleware;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -14,7 +14,9 @@ namespace Elders.Cronus.Pipeline.Config
         }
         private Func<Type, bool> discriminator;
 
-        Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> IMessageProcessorSettings<IEvent>.HandlerRegistrations { get; set; }
+        Dictionary<Type, List<Type>> IMessageProcessorSettings<IEvent>.HandlerRegistrations { get; set; }
+
+        Func<Type, object> IMessageProcessorSettings<IEvent>.HandlerFactory { get; set; }
 
         string IMessageProcessorSettings<IEvent>.MessageProcessorName { get; set; }
 
@@ -24,21 +26,24 @@ namespace Elders.Cronus.Pipeline.Config
             var processorSettings = this as IMessageProcessorSettings<IEvent>;
             Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
             {
-                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName);
+                var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
+                var projectionsMiddleware = new ProjectionsMiddleware(handlerFactory);
+                var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
+                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
+                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, transportMiddleware);
 
-                foreach (var reg in (this as IMessageProcessorSettings<IEvent>).HandlerRegistrations)
+                foreach (var reg in processorSettings.HandlerRegistrations)
                 {
-                    foreach (var item in reg.Value)
+                    foreach (var handlerType in reg.Value)
                     {
-                        if (discriminator == null || discriminator(item.Item1))
+                        if (discriminator == null || discriminator(handlerType))
                         {
-                            var handlerFactory = new DefaultHandlerFactory(item.Item1, item.Item2);
-                            var subscriptionName = String.Format("{0}.{1}", handlerFactory.MessageHandlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
-                            handler.Subscribe(new ProjectionSubscription(subscriptionName, reg.Key, handlerFactory));
+                            var subscriptionName = String.Format("{0}.{1}", handlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
+                            messageSubscriptionMiddleware.Subscribe(new SubscriberMiddleware(subscriptionName, reg.Key, handlerType, projectionsMiddleware));
                         }
                     }
                 }
-                return handler;
+                return processor;
             };
             builder.Container.RegisterSingleton<IMessageProcessor>(() => messageHandlerProcessorFactory(), builder.Name);
         }
@@ -52,7 +57,9 @@ namespace Elders.Cronus.Pipeline.Config
         }
         private Func<Type, bool> discriminator;
 
-        Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> IMessageProcessorSettings<IEvent>.HandlerRegistrations { get; set; }
+        Dictionary<Type, List<Type>> IMessageProcessorSettings<IEvent>.HandlerRegistrations { get; set; }
+
+        Func<Type, object> IMessageProcessorSettings<IEvent>.HandlerFactory { get; set; }
 
         string IMessageProcessorSettings<IEvent>.MessageProcessorName { get; set; }
 
@@ -62,22 +69,25 @@ namespace Elders.Cronus.Pipeline.Config
             var processorSettings = this as IMessageProcessorSettings<IEvent>;
             Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
             {
-                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName);
+                var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
+                var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
+                var portsMiddleware = new PortsMiddleware(handlerFactory, publisher);
+                var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
+                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
+                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, transportMiddleware);
 
                 foreach (var reg in (this as IMessageProcessorSettings<IEvent>).HandlerRegistrations)
                 {
-                    foreach (var item in reg.Value)
+                    foreach (var handlerType in reg.Value)
                     {
-                        if (discriminator == null || discriminator(item.Item1))
+                        if (discriminator == null || discriminator(handlerType))
                         {
-                            var handlerFactory = new DefaultHandlerFactory(item.Item1, item.Item2);
-                            var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
-                            var subscriptionName = String.Format("{0}.{1}", handlerFactory.MessageHandlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
-                            handler.Subscribe(new PortSubscription(subscriptionName, reg.Key, handlerFactory, publisher));
+                            var subscriptionName = String.Format("{0}.{1}", handlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
+                            messageSubscriptionMiddleware.Subscribe(new SubscriberMiddleware(subscriptionName, reg.Key, handlerType, portsMiddleware));
                         }
                     }
                 }
-                return handler;
+                return processor;
             };
             builder.Container.RegisterSingleton<IMessageProcessor>(() => messageHandlerProcessorFactory(), builder.Name);
         }
@@ -91,7 +101,9 @@ namespace Elders.Cronus.Pipeline.Config
         }
         private Func<Type, bool> discriminator;
 
-        Dictionary<Type, List<Tuple<Type, Func<Type, object>>>> IMessageProcessorSettings<ICommand>.HandlerRegistrations { get; set; }
+        Dictionary<Type, List<Type>> IMessageProcessorSettings<ICommand>.HandlerRegistrations { get; set; }
+
+        Func<Type, object> IMessageProcessorSettings<ICommand>.HandlerFactory { get; set; }
 
         string IMessageProcessorSettings<ICommand>.MessageProcessorName { get; set; }
 
@@ -101,23 +113,27 @@ namespace Elders.Cronus.Pipeline.Config
             var processorSettings = this as IMessageProcessorSettings<ICommand>;
             Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
             {
-                IMessageProcessor handler = new MessageProcessor(processorSettings.MessageProcessorName);
+                var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
+                var repository = builder.Container.Resolve<IAggregateRepository>(builder.Name);
+                var publisher = builder.Container.Resolve<IPublisher<IEvent>>(builder.Name);
+                var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
+                var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
+                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
+                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, transportMiddleware);
+
 
                 foreach (var reg in (this as IMessageProcessorSettings<ICommand>).HandlerRegistrations)
                 {
-                    foreach (var item in reg.Value)
+                    foreach (var handlerType in reg.Value)
                     {
-                        if (discriminator == null || discriminator(item.Item1))
+                        if (discriminator == null || discriminator(handlerType))
                         {
-                            var handlerFactory = new DefaultHandlerFactory(item.Item1, item.Item2);
-                            var repository = builder.Container.Resolve<IAggregateRepository>(builder.Name);
-                            var publisher = builder.Container.Resolve<IPublisher<IEvent>>(builder.Name);
-                            var subscriptionName = String.Format("{0}.{1}", handlerFactory.MessageHandlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
-                            handler.Subscribe(new ApplicationServiceSubscription(subscriptionName, reg.Key, handlerFactory, repository, publisher));
+                            var subscriptionName = String.Format("{0}.{1}", handlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
+                            messageSubscriptionMiddleware.Subscribe(new SubscriberMiddleware(subscriptionName, reg.Key, handlerType, applicationServiceMiddleware));
                         }
                     }
                 }
-                return handler;
+                return processor;
             };
             builder.Container.RegisterSingleton<IMessageProcessor>(() => messageHandlerProcessorFactory(), builder.Name);
         }

@@ -10,9 +10,9 @@ namespace Elders.Cronus.MessageProcessingMiddleware
     {
         Middleware<Type, IEnumerable<SubscriberMiddleware>> messageSubscriptionsMiddleware;
 
-        public TransportMessageProcessorMiddleware()
+        public TransportMessageProcessorMiddleware(Middleware<Type, IEnumerable<SubscriberMiddleware>> messageSubscriptionsMiddleware)
         {
-            messageSubscriptionsMiddleware = new MessageSubscriptionsMiddleware();
+            this.messageSubscriptionsMiddleware = messageSubscriptionsMiddleware;
         }
 
         static readonly ILog log = LogProvider.GetLogger(typeof(TransportMessageProcessorMiddleware));

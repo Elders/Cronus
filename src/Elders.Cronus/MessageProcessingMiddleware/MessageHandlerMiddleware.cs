@@ -18,11 +18,9 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public Middleware<ErrorContext> Error { get; private set; }
 
-        private Message messageType;
-
         public MessageHandlerMiddleware(IHandlerFactory factory)
         {
-            CreateHandler = MiddlewareExtensions.Lambda<Type, IHandlerInstance>((context, execution) => factory.Create());//LOSHO !!
+            CreateHandler = MiddlewareExtensions.Lambda<Type, IHandlerInstance>((handlerType, execution) => factory.Create(handlerType));//LOSHO !!
 
             BeginHandle = MiddlewareExtensions.Lamda<HandleContext>();
 
