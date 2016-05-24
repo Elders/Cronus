@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Middleware;
 
 namespace Elders.Cronus.MessageProcessingMiddleware
@@ -20,14 +17,14 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public MessageHandlerMiddleware(IHandlerFactory factory)
         {
-            CreateHandler = MiddlewareExtensions.Lambda<Type, IHandlerInstance>((handlerType, execution) => factory.Create(handlerType));//LOSHO !!
+            CreateHandler = MiddlewareExtensions.Lambda<Type, IHandlerInstance>((handlerType, execution) => factory.Create(handlerType));
 
             BeginHandle = MiddlewareExtensions.Lamda<HandleContext>();
 
             ActualHandle = MiddlewareExtensions.Lamda<HandleContext>((context, execution) =>
             {
                 dynamic handler = context.HandlerInstance;
-                handler.Handle((dynamic)context);
+                handler.Handle((dynamic)context.Message);
             });
 
             EndHandle = MiddlewareExtensions.Lamda<HandleContext>();
@@ -36,7 +33,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         protected override void Invoke(HandlerContext context, MiddlewareExecution<HandlerContext> middlewareControl)
         {
-
             try
             {
                 using (var handler = CreateHandler.Invoke(context.HandlerType))
@@ -46,7 +42,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
                     ActualHandle.Invoke(handleContext);
                     EndHandle.Invoke(handleContext);
                 }
-
             }
             catch (Exception ex)
             {

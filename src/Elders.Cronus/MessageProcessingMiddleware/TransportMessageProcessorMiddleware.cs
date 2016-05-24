@@ -73,5 +73,3 @@ namespace Elders.Cronus.MessageProcessingMiddleware
         }
     }
 }
-
-

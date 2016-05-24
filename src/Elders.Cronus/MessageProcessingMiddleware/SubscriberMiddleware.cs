@@ -40,7 +40,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         protected override void Invoke(Message message, MiddlewareExecution<Message> middlewareControl)
         {
-            MessageHandlerMiddleware.Invoke(new HandlerContext(message, messageHandlerType));
+            MessageHandlerMiddleware.Invoke(new HandlerContext(message.Payload, messageHandlerType));
             log.Info(() => "HANDLE => " + messageHandlerType.Name + "( " + message.Payload + " )");
         }
 
@@ -48,7 +48,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
         {
             this.Unsubscribe();
         }
-
 
         public void Subscribe(MessageSubscriptionsMiddleware provider)
         {
@@ -86,5 +85,4 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public Type HandlerType { get; private set; }
     }
-
 }

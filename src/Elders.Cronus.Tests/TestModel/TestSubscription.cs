@@ -1,26 +1,13 @@
 ﻿using System;
-using Elders.Cronus.DomainModeling;
-using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.MessageProcessingMiddleware;
 
 namespace Elders.Cronus.Tests.TestModel
 {
-    public class TestSubscription : MessageProcessorSubscription
+    public class TestSubscriber : SubscriberMiddleware
     {
-        public TestSubscription(Type messageType, IHandlerFactory factory)
-            : base("Elders.Cronus.Tests", messageType, factory.MessageHandlerType)
+        public TestSubscriber(Type messageType, Type handlerType, MessageHandlerMiddleware handlerMiddleware)
+            : base("Elders.Cronus.Tests", messageType, handlerType, handlerMiddleware)
         {
-            Factory = factory;
-        }
-
-        public IHandlerFactory Factory { get; private set; }
-
-        protected override void InternalOnNext(Message value)
-        {
-            using (var handlerInstance = Factory.Create())
-            {
-                dynamic handler = handlerInstance.Current;
-                handler.Handle((dynamic)value.Payload);
-            }
         }
     }
 }

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Tests.TestModel;
 using Machine.Specifications;
+using Elders.Cronus.MessageProcessingMiddleware;
 
 namespace Elders.Cronus.Tests.MessageStreaming
 {
@@ -13,34 +13,39 @@ namespace Elders.Cronus.Tests.MessageStreaming
         Establish context = () =>
             {
                 handlerFacotry = new DisposableHandlerFactory();
-                messageStream = new MessageProcessor("test");
-                var subscription = new TestSubscription(typeof(CalculatorNumber1), handlerFacotry);
+                var messageHandlerMiddleware = new MessageHandlerMiddleware(handlerFacotry);
+                var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
+                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
+                messageStream = new CronusMessageProcessorMiddleware("test", transportMiddleware);
+
+
+                var subscription = new TestSubscriber(typeof(CalculatorNumber1), typeof(DisposableHandlerFactory.DisposableHandler), messageHandlerMiddleware);
+
+
 
                 messages = new List<TransportMessage>();
                 messages.Add(new TransportMessage(new Message(new CalculatorNumber1(1))));
-                messageStream.Subscribe(subscription);
+                messageSubscriptionMiddleware.Subscribe(subscription);
             };
 
         Because of = () =>
             {
-                feedResult = messageStream.Feed(messages);
+                feedResult = messageStream.Invoke(messages);
             };
 
         It should_dispose_handler_resources_if_possible = () => (handlerFacotry.State.Current as DisposableHandlerFactory.DisposableHandler).IsDisposed.ShouldBeTrue();
 
         static IFeedResult feedResult;
-        static MessageProcessor messageStream;
+        static CronusMessageProcessorMiddleware messageStream;
         static List<TransportMessage> messages;
         static DisposableHandlerFactory handlerFacotry;
     }
 
     public class DisposableHandlerFactory : IHandlerFactory
     {
-        public Type MessageHandlerType { get { return typeof(DisposableHandler); } }
-
         public IHandlerInstance State { get; set; }
 
-        public IHandlerInstance Create()
+        public IHandlerInstance Create(Type handlerType)
         {
             State = new DefaultHandlerInstance(new DisposableHandler());
             return State;

@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.Logging;
-using Elders.Cronus.Middleware;
+﻿using Elders.Cronus.Middleware;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Tests.TestModel;
 using Machine.Specifications;
+using Elders.Cronus.MessageProcessingMiddleware;
 
 namespace Elders.Cronus.Tests.MessageStreaming
 {
@@ -14,13 +14,17 @@ namespace Elders.Cronus.Tests.MessageStreaming
             {
                 handlerFacotry = new CalculatorHandlerFactory();
 
-                messageStream = new MessageProcessor("test");
-                messages = new List<TransportMessage>();
-                var subscription3 = new TestSubscription(typeof(CalculatorNumber2), new DefaultHandlerFactory(typeof(StandardCalculatorSubstractHandler), handlerFacotry.CreateInstance));
-                var subscription4 = new TestSubscription(typeof(CalculatorNumber2), new DefaultHandlerFactory(typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance));
+                var messageHandlerMiddleware = new MessageHandlerMiddleware(handlerFacotry);
+                var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
+                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
+                messageStream = new CronusMessageProcessorMiddleware("test", transportMiddleware);
 
-                messageStream.Subscribe(subscription3);
-                messageStream.Subscribe(subscription4);
+                messages = new List<TransportMessage>();
+                var subscription3 = new TestSubscriber(typeof(CalculatorNumber2), typeof(StandardCalculatorSubstractHandler), messageHandlerMiddleware);
+                var subscription4 = new TestSubscriber(typeof(CalculatorNumber2), typeof(StandardCalculatorAddHandler), messageHandlerMiddleware);
+
+                messageSubscriptionMiddleware.Subscribe(subscription3);
+                messageSubscriptionMiddleware.Subscribe(subscription4);
                 for (int i = 1; i < numberOfMessages + 1; i++)
                 {
                     var normalMessage = new TransportMessage(new Message(new CalculatorNumber2(i)));
@@ -32,7 +36,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
         Because of = () =>
             {
-                secondFeedResult = messageStream.Feed(messages);
+                secondFeedResult = messageStream.Invoke(messages);
             };
 
         It should_feed_interested_handlers = () => handlerFacotry.State.Total.ShouldEqual(Enumerable.Range(1, numberOfMessages).Sum());
@@ -41,7 +45,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
         static IFeedResult secondFeedResult;
         static int numberOfMessages = 3;
-        static MessageProcessor messageStream;
+        static CronusMessageProcessorMiddleware messageStream;
         static List<TransportMessage> messages;
         static CalculatorHandlerFactory handlerFacotry;
     }

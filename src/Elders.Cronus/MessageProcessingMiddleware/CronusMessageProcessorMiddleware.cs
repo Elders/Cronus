@@ -1,8 +1,6 @@
-﻿using Elders.Cronus.Logging;
-using Elders.Cronus.Middleware;
+﻿using Elders.Cronus.Middleware;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Elders.Cronus.MessageProcessingMiddleware
 {
@@ -15,7 +13,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
 
             Name = name;
-
             this.transportMessageMiddleware = transportMessageMiddleware;
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using Elders.Cronus.DomainModeling;
+using Elders.Cronus.MessageProcessingMiddleware;
 
 namespace Elders.Cronus.Tests.MessageStreaming
 {
@@ -8,15 +9,16 @@ namespace Elders.Cronus.Tests.MessageStreaming
         public int Total = 0;
     }
 
-    public class CalculatorHandlerFactory
+    public class CalculatorHandlerFactory : IHandlerFactory
     {
         public CalculatorState State { get; private set; }
         public CalculatorHandlerFactory() { State = new CalculatorState(); }
-        public object CreateInstance(Type t)
+
+        public IHandlerInstance Create(Type handlerType)
         {
-            object instance = FastActivator.CreateInstance(t);
+            object instance = FastActivator.CreateInstance(handlerType);
             ((dynamic)instance).State = (dynamic)State;
-            return instance;
+            return new DefaultHandlerInstance(instance);
         }
     }
 

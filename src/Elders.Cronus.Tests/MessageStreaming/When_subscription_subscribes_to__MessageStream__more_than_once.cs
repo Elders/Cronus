@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Tests.TestModel;
 using Machine.Specifications;
+using Elders.Cronus.MessageProcessingMiddleware;
 
 namespace Elders.Cronus.Tests.MessageStreaming
 {
@@ -13,23 +13,29 @@ namespace Elders.Cronus.Tests.MessageStreaming
         Establish context = () =>
             {
                 handlerFacotry = new CalculatorHandlerFactory();
-                messageStream = new MessageProcessor("test");
-                var subscription1 = new TestSubscription(typeof(CalculatorNumber1), new DefaultHandlerFactory(typeof(StandardCalculatorAddHandler), handlerFacotry.CreateInstance));
+
+                var messageHandlerMiddleware = new MessageHandlerMiddleware(handlerFacotry);
+                var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
+                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
+                messageStream = new CronusMessageProcessorMiddleware("test", transportMiddleware);
+
+
+                var subscription1 = new TestSubscriber(typeof(CalculatorNumber1), typeof(StandardCalculatorAddHandler), messageHandlerMiddleware);
 
                 messages = new List<TransportMessage>();
                 for (int i = 1; i < numberOfMessages + 1; i++)
                 {
                     messages.Add(new TransportMessage(new Message(new CalculatorNumber1(i))));
                 }
-                messageStream.Subscribe(subscription1);
-                messageStream.Subscribe(subscription1);
-                messageStream.Subscribe(subscription1);
-                messageStream.Subscribe(subscription1);
+                messageSubscriptionMiddleware.Subscribe(subscription1);
+                messageSubscriptionMiddleware.Subscribe(subscription1);
+                messageSubscriptionMiddleware.Subscribe(subscription1);
+                messageSubscriptionMiddleware.Subscribe(subscription1);
             };
 
         Because of = () =>
             {
-                feedResult = messageStream.Feed(messages);
+                feedResult = messageStream.Invoke(messages);
             };
 
         It should_accept_only_the_first_subscription = () => handlerFacotry.State.Total.ShouldEqual(Enumerable.Range(1, numberOfMessages).Sum());
@@ -38,7 +44,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
         static IFeedResult feedResult;
         static int numberOfMessages = 2;
-        static MessageProcessor messageStream;
+        static CronusMessageProcessorMiddleware messageStream;
         static List<TransportMessage> messages;
         static CalculatorHandlerFactory handlerFacotry;
     }

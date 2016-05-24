@@ -16,7 +16,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             this.handlerFctory = handlerFactory;
         }
 
-
         public IHandlerInstance Create(Type handlerType)
         {
             return new DefaultHandlerInstance(handlerFctory(handlerType));
