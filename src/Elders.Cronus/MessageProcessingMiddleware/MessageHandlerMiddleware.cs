@@ -30,14 +30,13 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             EndHandle = MiddlewareExtensions.Lamda<HandleContext>();
             Error = MiddlewareExtensions.Lamda<ErrorContext>();
         }
-
-        protected override void Invoke(HandlerContext context, MiddlewareExecution<HandlerContext> middlewareControl)
+        protected override void Invoke(MiddlewareContext<HandlerContext> middlewareControl)
         {
             try
             {
-                using (var handler = CreateHandler.Invoke(context.HandlerType))
+                using (var handler = CreateHandler.Invoke(middlewareControl.Context.HandlerType))
                 {
-                    var handleContext = new HandleContext(context.Message, handler.Current);
+                    var handleContext = new HandleContext(middlewareControl.Context.Message, handler.Current);
                     BeginHandle.Invoke(handleContext);
                     ActualHandle.Invoke(handleContext);
                     EndHandle.Invoke(handleContext);
@@ -45,7 +44,8 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             }
             catch (Exception ex)
             {
-                Error.Invoke(new ErrorContext(ex, context.Message, context.HandlerType));
+                Error.Invoke(new ErrorContext(ex, middlewareControl.Context.Message, middlewareControl.Context.HandlerType));
+                throw ex;// Throwing the exception becouse the retries are currently not here :)
             }
         }
 

@@ -4,23 +4,23 @@ namespace Elders.Cronus.Middleware
 {
     public abstract class AbstractMiddleware<TContext>
     {
-        private Func<TContext, MiddlewareExecution<TContext>, object> executionChain;
+        private Func<TContext, MiddlewareContext<TContext>, object> executionChain;
 
         public AbstractMiddleware()
         {
-            executionChain = (ctx, next) => AbstractInvoke(ctx, next);
+            executionChain = (ctx, next) => AbstractInvoke(next);
         }
 
-        protected abstract object AbstractInvoke(TContext context, MiddlewareExecution<TContext> middlewareControl);
+        protected abstract object AbstractInvoke(MiddlewareContext<TContext> context);
 
         public object Invoke(TContext context)
         {
             return InvokeChain(CreateExecutionContext(context));
         }
 
-        protected virtual MiddlewareExecution<TContext> CreateExecutionContext(TContext context)
+        protected virtual MiddlewareContext<TContext> CreateExecutionContext(TContext context)
         {
-            return new MiddlewareExecution<TContext>(context, null);
+            return new MiddlewareContext<TContext>(context, null);
         }
 
         public void Next(AbstractMiddleware<TContext> nextMiddleware)
@@ -80,7 +80,7 @@ namespace Elders.Cronus.Middleware
 
         }
 
-        protected object InvokeChain(MiddlewareExecution<TContext> control)
+        protected object InvokeChain(MiddlewareContext<TContext> control)
         {
             return executionChain(control.Context, control);
         }

@@ -18,9 +18,10 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public string Name { get; private set; }
 
-        protected override IFeedResult Invoke(List<TransportMessage> messages, MiddlewareExecution<List<TransportMessage>, IFeedResult> middlewareControl)
+        protected override IFeedResult Invoke(MiddlewareContext<List<TransportMessage>, IFeedResult> middlewareControl)
         {
             IFeedResult feedResult = FeedResult.Empty();
+            var messages = middlewareControl.Context;
             try
             {
                 messages.ForEach(msg =>

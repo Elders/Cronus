@@ -8,13 +8,10 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 {
     public class ApplicationServiceMiddleware : MessageHandlerMiddleware
     {
-        private readonly IHandlerFactory handlerFactory;
-
         private readonly IAggregateRepository aggregateRepository;
 
         public ApplicationServiceMiddleware(IHandlerFactory factory, IAggregateRepository aggregateRepository, IPublisher<IEvent> eventPublisher) : base(factory)
         {
-            handlerFactory = factory;
             this.aggregateRepository = new RepositoryProxy(aggregateRepository, eventPublisher);
             BeginHandle.Next((context, execution) =>
             {

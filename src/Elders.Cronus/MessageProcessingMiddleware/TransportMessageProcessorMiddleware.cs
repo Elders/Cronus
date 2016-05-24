@@ -17,8 +17,9 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         static readonly ILog log = LogProvider.GetLogger(typeof(TransportMessageProcessorMiddleware));
 
-        protected override IFeedResult Invoke(TransportMessage message, MiddlewareExecution<TransportMessage, IFeedResult> middlewareControl)
+        protected override IFeedResult Invoke(MiddlewareContext<TransportMessage, IFeedResult> middlewareControl)
         {
+            var message = middlewareControl.Context;
             IFeedResult feedResult = FeedResult.Empty();
             try
             {

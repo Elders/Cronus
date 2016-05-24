@@ -2,16 +2,16 @@
 
 namespace Elders.Cronus.Middleware
 {
-    public class MiddlewareExecution<TContext, TResult> : MiddlewareExecution<TContext>
+    public class MiddlewareContext<TContext, TResult> : MiddlewareContext<TContext>
     {
-        public MiddlewareExecution(TContext context, AbstractMiddleware<TContext> next) : base(context, next) { }
+        public MiddlewareContext(TContext context, AbstractMiddleware<TContext> next) : base(context, next) { }
 
-        public MiddlewareExecution(MiddlewareExecution<TContext> control) : base(control) { }
+        public MiddlewareContext(MiddlewareContext<TContext> control) : base(control) { }
 
         new public TResult PreviousResult { get { return (TResult)base.PreviousResult; } }
     }
 
-    public class MiddlewareExecution<TContext>
+    public class MiddlewareContext<TContext>
     {
         public AbstractMiddleware<TContext> Next { get; private set; }
 
@@ -19,13 +19,13 @@ namespace Elders.Cronus.Middleware
 
         public object PreviousResult { get; private set; }
 
-        public MiddlewareExecution(TContext context, AbstractMiddleware<TContext> next)
+        public MiddlewareContext(TContext context, AbstractMiddleware<TContext> next)
         {
             Next = next;
             Context = context;
         }
 
-        public MiddlewareExecution(MiddlewareExecution<TContext> copy)
+        public MiddlewareContext(MiddlewareContext<TContext> copy)
         {
             Next = copy.Next;
             Context = copy.Context;

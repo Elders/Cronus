@@ -14,10 +14,10 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             subscriptions = new List<SubscriberMiddleware>();
         }
 
-        protected override IEnumerable<SubscriberMiddleware> Invoke(Type messageType, MiddlewareExecution<Type, IEnumerable<SubscriberMiddleware>> middlewareControl)
+        protected override IEnumerable<SubscriberMiddleware> Invoke(MiddlewareContext<Type, IEnumerable<SubscriberMiddleware>> middlewareControl)
         {
             return from subscription in subscriptions
-                   where messageType == subscription.MessageType
+                   where middlewareControl.Context == subscription.MessageType
                    select subscription;
         }
 

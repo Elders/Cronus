@@ -89,6 +89,12 @@
     <Compile Include="MessageStreaming\When__MessageStream__has_subscription_which_fails_to_handle_a_message.cs" />
     <Compile Include="MessageStreaming\When__MessageStream__is_feeded_with_failed_messages_with_origin_type__handler__.cs" />
     <Compile Include="MessageStreaming\When__MessageStream__receives_a_batch_of__TransportMessages__.cs" />
+    <Compile Include="Middleware\When_executing_middleware_tree.cs" />
+    <Compile Include="Middleware\When_attaching_multiple_middlewares.cs" />
+    <Compile Include="Middleware\When_executing_single_middleware.cs" />
+    <Compile Include="Middleware\ExecutionToken.cs" />
+    <Compile Include="Middleware\TestExecutionChain.cs" />
+    <Compile Include="Middleware\TestMiddleware.cs" />
     <Compile Include="TestModel\TestEntityId.cs" />
     <Compile Include="TestModel\TestSubscription.cs" />
     <Compile Include="TestModel\TestAggregateId.cs" />
