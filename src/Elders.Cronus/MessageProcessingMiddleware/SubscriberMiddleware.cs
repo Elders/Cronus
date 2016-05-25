@@ -55,7 +55,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             if (provider != null)
             {
                 subscription = provider.Subscribe(this);
-                log.Debug($"Subscriber '{Name}' with id {Id} and handler {messageHandlerType} subscribed for message {MessageType} in {provider}");
+                log.Debug(() => $"Subscriber '{Name}' with id {Id} and handler {messageHandlerType} subscribed for message {MessageType} in {provider}");
             }
         }
 
@@ -67,7 +67,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             }
         }
 
-        protected virtual string BuildId()
+        protected string BuildId()
         {
             return messageHandlerType.FullName;
         }

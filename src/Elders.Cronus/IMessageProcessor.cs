@@ -7,5 +7,7 @@ namespace Elders.Cronus
     public interface IMessageProcessor : IMiddleware<List<TransportMessage>, IFeedResult>
     {
         string Name { get; }
+
+        IEnumerable<SubscriberMiddleware> GetSubscriptions();
     }
 }

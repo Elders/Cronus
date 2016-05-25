@@ -7,7 +7,7 @@ namespace Elders.Cronus.InMemory
 {
     public class InMemoryPublisher<TContract> : Publisher<TContract> where TContract : IMessage
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<TContract>));
+        static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<>));
 
         IMessageProcessor messageProcessor;
 

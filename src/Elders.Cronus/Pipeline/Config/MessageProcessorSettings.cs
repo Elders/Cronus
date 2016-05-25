@@ -29,8 +29,7 @@ namespace Elders.Cronus.Pipeline.Config
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
                 var projectionsMiddleware = new ProjectionsMiddleware(handlerFactory);
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
-                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
-                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, transportMiddleware);
+                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
 
                 foreach (var reg in processorSettings.HandlerRegistrations)
                 {
@@ -73,8 +72,7 @@ namespace Elders.Cronus.Pipeline.Config
                 var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
                 var portsMiddleware = new PortsMiddleware(handlerFactory, publisher);
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
-                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
-                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, transportMiddleware);
+                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
 
                 foreach (var reg in (this as IMessageProcessorSettings<IEvent>).HandlerRegistrations)
                 {
@@ -118,8 +116,7 @@ namespace Elders.Cronus.Pipeline.Config
                 var publisher = builder.Container.Resolve<IPublisher<IEvent>>(builder.Name);
                 var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
-                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
-                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, transportMiddleware);
+                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
 
 
                 foreach (var reg in (this as IMessageProcessorSettings<ICommand>).HandlerRegistrations)

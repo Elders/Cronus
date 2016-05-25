@@ -16,8 +16,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
                 var messageHandlerMiddleware = new MessageHandlerMiddleware(handlerFacotry);
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
-                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
-                messageStream = new CronusMessageProcessorMiddleware("test", transportMiddleware);
+                messageStream = new CronusMessageProcessorMiddleware("test", messageSubscriptionMiddleware);
 
                 messages = new List<TransportMessage>();
                 var subscription3 = new TestSubscriber(typeof(CalculatorNumber2), typeof(StandardCalculatorSubstractHandler), messageHandlerMiddleware);

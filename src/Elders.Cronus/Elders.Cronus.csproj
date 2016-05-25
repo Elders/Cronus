@@ -87,7 +87,6 @@
     <Compile Include="MessageProcessingMiddleware\PortsMiddleware.cs" />
     <Compile Include="MessageProcessingMiddleware\ProjectionsMiddleware.cs" />
     <Compile Include="MessageProcessingMiddleware\MessageHandlerMiddleware.cs" />
-    <Compile Include="MessageProcessingMiddleware\TransportMessageProcessorMiddleware.cs" />
     <Compile Include="MessageProcessingMiddleware\SubscriberMiddleware.cs" />
     <Compile Include="MessageProcessingMiddleware\MessageSubscriptionsMiddleware.cs" />
     <Compile Include="Middleware\AbstractMiddleware.cs" />

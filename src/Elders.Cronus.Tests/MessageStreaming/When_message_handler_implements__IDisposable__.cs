@@ -15,8 +15,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
                 handlerFacotry = new DisposableHandlerFactory();
                 var messageHandlerMiddleware = new MessageHandlerMiddleware(handlerFacotry);
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
-                var transportMiddleware = new TransportMessageProcessorMiddleware(messageSubscriptionMiddleware);
-                messageStream = new CronusMessageProcessorMiddleware("test", transportMiddleware);
+                messageStream = new CronusMessageProcessorMiddleware("test", messageSubscriptionMiddleware);
 
 
                 var subscription = new TestSubscriber(typeof(CalculatorNumber1), typeof(DisposableHandlerFactory.DisposableHandler), messageHandlerMiddleware);

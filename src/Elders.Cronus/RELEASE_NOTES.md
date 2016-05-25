@@ -1,3 +1,6 @@
+#### 3.0.0-beta0002 - 25.05.2016
+* Rollback some of the MessagegeProcessor functionality
+
 #### 3.0.0-beta0001 - 25.05.2016
 * Feature: Middleware execution pipeline.
 
