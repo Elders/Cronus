@@ -34,7 +34,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
         Because of = () =>
             {
-                feedResult = messageStream.Invoke(messages);
+                feedResult = messageStream.Run(messages);
             };
 
         It should_accept_only_the_first_subscription = () => handlerFacotry.State.Total.ShouldEqual(Enumerable.Range(1, numberOfMessages).Sum());

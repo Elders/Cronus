@@ -35,7 +35,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
         Because of = () =>
             {
-                feedResult = messageStream.Invoke(messages);
+                feedResult = messageStream.Run(messages);
             };
 
         It should_feed_only_interested_handlers = () => handlerFacotry.State.Total.ShouldEqual(Enumerable.Range(1, numberOfMessages).Sum() * -1);

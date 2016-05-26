@@ -23,11 +23,11 @@ namespace Elders.Cronus.Tests.Middleware
                 var nextToken = executionChain.CreateToken();
                 var nextMiddleware = new TestMiddleware(nextToken);
                 expectedExecution.Add(nextToken);
-                mainMiddleware.Next(nextMiddleware);
+                mainMiddleware.Use(nextMiddleware);
             }
         };
 
-        Because of = () => mainMiddleware.Invoke(invocationContext);
+        Because of = () => mainMiddleware.Run(invocationContext);
 
         It the_execution_chain_should_not_be_empty = () => executionChain.GetTokens().ShouldNotBeEmpty();
 

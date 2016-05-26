@@ -23,23 +23,23 @@ namespace Elders.Cronus.Tests.Middleware
             var secondLeaf = executionChain.CreateToken();
             var secondMiddleware = new TestMiddleware(secondLeaf);
             expectedExecution.Add(secondLeaf);
-            mainMiddleware.Next(secondMiddleware);
+            mainMiddleware.Use(secondMiddleware);
 
 
             var thirdLeaf = executionChain.CreateToken();
             var thirdMiddleware = new TestMiddleware(thirdLeaf);
             expectedExecution.Add(thirdLeaf);
-            secondMiddleware.Next(thirdMiddleware);
+            secondMiddleware.Use(thirdMiddleware);
 
             var forthLeaf = executionChain.CreateToken();
             var forthMiddleware = new TestMiddleware(forthLeaf);
             expectedExecution.Add(forthLeaf);
-            mainMiddleware.Next(forthMiddleware);
+            mainMiddleware.Use(forthMiddleware);
 
 
         };
 
-        Because of = () => mainMiddleware.Invoke(invocationContext);
+        Because of = () => mainMiddleware.Run(invocationContext);
 
         It the_execution_chain_should_not_be_empty = () => executionChain.GetTokens().ShouldNotBeEmpty();
 

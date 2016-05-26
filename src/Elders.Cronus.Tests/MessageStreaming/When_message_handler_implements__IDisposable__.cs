@@ -29,7 +29,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
         Because of = () =>
             {
-                feedResult = messageStream.Invoke(messages);
+                feedResult = messageStream.Run(messages);
             };
 
         It should_dispose_handler_resources_if_possible = () => (handlerFacotry.State.Current as DisposableHandlerFactory.DisposableHandler).IsDisposed.ShouldBeTrue();

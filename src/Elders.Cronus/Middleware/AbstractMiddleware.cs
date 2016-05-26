@@ -4,26 +4,26 @@ namespace Elders.Cronus.Middleware
 {
     public abstract class AbstractMiddleware<TContext>
     {
-        private Func<TContext, MiddlewareContext<TContext>, object> executionChain;
+        private Func<TContext, Execution<TContext>, object> executionChain;
 
         public AbstractMiddleware()
         {
-            executionChain = (ctx, next) => AbstractInvoke(next);
+            executionChain = (ctx, next) => AbstractRun(next);
         }
 
-        protected abstract object AbstractInvoke(MiddlewareContext<TContext> context);
+        protected abstract object AbstractRun(Execution<TContext> execution);
 
-        public object Invoke(TContext context)
+        public object Run(TContext context)
         {
             return InvokeChain(CreateExecutionContext(context));
         }
 
-        protected virtual MiddlewareContext<TContext> CreateExecutionContext(TContext context)
+        protected virtual Execution<TContext> CreateExecutionContext(TContext context)
         {
-            return new MiddlewareContext<TContext>(context, null);
+            return new Execution<TContext>(context, null);
         }
 
-        public void Next(AbstractMiddleware<TContext> nextMiddleware)
+        public void Use(AbstractMiddleware<TContext> nextMiddleware)
         {
             ///THIS IS NEEDED BEAOUSE OF LAMBDAS STATIC COMPILATION 
             var lastExecutionChain = executionChain;
@@ -64,14 +64,15 @@ namespace Elders.Cronus.Middleware
             executionChain = (context, execution) =>
             {
 
-                var previousPrpcess = execution.Next;
+                var previousProcess = execution.Next;
                 execution.Transfer(nextMiddleware);
                 object result = lastExecutionChain(context, execution);
                 execution.ExecutionResult(result);
-                if (execution.Next != null)
+
+                while (execution.Next != null)
                 {
                     var current = execution.Next;
-                    execution.Transfer(previousPrpcess);
+                    execution.Transfer(previousProcess);
                     result = current.InvokeChain(execution);
                     execution.ExecutionResult(result);
                 }
@@ -80,7 +81,7 @@ namespace Elders.Cronus.Middleware
 
         }
 
-        protected object InvokeChain(MiddlewareContext<TContext> control)
+        protected object InvokeChain(Execution<TContext> control)
         {
             return executionChain(control.Context, control);
         }

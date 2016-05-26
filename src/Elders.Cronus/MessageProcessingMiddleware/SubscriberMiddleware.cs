@@ -38,10 +38,10 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public string Name { get; set; }
 
-        protected override void Invoke(MiddlewareContext<Message> middlewareControl)
+        protected override void Run(Execution<Message> middlewareControl)
         {
             var message = middlewareControl.Context;
-            MessageHandlerMiddleware.Invoke(new HandlerContext(message.Payload, messageHandlerType));
+            MessageHandlerMiddleware.Run(new HandlerContext(message.Payload, messageHandlerType));
             log.Info(() => "HANDLE => " + messageHandlerType.Name + "( " + message.Payload + " )");
         }
 

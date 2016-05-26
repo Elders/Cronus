@@ -4,46 +4,46 @@ namespace Elders.Cronus.Middleware
 {
     public interface IMiddleware<TContext>
     {
-        void Invoke(TContext context);
+        void Run(TContext context);
     }
 
     public abstract class Middleware<TContext> : AbstractMiddleware<TContext>, IMiddleware<TContext>
     {
-        protected override object AbstractInvoke(MiddlewareContext<TContext> context)
+        protected override object AbstractRun(Execution<TContext> context)
         {
-            Invoke(context);
+            Run(context);
             return null;
         }
-        new public void Invoke(TContext context)
+        new public void Run(TContext context)
         {
-            base.Invoke(context);
+            base.Run(context);
         }
 
-        protected abstract void Invoke(MiddlewareContext<TContext> context);
+        protected abstract void Run(Execution<TContext> context);
     }
 
     public interface IMiddleware<TContext, TResult>
     {
-        TResult Invoke(TContext context);
+        TResult Run(TContext context);
     }
 
     public abstract class Middleware<TContext, TResult> : AbstractMiddleware<TContext>, IMiddleware<TContext, TResult>
     {
-        protected override object AbstractInvoke(MiddlewareContext<TContext> context)
+        protected override object AbstractRun(Execution<TContext> context)
         {
-            return Invoke(new MiddlewareContext<TContext, TResult>(context));
+            return Run(new Execution<TContext, TResult>(context));
         }
 
-        new public TResult Invoke(TContext context)
+        new public TResult Run(TContext context)
         {
-            return (TResult)base.Invoke(context);
+            return (TResult)base.Run(context);
         }
 
-        protected override MiddlewareContext<TContext> CreateExecutionContext(TContext context)
+        protected override Execution<TContext> CreateExecutionContext(TContext context)
         {
-            return new MiddlewareContext<TContext, TResult>(context, null);
+            return new Execution<TContext, TResult>(context, null);
         }
 
-        protected abstract TResult Invoke(MiddlewareContext<TContext, TResult> context);
+        protected abstract TResult Run(Execution<TContext, TResult> context);
     }
 }

@@ -15,7 +15,7 @@ namespace Elders.Cronus.Tests.Middleware
         {
             this.token = token;
         }
-        protected override void Invoke(MiddlewareContext<string> context)
+        protected override void Run(Execution<string> context)
         {
             token.Notify();
         }
