@@ -13,9 +13,9 @@ namespace Elders.Cronus.MessageProcessingMiddleware
         public ApplicationServiceMiddleware(IHandlerFactory factory, IAggregateRepository aggregateRepository, IPublisher<IEvent> eventPublisher) : base(factory)
         {
             this.aggregateRepository = new RepositoryProxy(aggregateRepository, eventPublisher);
-            BeginHandle.Next((context, execution) =>
+            BeginHandle.Use((execution) =>
             {
-                context.HandlerInstance.AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = this.aggregateRepository);
+                execution.Context.HandlerInstance.AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = this.aggregateRepository);
             });
         }
 

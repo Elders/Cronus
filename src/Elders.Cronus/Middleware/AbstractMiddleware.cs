@@ -4,11 +4,24 @@ namespace Elders.Cronus.Middleware
 {
     public abstract class AbstractMiddleware<TContext>
     {
-        private Func<TContext, Execution<TContext>, object> executionChain;
+        private Func<Execution<TContext>, object> executionChain;
 
         public AbstractMiddleware()
         {
-            executionChain = (ctx, next) => AbstractRun(next);
+            executionChain = (execution) =>
+            {
+                object result = AbstractRun(execution);
+                execution.ExecutionResult(result);
+                if (execution.Next != null)
+                {
+                    var current = execution.Next;
+                    result = current.InvokeChain(execution);
+                    execution.ExecutionResult(result);
+                }
+                return result;
+            };
+
+
         }
 
         protected abstract object AbstractRun(Execution<TContext> execution);
@@ -61,18 +74,16 @@ namespace Elders.Cronus.Middleware
             */
             #endregion
 
-            executionChain = (context, execution) =>
+            executionChain = (execution) =>
             {
-
-                var previousProcess = execution.Next;
+                var previousPrpcess = execution.Next;
                 execution.Transfer(nextMiddleware);
-                object result = lastExecutionChain(context, execution);
+                object result = lastExecutionChain(execution);
                 execution.ExecutionResult(result);
-
-                while (execution.Next != null)
+                if (execution.Next != null)
                 {
                     var current = execution.Next;
-                    execution.Transfer(previousProcess);
+                    execution.Transfer(previousPrpcess);
                     result = current.InvokeChain(execution);
                     execution.ExecutionResult(result);
                 }
@@ -81,9 +92,10 @@ namespace Elders.Cronus.Middleware
 
         }
 
+
         protected object InvokeChain(Execution<TContext> control)
         {
-            return executionChain(control.Context, control);
+            return executionChain(control);
         }
     }
 }

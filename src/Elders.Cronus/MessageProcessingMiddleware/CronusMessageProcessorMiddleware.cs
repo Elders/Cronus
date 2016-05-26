@@ -53,7 +53,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
                 var messageType = message.Payload.Payload.GetType();
 
-                var subscribers = messageSubscriptionsMiddleware.Invoke(messageType);
+                var subscribers = messageSubscriptionsMiddleware.Run(messageType);
 
 
                 if (handlerIds.Count() > 0)
@@ -81,7 +81,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             var feedResult = FeedResult.Empty();
             try
             {
-                subscriber.Invoke(message.Payload);
+                subscriber.Run(message.Payload);
                 feedResult = feedResult.AppendSuccess(message);
             }
             catch (Exception ex)

@@ -17,14 +17,14 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public MessageHandlerMiddleware(IHandlerFactory factory)
         {
-            CreateHandler = MiddlewareExtensions.Lambda<Type, IHandlerInstance>((handlerType, execution) => factory.Create(handlerType));
+            CreateHandler = MiddlewareExtensions.Lambda<Type, IHandlerInstance>((execution) => factory.Create(execution.Context));
 
             BeginHandle = MiddlewareExtensions.Lamda<HandleContext>();
 
-            ActualHandle = MiddlewareExtensions.Lamda<HandleContext>((context, execution) =>
+            ActualHandle = MiddlewareExtensions.Lamda<HandleContext>((execution) =>
             {
-                dynamic handler = context.HandlerInstance;
-                handler.Handle((dynamic)context.Message);
+                dynamic handler = execution.Context.HandlerInstance;
+                handler.Handle((dynamic)execution.Context.Message);
             });
 
             EndHandle = MiddlewareExtensions.Lamda<HandleContext>();

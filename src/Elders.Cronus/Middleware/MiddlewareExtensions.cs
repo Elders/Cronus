@@ -4,24 +4,24 @@ namespace Elders.Cronus.Middleware
 {
     public static class MiddlewareExtensions
     {
-        public static Middleware<TContext> Next<TContext>(this Middleware<TContext> self, Action<TContext, Execution<TContext>> action)
+        public static Middleware<TContext> Use<TContext>(this Middleware<TContext> self, Action<Execution<TContext>> action)
         {
             self.Use(new SimpleMiddleware<TContext>(action));
             return self;
         }
 
-        public static Middleware<TContext, TResult> Next<TContext, TResult>(this Middleware<TContext, TResult> self, Func<TContext, Execution<TContext>, TResult> action)
+        public static Middleware<TContext, TResult> Use<TContext, TResult>(this Middleware<TContext, TResult> self, Func<Execution<TContext>, TResult> action)
         {
             self.Use(new SimpleMiddleware<TContext, TResult>(action));
             return self;
         }
 
-        public static Middleware<TContext> Lamda<TContext>(Action<TContext, Execution<TContext>> action = null)
+        public static Middleware<TContext> Lamda<TContext>(Action<Execution<TContext>> action = null)
         {
             return new SimpleMiddleware<TContext>(action);
         }
 
-        public static Middleware<TContext, TResult> Lambda<TContext, TResult>(Func<TContext, Execution<TContext>, TResult> action = null)
+        public static Middleware<TContext, TResult> Lambda<TContext, TResult>(Func<Execution<TContext>, TResult> action = null)
         {
             return new SimpleMiddleware<TContext, TResult>(action);
         }
@@ -29,30 +29,30 @@ namespace Elders.Cronus.Middleware
 
     public class SimpleMiddleware<TContext> : Middleware<TContext>
     {
-        Action<TContext, Execution<TContext>> implementation;
+        Action<Execution<TContext>> implementation;
 
-        public SimpleMiddleware(Action<TContext, Execution<TContext>> action = null)
+        public SimpleMiddleware(Action<Execution<TContext>> action = null)
         {
             this.implementation = action;
         }
         protected override void Run(Execution<TContext> middlewareControl)
         {
             if (implementation != null)
-                implementation(middlewareControl.Context, middlewareControl);
+                implementation(middlewareControl);
         }
     }
     public class SimpleMiddleware<TContext, TResult> : Middleware<TContext, TResult>
     {
-        Func<TContext, Execution<TContext>, TResult> implementation;
+        Func<Execution<TContext>, TResult> implementation;
 
-        public SimpleMiddleware(Func<TContext, Execution<TContext>, TResult> action = null)
+        public SimpleMiddleware(Func<Execution<TContext>, TResult> action = null)
         {
             this.implementation = action;
         }
         protected override TResult Run(Execution<TContext, TResult> middlewareControl)
         {
             if (implementation != null)
-                return implementation(middlewareControl.Context, middlewareControl);
+                return implementation(middlewareControl);
             else
                 return default(TResult);
         }

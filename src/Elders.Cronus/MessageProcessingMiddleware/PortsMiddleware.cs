@@ -11,9 +11,9 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             : base(factory)
         {
             this.commandPublisher = commandPublisher;
-            BeginHandle.Next((context, execution) =>
+            BeginHandle.Use((execution) =>
             {
-                context.HandlerInstance.AssignPropertySafely<IPort>(x => x.CommandPublisher = this.commandPublisher);
+                execution.Context.HandlerInstance.AssignPropertySafely<IPort>(x => x.CommandPublisher = this.commandPublisher);
             });
         }
     }
