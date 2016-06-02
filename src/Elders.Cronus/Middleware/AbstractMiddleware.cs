@@ -12,12 +12,6 @@ namespace Elders.Cronus.Middleware
             {
                 object result = AbstractRun(execution);
                 execution.ExecutionResult(result);
-                if (execution.Next != null)
-                {
-                    var current = execution.Next;
-                    result = current.InvokeChain(execution);
-                    execution.ExecutionResult(result);
-                }
                 return result;
             };
 
