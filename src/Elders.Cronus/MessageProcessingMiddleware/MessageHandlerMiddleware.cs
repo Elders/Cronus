@@ -11,7 +11,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public Middleware<HandleContext> EndHandle { get; private set; }
 
-        public Middleware<HandleContext> ActualHandle { get; private set; }
+        public Middleware<HandleContext> ActualHandle { get; set; }
 
         public Middleware<ErrorContext> Error { get; private set; }
 

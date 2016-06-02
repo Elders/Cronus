@@ -43,7 +43,31 @@
       <HintPath>..\packages\Multithreading.Scheduler.1.1.0\lib\net45-full\Elders.Multithreading.Scheduler.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Elders.Servo, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Servo.0.1.0-beta0004\lib\net45-full\Elders.Servo.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Elders.Servo.Atlas, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Servo.Atlas.0.1.0-beta0007\lib\net45-full\Elders.Servo.Atlas.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Java.Util.Concurrent, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Servo.0.1.0-beta0004\lib\net45-full\Java.Util.Concurrent.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Netflix.Hystrix, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Hystrix.1.0.0-alpha001\lib\net45-full\Netflix.Hystrix.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="RestSharp, Version=105.2.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RestSharp.105.2.3\lib\net45\RestSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="slf4net, Version=0.1.32.1, Culture=neutral, PublicKeyToken=592edb3b6b36b5ba, processorArchitecture=MSIL">
+      <HintPath>..\packages\slf4net.0.1.32.1\lib\net35\slf4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Runtime.Serialization" />
@@ -68,6 +92,10 @@
     <Compile Include="EventStore\InMemory\InMemoryEventStoreStorageManager.cs" />
     <Compile Include="EventStore\MissingRevisionsValidator.cs" />
     <Compile Include="EventStore\OrderedRevisionsValidator.cs" />
+    <Compile Include="Hystrix\Class1.cs" />
+    <Compile Include="Hystrix\Class2.cs" />
+    <Compile Include="Hystrix\Class3.cs" />
+    <Compile Include="Hystrix\HystrixMiddleware.cs" />
     <Compile Include="InMemory\Config\InMemoryConsumerSettings.cs" />
     <Compile Include="IntegrityValidation\IIntegrityPolicy.cs" />
     <Compile Include="IntegrityValidation\IntegrityResult.cs" />

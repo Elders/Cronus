@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
+using Elders.Cronus.Hystrix;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessingMiddleware;
 
@@ -114,7 +115,11 @@ namespace Elders.Cronus.Pipeline.Config
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
                 var repository = builder.Container.Resolve<IAggregateRepository>(builder.Name);
                 var publisher = builder.Container.Resolve<IPublisher<IEvent>>(builder.Name);
+
+                //create extension methis UseApplicationMiddleware instead of instance here.
                 var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
+                applicationServiceMiddleware.ActualHandle = new HystrixMiddleware(applicationServiceMiddleware.ActualHandle);
+
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
                 IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
 

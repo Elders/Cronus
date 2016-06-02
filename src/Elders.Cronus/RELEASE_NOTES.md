@@ -1,3 +1,6 @@
+#### 3.0.0-beta0003 - 02.06.2016
+* HystrixMiddleware
+
 #### 3.0.0-beta0002 - 25.05.2016
 * Rollback some of the MessagegeProcessor functionality
 
