@@ -1,3 +1,6 @@
+#### 3.0.0-beta0004 - 02.06.2016
+* Fix registrations
+
 #### 3.0.0-beta0003 - 02.06.2016
 * HystrixMiddleware
 

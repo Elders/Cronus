@@ -27,8 +27,8 @@ namespace Elders.Cronus.Hystrix
         Execution<HandleContext> context;
 
         public HandleMessageHystrixCommand(Middleware.Middleware<HandleContext> actualHandle, Execution<HandleContext> context)
-            : base(HystrixCommandSetter.WithGroupKey("TimeGroup")
-                .AndCommandKey("GetCurrentTime")
+            : base(HystrixCommandSetter.WithGroupKey(context.Context.HandlerInstance.GetType().Name)
+                .AndCommandKey(context.Context.Message.GetType().Name)
                 .AndCommandPropertiesDefaults(
                     new HystrixCommandPropertiesSetter()
                     .WithExecutionIsolationThreadTimeout(TimeSpan.FromSeconds(1.0))

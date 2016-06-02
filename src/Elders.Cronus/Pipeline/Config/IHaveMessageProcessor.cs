@@ -159,6 +159,7 @@ namespace Elders.Cronus.Pipeline.Config
             }
 
             self.HandlerRegistrations = registrations;
+            self.HandlerFactory = messageHandlerFactory;
             return self;
         }
     }
