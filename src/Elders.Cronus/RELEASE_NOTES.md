@@ -1,3 +1,7 @@
+#### 3.0.0-beta0006 - 09.06.2016
+* Removed HystrixMiddleware
+* Updated all packages to latest version
+
 #### 3.0.0-beta0005 - 02.06.2016
 * Fix copy/pasta issue
 
