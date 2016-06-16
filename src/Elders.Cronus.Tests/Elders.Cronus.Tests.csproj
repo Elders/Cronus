@@ -91,6 +91,7 @@
     <Compile Include="MessageStreaming\When__MessageStream__receives_a_batch_of__TransportMessages__.cs" />
     <Compile Include="Middleware\When_executing_middleware_tree.cs" />
     <Compile Include="Middleware\When_attaching_multiple_middlewares.cs" />
+    <Compile Include="Middleware\When_breaking_middleware.cs" />
     <Compile Include="Middleware\When_transfering_to_another_middleware_and_there_is_no_followup_middleware.cs" />
     <Compile Include="Middleware\When_transfering_to_another_middleware.cs" />
     <Compile Include="Middleware\When_executing_single_middleware.cs" />
