@@ -15,8 +15,6 @@ namespace Elders.Cronus.Middleware
 
     public class Execution<TContext> : IEnumerator<AbstractMiddleware<TContext>>
     {
-        private ExecutionChain<TContext> executionChain;
-
         private LinkedList<AbstractMiddleware<TContext>> executionQueue;
 
         private AbstractMiddleware<TContext> current;
@@ -35,7 +33,6 @@ namespace Elders.Cronus.Middleware
         {
             Context = copy.Context;
             executionQueue = copy.executionQueue;
-            executionChain = copy.executionChain;
             PreviousResult = copy.PreviousResult;
         }
 
@@ -89,7 +86,7 @@ namespace Elders.Cronus.Middleware
 
         void IEnumerator.Reset()
         {
-            executionQueue = new LinkedList<AbstractMiddleware<TContext>>(executionChain.GetExecutionQueue());
+            executionQueue = new LinkedList<AbstractMiddleware<TContext>>();
         }
     }
 }

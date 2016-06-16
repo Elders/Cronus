@@ -5,11 +5,11 @@ namespace Elders.Cronus.Middleware
 {
     public abstract class AbstractMiddleware<TContext>
     {
-        protected ExecutionChain<TContext> Chain { get; set; }
+        protected ExecutionChain<TContext> ExecutionChain { get; set; }
 
         public AbstractMiddleware()
         {
-            Chain = new ExecutionChain<TContext>();
+            ExecutionChain = new ExecutionChain<TContext>();
         }
 
         protected abstract object AbstractRun(Execution<TContext> execution);
@@ -21,13 +21,13 @@ namespace Elders.Cronus.Middleware
 
         public void Use(AbstractMiddleware<TContext> nextMiddleware)
         {
-            Chain.Append(nextMiddleware);
+            ExecutionChain.Append(nextMiddleware);
         }
 
         protected object InvokeChain(Execution<TContext> control)
         {
             var iterator = control as IEnumerator<AbstractMiddleware<TContext>>;
-            control.Follow(Chain);
+            control.Follow(ExecutionChain);
             var result = this.AbstractRun(control);
             control.ExecutionResult(result);
             var stupidityFactor = 1;
@@ -43,8 +43,6 @@ namespace Elders.Cronus.Middleware
             }
             return control.PreviousResult;
         }
-
-
 
         protected virtual Execution<TContext> CreateExecutionContext(TContext context)
         {
