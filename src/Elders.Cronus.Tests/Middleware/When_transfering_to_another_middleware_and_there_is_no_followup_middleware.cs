@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Elders.Cronus.Tests.Middleware
 {
     [Subject("Elders.Cronus.Middleware")]
-    public class When_transfering_to_another_middleware
+    public class When_transfering_to_another_middleware_and_there_is_no_followup_middleware
     {
         Establish context = () =>
         {
@@ -28,9 +28,6 @@ namespace Elders.Cronus.Tests.Middleware
             });
             expectedExecution.Add(secondToken);
 
-            thirdToken = executionChain.CreateToken();
-            var thirdMiddleware = new TestMiddleware(thirdToken);
-            mainMiddleware.Use(thirdMiddleware);
 
         };
 
@@ -39,9 +36,6 @@ namespace Elders.Cronus.Tests.Middleware
         It the_execution_chain_should_not_be_empty = () => executionChain.GetTokens().ShouldNotBeEmpty();
 
         It should_have_the_expected_execution = () => executionChain.ShouldMatch(expectedExecution);
-
-        It should_not_contain_the_third_token = () => executionChain.GetTokens().ShouldNotContain(thirdToken);
-
 
         static TestMiddleware mainMiddleware;
 

@@ -90,8 +90,10 @@
     <Compile Include="MessageProcessingMiddleware\SubscriberMiddleware.cs" />
     <Compile Include="MessageProcessingMiddleware\MessageSubscriptionsMiddleware.cs" />
     <Compile Include="Middleware\AbstractMiddleware.cs" />
+    <Compile Include="Middleware\ExecutionChain.cs" />
+    <Compile Include="Middleware\LinkedListExtensions.cs" />
     <Compile Include="Middleware\Middleware.cs" />
-    <Compile Include="Middleware\MiddlewareExecution.cs" />
+    <Compile Include="Middleware\Execution.cs" />
     <Compile Include="Middleware\MiddlewareExtensions.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Pipeline\CircuitBreaker\DefaultCircuitBreakerFactory.cs" />

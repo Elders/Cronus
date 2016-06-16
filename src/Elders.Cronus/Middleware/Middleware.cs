@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Elders.Cronus.Middleware
+﻿namespace Elders.Cronus.Middleware
 {
     public interface IMiddleware<TContext>
     {
@@ -41,7 +39,7 @@ namespace Elders.Cronus.Middleware
 
         protected override Execution<TContext> CreateExecutionContext(TContext context)
         {
-            return new Execution<TContext, TResult>(context, null);
+            return new Execution<TContext, TResult>(context);
         }
 
         protected abstract TResult Run(Execution<TContext, TResult> context);
