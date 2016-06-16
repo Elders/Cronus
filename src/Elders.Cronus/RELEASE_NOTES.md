@@ -1,3 +1,6 @@
+#### 3.0.0-beta0007 - 09.06.2016
+* First Middleware hook for message handle
+
 #### 3.0.0-beta0006 - 09.06.2016
 * Removed HystrixMiddleware
 * Updated all packages to latest version

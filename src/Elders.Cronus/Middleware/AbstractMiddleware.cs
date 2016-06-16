@@ -19,6 +19,10 @@ namespace Elders.Cronus.Middleware
             return InvokeChain(CreateExecutionContext(context));
         }
 
+        /// <summary>
+        /// Adds the next middleware in the execution chain.
+        /// </summary>
+        /// <param name="nextMiddleware"></param>
         public void Use(AbstractMiddleware<TContext> nextMiddleware)
         {
             ExecutionChain.Append(nextMiddleware);

@@ -11,9 +11,7 @@ namespace Elders.Cronus.InMemory.Config
     {
         public InMemoryConsumerSettings(ISettingsBuilder settingsBuilder, string name)
             : base(settingsBuilder, name)
-        {
-
-        }
+        { }
 
         int IConsumerSettings.NumberOfWorkers { get; set; }
 

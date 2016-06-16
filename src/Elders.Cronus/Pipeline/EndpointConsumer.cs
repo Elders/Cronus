@@ -25,7 +25,7 @@ namespace Elders.Cronus.Pipeline
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="EndpointConsumer{TContract}"/> class.
+        /// Initializes a new instance of the <see cref="EndpointConsumer"/> class.
         /// </summary>
         /// <param name="transport">The transport.</param>
         /// <param name="messageProcessor">The message processor.</param>

@@ -3,22 +3,26 @@ using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessingMiddleware;
+using Elders.Cronus.Middleware;
 
 namespace Elders.Cronus.Pipeline.Config
 {
     public class ProjectionMessageProcessorSettings : SettingsBuilder, IMessageProcessorSettings<IEvent>
     {
+        private Func<Type, bool> discriminator;
+
         public ProjectionMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
         {
             this.discriminator = discriminator;
         }
-        private Func<Type, bool> discriminator;
 
         Dictionary<Type, List<Type>> IMessageProcessorSettings<IEvent>.HandlerRegistrations { get; set; }
 
         Func<Type, object> IMessageProcessorSettings<IEvent>.HandlerFactory { get; set; }
 
         string IMessageProcessorSettings<IEvent>.MessageProcessorName { get; set; }
+
+        Middleware<MessageHandlerMiddleware.HandleContext> IMessageProcessorSettings<IEvent>.ActualHandle { get; set; }
 
         public override void Build()
         {
@@ -27,7 +31,12 @@ namespace Elders.Cronus.Pipeline.Config
             Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
+
                 var projectionsMiddleware = new ProjectionsMiddleware(handlerFactory);
+                var actualHandleHook = (this as IMessageProcessorSettings<IEvent>).ActualHandle;
+                if (ReferenceEquals(null, actualHandleHook))
+                    projectionsMiddleware.ActualHandle.Use(actualHandleHook);
+
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
                 IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
 
@@ -62,6 +71,8 @@ namespace Elders.Cronus.Pipeline.Config
 
         string IMessageProcessorSettings<IEvent>.MessageProcessorName { get; set; }
 
+        Middleware<MessageHandlerMiddleware.HandleContext> IMessageProcessorSettings<IEvent>.ActualHandle { get; set; }
+
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
@@ -70,7 +81,12 @@ namespace Elders.Cronus.Pipeline.Config
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
                 var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
+
                 var portsMiddleware = new PortsMiddleware(handlerFactory, publisher);
+                var actualHandleHook = (this as IMessageProcessorSettings<IEvent>).ActualHandle;
+                if (ReferenceEquals(null, actualHandleHook))
+                    portsMiddleware.ActualHandle.Use(actualHandleHook);
+
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
                 IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
 
@@ -93,17 +109,20 @@ namespace Elders.Cronus.Pipeline.Config
 
     public class ApplicationServiceMessageProcessorSettings : SettingsBuilder, IMessageProcessorSettings<ICommand>
     {
+        Func<Type, bool> discriminator;
+
         public ApplicationServiceMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
         {
             this.discriminator = discriminator;
         }
-        private Func<Type, bool> discriminator;
 
         Dictionary<Type, List<Type>> IMessageProcessorSettings<ICommand>.HandlerRegistrations { get; set; }
 
         Func<Type, object> IMessageProcessorSettings<ICommand>.HandlerFactory { get; set; }
 
         string IMessageProcessorSettings<ICommand>.MessageProcessorName { get; set; }
+
+        Middleware<MessageHandlerMiddleware.HandleContext> IMessageProcessorSettings<ICommand>.ActualHandle { get; set; }
 
         public override void Build()
         {
@@ -117,11 +136,12 @@ namespace Elders.Cronus.Pipeline.Config
 
                 //create extension methis UseApplicationMiddleware instead of instance here.
                 var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
-                //applicationServiceMiddleware.ActualHandle = new HystrixMiddleware(applicationServiceMiddleware.ActualHandle);
+                var actualHandleHook = (this as IMessageProcessorSettings<ICommand>).ActualHandle;
+                if (ReferenceEquals(null, actualHandleHook))
+                    applicationServiceMiddleware.ActualHandle.Use(actualHandleHook);
 
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
                 IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
-
 
                 foreach (var reg in (this as IMessageProcessorSettings<ICommand>).HandlerRegistrations)
                 {
@@ -167,8 +187,18 @@ namespace Elders.Cronus.Pipeline.Config
         public static T UseApplicationServices<T>(this T self, Action<ApplicationServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
         {
             ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self, t => typeof(IAggregateRootApplicationService).IsAssignableFrom(t));
-            IMessageProcessorSettings<ICommand> casted = settings;
-            casted.MessageProcessorName = "Commands";
+            (settings as IMessageProcessorSettings<ICommand>).MessageProcessorName = "Commands";
+            if (configure != null)
+                configure(settings);
+
+            (settings as ISettingsBuilder).Build();
+            return self;
+        }
+
+        public static T UseApplicationServiceMiddleware<T>(this T self, Action<ApplicationServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
+        {
+            ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self, t => typeof(IAggregateRootApplicationService).IsAssignableFrom(t));
+            (settings as IMessageProcessorSettings<ICommand>).MessageProcessorName = "Commands";
             if (configure != null)
                 configure(settings);
 

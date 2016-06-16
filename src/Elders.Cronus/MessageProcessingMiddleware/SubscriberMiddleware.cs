@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Logging;
 using Elders.Cronus.Middleware;

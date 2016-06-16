@@ -6,6 +6,11 @@ using Elders.Cronus.Middleware;
 
 namespace Elders.Cronus.MessageProcessingMiddleware
 {
+    public class EventPublishContext
+    {
+        public IEnumerable<IEvent> Events { get; set; }
+    }
+
     public class ApplicationServiceMiddleware : MessageHandlerMiddleware
     {
         private readonly IAggregateRepository aggregateRepository;

@@ -1,15 +1,10 @@
 ﻿namespace Elders.Cronus.Middleware
 {
-    public interface IMiddleware<TContext>
+    public abstract class Middleware<TContext> : AbstractMiddleware<TContext>
     {
-        void Run(TContext context);
-    }
-
-    public abstract class Middleware<TContext> : AbstractMiddleware<TContext>, IMiddleware<TContext>
-    {
-        protected override object AbstractRun(Execution<TContext> context)
+        protected override object AbstractRun(Execution<TContext> execution)
         {
-            Run(context);
+            Run(execution);
             return null;
         }
         new public void Run(TContext context)
@@ -17,19 +12,14 @@
             base.Run(context);
         }
 
-        protected abstract void Run(Execution<TContext> context);
+        protected abstract void Run(Execution<TContext> execution);
     }
 
-    public interface IMiddleware<TContext, TResult>
+    public abstract class Middleware<TContext, TResult> : AbstractMiddleware<TContext>
     {
-        TResult Run(TContext context);
-    }
-
-    public abstract class Middleware<TContext, TResult> : AbstractMiddleware<TContext>, IMiddleware<TContext, TResult>
-    {
-        protected override object AbstractRun(Execution<TContext> context)
+        protected override object AbstractRun(Execution<TContext> execution)
         {
-            return Run(new Execution<TContext, TResult>(context));
+            return Run(new Execution<TContext, TResult>(execution));
         }
 
         new public TResult Run(TContext context)
@@ -42,6 +32,6 @@
             return new Execution<TContext, TResult>(context);
         }
 
-        protected abstract TResult Run(Execution<TContext, TResult> context);
+        protected abstract TResult Run(Execution<TContext, TResult> execution);
     }
 }

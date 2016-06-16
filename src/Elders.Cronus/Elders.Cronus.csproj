@@ -107,6 +107,9 @@
     <Compile Include="EventStore\IEventStorePlayer.cs" />
     <Compile Include="IHideObjectMembers.cs" />
     <Compile Include="InMemory\InMemoryPublisher.cs" />
+    <Compile Include="Pipeline\Config\EndpointConsumerRegistrations.cs" />
+    <Compile Include="Pipeline\Config\IMessageHandlerFactory.cs" />
+    <Compile Include="Pipeline\Config\InternalApplicationServiceFactory.cs" />
     <Compile Include="Pipeline\Config\PipelineConsumerSettings.cs">
       <SubType>Code</SubType>
     </Compile>

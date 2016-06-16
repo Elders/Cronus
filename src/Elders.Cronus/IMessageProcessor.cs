@@ -1,13 +1,14 @@
 using System.Collections.Generic;
 using Elders.Cronus.MessageProcessingMiddleware;
-using Elders.Cronus.Middleware;
 
 namespace Elders.Cronus
 {
-    public interface IMessageProcessor : IMiddleware<List<TransportMessage>, IFeedResult>
+    public interface IMessageProcessor
     {
         string Name { get; }
 
         IEnumerable<SubscriberMiddleware> GetSubscriptions();
+
+        IFeedResult Run(List<TransportMessage> context);
     }
 }
