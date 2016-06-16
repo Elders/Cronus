@@ -114,6 +114,7 @@ namespace Elders.Cronus.Pipeline.Config
         public ApplicationServiceMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
         {
             this.discriminator = discriminator;
+            (this as IMessageProcessorSettings<ICommand>).ActualHandle = new DynamicMessageHandle();
         }
 
         Dictionary<Type, List<Type>> IMessageProcessorSettings<ICommand>.HandlerRegistrations { get; set; }
@@ -136,9 +137,7 @@ namespace Elders.Cronus.Pipeline.Config
 
                 //create extension methis UseApplicationMiddleware instead of instance here.
                 var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
-                var actualHandleHook = (this as IMessageProcessorSettings<ICommand>).ActualHandle;
-                if (ReferenceEquals(null, actualHandleHook))
-                    applicationServiceMiddleware.ActualHandle.Use(actualHandleHook);
+                applicationServiceMiddleware.ActualHandle = (this as IMessageProcessorSettings<ICommand>).ActualHandle;
 
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
                 IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);

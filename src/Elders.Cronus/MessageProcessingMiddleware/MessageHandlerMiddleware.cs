@@ -3,6 +3,15 @@ using Elders.Cronus.Middleware;
 
 namespace Elders.Cronus.MessageProcessingMiddleware
 {
+    public class DynamicMessageHandle : Middleware<MessageHandlerMiddleware.HandleContext>
+    {
+        protected override void Run(Execution<MessageHandlerMiddleware.HandleContext> execution)
+        {
+            dynamic handler = execution.Context.HandlerInstance;
+            handler.Handle((dynamic)execution.Context.Message);
+        }
+    }
+
     public class MessageHandlerMiddleware : Middleware<HandlerContext>
     {
         public Middleware<Type, IHandlerInstance> CreateHandler { get; private set; }
@@ -21,13 +30,10 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
             BeginHandle = MiddlewareExtensions.Lamda<HandleContext>();
 
-            ActualHandle = MiddlewareExtensions.Lamda<HandleContext>((execution) =>
-            {
-                dynamic handler = execution.Context.HandlerInstance;
-                handler.Handle((dynamic)execution.Context.Message);
-            });
+            ActualHandle = MiddlewareExtensions.Lamda<HandleContext>();
 
             EndHandle = MiddlewareExtensions.Lamda<HandleContext>();
+
             Error = MiddlewareExtensions.Lamda<ErrorContext>();
         }
         protected override void Run(Execution<HandlerContext> execution)
