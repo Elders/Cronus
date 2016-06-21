@@ -15,6 +15,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
                 handlerFacotry = new CalculatorHandlerFactory();
 
                 var messageHandlerMiddleware = new MessageHandlerMiddleware(handlerFacotry);
+                messageHandlerMiddleware.ActualHandle = new DynamicMessageHandle();
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
                 messageStream = new CronusMessageProcessorMiddleware("test", messageSubscriptionMiddleware);
 
