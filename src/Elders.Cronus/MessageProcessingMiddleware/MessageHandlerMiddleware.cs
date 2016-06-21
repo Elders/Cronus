@@ -20,6 +20,9 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public Middleware<HandleContext> EndHandle { get; private set; }
 
+        /// <summary>
+        /// Why cant we inject this from the constructor?
+        /// </summary>
         public Middleware<HandleContext> ActualHandle { get; set; }
 
         public Middleware<ErrorContext> Error { get; private set; }
