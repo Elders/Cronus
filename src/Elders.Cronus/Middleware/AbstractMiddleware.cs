@@ -25,6 +25,7 @@ namespace Elders.Cronus.Middleware
         /// <param name="nextMiddleware"></param>
         public void Use(AbstractMiddleware<TContext> nextMiddleware)
         {
+            if (ReferenceEquals(null, nextMiddleware)) throw new ArgumentNullException(nameof(nextMiddleware), "Who are you?");
             ExecutionChain.Append(nextMiddleware);
         }
 

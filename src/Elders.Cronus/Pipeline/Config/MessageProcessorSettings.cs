@@ -14,6 +14,7 @@ namespace Elders.Cronus.Pipeline.Config
         public ProjectionMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
         {
             this.discriminator = discriminator;
+            (this as IMessageProcessorSettings<IEvent>).ActualHandle = new DynamicMessageHandle();
         }
 
         Dictionary<Type, List<Type>> IMessageProcessorSettings<IEvent>.HandlerRegistrations { get; set; }
@@ -34,8 +35,7 @@ namespace Elders.Cronus.Pipeline.Config
 
                 var projectionsMiddleware = new ProjectionsMiddleware(handlerFactory);
                 var actualHandleHook = (this as IMessageProcessorSettings<IEvent>).ActualHandle;
-                if (ReferenceEquals(null, actualHandleHook))
-                    projectionsMiddleware.ActualHandle.Use(actualHandleHook);
+                projectionsMiddleware.ActualHandle = actualHandleHook;
 
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
                 IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
@@ -62,6 +62,7 @@ namespace Elders.Cronus.Pipeline.Config
         public PortMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
         {
             this.discriminator = discriminator;
+            (this as IMessageProcessorSettings<IEvent>).ActualHandle = new DynamicMessageHandle();
         }
         private Func<Type, bool> discriminator;
 
@@ -84,8 +85,7 @@ namespace Elders.Cronus.Pipeline.Config
 
                 var portsMiddleware = new PortsMiddleware(handlerFactory, publisher);
                 var actualHandleHook = (this as IMessageProcessorSettings<IEvent>).ActualHandle;
-                if (ReferenceEquals(null, actualHandleHook))
-                    portsMiddleware.ActualHandle.Use(actualHandleHook);
+                portsMiddleware.ActualHandle = actualHandleHook;
 
                 var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
                 IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
