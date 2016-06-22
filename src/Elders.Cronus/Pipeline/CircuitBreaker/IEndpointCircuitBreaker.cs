@@ -11,5 +11,14 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
         /// <value>The maximum message age.</value>
         int MaximumMessageAge { get; }
         void PostConsume(IFeedResult mesages);
+
+        void PostConsume(CronusMessage mesages);
+
+
+        ICircuitBreakerErrorStrategy ErrorStrategy { get; set; }
+
+        ICircuitBreakerRetryStrategy RetryStrategy { get; set; }
+
+        ICircuitBreakerSuccessStrategy SuccessStrategy { get; set; }
     }
 }

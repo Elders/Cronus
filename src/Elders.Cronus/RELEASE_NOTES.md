@@ -1,5 +1,6 @@
 #### 3.0.0-beta0010 - 22.06.2016
-* MadMax: Rename TransportMessage to CronusMessage. There is a breaking change because of reorganization of the the props.
+* Perses: Reworked subscribers and subscription middleware. We can now support dynamic subscribing, and we can now also decuple rabbitmq specific logic for building queues etc.
+* Perses: Rename TransportMessage to CronusMessage. There is a breaking change because of reorganization of the the props.
 
 #### 3.0.0-beta0009 - 22.06.2016
 * Properly configure some middlewares and if not as a fundamental question. For more info look at the code diff.

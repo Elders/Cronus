@@ -3,6 +3,7 @@ using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessingMiddleware;
+using System;
 
 namespace Elders.Cronus.Pipeline.CircuitBreaker
 {
@@ -29,6 +30,14 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
         public void PostConsume(IFeedResult mesages)
         {
             foreach (var msg in mesages.FailedMessages)
+            {
+                PostConsume(msg);
+            }
+        }
+
+        public void PostConsume(CronusMessage msg)
+        {
+            if (msg.Errors.Any())
             {
                 if (msg.Age > MaximumMessageAge)
                 {

@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
+using System.Linq;
 
 namespace Elders.Cronus.Pipeline.CircuitBreaker
 {
@@ -33,10 +35,16 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
 
             public bool Handle(CronusMessage message)
             {
+                message.Age += 1;
                 transport.PipelineFactory
                     .GetPipeline(retryPipelineName)
                     .Push(message.AsEndpointMessage(serializer, endpointWhereErrorOccured));
                 return true;
+            }
+
+            public bool AllowsProcessing(string origin, CronusMessage message)
+            {
+                return message.Age < 5 && (message.Errors.Any() == false || message.Errors.Any(x => x.Origin.Id == origin));
             }
         }
 
@@ -88,6 +96,8 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
             public bool Handle(CronusMessage errorMessage) { return true; }
 
             public void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition) { }
+
+            public bool AllowsProcessing(string origin, CronusMessage retryMessage) { return true; }
         }
 
     }

@@ -13,5 +13,7 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
     public interface ICircuitBreakerRetryStrategy
     {
         bool Handle(CronusMessage retryMessage);
+
+        bool AllowsProcessing(string origin, CronusMessage retryMessage);
     }
 }

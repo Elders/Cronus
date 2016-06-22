@@ -96,6 +96,8 @@
     <Compile Include="Middleware\Middleware.cs" />
     <Compile Include="Middleware\Execution.cs" />
     <Compile Include="Middleware\MiddlewareExtensions.cs" />
+    <Compile Include="Netflix\IProjectionSubscriber.cs" />
+    <Compile Include="Netflix\SubscriptionMiddleware.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Pipeline\CircuitBreaker\DefaultCircuitBreakerFactory.cs" />
     <Compile Include="Pipeline\CircuitBreaker\IEndpontCircuitBreakerFactrory.cs" />
@@ -180,7 +182,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Netflix\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

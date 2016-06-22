@@ -44,9 +44,12 @@ namespace Elders.Cronus
         public Guid Id { get; private set; }
 
         [DataMember(Order = 2)]
-        public Message Payload { get; private set; }
+        public string Type { get; private set; }
 
         [DataMember(Order = 3)]
+        public Message Payload { get; private set; }
+
+        [DataMember(Order = 4)]
         public int Age { get; set; }
 
         [DataMember(Order = 30)]
