@@ -30,7 +30,7 @@ namespace Elders.Cronus.Pipeline
         protected override bool PublishInternal(T message, Dictionary<string, string> messageHeaders)
         {
             var payload = new Message(message, messageHeaders);
-            var transportMessage = new TransportMessage(payload);
+            var transportMessage = new CronusMessage(payload);
 
             byte[] body = serializer.SerializeToBytes(transportMessage);
             Dictionary<string, object> routingHeaders = new Dictionary<string, object>() { { transportMessage.Payload.Payload.GetType().GetContractId(), String.Empty } };

@@ -31,7 +31,7 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
                 transport.EndpointFactory.CreateTopicEndpoint(retryEndpoint);
             }
 
-            public bool Handle(TransportMessage message)
+            public bool Handle(CronusMessage message)
             {
                 transport.PipelineFactory
                     .GetPipeline(retryPipelineName)
@@ -60,7 +60,7 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
                 transport.EndpointFactory.CreateTopicEndpoint(errorEndpoint);
             }
 
-            public bool Handle(TransportMessage errorMessage)
+            public bool Handle(CronusMessage errorMessage)
             {
                 transport.PipelineFactory
                       .GetPipeline(errorPipelineName)
@@ -71,21 +71,21 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
 
         public class NoSuccessStrategy : ICircuitBreakerSuccessStrategy
         {
-            public bool Handle(TransportMessage successMessage) { return true; }
+            public bool Handle(CronusMessage successMessage) { return true; }
 
             public void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition) { }
         }
 
         public class NoErrorStrategy : ICircuitBreakerErrorStrategy
         {
-            public bool Handle(TransportMessage errorMessage) { return true; }
+            public bool Handle(CronusMessage errorMessage) { return true; }
 
             public void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition) { }
         }
 
         public class NoRetryStrategy : ICircuitBreakerRetryStrategy
         {
-            public bool Handle(TransportMessage errorMessage) { return true; }
+            public bool Handle(CronusMessage errorMessage) { return true; }
 
             public void Initialize(IEndpointFactory endpointFactory, EndpointDefinition endpointDefinition) { }
         }

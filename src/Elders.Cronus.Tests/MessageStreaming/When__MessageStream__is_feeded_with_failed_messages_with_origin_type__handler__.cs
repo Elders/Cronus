@@ -19,7 +19,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
                 messageHandlerMiddleware.ActualHandle = new DynamicMessageHandle();
                 messageStream = new CronusMessageProcessorMiddleware("test", messageSubscriptionMiddleware);
 
-                messages = new List<TransportMessage>();
+                messages = new List<CronusMessage>();
                 var subscription3 = new TestSubscriber(typeof(CalculatorNumber2), typeof(StandardCalculatorSubstractHandler), messageHandlerMiddleware);
                 var subscription4 = new TestSubscriber(typeof(CalculatorNumber2), typeof(StandardCalculatorAddHandler), messageHandlerMiddleware);
 
@@ -27,8 +27,8 @@ namespace Elders.Cronus.Tests.MessageStreaming
                 messageSubscriptionMiddleware.Subscribe(subscription4);
                 for (int i = 1; i < numberOfMessages + 1; i++)
                 {
-                    var normalMessage = new TransportMessage(new Message(new CalculatorNumber2(i)));
-                    var failedMessage = new TransportMessage(normalMessage, new FeedError() { Origin = new ErrorOrigin(subscription4.Id, "handler") });
+                    var normalMessage = new CronusMessage(new Message(new CalculatorNumber2(i)));
+                    var failedMessage = new CronusMessage(normalMessage, new FeedError() { Origin = new ErrorOrigin(subscription4.Id, "handler") });
                     failedMessage.Age = 2;
                     messages.Add(failedMessage);
                 }
@@ -46,7 +46,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
         static IFeedResult secondFeedResult;
         static int numberOfMessages = 3;
         static CronusMessageProcessorMiddleware messageStream;
-        static List<TransportMessage> messages;
+        static List<CronusMessage> messages;
         static CalculatorHandlerFactory handlerFacotry;
     }
 }

@@ -9,7 +9,7 @@ namespace Elders.Cronus.Pipeline
     {
         public static EndpointMessage AsEndpointMessage(this IMessage message, ISerializer serializer, string routingKey = "", Dictionary<string, object> routingHeaders = null)
         {
-            TransportMessage transportMessage = new TransportMessage(new Message(message));
+            CronusMessage transportMessage = new CronusMessage(new Message(message));
 
             byte[] body = serializer.SerializeToBytes(transportMessage);
             Dictionary<string, object> headers = routingHeaders ?? new Dictionary<string, object>() { { MessageInfo.GetContractId(transportMessage.Payload.Payload.GetType()), String.Empty } };
@@ -17,9 +17,9 @@ namespace Elders.Cronus.Pipeline
             return endpointMessage;
         }
 
-        public static EndpointMessage AsEndpointMessage(this TransportMessage message, ISerializer serializer, string routingKey = "", Dictionary<string, object> routingHeaders = null)
+        public static EndpointMessage AsEndpointMessage(this CronusMessage message, ISerializer serializer, string routingKey = "", Dictionary<string, object> routingHeaders = null)
         {
-            TransportMessage transportMessage = new TransportMessage(message);
+            CronusMessage transportMessage = new CronusMessage(message);
 
             byte[] body = serializer.SerializeToBytes(transportMessage);
             Dictionary<string, object> headers = routingHeaders ?? new Dictionary<string, object>() { { MessageInfo.GetContractId(message.Payload.Payload.GetType()), String.Empty } };

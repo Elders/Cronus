@@ -22,8 +22,8 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
 
 
-                messages = new List<TransportMessage>();
-                messages.Add(new TransportMessage(new Message(new CalculatorNumber1(1))));
+                messages = new List<CronusMessage>();
+                messages.Add(new CronusMessage(new Message(new CalculatorNumber1(1))));
                 messageSubscriptionMiddleware.Subscribe(subscription);
             };
 
@@ -36,7 +36,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
 
         static IFeedResult feedResult;
         static CronusMessageProcessorMiddleware messageStream;
-        static List<TransportMessage> messages;
+        static List<CronusMessage> messages;
         static DisposableHandlerFactory handlerFacotry;
     }
 

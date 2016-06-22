@@ -18,7 +18,7 @@ namespace Elders.Cronus.InMemory
 
         protected override bool PublishInternal(TContract message, Dictionary<string, string> messageHeaders)
         {
-            var result = messageProcessor.Run(new List<TransportMessage>() { new TransportMessage(new Message(message)) });
+            var result = messageProcessor.Run(new List<CronusMessage>() { new CronusMessage(new Message(message)) });
             if (result.FailedMessages != null && result.FailedMessages.Count() > 0)
             {
                 foreach (var msg in result.FailedMessages)

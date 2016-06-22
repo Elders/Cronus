@@ -7,65 +7,62 @@ using Elders.Cronus.DomainModeling;
 namespace Elders.Cronus
 {
     [DataContract(Name = "71a0dc2e-1d59-4818-af05-222b334fffbe")]
-    public class TransportMessage : IEquatable<TransportMessage>
+    public class CronusMessage : IEquatable<CronusMessage>
     {
-        TransportMessage()
+        CronusMessage()
         {
-            InternalErrors = new List<object>();
+            Errors = new List<FeedError>();
         }
 
-        public TransportMessage(TransportMessage transportMessage, FeedError error = null)
+        public CronusMessage(CronusMessage transportMessage, FeedError error = null)
         {
             Id = transportMessage.Id;
             Age = transportMessage.Age;
             Payload = transportMessage.Payload;
-            InternalErrors = new List<object>(transportMessage.InternalErrors);
+            Errors = new List<FeedError>();
             if (error != null)
-                InternalErrors.Add(error);
+                Errors.Add(error);
         }
 
-        public TransportMessage(Guid id, Message message)
+        public CronusMessage(Guid id, Message message)
         {
             Id = id;
             Age = 1;
             Payload = message;
-            InternalErrors = new List<object>();
+            Errors = new List<FeedError>();
         }
 
-        public TransportMessage(Message message)
+        public CronusMessage(Message message)
         {
             Id = Guid.NewGuid();
             Age = 1;
             Payload = message;
-            InternalErrors = new List<object>();
+            Errors = new List<FeedError>();
         }
 
         [DataMember(Order = 1)]
         public Guid Id { get; private set; }
 
         [DataMember(Order = 2)]
+        public Message Payload { get; private set; }
+
+        [DataMember(Order = 3)]
         public int Age { get; set; }
 
-        [Obsolete("Do not use this. Will be removed after 2015-07-01")]
-        [DataMember(Order = 3)]
-        public object Obsolete { get; private set; }
+        [DataMember(Order = 30)]
+        public List<FeedError> Errors { get; private set; }
 
-        [DataMember(Order = 4)]
-        private List<object> InternalErrors { get; set; }
-        public List<FeedError> Errors { get { return InternalErrors.Cast<FeedError>().ToList(); } }
 
-        [DataMember(Order = 5)]
-        public Message Payload { get; private set; }
 
         public override bool Equals(System.Object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (!typeof(TransportMessage).IsAssignableFrom(obj.GetType())) return false;
-            return Equals((TransportMessage)obj);
+            if (!typeof(CronusMessage).IsAssignableFrom(obj.GetType())) return false;
+            return Equals((CronusMessage)obj);
         }
 
-        public virtual bool Equals(TransportMessage other)
+        public virtual bool Equals(CronusMessage other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -80,7 +77,7 @@ namespace Elders.Cronus
             }
         }
 
-        public static bool operator ==(TransportMessage left, TransportMessage right)
+        public static bool operator ==(CronusMessage left, CronusMessage right)
         {
             if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return true;
             if (ReferenceEquals(null, left))
@@ -89,7 +86,7 @@ namespace Elders.Cronus
                 return left.Equals(right);
         }
 
-        public static bool operator !=(TransportMessage a, TransportMessage b)
+        public static bool operator !=(CronusMessage a, CronusMessage b)
         {
             return !(a == b);
         }
@@ -140,7 +137,7 @@ namespace Elders.Cronus
             return errorOriginType;
         }
 
-        public static implicit operator string (ErrorOriginType scopeType)
+        public static implicit operator string(ErrorOriginType scopeType)
         {
             return scopeType.ToString();
         }

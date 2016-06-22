@@ -1,3 +1,6 @@
+#### 3.0.0-beta0010 - 22.06.2016
+* MadMax: Rename TransportMessage to CronusMessage. There is a breaking change because of reorganization of the the props.
+
 #### 3.0.0-beta0009 - 22.06.2016
 * Properly configure some middlewares and if not as a fundamental question. For more info look at the code diff.
 * Replaces the ConcurrentDictionary as a mechanizm for synchronizing with MemoryCache. The motivation behind this change is that we never invalidate the values but with MemoryCache we use sliding 30 seconds policy. In addition the MemoryCache is configured with 500mb memory cap and 10% of total physical memory cap.

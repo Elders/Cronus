@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Elders.Cronus.MessageProcessingMiddleware
 {
-    public class CronusMessageProcessorMiddleware : Middleware<List<TransportMessage>, IFeedResult>, IMessageProcessor
+    public class CronusMessageProcessorMiddleware : Middleware<List<CronusMessage>, IFeedResult>, IMessageProcessor
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(CronusMessageProcessorMiddleware));
 
@@ -22,7 +22,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public string Name { get; private set; }
 
-        protected override IFeedResult Run(Execution<List<TransportMessage>, IFeedResult> execution)
+        protected override IFeedResult Run(Execution<List<CronusMessage>, IFeedResult> execution)
         {
             IFeedResult feedResult = FeedResult.Empty();
             var messages = execution.Context;
@@ -41,7 +41,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             return feedResult;
         }
 
-        private IFeedResult PerMessageUnitOfWork(TransportMessage message)
+        private IFeedResult PerMessageUnitOfWork(CronusMessage message)
         {
             IFeedResult feedResult = FeedResult.Empty();
             try
@@ -71,12 +71,12 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             }
             catch (Exception ex)
             {
-                feedResult = feedResult.AppendUnitOfWorkError(new List<TransportMessage>() { message }, ex);
+                feedResult = feedResult.AppendUnitOfWorkError(new List<CronusMessage>() { message }, ex);
             }
             return feedResult;
         }
 
-        private IFeedResult PerHandlerUnitOfWork(SubscriberMiddleware subscriber, TransportMessage message)
+        private IFeedResult PerHandlerUnitOfWork(SubscriberMiddleware subscriber, CronusMessage message)
         {
             var feedResult = FeedResult.Empty();
             try

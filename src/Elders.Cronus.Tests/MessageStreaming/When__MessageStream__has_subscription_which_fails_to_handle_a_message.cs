@@ -22,10 +22,10 @@ namespace Elders.Cronus.Tests.MessageStreaming
                 var subscription1 = new TestSubscriber(typeof(CalculatorNumber2), typeof(StandardCalculatorSubstractHandler), messageHandlerMiddleware);
                 var subscription2 = new TestSubscriber(typeof(CalculatorNumber2), typeof(CalculatorHandler_ThrowsException), messageHandlerMiddleware);
 
-                messages = new List<TransportMessage>();
+                messages = new List<CronusMessage>();
                 for (int i = 1; i < numberOfMessages + 1; i++)
                 {
-                    messages.Add(new TransportMessage(new Message(new CalculatorNumber2(i))));
+                    messages.Add(new CronusMessage(new Message(new CalculatorNumber2(i))));
                 }
                 messageSubscriptionMiddleware.Subscribe(subscription1);
                 messageSubscriptionMiddleware.Subscribe(subscription2);
@@ -43,7 +43,7 @@ namespace Elders.Cronus.Tests.MessageStreaming
         static IFeedResult feedResult;
         static int numberOfMessages = 3;
         static CronusMessageProcessorMiddleware messageStream;
-        static List<TransportMessage> messages;
+        static List<CronusMessage> messages;
         static CalculatorHandlerFactory handlerFacotry;
     }
 }

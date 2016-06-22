@@ -43,14 +43,14 @@ namespace Elders.Cronus.Pipeline
                 while (isWorking)
                 {
                     List<EndpointMessage> rawMessages = new List<EndpointMessage>();
-                    List<TransportMessage> transportMessages = new List<TransportMessage>();
+                    List<CronusMessage> transportMessages = new List<CronusMessage>();
                     for (int i = 0; i < messageThreshold.Size; i++)
                     {
                         EndpointMessage rawMessage = null;
                         if (!endpoint.BlockDequeue(messageThreshold.Delay, out rawMessage))
                             break;
 
-                        TransportMessage transportMessage = (TransportMessage)serializer.DeserializeFromBytes(rawMessage.Body);
+                        CronusMessage transportMessage = (CronusMessage)serializer.DeserializeFromBytes(rawMessage.Body);
 
                         transportMessages.Add(transportMessage);
                         rawMessages.Add(rawMessage);

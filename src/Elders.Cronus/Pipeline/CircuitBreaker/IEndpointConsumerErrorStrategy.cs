@@ -2,16 +2,16 @@ namespace Elders.Cronus.Pipeline.CircuitBreaker
 {
     public interface ICircuitBreakerErrorStrategy
     {
-        bool Handle(TransportMessage errorMessage);
+        bool Handle(CronusMessage errorMessage);
     }
 
     public interface ICircuitBreakerSuccessStrategy
     {
-        bool Handle(TransportMessage successMessage);
+        bool Handle(CronusMessage successMessage);
     }
 
     public interface ICircuitBreakerRetryStrategy
     {
-        bool Handle(TransportMessage retryMessage);
+        bool Handle(CronusMessage retryMessage);
     }
 }

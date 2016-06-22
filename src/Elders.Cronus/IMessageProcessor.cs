@@ -9,6 +9,6 @@ namespace Elders.Cronus
 
         IEnumerable<SubscriberMiddleware> GetSubscriptions();
 
-        IFeedResult Run(List<TransportMessage> context);
+        IFeedResult Run(List<CronusMessage> context);
     }
 }
