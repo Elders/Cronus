@@ -1,4 +1,7 @@
 #### 3.0.0-beta0008 - 09.06.2016
+* Replaces the ConcurrentDictionary as a mechanizm for synchronizing with MemoryCache. The motivation behind this change is that we never invalidate the values but with MemoryCache we use sliding 30 seconds policy. In addition the MemoryCache is configured with 500mb memory cap and 10% of total physical memory cap.
+
+#### 3.0.0-beta0008 - 09.06.2016
 * Second Middleware hook for message handle
 
 #### 3.0.0-beta0007 - 09.06.2016
