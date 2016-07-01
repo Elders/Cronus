@@ -60,7 +60,7 @@ IF NOT [%1]==[] (set TARGET="%1")
 SET SUMMARY="Elders.Cronus"
 SET DESCRIPTION="Elders.Cronus"
 
-%FAKE% %NYX% "target=%TARGET%" appName=Elders.Cronus.Tests appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetPackageName=Cronus.Tests appType=tests
+%FAKE% %NYX% "target=RunTests" appName=Elders.Cronus.Tests appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetPackageName=Cronus.Tests appType=tests
 if errorlevel 1 (
    echo Tests faild with exit code %errorlevel%
    exit /b %errorlevel%
