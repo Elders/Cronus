@@ -11,6 +11,7 @@ SET NUGET=%LocalAppData%\NuGet\NuGet.exe
 SET FAKE=%LocalAppData%\FAKE\tools\Fake.exe
 SET NYX=%LocalAppData%\Nyx\tools\build.fsx
 SET GITVERSION=%LocalAppData%\GitVersion.CommandLine\tools\GitVersion.exe
+SET MSPEC=%LocalAppData%\Machine.Specifications.Runner.Console\tools\mspec-clr4.exe
 SET MSBUILD14_TOOLS_PATH="%ProgramFiles(x86)%\MSBuild\14.0\bin\MSBuild.exe"
 SET MSBUILD12_TOOLS_PATH="%ProgramFiles(x86)%\MSBuild\12.0\bin\MSBuild.exe"
 SET BUILD_TOOLS_PATH=%MSBUILD14_TOOLS_PATH%
@@ -46,6 +47,9 @@ IF NOT EXIST %LocalAppData%\NuGet.Core %NUGET% "install" "NuGet.Core" "-OutputDi
 echo Downloading latest version of GitVersion.CommandLine...
 IF NOT EXIST %LocalAppData%\GitVersion.CommandLine %NUGET% "install" "GitVersion.CommandLine" "-OutputDirectory" "%LocalAppData%" "-ExcludeVersion" "-Version" "3.3.0"
 
+echo Downloading latest version of Machine.Specifications.Runner.Console...
+IF NOT EXIST %LocalAppData%\Machine.Specifications.Runner.Console %NUGET% "install" "Machine.Specifications.Runner.Console" "-OutputDirectory" "%LocalAppData%" "-ExcludeVersion"
+
 echo Downloading latest version of Nyx...
 %NUGET% "install" "Nyx" "-OutputDirectory" "%LocalAppData%" "-ExcludeVersion" "-PreRelease"
 
@@ -56,4 +60,9 @@ IF NOT [%1]==[] (set TARGET="%1")
 SET SUMMARY="Elders.Cronus"
 SET DESCRIPTION="Elders.Cronus"
 
+%FAKE% %NYX% "target=%TARGET%" appName=Elders.Cronus.Tests appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetPackageName=Cronus.Tests appType=tests
+if errorlevel 1 (
+   echo Tests faild with exit code %errorlevel%
+   exit /b %errorlevel%
+)
 %FAKE% %NYX% "target=%TARGET%" appName=Elders.Cronus appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetPackageName=Cronus
