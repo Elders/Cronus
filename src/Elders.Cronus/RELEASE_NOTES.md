@@ -1,3 +1,7 @@
+#### 2.6.3 - 12.07.2016
+* Fixed bug where Container.IsRegistered does not checks the singleton and the scoped registrations.
+* Replaces the ConcurrentDictionary as a mechanizm for synchronizing with MemoryCache. The motivation behind this change is that we never invalidate the values but with MemoryCache we use sliding 30 seconds policy. In addition the MemoryCache is configured with 500mb memory cap and 10% of total physical memory cap.
+
 #### 2.6.2 - 06.04.2016
 * Fixed bug where Container.IsRegistered does not checks the singleton and the scoped registrations.
 
@@ -7,10 +11,10 @@
 #### 2.6.0 - 19.03.2016
 * Set default EventStreamIntegrityPolicy when Cronus starts.
 * Send the publish delay directly with the EndpointMessage.
-* When message is published we now attach GUID byte array as Base64 string in the message headers. Also if a message is schedules 
+* When message is published we now attach GUID byte array as Base64 string in the message headers. Also if a message is schedules
 or published with delay the publish timestamp is also attached to the message headers.
-* Introduce EventStreamIntegrityPolicy which should take care about validation upon AggregateRoot loading. The resolvers only 
-apply InMemory fixes without writing to the database. At the moment this policy is a fact only in the UnitTests because we 
+* Introduce EventStreamIntegrityPolicy which should take care about validation upon AggregateRoot loading. The resolvers only
+apply InMemory fixes without writing to the database. At the moment this policy is a fact only in the UnitTests because we
 need a configuration settings for this feature.
 
 #### 2.5.0 - 19.02.2016

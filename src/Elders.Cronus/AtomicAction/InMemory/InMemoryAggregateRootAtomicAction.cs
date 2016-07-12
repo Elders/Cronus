@@ -1,19 +1,32 @@
 using System;
-using System.Collections.Concurrent;
 using System.Globalization;
 using System.Threading;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Userfull;
+using System.Runtime.Caching;
+using System.Collections.Specialized;
 
 namespace Elders.Cronus.AtomicAction.InMemory
 {
     public class InMemoryAggregateRootAtomicAction : IAggregateRootAtomicAction
     {
-        static ConcurrentDictionary<IAggregateRootId, AtomicBoolean> aggregateLock =
-            new ConcurrentDictionary<IAggregateRootId, AtomicBoolean>();
+        readonly MemoryCache aggregateLock = null;
+        readonly MemoryCache aggregateRevisions = null;
+        readonly CacheItemPolicy sliding30seconds;
 
-        static ConcurrentDictionary<IAggregateRootId, AtomicInteger> aggregateRevisions =
-            new ConcurrentDictionary<IAggregateRootId, AtomicInteger>();
+        public InMemoryAggregateRootAtomicAction()
+        {
+            var _cacheConfig = new NameValueCollection();
+            _cacheConfig.Add("pollingInterval", "00:01:00");
+            _cacheConfig.Add("cacheMemoryLimitMegabytes", "500");
+            _cacheConfig.Add("physicalMemoryLimitPercentage", "10");
+
+            aggregateLock = new MemoryCache("aggregateLock", _cacheConfig);
+            aggregateRevisions = new MemoryCache("aggregateRevisions", _cacheConfig);
+
+            sliding30seconds = new CacheItemPolicy();
+            sliding30seconds.SlidingExpiration = TimeSpan.FromSeconds(30d);
+        }
 
         public Result<bool> Execute(IAggregateRootId aggregateRootId, int aggregateRootRevision, Action action)
         {
@@ -22,24 +35,34 @@ namespace Elders.Cronus.AtomicAction.InMemory
 
             try
             {
-                if (aggregateLock.TryGetValue(aggregateRootId, out acquired) == false)
+                acquired = aggregateLock.Get(Convert.ToBase64String(aggregateRootId.RawId)) as AtomicBoolean;
+                if (ReferenceEquals(null, acquired))
                 {
                     acquired = acquired ?? new AtomicBoolean(false);
-                    if (aggregateLock.TryAdd(aggregateRootId, acquired) == false)
-                        aggregateLock.TryGetValue(aggregateRootId, out acquired);
+                    if (aggregateLock.Add(Convert.ToBase64String(aggregateRootId.RawId), acquired, sliding30seconds) == false)
+                    {
+                        acquired = aggregateLock.Get(Convert.ToBase64String(aggregateRootId.RawId)) as AtomicBoolean;
+                        if (ReferenceEquals(null, acquired))
+                            return result;
+                    }
                 }
 
                 if (acquired.CompareAndSet(false, true))
                 {
                     try
                     {
-                        AtomicInteger revision = null;
-                        if (aggregateRevisions.TryGetValue(aggregateRootId, out revision) == false)
+                        AtomicInteger revision = aggregateRevisions.Get(Convert.ToBase64String(aggregateRootId.RawId)) as AtomicInteger;
+                        if (ReferenceEquals(null, revision))
                         {
                             revision = new AtomicInteger(aggregateRootRevision - 1);
-                            if (aggregateRevisions.TryAdd(aggregateRootId, revision) == false)
-                                return result;
+                            if (aggregateRevisions.Add(Convert.ToBase64String(aggregateRootId.RawId), revision, sliding30seconds) == false)
+                            {
+                                revision = aggregateRevisions.Get(Convert.ToBase64String(aggregateRootId.RawId)) as AtomicInteger;
+                                if (ReferenceEquals(null, revision))
+                                    return result;
+                            }
                         }
+
                         var currentRevision = revision.Value;
                         if (revision.CompareAndSet(aggregateRootRevision - 1, aggregateRootRevision))
                         {
@@ -71,8 +94,8 @@ namespace Elders.Cronus.AtomicAction.InMemory
 
         public void Dispose()
         {
-            if (aggregateLock != null)
-                aggregateLock = null;
+            aggregateRevisions?.Dispose();
+            aggregateLock?.Dispose();
         }
     }
 
@@ -157,7 +180,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
             return !(left == right);
         }
 
-        public static implicit operator bool (AtomicBoolean atomic)
+        public static implicit operator bool(AtomicBoolean atomic)
         {
             if (atomic == null) { return false; }
             else { return atomic.Value; }
@@ -256,7 +279,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
         {
             return !(left == right);
         }
-        public static implicit operator int (AtomicInteger atomic)
+        public static implicit operator int(AtomicInteger atomic)
         {
             if (atomic == null)
             {
