@@ -40,7 +40,17 @@ namespace Elders.Cronus.MessageProcessingMiddleware
         {
             var message = middlewareControl.Context;
             MessageHandlerMiddleware.Run(new HandlerContext(message.Payload, messageHandlerType));
-            log.Info(() => "HANDLE => " + messageHandlerType.Name + "( " + message.Payload + " )");
+            log.Info(() => message.Payload.ToString());
+            log.Debug(() => "HANDLE => " + messageHandlerType.Name + "( " + BuildDebugLog(message) + " )");
+        }
+
+        string BuildDebugLog(Message message)
+        {
+            IMessage realMessage = message.Payload as IMessage;
+            if (ReferenceEquals(null, realMessage))
+                return realMessage + $" |=> {Id}";
+
+            return realMessage.ToString($"{message.Payload.ToString()} |=> {Id}");
         }
 
         public void OnCompleted()
