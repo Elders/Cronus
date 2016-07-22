@@ -88,15 +88,5 @@ namespace Elders.Cronus.InMemory.Config
             (settings as ISettingsBuilder).Build();
             return self;
         }
-
-        public static T UsePortsAndProjections<T>(this T self, Action<ProjectionMessageProcessorSettings> configure) where T : IConsumerSettings<IEvent>
-        {
-            ProjectionMessageProcessorSettings settings = new ProjectionMessageProcessorSettings(self, t => typeof(IPort).IsAssignableFrom(t) || typeof(IProjection).IsAssignableFrom(t));
-            if (configure != null)
-                configure(settings);
-
-            (settings as ISettingsBuilder).Build();
-            return self;
-        }
     }
 }

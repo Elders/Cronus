@@ -4,132 +4,99 @@ using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessingMiddleware;
 using Elders.Cronus.Middleware;
+using Elders.Cronus.Netflix;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public class ProjectionMessageProcessorSettings : SettingsBuilder, IMessageProcessorSettings<IEvent>
+    public class ProjectionMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<IEvent>
     {
-        private Func<Type, bool> discriminator;
-
-        public ProjectionMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
+        public ProjectionMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
-            this.discriminator = discriminator;
-            (this as IMessageProcessorSettings<IEvent>).ActualHandle = new DynamicMessageHandle();
+            (this as ISubscrptionMiddlewareSettings<IEvent>).ActualHandle = new DynamicMessageHandle();
         }
 
-        Dictionary<Type, List<Type>> IMessageProcessorSettings<IEvent>.HandlerRegistrations { get; set; }
+        List<Type> ISubscrptionMiddlewareSettings<IEvent>.HandlerRegistrations { get; set; }
 
-        Func<Type, object> IMessageProcessorSettings<IEvent>.HandlerFactory { get; set; }
+        Func<Type, object> ISubscrptionMiddlewareSettings<IEvent>.HandlerFactory { get; set; }
 
-        string IMessageProcessorSettings<IEvent>.MessageProcessorName { get; set; }
-
-        Middleware<MessageHandlerMiddleware.HandleContext> IMessageProcessorSettings<IEvent>.ActualHandle { get; set; }
+        Middleware<MessageHandlerMiddleware.HandleContext> ISubscrptionMiddlewareSettings<IEvent>.ActualHandle { get; set; }
 
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            var processorSettings = this as IMessageProcessorSettings<IEvent>;
-            Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
+            var processorSettings = this as ISubscrptionMiddlewareSettings<IEvent>;
+            Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
 
                 var projectionsMiddleware = new ProjectionsMiddleware(handlerFactory);
-                var actualHandleHook = (this as IMessageProcessorSettings<IEvent>).ActualHandle;
+                var actualHandleHook = (this as ISubscrptionMiddlewareSettings<IEvent>).ActualHandle;
                 projectionsMiddleware.ActualHandle = actualHandleHook;
-
-                var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
-                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
-
+                var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
                 foreach (var reg in processorSettings.HandlerRegistrations)
                 {
-                    foreach (var handlerType in reg.Value)
-                    {
-                        if (discriminator == null || discriminator(handlerType))
-                        {
-                            var subscriptionName = String.Format("{0}.{1}", handlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
-                            messageSubscriptionMiddleware.Subscribe(new SubscriberMiddleware(subscriptionName, reg.Key, handlerType, projectionsMiddleware));
-                        }
-                    }
+                    subscriptionMiddleware.Subscribe(new Netflix.ProjectionSubscriber(reg, projectionsMiddleware));
                 }
-                return processor;
+                return subscriptionMiddleware;
             };
-            builder.Container.RegisterSingleton<IMessageProcessor>(() => messageHandlerProcessorFactory(), builder.Name);
+            builder.Container.RegisterSingleton<SubscriptionMiddleware>(() => messageHandlerProcessorFactory(), builder.Name);
         }
     }
 
-    public class PortMessageProcessorSettings : SettingsBuilder, IMessageProcessorSettings<IEvent>
+    public class PortMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<IEvent>
     {
-        public PortMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
+        public PortMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
-            this.discriminator = discriminator;
-            (this as IMessageProcessorSettings<IEvent>).ActualHandle = new DynamicMessageHandle();
+            (this as ISubscrptionMiddlewareSettings<IEvent>).ActualHandle = new DynamicMessageHandle();
         }
-        private Func<Type, bool> discriminator;
 
-        Dictionary<Type, List<Type>> IMessageProcessorSettings<IEvent>.HandlerRegistrations { get; set; }
+        List<Type> ISubscrptionMiddlewareSettings<IEvent>.HandlerRegistrations { get; set; }
 
-        Func<Type, object> IMessageProcessorSettings<IEvent>.HandlerFactory { get; set; }
+        Func<Type, object> ISubscrptionMiddlewareSettings<IEvent>.HandlerFactory { get; set; }
 
-        string IMessageProcessorSettings<IEvent>.MessageProcessorName { get; set; }
-
-        Middleware<MessageHandlerMiddleware.HandleContext> IMessageProcessorSettings<IEvent>.ActualHandle { get; set; }
+        Middleware<MessageHandlerMiddleware.HandleContext> ISubscrptionMiddlewareSettings<IEvent>.ActualHandle { get; set; }
 
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            var processorSettings = this as IMessageProcessorSettings<IEvent>;
-            Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
+            var processorSettings = this as ISubscrptionMiddlewareSettings<IEvent>;
+            Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
                 var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
 
                 var portsMiddleware = new PortsMiddleware(handlerFactory, publisher);
-                var actualHandleHook = (this as IMessageProcessorSettings<IEvent>).ActualHandle;
+                var actualHandleHook = (this as ISubscrptionMiddlewareSettings<IEvent>).ActualHandle;
                 portsMiddleware.ActualHandle = actualHandleHook;
-
-                var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
-                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
-
-                foreach (var reg in (this as IMessageProcessorSettings<IEvent>).HandlerRegistrations)
+                var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
+                foreach (var reg in (this as ISubscrptionMiddlewareSettings<IEvent>).HandlerRegistrations)
                 {
-                    foreach (var handlerType in reg.Value)
-                    {
-                        if (discriminator == null || discriminator(handlerType))
-                        {
-                            var subscriptionName = String.Format("{0}.{1}", handlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
-                            messageSubscriptionMiddleware.Subscribe(new SubscriberMiddleware(subscriptionName, reg.Key, handlerType, portsMiddleware));
-                        }
-                    }
+                    subscriptionMiddleware.Subscribe(new Netflix.PortSubscriber(reg, portsMiddleware));
                 }
-                return processor;
+                return subscriptionMiddleware;
             };
-            builder.Container.RegisterSingleton<IMessageProcessor>(() => messageHandlerProcessorFactory(), builder.Name);
+            builder.Container.RegisterSingleton<SubscriptionMiddleware>(() => messageHandlerProcessorFactory(), builder.Name);
         }
     }
 
-    public class ApplicationServiceMessageProcessorSettings : SettingsBuilder, IMessageProcessorSettings<ICommand>
+    public class ApplicationServiceMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<ICommand>
     {
-        Func<Type, bool> discriminator;
-
-        public ApplicationServiceMessageProcessorSettings(ISettingsBuilder builder, Func<Type, bool> discriminator) : base(builder)
+        public ApplicationServiceMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
-            this.discriminator = discriminator;
-            (this as IMessageProcessorSettings<ICommand>).ActualHandle = new DynamicMessageHandle();
+            (this as ISubscrptionMiddlewareSettings<ICommand>).ActualHandle = new DynamicMessageHandle();
         }
 
-        Dictionary<Type, List<Type>> IMessageProcessorSettings<ICommand>.HandlerRegistrations { get; set; }
+        List<Type> ISubscrptionMiddlewareSettings<ICommand>.HandlerRegistrations { get; set; }
 
-        Func<Type, object> IMessageProcessorSettings<ICommand>.HandlerFactory { get; set; }
+        Func<Type, object> ISubscrptionMiddlewareSettings<ICommand>.HandlerFactory { get; set; }
 
-        string IMessageProcessorSettings<ICommand>.MessageProcessorName { get; set; }
-
-        Middleware<MessageHandlerMiddleware.HandleContext> IMessageProcessorSettings<ICommand>.ActualHandle { get; set; }
+        Middleware<MessageHandlerMiddleware.HandleContext> ISubscrptionMiddlewareSettings<ICommand>.ActualHandle { get; set; }
 
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            var processorSettings = this as IMessageProcessorSettings<ICommand>;
-            Func<IMessageProcessor> messageHandlerProcessorFactory = () =>
+            var processorSettings = this as ISubscrptionMiddlewareSettings<ICommand>;
+            Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
                 var repository = builder.Container.Resolve<IAggregateRepository>(builder.Name);
@@ -137,25 +104,17 @@ namespace Elders.Cronus.Pipeline.Config
 
                 //create extension methis UseApplicationMiddleware instead of instance here.
                 var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
-                applicationServiceMiddleware.ActualHandle = (this as IMessageProcessorSettings<ICommand>).ActualHandle;
+                applicationServiceMiddleware.ActualHandle = (this as ISubscrptionMiddlewareSettings<ICommand>).ActualHandle;
 
-                var messageSubscriptionMiddleware = new MessageSubscriptionsMiddleware();
-                IMessageProcessor processor = new CronusMessageProcessorMiddleware(processorSettings.MessageProcessorName, messageSubscriptionMiddleware);
 
-                foreach (var reg in (this as IMessageProcessorSettings<ICommand>).HandlerRegistrations)
+                var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
+                foreach (var reg in (this as ISubscrptionMiddlewareSettings<ICommand>).HandlerRegistrations)
                 {
-                    foreach (var handlerType in reg.Value)
-                    {
-                        if (discriminator == null || discriminator(handlerType))
-                        {
-                            var subscriptionName = String.Format("{0}.{1}", handlerType.GetBoundedContext().BoundedContextNamespace, processorSettings.MessageProcessorName);
-                            messageSubscriptionMiddleware.Subscribe(new SubscriberMiddleware(subscriptionName, reg.Key, handlerType, applicationServiceMiddleware));
-                        }
-                    }
+                    subscriptionMiddleware.Subscribe(new Netflix.ApplicationServiceSubscriber(reg, applicationServiceMiddleware));
                 }
-                return processor;
+                return subscriptionMiddleware;
             };
-            builder.Container.RegisterSingleton<IMessageProcessor>(() => messageHandlerProcessorFactory(), builder.Name);
+            builder.Container.RegisterSingleton<SubscriptionMiddleware>(() => messageHandlerProcessorFactory(), builder.Name);
         }
     }
 
@@ -163,8 +122,7 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public static T UseProjections<T>(this T self, Action<ProjectionMessageProcessorSettings> configure) where T : IConsumerSettings<IEvent>
         {
-            ProjectionMessageProcessorSettings settings = new ProjectionMessageProcessorSettings(self, t => typeof(IProjection).IsAssignableFrom(t));
-            (settings as IMessageProcessorSettings<IEvent>).MessageProcessorName = "Projections";
+            ProjectionMessageProcessorSettings settings = new ProjectionMessageProcessorSettings(self);
             if (configure != null)
                 configure(settings);
 
@@ -174,8 +132,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UsePorts<T>(this T self, Action<PortMessageProcessorSettings> configure) where T : PortConsumerSettings
         {
-            PortMessageProcessorSettings settings = new PortMessageProcessorSettings(self, t => typeof(IPort).IsAssignableFrom(t));
-            (settings as IMessageProcessorSettings<IEvent>).MessageProcessorName = "Ports";
+            PortMessageProcessorSettings settings = new PortMessageProcessorSettings(self);
             if (configure != null)
                 configure(settings);
 
@@ -185,8 +142,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseApplicationServices<T>(this T self, Action<ApplicationServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
         {
-            ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self, t => typeof(IAggregateRootApplicationService).IsAssignableFrom(t));
-            (settings as IMessageProcessorSettings<ICommand>).MessageProcessorName = "Commands";
+            ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self);
             if (configure != null)
                 configure(settings);
 
@@ -196,8 +152,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseApplicationServiceMiddleware<T>(this T self, Action<ApplicationServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
         {
-            ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self, t => typeof(IAggregateRootApplicationService).IsAssignableFrom(t));
-            (settings as IMessageProcessorSettings<ICommand>).MessageProcessorName = "Commands";
+            ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self);
             if (configure != null)
                 configure(settings);
 

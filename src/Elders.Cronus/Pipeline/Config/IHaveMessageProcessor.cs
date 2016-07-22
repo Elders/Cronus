@@ -8,13 +8,11 @@ namespace Elders.Cronus.Pipeline.Config
 {
     public interface IMessageProcessorSettings { }
 
-    public interface IMessageProcessorSettings<out TContract> : ISettingsBuilder where TContract : IMessage
+    public interface ISubscrptionMiddlewareSettings<out TContract> : ISettingsBuilder where TContract : IMessage
     {
-        Dictionary<Type, List<Type>> HandlerRegistrations { get; set; }
+        List<Type> HandlerRegistrations { get; set; }
 
         Func<Type, object> HandlerFactory { get; set; }
-
-        string MessageProcessorName { get; set; }
 
         Middleware<HandleContext> ActualHandle { get; set; }
     }
