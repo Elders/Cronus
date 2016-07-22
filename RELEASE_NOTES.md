@@ -1,3 +1,6 @@
+#### 3.0.0-beta0011 - 22.07.2016
+* Test release
+
 #### 3.0.0-beta0010 - 22.07.2016
 * Perses: Reworked subscribers and subscription middleware. We can now support dynamic subscribing, and we can now also decuple rabbitmq specific logic for building queues etc.
 * Perses: Rename TransportMessage to CronusMessage. There is a breaking change because of reorganization of the the props.
