@@ -55,6 +55,6 @@ if errorlevel 1 (
    exit /b %errorlevel%
 )
 
-%FAKE% %NYX% "target=%TARGET%" appName=Elders.Cronus appReleaseNotes=%RELEASE_NOTES% appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetserver=%RELEASE_TARGETSOURCE% nugetkey=%RELEASE_NUGETKEY% nugetPackageName=Cronus
+%FAKE% %NYX% appName=Elders.Cronus appReleaseNotes=%RELEASE_NOTES% appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetkey=%RELEASE_NUGETKEY% nugetPackageName=Cronus
 
 IF NOT [%1]==[] (%FAKE% %NYX% "target=Release" -st appReleaseNotes=%RELEASE_NOTES%)
