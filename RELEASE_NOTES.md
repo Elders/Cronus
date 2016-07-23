@@ -1,3 +1,6 @@
+#### 3.0.0-beta0012 - 22.07.2016
+* Consumers and Endpoint Factory now uses the SubscriptionsMiddlewares
+
 #### 3.0.0-beta0011 - 22.07.2016
 * Test release
 

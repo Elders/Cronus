@@ -34,7 +34,7 @@ namespace Elders.Cronus.Netflix
         /// <summary>
         /// Gets the message types which the subscriber can process.
         /// </summary>
-        public List<string> MessageTypes { get; private set; }
+        public List<Type> MessageTypes { get; private set; }
 
         public void Process(CronusMessage message)
         {
@@ -54,15 +54,14 @@ namespace Elders.Cronus.Netflix
             }
         }
 
-        private IEnumerable<string> GetInvolvedMessageTypes(Type type)
+        private IEnumerable<Type> GetInvolvedMessageTypes(Type type)
         {
             var ieventHandler = typeof(IEventHandler<>);
             var interfaces = type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler);
             foreach (var @interface in interfaces)
             {
                 Type eventType = @interface.GetGenericArguments().FirstOrDefault();
-                var contractName = eventType.GetAttrubuteValue<DataContractAttribute, string>(x => x.Name);
-                yield return contractName;
+                yield return eventType;
             }
         }
     }

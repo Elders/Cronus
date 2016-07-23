@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Elders.Cronus.Netflix
 {
@@ -6,7 +7,7 @@ namespace Elders.Cronus.Netflix
     {
         string Id { get; }
 
-        List<string> MessageTypes { get; }
+        List<Type> MessageTypes { get; }
 
         void Process(CronusMessage message);
     }

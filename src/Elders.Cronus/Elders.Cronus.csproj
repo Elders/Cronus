@@ -96,11 +96,11 @@
     <Compile Include="Middleware\Middleware.cs" />
     <Compile Include="Middleware\Execution.cs" />
     <Compile Include="Middleware\MiddlewareExtensions.cs" />
-    <Compile Include="Netflix\ApplicationServiceSubscriber.cs" />
-    <Compile Include="Netflix\ISubscriber.cs" />
-    <Compile Include="Netflix\PortSubscriber.cs" />
-    <Compile Include="Netflix\ProjectionSubscriber.cs" />
-    <Compile Include="Netflix\SubscriptionMiddleware.cs" />
+    <Compile Include="Netflix\Subscriptions\ApplicationServiceSubscriber.cs" />
+    <Compile Include="Netflix\Subscriptions\ISubscriber.cs" />
+    <Compile Include="Netflix\Subscriptions\PortSubscriber.cs" />
+    <Compile Include="Netflix\Subscriptions\ProjectionSubscriber.cs" />
+    <Compile Include="Netflix\Subscriptions\SubscriptionMiddleware.cs" />
     <Compile Include="ObjectExtensions.cs" />
     <Compile Include="Pipeline\CircuitBreaker\DefaultCircuitBreakerFactory.cs" />
     <Compile Include="Pipeline\CircuitBreaker\IEndpontCircuitBreakerFactrory.cs" />

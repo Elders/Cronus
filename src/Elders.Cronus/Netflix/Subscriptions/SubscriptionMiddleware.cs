@@ -31,7 +31,7 @@ namespace Elders.Cronus.Netflix
 
         public IEnumerable<ISubscriber> GetInterestedSubscribers(CronusMessage message)
         {
-            return Subscribers.Where(subscriber => subscriber.MessageTypes.Contains(message.Type));
+            return Subscribers.Where(subscriber => subscriber.MessageTypes.Contains(message.Payload.Payload.GetType()));
         }
 
         public IEnumerable<ISubscriber> Subscribers { get { return subscribers.ToList(); } }
