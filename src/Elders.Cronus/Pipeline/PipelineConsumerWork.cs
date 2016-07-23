@@ -4,6 +4,7 @@ using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Serializer;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
+using Elders.Cronus.Netflix;
 
 namespace Elders.Cronus.Pipeline
 {
@@ -11,7 +12,7 @@ namespace Elders.Cronus.Pipeline
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(PipelineConsumerWork));
 
-        private IMessageProcessor processor;
+        private SubscriptionMiddleware subscriptions;
 
         private readonly IEndpoint endpoint;
 
@@ -23,10 +24,10 @@ namespace Elders.Cronus.Pipeline
 
         private readonly IEndpointCircuitBreaker circuitBreaker;
 
-        public PipelineConsumerWork(IMessageProcessor processor, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold, IEndpointCircuitBreaker circuitBreaker)
+        public PipelineConsumerWork(SubscriptionMiddleware subscriptions, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold, IEndpointCircuitBreaker circuitBreaker)
         {
             this.endpoint = endpoint;
-            this.processor = processor;
+            this.subscriptions = subscriptions;
             this.circuitBreaker = circuitBreaker;
             this.serializer = serializer;
             this.messageThreshold = messageThreshold ?? new MessageThreshold();
@@ -43,7 +44,6 @@ namespace Elders.Cronus.Pipeline
                 while (isWorking)
                 {
                     List<EndpointMessage> rawMessages = new List<EndpointMessage>();
-                    List<CronusMessage> transportMessages = new List<CronusMessage>();
                     for (int i = 0; i < messageThreshold.Size; i++)
                     {
                         EndpointMessage rawMessage = null;
@@ -51,15 +51,14 @@ namespace Elders.Cronus.Pipeline
                             break;
 
                         CronusMessage transportMessage = (CronusMessage)serializer.DeserializeFromBytes(rawMessage.Body);
-
-                        transportMessages.Add(transportMessage);
+                        var subscribers = subscriptions.GetInterestedSubscribers(transportMessage);
+                        foreach (var subscriber in subscribers)
+                        {
+                            subscriber.Process(transportMessage);
+                        }
                         rawMessages.Add(rawMessage);
                     }
-                    if (transportMessages.Count == 0)
-                        continue;
 
-                    var result = processor.Run(transportMessages);
-                    circuitBreaker.PostConsume(result);
                     endpoint.AcknowledgeAll();
                 }
             }

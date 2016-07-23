@@ -4,6 +4,7 @@ using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
+using Elders.Cronus.Netflix;
 
 namespace Elders.Cronus.InMemory.Config
 {
@@ -24,7 +25,7 @@ namespace Elders.Cronus.InMemory.Config
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            Func<IMessageProcessor> messageHandlerProcessor = () => builder.Container.Resolve<IMessageProcessor>(builder.Name);
+            Func<SubscriptionMiddleware> messageHandlerProcessor = () => builder.Container.Resolve<SubscriptionMiddleware>(builder.Name);
             Func<IPublisher<TContract>> consumer = () => new InMemoryPublisher<TContract>(messageHandlerProcessor());
             builder.Container.RegisterSingleton<IPublisher<TContract>>(() => consumer(), builder.Name);
         }

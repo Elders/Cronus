@@ -5,6 +5,7 @@ using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
+using Elders.Cronus.Netflix;
 
 namespace Elders.Cronus.Pipeline
 {
@@ -12,7 +13,7 @@ namespace Elders.Cronus.Pipeline
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(EndpointConsumer));
 
-        private readonly IMessageProcessor messageProcessor;
+        private readonly SubscriptionMiddleware subscriptions;
 
         private readonly IPipelineTransport transport;
 
@@ -32,10 +33,10 @@ namespace Elders.Cronus.Pipeline
         /// <param name="serializer">The serializer.</param>
         /// <param name="messageThreshold">The message threshold.</param>
         /// <param name="circuitBreakerFactory">The circuit breaker factory.</param>
-        public EndpointConsumer(IPipelineTransport transport, IMessageProcessor messageProcessor, ISerializer serializer, MessageThreshold messageThreshold, IEndpontCircuitBreakerFactrory circuitBreakerFactory)
+        public EndpointConsumer(IPipelineTransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, MessageThreshold messageThreshold, IEndpontCircuitBreakerFactrory circuitBreakerFactory)
         {
             NumberOfWorkers = 1;
-            this.messageProcessor = messageProcessor;
+            this.subscriptions = subscriptions;
             this.transport = transport;
             pools = new List<WorkPool>();
             this.serializer = serializer;
@@ -50,14 +51,14 @@ namespace Elders.Cronus.Pipeline
                 : NumberOfWorkers;
 
             pools.Clear();
-            foreach (var endpointDefinition in transport.EndpointFactory.GetEndpointDefinition(messageProcessor))
+            foreach (var endpointDefinition in transport.EndpointFactory.GetEndpointDefinition(subscriptions))
             {
                 var poolName = String.Format("Workpool {0}", endpointDefinition.EndpointName);
                 WorkPool pool = new WorkPool(poolName, workers);
                 for (int i = 0; i < workers; i++)
                 {
                     IEndpoint endpoint = transport.EndpointFactory.CreateEndpoint(endpointDefinition);
-                    pool.AddWork(new PipelineConsumerWork(messageProcessor, endpoint, serializer, messageThreshold, circuitBreakerFactory.Create(transport, serializer, endpointDefinition)));
+                    pool.AddWork(new PipelineConsumerWork(subscriptions, endpoint, serializer, messageThreshold, circuitBreakerFactory.Create(transport, serializer, endpointDefinition)));
                 }
                 pools.Add(pool);
                 pool.StartCrawlers();

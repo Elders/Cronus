@@ -18,9 +18,9 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             return transport.GetOrAddEndpoint(definition);
         }
 
-        public IEnumerable<EndpointDefinition> GetEndpointDefinition(IMessageProcessor messageProcessor)
+        public IEnumerable<EndpointDefinition> GetEndpointDefinition(Netflix.SubscriptionMiddleware subscriptionMiddleware)
         {
-            return endpointNameConvention.GetEndpointDefinition(messageProcessor);
+            return endpointNameConvention.GetEndpointDefinition(subscriptionMiddleware);
         }
 
         public IEndpoint CreateTopicEndpoint(EndpointDefinition definition)

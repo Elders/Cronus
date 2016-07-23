@@ -7,7 +7,7 @@ using System.Linq;
 namespace Elders.Cronus.MessageProcessingMiddleware
 {
     [Obsolete("Towa e taka narochno")]
-    public class CronusMessageProcessorMiddleware : Middleware<List<CronusMessage>, IFeedResult>, IMessageProcessor
+    public class CronusMessageProcessorMiddleware : Middleware<List<CronusMessage>, IFeedResult>
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(CronusMessageProcessorMiddleware));
 

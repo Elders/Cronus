@@ -8,6 +8,7 @@ using Elders.Cronus.Serializer;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.IntegrityValidation;
+using Elders.Cronus.Netflix;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -34,7 +35,7 @@ namespace Elders.Cronus.Pipeline.Config
             var builder = this as ISettingsBuilder;
             Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
             Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
-            Func<IMessageProcessor> messageHandlerProcessor = () => builder.Container.Resolve<IMessageProcessor>(builder.Name);
+            Func<SubscriptionMiddleware> messageHandlerProcessor = () => builder.Container.Resolve<SubscriptionMiddleware>(builder.Name);
             Func<IEndpontCircuitBreakerFactrory> endpointCircuitBreaker = () => builder.Container.Resolve<IEndpontCircuitBreakerFactrory>(builder.Name);
             Func<IEndpointConsumer> consumer = () => new EndpointConsumer(transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold, endpointCircuitBreaker());
             builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer(), builder.Name);

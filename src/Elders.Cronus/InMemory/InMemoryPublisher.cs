@@ -2,6 +2,7 @@
 using System.Linq;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Logging;
+using Elders.Cronus.Netflix;
 
 namespace Elders.Cronus.InMemory
 {
@@ -9,24 +10,16 @@ namespace Elders.Cronus.InMemory
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<>));
 
-        IMessageProcessor messageProcessor;
+        SubscriptionMiddleware subscribtions;
 
-        public InMemoryPublisher(IMessageProcessor messageProcessor)
+        public InMemoryPublisher(SubscriptionMiddleware messageProcessor)
         {
-            this.messageProcessor = messageProcessor;
+            this.subscribtions = messageProcessor;
         }
 
         protected override bool PublishInternal(TContract message, Dictionary<string, string> messageHeaders)
         {
-            var result = messageProcessor.Run(new List<CronusMessage>() { new CronusMessage(new Message(message)) });
-            if (result.FailedMessages != null && result.FailedMessages.Count() > 0)
-            {
-                foreach (var msg in result.FailedMessages)
-                {
-                    log.ErrorException(msg.Payload.ToString(), msg.Errors.First().Error);
-                }
-                return false;
-            }
+            subscribtions.GetInterestedSubscribers(new CronusMessage(new Message(message, messageHeaders)));
             return true;
         }
     }
