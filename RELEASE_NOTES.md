@@ -1,3 +1,6 @@
+#### 3.0.0-beta0013 - 23.07.2016
+* Subscribers now care for MessageTypes of System.Type
+
 #### 3.0.0-beta0012 - 22.07.2016
 * Consumers and Endpoint Factory now uses the SubscriptionsMiddlewares
 
