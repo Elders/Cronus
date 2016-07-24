@@ -76,22 +76,13 @@ namespace Elders.Cronus.Pipeline.Config
         //    return self;
         //}
 
-        public static T RegisterAllEventHandlersInAssembly<T>(this T self, Assembly[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : ISubscrptionMiddlewareSettings<IEvent>
+        public static T RegisterHandlersInAssembly<T>(this T self, Assembly[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : ISubscrptionMiddlewareSettings<IMessage>
         {
-            var eventHandlers = messageHandlers.SelectMany(x => x.GetTypes()).Where(x => x.GetInterfaces().Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(IEventHandler<>))).ToList();
-            self.HandlerRegistrations = eventHandlers;
+            var handlerTypes = messageHandlers.SelectMany(x => x.GetTypes()).ToList();
+            self.HandlerRegistrations = handlerTypes;
             self.HandlerFactory = messageHandlerFactory;
             return self;
         }
-
-        public static T RegisterAllCommandHandlersInAssembly<T>(this T self, Assembly[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : ISubscrptionMiddlewareSettings<ICommand>
-        {
-            var commandHandlers = messageHandlers.SelectMany(x => x.GetTypes()).Where(t => t.GetInterfaces().Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(ICommandHandler<>))).ToList();
-            self.HandlerRegistrations = commandHandlers;
-            self.HandlerFactory = messageHandlerFactory;
-            return self;
-        }
-
 
         //static T Register<T>(this T self, Assembly[] assemblyContainingMessageHandlers, Func<Type, object> messageHandlerFactory, Action<Type> doBeforeRegister) where T : ISubscrptionMiddlewareSettings<IMessage>
         //{
