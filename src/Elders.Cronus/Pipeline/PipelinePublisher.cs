@@ -29,12 +29,11 @@ namespace Elders.Cronus.Pipeline
 
         protected override bool PublishInternal(T message, Dictionary<string, string> messageHeaders)
         {
-            var payload = new Message(message, messageHeaders);
-            var transportMessage = new CronusMessage(payload);
+            var cronusMessage = new CronusMessage(message, messageHeaders);
 
-            byte[] body = serializer.SerializeToBytes(transportMessage);
-            Dictionary<string, object> routingHeaders = new Dictionary<string, object>() { { transportMessage.Payload.Payload.GetType().GetContractId(), String.Empty } };
-            EndpointMessage endpointMessage = new EndpointMessage(body, string.Empty, routingHeaders, payload.GetPublishDelay());
+            byte[] body = serializer.SerializeToBytes(cronusMessage);
+            Dictionary<string, object> routingHeaders = new Dictionary<string, object>() { { cronusMessage.Payload.GetType().GetContractId(), String.Empty } };
+            EndpointMessage endpointMessage = new EndpointMessage(body, string.Empty, routingHeaders, cronusMessage.GetPublishDelay());
 
             transport.PipelineFactory
                 .GetPipeline(message.GetType())
@@ -50,7 +49,7 @@ namespace Elders.Cronus.Pipeline
 
     public static class MessageExtentions
     {
-        public static long GetPublishDelay(this Message message)
+        public static long GetPublishDelay(this CronusMessage message)
         {
             string publishAt = "0";
             if (message.Headers.TryGetValue(MessageHeader.PublishTimestamp, out publishAt))

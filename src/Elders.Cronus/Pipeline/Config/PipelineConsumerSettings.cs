@@ -1,7 +1,6 @@
 ﻿using System;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
-using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Pipeline.Hosts;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
@@ -18,7 +17,6 @@ namespace Elders.Cronus.Pipeline.Config
         public PipelineConsumerSettings(ISettingsBuilder settingsBuilder, string name)
             : base(settingsBuilder, name)
         {
-            this.WithDefaultCircuitBreaker();
             this.SetNumberOfConsumerThreads(2);
         }
 
@@ -36,8 +34,7 @@ namespace Elders.Cronus.Pipeline.Config
             Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
             Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
             Func<SubscriptionMiddleware> messageHandlerProcessor = () => builder.Container.Resolve<SubscriptionMiddleware>(builder.Name);
-            Func<IEndpontCircuitBreakerFactrory> endpointCircuitBreaker = () => builder.Container.Resolve<IEndpontCircuitBreakerFactrory>(builder.Name);
-            Func<IEndpointConsumer> consumer = () => new EndpointConsumer(transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold, endpointCircuitBreaker());
+            Func<IEndpointConsumer> consumer = () => new EndpointConsumer(transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold);
             builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer(), builder.Name);
         }
     }

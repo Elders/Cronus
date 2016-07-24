@@ -24,7 +24,7 @@ namespace Elders.Cronus.EventStore
         /// </summary>
         /// <typeparam name="AR">The type of the aggregate root.</typeparam>
         /// <param name="aggregateRoot">The aggregate root.</param>
-        /// <exception cref="Elders.Cronus.DomainModeling.AggregateStateFirstLevelConcurrencyException"></exception>
+        /// <exception cref="Elders.Cronus.DomainModeling.AggregateRootException"></exception>
         public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
             if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Count() == 0)

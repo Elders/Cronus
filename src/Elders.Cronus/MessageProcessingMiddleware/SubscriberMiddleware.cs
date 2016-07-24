@@ -5,13 +5,13 @@ using Elders.Cronus.Middleware;
 
 namespace Elders.Cronus.MessageProcessingMiddleware
 {
-    public class SubscriberMiddleware : Middleware<Message>
+    public class SubscriberMiddleware : Middleware<IMessage>
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(SubscriberMiddleware));
 
-        private readonly Type messageHandlerType;
+        readonly Type messageHandlerType;
 
-        private IDisposable subscription;
+        IDisposable subscription;
 
         public Middleware<HandlerContext> MessageHandlerMiddleware { get; private set; }
 
@@ -36,21 +36,20 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public string Name { get; set; }
 
-        protected override void Run(Execution<Message> middlewareControl)
+        protected override void Run(Execution<IMessage> execution)
         {
-            var message = middlewareControl.Context;
+            var message = execution.Context;
             MessageHandlerMiddleware.Run(new HandlerContext(message, messageHandlerType));
-            log.Info(() => message.Payload.ToString());
+            log.Info(() => message.ToString());
             log.Debug(() => "HANDLE => " + messageHandlerType.Name + "( " + BuildDebugLog(message) + " )");
         }
 
-        string BuildDebugLog(Message message)
+        string BuildDebugLog(IMessage message)
         {
-            IMessage realMessage = message.Payload as IMessage;
-            if (ReferenceEquals(null, realMessage))
-                return realMessage + $" |=> {Id}";
+            if (ReferenceEquals(null, message))
+                return message + $" |=> {Id}";
 
-            return realMessage.ToString($"{message.Payload.ToString()} |=> {Id}");
+            return message.ToString($"{message.ToString()} |=> {Id}");
         }
 
         public void OnCompleted()
@@ -84,13 +83,13 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
     public class HandlerContext
     {
-        public HandlerContext(Message message, Type handlerType)
+        public HandlerContext(IMessage message, Type handlerType)
         {
             Message = message;
             HandlerType = handlerType;
         }
 
-        public Message Message { get; private set; }
+        public IMessage Message { get; private set; }
 
         public Type HandlerType { get; private set; }
     }

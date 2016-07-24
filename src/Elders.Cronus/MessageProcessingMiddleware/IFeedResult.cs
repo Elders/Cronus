@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -45,35 +44,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             var successItems = new HashSet<CronusMessage>(self.SuccessfulMessages);
             successItems.Add(message);
             return new FeedResult(successItems, self.FailedMessages);
-        }
-
-        public static IFeedResult AppendError(this IFeedResult self, CronusMessage message, FeedError error)
-        {
-            var errorItems = new HashSet<CronusMessage>(self.FailedMessages);
-            var errorMessage = errorItems.Where(x => x == message).SingleOrDefault() ?? message;
-            errorItems.Add(new CronusMessage(errorMessage, error));
-
-            return new FeedResult(self.SuccessfulMessages, errorItems);
-        }
-
-        public static IFeedResult AppendUnitOfWorkError(this IFeedResult self, IEnumerable<CronusMessage> messages, Exception ex)
-        {
-            return self.AppendError(messages, new FeedError()
-            {
-                Origin = new ErrorOrigin(ErrorOriginType.UnitOfWork, ErrorOriginType.UnitOfWork),
-                Error = new SerializableException(ex)
-            });
-        }
-
-        public static IFeedResult AppendError(this IFeedResult self, IEnumerable<CronusMessage> messages, FeedError error)
-        {
-            var errorItems = new HashSet<CronusMessage>(self.FailedMessages);
-            foreach (var failedMessage in messages)
-            {
-                var errorMessage = errorItems.Where(x => x == failedMessage).SingleOrDefault() ?? failedMessage;
-                errorItems.Add(new CronusMessage(errorMessage, error));
-            }
-            return new FeedResult(self.SuccessfulMessages, errorItems);
         }
 
         public static IFeedResult With(this IFeedResult self, IFeedResult feedResult)

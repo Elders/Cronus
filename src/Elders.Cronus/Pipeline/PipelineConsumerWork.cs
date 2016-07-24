@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Serializer;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
@@ -22,13 +21,10 @@ namespace Elders.Cronus.Pipeline
 
         private readonly MessageThreshold messageThreshold;
 
-        private readonly IEndpointCircuitBreaker circuitBreaker;
-
-        public PipelineConsumerWork(SubscriptionMiddleware subscriptions, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold, IEndpointCircuitBreaker circuitBreaker)
+        public PipelineConsumerWork(SubscriptionMiddleware subscriptions, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold)
         {
             this.endpoint = endpoint;
             this.subscriptions = subscriptions;
-            this.circuitBreaker = circuitBreaker;
             this.serializer = serializer;
             this.messageThreshold = messageThreshold ?? new MessageThreshold();
         }

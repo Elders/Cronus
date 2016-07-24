@@ -1,4 +1,5 @@
 ﻿using System;
+using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Middleware;
 
 namespace Elders.Cronus.MessageProcessingMiddleware
@@ -45,7 +46,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             {
                 using (var handler = CreateHandler.Run(execution.Context.HandlerType))
                 {
-                    var handleContext = new HandleContext(execution.Context.Message.Payload, handler.Current);
+                    var handleContext = new HandleContext(execution.Context.Message, handler.Current);
                     BeginHandle.Run(handleContext);
                     ActualHandle.Run(handleContext);
                     EndHandle.Run(handleContext);
@@ -75,12 +76,12 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public class HandleContext
         {
-            public HandleContext(object message, object handlerInstance)
+            public HandleContext(IMessage message, object handlerInstance)
             {
                 Message = message;
                 HandlerInstance = handlerInstance;
             }
-            public object Message { get; private set; }
+            public IMessage Message { get; private set; }
 
             public object HandlerInstance { get; private set; }
         }

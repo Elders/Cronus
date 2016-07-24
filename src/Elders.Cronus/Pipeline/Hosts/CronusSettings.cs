@@ -12,7 +12,7 @@ namespace Elders.Cronus.Pipeline.Hosts
     {
         public CronusSettings(IContainer container)
         {
-            // This is temporary instantiated here. We need to think where is the best place to set the default EventStreamIntegrityPolicy.
+            // TODO: This is temporary instantiated here. We need to think where is the best place to set the default EventStreamIntegrityPolicy.
             container.RegisterSingleton<IntegrityValidation.IIntegrityPolicy<EventStore.EventStream>>(() => new EventStore.EventStreamIntegrityPolicy());
 
             (this as ISettingsBuilder).Container = container;

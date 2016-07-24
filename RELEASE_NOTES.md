@@ -1,3 +1,6 @@
+#### 3.0.0-beta0014 - 24.07.2016
+* Fix runtime errors and code cleanup
+
 #### 3.0.0-beta0013 - 23.07.2016
 * Subscribers now care for MessageTypes of System.Type
 

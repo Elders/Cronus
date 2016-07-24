@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.Pipeline.Transport;
-using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
 using Elders.Cronus.Netflix;
@@ -13,27 +12,21 @@ namespace Elders.Cronus.Pipeline
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(EndpointConsumer));
 
-        private readonly SubscriptionMiddleware subscriptions;
-
-        private readonly IPipelineTransport transport;
-
-        private readonly IEndpontCircuitBreakerFactrory circuitBreakerFactory;
-        private readonly List<WorkPool> pools;
-        private readonly ISerializer serializer;
-        private readonly MessageThreshold messageThreshold;
+        readonly SubscriptionMiddleware subscriptions;
+        readonly IPipelineTransport transport;
+        readonly List<WorkPool> pools;
+        readonly ISerializer serializer;
+        readonly MessageThreshold messageThreshold;
 
         public int NumberOfWorkers { get; set; }
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EndpointConsumer"/> class.
         /// </summary>
         /// <param name="transport">The transport.</param>
-        /// <param name="messageProcessor">The message processor.</param>
         /// <param name="serializer">The serializer.</param>
         /// <param name="messageThreshold">The message threshold.</param>
-        /// <param name="circuitBreakerFactory">The circuit breaker factory.</param>
-        public EndpointConsumer(IPipelineTransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, MessageThreshold messageThreshold, IEndpontCircuitBreakerFactrory circuitBreakerFactory)
+        public EndpointConsumer(IPipelineTransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, MessageThreshold messageThreshold)
         {
             NumberOfWorkers = 1;
             this.subscriptions = subscriptions;
@@ -41,7 +34,7 @@ namespace Elders.Cronus.Pipeline
             pools = new List<WorkPool>();
             this.serializer = serializer;
             this.messageThreshold = messageThreshold;
-            this.circuitBreakerFactory = circuitBreakerFactory;
+
         }
 
         public void Start(int? numberOfWorkers = null)
@@ -58,7 +51,7 @@ namespace Elders.Cronus.Pipeline
                 for (int i = 0; i < workers; i++)
                 {
                     IEndpoint endpoint = transport.EndpointFactory.CreateEndpoint(endpointDefinition);
-                    pool.AddWork(new PipelineConsumerWork(subscriptions, endpoint, serializer, messageThreshold, circuitBreakerFactory.Create(transport, serializer, endpointDefinition)));
+                    pool.AddWork(new PipelineConsumerWork(subscriptions, endpoint, serializer, messageThreshold));
                 }
                 pools.Add(pool);
                 pool.StartCrawlers();

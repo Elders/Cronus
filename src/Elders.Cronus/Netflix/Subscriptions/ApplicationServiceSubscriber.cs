@@ -42,11 +42,12 @@ namespace Elders.Cronus.Netflix
             }
             catch (Exception ex)
             {
-                message.Errors.Add(new FeedError()
-                {
-                    Origin = new ErrorOrigin(Id, ErrorOriginType.MessageHandler),
-                    Error = new SerializableException(ex)
-                });
+                throw;
+                //message.Errors.Add(new FeedError()
+                //{
+                //    Origin = new ErrorOrigin(Id, ErrorOriginType.MessageHandler),
+                //    Error = new SerializableException(ex)
+                //});
             }
         }
 

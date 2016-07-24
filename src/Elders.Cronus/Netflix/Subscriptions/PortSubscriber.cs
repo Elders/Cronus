@@ -1,11 +1,9 @@
 ﻿using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessingMiddleware;
-using Elders.Cronus.Pipeline.CircuitBreaker;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Netflix
 {
@@ -45,11 +43,12 @@ namespace Elders.Cronus.Netflix
             }
             catch (Exception ex)
             {
-                message.Errors.Add(new FeedError()
-                {
-                    Origin = new ErrorOrigin(Id, ErrorOriginType.MessageHandler),
-                    Error = new SerializableException(ex)
-                });
+                throw;
+                //message.Errors.Add(new FeedError()
+                //{
+                //    Origin = new ErrorOrigin(Id, ErrorOriginType.MessageHandler),
+                //    Error = new SerializableException(ex)
+                //});
                 log.FatalException("No retries...", ex);
             }
         }

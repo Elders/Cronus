@@ -1,8 +1,4 @@
-﻿using Elders.Cronus.DomainModeling;
-using Elders.Cronus.Logging;
-using Elders.Cronus.MessageProcessingMiddleware;
-using Elders.Cronus.Middleware;
-using Elders.Cronus.Pipeline.CircuitBreaker;
+﻿using Elders.Cronus.Middleware;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -12,7 +8,7 @@ namespace Elders.Cronus.Netflix
 {
     public class SubscriptionMiddleware
     {
-        private ConcurrentBag<ISubscriber> subscribers;
+        ConcurrentBag<ISubscriber> subscribers;
 
         public SubscriptionMiddleware()
         {
@@ -31,7 +27,7 @@ namespace Elders.Cronus.Netflix
 
         public IEnumerable<ISubscriber> GetInterestedSubscribers(CronusMessage message)
         {
-            return Subscribers.Where(subscriber => subscriber.MessageTypes.Contains(message.Payload.Payload.GetType()));
+            return Subscribers.Where(subscriber => subscriber.MessageTypes.Contains(message.Payload.GetType()));
         }
 
         public IEnumerable<ISubscriber> Subscribers { get { return subscribers.ToList(); } }

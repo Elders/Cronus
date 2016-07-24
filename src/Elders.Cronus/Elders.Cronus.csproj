@@ -36,7 +36,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Elders.Cronus.DomainModeling, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cronus.DomainModeling.3.0.2\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
+      <HintPath>..\packages\Cronus.DomainModeling.3.1.0-beta0001\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Elders.Multithreading.Scheduler, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
@@ -82,7 +82,6 @@
     <Compile Include="IocContainer\IContainer.cs" />
     <Compile Include="IocContainer\MappingKey.cs" />
     <Compile Include="MessageProcessingMiddleware\ApplicationServiceMiddleware.cs" />
-    <Compile Include="MessageProcessingMiddleware\CronusMessageProcessorMiddleware.cs" />
     <Compile Include="MessageProcessingMiddleware\IFeedResult.cs" />
     <Compile Include="MessageProcessingMiddleware\IHandlerFactory.cs" />
     <Compile Include="MessageProcessingMiddleware\PortsMiddleware.cs" />
@@ -102,11 +101,6 @@
     <Compile Include="Netflix\Subscriptions\ProjectionSubscriber.cs" />
     <Compile Include="Netflix\Subscriptions\SubscriptionMiddleware.cs" />
     <Compile Include="ObjectExtensions.cs" />
-    <Compile Include="Pipeline\CircuitBreaker\DefaultCircuitBreakerFactory.cs" />
-    <Compile Include="Pipeline\CircuitBreaker\IEndpontCircuitBreakerFactrory.cs" />
-    <Compile Include="Pipeline\CircuitBreaker\EndpointPostConsumeStrategy.cs" />
-    <Compile Include="Pipeline\CircuitBreaker\DefaultEndpointCircuitBreaker.cs" />
-    <Compile Include="Pipeline\CircuitBreaker\IEndpointCircuitBreaker.cs" />
     <Compile Include="EventStore\AggregateCommit.cs" />
     <Compile Include="EventStore\Config\IEventStoreSettings.cs" />
     <Compile Include="EventStore\IEventStore.cs" />
@@ -120,9 +114,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Pipeline\Config\IConsumerSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Pipeline\CircuitBreaker\EndpointCircuitBreakerExtensions.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Pipeline\Config\IHaveMessageProcessor.cs">
@@ -151,7 +142,6 @@
     <Compile Include="CronusAssembly.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
     <Compile Include="Pipeline\EndpointClosedException.cs" />
-    <Compile Include="Pipeline\CircuitBreaker\IEndpointConsumerErrorStrategy.cs" />
     <Compile Include="Pipeline\PipelineConsumerWork.cs" />
     <Compile Include="Pipeline\Hosts\CronusSettings.cs" />
     <Compile Include="Pipeline\EndpointConsumer.cs" />
@@ -162,7 +152,6 @@
     <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineFactory.cs" />
     <Compile Include="Pipeline\PipelineClosedException.cs" />
     <Compile Include="Pipeline\Transport\InMemory\Config\InMemory.cs" />
-    <Compile Include="Pipeline\EndpointMessageExtensions.cs" />
     <Compile Include="Publisher.cs" />
     <Compile Include="TransportMessage.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Logging;
 using Elders.Cronus.Netflix;
@@ -19,7 +18,7 @@ namespace Elders.Cronus.InMemory
 
         protected override bool PublishInternal(TContract message, Dictionary<string, string> messageHeaders)
         {
-            subscribtions.GetInterestedSubscribers(new CronusMessage(new Message(message, messageHeaders)));
+            subscribtions.GetInterestedSubscribers(new CronusMessage(message, messageHeaders));
             return true;
         }
     }
