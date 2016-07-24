@@ -78,7 +78,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T RegisterAllEventHandlersInAssembly<T>(this T self, Assembly[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : ISubscrptionMiddlewareSettings<IEvent>
         {
-            var eventHandlers = messageHandlers.SelectMany(x => x.GetTypes()).Where(x => x.GetInterfaces().Any(y => y.IsGenericTypeDefinition && y.GetGenericTypeDefinition() == typeof(IEventHandler<>))).ToList();
+            var eventHandlers = messageHandlers.SelectMany(x => x.GetTypes()).Where(x => x.GetInterfaces().Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(IEventHandler<>))).ToList();
             self.HandlerRegistrations = eventHandlers;
             self.HandlerFactory = messageHandlerFactory;
             return self;
@@ -86,7 +86,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T RegisterAllCommandHandlersInAssembly<T>(this T self, Assembly[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : ISubscrptionMiddlewareSettings<ICommand>
         {
-            var commandHandlers = messageHandlers.SelectMany(x => x.GetTypes()).Where(x => x.GetInterfaces().Any(y => y.IsGenericTypeDefinition && y.GetGenericTypeDefinition() == typeof(ICommandHandler<>))).ToList();
+            var commandHandlers = messageHandlers.SelectMany(x => x.GetTypes()).Where(t => t.GetInterfaces().Any(y => y.IsGenericType && y.GetGenericTypeDefinition() == typeof(ICommandHandler<>))).ToList();
             self.HandlerRegistrations = commandHandlers;
             self.HandlerFactory = messageHandlerFactory;
             return self;

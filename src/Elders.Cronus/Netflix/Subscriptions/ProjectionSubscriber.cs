@@ -21,7 +21,7 @@ namespace Elders.Cronus.Netflix
 
             this.handlerType = handlerType;
             this.handlerMiddleware = handlerMiddleware;
-            if ((handlerType is IProjection) == false)
+            if (typeof(IProjection).IsAssignableFrom(handlerType) == false)
                 throw new ArgumentException($"'{handlerType.FullName}' does not implement IProjection");
             Id = handlerType.FullName;
             MessageTypes = GetInvolvedMessageTypes(handlerType).ToList();
@@ -52,10 +52,10 @@ namespace Elders.Cronus.Netflix
             }
         }
 
-        private IEnumerable<Type> GetInvolvedMessageTypes(Type handlerType)
+        private IEnumerable<Type> GetInvolvedMessageTypes(Type type)
         {
             var ieventHandler = typeof(IEventHandler<>);
-            var interfaces = handlerType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler);
+            var interfaces = type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler);
             foreach (var @interface in interfaces)
             {
                 Type eventType = @interface.GetGenericArguments().FirstOrDefault();

@@ -23,7 +23,7 @@ namespace Elders.Cronus.Netflix
 
             this.handlerType = handlerType;
             this.handlerMiddleware = handlerMiddleware;
-            if ((handlerType is IPort) == false)
+            if (typeof(IPort).IsAssignableFrom(handlerType) == false)
                 throw new ArgumentException($"'{handlerType.FullName}' does not implement IProjection");
             Id = handlerType.FullName;
             MessageTypes = GetInvolvedMessageTypes(handlerType).ToList();

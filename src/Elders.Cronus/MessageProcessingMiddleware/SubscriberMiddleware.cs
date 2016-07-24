@@ -39,7 +39,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
         protected override void Run(Execution<Message> middlewareControl)
         {
             var message = middlewareControl.Context;
-            MessageHandlerMiddleware.Run(new HandlerContext(message.Payload, messageHandlerType));
+            MessageHandlerMiddleware.Run(new HandlerContext(message, messageHandlerType));
             log.Info(() => message.Payload.ToString());
             log.Debug(() => "HANDLE => " + messageHandlerType.Name + "( " + BuildDebugLog(message) + " )");
         }
@@ -84,13 +84,13 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
     public class HandlerContext
     {
-        public HandlerContext(object message, Type handlerType)
+        public HandlerContext(Message message, Type handlerType)
         {
             Message = message;
             HandlerType = handlerType;
         }
 
-        public object Message { get; private set; }
+        public Message Message { get; private set; }
 
         public Type HandlerType { get; private set; }
     }

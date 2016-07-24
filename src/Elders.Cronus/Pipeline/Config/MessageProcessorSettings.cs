@@ -35,7 +35,8 @@ namespace Elders.Cronus.Pipeline.Config
                 var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
                 foreach (var reg in processorSettings.HandlerRegistrations)
                 {
-                    subscriptionMiddleware.Subscribe(new Netflix.ProjectionSubscriber(reg, projectionsMiddleware));
+                    if (typeof(IProjection).IsAssignableFrom(reg))
+                        subscriptionMiddleware.Subscribe(new Netflix.ProjectionSubscriber(reg, projectionsMiddleware));
                 }
                 return subscriptionMiddleware;
             };
@@ -71,7 +72,8 @@ namespace Elders.Cronus.Pipeline.Config
                 var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
                 foreach (var reg in (this as ISubscrptionMiddlewareSettings<IEvent>).HandlerRegistrations)
                 {
-                    subscriptionMiddleware.Subscribe(new Netflix.PortSubscriber(reg, portsMiddleware));
+                    if (typeof(IPort).IsAssignableFrom(reg))
+                        subscriptionMiddleware.Subscribe(new Netflix.PortSubscriber(reg, portsMiddleware));
                 }
                 return subscriptionMiddleware;
             };
@@ -110,7 +112,8 @@ namespace Elders.Cronus.Pipeline.Config
                 var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
                 foreach (var reg in (this as ISubscrptionMiddlewareSettings<ICommand>).HandlerRegistrations)
                 {
-                    subscriptionMiddleware.Subscribe(new Netflix.ApplicationServiceSubscriber(reg, applicationServiceMiddleware));
+                    if (typeof(IAggregateRootApplicationService).IsAssignableFrom(reg))
+                        subscriptionMiddleware.Subscribe(new Netflix.ApplicationServiceSubscriber(reg, applicationServiceMiddleware));
                 }
                 return subscriptionMiddleware;
             };
