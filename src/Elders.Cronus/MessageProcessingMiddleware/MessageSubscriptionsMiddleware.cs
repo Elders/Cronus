@@ -14,16 +14,9 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             subscriptions = new List<SubscriberMiddleware>();
         }
 
-        protected override IEnumerable<SubscriberMiddleware> Run(Execution<Type, IEnumerable<SubscriberMiddleware>> execution)
-        {
-            return from subscription in subscriptions
-                   where execution.Context == subscription.MessageType
-                   select subscription;
-        }
-
         public IDisposable Subscribe(SubscriberMiddleware subscriber)
         {
-            if (!subscriptions.Contains(subscriber))
+            if (subscriptions.Contains(subscriber) == false)
             {
                 subscriptions.Add(subscriber);
             }
@@ -33,6 +26,22 @@ namespace Elders.Cronus.MessageProcessingMiddleware
         public IEnumerable<SubscriberMiddleware> GetSubscriptions()
         {
             return subscriptions.AsReadOnly();
+        }
+
+        public void Dispose()
+        {
+            foreach (var subscription in subscriptions.ToArray())
+                if (subscriptions.Contains(subscription))
+                    subscription.OnCompleted();
+
+            subscriptions.Clear();
+        }
+
+        protected override IEnumerable<SubscriberMiddleware> Run(Execution<Type, IEnumerable<SubscriberMiddleware>> execution)
+        {
+            return from subscription in subscriptions
+                   where execution.Context == subscription.MessageType
+                   select subscription;
         }
 
         private class Subscription : IDisposable
@@ -51,15 +60,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
                 if (subscription != null && subscriptions.Contains(subscription))
                     subscriptions.Remove(subscription);
             }
-        }
-
-        public void Dispose()
-        {
-            foreach (var subscription in subscriptions.ToArray())
-                if (subscriptions.Contains(subscription))
-                    subscription.OnCompleted();
-
-            subscriptions.Clear();
         }
     }
 }

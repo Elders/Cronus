@@ -15,9 +15,9 @@ namespace Elders.Cronus.Middleware
 
     public class Execution<TContext> : IEnumerator<AbstractMiddleware<TContext>>
     {
-        private LinkedList<AbstractMiddleware<TContext>> executionQueue;
+        LinkedList<AbstractMiddleware<TContext>> executionQueue;
 
-        private AbstractMiddleware<TContext> current;
+        AbstractMiddleware<TContext> current;
 
         public TContext Context { get; private set; }
 

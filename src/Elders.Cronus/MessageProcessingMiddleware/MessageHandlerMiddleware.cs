@@ -55,7 +55,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             catch (Exception ex)
             {
                 Error.Run(new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType));
-                throw ex;// Throwing the exception becouse the retries are currently not here :)
+                throw;// Throwing the exception becouse the retries are currently not here :)
             }
         }
 

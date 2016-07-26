@@ -82,7 +82,6 @@
     <Compile Include="IocContainer\IContainer.cs" />
     <Compile Include="IocContainer\MappingKey.cs" />
     <Compile Include="MessageProcessingMiddleware\ApplicationServiceMiddleware.cs" />
-    <Compile Include="MessageProcessingMiddleware\IFeedResult.cs" />
     <Compile Include="MessageProcessingMiddleware\IHandlerFactory.cs" />
     <Compile Include="MessageProcessingMiddleware\PortsMiddleware.cs" />
     <Compile Include="MessageProcessingMiddleware\ProjectionsMiddleware.cs" />
@@ -95,6 +94,7 @@
     <Compile Include="Middleware\Middleware.cs" />
     <Compile Include="Middleware\Execution.cs" />
     <Compile Include="Middleware\MiddlewareExtensions.cs" />
+    <Compile Include="Netflix\Subscriptions\HandleSubscriber.cs" />
     <Compile Include="Netflix\Subscriptions\ApplicationServiceSubscriber.cs" />
     <Compile Include="Netflix\Subscriptions\ISubscriber.cs" />
     <Compile Include="Netflix\Subscriptions\PortSubscriber.cs" />

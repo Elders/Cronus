@@ -13,7 +13,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
     public class ApplicationServiceMiddleware : MessageHandlerMiddleware
     {
-        private readonly IAggregateRepository aggregateRepository;
+        readonly IAggregateRepository aggregateRepository;
 
         public ApplicationServiceMiddleware(IHandlerFactory factory, IAggregateRepository aggregateRepository, IPublisher<IEvent> eventPublisher) : base(factory)
         {
@@ -26,8 +26,8 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         class RepositoryProxy : IAggregateRepository
         {
-            private readonly IAggregateRepository aggregateRepository;
-            private readonly IPublisher<IEvent> eventPublisher;
+            readonly IAggregateRepository aggregateRepository;
+            readonly IPublisher<IEvent> eventPublisher;
 
             public RepositoryProxy(IAggregateRepository repository, IPublisher<IEvent> eventPublisher)
             {

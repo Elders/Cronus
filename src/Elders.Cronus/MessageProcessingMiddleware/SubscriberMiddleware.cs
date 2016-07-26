@@ -17,10 +17,10 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public SubscriberMiddleware(string name, Type messageType, Type handlerType, MessageHandlerMiddleware messageHandlerMiddleware)
         {
+            Name = name;
             MessageType = messageType;
             messageHandlerType = handlerType;
             Id = BuildId();
-            Name = name;
             MessageHandlerMiddleware = messageHandlerMiddleware;
         }
 
@@ -44,14 +44,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             log.Debug(() => "HANDLE => " + messageHandlerType.Name + "( " + BuildDebugLog(message) + " )");
         }
 
-        string BuildDebugLog(IMessage message)
-        {
-            if (ReferenceEquals(null, message))
-                return message + $" |=> {Id}";
-
-            return message.ToString($"{message.ToString()} |=> {Id}");
-        }
-
         public void OnCompleted()
         {
             this.Unsubscribe();
@@ -62,7 +54,7 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             if (provider != null)
             {
                 subscription = provider.Subscribe(this);
-                log.Debug(() => $"Subscriber '{Name}' with id {Id} and handler {messageHandlerType} subscribed for message {MessageType} in {provider}");
+                log.Debug(() => $"Subscriber '{Name}' with id '{Id}' and handler '{messageHandlerType}' subscribed for message '{MessageType}' in '{provider}'");
             }
         }
 
@@ -77,6 +69,14 @@ namespace Elders.Cronus.MessageProcessingMiddleware
         protected string BuildId()
         {
             return messageHandlerType.FullName;
+        }
+
+        private string BuildDebugLog(IMessage message)
+        {
+            if (ReferenceEquals(null, message))
+                return message + $" |=> {Id}";
+
+            return message.ToString($"{message.ToString()} |=> {Id}");
         }
     }
 

@@ -19,8 +19,8 @@ namespace Elders.Cronus.Netflix
         {
             if (ReferenceEquals(null, subscriber)) throw new ArgumentNullException(nameof(subscriber));
             if (ReferenceEquals(null, subscriber.MessageTypes)) throw new ArgumentNullException(nameof(subscriber.MessageTypes));
-            if (subscriber.MessageTypes.Any() == false) throw new ArgumentException($"Subscirber {subscriber.Id} does not care about any message types. Any reason?");
-            if (subscribers.Any(x => x.Id == subscriber.Id)) throw new ArgumentException($"There is already subscriber with id {subscriber.Id}");
+            if (subscriber.MessageTypes.Any() == false) throw new ArgumentException($"Subscirber '{subscriber.Id}' does not care about any message types. Any reason?");
+            if (subscribers.Any(x => x.Id == subscriber.Id)) throw new ArgumentException($"There is already subscriber with id '{subscriber.Id}'");
 
             subscribers.Add(subscriber);
         }
