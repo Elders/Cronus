@@ -1,3 +1,6 @@
+#### 3.0.0-beta0019 - 24.07.2016
+* Bump version
+
 #### 3.0.0-beta0018 - 24.07.2016
 * Removing forgoton exceptions
 
