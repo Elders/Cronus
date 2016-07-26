@@ -11,10 +11,11 @@ namespace Elders.Cronus.Pipeline.Config
 {
     public static class MiddlewareExtensions
     {
-        public static void Middleware<T>(this ISubscrptionMiddlewareSettings<T> self, Func<Middleware<HandleContext>, Middleware<HandleContext>> middlewareConfig)
+        public static ISubscrptionMiddlewareSettings<T> Middleware<T>(this ISubscrptionMiddlewareSettings<T> self, Func<Middleware<HandleContext>, Middleware<HandleContext>> middlewareConfig)
             where T : IMessage
         {
             self.HandleMiddleware = middlewareConfig;
+            return self;
         }
     }
 
