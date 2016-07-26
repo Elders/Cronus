@@ -20,8 +20,7 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class RetryExtensions
     {
-        public static Middleware<HandleContext> UseRetries<T>(this Middleware<HandleContext> self)
-            where T : IMessage
+        public static Middleware<HandleContext> UseRetries(this Middleware<HandleContext> self)
         {
             return new InMemoryRetryMiddleware(self);
         }
