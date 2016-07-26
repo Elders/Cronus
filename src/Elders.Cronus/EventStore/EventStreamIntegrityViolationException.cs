@@ -4,13 +4,13 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.EventStore
 {
     /// <summary>
-    /// 
+    ///
     /// </summary>
     [Serializable]
     public class EventStreamIntegrityViolationException : Exception
     {
         /// <summary>
-        /// Constructs a new AggregateStateFirstLevelConcurrencyException.
+        /// Constructs a new EventStreamIntegrityViolationException.
         /// </summary>
         /// <param name="message">The exception message</param>
         /// <param name="innerException">The inner exception</param>
@@ -19,7 +19,7 @@ namespace Elders.Cronus.EventStore
         { }
 
         /// <summary>
-        /// Constructs a new AggregateStateFirstLevelConcurrencyException.
+        /// Constructs a new EventStreamIntegrityViolationException.
         /// </summary>
         /// <param name="message">The exception message</param>
         public EventStreamIntegrityViolationException(string message) : base(message) { }
@@ -32,7 +32,7 @@ namespace Elders.Cronus.EventStore
         { }
 
         /// <summary>
-        /// Constructs a new AggregateStateFirstLevelConcurrencyException.
+        /// Constructs a new EventStreamIntegrityViolationException.
         /// </summary>
         public EventStreamIntegrityViolationException() { }
 
