@@ -21,9 +21,9 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class RetryExtensions
     {
-        public static Middleware<HandleContext> UseRetries(this Middleware<HandleContext> self)
+        public static Middleware<TContext> UseRetries<TContext>(this Middleware<TContext> self)
         {
-            return new InMemoryRetryMiddleware(self);
+            return new InMemoryRetryMiddleware<TContext>(self);
         }
     }
 

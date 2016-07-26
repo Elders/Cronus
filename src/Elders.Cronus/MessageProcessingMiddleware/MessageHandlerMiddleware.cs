@@ -17,11 +17,16 @@ namespace Elders.Cronus.MessageProcessingMiddleware
     public class MessageHandlerMiddleware : Middleware<HandleContext>
     {
         static ILog log = LogProvider.GetLogger(typeof(MessageHandlerMiddleware));
+
         public Middleware<Type, IHandlerInstance> CreateHandler { get; private set; }
 
         public Middleware<HandlerContext> BeginHandle { get; private set; }
 
         public Middleware<HandlerContext> EndHandle { get; private set; }
+
+        public Middleware<ErrorContext> Error { get; private set; }
+
+        public Middleware<HandleContext> Finalize { get; private set; }
 
         /// <summary>
         /// Why cant we inject this from the constructor?
@@ -32,8 +37,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
         {
             ActualHandle = handle(ActualHandle);
         }
-
-        public Middleware<ErrorContext> Error { get; private set; }
 
         public MessageHandlerMiddleware(IHandlerFactory factory)
         {
@@ -46,7 +49,10 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             EndHandle = MiddlewareExtensions.Lamda<HandlerContext>();
 
             Error = MiddlewareExtensions.Lamda<ErrorContext>();
+
+            Finalize = MiddlewareExtensions.Lamda<HandleContext>();
         }
+
         protected override void Run(Execution<HandleContext> execution)
         {
             try
@@ -63,6 +69,11 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             catch (Exception ex)
             {
                 Error.Run(new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType));
+                throw;
+            }
+            finally
+            {
+                Finalize.Run(execution.Context);
             }
         }
 

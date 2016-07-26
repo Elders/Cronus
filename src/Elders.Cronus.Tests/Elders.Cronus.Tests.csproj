@@ -98,7 +98,6 @@
     <Compile Include="Middleware\TestExecutionChain.cs" />
     <Compile Include="Middleware\TestMiddleware.cs" />
     <Compile Include="TestModel\TestEntityId.cs" />
-    <Compile Include="TestModel\TestSubscription.cs" />
     <Compile Include="TestModel\TestAggregateId.cs" />
     <Compile Include="TestModel\TestAggregateRoot.cs" />
     <Compile Include="TestModel\TestAggregateRootState.cs" />
