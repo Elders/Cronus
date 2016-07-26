@@ -1,4 +1,7 @@
 #### 3.0.0-beta0017 - 24.07.2016
+* Removing forgoton exceptions
+
+#### 3.0.0-beta0017 - 24.07.2016
 * Yet another cfg modification
 
 #### 3.0.0-beta0016 - 24.07.2016
