@@ -37,7 +37,7 @@ namespace Elders.Cronus.Netflix
         {
             try
             {
-                var context = new HandlerContext(message.Payload, handlerType);
+                var context = new HandleContext(message, handlerType);
                 handlerMiddleware.Run(context);
             }
             catch (Exception ex)

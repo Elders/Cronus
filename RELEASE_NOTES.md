@@ -1,3 +1,6 @@
+#### 3.0.0-beta0015 - 24.07.2016
+* Using Umbraco InMemoryRetries
+
 #### 3.0.0-beta0014 - 24.07.2016
 * Fix runtime errors and code cleanup
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
+using Elders.Cronus.Errorrrr;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessingMiddleware;
 using Elders.Cronus.Middleware;
@@ -8,18 +9,36 @@ using Elders.Cronus.Netflix;
 
 namespace Elders.Cronus.Pipeline.Config
 {
+    public static class MiddlewareExtensions
+    {
+        public static void Middleware<T>(this ISubscrptionMiddlewareSettings<T> self, Func<Middleware<HandleContext>, Middleware<HandleContext>> middlewareConfig)
+            where T : IMessage
+        {
+            self.HandleMiddleware = middlewareConfig;
+        }
+    }
+
+    public static class RetryExtensions
+    {
+        public static Middleware<HandleContext> UseRetries<T>(this Middleware<HandleContext> self)
+            where T : IMessage
+        {
+            return new InMemoryRetryMiddleware(self);
+        }
+    }
+
     public class ProjectionMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<IEvent>
     {
         public ProjectionMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
-            (this as ISubscrptionMiddlewareSettings<IEvent>).ActualHandle = new DynamicMessageHandle();
+            (this as ISubscrptionMiddlewareSettings<IEvent>).HandleMiddleware = (x) => x;
         }
 
         List<Type> ISubscrptionMiddlewareSettings<IEvent>.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings<IEvent>.HandlerFactory { get; set; }
 
-        Middleware<MessageHandlerMiddleware.HandleContext> ISubscrptionMiddlewareSettings<IEvent>.ActualHandle { get; set; }
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings<IEvent>.HandleMiddleware { get; set; }
 
         public override void Build()
         {
@@ -30,13 +49,12 @@ namespace Elders.Cronus.Pipeline.Config
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
 
                 var projectionsMiddleware = new ProjectionsMiddleware(handlerFactory);
-                var actualHandleHook = (this as ISubscrptionMiddlewareSettings<IEvent>).ActualHandle;
-                projectionsMiddleware.ActualHandle = actualHandleHook;
+                var middleware = processorSettings.HandleMiddleware(projectionsMiddleware);
                 var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
                 foreach (var reg in processorSettings.HandlerRegistrations)
                 {
                     if (typeof(IProjection).IsAssignableFrom(reg))
-                        subscriptionMiddleware.Subscribe(new Netflix.ProjectionSubscriber(reg, projectionsMiddleware));
+                        subscriptionMiddleware.Subscribe(new HandleSubscriber<IProjection, IEventHandler<IEvent>>(reg, middleware));
                 }
                 return subscriptionMiddleware;
             };
@@ -48,14 +66,14 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public PortMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
-            (this as ISubscrptionMiddlewareSettings<IEvent>).ActualHandle = new DynamicMessageHandle();
+            (this as ISubscrptionMiddlewareSettings<IEvent>).HandleMiddleware = (x) => x;
         }
 
         List<Type> ISubscrptionMiddlewareSettings<IEvent>.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings<IEvent>.HandlerFactory { get; set; }
 
-        Middleware<MessageHandlerMiddleware.HandleContext> ISubscrptionMiddlewareSettings<IEvent>.ActualHandle { get; set; }
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings<IEvent>.HandleMiddleware { get; set; }
 
         public override void Build()
         {
@@ -65,15 +83,13 @@ namespace Elders.Cronus.Pipeline.Config
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
                 var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
-
                 var portsMiddleware = new PortsMiddleware(handlerFactory, publisher);
-                var actualHandleHook = (this as ISubscrptionMiddlewareSettings<IEvent>).ActualHandle;
-                portsMiddleware.ActualHandle = actualHandleHook;
+                var middleware = processorSettings.HandleMiddleware(portsMiddleware);
                 var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
                 foreach (var reg in (this as ISubscrptionMiddlewareSettings<IEvent>).HandlerRegistrations)
                 {
                     if (typeof(IPort).IsAssignableFrom(reg))
-                        subscriptionMiddleware.Subscribe(new Netflix.PortSubscriber(reg, portsMiddleware));
+                        subscriptionMiddleware.Subscribe(new HandleSubscriber<IPort, IEventHandler<IEvent>>(reg, middleware));
                 }
                 return subscriptionMiddleware;
             };
@@ -85,14 +101,14 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public ApplicationServiceMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
-            (this as ISubscrptionMiddlewareSettings<ICommand>).ActualHandle = new DynamicMessageHandle();
+            (this as ISubscrptionMiddlewareSettings<ICommand>).HandleMiddleware = (x) => x;
         }
 
         List<Type> ISubscrptionMiddlewareSettings<ICommand>.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings<ICommand>.HandlerFactory { get; set; }
 
-        Middleware<MessageHandlerMiddleware.HandleContext> ISubscrptionMiddlewareSettings<ICommand>.ActualHandle { get; set; }
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings<ICommand>.HandleMiddleware { get; set; }
 
         public override void Build()
         {
@@ -106,14 +122,12 @@ namespace Elders.Cronus.Pipeline.Config
 
                 //create extension methis UseApplicationMiddleware instead of instance here.
                 var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
-                applicationServiceMiddleware.ActualHandle = (this as ISubscrptionMiddlewareSettings<ICommand>).ActualHandle;
-
-
+                var middleware = processorSettings.HandleMiddleware(applicationServiceMiddleware);
                 var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
                 foreach (var reg in (this as ISubscrptionMiddlewareSettings<ICommand>).HandlerRegistrations)
                 {
                     if (typeof(IAggregateRootApplicationService).IsAssignableFrom(reg))
-                        subscriptionMiddleware.Subscribe(new Netflix.ApplicationServiceSubscriber(reg, applicationServiceMiddleware));
+                        subscriptionMiddleware.Subscribe(new HandleSubscriber<IAggregateRootApplicationService, ICommandHandler<ICommand>>(reg, middleware));
                 }
                 return subscriptionMiddleware;
             };

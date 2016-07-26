@@ -3,16 +3,20 @@ using Elders.Cronus.MessageProcessingMiddleware;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Elders.Cronus.Logging;
+using Elders.Cronus.Middleware;
 
 namespace Elders.Cronus.Netflix
 {
     public class HandleSubscriber<T, V> : ISubscriber
     {
-        readonly MessageHandlerMiddleware handlerMiddleware;
+        static ILog log = LogProvider.GetLogger(typeof(HandleSubscriber<,>));
+
+        readonly Middleware<HandleContext> handlerMiddleware;
 
         readonly Type handlerType;
 
-        public HandleSubscriber(Type handlerType, ApplicationServiceMiddleware handlerMiddleware)
+        public HandleSubscriber(Type handlerType, Middleware<HandleContext> handlerMiddleware)
         {
             if (handlerMiddleware == null) throw new ArgumentNullException(nameof(handlerMiddleware));
 
@@ -26,6 +30,11 @@ namespace Elders.Cronus.Netflix
 
         }
 
+        private string BuildDebugLog(CronusMessage message)
+        {
+            return message.Payload.ToString($"{message.Payload.ToString()} |=> @subscriber '{Id}'");
+        }
+
         public string Id { get; private set; }
 
         /// <summary>
@@ -35,20 +44,15 @@ namespace Elders.Cronus.Netflix
 
         public void Process(CronusMessage message)
         {
-            try
-            {
-                var context = new HandlerContext(message.Payload, handlerType);
-                handlerMiddleware.Run(context);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            var context = new HandleContext(message, handlerType);
+            handlerMiddleware.Run(context);
+            log.Info(() => message.Payload.ToString());
+            log.Debug(() => "HANDLE => " + handlerType.Name + "( " + BuildDebugLog(message) + " )");
         }
 
         private IEnumerable<Type> GetInvolvedMessageTypes(Type type)
         {
-            var ieventHandler = typeof(V);
+            var ieventHandler = typeof(V).GetGenericTypeDefinition();
             var interfaces = type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler);
             foreach (var @interface in interfaces)
             {

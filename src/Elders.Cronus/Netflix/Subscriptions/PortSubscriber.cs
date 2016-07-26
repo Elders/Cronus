@@ -36,21 +36,8 @@ namespace Elders.Cronus.Netflix
 
         public void Process(CronusMessage message)
         {
-            try
-            {
-                var context = new HandlerContext(message.Payload, handlerType);
-                handlerMiddleware.Run(context);
-            }
-            catch (Exception ex)
-            {
-                throw;
-                //message.Errors.Add(new FeedError()
-                //{
-                //    Origin = new ErrorOrigin(Id, ErrorOriginType.MessageHandler),
-                //    Error = new SerializableException(ex)
-                //});
-                log.FatalException("No retries...", ex);
-            }
+            var context = new HandleContext(message, handlerType);
+            handlerMiddleware.Run(context);
         }
 
         private IEnumerable<Type> GetInvolvedMessageTypes(Type type)

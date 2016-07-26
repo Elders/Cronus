@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
+using Elders.Cronus.MessageProcessingMiddleware;
 using Elders.Cronus.Middleware;
 using static Elders.Cronus.MessageProcessingMiddleware.MessageHandlerMiddleware;
 
@@ -14,6 +15,6 @@ namespace Elders.Cronus.Pipeline.Config
 
         Func<Type, object> HandlerFactory { get; set; }
 
-        Middleware<HandleContext> ActualHandle { get; set; }
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> HandleMiddleware { get; set; }
     }
 }
