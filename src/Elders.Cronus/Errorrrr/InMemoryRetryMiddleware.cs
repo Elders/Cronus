@@ -23,7 +23,6 @@ namespace Elders.Cronus.Errorrrr
             {
                 middleware.Run(execution.Context);
             });
-            throw new NotImplementedException();
         }
     }
 }
