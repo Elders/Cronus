@@ -118,6 +118,7 @@
     <Compile Include="Pipeline\Config\EndpointConsumerRegistrations.cs" />
     <Compile Include="Pipeline\Config\IMessageHandlerFactory.cs" />
     <Compile Include="Pipeline\Config\InternalApplicationServiceFactory.cs" />
+    <Compile Include="Pipeline\Config\MiddlewareExtensions.cs" />
     <Compile Include="Pipeline\Config\PipelineConsumerSettings.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -139,6 +140,7 @@
     <Compile Include="Pipeline\Config\PipelinePublisherSettings.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Pipeline\Config\RetryExtensions.cs" />
     <Compile Include="Pipeline\Hosts\ICronusHost.cs" />
     <Compile Include="Pipeline\Hosts\CronusHost.cs" />
     <Compile Include="Pipeline\MessageThreshold.cs" />
@@ -161,7 +163,7 @@
     <Compile Include="Pipeline\PipelineClosedException.cs" />
     <Compile Include="Pipeline\Transport\InMemory\Config\InMemory.cs" />
     <Compile Include="Publisher.cs" />
-    <Compile Include="TransportMessage.cs" />
+    <Compile Include="CronusMessage.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
     <Compile Include="Pipeline\PipelinePublisher.cs" />
     <Compile Include="Userfull\FastActivator.cs" />

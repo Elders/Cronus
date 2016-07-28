@@ -1,31 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.FaultHandling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Middleware;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public static class MiddlewareExtensions
-    {
-        public static ISubscrptionMiddlewareSettings<T> Middleware<T>(this ISubscrptionMiddlewareSettings<T> self, Func<Middleware<HandleContext>, Middleware<HandleContext>> middlewareConfig)
-            where T : IMessage
-        {
-            self.HandleMiddleware = middlewareConfig;
-            return self;
-        }
-    }
-
-    public static class RetryExtensions
-    {
-        public static Middleware<TContext> UseRetries<TContext>(this Middleware<TContext> self)
-        {
-            return new InMemoryRetryMiddleware<TContext>(self);
-        }
-    }
-
     public class ProjectionMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<IEvent>
     {
         public ProjectionMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
@@ -134,7 +115,7 @@ namespace Elders.Cronus.Pipeline.Config
         }
     }
 
-    public static class MessageProcessorWithSafeBatchSettingsExtensions
+    public static class MessageProcessorSettingsExtensions
     {
         public static T UseProjections<T>(this T self, Action<ProjectionMessageProcessorSettings> configure) where T : IConsumerSettings<IEvent>
         {
