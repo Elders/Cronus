@@ -1,19 +1,9 @@
 ﻿using System;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Logging;
 using Elders.Cronus.Middleware;
 
-namespace Elders.Cronus.MessageProcessingMiddleware
+namespace Elders.Cronus.MessageProcessing
 {
-    public class DynamicMessageHandle : Middleware<MessageHandlerMiddleware.HandlerContext>
-    {
-        protected override void Run(Execution<MessageHandlerMiddleware.HandlerContext> execution)
-        {
-            dynamic handler = execution.Context.HandlerInstance;
-            handler.Handle((dynamic)execution.Context.Message);
-        }
-    }
-
     public class MessageHandlerMiddleware : Middleware<HandleContext>
     {
         static ILog log = LogProvider.GetLogger(typeof(MessageHandlerMiddleware));
@@ -28,9 +18,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
 
         public Middleware<HandleContext> Finalize { get; private set; }
 
-        /// <summary>
-        /// Why cant we inject this from the constructor?
-        /// </summary>
         public Middleware<HandlerContext> ActualHandle { get; private set; }
 
         public void OnHandle(Func<Middleware<HandlerContext>, Middleware<HandlerContext>> handle)
@@ -75,34 +62,6 @@ namespace Elders.Cronus.MessageProcessingMiddleware
             {
                 Finalize.Run(execution.Context);
             }
-        }
-
-        public class ErrorContext
-        {
-            public ErrorContext(Exception error, CronusMessage message, Type handlerType)
-            {
-                Error = error;
-                Message = message;
-                HandlerType = handlerType;
-            }
-
-            public Exception Error { get; private set; }
-
-            public CronusMessage Message { get; private set; }
-
-            public Type HandlerType { get; private set; }
-        }
-
-        public class HandlerContext
-        {
-            public HandlerContext(IMessage message, object handlerInstance)
-            {
-                Message = message;
-                HandlerInstance = handlerInstance;
-            }
-            public IMessage Message { get; private set; }
-
-            public object HandlerInstance { get; private set; }
         }
     }
 }

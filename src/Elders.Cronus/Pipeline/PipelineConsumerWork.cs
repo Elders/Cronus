@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Elders.Cronus.Serializer;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
-using Elders.Cronus.Netflix;
+using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline
 {

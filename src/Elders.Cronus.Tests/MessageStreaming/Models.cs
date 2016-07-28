@@ -1,6 +1,6 @@
 ﻿using System;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.MessageProcessingMiddleware;
+using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Tests.MessageStreaming
 {

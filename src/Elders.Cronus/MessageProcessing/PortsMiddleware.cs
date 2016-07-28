@@ -1,7 +1,7 @@
 ﻿using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Middleware;
 
-namespace Elders.Cronus.MessageProcessingMiddleware
+namespace Elders.Cronus.MessageProcessing
 {
     public class PortsMiddleware : MessageHandlerMiddleware
     {

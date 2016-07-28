@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.MessageProcessingMiddleware;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Middleware;
-using static Elders.Cronus.MessageProcessingMiddleware.MessageHandlerMiddleware;
 
 namespace Elders.Cronus.Pipeline.Config
 {

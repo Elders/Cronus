@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.FaultHandling;
 using Elders.Cronus.IocContainer;
-using Elders.Cronus.MessageProcessingMiddleware;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Middleware;
-using Elders.Cronus.Netflix;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -50,7 +49,7 @@ namespace Elders.Cronus.Pipeline.Config
 
                 var projectionsMiddleware = new ProjectionsMiddleware(handlerFactory);
                 var middleware = processorSettings.HandleMiddleware(projectionsMiddleware);
-                var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
+                var subscriptionMiddleware = new SubscriptionMiddleware();
                 foreach (var reg in processorSettings.HandlerRegistrations)
                 {
                     if (typeof(IProjection).IsAssignableFrom(reg))
@@ -85,7 +84,7 @@ namespace Elders.Cronus.Pipeline.Config
                 var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
                 var portsMiddleware = new PortsMiddleware(handlerFactory, publisher);
                 var middleware = processorSettings.HandleMiddleware(portsMiddleware);
-                var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
+                var subscriptionMiddleware = new SubscriptionMiddleware();
                 foreach (var reg in (this as ISubscrptionMiddlewareSettings<IEvent>).HandlerRegistrations)
                 {
                     if (typeof(IPort).IsAssignableFrom(reg))
@@ -123,7 +122,7 @@ namespace Elders.Cronus.Pipeline.Config
                 //create extension methis UseApplicationMiddleware instead of instance here.
                 var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
                 var middleware = processorSettings.HandleMiddleware(applicationServiceMiddleware);
-                var subscriptionMiddleware = new Netflix.SubscriptionMiddleware();
+                var subscriptionMiddleware = new SubscriptionMiddleware();
                 foreach (var reg in (this as ISubscrptionMiddlewareSettings<ICommand>).HandlerRegistrations)
                 {
                     if (typeof(IAggregateRootApplicationService).IsAssignableFrom(reg))

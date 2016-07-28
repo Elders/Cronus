@@ -7,7 +7,7 @@ using Elders.Cronus.Serializer;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.IntegrityValidation;
-using Elders.Cronus.Netflix;
+using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline.Config
 {

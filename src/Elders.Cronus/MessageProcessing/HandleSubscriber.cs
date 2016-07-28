@@ -1,12 +1,12 @@
 ﻿using Elders.Cronus.DomainModeling;
-using Elders.Cronus.MessageProcessingMiddleware;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.Logging;
 using Elders.Cronus.Middleware;
+using Elders.Cronus.MessageProcessing;
 
-namespace Elders.Cronus.Netflix
+namespace Elders.Cronus.MessageProcessing
 {
     public class HandleSubscriber<T, V> : ISubscriber
     {

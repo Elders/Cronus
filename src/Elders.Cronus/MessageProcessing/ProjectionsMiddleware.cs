@@ -1,4 +1,4 @@
-﻿namespace Elders.Cronus.MessageProcessingMiddleware
+﻿namespace Elders.Cronus.MessageProcessing
 {
     public class ProjectionsMiddleware : MessageHandlerMiddleware
     {

@@ -4,13 +4,8 @@ using System.Linq;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Middleware;
 
-namespace Elders.Cronus.MessageProcessingMiddleware
+namespace Elders.Cronus.MessageProcessing
 {
-    public class EventPublishContext
-    {
-        public IEnumerable<IEvent> Events { get; set; }
-    }
-
     public class ApplicationServiceMiddleware : MessageHandlerMiddleware
     {
         readonly IAggregateRepository aggregateRepository;

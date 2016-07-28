@@ -1,10 +1,9 @@
-﻿using Elders.Cronus.Middleware;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Elders.Cronus.Netflix
+namespace Elders.Cronus.MessageProcessing
 {
     public class SubscriptionMiddleware
     {
@@ -31,11 +30,6 @@ namespace Elders.Cronus.Netflix
         }
 
         public IEnumerable<ISubscriber> Subscribers { get { return subscribers.ToList(); } }
-
-        public void OnSubscribe(Middleware<ISubscriber> onSubscribe)
-        {
-            throw new NotImplementedException();
-        }
 
         public void UnsubscribeAll()
         {

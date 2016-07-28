@@ -4,7 +4,7 @@ using Elders.Cronus.Serializer;
 using Elders.Cronus.Pipeline.Transport;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
-using Elders.Cronus.Netflix;
+using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline
 {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline.Transport.InMemory
 {
@@ -18,7 +19,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             return transport.GetOrAddEndpoint(definition);
         }
 
-        public IEnumerable<EndpointDefinition> GetEndpointDefinition(Netflix.SubscriptionMiddleware subscriptionMiddleware)
+        public IEnumerable<EndpointDefinition> GetEndpointDefinition(SubscriptionMiddleware subscriptionMiddleware)
         {
             return endpointNameConvention.GetEndpointDefinition(subscriptionMiddleware);
         }

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Logging;
-using Elders.Cronus.Netflix;
+using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.InMemory
 {

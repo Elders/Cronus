@@ -1,9 +1,4 @@
-using System.Collections.Generic;
-using System.Linq;
-using Elders.Cronus.DomainModeling;
-using Elders.Cronus.Tests.TestModel;
 using Machine.Specifications;
-using Elders.Cronus.MessageProcessingMiddleware;
 
 namespace Elders.Cronus.Tests.MessageStreaming
 {

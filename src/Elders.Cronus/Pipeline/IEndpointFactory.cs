@@ -1,5 +1,5 @@
-using Elders.Cronus.Netflix;
 using System.Collections.Generic;
+using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline
 {
