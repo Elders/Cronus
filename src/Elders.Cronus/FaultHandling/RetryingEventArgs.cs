@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Umbraco.Core.Persistence.FaultHandling
+namespace Elders.Cronus.FaultHandling
 {
     /// <summary>
     /// Contains information required for the <see cref="RetryPolicy.Retrying"/> event.

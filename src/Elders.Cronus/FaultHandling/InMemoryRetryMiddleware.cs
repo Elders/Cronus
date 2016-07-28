@@ -1,12 +1,12 @@
 ﻿using System;
+using Elders.Cronus.FaultHandling.Strategies;
 using Elders.Cronus.Middleware;
-using Umbraco.Core.Persistence.FaultHandling.Strategies;
 
-namespace Elders.Cronus.Errorrrr
+namespace Elders.Cronus.FaultHandling
 {
     public class InMemoryRetryMiddleware<TContext> : Middleware<TContext>
     {
-        private Umbraco.Core.Persistence.FaultHandling.RetryPolicy retryPolicy;
+        private RetryPolicy retryPolicy;
 
         readonly Middleware<TContext> middleware;
 
@@ -14,7 +14,7 @@ namespace Elders.Cronus.Errorrrr
         {
             this.middleware = middleware;
             var retryStrategy = new Incremental(3, TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(100));//Total 3 Retrues
-            retryPolicy = new Umbraco.Core.Persistence.FaultHandling.RetryPolicy(new Umbraco.Core.Persistence.FaultHandling.TransientErrorCatchAllStrategy(), retryStrategy);
+            retryPolicy = new RetryPolicy(new TransientErrorCatchAllStrategy(), retryStrategy);
         }
         protected override void Run(Execution<TContext> execution)
         {

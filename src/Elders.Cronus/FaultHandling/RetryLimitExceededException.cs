@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Umbraco.Core.Persistence.FaultHandling
+namespace Elders.Cronus.FaultHandling
 {
     /// <summary>
     /// The special type of exception that provides managed exit from a retry loop. The user code can use this

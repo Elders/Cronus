@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading;
+using Elders.Cronus.FaultHandling.Strategies;
 using Elders.Cronus.Logging;
-using Umbraco.Core.Persistence.FaultHandling.Strategies;
 
-namespace Umbraco.Core.Persistence.FaultHandling
+namespace Elders.Cronus.FaultHandling
 {
     /// <summary>
     /// Provides the base implementation of the retry mechanism for unreliable actions and transient conditions.

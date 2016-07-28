@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Umbraco.Core.Persistence.FaultHandling
+namespace Elders.Cronus.FaultHandling
 {
     /// <summary>
     /// Defines an interface which must be implemented by custom components responsible for detecting specific transient conditions.

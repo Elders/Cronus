@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Umbraco.Core.Persistence.FaultHandling.Strategies
+namespace Elders.Cronus.FaultHandling.Strategies
 {
     /// <summary>
     /// A retry strategy with a specified number of retry attempts and an incremental time interval between retries.
@@ -12,7 +12,7 @@ namespace Umbraco.Core.Persistence.FaultHandling.Strategies
         private readonly TimeSpan increment;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Incremental"/> class. 
+        /// Initializes a new instance of the <see cref="Incremental"/> class.
         /// </summary>
         public Incremental()
             : this(DefaultClientRetryCount, DefaultRetryInterval, DefaultRetryIncrement)
@@ -20,7 +20,7 @@ namespace Umbraco.Core.Persistence.FaultHandling.Strategies
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Incremental"/> class. 
+        /// Initializes a new instance of the <see cref="Incremental"/> class.
         /// </summary>
         /// <param name="retryCount">The number of retry attempts.</param>
         /// <param name="initialInterval">The initial interval that will apply for the first retry.</param>
@@ -31,7 +31,7 @@ namespace Umbraco.Core.Persistence.FaultHandling.Strategies
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Incremental"/> class. 
+        /// Initializes a new instance of the <see cref="Incremental"/> class.
         /// </summary>
         /// <param name="name">The retry strategy name.</param>
         /// <param name="retryCount">The number of retry attempts.</param>
@@ -43,7 +43,7 @@ namespace Umbraco.Core.Persistence.FaultHandling.Strategies
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Incremental"/> class. 
+        /// Initializes a new instance of the <see cref="Incremental"/> class.
         /// </summary>
         /// <param name="name">The retry strategy name.</param>
         /// <param name="retryCount">The number of retry attempts.</param>
@@ -68,7 +68,7 @@ namespace Umbraco.Core.Persistence.FaultHandling.Strategies
         /// <returns>The ShouldRetry delegate.</returns>
         public override ShouldRetry GetShouldRetry()
         {
-            return delegate(int currentRetryCount, Exception lastException, out TimeSpan retryInterval)
+            return delegate (int currentRetryCount, Exception lastException, out TimeSpan retryInterval)
             {
                 if (currentRetryCount < this.retryCount)
                 {

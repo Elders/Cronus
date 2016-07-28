@@ -1,7 +1,7 @@
 ﻿using System;
-using Umbraco.Core.Persistence.FaultHandling.Strategies;
+using Elders.Cronus.FaultHandling.Strategies;
 
-namespace Umbraco.Core.Persistence.FaultHandling
+namespace Elders.Cronus.FaultHandling
 {
     /// <summary>
     /// Defines a callback delegate that will be invoked whenever a retry condition is encountered.

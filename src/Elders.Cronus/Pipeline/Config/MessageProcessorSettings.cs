@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Elders.Cronus.DomainModeling;
-using Elders.Cronus.Errorrrr;
+using Elders.Cronus.FaultHandling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessingMiddleware;
 using Elders.Cronus.Middleware;
