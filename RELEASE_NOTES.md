@@ -1,3 +1,6 @@
+#### 3.0.0-beta0021 - 29.08.2016
+* Code cleanup
+
 #### 3.0.0-beta0020 - 26.07.2016
 * We now have Finalize middleware handle so you can cleanup resources if required
 
