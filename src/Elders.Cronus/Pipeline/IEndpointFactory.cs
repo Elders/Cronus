@@ -7,6 +7,6 @@ namespace Elders.Cronus.Pipeline
     {
         IEndpoint CreateEndpoint(EndpointDefinition definition);
         IEndpoint CreateTopicEndpoint(EndpointDefinition definition);
-        IEnumerable<EndpointDefinition> GetEndpointDefinition(SubscriptionMiddleware subscriptionMiddleware);
+        IEnumerable<EndpointDefinition> GetEndpointDefinition(IEndpointConsumer consumer, SubscriptionMiddleware subscriptionMiddleware);
     }
 }

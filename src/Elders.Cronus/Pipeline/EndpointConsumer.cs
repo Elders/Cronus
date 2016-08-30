@@ -18,6 +18,8 @@ namespace Elders.Cronus.Pipeline
         readonly ISerializer serializer;
         readonly MessageThreshold messageThreshold;
 
+        public string Name { get; private set; }
+
         public int NumberOfWorkers { get; set; }
 
         /// <summary>
@@ -26,8 +28,9 @@ namespace Elders.Cronus.Pipeline
         /// <param name="transport">The transport.</param>
         /// <param name="serializer">The serializer.</param>
         /// <param name="messageThreshold">The message threshold.</param>
-        public EndpointConsumer(IPipelineTransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, MessageThreshold messageThreshold)
+        public EndpointConsumer(string name, IPipelineTransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, MessageThreshold messageThreshold)
         {
+            this.Name = name;
             NumberOfWorkers = 1;
             this.subscriptions = subscriptions;
             this.transport = transport;
@@ -44,7 +47,7 @@ namespace Elders.Cronus.Pipeline
                 : NumberOfWorkers;
 
             pools.Clear();
-            foreach (var endpointDefinition in transport.EndpointFactory.GetEndpointDefinition(subscriptions))
+            foreach (var endpointDefinition in transport.EndpointFactory.GetEndpointDefinition(this, subscriptions))
             {
                 var poolName = String.Format("Workpool {0}", endpointDefinition.EndpointName);
                 WorkPool pool = new WorkPool(poolName, workers);

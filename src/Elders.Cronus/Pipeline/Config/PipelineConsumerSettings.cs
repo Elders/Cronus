@@ -34,7 +34,7 @@ namespace Elders.Cronus.Pipeline.Config
             Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
             Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
             Func<SubscriptionMiddleware> messageHandlerProcessor = () => builder.Container.Resolve<SubscriptionMiddleware>(builder.Name);
-            Func<IEndpointConsumer> consumer = () => new EndpointConsumer(transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold);
+            Func<IEndpointConsumer> consumer = () => new EndpointConsumer((this as IConsumerSettings<TContract>).Name, transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold);
             builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer(), builder.Name);
         }
     }
@@ -81,7 +81,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseCommandConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
         {
-            return UseCommandConsumer(self, null, configure);
+            return UseCommandConsumer(self, "AppServices", configure);
         }
 
         public static T UseCommandConsumer<T>(this T self, string name, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
@@ -95,7 +95,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UseProjectionConsumer<T>(this T self, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
         {
-            return UseProjectionConsumer(self, null, configure);
+            return UseProjectionConsumer(self, "Projections", configure);
         }
 
         public static T UseProjectionConsumer<T>(this T self, string name, Action<ProjectionConsumerSettings> configure = null) where T : ICronusSettings
@@ -109,7 +109,7 @@ namespace Elders.Cronus.Pipeline.Config
 
         public static T UsePortConsumer<T>(this T self, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
         {
-            return UsePortConsumer(self, null, configure);
+            return UsePortConsumer(self, "Ports", configure);
         }
 
         public static T UsePortConsumer<T>(this T self, string name, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
