@@ -5,6 +5,7 @@ using Elders.Cronus.Pipeline.Transport;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
+using System.Linq;
 
 namespace Elders.Cronus.Pipeline
 {
@@ -30,6 +31,13 @@ namespace Elders.Cronus.Pipeline
         /// <param name="messageThreshold">The message threshold.</param>
         public EndpointConsumer(string name, IPipelineTransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, MessageThreshold messageThreshold)
         {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentException("Invalid consumer name", nameof(name));
+            if (ReferenceEquals(null, transport)) throw new ArgumentNullException(nameof(transport));
+            if (ReferenceEquals(null, subscriptions)) throw new ArgumentNullException(nameof(subscriptions));
+            if (subscriptions.Subscribers.Count() == 0) throw new ArgumentException("A consumer must have at least one subscriber to work properly.", nameof(subscriptions));
+            if (ReferenceEquals(null, serializer)) throw new ArgumentNullException(nameof(serializer));
+            if (ReferenceEquals(null, messageThreshold)) throw new ArgumentNullException(nameof(messageThreshold));
+
             this.Name = name;
             NumberOfWorkers = 1;
             this.subscriptions = subscriptions;

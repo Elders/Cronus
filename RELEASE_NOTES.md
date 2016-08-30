@@ -1,3 +1,6 @@
+#### 3.0.0-beta0023 - 30.08.2016
+* Adds checks when initializing EndpointConsumer
+
 #### 3.0.0-beta0022 - 30.08.2016
 * Uses consumer when building endpoints for propper transport initialization
 
