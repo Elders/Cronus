@@ -26,7 +26,7 @@ namespace Elders.Cronus.Pipeline
             this.endpoint = endpoint;
             this.subscriptions = subscriptions;
             this.serializer = serializer;
-            this.messageThreshold = messageThreshold ?? new MessageThreshold();
+            this.messageThreshold = messageThreshold;
         }
 
         public DateTime ScheduledStart { get; set; }

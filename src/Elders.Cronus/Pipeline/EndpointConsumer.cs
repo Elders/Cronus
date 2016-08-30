@@ -29,14 +29,13 @@ namespace Elders.Cronus.Pipeline
         /// <param name="transport">The transport.</param>
         /// <param name="serializer">The serializer.</param>
         /// <param name="messageThreshold">The message threshold.</param>
-        public EndpointConsumer(string name, IPipelineTransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, MessageThreshold messageThreshold)
+        public EndpointConsumer(string name, IPipelineTransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, MessageThreshold messageThreshold = null)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentException("Invalid consumer name", nameof(name));
             if (ReferenceEquals(null, transport)) throw new ArgumentNullException(nameof(transport));
             if (ReferenceEquals(null, subscriptions)) throw new ArgumentNullException(nameof(subscriptions));
             if (subscriptions.Subscribers.Count() == 0) throw new ArgumentException("A consumer must have at least one subscriber to work properly.", nameof(subscriptions));
             if (ReferenceEquals(null, serializer)) throw new ArgumentNullException(nameof(serializer));
-            if (ReferenceEquals(null, messageThreshold)) throw new ArgumentNullException(nameof(messageThreshold));
 
             this.Name = name;
             NumberOfWorkers = 1;
@@ -44,7 +43,7 @@ namespace Elders.Cronus.Pipeline
             this.transport = transport;
             pools = new List<WorkPool>();
             this.serializer = serializer;
-            this.messageThreshold = messageThreshold;
+            this.messageThreshold = messageThreshold ?? new MessageThreshold();
 
         }
 
