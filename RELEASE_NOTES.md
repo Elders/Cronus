@@ -1,3 +1,6 @@
+#### 3.0.0-beta0026 - 02.09.2016
+* Properly close endpoint
+
 #### 3.0.0-beta0025 - 02.09.2016
 * Properly destroy the container
 

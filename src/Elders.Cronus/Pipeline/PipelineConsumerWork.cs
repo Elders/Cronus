@@ -11,15 +11,15 @@ namespace Elders.Cronus.Pipeline
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(PipelineConsumerWork));
 
-        private SubscriptionMiddleware subscriptions;
+        SubscriptionMiddleware subscriptions;
 
-        private readonly IEndpoint endpoint;
+        readonly IEndpoint endpoint;
 
         volatile bool isWorking;
 
-        private readonly ISerializer serializer;
+        readonly ISerializer serializer;
 
-        private readonly MessageThreshold messageThreshold;
+        readonly MessageThreshold messageThreshold;
 
         public PipelineConsumerWork(SubscriptionMiddleware subscriptions, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold)
         {
@@ -60,7 +60,7 @@ namespace Elders.Cronus.Pipeline
             }
             catch (EndpointClosedException ex)
             {
-                log.WarnException("Endpoint Closed", ex);
+                log.DebugException("Endpoint Closed", ex);
             }
             catch (Exception ex)
             {
@@ -75,7 +75,7 @@ namespace Elders.Cronus.Pipeline
                 }
                 catch (EndpointClosedException ex)
                 {
-                    log.ErrorException("Endpoint Closed", ex);
+                    log.DebugException("Endpoint Closed", ex);
                 }
                 ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
             }
@@ -84,6 +84,7 @@ namespace Elders.Cronus.Pipeline
         public void Stop()
         {
             isWorking = false;
+            endpoint.Close();   // This is called from another thread so we need it.
         }
     }
 }
