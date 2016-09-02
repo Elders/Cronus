@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.IocContainer
 {
@@ -10,6 +11,8 @@ namespace Elders.Cronus.IocContainer
     /// </summary>
     public class Container : IContainer
     {
+        static ILog log = LogProvider.GetLogger(typeof(Container));
+
         /// <summary>
         /// Key: object containing the type of the object to resolve and the name of the instance (if any);
         /// Value: delegate that creates the instance of the object mapped
@@ -34,7 +37,7 @@ namespace Elders.Cronus.IocContainer
         /// Register a type with transient life style
         /// </summary>
         /// <param name="type">Type that will be requested</param>
-        /// <param name="createInstanceDelegate">A delegate that will be used to 
+        /// <param name="createInstanceDelegate">A delegate that will be used to
         /// create an instance of the requested object</param>
         /// <param name="instanceName">Instance name (optional)</param>
         public void RegisterTransient(Type type, Func<object> createInstanceDelegate, string instanceName = null)
@@ -62,7 +65,7 @@ namespace Elders.Cronus.IocContainer
         /// Register a type with singleton life style
         /// </summary>
         /// <param name="type">Type that will be requested</param>
-        /// <param name="createInstanceDelegate">A delegate that will be used to 
+        /// <param name="createInstanceDelegate">A delegate that will be used to
         /// create an instance of the requested object</param>
         /// <param name="instanceName">Instance name (optional)</param>
         public void RegisterSingleton(Type type, Func<object> createInstanceDelegate, string instanceName = null)
@@ -102,7 +105,7 @@ namespace Elders.Cronus.IocContainer
         /// </summary>
         /// <param name="type">Type to check registration for</param>
         /// <param name="instanceName">Instance name (optional)</param>
-        /// <returns><c>true</c>if the type/instance name has been registered 
+        /// <returns><c>true</c>if the type/instance name has been registered
         /// with the container; otherwise <c>false</c></returns>
         public bool IsRegistered(Type type, string instanceName = null)
         {
@@ -185,9 +188,12 @@ namespace Elders.Cronus.IocContainer
         {
             foreach (var item in singletonMappings)
             {
-                var toDispose = item.Value.Value as IDisposable;
-                if (toDispose != null)
-                    toDispose.Dispose();
+                if (item.Value.IsValueCreated)
+                {
+                    var toDispose = item.Value.Value as IDisposable;
+                    if (toDispose != null)
+                        toDispose.Dispose();
+                }
             }
 
             singletonMappings.Clear();

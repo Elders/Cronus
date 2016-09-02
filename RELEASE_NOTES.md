@@ -1,3 +1,6 @@
+#### 3.0.0-beta0025 - 02.09.2016
+* Properly destroy the container
+
 #### 3.0.0-beta0024 - 30.08.2016
 * messageThreshold checks removed.
 

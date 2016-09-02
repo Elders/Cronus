@@ -75,7 +75,7 @@ namespace Elders.Cronus.Pipeline
                 }
                 catch (EndpointClosedException ex)
                 {
-                    log.WarnException("Endpoint Closed", ex);
+                    log.ErrorException("Endpoint Closed", ex);
                 }
                 ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
             }
@@ -84,7 +84,6 @@ namespace Elders.Cronus.Pipeline
         public void Stop()
         {
             isWorking = false;
-            endpoint.Close();
         }
     }
 }
