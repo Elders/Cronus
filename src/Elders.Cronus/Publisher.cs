@@ -40,6 +40,9 @@ namespace Elders.Cronus
                 if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
                     messageHeaders.Add(MessageHeader.CorelationId, messageId);
 
+                if (messageHeaders.ContainsKey(MessageHeader.PublishTimestamp) == false)
+                    messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
+
                 PublishInternal(message, messageHeaders);
 
                 log.Info(() => message.ToString());

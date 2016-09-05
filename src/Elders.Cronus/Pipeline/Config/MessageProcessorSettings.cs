@@ -107,7 +107,9 @@ namespace Elders.Cronus.Pipeline.Config
                     if (typeof(ISaga).IsAssignableFrom(reg))
                     {
                         subscriptionMiddleware.Subscribe(new HandleSubscriber<ISaga, IEventHandler<IEvent>>(reg, middleware));
-                        subscriptionMiddleware.Subscribe(new HandleSubscriber<ISaga, ISagaTimeoutHandler<IScheduledMessage>>(reg, middleware));
+                        var scheduleSubscriber = new HandleSubscriber<ISaga, ISagaTimeoutHandler<IScheduledMessage>>(reg, middleware);
+                        scheduleSubscriber.Id = scheduleSubscriber.Id + "Schedule";
+                        subscriptionMiddleware.Subscribe(scheduleSubscriber);
                     }
                 }
                 return subscriptionMiddleware;

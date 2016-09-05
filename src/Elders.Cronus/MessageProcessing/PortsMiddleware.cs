@@ -48,27 +48,26 @@ namespace Elders.Cronus.MessageProcessing
         public bool Publish(TMessage message, Dictionary<string, string> messageHeaders = null)
         {
             messageHeaders = messageHeaders ?? new Dictionary<string, string>();
-            AddPortHeaders(messageHeaders, cronusMessage);
+            AddTrackHeaders(messageHeaders, cronusMessage);
             return publisher.Publish(message, messageHeaders);
         }
 
         public bool Publish(TMessage message, TimeSpan publishAfter, Dictionary<string, string> messageHeaders = null)
         {
             messageHeaders = messageHeaders ?? new Dictionary<string, string>();
-            AddPortHeaders(messageHeaders, cronusMessage);
+            AddTrackHeaders(messageHeaders, cronusMessage);
             return publisher.Publish(message, publishAfter, messageHeaders);
         }
 
         public bool Publish(TMessage message, DateTime publishAt, Dictionary<string, string> messageHeaders = null)
         {
             messageHeaders = messageHeaders ?? new Dictionary<string, string>();
-            AddPortHeaders(messageHeaders, cronusMessage);
+            AddTrackHeaders(messageHeaders, cronusMessage);
             return publisher.Publish(message, publishAt, messageHeaders);
         }
 
-        Dictionary<string, string> AddPortHeaders(Dictionary<string, string> messageHeaders, CronusMessage triggeredBy)
+        Dictionary<string, string> AddTrackHeaders(Dictionary<string, string> messageHeaders, CronusMessage triggeredBy)
         {
-            messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
             messageHeaders.Add(MessageHeader.CausationId, triggeredBy.MessageId);
             messageHeaders.Add(MessageHeader.CorelationId, triggeredBy.CorelationId);
 

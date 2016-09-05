@@ -1,3 +1,6 @@
+#### 3.0.0-beta0031 - 05.09.2016
+* Fixes Saga HandleSubscriber
+
 #### 3.0.0-beta0030 - 05.09.2016
 * Fixes Saga message handling
 

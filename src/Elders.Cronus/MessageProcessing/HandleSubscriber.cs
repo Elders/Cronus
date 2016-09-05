@@ -33,7 +33,7 @@ namespace Elders.Cronus.MessageProcessing
             return message.Payload.ToString($"{message.Payload.ToString()} |=> @subscriber '{Id}'");
         }
 
-        public string Id { get; private set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Gets the message types which the subscriber can process.
