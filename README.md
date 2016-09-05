@@ -2,16 +2,15 @@ Cronus is lightweight framework for dispatching and receiving messages between m
 ==================================================================================================================
 [![Build status](https://ci.appveyor.com/api/projects/status/0ka8b6vnwjj9lhav?svg=true)](https://ci.appveyor.com/project/Elders-OSS/cronus)
 
-##Motivation
-
+#Motivation
 Building software is not an easy task. It involves specific domain knowledge and a lot of software infrastructure. The goal of Cronus is to keep the software engineers focused on the domain problems because this is important at the end of the day. Cronus aims to keep you away from the software infrastructure.  
 
 Usually you do not need a CQRS framework to develop greate apps. However we noticed a common infrastructure code written with every applicaiton. We started to abstract and move that code to github. The key aspect was that even with a framework you still have full control and flexibility over the application code.
 
-##Domain Modeling
+#Domain Modeling
 To get out the maximum of Cronus you need to mark certain parts of your code to give hints to Cronus. 
 
-####ICommand - triggered by UI, API, ExternalSystem, IPort
+##ICommand - triggered by UI, API, ExternalSystem, IPort
 Markup interface. A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants.
 
 - a command must be immutable
@@ -47,7 +46,7 @@ public class Reason : ValueObject<Reason>
 }
 ```
 
-####IAggregateRootApplicationService - triggered by ICommand
+##IAggregateRootApplicationService - triggered by ICommand
 The application service is the place where commands are received and delivered to the addressed AggregateRoot. We also call these handlers *ApplicationService*. This is the *write side* in CQRS.
 
 You can/should/must...
@@ -83,7 +82,9 @@ public class AccountAppService : AggregateRootApplicationService<Account>,
     ...
 }
 ```
-####IAggregateRoot - triggered by ApplicationService
+
+
+##IAggregateRoot - triggered by ApplicationService
 
 ```cs
 public class Account : AggregateRoot<AccountState>
@@ -143,7 +144,7 @@ public class AccountState : AggregateRootState<Account, AccountId>
 }
 ```
 
-####IEvent - triggered by IAggregateRoot
+##IEvent - triggered by IAggregateRoot
 Markup interface. Represents domain model changes.
 
 
@@ -175,20 +176,20 @@ public class AccountSuspended : IEvent
 ```
 
 
-####IProjection - triggered by IEvent
+##IProjection - triggered by IEvent
 - idempotent
 - must not query other projections. All the data of a projection must be collected from the Events' data
 - projections must not issue new commands or events
 
 
-####ISaga/ProcessManager - triggered by IEvent
+##ISaga/ProcessManager - triggered by IEvent
 
 
-####IPort - triggered by IEvent
+##IPort - triggered by IEvent
 - You can send new commands
 
 
-####IGateway
+##IGateway
 
 Legend
 ------
