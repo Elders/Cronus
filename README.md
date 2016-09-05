@@ -1,4 +1,4 @@
-Cronus is lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind
+Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind
 ==================================================================================================================
 [![Build status](https://ci.appveyor.com/api/projects/status/0ka8b6vnwjj9lhav?svg=true)](https://ci.appveyor.com/project/Elders-OSS/cronus)
 
@@ -191,21 +191,35 @@ public class AccountSuspended : IEvent
 
 ##IGateway
 
+#Ecosystem
+
+
 Legend
 ------
 
 | Name | Description |
 |------|-------------|
-| olympus | It is stable and it will continue to get support, maintenance and future development
-| styx | The future is not clear. There are two possible paths from here - olympus or tartarus
-| tartarus | abandoned
+| olympus | It is stable and it will continue to get support, maintenance and future development |
+| styx | The future is not clear. There are two possible paths from here - olympus or tartarus |
+| tartarus | abandoned |
+
+
+Domain Modeling / Core
+----------------------
+
+| Name | Status | Description |
+|------|--------|-------------|
+| [DomainModeling](https://github.com/Elders/Cronus.DomainModeling) | olympus | Contains contracts for DDD/CQRS development |
+| [Cronus](https://github.com/Elders/Cronus) | olympus | Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind |
+
 
 Messaging
 ---------
 
 | Broker | Status | Description |
 |--------|--------|-------------|
-| [RabbitMQ](https://github.com/Elders/Cronus.Transport.RabbitMQ) | olympus | It works so well that we do not need to implement other messaging.
+| [RabbitMQ](https://github.com/Elders/Cronus.Transport.RabbitMQ) | olympus | It works so well that we do not need to implement other messaging. |
+
 
 Event store persistence
 ------------------------
@@ -216,6 +230,7 @@ Event store persistence
 | [MSSQL](https://github.com/Elders/Cronus.Persistence.MSSQL) | styx | The persister has been used in production with Cronus v1 but MSSQL is relational database and it does not fit well as an event store persister. |
 | [GIT](https://github.com/Elders/Cronus.Persistence.Git-) | tartarus | Persister exists just for fun. |
 
+
 Serialization
 -------------
 
@@ -223,3 +238,23 @@ Serialization
 |------------|--------|-------------|
 | [Json](https://github.com/Elders/Cronus.Serialization.NewtonsoftJson) | olympus | It is recommended to use the serializer with DataContracts |
 | [Protobuf (Proteus)](https://github.com/Elders/Cronus.Serialization.Proteus) | styx | This has been the prefered serialization with Cronus v2. However, there is a huge warm up performance hit with big projects which needs to be resolved. Despite this it works really fast. The implementation has small protocol changes |
+
+
+Projections persistence
+-----------------------
+
+| Store | Status | Description |
+|------------|--------|-------------|
+| [Cassandra](https://github.com/Elders/Cronus.Projections.Cassandra) | olympus | Stores projections in Cassandra |
+| [ElasticSearch](https://github.com/Elders/Cronus.Projection.ElasticSearch) | olympus | Builds projections dynamically. Very usefull for projects which just started and changes occur frequently. Later must be switch to other persister such as Cassandra |
+| [AtomicAction](https://github.com/Elders/Cronus.AtomicAction.Redis) | olympus | Aggregate distrubited lock with Redis |
+
+Other
+-------------
+
+| Name | Status | Description |
+|------------|--------|-------------|
+| [Hystrix](https://github.com/Elders/Cronus.Hystrix) | olympus | Circuit breaker middleware for Cronus |
+| [Migrations](https://github.com/Elders/Cronus.Migration.Middleware) | olympus | Middleware to handle migrations of any kind |
+| [AtomicAction](https://github.com/Elders/Cronus.AtomicAction.Redis) | olympus | Aggregate distrubited lock with Redis |
+
