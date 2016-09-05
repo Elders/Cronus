@@ -6,8 +6,9 @@ Cronus
 Cronus is lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind
 
 ##Motivation
-------------
-Building software is not an easy task. It involves specific domain knowledge and a lot of software infrastructure. The goal of Cronus is to keep the software engineers focused on the domain problems because this is important at the end of the day. Cronus aims to keep you away from the software infrastructure.
+
+Building software is not an easy task. It involves specific domain knowledge and a lot of software infrastructure. The goal of Cronus is to keep the software engineers focused on the domain problems because this is important at the end of the day. Cronus aims to keep you away from the software infrastructure.  
+
 Usually you do not need a CQRS framework to develop greate apps. However we noticed a common infrastructure code written with every applicaiton. We started to abstract and move that code to github. The key aspect was that even with a framework you still have full control and flexibility over the application code.
 
 ##Domain Modeling
@@ -16,10 +17,10 @@ To get out the maximum of Cronus you need to mark certain parts of your code to 
 ####ICommand - triggered by UI, API, ExternalSystem, IPort
 Markup interface. A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants.
 
-A command must be immutable
-A command must clearly state a business intent with a name in imperative form
-A command can be rejected due to domain validation, error or other reason
-A command must update only one AggregateRoot
+A command must be immutable  
+A command must clearly state a business intent with a name in imperative form  
+A command can be rejected due to domain validation, error or other reason  
+A command must update only one AggregateRoot  
 ```
 public class DeactivateAccount : ICommand
 {
@@ -51,19 +52,19 @@ public class Reason : ValueObject<Reason>
 ####IAggregateRootApplicationService - triggered by ICommand
 The application service is the place where commands are received and delivered to the addressed AggregateRoot. We also call these handlers *ApplicationService*. This is the *write side* in CQRS.
 
-You can/should/must...
-You can load an aggregate root from the event store
-You can save new aggregate root events to the event store
-You can do calls to the ReadModel
-You can do calls to external services
-You must update only one aggreate root. Yes, this means that you can create one aggregate and update another one but think twice
-You can do dependency orchestration
+You can/should/must...  
+You can load an aggregate root from the event store  
+You can save new aggregate root events to the event store  
+You can do calls to the ReadModel  
+You can do calls to external services  
+You must update only one aggreate root. Yes, this means that you can create one aggregate and update another one but think twice  
+You can do dependency orchestration  
 
-You should not...
-You should not update more than one aggregate root in single command/handler
-You should not place domain logic inside an application service
-You should not use application service to send emails, push notifications etc. Use Port or Gateway instead
-You should not update the ReadModel from an ApplicationService
+You should not...  
+You should not update more than one aggregate root in single command/handler  
+You should not place domain logic inside an application service  
+You should not use application service to send emails, push notifications etc. Use Port or Gateway instead  
+You should not update the ReadModel from an ApplicationService  
 
 An ApplicationService must be stateless. 
 
@@ -147,11 +148,11 @@ public class AccountState : AggregateRootState<Account, AccountId>
 Markup interface. Represents domain model changes.
 
 
-An Event must be immutable
-Should represent a domain event which already happened. The name of the event must be in past tense.
-A Command must clearly state a business intent with a name in imperative form
-A Command can be rejected due to domain validation, error or other reason
-A Command must update only one AggregateRoot
+An Event must be immutable  
+Should represent a domain event which already happened. The name of the event must be in past tense.  
+A Command must clearly state a business intent with a name in imperative form  
+A Command can be rejected due to domain validation, error or other reason  
+A Command must update only one AggregateRoot  
 ```
 [DataContract(Name = "fff400a3-1af0-4332-9cf5-b86c1c962a01")]
 public class AccountSuspended : IEvent
@@ -187,7 +188,7 @@ Legend
 ---------
 
 | Name | Description |
-|--------------------|
+|------|-------------|
 | olympus | It is stable and it will continue to get support, maintenance and future development
 | styx | The future is not clear. There are two possible paths from here - olympus or tartarus
 | tartarus | abandoned
@@ -196,14 +197,14 @@ Messaging
 ---------
 
 | Broker | Status | Description |
-|-----------------------------------|
+|--------|--------|-------------|
 | [RabbitMQ](https://github.com/Elders/Cronus.Transport.RabbitMQ) | olympus | It works so well that we do not need to implement other messaging.
 
 Event store persistence
 ------------------------
 
 | Store | Status | Description |
-|------------------------------|
+|-------|--------|-------------|
 | [Cassandra](https://github.com/Elders/Cronus.Persistence.Cassandra) | olympus | This persister is in production since 2013 and it is recommended for production purposes. |
 | [MSSQL](https://github.com/Elders/Cronus.Persistence.MSSQL) | styx | The persister has been used in production with Cronus v1 but MSSQL is relational database and it does not fit well as an event store persister. |
 | [GIT](https://github.com/Elders/Cronus.Persistence.Git-) | tartarus | Persister exists just for fun. |
@@ -212,6 +213,6 @@ Serialization
 -------------
 
 | Serializer | Status | Description |
-|-----------------------------------|
+|------------|--------|-------------|
 | [Json](https://github.com/Elders/Cronus.Serialization.NewtonsoftJson) | olympus | It is recommended to use the serializer with DataContracts |
 | [Protobuf (Proteus)](https://github.com/Elders/Cronus.Serialization.Proteus) | styx | This has been the prefered serialization with Cronus v2. However, there is a huge warm up performance hit with big projects which needs to be resolved. Despite this it works really fast. The implementation has small protocol changes |
