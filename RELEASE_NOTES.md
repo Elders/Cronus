@@ -1,3 +1,6 @@
+#### 3.0.0-beta0028 - 05.09.2016
+* Fixes the PublishTimestamp header of the CronusMessage
+
 #### 3.0.0-beta0027 - 05.09.2016
 * Adds MessageId, CausationId, CorrelationId to all CronusMessages
 

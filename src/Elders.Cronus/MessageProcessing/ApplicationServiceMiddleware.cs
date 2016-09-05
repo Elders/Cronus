@@ -62,7 +62,7 @@ namespace Elders.Cronus.MessageProcessing
 
                 messageHeaders.Add(MessageHeader.AggregateRootId, aggregateRoot.State.Id.ToString());
                 messageHeaders.Add(MessageHeader.AggregateRootRevision, aggregateRoot.Revision.ToString());
-                messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToString());
+                messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
                 messageHeaders.Add(MessageHeader.AggregateRootEventPosition, eventPosition.ToString());
 
                 messageHeaders.Add(MessageHeader.CausationId, triggeredBy.MessageId);
