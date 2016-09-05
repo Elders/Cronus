@@ -21,7 +21,7 @@ To get out the maximum of Cronus you need to mark certain parts of your code to 
 
 | Handled by | Description |
 |------------|-------------|
-| IAggregateRootApplicationService | The application service is the place where commands are received and delivered to the addressed AggregateRoot. We also call these handlers ApplicationService. This is the write side in CQRS. |
+| IAggregateRootApplicationService | This is a handler where commands are received and delivered to the addressed AggregateRoot. We call these handlers ApplicationService. This is the write side in CQRS. |
 
 Markup interface. A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants.
 
@@ -59,7 +59,7 @@ public class Reason : ValueObject<Reason>
 ```
 
 ##IAggregateRootApplicationService - triggered by ICommand
-The application service is the place where commands are received and delivered to the addressed AggregateRoot. We also call these handlers *ApplicationService*. This is the *write side* in CQRS.
+This is a handler where commands are received and delivered to the addressed AggregateRoot. We call these handlers *ApplicationService*. This is the *write side* in CQRS.
 
 You can/should/must...
 - you can load an aggregate root from the event store
