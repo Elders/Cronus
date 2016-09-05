@@ -2,8 +2,6 @@ Cronus is lightweight framework for dispatching and receiving messages between m
 ==================================================================================================================
 [![Build status](https://ci.appveyor.com/api/projects/status/0ka8b6vnwjj9lhav?svg=true)](https://ci.appveyor.com/project/Elders-OSS/cronus)
 
-[TOC]
-
 ##Motivation
 
 Building software is not an easy task. It involves specific domain knowledge and a lot of software infrastructure. The goal of Cronus is to keep the software engineers focused on the domain problems because this is important at the end of the day. Cronus aims to keep you away from the software infrastructure.  
@@ -16,12 +14,12 @@ To get out the maximum of Cronus you need to mark certain parts of your code to 
 ####ICommand - triggered by UI, API, ExternalSystem, IPort
 Markup interface. A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants.
 
-- a command must be immutable  
-- a command must clearly state a business intent with a name in imperative form  
-- a command can be rejected due to domain validation, error or other reason  
-- a command must update only one AggregateRoot  
+- a command must be immutable
+- a command must clearly state a business intent with a name in imperative form
+- a command can be rejected due to domain validation, error or other reason
+- a command must update only one AggregateRoot
 
-```
+```cs
 public class DeactivateAccount : ICommand
 {
 	DeactivateAccount() {}
@@ -52,23 +50,23 @@ public class Reason : ValueObject<Reason>
 ####IAggregateRootApplicationService - triggered by ICommand
 The application service is the place where commands are received and delivered to the addressed AggregateRoot. We also call these handlers *ApplicationService*. This is the *write side* in CQRS.
 
-You can/should/must...  
-- you can load an aggregate root from the event store  
-- you can save new aggregate root events to the event store  
-- you can do calls to the ReadModel  
-- you can do calls to external services  
-- you must update only one aggreate root. Yes, this means that you can create one aggregate and update another one but think twice  
-- you can do dependency orchestration  
+You can/should/must...
+- you can load an aggregate root from the event store
+- you can save new aggregate root events to the event store
+- you can do calls to the ReadModel
+- you can do calls to external services
+- you must update only one aggreate root. Yes, this means that you can create one aggregate and update another one but think twice
+- you can do dependency orchestration
 
-You should not...  
-- you should not update more than one aggregate root in single command/handler  
-- you should not place domain logic inside an application service  
-- you should not use application service to send emails, push notifications etc. Use Port or Gateway instead  
-- you should not update the ReadModel from an ApplicationService  
+You should not...
+- you should not update more than one aggregate root in single command/handler
+- you should not place domain logic inside an application service
+- you should not use application service to send emails, push notifications etc. Use Port or Gateway instead
+- you should not update the ReadModel from an ApplicationService
 
-An ApplicationService must be stateless. 
+An ApplicationService must be stateless.
 
-```
+```cs
 public class AccountAppService : AggregateRootApplicationService<Account>,
     ICommandHandler<RegisterAccount>,
     ICommandHandler<ActivateAccount>,
@@ -87,7 +85,7 @@ public class AccountAppService : AggregateRootApplicationService<Account>,
 ```
 ####IAggregateRoot - triggered by ApplicationService
 
-```
+```cs
 public class Account : AggregateRoot<AccountState>
 {
     Account() { }
@@ -116,7 +114,7 @@ public class Account : AggregateRoot<AccountState>
 }
 ```
 
-```
+```cs
 public class AccountState : AggregateRootState<Account, AccountId>
 {
     public override AccountId Id { get; set; }
@@ -144,16 +142,18 @@ public class AccountState : AggregateRootState<Account, AccountId>
     ...
 }
 ```
+
 ####IEvent - triggered by IAggregateRoot
 Markup interface. Represents domain model changes.
 
 
-An Event must be immutable  
-Should represent a domain event which already happened. The name of the event must be in past tense.  
+An Event must be immutable
+Should represent a domain event which already happened. The name of the event must be in past tense.
 A Command must clearly state a business intent with a name in imperative form  
 A Command can be rejected due to domain validation, error or other reason  
-A Command must update only one AggregateRoot  
-```
+A Command must update only one AggregateRoot
+
+```cs
 [DataContract(Name = "fff400a3-1af0-4332-9cf5-b86c1c962a01")]
 public class AccountSuspended : IEvent
 {
@@ -174,18 +174,24 @@ public class AccountSuspended : IEvent
 }
 ```
 
+
 ####IProjection - triggered by IEvent
 - idempotent
 - must not query other projections. All the data of a projection must be collected from the Events' data
 - projections must not issue new commands or events
 
+
 ####ISaga/ProcessManager - triggered by IEvent
+
+
 ####IPort - triggered by IEvent
 - You can send new commands
+
+
 ####IGateway
 
 Legend
----------
+------
 
 | Name | Description |
 |------|-------------|
