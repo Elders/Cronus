@@ -29,4 +29,9 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public EventPipelinePublisherSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
+
+    public class SagaPipelinePublisherSettings : PipelinePublisherSettings<IScheduledMessage>
+    {
+        public SagaPipelinePublisherSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
+    }
 }

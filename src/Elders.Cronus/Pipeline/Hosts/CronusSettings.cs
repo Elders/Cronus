@@ -71,4 +71,30 @@ public static class CronusConfigurationExtensions
         (settings as ISettingsBuilder).Build();
         return self;
     }
+
+    public static T UsePipelineSagaPublisher<T>(this T self, Action<SagaPipelinePublisherSettings> configure = null)
+        where T : IConsumerSettings
+    {
+        return UsePipelineSagaPublisher(self, null, configure);
+    }
+
+    public static T UsePipelineSagaPublisher<T>(this T self, string name,
+        Action<SagaPipelinePublisherSettings> configure = null)
+        where T : IConsumerSettings
+    {
+        SagaPipelinePublisherSettings settings = new SagaPipelinePublisherSettings(self, name);
+        if (configure != null)
+            configure(settings);
+        (settings as ISettingsBuilder).Build();
+        return self;
+    }
+
+    public static T WithDefaultPublishers<T>(this T self) where T : IConsumerSettings
+    {
+        self
+            .UsePipelineEventPublisher()
+            .UsePipelineCommandPublisher()
+            .UsePipelineSagaPublisher();
+        return self;
+    }
 }

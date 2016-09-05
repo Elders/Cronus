@@ -1,5 +1,4 @@
-﻿using System;
-using Elders.Cronus.IocContainer;
+﻿using Elders.Cronus.IocContainer;
 using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.IocContainer

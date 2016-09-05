@@ -1,10 +1,5 @@
-﻿using Elders.Cronus.Middleware;
-using Machine.Specifications;
-using System;
+﻿using Machine.Specifications;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Elders.Cronus.Tests.Middleware
 {

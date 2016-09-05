@@ -26,7 +26,6 @@ namespace Elders.Cronus.MessageProcessing
                 throw new ArgumentException($"'{handlerType.FullName}' does not implement {expectedHandlerType.FullName}");
             Id = handlerType.FullName;
             MessageTypes = GetInvolvedMessageTypes(handlerType).ToList();
-
         }
 
         private string BuildDebugLog(CronusMessage message)
@@ -49,7 +48,7 @@ namespace Elders.Cronus.MessageProcessing
             log.Debug(() => "HANDLE => " + handlerType.Name + "( " + BuildDebugLog(message) + " )");
         }
 
-        private IEnumerable<Type> GetInvolvedMessageTypes(Type type)
+        IEnumerable<Type> GetInvolvedMessageTypes(Type type)
         {
             var ieventHandler = typeof(V).GetGenericTypeDefinition();
             var interfaces = type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler);

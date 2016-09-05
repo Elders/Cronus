@@ -7,23 +7,23 @@ using Elders.Cronus.Middleware;
 
 namespace Elders.Cronus.Pipeline.Config
 {
-    public class ProjectionMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<IEvent>
+    public class ProjectionMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings
     {
         public ProjectionMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
-            (this as ISubscrptionMiddlewareSettings<IEvent>).HandleMiddleware = (x) => x;
+            (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings<IEvent>.HandlerRegistrations { get; set; }
+        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
-        Func<Type, object> ISubscrptionMiddlewareSettings<IEvent>.HandlerFactory { get; set; }
+        Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
-        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings<IEvent>.HandleMiddleware { get; set; }
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings.HandleMiddleware { get; set; }
 
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            var processorSettings = this as ISubscrptionMiddlewareSettings<IEvent>;
+            var processorSettings = this as ISubscrptionMiddlewareSettings;
             Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
@@ -42,23 +42,23 @@ namespace Elders.Cronus.Pipeline.Config
         }
     }
 
-    public class PortMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<IEvent>
+    public class PortMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings
     {
         public PortMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
-            (this as ISubscrptionMiddlewareSettings<IEvent>).HandleMiddleware = (x) => x;
+            (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings<IEvent>.HandlerRegistrations { get; set; }
+        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
-        Func<Type, object> ISubscrptionMiddlewareSettings<IEvent>.HandlerFactory { get; set; }
+        Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
-        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings<IEvent>.HandleMiddleware { get; set; }
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings.HandleMiddleware { get; set; }
 
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            var processorSettings = this as ISubscrptionMiddlewareSettings<IEvent>;
+            var processorSettings = this as ISubscrptionMiddlewareSettings;
             Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
@@ -66,7 +66,7 @@ namespace Elders.Cronus.Pipeline.Config
                 var portsMiddleware = new PortsMiddleware(handlerFactory, publisher);
                 var middleware = processorSettings.HandleMiddleware(portsMiddleware);
                 var subscriptionMiddleware = new SubscriptionMiddleware();
-                foreach (var reg in (this as ISubscrptionMiddlewareSettings<IEvent>).HandlerRegistrations)
+                foreach (var reg in (this as ISubscrptionMiddlewareSettings).HandlerRegistrations)
                 {
                     if (typeof(IPort).IsAssignableFrom(reg))
                         subscriptionMiddleware.Subscribe(new HandleSubscriber<IPort, IEventHandler<IEvent>>(reg, middleware));
@@ -77,34 +77,38 @@ namespace Elders.Cronus.Pipeline.Config
         }
     }
 
-    public class SagaMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<IEvent>
+    public class SagaMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings
     {
         public SagaMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
-            (this as ISubscrptionMiddlewareSettings<IEvent>).HandleMiddleware = (x) => x;
+            (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings<IEvent>.HandlerRegistrations { get; set; }
+        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
-        Func<Type, object> ISubscrptionMiddlewareSettings<IEvent>.HandlerFactory { get; set; }
+        Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
-        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings<IEvent>.HandleMiddleware { get; set; }
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings.HandleMiddleware { get; set; }
 
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            var processorSettings = this as ISubscrptionMiddlewareSettings<IEvent>;
+            var processorSettings = this as ISubscrptionMiddlewareSettings;
             Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
-                var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
-                var portsMiddleware = new SagasMiddleware(handlerFactory, publisher);
-                var middleware = processorSettings.HandleMiddleware(portsMiddleware);
+                var commandPublisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
+                var schedulePublisher = builder.Container.Resolve<IPublisher<IScheduledMessage>>(builder.Name);
+                var sagasMiddleware = new SagasMiddleware(handlerFactory, commandPublisher, schedulePublisher);
+                var middleware = processorSettings.HandleMiddleware(sagasMiddleware);
                 var subscriptionMiddleware = new SubscriptionMiddleware();
-                foreach (var reg in (this as ISubscrptionMiddlewareSettings<IEvent>).HandlerRegistrations)
+                foreach (var reg in (this as ISubscrptionMiddlewareSettings).HandlerRegistrations)
                 {
                     if (typeof(ISaga).IsAssignableFrom(reg))
+                    {
                         subscriptionMiddleware.Subscribe(new HandleSubscriber<ISaga, IEventHandler<IEvent>>(reg, middleware));
+                        subscriptionMiddleware.Subscribe(new HandleSubscriber<ISaga, ISagaTimeoutHandler<IScheduledMessage>>(reg, middleware));
+                    }
                 }
                 return subscriptionMiddleware;
             };
@@ -112,23 +116,23 @@ namespace Elders.Cronus.Pipeline.Config
         }
     }
 
-    public class ApplicationServiceMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<ICommand>
+    public class ApplicationServiceMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings
     {
         public ApplicationServiceMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
         {
-            (this as ISubscrptionMiddlewareSettings<ICommand>).HandleMiddleware = (x) => x;
+            (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings<ICommand>.HandlerRegistrations { get; set; }
+        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
-        Func<Type, object> ISubscrptionMiddlewareSettings<ICommand>.HandlerFactory { get; set; }
+        Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
-        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings<ICommand>.HandleMiddleware { get; set; }
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings.HandleMiddleware { get; set; }
 
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            var processorSettings = this as ISubscrptionMiddlewareSettings<ICommand>;
+            var processorSettings = this as ISubscrptionMiddlewareSettings;
             Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
@@ -139,7 +143,7 @@ namespace Elders.Cronus.Pipeline.Config
                 var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
                 var middleware = processorSettings.HandleMiddleware(applicationServiceMiddleware);
                 var subscriptionMiddleware = new SubscriptionMiddleware();
-                foreach (var reg in (this as ISubscrptionMiddlewareSettings<ICommand>).HandlerRegistrations)
+                foreach (var reg in (this as ISubscrptionMiddlewareSettings).HandlerRegistrations)
                 {
                     if (typeof(IAggregateRootApplicationService).IsAssignableFrom(reg))
                         subscriptionMiddleware.Subscribe(new HandleSubscriber<IAggregateRootApplicationService, ICommandHandler<ICommand>>(reg, middleware));

@@ -1,3 +1,6 @@
+#### 3.0.0-beta0030 - 05.09.2016
+* Fixes Saga message handling
+
 #### 3.0.0-beta0029 - 05.09.2016
 * Adds support for Sagas
 
