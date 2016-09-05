@@ -11,6 +11,18 @@ Usually you do not need a CQRS framework to develop greate apps. However we noti
 To get out the maximum of Cronus you need to mark certain parts of your code to give hints to Cronus. 
 
 ##ICommand - triggered by UI, API, ExternalSystem, IPort
+
+| Triggered by | Description |
+|--------------|-------------|
+| UI |  |
+| API |  |
+| External System |  |
+| IPort |  |
+
+| Handled by | Description |
+|------------|-------------|
+| IAggregateRootApplicationService | The application service is the place where commands are received and delivered to the addressed AggregateRoot. We also call these handlers ApplicationService. This is the write side in CQRS. |
+
 Markup interface. A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants.
 
 - a command must be immutable
