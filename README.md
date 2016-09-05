@@ -1,9 +1,8 @@
-Cronus
-======
+Cronus is lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind
+==================================================================================================================
 [![Build status](https://ci.appveyor.com/api/projects/status/0ka8b6vnwjj9lhav?svg=true)](https://ci.appveyor.com/project/Elders-OSS/cronus)
 
-
-Cronus is lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind
+[TOC]
 
 ##Motivation
 
@@ -17,10 +16,11 @@ To get out the maximum of Cronus you need to mark certain parts of your code to 
 ####ICommand - triggered by UI, API, ExternalSystem, IPort
 Markup interface. A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants.
 
-A command must be immutable  
-A command must clearly state a business intent with a name in imperative form  
-A command can be rejected due to domain validation, error or other reason  
-A command must update only one AggregateRoot  
+- a command must be immutable  
+- a command must clearly state a business intent with a name in imperative form  
+- a command can be rejected due to domain validation, error or other reason  
+- a command must update only one AggregateRoot  
+
 ```
 public class DeactivateAccount : ICommand
 {
@@ -53,18 +53,18 @@ public class Reason : ValueObject<Reason>
 The application service is the place where commands are received and delivered to the addressed AggregateRoot. We also call these handlers *ApplicationService*. This is the *write side* in CQRS.
 
 You can/should/must...  
-You can load an aggregate root from the event store  
-You can save new aggregate root events to the event store  
-You can do calls to the ReadModel  
-You can do calls to external services  
-You must update only one aggreate root. Yes, this means that you can create one aggregate and update another one but think twice  
-You can do dependency orchestration  
+- you can load an aggregate root from the event store  
+- you can save new aggregate root events to the event store  
+- you can do calls to the ReadModel  
+- you can do calls to external services  
+- you must update only one aggreate root. Yes, this means that you can create one aggregate and update another one but think twice  
+- you can do dependency orchestration  
 
 You should not...  
-You should not update more than one aggregate root in single command/handler  
-You should not place domain logic inside an application service  
-You should not use application service to send emails, push notifications etc. Use Port or Gateway instead  
-You should not update the ReadModel from an ApplicationService  
+- you should not update more than one aggregate root in single command/handler  
+- you should not place domain logic inside an application service  
+- you should not use application service to send emails, push notifications etc. Use Port or Gateway instead  
+- you should not update the ReadModel from an ApplicationService  
 
 An ApplicationService must be stateless. 
 
