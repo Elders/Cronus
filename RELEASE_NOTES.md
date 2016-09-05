@@ -1,3 +1,6 @@
+#### 3.0.0-beta0029 - 05.09.2016
+* Adds support for Sagas
+
 #### 3.0.0-beta0028 - 05.09.2016
 * Fixes the PublishTimestamp header of the CronusMessage
 

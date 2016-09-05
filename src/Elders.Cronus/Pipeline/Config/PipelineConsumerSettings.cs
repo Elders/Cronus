@@ -65,6 +65,11 @@ namespace Elders.Cronus.Pipeline.Config
         public PortConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 
+    public class SagaConsumerSettings : PipelineConsumerSettings<IEvent>
+    {
+        public SagaConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
+    }
+
     public static class ConsumerSettingsExtensions
     {
         public static T SetNumberOfConsumerThreads<T>(this T self, int numberOfConsumers) where T : IConsumerSettings
@@ -115,6 +120,20 @@ namespace Elders.Cronus.Pipeline.Config
         public static T UsePortConsumer<T>(this T self, string name, Action<PortConsumerSettings> configure = null) where T : ICronusSettings
         {
             PortConsumerSettings settings = new PortConsumerSettings(self, name);
+            if (configure != null)
+                configure(settings);
+            (settings as ISettingsBuilder).Build();
+            return self;
+        }
+
+        public static T UseSagaConsumer<T>(this T self, Action<SagaConsumerSettings> configure = null) where T : ICronusSettings
+        {
+            return UseSagaConsumer(self, "Sagas", configure);
+        }
+
+        public static T UseSagaConsumer<T>(this T self, string name, Action<SagaConsumerSettings> configure = null) where T : ICronusSettings
+        {
+            SagaConsumerSettings settings = new SagaConsumerSettings(self, name);
             if (configure != null)
                 configure(settings);
             (settings as ISettingsBuilder).Build();

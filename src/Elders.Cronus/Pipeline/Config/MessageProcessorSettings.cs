@@ -77,6 +77,41 @@ namespace Elders.Cronus.Pipeline.Config
         }
     }
 
+    public class SagaMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<IEvent>
+    {
+        public SagaMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
+        {
+            (this as ISubscrptionMiddlewareSettings<IEvent>).HandleMiddleware = (x) => x;
+        }
+
+        List<Type> ISubscrptionMiddlewareSettings<IEvent>.HandlerRegistrations { get; set; }
+
+        Func<Type, object> ISubscrptionMiddlewareSettings<IEvent>.HandlerFactory { get; set; }
+
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings<IEvent>.HandleMiddleware { get; set; }
+
+        public override void Build()
+        {
+            var builder = this as ISettingsBuilder;
+            var processorSettings = this as ISubscrptionMiddlewareSettings<IEvent>;
+            Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
+            {
+                var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
+                var publisher = builder.Container.Resolve<IPublisher<ICommand>>(builder.Name);
+                var portsMiddleware = new SagasMiddleware(handlerFactory, publisher);
+                var middleware = processorSettings.HandleMiddleware(portsMiddleware);
+                var subscriptionMiddleware = new SubscriptionMiddleware();
+                foreach (var reg in (this as ISubscrptionMiddlewareSettings<IEvent>).HandlerRegistrations)
+                {
+                    if (typeof(ISaga).IsAssignableFrom(reg))
+                        subscriptionMiddleware.Subscribe(new HandleSubscriber<ISaga, IEventHandler<IEvent>>(reg, middleware));
+                }
+                return subscriptionMiddleware;
+            };
+            builder.Container.RegisterSingleton<SubscriptionMiddleware>(() => messageHandlerProcessorFactory(), builder.Name);
+        }
+    }
+
     public class ApplicationServiceMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings<ICommand>
     {
         public ApplicationServiceMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
@@ -117,7 +152,7 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class MessageProcessorSettingsExtensions
     {
-        public static T UseProjections<T>(this T self, Action<ProjectionMessageProcessorSettings> configure) where T : IConsumerSettings<IEvent>
+        public static T UseProjections<T>(this T self, Action<ProjectionMessageProcessorSettings> configure) where T : ProjectionConsumerSettings
         {
             ProjectionMessageProcessorSettings settings = new ProjectionMessageProcessorSettings(self);
             if (configure != null)
@@ -137,9 +172,9 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UseApplicationServices<T>(this T self, Action<ApplicationServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
+        public static T UseSagas<T>(this T self, Action<SagaMessageProcessorSettings> configure) where T : SagaConsumerSettings
         {
-            ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self);
+            SagaMessageProcessorSettings settings = new SagaMessageProcessorSettings(self);
             if (configure != null)
                 configure(settings);
 
@@ -147,7 +182,7 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UseApplicationServiceMiddleware<T>(this T self, Action<ApplicationServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
+        public static T UseApplicationServices<T>(this T self, Action<ApplicationServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
         {
             ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self);
             if (configure != null)
