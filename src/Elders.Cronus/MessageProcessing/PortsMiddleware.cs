@@ -5,7 +5,7 @@ namespace Elders.Cronus.MessageProcessing
 {
     public class PortsMiddleware : MessageHandlerMiddleware
     {
-        private readonly IPublisher<ICommand> commandPublisher;
+        readonly IPublisher<ICommand> commandPublisher;
 
         public PortsMiddleware(IHandlerFactory factory, IPublisher<ICommand> commandPublisher)
             : base(factory)

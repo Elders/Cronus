@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Logging;
 
@@ -7,13 +8,19 @@ namespace Elders.Cronus
 {
     public static class MessageHeader
     {
+        public const string AggregateRootId = "ar_id";
+
+        public const string AggregateRootRevision = "ar_revision";
+
+        public const string AggregateRootEventPosition = "event_position";
+
         public const string CorelationId = "corelationid";
 
         public const string CausationId = "causationid";
 
         public const string MessageId = "messageid";
 
-        public const string PublishTimestamp = "publictimestamp";
+        public const string PublishTimestamp = "publish_timestamp";
     }
 
     public abstract class Publisher<TMessage> : IPublisher<TMessage> where TMessage : IMessage
@@ -30,8 +37,13 @@ namespace Elders.Cronus
                 string messageId = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
                 messageHeaders.Add(MessageHeader.MessageId, messageId);
 
+                if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
+                    messageHeaders.Add(MessageHeader.CorelationId, messageId);
+
                 PublishInternal(message, messageHeaders);
-                log.Info(() => "PUBLISH => " + message);
+
+                log.Info(() => message.ToString());
+                log.Debug(() => "PUBLISH => " + BuildDebugLog(message, messageHeaders));
                 return true;
             }
             catch (Exception ex)
@@ -52,6 +64,12 @@ namespace Elders.Cronus
         {
             DateTime publishAt = DateTime.UtcNow.Add(publishAfter);
             return Publish(message, publishAt, messageHeaders);
+        }
+
+        string BuildDebugLog(TMessage message, IDictionary<string, string> headers)
+        {
+            string headersInfo = string.Join(";", headers.Select(x => x.Key + "=" + x.Value).ToArray());
+            return message + Environment.NewLine + headersInfo;
         }
     }
 }

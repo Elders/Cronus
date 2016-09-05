@@ -1,3 +1,6 @@
+#### 3.0.0-beta0027 - 05.09.2016
+* Adds MessageId, CausationId, CorrelationId to all CronusMessages
+
 #### 3.0.0-beta0026 - 02.09.2016
 * Properly close endpoint
 

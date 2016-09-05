@@ -8,24 +8,23 @@ namespace Elders.Cronus.MessageProcessing
 {
     public class ApplicationServiceMiddleware : MessageHandlerMiddleware
     {
-        readonly IAggregateRepository aggregateRepository;
-
         public ApplicationServiceMiddleware(IHandlerFactory factory, IAggregateRepository aggregateRepository, IPublisher<IEvent> eventPublisher) : base(factory)
         {
-            this.aggregateRepository = new RepositoryProxy(aggregateRepository, eventPublisher);
             BeginHandle.Use((execution) =>
             {
-                execution.Context.HandlerInstance.AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = this.aggregateRepository);
+                var repo = new CronusAggregateRepository(aggregateRepository, eventPublisher, execution.Context.CronusMessage);
+                execution.Context.HandlerInstance.AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = repo);
             });
         }
 
-        class RepositoryProxy : IAggregateRepository
+        class CronusAggregateRepository : IAggregateRepository
         {
             readonly IAggregateRepository aggregateRepository;
             readonly IPublisher<IEvent> eventPublisher;
-
-            public RepositoryProxy(IAggregateRepository repository, IPublisher<IEvent> eventPublisher)
+            CronusMessage cronusMessage;
+            public CronusAggregateRepository(IAggregateRepository repository, IPublisher<IEvent> eventPublisher, CronusMessage cronusMessage)
             {
+                this.cronusMessage = cronusMessage;
                 this.aggregateRepository = repository;
                 this.eventPublisher = eventPublisher;
             }
@@ -46,7 +45,9 @@ namespace Elders.Cronus.MessageProcessing
                     var entityEvent = theEvent as EntityEvent;
                     if (ReferenceEquals(null, entityEvent) == false)
                         theEvent = entityEvent.Event;
-                    eventPublisher.Publish(theEvent, BuildHeaders(aggregateRoot, i));
+
+
+                    eventPublisher.Publish(theEvent, BuildHeaders(aggregateRoot, i, cronusMessage));
                 }
             }
 
@@ -55,14 +56,17 @@ namespace Elders.Cronus.MessageProcessing
                 return aggregateRepository.TryLoad<AR>(id, out aggregateRoot);
             }
 
-            private Dictionary<string, string> BuildHeaders(IAggregateRoot aggregateRoot, int eventPosition)
+            Dictionary<string, string> BuildHeaders(IAggregateRoot aggregateRoot, int eventPosition, CronusMessage triggeredBy)
             {
                 Dictionary<string, string> messageHeaders = new Dictionary<string, string>();
 
-                messageHeaders.Add("ar_id", aggregateRoot.State.Id.ToString());
-                messageHeaders.Add("ar_revision", aggregateRoot.Revision.ToString());
-                messageHeaders.Add("publish_timestamp", DateTime.UtcNow.ToString());
-                messageHeaders.Add("event_position", eventPosition.ToString());
+                messageHeaders.Add(MessageHeader.AggregateRootId, aggregateRoot.State.Id.ToString());
+                messageHeaders.Add(MessageHeader.AggregateRootRevision, aggregateRoot.Revision.ToString());
+                messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToString());
+                messageHeaders.Add(MessageHeader.AggregateRootEventPosition, eventPosition.ToString());
+
+                messageHeaders.Add(MessageHeader.CausationId, triggeredBy.MessageId);
+                messageHeaders.Add(MessageHeader.CorelationId, triggeredBy.CorelationId);
 
                 return messageHeaders;
             }

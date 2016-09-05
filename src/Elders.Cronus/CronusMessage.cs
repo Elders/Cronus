@@ -29,6 +29,21 @@ namespace Elders.Cronus
         [DataMember(Order = 3)]
         public IDictionary<string, string> Headers { get; private set; }
 
+        public string MessageId { get { return GetHeader(MessageHeader.MessageId); } }
+
+        public string CausationId { get { return GetHeader(MessageHeader.CausationId); } }
+
+        public string CorelationId { get { return GetHeader(MessageHeader.CorelationId); } }
+
+        string GetHeader(string key)
+        {
+            string value;
+            if (Headers.TryGetValue(key, out value) == false && MessageHeader.MessageId.Equals(key) == false)
+                value = $"Missing {key} for {GetHeader(MessageHeader.MessageId)}";
+
+            return value;
+        }
+
         public override bool Equals(System.Object obj)
         {
             if (ReferenceEquals(null, obj)) return false;

@@ -46,7 +46,7 @@ namespace Elders.Cronus.MessageProcessing
             {
                 using (var handler = CreateHandler.Run(execution.Context.HandlerType))
                 {
-                    var handleContext = new HandlerContext(execution.Context.Message.Payload, handler.Current);
+                    var handleContext = new HandlerContext(execution.Context.Message.Payload, handler.Current, execution.Context.Message);
 
                     BeginHandle.Run(handleContext);
                     ActualHandle.Run(handleContext);
