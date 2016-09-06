@@ -104,7 +104,7 @@ namespace Elders.Cronus.MessageProcessing
         IEnumerable<Type> GetInvolvedMessageTypes(Type type)
         {
             var ieventHandler = typeof(IEventHandler<>);
-            var iSagaHandler = typeof(ISagaTimeoutHandler<IScheduledMessage>);
+            var iSagaHandler = typeof(ISagaTimeoutHandler<>);
             var interfaces = type.GetInterfaces().Where(x => x.IsGenericType && (x.GetGenericTypeDefinition() == ieventHandler || x.GetGenericTypeDefinition() == iSagaHandler));
             foreach (var @interface in interfaces)
             {
