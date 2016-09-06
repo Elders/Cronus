@@ -1,3 +1,6 @@
+#### 3.0.0-beta0033 - 06.09.2016
+* Fixes SagaSubscriber registration
+
 #### 3.0.0-beta0032 - 06.09.2016
 * Uses SagaSubscriber explicitly
 
