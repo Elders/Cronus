@@ -237,10 +237,10 @@ Legend
 Domain Modeling / Core
 ----------------------
 
-| Name | Status | Description |
-|------|--------|-------------|
-| DomainModeling [code](https://github.com/Elders/Cronus.DomainModeling) [nuget](https://www.nuget.org/packages/Cronus.DomainModeling) | olympus | Contains contracts for DDD/CQRS development |
-| [Cronus](https://github.com/Elders/Cronus) | olympus | Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind |
+| Name | Links | Status | Description |
+|------|------ |--------|-------------|
+| DomainModeling | [code](https://github.com/Elders/Cronus.DomainModeling) [nuget](https://www.nuget.org/packages/Cronus.DomainModeling) | olympus | Contains contracts for DDD/CQRS development |
+| Cronus | [code](https://github.com/Elders/Cronus) | olympus | Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind |
 
 
 Messaging
