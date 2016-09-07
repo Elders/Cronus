@@ -10,20 +10,22 @@ Usually you do not need a CQRS framework to develop greate apps. However we noti
 #Domain Modeling
 To get out the maximum of Cronus you need to mark certain parts of your code to give hints to Cronus. 
 
-##ICommand - triggered by UI, API, ExternalSystem, IPort
+##ICommand
+A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants.
 
 | Triggered by | Description |
 |--------------|-------------|
-| UI |  |
-| API |  |
-| External System |  |
-| IPort |  |
+| UI | It is NOT a common practice to send commands directly from the UI. Usually the UI communicates with web APIs. |
+| API | APIs sit in the middle between UI and Server translating web requests into commands |
+| External System | It is NOT a common practice to send commands directly from the External System. Usually the External System communicates with web APIs. |
+| IPort | Ports are simple way for an aggregate root to communicate with another aggregate root. |
+| ISaga | Sagas are complex way for an aggregate root to communicate with another aggregate root even with external bounded context. |
 
 | Handled by | Description |
 |------------|-------------|
 | IAggregateRootApplicationService | This is a handler where commands are received and delivered to the addressed AggregateRoot. We call these handlers ApplicationService. This is the write side in CQRS. |
 
-Markup interface. A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants.
+
 
 - a command must be immutable
 - a command must clearly state a business intent with a name in imperative form
