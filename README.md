@@ -13,7 +13,7 @@ To get out the maximum of Cronus you need to mark certain parts of your code to 
 ##Serialization
 [ISerializer](https://github.com/Elders/Cronus/blob/master/src/Elders.Cronus/Serializer/ISerializer.cs#L5-L9) interface is really simple. You can plugin your own implementation but do not do it once you are in production.
 
-The samples bellow work with Json and Proteus-protobuf serializers. Every ICommand, IEvent, ValueObject and anything which is stored are marked with a DataContractAttribute and the properties are marked with a DataMemberAttribute. [Here is a quick sample how this works](https://msdn.microsoft.com/en-us/library/bb943471%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396).
+The samples bellow work with Json and Proteus-protobuf serializers. Every ICommand, IEvent, ValueObject and anything which is stored are marked with a DataContractAttribute and the properties are marked with a DataMemberAttribute. [Here is a quick sample how this works (just ignore the WCF or replace it with Cronus while reading)](https://msdn.microsoft.com/en-us/library/bb943471%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396).
 
 PROS:
 - you can rename any class whenever you like even when you are already in production;
