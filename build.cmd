@@ -53,7 +53,7 @@ SET TARGET="Build"
 
 IF NOT [%1]==[] (set TARGET="%1")
 
-SET SUMMARY="Elders.Cronus"
-SET DESCRIPTION="Elders.Cronus"
+SET SUMMARY="Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind"
+SET DESCRIPTION="Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind"
 
 %FAKE% %NYX% "target=%TARGET%" appName=Elders.Cronus appSummary=%SUMMARY% appDescription=%DESCRIPTION% nugetPackageName=Cronus
