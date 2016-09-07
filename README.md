@@ -239,7 +239,7 @@ Domain Modeling / Core
 
 | Name | Status | Description |
 |------|--------|-------------|
-| [DomainModeling](https://github.com/Elders/Cronus.DomainModeling) | olympus | Contains contracts for DDD/CQRS development |
+| DomainModeling [code](https://github.com/Elders/Cronus.DomainModeling) [nuget](https://www.nuget.org/packages/Cronus.DomainModeling) | olympus | Contains contracts for DDD/CQRS development |
 | [Cronus](https://github.com/Elders/Cronus) | olympus | Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind |
 
 
