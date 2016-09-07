@@ -10,11 +10,28 @@ Usually you do not need a CQRS framework to develop greate apps. However we noti
 #Domain Modeling
 To get out the maximum of Cronus you need to mark certain parts of your code to give hints to Cronus. 
 
+##Serialization
+[ISerializer](https://github.com/Elders/Cronus/blob/master/src/Elders.Cronus/Serializer/ISerializer.cs#L5-L9) interface is really simple. You can plugin your own implementation but do not do it once you are in production.
+
+The samples bellow work with Json and Proteus-protobuf serializers. Every ICommand, IEvent, ValueObject and anything which is stored are marked with a DataContractAttribute and the properties are marked with a DataMemberAttribute. [Here is a quick sample how this works](https://msdn.microsoft.com/en-us/library/bb943471%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396).
+
+PROS:
+- you can rename any class whenever you like even when you are already in production;
+- you can rename any property whenever you like even when you are already in production;
+- you can add new properties
+
+CONS:
+- you must not delete a class when already deployed to production;
+- you must not remove/change the `Name` of the DataContractAttribute when already deployed to production;
+- you must not remove/change the `Order` of the DataMemberAttribute when deployed to production. You can change the visibility modifier from `public` to `private`;
+
+
 ##ICommand
 A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants.
 
+
 | Triggered by | Description |
-|--------------|-------------|
+|:--------------:|:-------------|
 | UI | It is NOT a common practice to send commands directly from the UI. Usually the UI communicates with web APIs. |
 | API | APIs sit in the middle between UI and Server translating web requests into commands |
 | External System | It is NOT a common practice to send commands directly from the External System. Usually the External System communicates with web APIs. |
@@ -26,12 +43,14 @@ A command is used to dispatch domain model changes. It can be accepted or reject
 | IAggregateRootApplicationService | This is a handler where commands are received and delivered to the addressed AggregateRoot. We call these handlers ApplicationService. This is the write side in CQRS. |
 
 
-
+####You can/should/must...
 - a command must be immutable
 - a command must clearly state a business intent with a name in imperative form
 - a command can be rejected due to domain validation, error or other reason
 - a command must update only one AggregateRoot
 
+
+####Example
 ```cs
 public class DeactivateAccount : ICommand
 {
