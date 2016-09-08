@@ -37,7 +37,7 @@ A command is used to dispatch domain model changes. It can be accepted or reject
 | API | APIs sit in the middle between UI and Server translating web requests into commands |
 | External System | It is NOT a common practice to send commands directly from the External System. Usually the External System communicates with web APIs. |
 | IPort | Ports are simple way for an aggregate root to communicate with another aggregate root. |
-| ISaga | Sagas are complex way for an aggregate root to communicate with another aggregate root even with external bounded context. |
+| ISaga | Sagas are simple way for an aggregate root to do complex communication with other aggregate roots. |
 
 | Handled by | Description |
 |:----------:|-------------|
@@ -214,7 +214,8 @@ public class AccountSuspended : IEvent
 }
 ```
 
-##IProjection - triggered by IEvent
+##IProjection
+Projection tracks events and project their data for specific purposes.
 
 | Triggered by | Description |
 |:------------:|:------------|
@@ -241,6 +242,7 @@ If you feel the need to do more complex interactions it is advised to use ISaga.
 - a port can send a command
 
 ##ISaga/ProcessManager
+When we have a workflow which involves several aggregates it is recommended to have the whole process described in a single place such as Saga/ProcessManager.
 
 | Triggered by | Description |
 |:------------:|:------------|
@@ -250,6 +252,8 @@ If you feel the need to do more complex interactions it is advised to use ISaga.
 - a saga can send new commands
 
 ##IGateway
+Compared to IPort, which can dispatch a command, an IGateway can do the same but they also have a persistent state. A scenario could be sending commands to external BC like push notifications, emails etc. There is no need to event source this state and its perfectly fine if this state is wiped. Example: iOS push notifications badge. This state should be used only for infrastructure needs and never for business cases. Compared to IProjection, which track events and project their data and are not allowed to send any commands at all, an IGateway store and track a metadata required by external systems. Also, IGateway are restricted and not touched when events are replayed.
+
 | Triggered by | Description |
 |:------------:|:------------|
 | IEvent | Domain events represent business changes which already happened |
