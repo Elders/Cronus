@@ -23,9 +23,9 @@ The samples on this page work with Json and Proteus-protobuf serializers. Every 
 - you can add new properties
 
 ####You must not...
-- you must not delete a class when already deployed to production;
-- you must not remove/change the `Name` of the DataContractAttribute when already deployed to production;
-- you must not remove/change the `Order` of the DataMemberAttribute when deployed to production. You can change the visibility modifier from `public` to `private`;
+- you must not delete a class when already deployed to production
+- you must not remove/change the `Name` of the DataContractAttribute when already deployed to production
+- you must not remove/change the `Order` of the DataMemberAttribute when deployed to production. You can change the visibility modifier from `public` to `private`
 
 
 ##ICommand
@@ -40,7 +40,7 @@ A command is used to dispatch domain model changes. It can be accepted or reject
 | ISaga | Sagas are complex way for an aggregate root to communicate with another aggregate root even with external bounded context. |
 
 | Handled by | Description |
-|------------|-------------|
+|:----------:|-------------|
 | IAggregateRootApplicationService | This is a handler where commands are received and delivered to the addressed AggregateRoot. We call these handlers ApplicationService. This is the write side in CQRS. |
 
 ####You can/should/must...
@@ -76,24 +76,27 @@ public class Reason : ValueObject<Reason>{...}
 ```
 
 
-##IAggregateRootApplicationService - triggered by ICommand
+##IAggregateRootApplicationService
 This is a handler where commands are received and delivered to the addressed AggregateRoot. We call these handlers *ApplicationService*. This is the *write side* in CQRS.
 
+| Triggered by | Description |
+|:--------------:|:-------------|
+| ICommand | A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants |
+
 ####You can/should/must...
-- you can load an aggregate root from the event store
-- you can save new aggregate root events to the event store
-- you can do calls to the ReadModel
-- you can do calls to external services
+- an appservice can load an aggregate root from the event store
+- an appservice can save new aggregate root events to the event store
+- an appservice can do calls to the ReadModel (not a common practice but sometimes needed)
+- an appservice can do calls to external services
 - you can do dependency orchestration
-- An ApplicationService must be stateless
-- you must update only one aggreate root. Yes, this means that you can create one aggregate and update another one but think twice
+- an appservice must be stateless
+- an appservice must update only one aggreate root. Yes, this means that you can create one aggregate and update another one but think twice
 
 ####You should not...
-- you should not update more than one aggregate root in single command/handler
+- an appservice should not update more than one aggregate root in single command/handler
 - you should not place domain logic inside an application service
 - you should not use application service to send emails, push notifications etc. Use Port or Gateway instead
-- you should not update the ReadModel from an ApplicationService
-
+- an appservice should not update the ReadModel
 
 ```cs
 public class AccountAppService : AggregateRootApplicationService<Account>,
@@ -115,6 +118,10 @@ public class AccountAppService : AggregateRootApplicationService<Account>,
 
 
 ##IAggregateRoot - triggered by ApplicationService
+
+| Triggered by | Description |
+|:------------:|:-------------|
+| IAggregateRootApplicationService | This is a handler where commands are received and delivered to the addressed AggregateRoot. We call these handlers *ApplicationService*. This is the *write side* in CQRS. |
 
 ```cs
 public class Account : AggregateRoot<AccountState>
@@ -175,14 +182,16 @@ public class AccountState : AggregateRootState<Account, AccountId>
 ```
 
 ##IEvent - triggered by IAggregateRoot
-Markup interface. Represents domain model changes.
+Domain events represent business changes which already happened.
 
+| Triggered by | Description |
+|:------------:|:------------|
+| IAggregateRoot | TODO |
 
-An Event must be immutable
-Should represent a domain event which already happened. The name of the event must be in past tense.
-A Command must clearly state a business intent with a name in imperative form  
-A Command can be rejected due to domain validation, error or other reason  
-A Command must update only one AggregateRoot
+####You can/should/must...
+- an event must be immutable
+- an event must represent a domain event which already happened with a name in past tense
+- an event can be dispatche only by one aggregate
 
 ```cs
 [DataContract(Name = "fff400a3-1af0-4332-9cf5-b86c1c962a01")]
@@ -205,24 +214,50 @@ public class AccountSuspended : IEvent
 }
 ```
 
-
 ##IProjection - triggered by IEvent
-- idempotent
-- must not query other projections. All the data of a projection must be collected from the Events' data
-- projections must not issue new commands or events
 
+| Triggered by | Description |
+|:------------:|:------------|
+| IEvent | Domain events represent business changes which already happened |
 
-##ISaga/ProcessManager - triggered by IEvent
+####You can/should/must...
+- a projection must be idempotent
+- a projection must not issue new commands or events
 
+####You should not...
+- a projection should not query other projections. All the data of a projection must be collected from the Events' data
+- a projection should not do calls to external systems
 
-##IPort - triggered by IEvent
-- You can send new commands
+##IPort
+Port is the mechanizm to do communication between aggregates. Usually this involves one aggregate who triggered an event and one aggregate which needs to react. 
 
+If you feel the need to do more complex interactions it is advised to use ISaga. The reason for this is that ports do not provide transperant view of a business flow because they do not have persistent state.
+
+| Triggered by | Description |
+|:------------:|:------------|
+| IEvent | Domain events represent business changes which already happened |
+
+####You can/should/must...
+- a port can send a command
+
+##ISaga/ProcessManager
+
+| Triggered by | Description |
+|:------------:|:------------|
+| IEvent | Domain events represent business changes which already happened |
+
+####You can/should/must...
+- a saga can send new commands
 
 ##IGateway
+| Triggered by | Description |
+|:------------:|:------------|
+| IEvent | Domain events represent business changes which already happened |
+
+####You can/should/must...
+- a gateway can send new commands
 
 #Ecosystem
-
 
 Legend
 ------
