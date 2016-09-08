@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.EventStore
@@ -12,17 +10,7 @@ namespace Elders.Cronus.EventStore
     {
         AggregateCommit()
         {
-            InternalEvents = new List<object>();
-        }
-
-        [Obsolete("Use the other overloads. This will be removed in version 3.*")]
-        public AggregateCommit(IAggregateRootId aggregateId, int revision, List<IEvent> events)
-        {
-            AggregateRootId = aggregateId.RawId;
-            BoundedContext = aggregateId.GetType().GetBoundedContext().BoundedContextName;
-            Revision = revision;
-            InternalEvents = events.Cast<object>().ToList();
-            Timestamp = DateTime.UtcNow.ToFileTimeUtc();
+            Events = new List<IEvent>();
         }
 
         public AggregateCommit(IBlobId aggregateId, int revision, List<IEvent> events)
@@ -34,7 +22,7 @@ namespace Elders.Cronus.EventStore
             AggregateRootId = aggregateRootId;
             BoundedContext = boundedContext;
             Revision = revision;
-            InternalEvents = events.Cast<object>().ToList();
+            Events = events;
             Timestamp = DateTime.UtcNow.ToFileTimeUtc();
         }
 
@@ -48,11 +36,9 @@ namespace Elders.Cronus.EventStore
         public int Revision { get; private set; }
 
         [DataMember(Order = 4)]
-        private List<object> InternalEvents { get; set; }
+        public List<IEvent> Events { get; set; }
 
         [DataMember(Order = 5)]
         public long Timestamp { get; private set; }
-
-        public List<IEvent> Events { get { return InternalEvents.Cast<IEvent>().ToList(); } }
     }
 }

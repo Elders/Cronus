@@ -35,13 +35,13 @@ namespace Elders.Cronus.AtomicAction.InMemory
 
             try
             {
-                acquired = aggregateLock.Get(Convert.ToBase64String(aggregateRootId.RawId)) as AtomicBoolean;
+                acquired = aggregateLock.Get(aggregateRootId.Urn.Value) as AtomicBoolean;
                 if (ReferenceEquals(null, acquired))
                 {
                     acquired = acquired ?? new AtomicBoolean(false);
-                    if (aggregateLock.Add(Convert.ToBase64String(aggregateRootId.RawId), acquired, sliding30seconds) == false)
+                    if (aggregateLock.Add(aggregateRootId.Urn.Value, acquired, sliding30seconds) == false)
                     {
-                        acquired = aggregateLock.Get(Convert.ToBase64String(aggregateRootId.RawId)) as AtomicBoolean;
+                        acquired = aggregateLock.Get(aggregateRootId.Urn.Value) as AtomicBoolean;
                         if (ReferenceEquals(null, acquired))
                             return result;
                     }
@@ -51,13 +51,13 @@ namespace Elders.Cronus.AtomicAction.InMemory
                 {
                     try
                     {
-                        AtomicInteger revision = aggregateRevisions.Get(Convert.ToBase64String(aggregateRootId.RawId)) as AtomicInteger;
+                        AtomicInteger revision = aggregateRevisions.Get(aggregateRootId.Urn.Value) as AtomicInteger;
                         if (ReferenceEquals(null, revision))
                         {
                             revision = new AtomicInteger(aggregateRootRevision - 1);
-                            if (aggregateRevisions.Add(Convert.ToBase64String(aggregateRootId.RawId), revision, sliding30seconds) == false)
+                            if (aggregateRevisions.Add(aggregateRootId.Urn.Value, revision, sliding30seconds) == false)
                             {
-                                revision = aggregateRevisions.Get(Convert.ToBase64String(aggregateRootId.RawId)) as AtomicInteger;
+                                revision = aggregateRevisions.Get(aggregateRootId.Urn.Value) as AtomicInteger;
                                 if (ReferenceEquals(null, revision))
                                     return result;
                             }

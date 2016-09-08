@@ -34,7 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Elders.Cronus.DomainModeling, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cronus.DomainModeling.2.3.0-beta0001\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
+      <HintPath>..\packages\Cronus.DomainModeling.3.1.0\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
@@ -49,8 +49,8 @@
       <HintPath>..\packages\Machine.Specifications.0.9.3\lib\net45\Machine.Specifications.Clr4.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Machine.Specifications.Should, Version=0.8.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Machine.Specifications.Should.0.8.0\lib\net45\Machine.Specifications.Should.dll</HintPath>
+    <Reference Include="Machine.Specifications.Should, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Machine.Specifications.Should.0.9.0\lib\net45\Machine.Specifications.Should.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -60,7 +60,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AggregateRoot.cs" />
-    <Compile Include="DomainModeling\When_resolve_scoped_component_out_of_scope.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_with_entity_from_event_store.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_events_for_replay.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_from_event_store.cs" />
@@ -89,8 +88,16 @@
     <Compile Include="MessageStreaming\When__MessageStream__has_subscription_which_fails_to_handle_a_message.cs" />
     <Compile Include="MessageStreaming\When__MessageStream__is_feeded_with_failed_messages_with_origin_type__handler__.cs" />
     <Compile Include="MessageStreaming\When__MessageStream__receives_a_batch_of__TransportMessages__.cs" />
+    <Compile Include="Middleware\When_executing_middleware_tree.cs" />
+    <Compile Include="Middleware\When_attaching_multiple_middlewares.cs" />
+    <Compile Include="Middleware\When_breaking_middleware.cs" />
+    <Compile Include="Middleware\When_transfering_to_another_middleware_and_there_is_no_followup_middleware.cs" />
+    <Compile Include="Middleware\When_transfering_to_another_middleware.cs" />
+    <Compile Include="Middleware\When_executing_single_middleware.cs" />
+    <Compile Include="Middleware\ExecutionToken.cs" />
+    <Compile Include="Middleware\TestExecutionChain.cs" />
+    <Compile Include="Middleware\TestMiddleware.cs" />
     <Compile Include="TestModel\TestEntityId.cs" />
-    <Compile Include="TestModel\TestSubscription.cs" />
     <Compile Include="TestModel\TestAggregateId.cs" />
     <Compile Include="TestModel\TestAggregateRoot.cs" />
     <Compile Include="TestModel\TestAggregateRootState.cs" />

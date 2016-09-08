@@ -14,6 +14,8 @@ namespace Elders.Cronus.Pipeline
     {
         int NumberOfWorkers { get; }
 
+        string Name { get; }
+
         void Start(int? numberOfWorkers = null);
 
         void Stop();

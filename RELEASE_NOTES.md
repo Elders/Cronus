@@ -1,6 +1,22 @@
-#### 2.6.3 - 12.07.2016
+#### 3.0.0 - 08.09.2016
+* The entire workflow was reworked with Middleware execution pipeline
+* Middleware for inmemory retries
+* Consumers and Endpoint Factory now uses the SubscriptionsMiddlewares
+* Adds support for Sagas
+* Adds MessageId, CausationId, CorrelationId to all CronusMessages
+* Adds validation checks when initializing EndpointConsumer
+* Subscribers now care for MessageTypes of System.Type
+* Uses consumer when building endpoints for propper transport initialization
+* Fixed the PublishTimestamp header of the CronusMessage
+* Properly destroy the container
+* MessageThreshold checks removed.
+* Perses: Reworked subscribers and subscription middleware. We can now support dynamic subscribing, and we can now also decuple rabbitmq specific logic for building queues etc.
+* Perses: Rename TransportMessage to CronusMessage. There is a breaking change because of reorganization of the the props.
+ 
+ #### 2.6.3 - 12.07.2016
 * Fixed bug where Container.IsRegistered does not checks the singleton and the scoped registrations.
 * Replaces the ConcurrentDictionary as a mechanizm for synchronizing with MemoryCache. The motivation behind this change is that we never invalidate the values but with MemoryCache we use sliding 30 seconds policy. In addition the MemoryCache is configured with 500mb memory cap and 10% of total physical memory cap.
+
 
 #### 2.6.2 - 06.04.2016
 * Fixed bug where Container.IsRegistered does not checks the singleton and the scoped registrations.

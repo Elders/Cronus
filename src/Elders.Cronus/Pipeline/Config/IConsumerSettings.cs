@@ -8,14 +8,5 @@ namespace Elders.Cronus.Pipeline.Config
         MessageThreshold MessageTreshold { get; set; }
     }
 
-    public interface ICanConfigureCircuitBreaker : ISettingsBuilder
-    {
-
-    }
-
-    public interface IConsumerSettings<TContract> : IConsumerSettings, ICanConfigureCircuitBreaker
-        where TContract : IMessage
-    {
-
-    }
+    public interface IConsumerSettings<TContract> : IConsumerSettings where TContract : IMessage { }
 }

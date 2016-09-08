@@ -1,6 +1,7 @@
 ﻿using System;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Pipeline;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
@@ -11,9 +12,7 @@ namespace Elders.Cronus.InMemory.Config
     {
         public InMemoryConsumerSettings(ISettingsBuilder settingsBuilder, string name)
             : base(settingsBuilder, name)
-        {
-
-        }
+        { }
 
         int IConsumerSettings.NumberOfWorkers { get; set; }
 
@@ -26,7 +25,7 @@ namespace Elders.Cronus.InMemory.Config
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            Func<IMessageProcessor> messageHandlerProcessor = () => builder.Container.Resolve<IMessageProcessor>(builder.Name);
+            Func<SubscriptionMiddleware> messageHandlerProcessor = () => builder.Container.Resolve<SubscriptionMiddleware>(builder.Name);
             Func<IPublisher<TContract>> consumer = () => new InMemoryPublisher<TContract>(messageHandlerProcessor());
             builder.Container.RegisterSingleton<IPublisher<TContract>>(() => consumer(), builder.Name);
         }
@@ -87,16 +86,6 @@ namespace Elders.Cronus.InMemory.Config
             InMemoryPortConsumerSettings settings = new InMemoryPortConsumerSettings(self, name);
             if (configure != null)
                 configure(settings);
-            (settings as ISettingsBuilder).Build();
-            return self;
-        }
-
-        public static T UsePortsAndProjections<T>(this T self, Action<ProjectionMessageProcessorSettings> configure) where T : IConsumerSettings<IEvent>
-        {
-            ProjectionMessageProcessorSettings settings = new ProjectionMessageProcessorSettings(self, t => typeof(IPort).IsAssignableFrom(t) || typeof(IProjection).IsAssignableFrom(t));
-            if (configure != null)
-                configure(settings);
-
             (settings as ISettingsBuilder).Build();
             return self;
         }

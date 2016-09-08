@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Elders.Cronus.Pipeline.CircuitBreaker;
 using Elders.Cronus.Serializer;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
+using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline
 {
@@ -11,25 +11,22 @@ namespace Elders.Cronus.Pipeline
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(PipelineConsumerWork));
 
-        private IMessageProcessor processor;
+        SubscriptionMiddleware subscriptions;
 
-        private readonly IEndpoint endpoint;
+        readonly IEndpoint endpoint;
 
         volatile bool isWorking;
 
-        private readonly ISerializer serializer;
+        readonly ISerializer serializer;
 
-        private readonly MessageThreshold messageThreshold;
+        readonly MessageThreshold messageThreshold;
 
-        private readonly IEndpointCircuitBreaker circuitBreaker;
-
-        public PipelineConsumerWork(IMessageProcessor processor, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold, IEndpointCircuitBreaker circuitBreaker)
+        public PipelineConsumerWork(SubscriptionMiddleware subscriptions, IEndpoint endpoint, ISerializer serializer, MessageThreshold messageThreshold)
         {
             this.endpoint = endpoint;
-            this.processor = processor;
-            this.circuitBreaker = circuitBreaker;
+            this.subscriptions = subscriptions;
             this.serializer = serializer;
-            this.messageThreshold = messageThreshold ?? new MessageThreshold();
+            this.messageThreshold = messageThreshold;
         }
 
         public DateTime ScheduledStart { get; set; }
@@ -43,29 +40,27 @@ namespace Elders.Cronus.Pipeline
                 while (isWorking)
                 {
                     List<EndpointMessage> rawMessages = new List<EndpointMessage>();
-                    List<TransportMessage> transportMessages = new List<TransportMessage>();
                     for (int i = 0; i < messageThreshold.Size; i++)
                     {
                         EndpointMessage rawMessage = null;
                         if (!endpoint.BlockDequeue(messageThreshold.Delay, out rawMessage))
                             break;
 
-                        TransportMessage transportMessage = (TransportMessage)serializer.DeserializeFromBytes(rawMessage.Body);
-
-                        transportMessages.Add(transportMessage);
+                        CronusMessage transportMessage = (CronusMessage)serializer.DeserializeFromBytes(rawMessage.Body);
+                        var subscribers = subscriptions.GetInterestedSubscribers(transportMessage);
+                        foreach (var subscriber in subscribers)
+                        {
+                            subscriber.Process(transportMessage);
+                        }
                         rawMessages.Add(rawMessage);
                     }
-                    if (transportMessages.Count == 0)
-                        continue;
 
-                    var result = processor.Feed(transportMessages);
-                    circuitBreaker.PostConsume(result);
                     endpoint.AcknowledgeAll();
                 }
             }
             catch (EndpointClosedException ex)
             {
-                log.WarnException("Endpoint Closed", ex);
+                log.DebugException("Endpoint Closed", ex);
             }
             catch (Exception ex)
             {
@@ -80,7 +75,7 @@ namespace Elders.Cronus.Pipeline
                 }
                 catch (EndpointClosedException ex)
                 {
-                    log.WarnException("Endpoint Closed", ex);
+                    log.DebugException("Endpoint Closed", ex);
                 }
                 ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
             }
@@ -89,7 +84,7 @@ namespace Elders.Cronus.Pipeline
         public void Stop()
         {
             isWorking = false;
-            endpoint.Close();
+            endpoint.Close();   // This is called from another thread so we need it.
         }
     }
 }

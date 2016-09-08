@@ -1,32 +1,24 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Logging;
+using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.InMemory
 {
     public class InMemoryPublisher<TContract> : Publisher<TContract> where TContract : IMessage
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<TContract>));
+        static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<>));
 
-        IMessageProcessor messageProcessor;
+        SubscriptionMiddleware subscribtions;
 
-        public InMemoryPublisher(IMessageProcessor messageProcessor)
+        public InMemoryPublisher(SubscriptionMiddleware messageProcessor)
         {
-            this.messageProcessor = messageProcessor;
+            this.subscribtions = messageProcessor;
         }
 
         protected override bool PublishInternal(TContract message, Dictionary<string, string> messageHeaders)
         {
-            var result = messageProcessor.Feed(new List<TransportMessage>() { new TransportMessage(new Message(message)) });
-            if (result.FailedMessages != null && result.FailedMessages.Count() > 0)
-            {
-                foreach (var msg in result.FailedMessages)
-                {
-                    log.ErrorException(msg.Payload.ToString(), msg.Errors.First().Error);
-                }
-                return false;
-            }
+            subscribtions.GetInterestedSubscribers(new CronusMessage(message, messageHeaders));
             return true;
         }
     }
