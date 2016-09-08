@@ -45,6 +45,7 @@ echo Downloading Nyx...
 IF NOT [%1]==[] (set RELEASE_NUGETKEY="%1")
 IF NOT [%2]==[] (set RELEASE_TARGETSOURCE="%2")
 
+SET RELEASE_NOTES=RELEASE_NOTES.md
 SET SUMMARY="Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind"
 SET DESCRIPTION="Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind"
 
