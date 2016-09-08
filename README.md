@@ -13,7 +13,7 @@ To get out the maximum of Cronus you need to mark certain parts of your code to 
 ##Serialization
 [ISerializer](https://github.com/Elders/Cronus/blob/master/src/Elders.Cronus/Serializer/ISerializer.cs#L5-L9) interface is really simple. You can plugin your own implementation but do not do it once you are in production.
 
-The samples bellow work with Json and Proteus-protobuf serializers. Every ICommand, IEvent, ValueObject and anything which is stored are marked with a DataContractAttribute and the properties are marked with a DataMemberAttribute. [Here is a quick sample how this works (just ignore the WCF or replace it with Cronus while reading)](https://msdn.microsoft.com/en-us/library/bb943471%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396). We use `Guid` for the name of the DataContract because it is unique.
+The samples on this page work with Json and Proteus-protobuf serializers. Every ICommand, IEvent, ValueObject or anything which is persisted is marked with a DataContractAttribute and the properties are marked with a DataMemberAttribute. [Here is a quick sample how this works (just ignore the WCF or replace it with Cronus while reading)](https://msdn.microsoft.com/en-us/library/bb943471%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396). We use `Guid` for the name of the DataContract because it is unique.
 
 ####You can/should/must...
 - you must add private parameterless constructor
@@ -22,7 +22,7 @@ The samples bellow work with Json and Proteus-protobuf serializers. Every IComma
 - you can rename any property whenever you like even when you are already in production
 - you can add new properties
 
-You must not...
+####You must not...
 - you must not delete a class when already deployed to production;
 - you must not remove/change the `Name` of the DataContractAttribute when already deployed to production;
 - you must not remove/change the `Order` of the DataMemberAttribute when deployed to production. You can change the visibility modifier from `public` to `private`;
