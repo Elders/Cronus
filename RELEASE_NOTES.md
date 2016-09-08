@@ -1,106 +1,20 @@
-#### 3.0.0-beta0033 - 06.09.2016
-* Fixes SagaSubscriber registration
-
-#### 3.0.0-beta0032 - 06.09.2016
-* Uses SagaSubscriber explicitly
-
-#### 3.0.0-beta0031 - 05.09.2016
-* Fixes Saga HandleSubscriber
-
-#### 3.0.0-beta0030 - 05.09.2016
-* Fixes Saga message handling
-
-#### 3.0.0-beta0029 - 05.09.2016
-* Adds support for Sagas
-
-#### 3.0.0-beta0028 - 05.09.2016
-* Fixes the PublishTimestamp header of the CronusMessage
-
-#### 3.0.0-beta0027 - 05.09.2016
-* Adds MessageId, CausationId, CorrelationId to all CronusMessages
-
-#### 3.0.0-beta0026 - 02.09.2016
-* Properly close endpoint
-
-#### 3.0.0-beta0025 - 02.09.2016
-* Properly destroy the container
-
-#### 3.0.0-beta0024 - 30.08.2016
-* messageThreshold checks removed.
-
-#### 3.0.0-beta0023 - 30.08.2016
-* Adds validation checks when initializing EndpointConsumer
-
-#### 3.0.0-beta0022 - 30.08.2016
-* Uses consumer when building endpoints for propper transport initialization
-
-#### 3.0.0-beta0021 - 29.08.2016
-* Code cleanup
-
-#### 3.0.0-beta0020 - 26.07.2016
-* We now have Finalize middleware handle so you can cleanup resources if required
-
-#### 3.0.0-beta0019 - 24.07.2016
-* Bump version
-
-#### 3.0.0-beta0018 - 24.07.2016
-* Removing forgoton exceptions
-
-#### 3.0.0-beta0017 - 24.07.2016
-* Yet another cfg modification
-
-#### 3.0.0-beta0016 - 24.07.2016
-* Forgot to remove <T>
-
-#### 3.0.0-beta0015 - 24.07.2016
-* Using Umbraco InMemoryRetries
-
-#### 3.0.0-beta0014 - 24.07.2016
-* Fix runtime errors and code cleanup
-
-#### 3.0.0-beta0013 - 23.07.2016
-* Subscribers now care for MessageTypes of System.Type
-
-#### 3.0.0-beta0012 - 22.07.2016
+#### 3.0.0 - 08.09.2016
+* The entire workflow was reworked with Middleware execution pipeline
+* Middleware for inmemory retries
 * Consumers and Endpoint Factory now uses the SubscriptionsMiddlewares
-
-#### 3.0.0-beta0011 - 22.07.2016
-* Test release
-
-#### 3.0.0-beta0010 - 22.07.2016
+* Adds support for Sagas
+* Adds MessageId, CausationId, CorrelationId to all CronusMessages
+* Adds validation checks when initializing EndpointConsumer
+* Subscribers now care for MessageTypes of System.Type
+* Uses consumer when building endpoints for propper transport initialization
+* Fixed the PublishTimestamp header of the CronusMessage
+* Properly destroy the container
+* MessageThreshold checks removed.
 * Perses: Reworked subscribers and subscription middleware. We can now support dynamic subscribing, and we can now also decuple rabbitmq specific logic for building queues etc.
 * Perses: Rename TransportMessage to CronusMessage. There is a breaking change because of reorganization of the the props.
 * Perses: More MW Parses
-
-#### 3.0.0-beta0009 - 22.06.2016
-* Properly configure some middlewares and if not as a fundamental question. For more info look at the code diff.
 * Replaces the ConcurrentDictionary as a mechanizm for synchronizing with MemoryCache. The motivation behind this change is that we never invalidate the values but with MemoryCache we use sliding 30 seconds policy. In addition the MemoryCache is configured with 500mb memory cap and 10% of total
  physical memory cap.
-
-#### 3.0.0-beta0008 - 09.06.2016
-* Second Middleware hook for message handle
-
-#### 3.0.0-beta0007 - 09.06.2016
-* First Middleware hook for message handle
-
-#### 3.0.0-beta0006 - 09.06.2016
-* Removed HystrixMiddleware
-* Updated all packages to latest version
-
-#### 3.0.0-beta0005 - 02.06.2016
-* Fix copy/pasta issue
-
-#### 3.0.0-beta0004 - 02.06.2016
-* Fix registrations
-
-#### 3.0.0-beta0003 - 02.06.2016
-* HystrixMiddleware
-
-#### 3.0.0-beta0002 - 25.05.2016
-* Rollback some of the MessagegeProcessor functionality
-
-#### 3.0.0-beta0001 - 25.05.2016
-* Feature: Middleware execution pipeline.
 
 #### 2.6.2 - 06.04.2016
 * Fixed bug where Container.IsRegistered does not checks the singleton and the scoped registrations.
