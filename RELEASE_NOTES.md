@@ -1,3 +1,6 @@
+#### 3.0.1 - 22.09.2016
+* Updates DomainModeling
+
 #### 3.0.0 - 08.09.2016
 * The entire workflow was reworked with Middleware execution pipeline
 * Middleware for inmemory retries
@@ -12,7 +15,7 @@
 * MessageThreshold checks removed.
 * Perses: Reworked subscribers and subscription middleware. We can now support dynamic subscribing, and we can now also decuple rabbitmq specific logic for building queues etc.
 * Perses: Rename TransportMessage to CronusMessage. There is a breaking change because of reorganization of the the props.
- 
+
  #### 2.6.3 - 12.07.2016
 * Fixed bug where Container.IsRegistered does not checks the singleton and the scoped registrations.
 * Replaces the ConcurrentDictionary as a mechanizm for synchronizing with MemoryCache. The motivation behind this change is that we never invalidate the values but with MemoryCache we use sliding 30 seconds policy. In addition the MemoryCache is configured with 500mb memory cap and 10% of total physical memory cap.
