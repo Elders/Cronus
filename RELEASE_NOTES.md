@@ -1,3 +1,6 @@
+#### 3.0.2 - 08.11.2016
+* Remove default configuration for In Memory Aggregate Atomic Action
+
 #### 3.0.1 - 22.09.2016
 * Updates DomainModeling
 
