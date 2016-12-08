@@ -152,6 +152,7 @@
     <Compile Include="EventStore\IEventStoreStorageManager.cs" />
     <Compile Include="CronusAssembly.cs" />
     <Compile Include="Projections\ProjectionCommit.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Projections\EventOrigin.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
     <Compile Include="Pipeline\EndpointClosedException.cs" />
@@ -185,9 +186,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
