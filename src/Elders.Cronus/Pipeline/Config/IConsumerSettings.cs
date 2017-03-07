@@ -6,7 +6,6 @@ namespace Elders.Cronus.Pipeline.Config
     {
         int NumberOfWorkers { get; set; }
 
-        MessageThreshold MessageTreshold { get; set; }
     }
 
     public interface IConsumerSettings<TContract> : IConsumerSettings where TContract : IMessage { }

@@ -23,7 +23,7 @@ namespace Elders.Cronus.Pipeline.Hosts
         void ISettingsBuilder.Build()
         {
             var builder = this as ISettingsBuilder;
-            var consumers = builder.Container.ResolveAll<IEndpointConsumer>();
+            var consumers = builder.Container.ResolveAll<ICronusConsumer>();
             CronusHost host = new CronusHost();
             host.Consumers = consumers;
             builder.Container.RegisterSingleton(typeof(CronusHost), () => host);

@@ -2,7 +2,6 @@
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Hosts;
-using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
@@ -22,8 +21,6 @@ namespace Elders.Cronus.Pipeline.Config
 
         int IConsumerSettings.NumberOfWorkers { get; set; }
 
-        MessageThreshold IConsumerSettings.MessageTreshold { get; set; }
-
         IContainer ISettingsBuilder.Container { get; set; }
 
         string ISettingsBuilder.Name { get; set; }
@@ -31,11 +28,11 @@ namespace Elders.Cronus.Pipeline.Config
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
+            Func<ITransport> transport = () => builder.Container.Resolve<ITransport>(builder.Name);
             Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
             Func<SubscriptionMiddleware> messageHandlerProcessor = () => builder.Container.Resolve<SubscriptionMiddleware>(builder.Name);
-            Func<IEndpointConsumer> consumer = () => new EndpointConsumer((this as IConsumerSettings<TContract>).Name, transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold);
-            builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer(), builder.Name);
+            Func<ICronusConsumer> consumer = () => new CronusConsumer((this as IConsumerSettings<TContract>).Name, transport(), messageHandlerProcessor(), serializer());
+            builder.Container.RegisterSingleton<ICronusConsumer>(() => consumer(), builder.Name);
         }
     }
 
@@ -75,12 +72,6 @@ namespace Elders.Cronus.Pipeline.Config
         public static T SetNumberOfConsumerThreads<T>(this T self, int numberOfConsumers) where T : IConsumerSettings
         {
             self.NumberOfWorkers = numberOfConsumers;
-            return self;
-        }
-
-        public static T SetMessageThreshold<T>(this T self, uint size, uint delay) where T : IConsumerSettings
-        {
-            self.MessageTreshold = new MessageThreshold(size, delay);
             return self;
         }
 
