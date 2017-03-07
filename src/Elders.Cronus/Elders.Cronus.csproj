@@ -145,13 +145,10 @@
     <Compile Include="Pipeline\Config\RetryExtensions.cs" />
     <Compile Include="Pipeline\Hosts\ICronusHost.cs" />
     <Compile Include="Pipeline\Hosts\CronusHost.cs" />
-    <Compile Include="Pipeline\MessageThreshold.cs" />
     <Compile Include="Pipeline\PipelineConsumerWork.cs" />
     <Compile Include="Pipeline\Strategy\EndpointPerHandlerNameConvention.cs" />
     <Compile Include="Pipeline\Strategy\EndpointPerConsumerNameConvention.cs" />
     <Compile Include="Pipeline\Strategy\PipelinePerApplicationNameConvention.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineTransport.cs" />
-    <Compile Include="Pipeline\Transport\IPipelineTransport.cs" />
     <Compile Include="ITransport.cs" />
     <Compile Include="AtomicAction\AggregateStateFirstLevelConcurrencyException.cs" />
     <Compile Include="EventStore\IEventStoreStorageManager.cs" />
@@ -160,30 +157,16 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Projections\EventOrigin.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
-    <Compile Include="Pipeline\EndpointClosedException.cs" />
+    <Compile Include="Pipeline\BaseConsumerWork.cs" />
     <Compile Include="Pipeline\Hosts\CronusSettings.cs" />
     <Compile Include="Pipeline\EndpointConsumer.cs" />
-    <Compile Include="Pipeline\IEndpointConsumer.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpointFactory.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpoint.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryPipeline.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineFactory.cs" />
-    <Compile Include="Pipeline\PipelineClosedException.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\Config\InMemory.cs" />
+    <Compile Include="Pipeline\IConsumer.cs" />
     <Compile Include="Publisher.cs" />
     <Compile Include="CronusMessage.cs" />
     <Compile Include="Userfull\LateBoundMethod.cs" />
-    <Compile Include="Pipeline\PipelinePublisher.cs" />
     <Compile Include="Userfull\FastActivator.cs" />
     <Compile Include="Userfull\Result.cs" />
     <Compile Include="Userfull\RetryableOperation.cs" />
-    <Compile Include="Pipeline\IPipelineNameConvention.cs" />
-    <Compile Include="Pipeline\IEndpoint.cs" />
-    <Compile Include="Pipeline\IEndpointFactory.cs" />
-    <Compile Include="Pipeline\EndpointDefinition.cs" />
-    <Compile Include="Pipeline\IEndpointNameConvention.cs" />
-    <Compile Include="Pipeline\IPipeline.cs" />
-    <Compile Include="Pipeline\IPipelineFactory.cs" />
     <Compile Include="Userfull\SerializableException.cs" />
   </ItemGroup>
   <ItemGroup>

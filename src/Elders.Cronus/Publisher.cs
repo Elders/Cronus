@@ -27,7 +27,7 @@ namespace Elders.Cronus
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(Publisher<TMessage>));
 
-        protected abstract bool PublishInternal(TMessage message, Dictionary<string, string> messageHeaders);
+        protected abstract bool PublishInternal(CronusMessage message);
 
         public bool Publish(TMessage message, Dictionary<string, string> messageHeaders)
         {
@@ -43,7 +43,8 @@ namespace Elders.Cronus
                 if (messageHeaders.ContainsKey(MessageHeader.PublishTimestamp) == false)
                     messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
 
-                PublishInternal(message, messageHeaders);
+                var cronusMessage = new CronusMessage(message, messageHeaders);
+                PublishInternal(cronusMessage);
 
                 log.Info(() => message.ToString());
                 log.Debug(() => "PUBLISH => " + BuildDebugLog(message, messageHeaders));
