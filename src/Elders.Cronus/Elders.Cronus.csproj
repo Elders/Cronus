@@ -139,9 +139,6 @@
     <Compile Include="Pipeline\Config\MessageProcessorSettings.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Pipeline\Config\PipelinePublisherSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Pipeline\Config\RetryExtensions.cs" />
     <Compile Include="Pipeline\Hosts\ICronusHost.cs" />
     <Compile Include="Pipeline\Hosts\CronusHost.cs" />
@@ -160,7 +157,7 @@
     <Compile Include="Serializer\ISerializer.cs" />
     <Compile Include="Pipeline\BaseConsumerWork.cs" />
     <Compile Include="Pipeline\Hosts\CronusSettings.cs" />
-    <Compile Include="Pipeline\EndpointConsumer.cs" />
+    <Compile Include="Pipeline\CronusConsumer.cs" />
     <Compile Include="Pipeline\IConsumer.cs" />
     <Compile Include="Publisher.cs" />
     <Compile Include="CronusMessage.cs" />
