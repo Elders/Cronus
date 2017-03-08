@@ -6,9 +6,9 @@ using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline
 {
-    public abstract class BaseConsumerWork : IWork
+    public abstract class ContinuousConsumer : IWork
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(BaseConsumerWork));
+        static readonly ILog log = LogProvider.GetLogger(typeof(ContinuousConsumer));
 
         SubscriptionMiddleware subscriptions;
 
@@ -16,7 +16,7 @@ namespace Elders.Cronus.Pipeline
 
         readonly ISerializer serializer;
 
-        public BaseConsumerWork(SubscriptionMiddleware subscriptions)
+        public ContinuousConsumer(SubscriptionMiddleware subscriptions)
         {
             this.subscriptions = subscriptions;
         }
@@ -25,9 +25,8 @@ namespace Elders.Cronus.Pipeline
 
         public DateTime ScheduledStart { get; set; }
 
-        protected abstract void PreConsume();
-        protected abstract void ConsumeFinally();
         protected abstract void MessageConsumed(CronusMessage message);
+        protected abstract void WorkStart();
         protected abstract void WorkStop();
         protected abstract CronusMessage GetMessage();
 
@@ -36,20 +35,19 @@ namespace Elders.Cronus.Pipeline
             try
             {
                 isWorking = true;
-                PreConsume();
+                WorkStart();
                 while (isWorking)
                 {
                     CronusMessage message = GetMessage();
-                    if (ReferenceEquals(null, message) == false)
-                    {
-                        var subscribers = subscriptions.GetInterestedSubscribers(message);
-                        foreach (var subscriber in subscribers)
-                        {
-                            subscriber.Process(message);
-                        }
+                    if (ReferenceEquals(null, message)) break;
 
-                        MessageConsumed(message);
+                    var subscribers = subscriptions.GetInterestedSubscribers(message);
+                    foreach (var subscriber in subscribers)
+                    {
+                        subscriber.Process(message);
                     }
+
+                    MessageConsumed(message);
                 }
             }
             catch (Exception ex)
@@ -59,7 +57,6 @@ namespace Elders.Cronus.Pipeline
             finally
             {
                 ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
-                ConsumeFinally();
             }
         }
 
