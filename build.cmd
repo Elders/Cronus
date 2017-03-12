@@ -29,10 +29,11 @@ echo Downloading Nyx...
 
 IF NOT [%1]==[] (set RELEASE_NUGETKEY="%1")
 
+SET RELEASE_NOTES=src/Elders.Cronus/RELEASE_NOTES.md
 SET SUMMARY="Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind"
 SET DESCRIPTION="Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind"
 
-%FAKE% %NYX% "target=RunTests" appName=Elders.Cronus.Tests appSummary=%SUMMARY% appDescription=%DESCRIPTION% appType=tests
+%FAKE% %NYX% "target=RunTests" appName=Elders.Cronus.Tests appSummary=%SUMMARY% appDescription=%DESCRIPTION% appReleaseNotes=%RELEASE_NOTES% nugetPackageName=Cronus.Tests appType=tests
 if errorlevel 1 (
    echo Tests faild with exit code %errorlevel%
    exit /b %errorlevel%
