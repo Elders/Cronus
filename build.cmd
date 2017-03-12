@@ -3,3 +3,5 @@
 call .nyx\nyx.cmd
 call .nyx\get-dependencies.cmd
 call build-configuration.cmd %1
+
+SET RELEASE_NOTES=src/Elders.Cronus/RELEASE_NOTES.md

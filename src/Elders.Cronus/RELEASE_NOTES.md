@@ -1,3 +1,5 @@
+#### 4.0.0-beta0001 - 12.03.2017
+* Moves out the consumer implementation. Cronus now handles only bootstraping of consumers.
 #### 3.1.1 - 09.01.2018
 * Adds endpoint per bounded context namespace convention
 
