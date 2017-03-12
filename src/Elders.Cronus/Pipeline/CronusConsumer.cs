@@ -61,25 +61,6 @@ namespace Elders.Cronus.Pipeline
             }
         }
 
-        //public void Start(int? numberOfWorkers = null)
-        //{
-        //    int workers = numberOfWorkers.HasValue ? numberOfWorkers.Value : NumberOfWorkers;
-
-        //    pools.Clear();
-
-        //    var poolName = string.Format("cronus: " + Name);
-        //    WorkPool pool = new WorkPool(poolName, workers);
-
-        //    foreach (var work in transport.GetWorkToConsumeFor(subscriptions, serializer, Name))
-        //    {
-        //        pool.AddWork(work);
-        //    }
-
-        //    pools.Add(pool);
-        //    pool.StartCrawlers();
-        //}
-
-
         public void Stop()
         {
             pools.ForEach(pool => pool.Stop());
