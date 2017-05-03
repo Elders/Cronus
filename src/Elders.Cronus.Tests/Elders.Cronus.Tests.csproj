@@ -59,7 +59,7 @@
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AggregateRoot.cs" />
+    <Compile Include="EventStream.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_with_entity_from_event_store.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_events_for_replay.cs" />
     <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_from_event_store.cs" />

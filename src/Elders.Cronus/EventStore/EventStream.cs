@@ -17,19 +17,9 @@ namespace Elders.Cronus.EventStore
 
         public IEnumerable<AggregateCommit> Commits { get { return aggregateCommits.ToList().AsReadOnly(); } }
 
-        public T RestoreFromHistory<T>() where T : IAmEventSourced
-        {
-            //http://www.datastax.com/dev/blog/client-side-improvements-in-cassandra-2-0
-            var ar = (T)FastActivator.CreateInstance(typeof(T), true);
-            var events = aggregateCommits.SelectMany(x => x.Events).ToList();
-            int currentRevision = aggregateCommits.Last().Revision;
-
-            ar.ReplayEvents(events, currentRevision);
-            return ar;
-        }
-
         public bool TryRestoreFromHistory<T>(out T aggregateRoot) where T : IAmEventSourced
         {
+            //http://www.datastax.com/dev/blog/client-side-improvements-in-cassandra-2-0
             aggregateRoot = default(T);
             var events = aggregateCommits.SelectMany(x => x.Events).ToList();
             if (events.Count > 0)

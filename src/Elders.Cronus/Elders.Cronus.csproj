@@ -56,6 +56,7 @@
     <Compile Include="AtomicAction\IAggregateRootAtomicAction.cs" />
     <Compile Include="AtomicAction\InMemory\InMemoryAggregateRootAtomicAction.cs" />
     <Compile Include="Cluster\Config\IClusterSettings.cs" />
+    <Compile Include="EventStore\AggregateLoadException.cs" />
     <Compile Include="FaultHandling\InMemoryRetryMiddleware.cs" />
     <Compile Include="FaultHandling\ITransientErrorDetectionStrategy.cs" />
     <Compile Include="FaultHandling\RetryingEventArgs.cs" />

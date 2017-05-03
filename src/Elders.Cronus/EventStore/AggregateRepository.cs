@@ -58,8 +58,9 @@ namespace Elders.Cronus.EventStore
             if (integrityResult.IsIntegrityViolated)
                 throw new EventStreamIntegrityViolationException("asd");
             eventStream = integrityResult.Output;
-            AR aggregateRoot = eventStream.RestoreFromHistory<AR>();
-
+            AR aggregateRoot;
+            if (eventStream.TryRestoreFromHistory<AR>(out aggregateRoot) == false)
+                throw new AggregateLoadException("Unable to load AR with ID=" + id.Urn.Value);
 
             return aggregateRoot;
         }

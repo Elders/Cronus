@@ -21,7 +21,7 @@ namespace Elders.Cronus.Tests
             eventStream = new EventStream(commits);
         };
 
-        Because of = () => ar = eventStream.RestoreFromHistory<TestAggregateRoot>();
+        Because of = () => eventStream.TryRestoreFromHistory<TestAggregateRoot>(out ar);
 
         It should_instansiate_aggregate_root = () => ar.ShouldNotBeNull();
         It should_instansiate_aggregate_root_with_valid_state = () => ar.State.Id.ShouldEqual(id);
@@ -42,13 +42,14 @@ namespace Elders.Cronus.Tests
             eventStream = new EventStream(commits);
         };
 
-        Because of = () => expectedException = Catch.Exception(() => eventStream.RestoreFromHistory<TestAggregateRoot>());
+        Because of = () => expectedException = Catch.Exception(() => eventStream.TryRestoreFromHistory<TestAggregateRoot>(out ar));
 
         It an__AggregateRootException__should_be_thrown = () => expectedException.ShouldBeOfExactType<AggregateRootException>();
 
         static TestAggregateId id;
         static EventStream eventStream;
         static Exception expectedException;
+        static TestAggregateRoot ar;
     }
 
 

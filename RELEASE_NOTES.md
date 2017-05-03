@@ -1,3 +1,6 @@
+#### 3.0.3 - 03.05.2017
+* Throws a specific exception when an AR cannot be loaded a.k.a invalid ARID
+
 #### 3.0.2 - 08.11.2016
 * Remove default configuration for In Memory Aggregate Atomic Action
 
