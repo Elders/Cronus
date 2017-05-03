@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Tests", "Elde
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Tests.Sanity", "Elders.Cronus.Tests.Sanity\Elders.Cronus.Tests.Sanity.csproj", "{BE6F798D-A851-4232-AC26-0E4BF0F49F45}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{8A014CF9-CD4A-4A32-94B2-4F21B2CB3A8C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nyx", ".nyx", "{8A014CF9-CD4A-4A32-94B2-4F21B2CB3A8C}"
 	ProjectSection(SolutionItems) = preProject
 		Elders.Cronus\RELEASE_NOTES.md = Elders.Cronus\RELEASE_NOTES.md
 	EndProjectSection
