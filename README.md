@@ -271,9 +271,9 @@ Legend
 
 | Name | Description |
 |------|-------------|
-| olympus | It is stable and it will continue to get support, maintenance and future development |
-| styx | The future is not clear. There are two possible paths from here - olympus or tartarus |
-| tartarus | abandoned |
+| ![Elders](https://img.shields.io/badge/Status-olympus-green.svg) | It is stable and it will continue to get support, maintenance and future development |
+| ![Elders](https://img.shields.io/badge/Status-styx-orange.svg) | The future is not clear. There are two possible paths from here - olympus or tartarus |
+| ![Elders](https://img.shields.io/badge/Status-tartarus-red.svg) | abandoned |
 
 
 Domain Modeling / Core
@@ -281,8 +281,8 @@ Domain Modeling / Core
 
 | Name | Links | Status | Description |
 |------|-------|--------|-------------|
-| DomainModeling | [code](https://github.com/Elders/Cronus.DomainModeling) [![NuGet](https://img.shields.io/nuget/v/Cronus.DomainModeling.svg)](https://www.nuget.org/packages/Cronus.DomainModeling) [![GitHub issues](https://img.shields.io/github/issues/Elders/Cronus.DomainModeling/shields.svg)](https://github.com/Elders/Cronus.DomainModeling/issues) [![GitHub pull requests](https://img.shields.io/github/issues-pr/Elders/Cronus.DomainModeling.svg)](https://github.com/Elders/Cronus.DomainModeling/pulls) | olympus | Contracts for DDD/CQRS development |
-| Cronus | [code](https://github.com/Elders/Cronus) [![NuGet](https://img.shields.io/nuget/v/Cronus.svg)](https://www.nuget.org/packages/Cronus) | olympus | Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind |
+| DomainModeling | [code](https://github.com/Elders/Cronus.DomainModeling) [![NuGet](https://img.shields.io/nuget/v/Cronus.DomainModeling.svg)](https://www.nuget.org/packages/Cronus.DomainModeling) [![GitHub issues](https://img.shields.io/github/issues/Elders/Cronus.DomainModeling/shields.svg)](https://github.com/Elders/Cronus.DomainModeling/issues) [![GitHub pull requests](https://img.shields.io/github/issues-pr/Elders/Cronus.DomainModeling.svg)](https://github.com/Elders/Cronus.DomainModeling/pulls) | ![Elders](https://img.shields.io/badge/Status-olympus-green.svg) | Contracts for DDD/CQRS development |
+| Cronus | [code](https://github.com/Elders/Cronus) [![NuGet](https://img.shields.io/nuget/v/Cronus.svg)](https://www.nuget.org/packages/Cronus) | ![Elders](https://img.shields.io/badge/Status-olympus-green.svg) | Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind |
 
 
 Messaging
