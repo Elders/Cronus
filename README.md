@@ -1,34 +1,37 @@
 Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind
 ==================================================================================================================
-[![Build status](https://ci.appveyor.com/api/projects/status/0ka8b6vnwjj9lhav?svg=true)](https://ci.appveyor.com/project/Elders-OSS/cronus)
+[![Build status](https://ci.appveyor.com/api/projects/status/0ka8b6vnwjj9lhav?svg=true)](https://ci.appveyor.com/project/Elders-OSS/cronus) 
+[![NuGet](https://img.shields.io/nuget/v/Cronus.svg)](https://www.nuget.org/packages/Cronus) 
+[![GitHub issues](https://img.shields.io/github/issues/Elders/Cronus/shields.svg)](https://github.com/Elders/Cronus/issues) 
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/Elders/Cronus.svg)](https://github.com/Elders/Cronus/pulls)
 
-#Motivation
+# Motivation  
 Building software is not an easy task. It involves specific domain knowledge and a lot of software infrastructure. The goal of Cronus is to keep the software engineers focused on the domain problems because this is important at the end of the day. Cronus aims to keep you away from the software infrastructure.  
 
 Usually you do not need a CQRS framework to develop greate apps. However we noticed a common infrastructure code written with every applicaiton. We started to abstract and move that code to github. The key aspect was that even with a framework you still have full control and flexibility over the application code.
 
-#Domain Modeling
+# Domain Modeling
 To get out the maximum of Cronus you need to mark certain parts of your code to give hints to Cronus. 
 
-##Serialization
+## Serialization
 [ISerializer](https://github.com/Elders/Cronus/blob/master/src/Elders.Cronus/Serializer/ISerializer.cs#L5-L9) interface is really simple. You can plugin your own implementation but do not do it once you are in production.
 
 The samples on this page work with Json and Proteus-protobuf serializers. Every ICommand, IEvent, ValueObject or anything which is persisted is marked with a DataContractAttribute and the properties are marked with a DataMemberAttribute. [Here is a quick sample how this works (just ignore the WCF or replace it with Cronus while reading)](https://msdn.microsoft.com/en-us/library/bb943471%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396). We use `Guid` for the name of the DataContract because it is unique.
 
-####You can/should/must...
+#### You can/should/must...
 - you must add private parameterless constructor
 - you must initialize all collections in the constructor(s)
 - you can rename any class whenever you like even when you are already in production
 - you can rename any property whenever you like even when you are already in production
 - you can add new properties
 
-####You must not...
+#### You must not...
 - you must not delete a class when already deployed to production
 - you must not remove/change the `Name` of the DataContractAttribute when already deployed to production
 - you must not remove/change the `Order` of the DataMemberAttribute when deployed to production. You can change the visibility modifier from `public` to `private`
 
 
-##ICommand
+## ICommand
 A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants.
 
 | Triggered by | Description |
@@ -43,13 +46,13 @@ A command is used to dispatch domain model changes. It can be accepted or reject
 |:----------:|-------------|
 | IAggregateRootApplicationService | This is a handler where commands are received and delivered to the addressed AggregateRoot. We call these handlers ApplicationService. This is the write side in CQRS. |
 
-####You can/should/must...
+#### You can/should/must...
 - a command must be immutable
 - a command must clearly state a business intent with a name in imperative form
 - a command can be rejected due to domain validation, error or other reason
 - a command must update only one AggregateRoot
 
-####Example
+#### Example
 ```cs
 public class DeactivateAccount : ICommand
 {
@@ -76,14 +79,14 @@ public class Reason : ValueObject<Reason>{...}
 ```
 
 
-##IAggregateRootApplicationService
+## IAggregateRootApplicationService
 This is a handler where commands are received and delivered to the addressed AggregateRoot. We call these handlers *ApplicationService*. This is the *write side* in CQRS.
 
 | Triggered by | Description |
 |:--------------:|:-------------|
 | ICommand | A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants |
 
-####You can/should/must...
+#### You can/should/must...
 - an appservice can load an aggregate root from the event store
 - an appservice can save new aggregate root events to the event store
 - an appservice can do calls to the ReadModel (not a common practice but sometimes needed)
@@ -92,7 +95,7 @@ This is a handler where commands are received and delivered to the addressed Agg
 - an appservice must be stateless
 - an appservice must update only one aggreate root. Yes, this means that you can create one aggregate and update another one but think twice
 
-####You should not...
+#### You should not...
 - an appservice should not update more than one aggregate root in single command/handler
 - you should not place domain logic inside an application service
 - you should not use application service to send emails, push notifications etc. Use Port or Gateway instead
@@ -117,7 +120,7 @@ public class AccountAppService : AggregateRootApplicationService<Account>,
 ```
 
 
-##IAggregateRoot - triggered by ApplicationService
+## IAggregateRoot - triggered by ApplicationService
 
 | Triggered by | Description |
 |:------------:|:-------------|
@@ -181,14 +184,14 @@ public class AccountState : AggregateRootState<Account, AccountId>
 }
 ```
 
-##IEvent - triggered by IAggregateRoot
+## IEvent - triggered by IAggregateRoot
 Domain events represent business changes which already happened.
 
 | Triggered by | Description |
 |:------------:|:------------|
 | IAggregateRoot | TODO |
 
-####You can/should/must...
+#### You can/should/must...
 - an event must be immutable
 - an event must represent a domain event which already happened with a name in past tense
 - an event can be dispatche only by one aggregate
@@ -214,22 +217,22 @@ public class AccountSuspended : IEvent
 }
 ```
 
-##IProjection
+## IProjection
 Projection tracks events and project their data for specific purposes.
 
 | Triggered by | Description |
 |:------------:|:------------|
 | IEvent | Domain events represent business changes which already happened |
 
-####You can/should/must...
+#### You can/should/must...
 - a projection must be idempotent
 - a projection must not issue new commands or events
 
-####You should not...
+#### You should not...
 - a projection should not query other projections. All the data of a projection must be collected from the Events' data
 - a projection should not do calls to external systems
 
-##IPort
+## IPort
 Port is the mechanizm to do communication between aggregates. Usually this involves one aggregate who triggered an event and one aggregate which needs to react. 
 
 If you feel the need to do more complex interactions it is advised to use ISaga. The reason for this is that ports do not provide transperant view of a business flow because they do not have persistent state.
@@ -238,30 +241,30 @@ If you feel the need to do more complex interactions it is advised to use ISaga.
 |:------------:|:------------|
 | IEvent | Domain events represent business changes which already happened |
 
-####You can/should/must...
+#### You can/should/must...
 - a port can send a command
 
-##ISaga/ProcessManager
+## ISaga/ProcessManager
 When we have a workflow which involves several aggregates it is recommended to have the whole process described in a single place such as Saga/ProcessManager.
 
 | Triggered by | Description |
 |:------------:|:------------|
 | IEvent | Domain events represent business changes which already happened |
 
-####You can/should/must...
+#### You can/should/must...
 - a saga can send new commands
 
-##IGateway
+## IGateway
 Compared to IPort, which can dispatch a command, an IGateway can do the same but it also has a persistent state. A scenario could be sending commands to external BC like push notifications, emails etc. There is no need to event source this state and its perfectly fine if this state is wiped. Example: iOS push notifications badge. This state should be used only for infrastructure needs and never for business cases. Compared to IProjection, which track events and project their data and are not allowed to send any commands at all, an IGateway store and track a metadata required by external systems. Also, IGateway are restricted and not touched when events are replayed.
 
 | Triggered by | Description |
 |:------------:|:------------|
 | IEvent | Domain events represent business changes which already happened |
 
-####You can/should/must...
+#### You can/should/must...
 - a gateway can send new commands
 
-#Ecosystem
+# Ecosystem
 
 Legend
 ------
@@ -277,16 +280,16 @@ Domain Modeling / Core
 ----------------------
 
 | Name | Links | Status | Description |
-|------|------ |--------|-------------|
-| DomainModeling | [code](https://github.com/Elders/Cronus.DomainModeling) [nuget](https://www.nuget.org/packages/Cronus.DomainModeling) | olympus | Contains contracts for DDD/CQRS development |
-| Cronus | [code](https://github.com/Elders/Cronus) [nuget](https://www.nuget.org/packages/Cronus) | olympus | Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind |
+|------|-------|--------|-------------|
+| DomainModeling | [code](https://github.com/Elders/Cronus.DomainModeling) [![NuGet](https://img.shields.io/nuget/v/Cronus.DomainModeling.svg)](https://www.nuget.org/packages/Cronus.DomainModeling) [![GitHub issues](https://img.shields.io/github/issues/Elders/Cronus.DomainModeling/shields.svg)](https://github.com/Elders/Cronus.DomainModeling/issues) [![GitHub pull requests](https://img.shields.io/github/issues-pr/Elders/Cronus.DomainModeling.svg)](https://github.com/Elders/Cronus.DomainModeling/pulls) | olympus | Contracts for DDD/CQRS development |
+| Cronus | [code](https://github.com/Elders/Cronus) [![NuGet](https://img.shields.io/nuget/v/Cronus.svg)](https://www.nuget.org/packages/Cronus) | olympus | Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind |
 
 
 Messaging
 ---------
 
-| Broker | Status | Description |
-|--------|--------|-------------|
+| Name | Status | Description |
+|------|--------|-------------|
 | [RabbitMQ](https://github.com/Elders/Cronus.Transport.RabbitMQ) | olympus | It works so well that we do not need to implement other messaging. |
 
 
