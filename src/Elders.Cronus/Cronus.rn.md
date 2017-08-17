@@ -1,5 +1,8 @@
-#### 4.0.0-beta0001 - 12.03.2017
-* Moves out the consumer implementation. Cronus now handles only bootstraping of consumers.
+#### 4.0.0-beta0001 - 17.08.2017
+* This release uses the official netstandard 2.0
+
+#### 3.0.3 - 03.05.2017
+* Throws a specific exception when an AR cannot be loaded a.k.a invalid ARID
 
 #### 3.1.0 - 20.10.2017
 * Adjustments for AzureBus integration

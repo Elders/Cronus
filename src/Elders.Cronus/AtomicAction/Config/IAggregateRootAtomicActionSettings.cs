@@ -1,5 +1,5 @@
 ﻿using System;
-using Elders.Cronus.AtomicAction.InMemory;
+//using Elders.Cronus.AtomicAction.InMemory;
 using Elders.Cronus.Cluster.Config;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Config;
@@ -15,7 +15,7 @@ namespace Elders.Cronus.AtomicAction.Config
     {
         public AggregateRootAtomicActionSettings(ISettingsBuilder settingsBuilder) : base(settingsBuilder)
         {
-            this.WithInMemory();
+            //this.WithInMemory();
         }
 
         IAggregateRootAtomicAction IAggregateRootAtomicActionSettings.AggregateRootAtomicAtion { get; set; }
@@ -30,11 +30,11 @@ namespace Elders.Cronus.AtomicAction.Config
 
     public static class AggregateAtomicActionSettingExtensions
     {
-        public static T WithInMemory<T>(this T self) where T : IAggregateRootAtomicActionSettings
-        {
-            self.AggregateRootAtomicAtion = new InMemoryAggregateRootAtomicAction();
-            return self;
-        }
+        //public static T WithInMemory<T>(this T self) where T : IAggregateRootAtomicActionSettings
+        //{
+        //    self.AggregateRootAtomicAtion = new InMemoryAggregateRootAtomicAction();
+        //    return self;
+        //}
 
         public static T UseAggregateRootAtomicAction<T>(this T self, Action<AggregateRootAtomicActionSettings> configure = null)
             where T : IClusterSettings

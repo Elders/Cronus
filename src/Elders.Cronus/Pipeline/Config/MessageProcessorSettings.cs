@@ -136,7 +136,7 @@ namespace Elders.Cronus.Pipeline.Config
                 var repository = builder.Container.Resolve<IAggregateRepository>(builder.Name);
                 var publisher = builder.Container.Resolve<IPublisher<IEvent>>(builder.Name);
 
-                //create extension methis UseApplicationMiddleware instead of instance here.
+                //create extension method UseApplicationMiddleware instead of instance here.
                 var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
                 var middleware = processorSettings.HandleMiddleware(applicationServiceMiddleware);
                 var subscriptionMiddleware = new SubscriptionMiddleware();

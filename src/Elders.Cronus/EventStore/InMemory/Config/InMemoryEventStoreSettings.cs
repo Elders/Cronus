@@ -1,5 +1,5 @@
 ﻿using Elders.Cronus.AtomicAction;
-using Elders.Cronus.AtomicAction.InMemory;
+//using Elders.Cronus.AtomicAction.InMemory;
 using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.IocContainer;
@@ -31,7 +31,7 @@ namespace Elders.Cronus.EventStore.InMemory.Config
             var builder = this as ISettingsBuilder;
 
             builder.Container.RegisterSingleton<InMemoryEventStoreStorage>(() => new InMemoryEventStoreStorage());
-            builder.Container.RegisterSingleton<IAggregateRootAtomicAction>(() => new InMemoryAggregateRootAtomicAction());
+            //builder.Container.RegisterSingleton<IAggregateRootAtomicAction>(() => new InMemoryAggregateRootAtomicAction());
             builder.Container.RegisterSingleton<IEventStore>(() => new InMemoryEventStore(builder.Container.Resolve<InMemoryEventStoreStorage>()));
             builder.Container.RegisterSingleton<IIntegrityPolicy<EventStream>>(() => new EventStreamIntegrityPolicy());
             builder.Container.RegisterSingleton<IAggregateRepository>(() => new AggregateRepository(builder.Container.Resolve<IEventStore>(), builder.Container.Resolve<IAggregateRootAtomicAction>(), builder.Container.Resolve<IIntegrityPolicy<EventStream>>()));
