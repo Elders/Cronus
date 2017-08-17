@@ -1,135 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{3C04DC56-460C-4240-B118-6B6A31BBA6A8}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Elders.Cronus.Tests</RootNamespace>
-    <AssemblyName>Elders.Cronus.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Elders.Cronus.DomainModeling, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cronus.DomainModeling.3.1.3\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
-    </Reference>
-    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Machine.Specifications, Version=0.9.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Machine.Specifications.0.9.3\lib\net45\Machine.Specifications.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Machine.Specifications.Clr4, Version=0.9.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Machine.Specifications.0.9.3\lib\net45\Machine.Specifications.Clr4.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Machine.Specifications.Should, Version=0.9.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Machine.Specifications.Should.0.9.0\lib\net45\Machine.Specifications.Should.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Runtime.Serialization" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="EventStream.cs" />
-    <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_with_entity_from_event_store.cs" />
-    <Compile Include="InMemoryEventStoreSuite\When_loading_events_for_replay.cs" />
-    <Compile Include="InMemoryEventStoreSuite\When_loading_aggregate_root_from_event_store.cs" />
-    <Compile Include="InMemoryEventStoreSuite\When_saving_aggregate_root_in_event_store.cs" />
-    <Compile Include="IntegrityValidation\When_comparing_two__IntegrityRules__are_identical.cs" />
-    <Compile Include="IntegrityValidation\When_two_identical__IntegrityRules__are_registered_in__IntegrityPolicy__.cs" />
-    <Compile Include="IntegrityValidation\When__AggregateCommit__has_duplicate_revisions.cs" />
-    <Compile Include="IntegrityValidation\When__AggregateCommit__has_missing_revisions.cs" />
-    <Compile Include="IntegrityValidation\When__AggregateCommit__has_unordered_revisions_and_resolving_them.cs" />
-    <Compile Include="IntegrityValidation\When__EventStreamPolicy_is_applied_to_a_correct__EventStream__.cs" />
-    <Compile Include="IocContainer\BatchComponent.cs" />
-    <Compile Include="IocContainer\When_asking_if_registered_on_scoped.cs" />
-    <Compile Include="IocContainer\When_asking_if_registered_on_singleton.cs" />
-    <Compile Include="IocContainer\When_asking_if_registered_on_something_that_is_not_registered.cs" />
-    <Compile Include="IocContainer\When_asking_if_registered_on_transient.cs" />
-    <Compile Include="IocContainer\When_resolve_scoped_component_out_of_scope.cs" />
-    <Compile Include="IocContainer\When_resolve_scoped_component_within_scope.cs" />
-    <Compile Include="IocContainer\When_resolve_scoped_component_within_two_nested_scopes.cs" />
-    <Compile Include="IocContainer\When_resolve_scoped_component_within_two_not_nested_scopes.cs" />
-    <Compile Include="IocContainer\When_resolve_scoped_component_with_specific_type.cs" />
-    <Compile Include="IocContainer\When_resolve_two_scoped_components_with_common_interface.cs" />
-    <Compile Include="MessageStreaming\Models.cs" />
-    <Compile Include="MessageStreaming\When_message_handler_implements__IDisposable__.cs" />
-    <Compile Include="MessageStreaming\When_subscription_subscribes_to__MessageStream__more_than_once.cs" />
-    <Compile Include="MessageStreaming\When__MessageStream__has_subscription_which_does_not_care_about_current_feed_messages.cs" />
-    <Compile Include="MessageStreaming\When__MessageStream__has_subscription_which_fails_to_handle_a_message.cs" />
-    <Compile Include="MessageStreaming\When__MessageStream__is_feeded_with_failed_messages_with_origin_type__handler__.cs" />
-    <Compile Include="MessageStreaming\When__MessageStream__receives_a_batch_of__TransportMessages__.cs" />
-    <Compile Include="Middleware\When_executing_middleware_tree.cs" />
-    <Compile Include="Middleware\When_attaching_multiple_middlewares.cs" />
-    <Compile Include="Middleware\When_breaking_middleware.cs" />
-    <Compile Include="Middleware\When_transfering_to_another_middleware_and_there_is_no_followup_middleware.cs" />
-    <Compile Include="Middleware\When_transfering_to_another_middleware.cs" />
-    <Compile Include="Middleware\When_executing_single_middleware.cs" />
-    <Compile Include="Middleware\ExecutionToken.cs" />
-    <Compile Include="Middleware\TestExecutionChain.cs" />
-    <Compile Include="Middleware\TestMiddleware.cs" />
-    <Compile Include="TestModel\TestEntityId.cs" />
-    <Compile Include="TestModel\TestAggregateId.cs" />
-    <Compile Include="TestModel\TestAggregateRoot.cs" />
-    <Compile Include="TestModel\TestAggregateRootState.cs" />
-    <Compile Include="TestModel\TestCreateCommand.cs" />
-    <Compile Include="TestModel\TestCreateEvent.cs" />
-    <Compile Include="TestModel\TestUpdateCommand.cs" />
-    <Compile Include="TestModel\TestUpdateEvent.cs" />
-    <Compile Include="IntegrityValidation\When__AggregateCommit__has_unordered_revisions.cs" />
-    <Compile Include="TestsBoundedContext.cs" />
-    <Compile Include="When_resolve_scoped_component_out_of_scope.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Elders.Cronus\Elders.Cronus.csproj">
-      <Project>{32ea2250-01b3-4171-9ae7-214037a0d524}</Project>
-      <Name>Elders.Cronus</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp2.0</TargetFramework>
+        <StartupObject />
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Machine.Specifications" Version="0.11.0" />
+        <PackageReference Include="Machine.Specifications.Runner.VisualStudio" Version="2.2.3" />
+        <PackageReference Include="Machine.Specifications.Should" Version="0.11.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Elders.Cronus\Elders.Cronus.csproj" />
+    </ItemGroup>
 </Project>

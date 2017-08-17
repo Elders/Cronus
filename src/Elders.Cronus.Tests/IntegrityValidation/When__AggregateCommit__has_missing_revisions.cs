@@ -12,7 +12,6 @@ namespace Elders.Cronus.Tests.ValidatorsAndResolvers
     {
         Establish context = () =>
             {
-                log4net.Config.XmlConfigurator.Configure();
                 byte[] aggregateId = Guid.NewGuid().ToByteArray();
                 AggregateCommit commit1 = new AggregateCommit(aggregateId, "UnitTests", 1, new List<Cronus.DomainModeling.IEvent>());
                 AggregateCommit commit3 = new AggregateCommit(aggregateId, "UnitTests", 3, new List<Cronus.DomainModeling.IEvent>());
@@ -26,7 +25,7 @@ namespace Elders.Cronus.Tests.ValidatorsAndResolvers
 
         It should_report_about_the_invalid__EventStream__ = () => validationResult.IsValid.ShouldBeFalse();
 
-        It should_report_all_missing_revisions = () => validationResult.Errors.Count().ShouldEqual(6);
+        It should_report_all_missing_revisions = () => validationResult.Errors.Count().ShouldEqual(1);
 
         It should_have__OrderedRevisionsValidator_as_error_type = () => validationResult.ErrorType.ShouldEqual(nameof(OrderedRevisionsValidator));
 

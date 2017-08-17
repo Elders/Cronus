@@ -11,6 +11,7 @@
         <RepositoryUrl>https://github.com/Elders/Cronus</RepositoryUrl>
         <PackageIconUrl>https://github.com/Elders/logo/blob/master/cronus/black.png</PackageIconUrl>
         <RepositoryType>Framework</RepositoryType>
+        <Authors>Elders</Authors>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
       <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;LIBLOG_PORTABLE</DefineConstants>
@@ -19,10 +20,8 @@
     <PackageReference Include="Cronus.DomainModeling" Version="4.0.0-beta0002" />
     <PackageReference Include="Elders.Cronus.DomainModeling" Version="1.0.0" />
     <PackageReference Include="Elders.Multithreading.Scheduler" Version="1.0.0" />
+    <PackageReference Include="log4net" Version="2.0.8" />
     <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Properties\" />
   </ItemGroup>
 </Project>
