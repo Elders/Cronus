@@ -1,3 +1,6 @@
+#### 4.0.0-beta0002 - 19.08.2017
+* InMemoryAggregateRootAtomicAction implementation
+
 #### 4.0.0-beta0001 - 17.08.2017
 * This release uses the official netstandard 2.0
 

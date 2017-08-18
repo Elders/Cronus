@@ -5,6 +5,8 @@
 //using System.Linq;
 //using Elders.Cronus.EventStore.InMemory;
 //using Elders.Cronus.EventStore;
+//using Elders.Cronus.AtomicAction;
+//using Elders.Cronus.AtomicAction.InMemory;
 
 //namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 //{
@@ -18,7 +20,7 @@
 //            eventStore = new InMemoryEventStore(eventStoreStorage);
 //            eventStoreManager = new InMemoryEventStoreStorageManager();
 //            eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
-//            aggregateRepository = new AggregateRepository(eventStore, versionService);
+//            aggregateRepository = new AggregateRepository(eventStore, versionService, new EventStreamIntegrityPolicy());
 //            eventStoreManager.CreateStorage();
 
 //            id = new TestAggregateId();
