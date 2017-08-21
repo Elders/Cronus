@@ -1,3 +1,6 @@
+#### 4.0.0-beta0003 - 21.08.2017
+* Code cleanup
+
 #### 4.0.0-beta0002 - 19.08.2017
 * InMemoryAggregateRootAtomicAction implementation
 

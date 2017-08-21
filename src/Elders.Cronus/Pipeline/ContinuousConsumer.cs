@@ -1,5 +1,4 @@
 using System;
-using Elders.Cronus.Serializer;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
@@ -13,8 +12,6 @@ namespace Elders.Cronus.Pipeline
         SubscriptionMiddleware subscriptions;
 
         volatile bool isWorking;
-
-        readonly ISerializer serializer;
 
         public ContinuousConsumer(SubscriptionMiddleware subscriptions)
         {

@@ -1,7 +1,5 @@
 ﻿using Elders.Cronus.AtomicAction;
 using Elders.Cronus.AtomicAction.InMemory;
-//using Elders.Cronus.AtomicAction.InMemory;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Config;
