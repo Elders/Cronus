@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.DomainModeling;
-using Elders.Cronus.Logging;
+﻿using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.InMemory

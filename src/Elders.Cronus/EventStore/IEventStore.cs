@@ -1,5 +1,3 @@
-using Elders.Cronus.DomainModeling;
-
 namespace Elders.Cronus.EventStore
 {
     public interface IEventStore

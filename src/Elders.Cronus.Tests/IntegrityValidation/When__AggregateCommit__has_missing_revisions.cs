@@ -13,10 +13,10 @@ namespace Elders.Cronus.Tests.ValidatorsAndResolvers
         Establish context = () =>
             {
                 byte[] aggregateId = Guid.NewGuid().ToByteArray();
-                AggregateCommit commit1 = new AggregateCommit(aggregateId, "UnitTests", 1, new List<Cronus.DomainModeling.IEvent>());
-                AggregateCommit commit3 = new AggregateCommit(aggregateId, "UnitTests", 3, new List<Cronus.DomainModeling.IEvent>());
-                AggregateCommit commit4 = new AggregateCommit(aggregateId, "UnitTests", 4, new List<Cronus.DomainModeling.IEvent>());
-                AggregateCommit commit6 = new AggregateCommit(aggregateId, "UnitTests", 10, new List<Cronus.DomainModeling.IEvent>());
+                AggregateCommit commit1 = new AggregateCommit(aggregateId, "UnitTests", 1, new List<IEvent>());
+                AggregateCommit commit3 = new AggregateCommit(aggregateId, "UnitTests", 3, new List<IEvent>());
+                AggregateCommit commit4 = new AggregateCommit(aggregateId, "UnitTests", 4, new List<IEvent>());
+                AggregateCommit commit6 = new AggregateCommit(aggregateId, "UnitTests", 10, new List<IEvent>());
                 eventStream = new EventStream(new[] { commit1, commit3, commit4, commit6 });
                 validator = new MissingRevisionsValidator();
             };

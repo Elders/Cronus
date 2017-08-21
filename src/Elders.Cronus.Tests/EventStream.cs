@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using Machine.Specifications;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Tests.TestModel;
 using Elders.Cronus.EventStore;
 
