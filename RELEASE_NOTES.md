@@ -1,3 +1,6 @@
+#### 3.0.4 - 01.09.2017
+* I think we should definitely rewrite the RabbitMQ integration
+
 #### 3.0.3 - 03.05.2017
 * Throws a specific exception when an AR cannot be loaded a.k.a invalid ARID
 
