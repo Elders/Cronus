@@ -71,7 +71,6 @@ namespace Elders.Cronus.Pipeline
                 try
                 {
                     endpoint.AcknowledgeAll();
-                    endpoint.Close();
                 }
                 catch (EndpointClosedException ex)
                 {
