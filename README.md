@@ -8,7 +8,7 @@ Cronus is a lightweight framework for dispatching and receiving messages between
 # Motivation  
 Building software is not an easy task. It involves specific domain knowledge and a lot of software infrastructure. The goal of Cronus is to keep the software engineers focused on the domain problems because this is important at the end of the day. Cronus aims to keep you away from the software infrastructure.  
 
-Usually you do not need a CQRS framework to develop greate apps. However we noticed a common infrastructure code written with every applicaiton. We started to abstract and move that code to github. The key aspect was that even with a framework you still have full control and flexibility over the application code.
+Usually you do not need a CQRS framework to develop greate apps. However, we noticed a common infrastructure code written with every applicaiton. We started to abstract and move that code to github. The key aspect was that even with a framework you still have full control and flexibility over the application code.
 
 # Domain Modeling
 To get out the maximum of Cronus you need to mark certain parts of your code to give hints to Cronus. 
@@ -36,11 +36,11 @@ A command is used to dispatch domain model changes. It can be accepted or reject
 
 | Triggered by | Description |
 |:--------------:|:-------------|
-| UI | It is NOT a common practice to send commands directly from the UI. Usually the UI communicates with web APIs. |
+| UI | It is NOT common practice to send commands directly from the UI. Usually the UI communicates with web APIs. |
 | API | APIs sit in the middle between UI and Server translating web requests into commands |
-| External System | It is NOT a common practice to send commands directly from the External System. Usually the External System communicates with web APIs. |
-| IPort | Ports are simple way for an aggregate root to communicate with another aggregate root. |
-| ISaga | Sagas are simple way for an aggregate root to do complex communication with other aggregate roots. |
+| External System | It is NOT common practice to send commands directly from the External System. Usually the External System communicates with web APIs. |
+| IPort | Ports are a simple way for an aggregate root to communicate with another aggregate root. |
+| ISaga | Sagas are a simple way for an aggregate root to do complex communication with other aggregate roots. |
 
 | Handled by | Description |
 |:----------:|-------------|
@@ -57,7 +57,7 @@ A command is used to dispatch domain model changes. It can be accepted or reject
 public class DeactivateAccount : ICommand
 {
 	DeactivateAccount() {}
-    public DeactivateAccount(AccountId id, string reason)
+    public DeactivateAccount(AccountId id, Reason reason)
     {
     	Id = id;
     	Reason = reason;
@@ -84,13 +84,13 @@ This is a handler where commands are received and delivered to the addressed Agg
 
 | Triggered by | Description |
 |:--------------:|:-------------|
-| ICommand | A command is used to dispatch domain model changes. It can be accepted or rejected depending on the domain model invariants |
+| ICommand | A command is used to dispatch domain model changes. It can either be accepted or rejected depending on the domain model invariants |
 
 #### You can/should/must...
 - an appservice can load an aggregate root from the event store
 - an appservice can save new aggregate root events to the event store
-- an appservice can do calls to the ReadModel (not a common practice but sometimes needed)
-- an appservice can do calls to external services
+- an appservice can establish calls to the ReadModel (not common practice but sometimes needed)
+- an appservice can establish calls to external services
 - you can do dependency orchestration
 - an appservice must be stateless
 - an appservice must update only one aggreate root. Yes, this means that you can create one aggregate and update another one but think twice
@@ -194,7 +194,7 @@ Domain events represent business changes which already happened.
 #### You can/should/must...
 - an event must be immutable
 - an event must represent a domain event which already happened with a name in past tense
-- an event can be dispatche only by one aggregate
+- an event can be dispatched only by one aggregate
 
 ```cs
 [DataContract(Name = "fff400a3-1af0-4332-9cf5-b86c1c962a01")]
@@ -222,7 +222,7 @@ Projection tracks events and project their data for specific purposes.
 
 | Triggered by | Description |
 |:------------:|:------------|
-| IEvent | Domain events represent business changes which already happened |
+| IEvent | Domain events represent business changes which have already happened |
 
 #### You can/should/must...
 - a projection must be idempotent
@@ -230,36 +230,36 @@ Projection tracks events and project their data for specific purposes.
 
 #### You should not...
 - a projection should not query other projections. All the data of a projection must be collected from the Events' data
-- a projection should not do calls to external systems
+- a projection should not establish calls to external systems
 
 ## IPort
-Port is the mechanizm to do communication between aggregates. Usually this involves one aggregate who triggered an event and one aggregate which needs to react. 
+Port is the mechanism to establish communication between aggregates. Usually this involves one aggregate who triggered an event and one aggregate which needs to react. 
 
-If you feel the need to do more complex interactions it is advised to use ISaga. The reason for this is that ports do not provide transperant view of a business flow because they do not have persistent state.
+If you feel the need to do more complex interactions it is advised to use ISaga. The reason for this is that ports do not provide a transparent view of the business flow because they do not have persistent state.
 
 | Triggered by | Description |
 |:------------:|:------------|
-| IEvent | Domain events represent business changes which already happened |
+| IEvent | Domain events represent business changes which have already happened |
 
 #### You can/should/must...
 - a port can send a command
 
 ## ISaga/ProcessManager
-When we have a workflow which involves several aggregates it is recommended to have the whole process described in a single place such as Saga/ProcessManager.
+When we have a workflow which involves several aggregates it is recommended to have the whole process described in a single place such as а Saga/ProcessManager.
 
 | Triggered by | Description |
 |:------------:|:------------|
-| IEvent | Domain events represent business changes which already happened |
+| IEvent | Domain events represent business changes which have already happened |
 
 #### You can/should/must...
 - a saga can send new commands
 
 ## IGateway
-Compared to IPort, which can dispatch a command, an IGateway can do the same but it also has a persistent state. A scenario could be sending commands to external BC like push notifications, emails etc. There is no need to event source this state and its perfectly fine if this state is wiped. Example: iOS push notifications badge. This state should be used only for infrastructure needs and never for business cases. Compared to IProjection, which track events and project their data and are not allowed to send any commands at all, an IGateway store and track a metadata required by external systems. Also, IGateway are restricted and not touched when events are replayed.
+Compared to IPort, which can dispatch a command, an IGateway can do the same but it also has a persistent state. A scenario could be sending commands to external BC, such as push notifications, emails etc. There is no need to event source this state and its perfectly fine if this state is wiped. Example: iOS push notifications badge. This state should be used only for infrastructure needs and never for business cases. Compared to IProjection, which tracks events, projects their data and are not allowed to send any commands at all, an IGateway can store and track metadata required by external systems. Furthermore, IGateways are restricted and not touched when events are replayed.
 
 | Triggered by | Description |
 |:------------:|:------------|
-| IEvent | Domain events represent business changes which already happened |
+| IEvent | Domain events represent business changes which have already happened |
 
 #### You can/should/must...
 - a gateway can send new commands
@@ -309,7 +309,7 @@ Serialization
 | Serializer | Status | Description |
 |------------|--------|-------------|
 | [Json](https://github.com/Elders/Cronus.Serialization.NewtonsoftJson) | olympus | It is recommended to use the serializer with DataContracts |
-| [Protobuf (Proteus)](https://github.com/Elders/Cronus.Serialization.Proteus) | styx | This has been the prefered serialization with Cronus v2. However, there is a huge warm up performance hit with big projects which needs to be resolved. Despite this it works really fast. The implementation has small protocol changes |
+| [Protobuf (Proteus)](https://github.com/Elders/Cronus.Serialization.Proteus) | styx | This has been the prefered serialization with Cronus v2. However, there is a huge warm up performance hit with big projects which needs to be resolved. Despite this, it works really fast. The implementation has small protocol changes |
 
 
 Projections persistence
@@ -318,8 +318,8 @@ Projections persistence
 | Store | Status | Description |
 |------------|--------|-------------|
 | [Cassandra](https://github.com/Elders/Cronus.Projections.Cassandra) | olympus | Stores projections in Cassandra |
-| [ElasticSearch](https://github.com/Elders/Cronus.Projection.ElasticSearch) | olympus | Builds projections dynamically. Very usefull for projects which just started and changes occur frequently. Later must be switch to other persister such as Cassandra |
-| [AtomicAction](https://github.com/Elders/Cronus.AtomicAction.Redis) | olympus | Aggregate distrubited lock with Redis |
+| [ElasticSearch](https://github.com/Elders/Cronus.Projection.ElasticSearch) | olympus | Builds projections dynamically. Very usefull for projects which just started and changes occur frequently. However, it must be switched to another persister such as Cassandra after the initial stages of the project |
+| [AtomicAction](https://github.com/Elders/Cronus.AtomicAction.Redis) | olympus | Aggregate distributed lock with Redis |
 
 Other
 -------------
@@ -328,5 +328,5 @@ Other
 |------------|--------|-------------|
 | [Hystrix](https://github.com/Elders/Cronus.Hystrix) | olympus | Circuit breaker middleware for Cronus |
 | [Migrations](https://github.com/Elders/Cronus.Migration.Middleware) | olympus | Middleware to handle migrations of any kind |
-| [AtomicAction](https://github.com/Elders/Cronus.AtomicAction.Redis) | olympus | Aggregate distrubited lock with Redis |
+| [AtomicAction](https://github.com/Elders/Cronus.AtomicAction.Redis) | olympus | Aggregate distributed lock with Redis |
 
