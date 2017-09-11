@@ -1,43 +1,90 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Pipeline.Transport.InMemory
 {
     public class InMemoryEndpoint : IEndpoint
     {
         private readonly InMemoryPipelineTransport transport;
-        public InMemoryEndpoint(InMemoryPipelineTransport transport, string name, Dictionary<string, object> routingHeaders)
+        public InMemoryEndpoint(InMemoryPipelineTransport transport, string name, ICollection<string> watchMessageTypes)
         {
             this.transport = transport;
             Name = name;
-            RoutingHeaders = routingHeaders;
+            WatchMessageTypes = watchMessageTypes;
         }
 
         public string Name { get; set; }
+        public ICollection<string> WatchMessageTypes { get; set; }
 
-        public IDictionary<string, object> RoutingHeaders { get; set; }
+        private bool Started = false;
+        private bool ShouldWork = false;
+        private Task ActiveTask;
+        private Action<CronusMessage> onMessage = null;
 
-        public void Acknowledge(EndpointMessage message) { }
-
-        public void AcknowledgeAll() { }
-
-        public bool BlockDequeue(uint timeoutInMiliseconds, out EndpointMessage msg)
+        public void OnMessage(Action<CronusMessage> action)
         {
-            return transport.BlockDequeue(this, timeoutInMiliseconds, out msg);
+            if (Started)
+            {
+                throw new Exception("Cannot assign 'onMessage' handler when endpoint was started already");
+            }
+
+            onMessage = action;
         }
 
-        public void Close() { }
-
-        public EndpointMessage DequeueNoWait()
+        public void Start()
         {
-            EndpointMessage msg;
-            transport.BlockDequeue(this, 10, out msg);
-            return msg;
+            if (Started)
+            {
+                throw new Exception("Cannot start endpoint because it's already started");
+            }
+
+            if (onMessage == null)
+            {
+                throw new Exception("Cannot start endpoint because onMessage handler was not specified yet!");
+            }
+
+            Started = true;
+
+            ShouldWork = true;
+            ActiveTask = new Task(() =>
+            {
+                while (ShouldWork)
+                {
+                    try
+                    {
+                        CronusMessage msg;
+                        if (!transport.BlockDequeue(this, 1000, out msg))
+                        {
+                            Thread.Sleep(300);
+                            continue;
+                        }
+
+                        onMessage(msg);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine("InMemoryEndpoint error: {0}", ex.Message);
+                    }
+                }
+            });
+            ActiveTask.Start();
         }
 
-        public void Open() { }
+        public void Stop()
+        {
+            if (!Started)
+            {
+                throw new Exception("Cannot stop endpoint because it was not started!");
+            }
 
-        public string RoutingKey { get { return String.Empty; } }
+            Started = false;
+            ShouldWork = false;
+            ActiveTask.Wait();
+            ActiveTask = null;
+        }
 
         public override bool Equals(System.Object obj)
         {
@@ -66,9 +113,11 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
         {
             if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return true;
             if (ReferenceEquals(null, left))
+            {
                 return false;
-            else
-                return left.Equals(right);
+            }
+
+            return left.Equals(right);
         }
 
         public static bool operator !=(InMemoryEndpoint a, InMemoryEndpoint b)
