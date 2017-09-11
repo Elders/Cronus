@@ -17,12 +17,7 @@ namespace Elders.Cronus.Pipeline.Config
         public PipelineConsumerSettings(ISettingsBuilder settingsBuilder, string name)
             : base(settingsBuilder, name)
         {
-            this.SetNumberOfConsumerThreads(2);
         }
-
-        int IConsumerSettings.NumberOfWorkers { get; set; }
-
-        MessageThreshold IConsumerSettings.MessageTreshold { get; set; }
 
         IContainer ISettingsBuilder.Container { get; set; }
 
@@ -34,7 +29,7 @@ namespace Elders.Cronus.Pipeline.Config
             Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
             Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
             Func<SubscriptionMiddleware> messageHandlerProcessor = () => builder.Container.Resolve<SubscriptionMiddleware>(builder.Name);
-            Func<IEndpointConsumer> consumer = () => new EndpointConsumer((this as IConsumerSettings<TContract>).Name, transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold);
+            Func<IEndpointConsumer> consumer = () => new EndpointConsumer((this as IConsumerSettings<TContract>).Name, transport(), messageHandlerProcessor(), serializer());
             builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer(), builder.Name);
         }
     }
@@ -72,18 +67,6 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class ConsumerSettingsExtensions
     {
-        public static T SetNumberOfConsumerThreads<T>(this T self, int numberOfConsumers) where T : IConsumerSettings
-        {
-            self.NumberOfWorkers = numberOfConsumers;
-            return self;
-        }
-
-        public static T SetMessageThreshold<T>(this T self, uint size, uint delay) where T : IConsumerSettings
-        {
-            self.MessageTreshold = new MessageThreshold(size, delay);
-            return self;
-        }
-
         public static T UseCommandConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
         {
             return UseCommandConsumer(self, "AppServices", configure);

@@ -1,26 +1,22 @@
-using System;
 using System.Collections.Generic;
 
 namespace Elders.Cronus.Pipeline
 {
     public class EndpointDefinition
     {
-        public EndpointDefinition(string pipelineName, string endpointName, Dictionary<string, object> routingHeaders = null, string routingKey = "")
+        public EndpointDefinition(string pipelineName, string endpointName, ICollection<string> watchMessageTypes = null)
         {
-            RoutingKey = routingKey;
             EndpointName = endpointName;
             PipelineName = pipelineName;
-            RoutingHeaders = routingHeaders ?? new Dictionary<string, object>();
+            WatchMessageTypes = watchMessageTypes ?? new List<string>();
         }
 
         public string EndpointName { get; private set; }
 
-        public bool IsRoutingDefined { get { return RoutingHeaders.Count != 0 || !String.IsNullOrEmpty(RoutingKey); } }
+        public bool IsRoutingDefined { get { return WatchMessageTypes.Count != 0; } }
 
         public string PipelineName { get; set; }
 
-        public Dictionary<string, object> RoutingHeaders { get; private set; }
-
-        public string RoutingKey { get; set; }
+        public ICollection<string> WatchMessageTypes { get; set; }
     }
 }

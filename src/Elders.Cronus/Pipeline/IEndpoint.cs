@@ -1,26 +1,17 @@
 using System;
 using System.Collections.Generic;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline
 {
     public interface IEndpoint : IEquatable<IEndpoint>
     {
-        IDictionary<string, object> RoutingHeaders { get; set; }
-
-        string RoutingKey { get; }
-
         string Name { get; }
 
-        bool BlockDequeue(uint timeoutInMiliseconds, out EndpointMessage msg);
+        void OnMessage(Action<CronusMessage> action);
 
-        EndpointMessage DequeueNoWait();
+        void Start();
 
-        void Open();
-
-        void Close();
-
-        void Acknowledge(EndpointMessage message);
-
-        void AcknowledgeAll();
+        void Stop();
     }
 }

@@ -6,7 +6,7 @@ namespace Elders.Cronus.Pipeline
     {
         string Name { get; }
 
-        void Push(EndpointMessage message);
+        void Push(CronusMessage message);
 
         void Bind(IEndpoint endpoint);
     }
