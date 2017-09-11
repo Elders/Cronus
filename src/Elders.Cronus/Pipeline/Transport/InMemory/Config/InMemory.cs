@@ -28,6 +28,7 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory.Config
     public static class InMemoryTransportExtensions
     {
         public static T UseInMemoryPipelineTransport<T>(this T self, Action<InMemoryPipelineTransportSettings> configure = null)
+            where T : ISettingsBuilder
         {
             InMemoryPipelineTransportSettings settings = new InMemoryPipelineTransportSettings();
             if (configure != null)

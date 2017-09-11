@@ -16,7 +16,7 @@
             transport.Bind(this, endpoint);
         }
 
-        public void Push(EndpointMessage message)
+        public void Push(CronusMessage message)
         {
             transport.SendMessage(this, message);
         }

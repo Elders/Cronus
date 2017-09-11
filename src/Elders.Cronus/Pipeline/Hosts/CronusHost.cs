@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Elders.Cronus.Pipeline.Hosts.DisposableExtensions;
 using Elders.Cronus.Logging;
 

@@ -31,13 +31,10 @@ namespace Elders.Cronus.Pipeline
         {
             var cronusMessage = new CronusMessage(message, messageHeaders);
 
-            byte[] body = serializer.SerializeToBytes(cronusMessage);
-            Dictionary<string, object> routingHeaders = new Dictionary<string, object>() { { cronusMessage.Payload.GetType().GetContractId(), String.Empty } };
-            EndpointMessage endpointMessage = new EndpointMessage(body, string.Empty, routingHeaders, cronusMessage.GetPublishDelay());
-
             transport.PipelineFactory
                 .GetPipeline(message.GetType())
-                .Push(endpointMessage);
+                .Push(cronusMessage);
+
             return true;
         }
 
