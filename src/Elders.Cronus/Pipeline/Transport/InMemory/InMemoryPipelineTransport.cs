@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Concurrent;
 using Elders.Cronus.DomainModeling;
@@ -22,21 +23,22 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             }
         }
 
-        public bool BlockDequeue(IEndpoint endpoint, uint timeoutInMiliseconds, out CronusMessage msg)
+        public CronusMessage Dequeue(IEndpoint endpoint, TimeSpan timeout)
         {
-            msg = null;
             BlockingCollection<CronusMessage> endpointStorage;
-            if (TryGetEndpointStorage(endpoint, out endpointStorage))
+            if (!TryGetEndpointStorage(endpoint, out endpointStorage))
             {
-
-                if (endpointStorage.TryTake(out msg, (int)timeoutInMiliseconds))
-                {
-                    TotalMessagesConsumed++;
-                    return true;
-                }
-                return false;
+                return null;
             }
-            return false;
+
+            CronusMessage msg;
+            if (!endpointStorage.TryTake(out msg, (int)timeout.Milliseconds))
+            {
+                return null;
+            }
+
+            TotalMessagesConsumed++;
+            return msg;
         }
 
         public IEndpoint GetOrAddEndpoint(EndpointDefinition endpointDefinition)

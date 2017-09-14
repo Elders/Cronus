@@ -6,6 +6,7 @@ using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
 using System.Linq;
 using System.Threading.Tasks;
+using Elders.Multithreading.Scheduler;
 
 namespace Elders.Cronus.Pipeline
 {
@@ -15,10 +16,12 @@ namespace Elders.Cronus.Pipeline
 
         readonly SubscriptionMiddleware subscriptions;
         readonly IPipelineTransport transport;
+        readonly List<WorkPool> pools;
         readonly ISerializer serializer;
-        readonly List<IEndpoint> startedEndpoints;
+        readonly MessageThreshold messageThreshold;
 
         public string Name { get; private set; }
+        public int NumberOfWorkers { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="EndpointConsumer"/> class.
@@ -26,7 +29,7 @@ namespace Elders.Cronus.Pipeline
         /// <param name="transport">The transport.</param>
         /// <param name="serializer">The serializer.</param>
         /// <param name="messageThreshold">The message threshold.</param>
-        public EndpointConsumer(string name, IPipelineTransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer)
+        public EndpointConsumer(string name, IPipelineTransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, MessageThreshold messageThreshold = null)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentException("Invalid consumer name", nameof(name));
             if (ReferenceEquals(null, transport)) throw new ArgumentNullException(nameof(transport));
@@ -35,36 +38,39 @@ namespace Elders.Cronus.Pipeline
             if (ReferenceEquals(null, serializer)) throw new ArgumentNullException(nameof(serializer));
 
             this.Name = name;
+            NumberOfWorkers = 1;
             this.subscriptions = subscriptions;
             this.transport = transport;
             this.serializer = serializer;
-            this.startedEndpoints = new List<IEndpoint>();
+            pools = new List<WorkPool>();
+            this.messageThreshold = messageThreshold ?? new MessageThreshold();
         }
 
-        public void Start()
+        public void Start(int? numberOfWorkers = null)
         {
+            int workers = numberOfWorkers.HasValue
+                ? numberOfWorkers.Value
+                : NumberOfWorkers;
+
+            pools.Clear();
             foreach (var endpointDefinition in transport.EndpointFactory.GetEndpointDefinition(this, subscriptions))
             {
-                IEndpoint endpoint = transport.EndpointFactory.CreateEndpoint(endpointDefinition);
-
-                endpoint.OnMessage((msg) =>
+                var poolName = String.Format("Workpool {0}", endpointDefinition.EndpointName);
+                WorkPool pool = new WorkPool(poolName, workers);
+                for (int i = 0; i < workers; i++)
                 {
-                    var subscribers = subscriptions.GetInterestedSubscribers(msg);
-                    foreach (var subscriber in subscribers)
-                    {
-                        subscriber.Process(msg);
-                    }
-                });
-
-                endpoint.Start();
-                startedEndpoints.Add(endpoint);
+                    IEndpoint endpoint = transport.EndpointFactory.CreateEndpoint(endpointDefinition);
+                    pool.AddWork(new PipelineConsumerWork(subscriptions, endpoint, serializer, messageThreshold));
+                }
+                pools.Add(pool);
+                pool.StartCrawlers();
             }
         }
 
         public void Stop()
         {
-            Parallel.ForEach(startedEndpoints, x => x.Stop());
-            startedEndpoints.Clear();
+            pools.ForEach(pool => pool.Stop());
+            pools.Clear();
         }
     }
 }

@@ -1,17 +1,13 @@
 using System;
-using System.Collections.Generic;
-using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline
 {
-    public interface IEndpoint : IEquatable<IEndpoint>
+    public interface IEndpoint : IEquatable<IEndpoint>, IDisposable
     {
         string Name { get; }
 
-        void OnMessage(Action<CronusMessage> action);
+        CronusMessage Dequeue(TimeSpan timeout);
 
-        void Start();
-
-        void Stop();
+        void Acknowledge(CronusMessage message);
     }
 }
