@@ -1,3 +1,6 @@
+#### 3.0.5 - 14.09.2017
+* Move ProjectionCommit in Cronus
+
 #### 3.0.4 - 01.09.2017
 * I think we should definitely rewrite the RabbitMQ integration
 

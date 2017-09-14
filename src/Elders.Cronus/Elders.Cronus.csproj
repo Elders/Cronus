@@ -151,6 +151,8 @@
     <Compile Include="AtomicAction\AggregateStateFirstLevelConcurrencyException.cs" />
     <Compile Include="EventStore\IEventStoreStorageManager.cs" />
     <Compile Include="CronusAssembly.cs" />
+    <Compile Include="Projections\ProjectionCommit.cs" />
+    <Compile Include="Projections\EventOrigin.cs" />
     <Compile Include="Serializer\ISerializer.cs" />
     <Compile Include="Pipeline\EndpointClosedException.cs" />
     <Compile Include="Pipeline\PipelineConsumerWork.cs" />
