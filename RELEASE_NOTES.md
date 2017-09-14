@@ -1,3 +1,6 @@
+#### 3.0.6 - 14.09.2017
+* Add ctor in AggregateCommit to pass Timestamp
+
 #### 3.0.5 - 14.09.2017
 * Move ProjectionCommit in Cronus
 

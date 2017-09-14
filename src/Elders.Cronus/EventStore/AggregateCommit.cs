@@ -26,6 +26,15 @@ namespace Elders.Cronus.EventStore
             Timestamp = DateTime.UtcNow.ToFileTimeUtc();
         }
 
+        public AggregateCommit(byte[] aggregateRootId, string boundedContext, int revision, List<IEvent> events, long timestamp)
+        {
+            AggregateRootId = aggregateRootId;
+            BoundedContext = boundedContext;
+            Revision = revision;
+            Events = events;
+            Timestamp = timestamp;
+        }
+
         [DataMember(Order = 1)]
         public byte[] AggregateRootId { get; private set; }
 
