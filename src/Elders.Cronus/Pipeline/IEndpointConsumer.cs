@@ -12,9 +12,11 @@ namespace Elders.Cronus.Pipeline
 
     public interface IEndpointConsumer : IConsumer
     {
+        int NumberOfWorkers { get; }
+
         string Name { get; }
 
-        void Start();
+        void Start(int? numberOfWorkers = null);
 
         void Stop();
     }

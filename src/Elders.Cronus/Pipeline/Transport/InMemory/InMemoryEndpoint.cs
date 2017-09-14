@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Elders.Cronus.Pipeline.Transport.InMemory
 {
@@ -19,72 +16,18 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
         public string Name { get; set; }
         public ICollection<string> WatchMessageTypes { get; set; }
 
-        private bool Started = false;
-        private bool ShouldWork = false;
-        private Task ActiveTask;
-        private Action<CronusMessage> onMessage = null;
-
-        public void OnMessage(Action<CronusMessage> action)
+        public CronusMessage Dequeue(TimeSpan timeout)
         {
-            if (Started)
-            {
-                throw new Exception("Cannot assign 'onMessage' handler when endpoint was started already");
-            }
-
-            onMessage = action;
+            return transport.Dequeue(this, timeout);
         }
 
-        public void Start()
+        public void Acknowledge(CronusMessage message)
         {
-            if (Started)
-            {
-                throw new Exception("Cannot start endpoint because it's already started");
-            }
-
-            if (onMessage == null)
-            {
-                throw new Exception("Cannot start endpoint because onMessage handler was not specified yet!");
-            }
-
-            Started = true;
-
-            ShouldWork = true;
-            ActiveTask = new Task(() =>
-            {
-                while (ShouldWork)
-                {
-                    try
-                    {
-                        CronusMessage msg;
-                        if (!transport.BlockDequeue(this, 1000, out msg))
-                        {
-                            Thread.Sleep(300);
-                            continue;
-                        }
-
-                        onMessage(msg);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine("InMemoryEndpoint error: {0}", ex.Message);
-                    }
-                }
-            });
-            ActiveTask.Start();
         }
 
-        public void Stop()
-        {
-            if (!Started)
-            {
-                throw new Exception("Cannot stop endpoint because it was not started!");
-            }
+        public void Open() { }
 
-            Started = false;
-            ShouldWork = false;
-            ActiveTask.Wait();
-            ActiveTask = null;
-        }
+        public string RoutingKey { get { return String.Empty; } }
 
         public override bool Equals(System.Object obj)
         {
@@ -109,15 +52,17 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             }
         }
 
+        public void Dispose()
+        {
+        }
+
         public static bool operator ==(InMemoryEndpoint left, InMemoryEndpoint right)
         {
             if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return true;
             if (ReferenceEquals(null, left))
-            {
                 return false;
-            }
-
-            return left.Equals(right);
+            else
+                return left.Equals(right);
         }
 
         public static bool operator !=(InMemoryEndpoint a, InMemoryEndpoint b)
