@@ -1,7 +1,5 @@
-#### 3.1.0-beta0002 - 20.10.2017
+#### 3.1.0 - 20.10.2017
 * Adjustments for AzureBus integration
-
-#### 3.1.0-beta0001 - 08.12.2016
 * Uses latest Nyx build scripts
 
 #### 3.0.6 - 14.09.2017

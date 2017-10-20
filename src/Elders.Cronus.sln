@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus", "Elders.Cronus\Elders.Cronus.csproj", "{32EA2250-01B3-4171-9AE7-214037A0D524}"
 EndProject
@@ -11,8 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elders.Cronus.Tests.Sanity"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{8A014CF9-CD4A-4A32-94B2-4F21B2CB3A8C}"
 	ProjectSection(SolutionItems) = preProject
-		Elders.Cronus\Cronus.nuspec = Elders.Cronus\Cronus.nuspec
-		..\RELEASE_NOTES.md = ..\RELEASE_NOTES.md
+		Elders.Cronus\RELEASE_NOTES.md = Elders.Cronus\RELEASE_NOTES.md
 	EndProjectSection
 EndProject
 Global
@@ -43,5 +42,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B80A6819-E214-4033-A9E0-6FFE5B582284}
 	EndGlobalSection
 EndGlobal
