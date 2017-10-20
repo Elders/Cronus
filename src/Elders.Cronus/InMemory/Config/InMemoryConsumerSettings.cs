@@ -14,10 +14,10 @@ namespace Elders.Cronus.InMemory.Config
             : base(settingsBuilder, name)
         { }
 
+
         int IConsumerSettings.NumberOfWorkers { get; set; }
 
         MessageThreshold IConsumerSettings.MessageTreshold { get; set; }
-
         IContainer ISettingsBuilder.Container { get; set; }
 
         string ISettingsBuilder.Name { get; set; }

@@ -1,3 +1,7 @@
+#### 3.1.0 - 20.10.2017
+* Adjustments for AzureBus integration
+* Uses latest Nyx build scripts
+
 #### 3.0.6 - 14.09.2017
 * Add ctor in AggregateCommit to pass Timestamp
 

@@ -5,6 +5,7 @@ namespace Elders.Cronus.Pipeline.Config
     public interface IConsumerSettings : ISettingsBuilder
     {
         int NumberOfWorkers { get; set; }
+
         MessageThreshold MessageTreshold { get; set; }
     }
 

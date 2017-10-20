@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.Pipeline.Transport;
-using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
 using System.Linq;
+using System.Threading.Tasks;
+using Elders.Multithreading.Scheduler;
 
 namespace Elders.Cronus.Pipeline
 {
@@ -20,7 +21,6 @@ namespace Elders.Cronus.Pipeline
         readonly MessageThreshold messageThreshold;
 
         public string Name { get; private set; }
-
         public int NumberOfWorkers { get; set; }
 
         /// <summary>
@@ -41,10 +41,9 @@ namespace Elders.Cronus.Pipeline
             NumberOfWorkers = 1;
             this.subscriptions = subscriptions;
             this.transport = transport;
-            pools = new List<WorkPool>();
             this.serializer = serializer;
+            pools = new List<WorkPool>();
             this.messageThreshold = messageThreshold ?? new MessageThreshold();
-
         }
 
         public void Start(int? numberOfWorkers = null)

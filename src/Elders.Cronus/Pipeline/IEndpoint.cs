@@ -1,26 +1,13 @@
 using System;
-using System.Collections.Generic;
 
 namespace Elders.Cronus.Pipeline
 {
-    public interface IEndpoint : IEquatable<IEndpoint>
+    public interface IEndpoint : IEquatable<IEndpoint>, IDisposable
     {
-        IDictionary<string, object> RoutingHeaders { get; set; }
-
-        string RoutingKey { get; }
-
         string Name { get; }
 
-        bool BlockDequeue(uint timeoutInMiliseconds, out EndpointMessage msg);
+        CronusMessage Dequeue(TimeSpan timeout);
 
-        EndpointMessage DequeueNoWait();
-
-        void Open();
-
-        void Close();
-
-        void Acknowledge(EndpointMessage message);
-
-        void AcknowledgeAll();
+        void Acknowledge(CronusMessage message);
     }
 }

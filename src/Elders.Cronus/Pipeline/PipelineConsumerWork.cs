@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Elders.Cronus.Serializer;
 using Elders.Multithreading.Scheduler;
 using Elders.Cronus.Logging;
@@ -33,29 +32,28 @@ namespace Elders.Cronus.Pipeline
 
         public void Start()
         {
+            CronusMessage transportMessage = null;
             try
             {
                 isWorking = true;
-                endpoint.Open();
                 while (isWorking)
                 {
-                    List<EndpointMessage> rawMessages = new List<EndpointMessage>();
                     for (int i = 0; i < messageThreshold.Size; i++)
                     {
-                        EndpointMessage rawMessage = null;
-                        if (!endpoint.BlockDequeue(messageThreshold.Delay, out rawMessage))
+                        transportMessage = endpoint.Dequeue(TimeSpan.FromMilliseconds(messageThreshold.Delay));
+                        if (transportMessage == null)
+                        {
                             break;
+                        }
 
-                        CronusMessage transportMessage = (CronusMessage)serializer.DeserializeFromBytes(rawMessage.Body);
                         var subscribers = subscriptions.GetInterestedSubscribers(transportMessage);
                         foreach (var subscriber in subscribers)
                         {
                             subscriber.Process(transportMessage);
                         }
-                        rawMessages.Add(rawMessage);
-                    }
 
-                    endpoint.AcknowledgeAll();
+                        endpoint.Acknowledge(transportMessage);
+                    }
                 }
             }
             catch (EndpointClosedException ex)
@@ -70,7 +68,10 @@ namespace Elders.Cronus.Pipeline
             {
                 try
                 {
-                    endpoint.AcknowledgeAll();
+                    if (transportMessage != null)
+                    {
+                        endpoint.Acknowledge(transportMessage);
+                    }
                 }
                 catch (EndpointClosedException ex)
                 {
@@ -83,7 +84,7 @@ namespace Elders.Cronus.Pipeline
         public void Stop()
         {
             isWorking = false;
-            endpoint.Close();   // This is called from another thread so we need it.
+            endpoint.Dispose();   // This is called from another thread so we need it.
         }
     }
 }

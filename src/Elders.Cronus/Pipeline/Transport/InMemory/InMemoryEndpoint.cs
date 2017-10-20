@@ -6,33 +6,23 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
     public class InMemoryEndpoint : IEndpoint
     {
         private readonly InMemoryPipelineTransport transport;
-        public InMemoryEndpoint(InMemoryPipelineTransport transport, string name, Dictionary<string, object> routingHeaders)
+        public InMemoryEndpoint(InMemoryPipelineTransport transport, string name, ICollection<string> watchMessageTypes)
         {
             this.transport = transport;
             Name = name;
-            RoutingHeaders = routingHeaders;
+            WatchMessageTypes = watchMessageTypes;
         }
 
         public string Name { get; set; }
+        public ICollection<string> WatchMessageTypes { get; set; }
 
-        public IDictionary<string, object> RoutingHeaders { get; set; }
-
-        public void Acknowledge(EndpointMessage message) { }
-
-        public void AcknowledgeAll() { }
-
-        public bool BlockDequeue(uint timeoutInMiliseconds, out EndpointMessage msg)
+        public CronusMessage Dequeue(TimeSpan timeout)
         {
-            return transport.BlockDequeue(this, timeoutInMiliseconds, out msg);
+            return transport.Dequeue(this, timeout);
         }
 
-        public void Close() { }
-
-        public EndpointMessage DequeueNoWait()
+        public void Acknowledge(CronusMessage message)
         {
-            EndpointMessage msg;
-            transport.BlockDequeue(this, 10, out msg);
-            return msg;
         }
 
         public void Open() { }
@@ -60,6 +50,10 @@ namespace Elders.Cronus.Pipeline.Transport.InMemory
             {
                 return 17 ^ Name.GetHashCode();
             }
+        }
+
+        public void Dispose()
+        {
         }
 
         public static bool operator ==(InMemoryEndpoint left, InMemoryEndpoint right)
