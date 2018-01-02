@@ -1,5 +1,4 @@
 ﻿using System;
-using Elders.Cronus.DomainModeling;
 using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections
