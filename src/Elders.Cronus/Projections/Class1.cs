@@ -80,6 +80,7 @@ namespace Elders.Cronus.Projections
         }
     }
 
+    [DataContract(Name = "bb4883b9-c3a5-48e5-8ba1-28fb94d061ac")]
     public class ProjectionVersion : ValueObject<ProjectionVersion>
     {
         public ProjectionVersion(string projectionName, ProjectionStatus status, int versionNumber)
@@ -89,10 +90,13 @@ namespace Elders.Cronus.Projections
             VersionNumber = versionNumber;
         }
 
+        [DataMember(Order = 1)]
         public string ProjectionName { get; private set; }
 
+        [DataMember(Order = 2)]
         public ProjectionStatus Status { get; private set; }
 
+        [DataMember(Order = 3)]
         public int VersionNumber { get; private set; }
 
         public ProjectionVersion WithStatus(ProjectionStatus status)

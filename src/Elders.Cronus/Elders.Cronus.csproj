@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>netstandard2.0</TargetFramework>
+        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
     </PropertyGroup>
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -17,8 +17,8 @@
         <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;LIBLOG_PORTABLE</DefineConstants>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Cronus.DomainModeling" Version="4.0.0-beta0002" />
-        <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />
+        <PackageReference Include="Cronus.DomainModeling" Version="4.0.0-beta0007" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
         <PackageReference Include="Multithreading.Scheduler" Version="2.0.0-beta0003" />
     </ItemGroup>

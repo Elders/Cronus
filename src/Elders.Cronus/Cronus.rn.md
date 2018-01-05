@@ -1,3 +1,6 @@
+#### 4.0.0-beta0004 - 05.01.2018
+* Adds net461 target framework
+
 #### 4.0.0-beta0003 - 21.08.2017
 * Code cleanup
 
