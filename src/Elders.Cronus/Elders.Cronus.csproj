@@ -149,6 +149,7 @@
     <Compile Include="Pipeline\PipelineConsumerWork.cs" />
     <Compile Include="Pipeline\Strategy\EndpointPerHandlerNameConvention.cs" />
     <Compile Include="Pipeline\Strategy\EndpointPerConsumerNameConvention.cs" />
+    <Compile Include="Pipeline\Strategy\PipelinePerBoundedContextNamespaceConvention.cs" />
     <Compile Include="Pipeline\Strategy\PipelinePerApplicationNameConvention.cs" />
     <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineTransport.cs" />
     <Compile Include="Pipeline\Transport\IPipelineTransport.cs" />

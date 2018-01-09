@@ -1,3 +1,6 @@
+#### 3.1.1 - 09.01.2018
+* Adds endpoint per bounded context namespace convention
+
 #### 3.1.0 - 20.10.2017
 * Adjustments for AzureBus integration
 * Uses latest Nyx build scripts
