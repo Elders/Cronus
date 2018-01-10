@@ -48,7 +48,7 @@ namespace Elders.Cronus.Pipeline
 
             pools.Clear();
 
-            foreach (var factory in transport.GetAvailableConsumers(subscriptions, Name))
+            foreach (var factory in transport.GetAvailableConsumers(serializer, subscriptions, Name))
             {
                 var poolName = string.Format("cronus: " + Name);
                 WorkPool pool = new WorkPool(poolName, workers);

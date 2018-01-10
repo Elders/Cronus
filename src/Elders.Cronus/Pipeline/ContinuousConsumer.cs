@@ -44,7 +44,7 @@ namespace Elders.Cronus.Pipeline
                         subscriber.Process(message);
                     }
 
-                    MessageConsumed(message);
+                    MessageConsumed(message);//finally?!??!
                 }
             }
             catch (Exception ex)
