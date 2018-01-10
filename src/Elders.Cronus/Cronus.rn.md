@@ -1,3 +1,6 @@
+#### 4.0.0-beta0006 - 10.01.2018
+* Trying to properly set the NumberOfWorkers
+
 #### 4.0.0-beta0005 - 10.01.2018
 * Adds ISerializer to the transport
 

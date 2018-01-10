@@ -26,7 +26,7 @@ namespace Elders.Cronus.Pipeline
         /// </summary>
         /// <param name="transport">The transport.</param>
         /// <param name="serializer">The serializer.</param>
-        public CronusConsumer(string name, ITransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer)
+        public CronusConsumer(string name, ITransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, int numberOfWorkers = 1)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentException("Invalid consumer name", nameof(name));
             if (ReferenceEquals(null, transport)) throw new ArgumentNullException(nameof(transport));
@@ -35,7 +35,7 @@ namespace Elders.Cronus.Pipeline
             if (ReferenceEquals(null, serializer)) throw new ArgumentNullException(nameof(serializer));
 
             this.Name = name;
-            NumberOfWorkers = 1;
+            NumberOfWorkers = numberOfWorkers;
             this.subscriptions = subscriptions;
             this.transport = transport;
             this.serializer = serializer;
