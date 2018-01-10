@@ -15,7 +15,7 @@ namespace Elders.Cronus.Pipeline.Config
         public PipelineConsumerSettings(ISettingsBuilder settingsBuilder, string name)
             : base(settingsBuilder, name)
         {
-            this.SetNumberOfConsumerThreads(2);
+            this.SetNumberOfConsumerThreads(1);
         }
 
         int IConsumerSettings.NumberOfWorkers { get; set; }
@@ -30,7 +30,7 @@ namespace Elders.Cronus.Pipeline.Config
             Func<ITransport> transport = () => builder.Container.Resolve<ITransport>(builder.Name);
             Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
             Func<SubscriptionMiddleware> messageHandlerProcessor = () => builder.Container.Resolve<SubscriptionMiddleware>(builder.Name);
-            Func<ICronusConsumer> consumer = () => new CronusConsumer((this as IConsumerSettings<TContract>).Name, transport(), messageHandlerProcessor(), serializer());
+            Func<ICronusConsumer> consumer = () => new CronusConsumer((this as IConsumerSettings<TContract>).Name, transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).NumberOfWorkers);
             builder.Container.RegisterSingleton<ICronusConsumer>(() => consumer(), builder.Name);
         }
     }
