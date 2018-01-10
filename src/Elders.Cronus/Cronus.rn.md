@@ -1,3 +1,6 @@
+#### 4.0.0-beta0005 - 10.01.2018
+* Adds ISerializer to the transport
+
 #### 4.0.0-beta0004 - 05.01.2018
 * Adds net461 target framework
 

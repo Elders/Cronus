@@ -5,7 +5,30 @@ using System.Linq;
 
 namespace Elders.Cronus.MessageProcessing
 {
-    public class SubscriptionMiddleware
+    /// <summary>
+    /// The responsibility of this middleware is to collect and and work with all the messsage subscirbers in the Cornus infrasturcutre.
+    /// It also allows to dynamically add subscribers.
+    /// Probably this class should be something like IObservable<ISubscriber>
+    /// </summary>
+    public interface ISubscriptionMiddleware
+    {
+        IEnumerable<ISubscriber> Subscribers { get; }
+
+        IEnumerable<ISubscriber> GetInterestedSubscribers(CronusMessage message);
+
+        /// <summary>
+        /// Adds a new subscriber to the Cornus infrastructure with intent to notify all intersted parties when a new subscriber comes in (e.g. for creating queus etc.)
+        /// </summary>
+        /// <param name="subscriber"></param>
+        void Subscribe(ISubscriber subscriber);
+
+        /// <summary>
+        /// Removes all subscribers. Probably when shutting down.
+        /// </summary>
+        void UnsubscribeAll();
+    }
+
+    public class SubscriptionMiddleware : ISubscriptionMiddleware
     {
         ConcurrentBag<ISubscriber> subscribers;
 
