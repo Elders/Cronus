@@ -1,23 +1,11 @@
-#### 4.0.0-beta0007 - 11.01.2018
-* WIP
-
-#### 4.0.0-beta0006 - 10.01.2018
-* Trying to properly set the NumberOfWorkers
-
-#### 4.0.0-beta0005 - 10.01.2018
+#### 4.0.0 - 12.02.2018
+* Projections
+* Properly set the NumberOfWorkers
 * Adds ISerializer to the transport
-
-#### 4.0.0-beta0004 - 05.01.2018
 * Adds net461 target framework
-
-#### 4.0.0-beta0003 - 21.08.2017
-* Code cleanup
-
-#### 4.0.0-beta0002 - 19.08.2017
 * InMemoryAggregateRootAtomicAction implementation
+* Uses the official netstandard 2.0
 
-#### 4.0.0-beta0001 - 17.08.2017
-* This release uses the official netstandard 2.0
 #### 3.1.1 - 09.01.2018
 * Adds endpoint per bounded context namespace convention
 * Throws a specific exception when an AR cannot be loaded a.k.a invalid ARID
