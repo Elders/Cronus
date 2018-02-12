@@ -1,6 +1,5 @@
 ﻿using Elders.Cronus.AtomicAction;
 using Elders.Cronus.AtomicAction.InMemory;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.InMemory;
 using Elders.Cronus.IntegrityValidation;

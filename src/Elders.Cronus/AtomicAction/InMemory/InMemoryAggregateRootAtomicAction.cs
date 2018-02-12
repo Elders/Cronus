@@ -1,10 +1,8 @@
 using System;
 using System.Globalization;
 using System.Threading;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Userfull;
-using System.Runtime.Caching;
-using System.Collections.Specialized;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Elders.Cronus.AtomicAction.InMemory
 {
@@ -12,20 +10,32 @@ namespace Elders.Cronus.AtomicAction.InMemory
     {
         readonly MemoryCache aggregateLock = null;
         readonly MemoryCache aggregateRevisions = null;
-        readonly CacheItemPolicy sliding30seconds;
+        readonly MemoryCacheEntryOptions cacheEntryOptions;
 
         public InMemoryAggregateRootAtomicAction()
         {
-            var _cacheConfig = new NameValueCollection();
-            _cacheConfig.Add("pollingInterval", "00:01:00");
-            _cacheConfig.Add("cacheMemoryLimitMegabytes", "500");
-            _cacheConfig.Add("physicalMemoryLimitPercentage", "10");
+            var aggregateLockMemoryCacheOptions = new MemoryCacheOptions()
+            {
+                SizeLimit = 500 * 1024 * 1024, //500mb
+                CompactionPercentage = 0.1, // 10%
+                ExpirationScanFrequency = new TimeSpan(0, 1, 0)
+            };
 
-            aggregateLock = new MemoryCache("aggregateLock", _cacheConfig);
-            aggregateRevisions = new MemoryCache("aggregateRevisions", _cacheConfig);
+            var aggregateRevisionsMemoryCacheOptions = new MemoryCacheOptions()
+            {
+                SizeLimit = 500 * 1024 * 1024, //500mb
+                CompactionPercentage = 0.1, // 10%
+                ExpirationScanFrequency = new TimeSpan(0, 1, 0)
+            };
 
-            sliding30seconds = new CacheItemPolicy();
-            sliding30seconds.SlidingExpiration = TimeSpan.FromSeconds(30d);
+            cacheEntryOptions = new MemoryCacheEntryOptions()
+            {
+                SlidingExpiration = TimeSpan.FromSeconds(30d),
+                Size = 1
+            };
+
+            aggregateLock = new MemoryCache(aggregateLockMemoryCacheOptions);
+            aggregateRevisions = new MemoryCache(aggregateRevisionsMemoryCacheOptions);
         }
 
         public Result<bool> Execute(IAggregateRootId aggregateRootId, int aggregateRootRevision, Action action)
@@ -38,13 +48,9 @@ namespace Elders.Cronus.AtomicAction.InMemory
                 acquired = aggregateLock.Get(aggregateRootId.Urn.Value) as AtomicBoolean;
                 if (ReferenceEquals(null, acquired))
                 {
-                    acquired = acquired ?? new AtomicBoolean(false);
-                    if (aggregateLock.Add(aggregateRootId.Urn.Value, acquired, sliding30seconds) == false)
-                    {
-                        acquired = aggregateLock.Get(aggregateRootId.Urn.Value) as AtomicBoolean;
-                        if (ReferenceEquals(null, acquired))
-                            return result;
-                    }
+                    acquired = aggregateLock.Set(aggregateRootId.Urn.Value, new AtomicBoolean(false), cacheEntryOptions);
+                    if (ReferenceEquals(null, acquired))
+                        return result;
                 }
 
                 if (acquired.CompareAndSet(false, true))
@@ -54,13 +60,10 @@ namespace Elders.Cronus.AtomicAction.InMemory
                         AtomicInteger revision = aggregateRevisions.Get(aggregateRootId.Urn.Value) as AtomicInteger;
                         if (ReferenceEquals(null, revision))
                         {
-                            revision = new AtomicInteger(aggregateRootRevision - 1);
-                            if (aggregateRevisions.Add(aggregateRootId.Urn.Value, revision, sliding30seconds) == false)
-                            {
-                                revision = aggregateRevisions.Get(aggregateRootId.Urn.Value) as AtomicInteger;
-                                if (ReferenceEquals(null, revision))
-                                    return result;
-                            }
+                            var newRevision = new AtomicInteger(aggregateRootRevision - 1);
+                            revision = aggregateRevisions.Set(aggregateRootId.Urn.Value, newRevision, cacheEntryOptions);
+                            if (ReferenceEquals(null, revision))
+                                return result;
                         }
 
                         var currentRevision = revision.Value;
@@ -104,9 +107,9 @@ namespace Elders.Cronus.AtomicAction.InMemory
     {
         private volatile int booleanValue;
 
-        /// <summary>
-        /// Gets or sets the current value.
-        /// </summary>
+        // <summary>
+        // Gets or sets the current value.
+        // </summary>
         public bool Value
         {
             get { return this.booleanValue != 0; }
@@ -192,9 +195,9 @@ namespace Elders.Cronus.AtomicAction.InMemory
     {
         private volatile int integerValue;
 
-        /// <summary>
-        /// Gets or sets the current value.
-        /// </summary>
+        // <summary>
+        // Gets or sets the current value.
+        // </summary>
         public int Value
         {
             get { return this.integerValue; }

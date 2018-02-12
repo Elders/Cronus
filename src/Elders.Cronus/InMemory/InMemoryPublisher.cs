@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Elders.Cronus.DomainModeling;
-using Elders.Cronus.Logging;
+﻿using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.InMemory
@@ -16,9 +14,9 @@ namespace Elders.Cronus.InMemory
             this.subscribtions = messageProcessor;
         }
 
-        protected override bool PublishInternal(TContract message, Dictionary<string, string> messageHeaders)
+        protected override bool PublishInternal(CronusMessage message)
         {
-            subscribtions.GetInterestedSubscribers(new CronusMessage(message, messageHeaders));
+            subscribtions.GetInterestedSubscribers(message);
             return true;
         }
     }

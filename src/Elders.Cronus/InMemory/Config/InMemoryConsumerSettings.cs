@@ -1,8 +1,6 @@
 ﻿using System;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Pipeline;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Pipeline.Hosts;
 
@@ -17,7 +15,6 @@ namespace Elders.Cronus.InMemory.Config
 
         int IConsumerSettings.NumberOfWorkers { get; set; }
 
-        MessageThreshold IConsumerSettings.MessageTreshold { get; set; }
         IContainer ISettingsBuilder.Container { get; set; }
 
         string ISettingsBuilder.Name { get; set; }

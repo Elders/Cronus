@@ -1,19 +1,18 @@
 using System;
-using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus.Tests.TestModel
 {
 
-    public class TestEntityId : EntityGuidId<TestAggregateId>
+    public class TestEntityId : EntityStringId<TestAggregateId>
     {
         public TestEntityId(Guid id, TestAggregateId rootId)
-            : base(id, rootId, "TestEntityId")
+            : base(id.ToString(), rootId, "TestEntityId")
         {
 
         }
 
         public TestEntityId(TestAggregateId rootId)
-            : base(Guid.NewGuid(), rootId, "TestEntityId")
+            : base(Guid.NewGuid().ToString(), rootId, "TestEntityId")
         {
 
         }

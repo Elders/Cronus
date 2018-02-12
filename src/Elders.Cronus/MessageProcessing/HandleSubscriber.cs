@@ -1,46 +1,43 @@
-﻿using Elders.Cronus.DomainModeling;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
+using Elders.Cronus.Cluster;
 using Elders.Cronus.Logging;
 using Elders.Cronus.Middleware;
+using Elders.Cronus.Projections;
 
 namespace Elders.Cronus.MessageProcessing
 {
-    public class HandleSubscriber<T, V> : ISubscriber
+    public abstract class BaseHandlerSubscriber<T> : ISubscriber
     {
-        static ILog log = LogProvider.GetLogger(typeof(HandleSubscriber<,>));
+        static ILog log = LogProvider.GetLogger(typeof(BaseHandlerSubscriber<>));
 
-        readonly Middleware<HandleContext> handlerMiddleware;
+        protected readonly Middleware<HandleContext> handlerMiddleware;
 
-        readonly Type handlerType;
+        protected readonly Type handlerType;
 
-        public HandleSubscriber(Type handlerType, Middleware<HandleContext> handlerMiddleware)
+        public BaseHandlerSubscriber(Type handlerType, Middleware<HandleContext> handlerMiddleware, string subscriberId = null)
         {
-            if (handlerMiddleware == null) throw new ArgumentNullException(nameof(handlerMiddleware));
+            if (ReferenceEquals(null, handlerType)) throw new ArgumentNullException(nameof(handlerType));
+            if (ReferenceEquals(null, handlerMiddleware)) throw new ArgumentNullException(nameof(handlerMiddleware));
 
             this.handlerType = handlerType;
             this.handlerMiddleware = handlerMiddleware;
             var expectedHandlerType = typeof(T);
             if (expectedHandlerType.IsAssignableFrom(handlerType) == false)
                 throw new ArgumentException($"'{handlerType.FullName}' does not implement {expectedHandlerType.FullName}");
-            Id = handlerType.FullName;
-            MessageTypes = GetInvolvedMessageTypes(handlerType).ToList();
+            Id = subscriberId ?? handlerType.FullName;
         }
 
-        private string BuildDebugLog(CronusMessage message)
+        protected string BuildDebugLog(CronusMessage message)
         {
             return message.Payload.ToString($"{message.Payload.ToString()} |=> @subscriber '{Id}'");
         }
 
         public string Id { get; private set; }
 
-        /// <summary>
-        /// Gets the message types which the subscriber can process.
-        /// </summary>
-        public List<Type> MessageTypes { get; private set; }
-
-        public void Process(CronusMessage message)
+        public virtual void Process(CronusMessage message)
         {
             var context = new HandleContext(message, handlerType);
             handlerMiddleware.Run(context);
@@ -48,10 +45,27 @@ namespace Elders.Cronus.MessageProcessing
             log.Debug(() => "HANDLE => " + handlerType.Name + "( " + BuildDebugLog(message) + " )");
         }
 
-        IEnumerable<Type> GetInvolvedMessageTypes(Type type)
+        protected abstract IEnumerable<Type> GetInvolvedMessageTypes(Type type);
+
+        public IEnumerable<Type> GetInvolvedMessageTypes()
+        {
+            return GetInvolvedMessageTypes(handlerType);
+        }
+    }
+
+    public class HandlerSubscriber<THandler, V> : BaseHandlerSubscriber<THandler>
+    {
+        static ILog log = LogProvider.GetLogger(typeof(HandlerSubscriber<,>));
+
+        public HandlerSubscriber(Type handlerType, Middleware<HandleContext> handlerMiddleware, string subscriberId = null)
+            : base(handlerType, handlerMiddleware, subscriberId)
+        {
+        }
+
+        protected override IEnumerable<Type> GetInvolvedMessageTypes(Type type)
         {
             var ieventHandler = typeof(V).GetGenericTypeDefinition();
-            var interfaces = type.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler);
+            var interfaces = handlerType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler);
             foreach (var @interface in interfaces)
             {
                 Type eventType = @interface.GetGenericArguments().FirstOrDefault();
@@ -60,48 +74,14 @@ namespace Elders.Cronus.MessageProcessing
         }
     }
 
-    public class SagaSubscriber : ISubscriber
+    public class SagaSubscriber : BaseHandlerSubscriber<ISaga>
     {
-        static ILog log = LogProvider.GetLogger(typeof(SagaSubscriber));
-
-        readonly Middleware<HandleContext> handlerMiddleware;
-
-        readonly Type handlerType;
-
-        public SagaSubscriber(Type handlerType, Middleware<HandleContext> handlerMiddleware)
+        public SagaSubscriber(Type handlerType, Middleware<HandleContext> handlerMiddleware, string subscriberId = null)
+            : base(handlerType, handlerMiddleware, subscriberId)
         {
-            if (handlerMiddleware == null) throw new ArgumentNullException(nameof(handlerMiddleware));
-
-            this.handlerType = handlerType;
-            this.handlerMiddleware = handlerMiddleware;
-            var expectedHandlerType = typeof(ISaga);
-            if (expectedHandlerType.IsAssignableFrom(handlerType) == false)
-                throw new ArgumentException($"'{handlerType.FullName}' does not implement {expectedHandlerType.FullName}");
-            Id = handlerType.FullName;
-            MessageTypes = GetInvolvedMessageTypes(handlerType).ToList();
         }
 
-        private string BuildDebugLog(CronusMessage message)
-        {
-            return message.Payload.ToString($"{message.Payload.ToString()} |=> @subscriber '{Id}'");
-        }
-
-        public string Id { get; private set; }
-
-        /// <summary>
-        /// Gets the message types which the subscriber can process.
-        /// </summary>
-        public List<Type> MessageTypes { get; private set; }
-
-        public void Process(CronusMessage message)
-        {
-            var context = new HandleContext(message, handlerType);
-            handlerMiddleware.Run(context);
-            log.Info(() => message.Payload.ToString());
-            log.Debug(() => "HANDLE => " + handlerType.Name + "( " + BuildDebugLog(message) + " )");
-        }
-
-        IEnumerable<Type> GetInvolvedMessageTypes(Type type)
+        protected override IEnumerable<Type> GetInvolvedMessageTypes(Type type)
         {
             var ieventHandler = typeof(IEventHandler<>);
             var iSagaHandler = typeof(ISagaTimeoutHandler<>);
@@ -111,6 +91,22 @@ namespace Elders.Cronus.MessageProcessing
                 Type eventType = @interface.GetGenericArguments().FirstOrDefault();
                 yield return eventType;
             }
+        }
+    }
+
+    public class SystemServiceSubscriber : HandlerSubscriber<ISystemService, ICommandHandler<ICommand>>
+    {
+        public SystemServiceSubscriber(Type handlerType, Middleware<HandleContext> handlerMiddleware)
+            : base(handlerType, handlerMiddleware)
+        {
+        }
+    }
+
+    public class SystemProjectionSubscriber : HandlerSubscriber<ISystemProjection, IEventHandler<IEvent>>
+    {
+        public SystemProjectionSubscriber(Type handlerType, Middleware<HandleContext> handlerMiddleware, string nodeName)
+            : base(handlerType, handlerMiddleware, nodeName)
+        {
         }
     }
 }

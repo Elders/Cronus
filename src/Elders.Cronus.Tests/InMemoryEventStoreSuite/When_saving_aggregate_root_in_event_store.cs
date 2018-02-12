@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.DomainModeling;
-using Elders.Cronus.Tests.TestModel;
+﻿using Elders.Cronus.Tests.TestModel;
 using Machine.Specifications;
 using Elders.Cronus.EventStore.InMemory;
 using Elders.Cronus.EventStore;

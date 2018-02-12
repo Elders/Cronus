@@ -1,202 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{32EA2250-01B3-4171-9AE7-214037A0D524}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Elders.Cronus</RootNamespace>
-    <AssemblyName>Elders.Cronus</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="Elders.Cronus.DomainModeling, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Cronus.DomainModeling.3.1.3\lib\net45-full\Elders.Cronus.DomainModeling.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Elders.Multithreading.Scheduler, Version=1.1.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Multithreading.Scheduler.1.1.2\lib\net45-full\Elders.Multithreading.Scheduler.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Runtime.Caching" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.XML" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="App_Packages\LibLog.4.2\LibLog.cs" />
-    <Compile Include="AtomicAction\Config\IAggregateRootAtomicActionSettings.cs" />
-    <Compile Include="AtomicAction\IAggregateRootAtomicAction.cs" />
-    <Compile Include="AtomicAction\InMemory\InMemoryAggregateRootAtomicAction.cs" />
-    <Compile Include="Cluster\Config\IClusterSettings.cs" />
-    <Compile Include="EventStore\AggregateLoadException.cs" />
-    <Compile Include="FaultHandling\InMemoryRetryMiddleware.cs" />
-    <Compile Include="FaultHandling\ITransientErrorDetectionStrategy.cs" />
-    <Compile Include="FaultHandling\RetryingEventArgs.cs" />
-    <Compile Include="FaultHandling\RetryLimitExceededException.cs" />
-    <Compile Include="FaultHandling\RetryPolicy.cs" />
-    <Compile Include="FaultHandling\RetryStrategy.cs" />
-    <Compile Include="FaultHandling\Strategies\ExponentialBackoff.cs" />
-    <Compile Include="FaultHandling\Strategies\FixedInterval.cs" />
-    <Compile Include="FaultHandling\Strategies\Incremental.cs" />
-    <Compile Include="EventStore\AggregateRepository.cs" />
-    <Compile Include="EventStore\BruteForceDuplicateRevisionResolver.cs" />
-    <Compile Include="EventStore\DuplicateRevisionsValidator.cs" />
-    <Compile Include="EventStore\EventStream.cs" />
-    <Compile Include="EventStore\EventStreamIntegrityPolicy.cs" />
-    <Compile Include="EventStore\EventStreamIntegrityViolationException.cs" />
-    <Compile Include="EventStore\InMemory\Config\InMemoryEventStoreSettings.cs" />
-    <Compile Include="EventStore\InMemory\InMemoryEventStorePersister.cs" />
-    <Compile Include="EventStore\InMemory\InMemoryEventStorePlayer.cs" />
-    <Compile Include="EventStore\InMemory\InMemoryEventStoreStorage.cs" />
-    <Compile Include="EventStore\InMemory\InMemoryEventStoreStorageManager.cs" />
-    <Compile Include="EventStore\MissingRevisionsValidator.cs" />
-    <Compile Include="EventStore\OrderedRevisionsValidator.cs" />
-    <Compile Include="InMemory\Config\InMemoryConsumerSettings.cs" />
-    <Compile Include="IntegrityValidation\IIntegrityPolicy.cs" />
-    <Compile Include="IntegrityValidation\IntegrityResult.cs" />
-    <Compile Include="IntegrityValidation\IntegrityRule.cs" />
-    <Compile Include="IntegrityValidation\IResolver.cs" />
-    <Compile Include="IntegrityValidation\IValidator.cs" />
-    <Compile Include="IntegrityValidation\IValidatorResult.cs" />
-    <Compile Include="IntegrityValidation\ValidatorResult.cs" />
-    <Compile Include="IocContainer\Container.cs" />
-    <Compile Include="IocContainer\ContainterExtensions.cs" />
-    <Compile Include="IocContainer\IContainer.cs" />
-    <Compile Include="IocContainer\MappingKey.cs" />
-    <Compile Include="MessageProcessing\ApplicationServiceMiddleware.cs" />
-    <Compile Include="MessageProcessing\DynamicMessageHandle.cs" />
-    <Compile Include="MessageProcessing\ErrorContext.cs" />
-    <Compile Include="MessageProcessing\HandleContext.cs" />
-    <Compile Include="MessageProcessing\HandlerContext.cs" />
-    <Compile Include="MessageProcessing\IHandlerFactory.cs" />
-    <Compile Include="MessageProcessing\PortsMiddleware.cs" />
-    <Compile Include="MessageProcessing\ProjectionsMiddleware.cs" />
-    <Compile Include="MessageProcessing\MessageHandlerMiddleware.cs" />
-    <Compile Include="Middleware\AbstractMiddleware.cs" />
-    <Compile Include="Middleware\ExecutionChain.cs" />
-    <Compile Include="Middleware\LinkedListExtensions.cs" />
-    <Compile Include="Middleware\Middleware.cs" />
-    <Compile Include="Middleware\Execution.cs" />
-    <Compile Include="Middleware\MiddlewareExtensions.cs" />
-    <Compile Include="MessageProcessing\HandleSubscriber.cs" />
-    <Compile Include="MessageProcessing\ISubscriber.cs" />
-    <Compile Include="MessageProcessing\SubscriptionMiddleware.cs" />
-    <Compile Include="ObjectExtensions.cs" />
-    <Compile Include="EventStore\AggregateCommit.cs" />
-    <Compile Include="EventStore\Config\IEventStoreSettings.cs" />
-    <Compile Include="EventStore\IEventStore.cs" />
-    <Compile Include="EventStore\IEventStorePlayer.cs" />
-    <Compile Include="IHideObjectMembers.cs" />
-    <Compile Include="InMemory\InMemoryPublisher.cs" />
-    <Compile Include="Pipeline\Config\EndpointConsumerRegistrations.cs" />
-    <Compile Include="Pipeline\Config\IPipelineTransportSettings.cs" />
-    <Compile Include="Pipeline\Config\IMessageHandlerFactory.cs" />
-    <Compile Include="Pipeline\Config\InternalApplicationServiceFactory.cs" />
-    <Compile Include="Pipeline\Config\MiddlewareExtensions.cs" />
-    <Compile Include="Pipeline\Config\PipelineConsumerSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Pipeline\Config\IConsumerSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Pipeline\Config\IHaveMessageProcessor.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Pipeline\Config\IHaveSerializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Pipeline\Config\ISettingsBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Pipeline\Config\MessageProcessorSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Pipeline\Config\PipelinePublisherSettings.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Pipeline\Config\RetryExtensions.cs" />
-    <Compile Include="Pipeline\Hosts\ICronusHost.cs" />
-    <Compile Include="Pipeline\Hosts\CronusHost.cs" />
-    <Compile Include="Pipeline\MessageThreshold.cs" />
-    <Compile Include="Pipeline\PipelineConsumerWork.cs" />
-    <Compile Include="Pipeline\Strategy\EndpointPerHandlerNameConvention.cs" />
-    <Compile Include="Pipeline\Strategy\EndpointPerConsumerNameConvention.cs" />
-    <Compile Include="Pipeline\Strategy\PipelinePerBoundedContextNamespaceConvention.cs" />
-    <Compile Include="Pipeline\Strategy\PipelinePerApplicationNameConvention.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineTransport.cs" />
-    <Compile Include="Pipeline\Transport\IPipelineTransport.cs" />
-    <Compile Include="ITransport.cs" />
-    <Compile Include="AtomicAction\AggregateStateFirstLevelConcurrencyException.cs" />
-    <Compile Include="EventStore\IEventStoreStorageManager.cs" />
-    <Compile Include="CronusAssembly.cs" />
-    <Compile Include="Projections\ProjectionCommit.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Projections\EventOrigin.cs" />
-    <Compile Include="Serializer\ISerializer.cs" />
-    <Compile Include="Pipeline\EndpointClosedException.cs" />
-    <Compile Include="Pipeline\Hosts\CronusSettings.cs" />
-    <Compile Include="Pipeline\EndpointConsumer.cs" />
-    <Compile Include="Pipeline\IEndpointConsumer.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpointFactory.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryEndpoint.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryPipeline.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\InMemoryPipelineFactory.cs" />
-    <Compile Include="Pipeline\PipelineClosedException.cs" />
-    <Compile Include="Pipeline\Transport\InMemory\Config\InMemory.cs" />
-    <Compile Include="Publisher.cs" />
-    <Compile Include="CronusMessage.cs" />
-    <Compile Include="Userfull\LateBoundMethod.cs" />
-    <Compile Include="Pipeline\PipelinePublisher.cs" />
-    <Compile Include="Userfull\FastActivator.cs" />
-    <Compile Include="Userfull\Result.cs" />
-    <Compile Include="Userfull\RetryableOperation.cs" />
-    <Compile Include="Pipeline\IPipelineNameConvention.cs" />
-    <Compile Include="Pipeline\IEndpoint.cs" />
-    <Compile Include="Pipeline\IEndpointFactory.cs" />
-    <Compile Include="Pipeline\EndpointDefinition.cs" />
-    <Compile Include="Pipeline\IEndpointNameConvention.cs" />
-    <Compile Include="Pipeline\IPipeline.cs" />
-    <Compile Include="Pipeline\IPipelineFactory.cs" />
-    <Compile Include="Userfull\SerializableException.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    </PropertyGroup>
+    <PropertyGroup>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <PackageId>Cronus</PackageId>
+        <PackageLicenseUrl>https://github.com/Elders/Cronus/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageProjectUrl>http://Elders.github.io/Cronus</PackageProjectUrl>
+        <PackageTags>CQRS DDD ES Event store sourcing</PackageTags>
+        <RepositoryUrl>https://github.com/Elders/Cronus</RepositoryUrl>
+        <PackageIconUrl>https://github.com/Elders/logo/blob/master/cronus/black.png</PackageIconUrl>
+        <RepositoryType>Framework</RepositoryType>
+        <Authors>Elders</Authors>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+        <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;LIBLOG_PORTABLE</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Cronus.DomainModeling" Version="4.0.0" />
+        <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
+        <PackageReference Include="Multithreading.Scheduler" Version="2.0.0" />
+    </ItemGroup>
 </Project>

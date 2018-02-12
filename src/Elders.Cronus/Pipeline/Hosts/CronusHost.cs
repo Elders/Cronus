@@ -11,10 +11,10 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public CronusHost()
         {
-            Consumers = new List<IEndpointConsumer>();
+            Consumers = new List<ICronusConsumer>();
         }
 
-        public List<IEndpointConsumer> Consumers { get; set; }
+        public List<ICronusConsumer> Consumers { get; set; }
 
         public bool Start()
         {

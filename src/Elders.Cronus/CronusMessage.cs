@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
-using Elders.Cronus.DomainModeling;
 
 namespace Elders.Cronus
 {

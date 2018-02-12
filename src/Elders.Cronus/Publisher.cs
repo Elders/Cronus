@@ -1,33 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.Logging;
 
 namespace Elders.Cronus
 {
-    public static class MessageHeader
-    {
-        public const string AggregateRootId = "ar_id";
-
-        public const string AggregateRootRevision = "ar_revision";
-
-        public const string AggregateRootEventPosition = "event_position";
-
-        public const string CorelationId = "corelationid";
-
-        public const string CausationId = "causationid";
-
-        public const string MessageId = "messageid";
-
-        public const string PublishTimestamp = "publish_timestamp";
-    }
-
     public abstract class Publisher<TMessage> : IPublisher<TMessage> where TMessage : IMessage
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(Publisher<TMessage>));
 
-        protected abstract bool PublishInternal(TMessage message, Dictionary<string, string> messageHeaders);
+        protected abstract bool PublishInternal(CronusMessage message);
 
         public bool Publish(TMessage message, Dictionary<string, string> messageHeaders)
         {
@@ -43,7 +25,8 @@ namespace Elders.Cronus
                 if (messageHeaders.ContainsKey(MessageHeader.PublishTimestamp) == false)
                     messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
 
-                PublishInternal(message, messageHeaders);
+                var cronusMessage = new CronusMessage(message, messageHeaders);
+                PublishInternal(cronusMessage);
 
                 log.Info(() => message.ToString());
                 log.Debug(() => "PUBLISH => " + BuildDebugLog(message, messageHeaders));

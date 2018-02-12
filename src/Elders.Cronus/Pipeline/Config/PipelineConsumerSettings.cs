@@ -1,13 +1,12 @@
 ﻿using System;
-using Elders.Cronus.DomainModeling;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Hosts;
-using Elders.Cronus.Pipeline.Transport;
 using Elders.Cronus.Serializer;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.EventStore.Config;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -17,12 +16,10 @@ namespace Elders.Cronus.Pipeline.Config
         public PipelineConsumerSettings(ISettingsBuilder settingsBuilder, string name)
             : base(settingsBuilder, name)
         {
-            this.SetNumberOfConsumerThreads(2);
+            this.SetNumberOfConsumerThreads(1);
         }
 
         int IConsumerSettings.NumberOfWorkers { get; set; }
-
-        MessageThreshold IConsumerSettings.MessageTreshold { get; set; }
 
         IContainer ISettingsBuilder.Container { get; set; }
 
@@ -31,15 +28,17 @@ namespace Elders.Cronus.Pipeline.Config
         public override void Build()
         {
             var builder = this as ISettingsBuilder;
-            Func<IPipelineTransport> transport = () => builder.Container.Resolve<IPipelineTransport>(builder.Name);
+            Func<ITransport> transport = () => builder.Container.Resolve<ITransport>(builder.Name);
             Func<ISerializer> serializer = () => builder.Container.Resolve<ISerializer>();
             Func<SubscriptionMiddleware> messageHandlerProcessor = () => builder.Container.Resolve<SubscriptionMiddleware>(builder.Name);
-            Func<IEndpointConsumer> consumer = () => new EndpointConsumer((this as IConsumerSettings<TContract>).Name, transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).MessageTreshold);
-            builder.Container.RegisterSingleton<IEndpointConsumer>(() => consumer(), builder.Name);
+            Func<ICronusConsumer> consumer = () => new CronusConsumer((this as IConsumerSettings<TContract>).Name, transport(), messageHandlerProcessor(), serializer(), (this as IConsumerSettings<TContract>).NumberOfWorkers);
+            builder.Container.RegisterSingleton<ICronusConsumer>(() => consumer(), builder.Name);
         }
     }
 
-    public class CommandConsumerSettings : PipelineConsumerSettings<ICommand>
+    public interface ICanConfigureEventStore : ISettingsBuilder { }
+
+    public class CommandConsumerSettings : PipelineConsumerSettings<ICommand>, ICanConfigureEventStore
     {
         public CommandConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
 
@@ -65,9 +64,14 @@ namespace Elders.Cronus.Pipeline.Config
         public PortConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 
-    public class SagaConsumerSettings : PipelineConsumerSettings<IEvent>
+    public class SagaConsumerSettings : PipelineConsumerSettings<IEvent>, ICanConfigureEventStore
     {
         public SagaConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
+    }
+
+    public class SystemConsumerSettings : PipelineConsumerSettings<IEvent>
+    {
+        public SystemConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 
     public static class ConsumerSettingsExtensions
@@ -75,12 +79,6 @@ namespace Elders.Cronus.Pipeline.Config
         public static T SetNumberOfConsumerThreads<T>(this T self, int numberOfConsumers) where T : IConsumerSettings
         {
             self.NumberOfWorkers = numberOfConsumers;
-            return self;
-        }
-
-        public static T SetMessageThreshold<T>(this T self, uint size, uint delay) where T : IConsumerSettings
-        {
-            self.MessageTreshold = new MessageThreshold(size, delay);
             return self;
         }
 
@@ -139,5 +137,20 @@ namespace Elders.Cronus.Pipeline.Config
             (settings as ISettingsBuilder).Build();
             return self;
         }
+
+        public static T UseSystemServiceConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
+        {
+            return UseCommandConsumer(self, "SystemAppServices", configure);
+            //return UseSystemConsumer(self, "System", configure);
+        }
+
+        //public static T UseSystemConsumer<T>(this T self, string name, Action<SystemConsumerSettings> configure = null) where T : ICronusSettings
+        //{
+        //    SystemConsumerSettings settings = new SystemConsumerSettings(self, name);
+        //    if (configure != null)
+        //        configure(settings);
+        //    (settings as ISettingsBuilder).Build();
+        //    return self;
+        //}
     }
 }

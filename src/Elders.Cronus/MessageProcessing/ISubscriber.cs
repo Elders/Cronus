@@ -7,7 +7,11 @@ namespace Elders.Cronus.MessageProcessing
     {
         string Id { get; }
 
-        List<Type> MessageTypes { get; }
+        /// <summary>
+        /// Gets the message types which the subscriber can process.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<Type> GetInvolvedMessageTypes();
 
         void Process(CronusMessage message);
     }

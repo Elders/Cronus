@@ -1,9 +1,15 @@
 using System;
 using System.Collections.Generic;
-using Elders.Cronus.DomainModeling;
+using System.Linq;
+using Elders.Cronus.Cluster.Config;
+using Elders.Cronus.EventStore;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Middleware;
+using Elders.Cronus.Projections;
+using Elders.Cronus.Projections.Snapshotting;
+using Elders.Cronus.Projections.Versioning;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -20,25 +26,63 @@ namespace Elders.Cronus.Pipeline.Config
 
         Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings.HandleMiddleware { get; set; }
 
+        private IEnumerable<Type> GetAllEventsFromAssemliesBecauseSomeEventMightNotBePartOfProjections(IEnumerable<Type> projectionHandlers)
+        {
+            var ievent = typeof(IEvent);
+            var ieventHandler = (typeof(IEventHandler<>));
+            var allEventTypes = projectionHandlers.SelectMany(y => y.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler))
+                .Select(x => x.GetGenericArguments().FirstOrDefault().Assembly).SelectMany(x => x.GetTypes().Where(y => ievent.IsAssignableFrom(y)));
+            return allEventTypes;
+        }
         public override void Build()
         {
+            var hasher = new ProjectionHasher();
             var builder = this as ISettingsBuilder;
             var processorSettings = this as ISubscrptionMiddlewareSettings;
             Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
             {
                 var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
 
+                //  May be we want to have separate serializer + transport per type?!?!?
+                var transport = builder.Container.Resolve<ITransport>(builder.Name);
+                var serializer = builder.Container.Resolve<ISerializer>(null);
+                var publisher = transport.GetPublisher<ICommand>(serializer);
+
                 var projectionsMiddleware = new ProjectionsMiddleware(handlerFactory);
                 var middleware = processorSettings.HandleMiddleware(projectionsMiddleware);
                 var subscriptionMiddleware = new SubscriptionMiddleware();
-                foreach (var reg in processorSettings.HandlerRegistrations)
+                var iProjection = typeof(IProjection);
+
+                foreach (var handler in processorSettings.HandlerRegistrations)
                 {
-                    if (typeof(IProjection).IsAssignableFrom(reg))
-                        subscriptionMiddleware.Subscribe(new HandleSubscriber<IProjection, IEventHandler<IEvent>>(reg, middleware));
+                    if (iProjection.IsAssignableFrom(handler))
+                    {
+                        subscriptionMiddleware.Subscribe(new HandlerSubscriber<IProjection, IEventHandler<IEvent>>(handler, middleware));
+                        var projManagerId = new ProjectionVersionManagerId(handler);
+                        var command = new RegisterProjection(projManagerId, hasher.CalculateHash(handler).ToString());
+                        publisher.Publish(command);
+                    }
                 }
+                var indexSubscriber = builder.Container.Resolve<EventTypeIndexForProjections>();
+                subscriptionMiddleware.Subscribe(indexSubscriber);
                 return subscriptionMiddleware;
             };
+            Func<EventTypeIndexForProjections> eventIndexForProjectionsFactory = () =>
+            {
+                //  May be we want to have separate serializer + transport per type?!?!?
+                var transport = builder.Container.Resolve<ITransport>(builder.Name);
+                var serializer = builder.Container.Resolve<ISerializer>(null);
+                var publisher = transport.GetPublisher<ICommand>(serializer);
+                var allEventTypes = GetAllEventsFromAssemliesBecauseSomeEventMightNotBePartOfProjections(processorSettings.HandlerRegistrations);
+                var projectionStore = builder.Container.Resolve<IProjectionStore>(builder.Name);
+
+                var indexSubscriber = new EventTypeIndexForProjections(allEventTypes, publisher, projectionStore, new StupidProjectionStore(projectionStore));
+                return indexSubscriber;
+            };
+
+
             builder.Container.RegisterSingleton<SubscriptionMiddleware>(() => messageHandlerProcessorFactory(), builder.Name);
+            builder.Container.RegisterSingleton<EventTypeIndexForProjections>(() => eventIndexForProjectionsFactory());
         }
     }
 
@@ -69,7 +113,7 @@ namespace Elders.Cronus.Pipeline.Config
                 foreach (var reg in (this as ISubscrptionMiddlewareSettings).HandlerRegistrations)
                 {
                     if (typeof(IPort).IsAssignableFrom(reg))
-                        subscriptionMiddleware.Subscribe(new HandleSubscriber<IPort, IEventHandler<IEvent>>(reg, middleware));
+                        subscriptionMiddleware.Subscribe(new HandlerSubscriber<IPort, IEventHandler<IEvent>>(reg, middleware));
                 }
                 return subscriptionMiddleware;
             };
@@ -136,18 +180,130 @@ namespace Elders.Cronus.Pipeline.Config
                 var repository = builder.Container.Resolve<IAggregateRepository>(builder.Name);
                 var publisher = builder.Container.Resolve<IPublisher<IEvent>>(builder.Name);
 
-                //create extension methis UseApplicationMiddleware instead of instance here.
+                //create extension method UseApplicationMiddleware instead of instance here.
                 var applicationServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
                 var middleware = processorSettings.HandleMiddleware(applicationServiceMiddleware);
                 var subscriptionMiddleware = new SubscriptionMiddleware();
                 foreach (var reg in (this as ISubscrptionMiddlewareSettings).HandlerRegistrations)
                 {
                     if (typeof(IAggregateRootApplicationService).IsAssignableFrom(reg))
-                        subscriptionMiddleware.Subscribe(new HandleSubscriber<IAggregateRootApplicationService, ICommandHandler<ICommand>>(reg, middleware));
+                        subscriptionMiddleware.Subscribe(new HandlerSubscriber<IAggregateRootApplicationService, ICommandHandler<ICommand>>(reg, middleware));
                 }
                 return subscriptionMiddleware;
             };
             builder.Container.RegisterSingleton<SubscriptionMiddleware>(() => messageHandlerProcessorFactory(), builder.Name);
+        }
+    }
+
+    public class SystemServiceMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings
+    {
+        public SystemServiceMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
+        {
+            (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
+        }
+
+        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+
+        Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
+
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings.HandleMiddleware { get; set; }
+
+        public override void Build()
+        {
+            var builder = this as ISettingsBuilder;
+            var processorSettings = this as ISubscrptionMiddlewareSettings;
+            Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
+            {
+                var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
+
+                var publisher = builder.Container.Resolve<IPublisher<IEvent>>(builder.Name);
+                var repository = builder.Container.Resolve<IAggregateRepository>(builder.Name);
+                var systemServiceMiddleware = new ApplicationServiceMiddleware(handlerFactory, repository, publisher);
+                var middleware = processorSettings.HandleMiddleware(systemServiceMiddleware);
+                var subscriptionMiddleware = new SubscriptionMiddleware();
+                foreach (var reg in (this as ISubscrptionMiddlewareSettings).HandlerRegistrations)
+                {
+                    if (typeof(ISystemService).IsAssignableFrom(reg) && reg.IsClass)
+                        subscriptionMiddleware.Subscribe(new SystemServiceSubscriber(reg, middleware));
+                }
+                return subscriptionMiddleware;
+            };
+            builder.Container.RegisterSingleton<SubscriptionMiddleware>(() => messageHandlerProcessorFactory(), builder.Name);
+        }
+    }
+
+    public class SystemProjectionMessageProcessorSettings : SettingsBuilder, ISubscrptionMiddlewareSettings
+    {
+        public SystemProjectionMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
+        {
+            (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
+        }
+
+        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+
+        Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
+
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings.HandleMiddleware { get; set; }
+
+        public override void Build()
+        {
+            var hasher = new ProjectionHasher();
+            var builder = this as ISettingsBuilder;
+            var processorSettings = this as ISubscrptionMiddlewareSettings;
+            Func<SubscriptionMiddleware> messageHandlerProcessorFactory = () =>
+            {
+                var handlerFactory = new DefaultHandlerFactory(processorSettings.HandlerFactory);
+
+                var clusterServiceMiddleware = new SystemMiddleware(handlerFactory);
+                var middleware = processorSettings.HandleMiddleware(clusterServiceMiddleware);
+                var subscriptionMiddleware = new SubscriptionMiddleware();
+                var clusterSettings = builder.Container.Resolve<IClusterSettings>();
+                string nodeId = $"{clusterSettings.CurrentNodeName}@{clusterSettings.ClusterName}";
+                foreach (var reg in (this as ISubscrptionMiddlewareSettings).HandlerRegistrations)
+                {
+                    string subscriberId = reg.FullName + "." + nodeId;
+                    if (typeof(ISystemProjection).IsAssignableFrom(reg) && reg.IsClass)
+                    {
+                        subscriptionMiddleware.Subscribe(new SystemProjectionSubscriber(reg, middleware, subscriberId));
+
+                        var transport = builder.Container.Resolve<ITransport>(builder.Name);
+                        var serializer = builder.Container.Resolve<ISerializer>(null);
+                        var publisher = transport.GetPublisher<ICommand>(serializer);
+                        var projManagerId = new ProjectionVersionManagerId(reg);
+                        var command = new RegisterProjection(projManagerId, hasher.CalculateHash(reg).ToString());
+                        publisher.Publish(command);
+                    }
+                }
+                return subscriptionMiddleware;
+            };
+            builder.Container.RegisterSingleton<SubscriptionMiddleware>(() => messageHandlerProcessorFactory(), builder.Name);
+        }
+    }
+
+    public class SystemSagaMessageProcessorSettings : SagaMessageProcessorSettings
+    {
+        public SystemSagaMessageProcessorSettings(ISettingsBuilder builder) : base(builder)
+        {
+
+        }
+
+        public override void Build()
+        {
+            base.Build();
+            var builder = this as ISettingsBuilder;
+
+
+            var projectionRepository = builder.Container.Resolve<IProjectionRepository>(builder.Name);
+            var es = builder.Container.Resolve<IEventStore>(builder.Name);
+            var esPlayer = builder.Container.Resolve<IEventStorePlayer>(builder.Name);
+            var projectionStore = builder.Container.Resolve<IProjectionStore>(builder.Name);
+            var snapshotStore = builder.Container.Resolve<ISnapshotStore>(builder.Name);
+            Func<EventTypeIndexForProjections> eventIndexForProjections = () => builder.Container.Resolve<EventTypeIndexForProjections>();
+
+            builder.Container.RegisterSingleton<ProjectionPlayer>(() => new ProjectionPlayer(es, projectionStore, projectionRepository, snapshotStore, eventIndexForProjections(), esPlayer), builder.Name);
+
+            var eventStorePlayer = builder.Container.Resolve<IEventStorePlayer>(builder.Name);
+            builder.Container.RegisterSingleton<EventStoreIndexPlayer>(() => new EventStoreIndexPlayer(eventStorePlayer, projectionStore, projectionRepository), builder.Name);
         }
     }
 
@@ -186,6 +342,36 @@ namespace Elders.Cronus.Pipeline.Config
         public static T UseApplicationServices<T>(this T self, Action<ApplicationServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
         {
             ApplicationServiceMessageProcessorSettings settings = new ApplicationServiceMessageProcessorSettings(self);
+            if (configure != null)
+                configure(settings);
+
+            (settings as ISettingsBuilder).Build();
+            return self;
+        }
+
+        public static T UseSystemServices<T>(this T self, Action<SystemServiceMessageProcessorSettings> configure) where T : IConsumerSettings<ICommand>
+        {
+            SystemServiceMessageProcessorSettings settings = new SystemServiceMessageProcessorSettings(self);
+            if (configure != null)
+                configure(settings);
+
+            (settings as ISettingsBuilder).Build();
+            return self;
+        }
+
+        public static T UseSystemProjections<T>(this T self, Action<SystemProjectionMessageProcessorSettings> configure) where T : IConsumerSettings<IEvent>
+        {
+            SystemProjectionMessageProcessorSettings settings = new SystemProjectionMessageProcessorSettings(self);
+            if (configure != null)
+                configure(settings);
+            ;
+            (settings as ISettingsBuilder).Build();
+            return self;
+        }
+
+        public static T UseSystemSagas<T>(this T self, Action<SystemSagaMessageProcessorSettings> configure) where T : SagaConsumerSettings
+        {
+            SystemSagaMessageProcessorSettings settings = new SystemSagaMessageProcessorSettings(self);
             if (configure != null)
                 configure(settings);
 
