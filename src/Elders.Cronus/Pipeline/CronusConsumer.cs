@@ -4,7 +4,6 @@ using Elders.Cronus.Serializer;
 using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
 using System.Linq;
-using System.Threading.Tasks;
 using Elders.Multithreading.Scheduler;
 
 namespace Elders.Cronus.Pipeline
@@ -42,8 +41,15 @@ namespace Elders.Cronus.Pipeline
             pools = new List<WorkPool>();
         }
 
+        protected virtual void ConsumerStart()
+        {
+
+        }
+        protected virtual void ConsumerStarted() { }
+
         public void Start(int? numberOfWorkers = null)
         {
+            ConsumerStart();
             int workers = numberOfWorkers.HasValue ? numberOfWorkers.Value : NumberOfWorkers;
 
             pools.Clear();
@@ -59,6 +65,8 @@ namespace Elders.Cronus.Pipeline
                 pools.Add(pool);
                 pool.StartCrawlers();
             }
+
+            ConsumerStarted();
         }
 
         public void Stop()

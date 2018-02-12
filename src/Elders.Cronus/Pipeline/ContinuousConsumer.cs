@@ -11,11 +11,12 @@ namespace Elders.Cronus.Pipeline
 
         SubscriptionMiddleware subscriptions;
 
-        volatile bool isWorking;
+        volatile bool isRunning;
 
         public ContinuousConsumer(SubscriptionMiddleware subscriptions)
         {
             this.subscriptions = subscriptions;
+            isRunning = true;
         }
 
         public string Name { get; set; }
@@ -31,20 +32,31 @@ namespace Elders.Cronus.Pipeline
         {
             try
             {
-                isWorking = true;
-                WorkStart();
-                while (isWorking)
+                if (isRunning)
+                    WorkStart();
+                else
+                    WorkStop();
+
+                while (isRunning)
                 {
                     CronusMessage message = GetMessage();
                     if (ReferenceEquals(null, message)) break;
-
-                    var subscribers = subscriptions.GetInterestedSubscribers(message);
-                    foreach (var subscriber in subscribers)
+                    try
                     {
-                        subscriber.Process(message);
+                        var subscribers = subscriptions.GetInterestedSubscribers(message);
+                        foreach (var subscriber in subscribers)
+                        {
+                            subscriber.Process(message);
+                        }
                     }
-
-                    MessageConsumed(message);//finally?!??!
+                    catch (Exception ex)
+                    {
+                        log.ErrorException("Unexpected Exception.", ex);
+                    }
+                    finally
+                    {
+                        MessageConsumed(message);
+                    }
                 }
             }
             catch (Exception ex)
@@ -53,14 +65,13 @@ namespace Elders.Cronus.Pipeline
             }
             finally
             {
-                ScheduledStart = DateTime.UtcNow.AddMilliseconds(30);
+                ScheduledStart = DateTime.UtcNow.AddMilliseconds(50);
             }
         }
 
         public void Stop()
         {
-            isWorking = false;
-            WorkStop();
+            isRunning = false;
         }
     }
 }

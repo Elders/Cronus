@@ -1,3 +1,6 @@
+#### 4.0.0-beta0007 - 11.01.2018
+* WIP
+
 #### 4.0.0-beta0006 - 10.01.2018
 * Trying to properly set the NumberOfWorkers
 

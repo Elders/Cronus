@@ -40,8 +40,7 @@ namespace Elders.Cronus.MessageProcessing
         public void Subscribe(ISubscriber subscriber)
         {
             if (ReferenceEquals(null, subscriber)) throw new ArgumentNullException(nameof(subscriber));
-            if (ReferenceEquals(null, subscriber.MessageTypes)) throw new ArgumentNullException(nameof(subscriber.MessageTypes));
-            if (subscriber.MessageTypes.Any() == false) throw new ArgumentException($"Subscirber '{subscriber.Id}' does not care about any message types. Any reason?");
+            if (subscriber.GetInvolvedMessageTypes().Any() == false) throw new ArgumentException($"Subscirber '{subscriber.Id}' does not care about any message types. Any reason?");
             if (subscribers.Any(x => x.Id == subscriber.Id)) throw new ArgumentException($"There is already subscriber with id '{subscriber.Id}'");
 
             subscribers.Add(subscriber);
@@ -49,7 +48,7 @@ namespace Elders.Cronus.MessageProcessing
 
         public IEnumerable<ISubscriber> GetInterestedSubscribers(CronusMessage message)
         {
-            return Subscribers.Where(subscriber => subscriber.MessageTypes.Contains(message.Payload.GetType()));
+            return Subscribers.Where(subscriber => subscriber.GetInvolvedMessageTypes().Contains(message.Payload.GetType()));
         }
 
         public IEnumerable<ISubscriber> Subscribers { get { return subscribers.ToList(); } }

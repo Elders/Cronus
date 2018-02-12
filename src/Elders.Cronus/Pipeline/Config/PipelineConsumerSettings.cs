@@ -6,6 +6,7 @@ using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.EventStore.Config;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -35,7 +36,9 @@ namespace Elders.Cronus.Pipeline.Config
         }
     }
 
-    public class CommandConsumerSettings : PipelineConsumerSettings<ICommand>
+    public interface ICanConfigureEventStore : ISettingsBuilder { }
+
+    public class CommandConsumerSettings : PipelineConsumerSettings<ICommand>, ICanConfigureEventStore
     {
         public CommandConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
 
@@ -61,9 +64,14 @@ namespace Elders.Cronus.Pipeline.Config
         public PortConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 
-    public class SagaConsumerSettings : PipelineConsumerSettings<IEvent>
+    public class SagaConsumerSettings : PipelineConsumerSettings<IEvent>, ICanConfigureEventStore
     {
         public SagaConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
+    }
+
+    public class SystemConsumerSettings : PipelineConsumerSettings<IEvent>
+    {
+        public SystemConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
     }
 
     public static class ConsumerSettingsExtensions
@@ -129,5 +137,20 @@ namespace Elders.Cronus.Pipeline.Config
             (settings as ISettingsBuilder).Build();
             return self;
         }
+
+        public static T UseSystemServiceConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
+        {
+            return UseCommandConsumer(self, "SystemAppServices", configure);
+            //return UseSystemConsumer(self, "System", configure);
+        }
+
+        //public static T UseSystemConsumer<T>(this T self, string name, Action<SystemConsumerSettings> configure = null) where T : ICronusSettings
+        //{
+        //    SystemConsumerSettings settings = new SystemConsumerSettings(self, name);
+        //    if (configure != null)
+        //        configure(settings);
+        //    (settings as ISettingsBuilder).Build();
+        //    return self;
+        //}
     }
 }

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Elders.Cronus.Projections;
 
-namespace Elders.Cronus.Projections
+namespace Elders.Cronus
 {
     public static class CronusMessageExtensions
     {

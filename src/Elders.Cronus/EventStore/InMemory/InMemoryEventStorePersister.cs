@@ -1,3 +1,5 @@
+using System;
+
 namespace Elders.Cronus.EventStore.InMemory
 {
 
@@ -19,7 +21,7 @@ namespace Elders.Cronus.EventStore.InMemory
         /// </summary>
         /// <param name="aggregateId">The aggregate identifier.</param>
         /// <returns></returns>
-        public EventStream Load(IAggregateRootId aggregateId)
+        public EventStream Load(IAggregateRootId aggregateId, Func<IAggregateRootId, string> getBoundedContext)
         {
             return new EventStream(eventStoreStorage.Seek(aggregateId));
         }
