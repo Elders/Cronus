@@ -1,3 +1,9 @@
+#### 4.0.1 - 16.02.2018
+* Configures the version request timeout to one hour
+* The version hash for the projection index is now constant. Probably this will change in future when we want to rebuild the index in a separate storage
+* Adds tracing for building projections
+* Improves the ProjectionVersions with couple of guards and ToString() override
+
 #### 4.0.0 - 12.02.2018
 * Projections
 * Properly set the NumberOfWorkers
