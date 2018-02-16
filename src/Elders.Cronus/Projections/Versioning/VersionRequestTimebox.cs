@@ -10,7 +10,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         VersionRequestTimebox() { }
 
-        public VersionRequestTimebox(DateTime rebuildStartAt) : this(rebuildStartAt, rebuildStartAt.AddMilliseconds(70000)) { }
+        public VersionRequestTimebox(DateTime rebuildStartAt) : this(rebuildStartAt, rebuildStartAt.AddMilliseconds(OneHour)) { }
 
         public VersionRequestTimebox(DateTime rebuildStartAt, DateTime rebuildFinishUntil)
         {
