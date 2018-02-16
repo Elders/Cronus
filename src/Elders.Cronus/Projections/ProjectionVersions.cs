@@ -26,8 +26,23 @@ namespace Elders.Cronus.Projections
 
         public bool IsReadOnly { get { return true; } }
 
+        public void ValidateVersion(ProjectionVersion version)
+        {
+            var existingVersion = Versions.FirstOrDefault();
+            if (ReferenceEquals(null, existingVersion))
+                return;
+
+            if (existingVersion.ProjectionContractId.Equals(version.ProjectionContractId, StringComparison.OrdinalIgnoreCase) == false)
+            {
+                throw new ArgumentException("Invalid version. " + version.ToString() + Environment.NewLine + "Expecting version similar to an existing one: " + existingVersion, nameof(version));
+            }
+        }
+
         public void Add(ProjectionVersion version)
         {
+            if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
+            ValidateVersion(version);
+
             if (version.Status == ProjectionStatus.Canceled)
             {
                 var versionInBuild = Versions.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault();

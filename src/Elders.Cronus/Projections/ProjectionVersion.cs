@@ -39,12 +39,20 @@ namespace Elders.Cronus.Projections
         {
             if (ReferenceEquals(null, other)) return false;
 
-            return Revision == other.Revision;
+            return
+                string.Equals(Hash, other.Hash, System.StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(ProjectionContractId, other.ProjectionContractId, System.StringComparison.OrdinalIgnoreCase) &&
+                Revision == other.Revision;
         }
 
         public override int GetHashCode()
         {
             return Revision.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return ProjectionContractId + "_" + Hash + "_" + Revision + "_" + Status;
         }
     }
 }
