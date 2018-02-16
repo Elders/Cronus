@@ -67,6 +67,37 @@ namespace Elders.Cronus.Pipeline.Config
                 subscriptionMiddleware.Subscribe(indexSubscriber);
                 return subscriptionMiddleware;
             };
+
+            builder.Container.RegisterSingleton<SubscriptionMiddleware>(() => messageHandlerProcessorFactory(), builder.Name);
+        }
+    }
+
+    public class ProjectionIndexSettings : SettingsBuilder, ISubscrptionMiddlewareSettings
+    {
+        public ProjectionIndexSettings(ISettingsBuilder builder) : base(builder)
+        {
+            (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
+        }
+
+        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+
+        Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
+
+        Func<Middleware<HandleContext>, Middleware<HandleContext>> ISubscrptionMiddlewareSettings.HandleMiddleware { get; set; }
+
+        private IEnumerable<Type> GetAllEventsFromAssemliesBecauseSomeEventMightNotBePartOfProjections(IEnumerable<Type> projectionHandlers)
+        {
+            var ievent = typeof(IEvent);
+            var ieventHandler = (typeof(IEventHandler<>));
+            var allEventTypes = projectionHandlers.SelectMany(y => y.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler))
+                .Select(x => x.GetGenericArguments().FirstOrDefault().Assembly).SelectMany(x => x.GetTypes().Where(y => ievent.IsAssignableFrom(y)));
+            return allEventTypes;
+        }
+        public override void Build()
+        {
+            var builder = this as ISettingsBuilder;
+            var processorSettings = this as ISubscrptionMiddlewareSettings;
+
             Func<EventTypeIndexForProjections> eventIndexForProjectionsFactory = () =>
             {
                 //  May be we want to have separate serializer + transport per type?!?!?
@@ -80,8 +111,6 @@ namespace Elders.Cronus.Pipeline.Config
                 return indexSubscriber;
             };
 
-
-            builder.Container.RegisterSingleton<SubscriptionMiddleware>(() => messageHandlerProcessorFactory(), builder.Name);
             builder.Container.RegisterSingleton<EventTypeIndexForProjections>(() => eventIndexForProjectionsFactory());
         }
     }
@@ -309,6 +338,16 @@ namespace Elders.Cronus.Pipeline.Config
 
     public static class MessageProcessorSettingsExtensions
     {
+        public static T UseProjectionsIndex<T>(this T self, Action<ProjectionIndexSettings> configure) where T : ProjectionConsumerSettings
+        {
+            ProjectionIndexSettings settings = new ProjectionIndexSettings(self);
+            if (configure != null)
+                configure(settings);
+
+            (settings as ISettingsBuilder).Build();
+            return self;
+        }
+
         public static T UseProjections<T>(this T self, Action<ProjectionMessageProcessorSettings> configure) where T : ProjectionConsumerSettings
         {
             ProjectionMessageProcessorSettings settings = new ProjectionMessageProcessorSettings(self);

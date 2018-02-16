@@ -13,5 +13,10 @@ namespace Elders.Cronus.Pipeline.Config
             self.HandlerFactory = messageHandlerFactory;
             return self;
         }
+
+        public static T RegisterHandlersInAssembly<T>(this T self, Assembly[] messageHandlers) where T : ISubscrptionMiddlewareSettings
+        {
+            return RegisterHandlersInAssembly(self, messageHandlers, t => FastActivator.CreateInstance(t));
+        }
     }
 }
