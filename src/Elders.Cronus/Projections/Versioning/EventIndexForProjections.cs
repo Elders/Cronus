@@ -22,7 +22,8 @@ namespace Elders.Cronus.Projections.Versioning
         public EventTypeIndexForProjections(IEnumerable<Type> allEventTypesInTheSystem, IPublisher<ICommand> publisher, IProjectionStore store, ICornusInternalStore internalStore)
         {
             var hasher = new ProjectionHasher();
-            currentHash = hasher.CalculateHash(allEventTypesInTheSystem.Select(x => x.GetContractId()).ToList());
+            //currentHash = hasher.CalculateHash(allEventTypesInTheSystem.Select(x => x.GetContractId()).ToList());
+            currentHash = hasher.CalculateHash(typeof(EventTypeIndexForProjections));
 
             var gg = new ProjectionVersion(ContractId, ProjectionStatus.Live, 1, currentHash);
             store.InitializeProjectionStore(gg);
