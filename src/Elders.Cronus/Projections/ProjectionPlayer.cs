@@ -35,6 +35,9 @@ namespace Elders.Cronus.Projections
 
         public bool Rebuild(Type projectionType, ProjectionVersion version, DateTime replayUntil)
         {
+            int progressCounter = 0;
+            log.Info(() => $"Start rebuilding projection `{projectionType.Name}` for version {version}. Deadline is {replayUntil}");
+
             var projection = FastActivator.CreateInstance(projectionType) as IProjectionDefinition;
             var projectionEventTypes = GetInvolvedEvents(projectionType).ToList();
 
@@ -45,17 +48,24 @@ namespace Elders.Cronus.Projections
                 return false;
             foreach (var eventType in projectionEventTypes)
             {
+                log.Debug(() => $"Rebuilding projection `{projectionType.Name}` for version {version} using eventType `{eventType}`. Deadline is {replayUntil}");
+
                 var indexId = new EventStoreIndexEventTypeId(eventType);
                 IEnumerable<ProjectionCommit> indexCommits = index.EnumerateCommitsByEventType(indexId);
 
                 foreach (var indexCommit in indexCommits)
                 {
-                    //// if the replay did not finish in time (specified by the AR) we need to abort.
-                    //if (DateTime.UtcNow >= replayUntil)
-                    //    return false;
+                    progressCounter++;
+                    if (progressCounter % 1000 == 0)
+                        log.Trace(() => $"Rebuilding projection `{projectionType.Name}` => PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.");
+                    // if the replay did not finish in time (specified by the AR) we need to abort.
+                    if (DateTime.UtcNow >= replayUntil)
+                    {
+                        log.Info(() => $"Rebuilding projection `{projectionType.Name}` stopped bacause the deadline has been reached. PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.");
+                        return false;
+                    }
                     IAggregateRootId arId = GetAggregateRootId(indexCommit.EventOrigin.AggregateRootId);
                     EventStream stream = eventStore.Load(arId, theId => projectionType.GetBoundedContext().BoundedContextName);
-
 
                     foreach (AggregateCommit arCommit in stream.Commits)
                     {
@@ -72,6 +82,7 @@ namespace Elders.Cronus.Projections
                     }
                 }
             }
+            log.Info(() => $"Finish rebuilding projection `{projectionType.Name}` for version {version}. Deadline was {replayUntil}");
             return true;
         }
 
