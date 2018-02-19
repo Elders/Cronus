@@ -1,3 +1,7 @@
+#### 4.0.3 - 19.02.2018
+* Fixes handler subscription to not register duplicate handlers
+* https://gyazo.com/51a9f27125ea8c5c8429929abbe2fe44
+
 #### 4.0.2 - 19.02.2018
 * Fixes handler subscription to not register duplicate handlers
 
