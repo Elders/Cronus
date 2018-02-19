@@ -1,7 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net45;net451;net452;net46;net461;net462</TargetFrameworks>
     </PropertyGroup>
+
+    <!--Nuget-->
     <PropertyGroup>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <PackageId>Cronus</PackageId>
@@ -13,13 +15,29 @@
         <RepositoryType>Framework</RepositoryType>
         <Authors>Elders</Authors>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+
+    <!--netstandard2.0-->
+    <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
         <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;LIBLOG_PORTABLE</DefineConstants>
     </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Cronus.DomainModeling" Version="4.0.1" />
+    <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+        <PackageReference Include="Cronus.DomainModeling" Version="4.0.2" />
         <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
-        <PackageReference Include="Multithreading.Scheduler" Version="2.0.0" />
+        <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
+    </ItemGroup>
+
+    <!--netstandard2.0 == false-->
+    <PropertyGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
+        <DefineConstants>TRACE;DEBUG;LIBLOG_PORTABLE</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
+        <Reference Include="mscorlib" />
+        <Reference Include="System" />
+        <Reference Include="System.Core" />
+        <Reference Include="System.Runtime.Caching" />
+        <Reference Include="Microsoft.CSharp" />
+        <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
+        <PackageReference Include="Cronus.DomainModeling" Version="4.0.2" />
     </ItemGroup>
 </Project>

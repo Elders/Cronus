@@ -1,3 +1,6 @@
+#### 4.0.4 - 20.02.2018
+* Adds real multitarget framework support for netstandard2.0;net45;net451;net452;net46;net461;net462
+
 #### 4.0.3 - 19.02.2018
 * Fixes handler subscription to not register duplicate handlers
 * https://gyazo.com/51a9f27125ea8c5c8429929abbe2fe44
