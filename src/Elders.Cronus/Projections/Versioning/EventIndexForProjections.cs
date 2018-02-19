@@ -12,7 +12,7 @@ namespace Elders.Cronus.Projections.Versioning
     {
         public const string ContractId = "13423df4-b815-421d-a53d-c767b157cc81";
         public const string StateId = "55f9e248-7bb3-4288-8db8-ba9620c67228";
-        private readonly IEnumerable<Type> allEventTypesInTheSystem;
+        private readonly HashSet<Type> allEventTypesInTheSystem;
         private readonly IProjectionStore store;
         private readonly ICornusInternalStore internalStore;
         private string currentHash;
@@ -28,7 +28,7 @@ namespace Elders.Cronus.Projections.Versioning
             var gg = new ProjectionVersion(ContractId, ProjectionStatus.Live, 1, currentHash);
             store.InitializeProjectionStore(gg);
 
-            this.allEventTypesInTheSystem = allEventTypesInTheSystem;
+            this.allEventTypesInTheSystem = new HashSet<Type>(allEventTypesInTheSystem);
             this.store = store;
             this.internalStore = internalStore;
         }
