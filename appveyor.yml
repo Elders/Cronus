@@ -10,9 +10,6 @@ install:
   - ps: (New-Object System.Net.WebClient).DownloadFile($urlCurrent, $tempFileCurrent)
   - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFileCurrent, $env:DOTNET_INSTALL_DIR)
   - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
-environment:
-  ghtoken:
-    secure: 5/man/6eTqkD6Ad8QZ/SUwTrFbj+4eSJw5Ii+ceBURyq8sPikDZ4iFdzmAP7Tt9f
 image: Visual Studio 2017
 build: off
 deploy: off
