@@ -11,7 +11,7 @@
         <PackageProjectUrl>http://Elders.github.io/Cronus</PackageProjectUrl>
         <PackageTags>CQRS DDD ES Event store sourcing</PackageTags>
         <RepositoryUrl>https://github.com/Elders/Cronus</RepositoryUrl>
-        <PackageIconUrl>https://github.com/Elders/logo/blob/master/cronus/black.png</PackageIconUrl>
+        <PackageIconUrl>https://raw.githubusercontent.com/Elders/logo/master/cronus/frame.png</PackageIconUrl>
         <RepositoryType>Framework</RepositoryType>
         <Authors>Elders</Authors>
     </PropertyGroup>
