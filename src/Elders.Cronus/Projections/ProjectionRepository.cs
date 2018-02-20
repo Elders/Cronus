@@ -40,9 +40,6 @@ namespace Elders.Cronus.Projections.Cassandra.EventSourcing
             {
                 snapshotMarker++;
                 var loadedCommits = projectionStore.Load(projectionVersion, projectionId, snapshotMarker).ToList();
-                if (loadedCommits.Count > 1000)
-                    log.Warn($"Potential memory leak. The system will be down fairly soon. The projection `{contractId}` for id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) and snapshot `{snapshot.GetType().Name}` which puts a lot of CPU and RAM pressure. You can resolve this by enabling the Snapshots feature in the host which handles projection WRITES and READS using `.UseSnapshots(...)`.");
-
                 projectionCommits.AddRange(loadedCommits);
                 bool isSnapshotable = typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
 
@@ -55,9 +52,17 @@ namespace Elders.Cronus.Projections.Cassandra.EventSourcing
                     currentSnapshot = newSnapshot;
 
                     projectionCommits.Clear();
+
+                    log.Debug(() => $"Snapshot created for projection `{contractId}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{snapshot.GetType().Name}`");
                 }
                 else if (loadedCommits.Count() < snapshotStrategy.EventsInSnapshot)
+                {
                     break;
+                }
+                else
+                {
+                    log.Warn($"Potential memory leak. The system will be down fairly soon. The projection `{contractId}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) and snapshot `{snapshot.GetType().Name}` which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
+                }
             }
 
             ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, currentSnapshot);
