@@ -35,6 +35,7 @@ namespace Elders.Cronus.Projections
 
         public bool Rebuild(Type projectionType, ProjectionVersion version, DateTime replayUntil)
         {
+            DateTime startRebuildTimestamp = DateTime.UtcNow;
             int progressCounter = 0;
             log.Info(() => $"Start rebuilding projection `{projectionType.Name}` for version {version}. Deadline is {replayUntil}");
 
@@ -57,7 +58,7 @@ namespace Elders.Cronus.Projections
                 {
                     progressCounter++;
                     if (progressCounter % 1000 == 0)
-                        log.Trace(() => $"Rebuilding projection `{projectionType.Name}` => PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.");
+                        log.Trace(() => $"Rebuilding projection {projectionType.Name} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{replayUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()}");
                     // if the replay did not finish in time (specified by the AR) we need to abort.
                     if (DateTime.UtcNow >= replayUntil)
                     {

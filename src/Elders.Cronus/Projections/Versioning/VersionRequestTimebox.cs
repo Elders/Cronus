@@ -8,9 +8,11 @@ namespace Elders.Cronus.Projections.Versioning
     {
         const int OneHour = 3600000;
 
+        const int EightHours = 28800000;
+
         VersionRequestTimebox() { }
 
-        public VersionRequestTimebox(DateTime rebuildStartAt) : this(rebuildStartAt, rebuildStartAt.AddMilliseconds(OneHour)) { }
+        public VersionRequestTimebox(DateTime rebuildStartAt) : this(rebuildStartAt, rebuildStartAt.AddMilliseconds(EightHours)) { }
 
         public VersionRequestTimebox(DateTime rebuildStartAt, DateTime rebuildFinishUntil)
         {

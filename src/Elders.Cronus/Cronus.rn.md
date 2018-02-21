@@ -1,3 +1,6 @@
+#### 4.0.6 - 21.02.2018
+* Improves logs for projections even more
+
 #### 4.0.5 - 20.02.2018
 * Improves logs for projections
 
