@@ -1,3 +1,6 @@
+#### 4.0.7 - 22.02.2018
+* Fixes the projections middleware
+
 #### 4.0.6 - 21.02.2018
 * Improves logs for projections even more
 
