@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using Elders.Cronus.Cluster;
 using Elders.Cronus.Logging;
 using Elders.Cronus.Middleware;
-using Elders.Cronus.Projections;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -45,12 +42,7 @@ namespace Elders.Cronus.MessageProcessing
             log.Debug(() => "HANDLE => " + handlerType.Name + "( " + BuildDebugLog(message) + " )");
         }
 
-        protected abstract IEnumerable<Type> GetInvolvedMessageTypes(Type type);
-
-        public IEnumerable<Type> GetInvolvedMessageTypes()
-        {
-            return GetInvolvedMessageTypes(handlerType);
-        }
+        public abstract IEnumerable<Type> GetInvolvedMessageTypes();
     }
 
     public class HandlerSubscriber<THandler, V> : BaseHandlerSubscriber<THandler>
@@ -62,15 +54,15 @@ namespace Elders.Cronus.MessageProcessing
         {
         }
 
-        protected override IEnumerable<Type> GetInvolvedMessageTypes(Type type)
+        public override IEnumerable<Type> GetInvolvedMessageTypes()
         {
             var ieventHandler = typeof(V).GetGenericTypeDefinition();
-            var interfaces = handlerType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler);
-            foreach (var @interface in interfaces)
-            {
-                Type eventType = @interface.GetGenericArguments().FirstOrDefault();
-                yield return eventType;
-            }
+            var interfaces = handlerType
+                .GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler)
+                .Select(@interface => @interface.GetGenericArguments().First())
+                .Distinct();
+
+            return interfaces;
         }
     }
 
@@ -81,16 +73,16 @@ namespace Elders.Cronus.MessageProcessing
         {
         }
 
-        protected override IEnumerable<Type> GetInvolvedMessageTypes(Type type)
+        public override IEnumerable<Type> GetInvolvedMessageTypes()
         {
             var ieventHandler = typeof(IEventHandler<>);
             var iSagaHandler = typeof(ISagaTimeoutHandler<>);
-            var interfaces = type.GetInterfaces().Where(x => x.IsGenericType && (x.GetGenericTypeDefinition() == ieventHandler || x.GetGenericTypeDefinition() == iSagaHandler));
-            foreach (var @interface in interfaces)
-            {
-                Type eventType = @interface.GetGenericArguments().FirstOrDefault();
-                yield return eventType;
-            }
+            var interfaces = handlerType
+                .GetInterfaces().Where(x => x.IsGenericType && (x.GetGenericTypeDefinition() == ieventHandler || x.GetGenericTypeDefinition() == iSagaHandler))
+                .Select(@interface => @interface.GetGenericArguments().First())
+                .Distinct();
+
+            return interfaces;
         }
     }
 
