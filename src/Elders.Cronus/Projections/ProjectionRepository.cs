@@ -91,6 +91,27 @@ namespace Elders.Cronus.Projections.Cassandra.EventSourcing
             }
         }
 
+        public IProjectionGetResult<IProjectionDefinition> Get(IBlobId projectionId, Type projectionType)
+        {
+            try
+            {
+                string contractId = projectionType.GetContractId();
+
+                ProjectionVersion liveVersion = GetProjectionVersions(contractId).GetLive();
+
+                ISnapshot snapshot = snapshotStore.Load(contractId, projectionId, liveVersion);
+                ProjectionStream stream = LoadProjectionStream(projectionType, liveVersion, projectionId, snapshot);
+                IProjectionGetResult<IProjectionDefinition> queryResult = stream.RestoreFromHistory(projectionType);
+
+                return queryResult;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorException(ex.Message, ex);
+                return new ProjectionGetResult<IProjectionDefinition>(null);
+            }
+        }
+
         ProjectionVersions GetProjectionVersions(string contractId)
         {
             ProjectionVersions versions = inMemoryVersionStore.Get(contractId);

@@ -1,3 +1,6 @@
+#### 4.0.8 - 26.02.2018
+* Updates DomainModeling package
+
 #### 4.0.7 - 22.02.2018
 * Fixes the projections middleware
 
