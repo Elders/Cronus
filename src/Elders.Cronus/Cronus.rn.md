@@ -1,3 +1,6 @@
+#### 4.0.9 - 26.02.2018
+* Fixes project file and dependencies
+
 #### 4.0.8 - 26.02.2018
 * Updates DomainModeling package
 

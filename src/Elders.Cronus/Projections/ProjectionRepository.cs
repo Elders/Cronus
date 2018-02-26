@@ -5,7 +5,7 @@ using Elders.Cronus.Logging;
 using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;
 
-namespace Elders.Cronus.Projections.Cassandra.EventSourcing
+namespace Elders.Cronus.Projections
 {
     public class ProjectionRepository : IProjectionRepository
     {

@@ -21,10 +21,8 @@
         <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;LIBLOG_PORTABLE</DefineConstants>
     </PropertyGroup>
     <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-        <PackageReference Include="Cronus.DomainModeling" Version="4.0.4" />
         <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
-        <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
     </ItemGroup>
 
     <!--netstandard2.0 == false-->
@@ -37,7 +35,10 @@
         <Reference Include="System.Core" />
         <Reference Include="System.Runtime.Caching" />
         <Reference Include="Microsoft.CSharp" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
-        <PackageReference Include="Cronus.DomainModeling" Version="4.0.2" />
+        <PackageReference Include="Cronus.DomainModeling" Version="4.0.4" />
     </ItemGroup>
 </Project>
