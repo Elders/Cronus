@@ -25,9 +25,9 @@
         <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
     </ItemGroup>
 
-    <!--netstandard2.0 == false-->
+    <!--NETFULL-->
     <PropertyGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-        <DefineConstants>TRACE;DEBUG;LIBLOG_PORTABLE</DefineConstants>
+        <DefineConstants>TRACE;DEBUG;NETFULL;LIBLOG_PORTABLE</DefineConstants>
     </PropertyGroup>
     <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
         <Reference Include="mscorlib" />

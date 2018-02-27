@@ -10,6 +10,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public ProjectionVersionManagerId(string projectionContractId) : base(projectionContractId, "projectionmanager", "elders") { }
         public ProjectionVersionManagerId(Type projectionType) : this(projectionType.GetContractId()) { }
+        public ProjectionVersionManagerId(string projectionContractId, string tenant) : this(projectionContractId) { }
+        public ProjectionVersionManagerId(IUrn urn) : base(urn, "projectionmanager") { }
     }
-
 }

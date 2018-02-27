@@ -1,3 +1,6 @@
+#### 4.0.10 - 26.02.2018
+* Fixes projections where PersistentProjectionsHandler has a bad state
+
 #### 4.0.9 - 26.02.2018
 * Fixes project file and dependencies
 
