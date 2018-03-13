@@ -39,7 +39,7 @@ namespace Elders.Cronus.Projections.Versioning
         {
             if (CanCancel())
             {
-                var projectionVersion = state.All.Versions.Where(x => x.Status == ProjectionStatus.Building).Single();
+                var projectionVersion = state.Versions.Where(x => x.Status == ProjectionStatus.Building).Single();
                 var @event = new ProjectionVersionRequestCanceled(state.Id, projectionVersion.WithStatus(ProjectionStatus.Canceled));
                 Apply(@event);
             }
@@ -47,12 +47,12 @@ namespace Elders.Cronus.Projections.Versioning
 
         bool CanCancel()
         {
-            return state.All.Versions.Any(x => x.Status == ProjectionStatus.Building);
+            return state.Versions.Any(x => x.Status == ProjectionStatus.Building);
         }
 
         VersionRequestTimebox GetVersionRequestTimebox(string hash)
         {
-            ProjectionVersion live = state.All.GetLive();
+            ProjectionVersion live = state.Versions.GetLive();
             if (live == null) return new VersionRequestTimebox(DateTime.UtcNow);
 
             var hashesAreIdentical = string.Equals(live.Hash, hash, StringComparison.OrdinalIgnoreCase);
@@ -64,7 +64,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void NotifyHash(string hash)
         {
-            ProjectionVersion live = state.All.GetLive();
+            ProjectionVersion live = state.Versions.GetLive();
 
             if (live == null || string.Equals(live.Hash, hash, StringComparison.OrdinalIgnoreCase) == false)
             {
@@ -74,7 +74,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void FinalizeVersionRequest(ProjectionVersion version)
         {
-            var buildingVersion = state.All.Where(x => x == version).SingleOrDefault();
+            var buildingVersion = state.Versions.Where(x => x == version).SingleOrDefault();
             // if (ReferenceEquals(null, buildingVersion) == false)
             {
                 var @event = new NewProjectionVersionIsNowLive(state.Id, buildingVersion.WithStatus(ProjectionStatus.Live));

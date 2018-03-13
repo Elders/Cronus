@@ -1,3 +1,6 @@
+#### 4.0.11 - 13.03.2018
+* Fixes an exception while working with ProjectionVersions collection
+
 #### 4.0.10 - 26.02.2018
 * Fixes projections where PersistentProjectionsHandler has a bad state
 

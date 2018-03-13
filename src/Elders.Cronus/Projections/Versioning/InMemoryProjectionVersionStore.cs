@@ -15,11 +15,10 @@ namespace Elders.Cronus.Projections.Versioning
         public ProjectionVersions Get(string projectionContractId)
         {
             ProjectionVersions versions;
-            store.TryGetValue(projectionContractId, out versions);
-            if (versions == null)
-                return new ProjectionVersions();
+            if (store.TryGetValue(projectionContractId, out versions))
+                return versions;
 
-            return new ProjectionVersions(versions.Versions);
+            return new ProjectionVersions();
         }
 
         public void Cache(ProjectionVersion version)
