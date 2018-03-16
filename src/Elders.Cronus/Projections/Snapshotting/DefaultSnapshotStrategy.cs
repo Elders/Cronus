@@ -11,6 +11,8 @@ namespace Elders.Cronus.Projections.Snapshotting
 
         public DefaultSnapshotStrategy(TimeSpan snapshotOffset, int eventsInSnapshot)
         {
+            if (eventsInSnapshot < 1) throw new ArgumentOutOfRangeException(nameof(eventsInSnapshot), $"{nameof(eventsInSnapshot)} must be greater than 0");
+
             this.snapshotOffset = snapshotOffset;
             this.eventsInSnapshot = eventsInSnapshot;
         }
