@@ -1,3 +1,6 @@
+#### 4.1.0-beta0003 - 16.03.2018
+* Fixes Discovery finder
+
 #### 4.1.0-beta0002 - 16.03.2018
 * Fixes a breaking change introduced by renaming ProjectionContractId to ProjectionName
 
