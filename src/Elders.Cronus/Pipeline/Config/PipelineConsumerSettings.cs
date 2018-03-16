@@ -6,7 +6,6 @@ using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.EventStore.Config;
 
 namespace Elders.Cronus.Pipeline.Config
 {

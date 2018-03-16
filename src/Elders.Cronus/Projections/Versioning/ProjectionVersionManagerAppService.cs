@@ -1,6 +1,4 @@
-﻿using Elders.Cronus.Cluster;
-
-namespace Elders.Cronus.Projections.Versioning
+﻿namespace Elders.Cronus.Projections.Versioning
 {
     public class ProjectionVersionManagerAppService : AggregateRootApplicationService<ProjectionVersionManager>, ISystemService,
         ICommandHandler<RegisterProjection>,
