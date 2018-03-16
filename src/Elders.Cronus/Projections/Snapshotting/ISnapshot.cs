@@ -5,6 +5,6 @@
         IBlobId Id { get; }
         int Revision { get; }
         object State { get; }
-        string ProjectionContractId { get; }
+        string ProjectionName { get; }
     }
 }

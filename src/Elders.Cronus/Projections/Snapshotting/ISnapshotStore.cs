@@ -2,22 +2,22 @@
 {
     public interface ISnapshotStore
     {
-        ISnapshot Load(string contractId, IBlobId id, ProjectionVersion projectionVersion);
+        ISnapshot Load(string projectionName, IBlobId id, ProjectionVersion version);
 
-        void Save(ISnapshot snapshot, ProjectionVersion projectionVersion);
+        void Save(ISnapshot snapshot, ProjectionVersion version);
 
-        void InitializeProjectionSnapshotStore(ProjectionVersion projectionVersion);
+        void InitializeProjectionSnapshotStore(ProjectionVersion version);
     }
 
     public class NoSnapshotStore : ISnapshotStore
     {
-        public void InitializeProjectionSnapshotStore(ProjectionVersion projectionVersion) { }
+        public void InitializeProjectionSnapshotStore(ProjectionVersion version) { }
 
-        public ISnapshot Load(string projectionContractId, IBlobId id, ProjectionVersion projectionVersion)
+        public ISnapshot Load(string projectionName, IBlobId id, ProjectionVersion version)
         {
-            return new NoSnapshot(id, projectionContractId);
+            return new NoSnapshot(id, projectionName);
         }
 
-        public void Save(ISnapshot snapshot, ProjectionVersion projectionVersion) { }
+        public void Save(ISnapshot snapshot, ProjectionVersion version) { }
     }
 }

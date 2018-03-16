@@ -2,15 +2,15 @@
 {
     public class NoSnapshot : ISnapshot
     {
-        public NoSnapshot(IBlobId id, string projectionContractId)
+        public NoSnapshot(IBlobId id, string projectionName)
         {
             Id = id;
-            ProjectionContractId = projectionContractId;
+            ProjectionName = projectionName;
         }
 
         public IBlobId Id { get; set; }
 
-        public string ProjectionContractId { get; set; }
+        public string ProjectionName { get; set; }
 
         public int Revision { get { return 0; } }
 

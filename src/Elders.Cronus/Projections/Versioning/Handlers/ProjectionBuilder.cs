@@ -32,7 +32,7 @@ namespace Elders.Cronus.Projections.Versioning
             if (rebuildUntil < DateTime.UtcNow)
                 return;
 
-            var theType = @event.ProjectionVersionRequest.ProjectionVersion.ProjectionContractId.GetTypeByContract();
+            var theType = @event.ProjectionVersionRequest.ProjectionVersion.ProjectionName.GetTypeByContract();
             var rebuildTimesOutAt = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
             if (Player.Rebuild(theType, @event.ProjectionVersionRequest.ProjectionVersion, rebuildTimesOutAt))
             {

@@ -27,7 +27,7 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, existingVersion))
                 return;
 
-            if (existingVersion.ProjectionContractId.Equals(version.ProjectionContractId, StringComparison.OrdinalIgnoreCase) == false)
+            if (existingVersion.ProjectionName.Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
             {
                 throw new ArgumentException("Invalid version. " + version.ToString() + Environment.NewLine + "Expecting version similar to an existing one: " + existingVersion, nameof(version));
             }

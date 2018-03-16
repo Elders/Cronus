@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -12,10 +11,10 @@ namespace Elders.Cronus.Projections.Versioning
             this.store = new ConcurrentDictionary<string, ProjectionVersions>();
         }
 
-        public ProjectionVersions Get(string projectionContractId)
+        public ProjectionVersions Get(string projectionName)
         {
             ProjectionVersions versions;
-            if (store.TryGetValue(projectionContractId, out versions))
+            if (store.TryGetValue(projectionName, out versions))
                 return versions;
 
             return new ProjectionVersions();
@@ -24,7 +23,7 @@ namespace Elders.Cronus.Projections.Versioning
         public void Cache(ProjectionVersion version)
         {
             ProjectionVersions versions;
-            if (store.TryGetValue(version.ProjectionContractId, out versions))
+            if (store.TryGetValue(version.ProjectionName, out versions))
             {
                 versions.Add(version);
             }
@@ -32,7 +31,7 @@ namespace Elders.Cronus.Projections.Versioning
             {
                 var initialVersion = new ProjectionVersions();
                 initialVersion.Add(version);
-                store.AddOrUpdate(version.ProjectionContractId, initialVersion, (key, val) => val);
+                store.AddOrUpdate(version.ProjectionName, initialVersion, (key, val) => val);
             }
         }
     }

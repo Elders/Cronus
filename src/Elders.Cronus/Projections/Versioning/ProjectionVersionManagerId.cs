@@ -1,5 +1,4 @@
 ﻿using System.Runtime.Serialization;
-using System;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -8,9 +7,7 @@ namespace Elders.Cronus.Projections.Versioning
     {
         ProjectionVersionManagerId() : base() { }
 
-        public ProjectionVersionManagerId(string projectionContractId) : base(projectionContractId, "projectionmanager", "elders") { }
-        public ProjectionVersionManagerId(Type projectionType) : this(projectionType.GetContractId()) { }
-        public ProjectionVersionManagerId(string projectionContractId, string tenant) : this(projectionContractId) { }
+        public ProjectionVersionManagerId(string projectionName) : base(projectionName, "projectionmanager", "elders") { }
         public ProjectionVersionManagerId(IUrn urn) : base(urn, "projectionmanager") { }
     }
 }

@@ -2,17 +2,17 @@
 {
     public class Snapshot : ISnapshot
     {
-        public Snapshot(IBlobId id, string projectionContractId, object state, int revision)
+        public Snapshot(IBlobId id, string projectionName, object state, int revision)
         {
             Id = id;
-            ProjectionContractId = projectionContractId;
+            ProjectionName = projectionName;
             State = state;
             Revision = revision;
         }
 
         public IBlobId Id { get; private set; }
 
-        public string ProjectionContractId { get; private set; }
+        public string ProjectionName { get; private set; }
 
         public object State { get; set; }
 

@@ -58,7 +58,7 @@ namespace Elders.Cronus.Pipeline.Config
                     if (iProjection.IsAssignableFrom(handler))
                     {
                         subscriptionMiddleware.Subscribe(new HandlerSubscriber<IProjection, IEventHandler<IEvent>>(handler, middleware));
-                        var projManagerId = new ProjectionVersionManagerId(handler);
+                        var projManagerId = new ProjectionVersionManagerId(handler.GetContractId());
                         var command = new RegisterProjection(projManagerId, hasher.CalculateHash(handler).ToString());
                         publisher.Publish(command);
                     }
@@ -298,7 +298,7 @@ namespace Elders.Cronus.Pipeline.Config
                         var transport = builder.Container.Resolve<ITransport>(builder.Name);
                         var serializer = builder.Container.Resolve<ISerializer>(null);
                         var publisher = transport.GetPublisher<ICommand>(serializer);
-                        var projManagerId = new ProjectionVersionManagerId(reg);
+                        var projManagerId = new ProjectionVersionManagerId(reg.GetContractId());
                         var command = new RegisterProjection(projManagerId, hasher.CalculateHash(reg).ToString());
                         publisher.Publish(command);
                     }

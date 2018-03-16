@@ -36,7 +36,7 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, snapshot)) throw new ArgumentNullException(nameof(snapshot));
 
             ISnapshot currentSnapshot = snapshot;
-            string contractId = projectionVersion.ProjectionContractId;
+            string contractId = projectionVersion.ProjectionName;
 
             List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
             int snapshotMarker = snapshot.Revision;
