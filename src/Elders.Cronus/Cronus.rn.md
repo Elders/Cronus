@@ -1,3 +1,6 @@
+#### 4.1.0-beta0002 - 16.03.2018
+* Fixes a breaking change introduced by renaming ProjectionContractId to ProjectionName
+
 #### 4.1.0-beta0001 - 16.03.2018
 * Auto discovery feature which will automatically configure cronus settings
 
