@@ -1,3 +1,6 @@
+#### 4.1.0-beta0005 - 19.03.2018
+* Trying new approach using DiscoveryBasedOnExecutingDirAssemblies. Previous one was a nice attempt but the compiler removes any references from the assembly of there is no code using it.
+
 #### 4.1.0-beta0004 - 19.03.2018
 * Slightly rework the base discovery class to AutoDiscoveryBasedOnReferencedAssemblies
 
