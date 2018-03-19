@@ -7,10 +7,8 @@ namespace Elders.Cronus.Discoveries
     {
         public static T WithDiscovery<T>(this T self) where T : ICronusSettings
         {
-            foreach (var discovery in DiscoveryFinder.Find())
-            {
-                discovery.Discover(self as ISettingsBuilder);
-            }
+            var discoveryFinder = new FindDiscoveries();
+            discoveryFinder.Discover(self as ISettingsBuilder);
 
             return self;
         }

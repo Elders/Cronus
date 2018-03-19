@@ -1,3 +1,6 @@
+#### 4.1.0-beta0004 - 19.03.2018
+* Slightly rework the base discovery class to AutoDiscoveryBasedOnReferencedAssemblies
+
 #### 4.1.0-beta0003 - 16.03.2018
 * Fixes Discovery finder
 
