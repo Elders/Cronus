@@ -1,3 +1,6 @@
+#### 4.1.0-beta0007 - 20.03.2018
+* Removes Mono.Cecil. It was a good try
+
 #### 4.1.0-beta0006 - 20.03.2018
 * Starts experimenting with Mono.Cecil for discovery mechanizm
 * First steps towards multitenancy
