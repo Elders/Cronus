@@ -330,8 +330,6 @@ namespace Elders.Cronus.Pipeline.Config
             ITenantResolver tenantResolver = new DefaultTenantResolver();
 
             builder.Container.RegisterSingleton<ProjectionPlayer>(() => new ProjectionPlayer(eventStoreFactory(), projectionStore(), projectionRepository(), snapshotStore(), eventIndexForProjections(), tenantResolver), builder.Name);
-
-            var eventStorePlayer = builder.Container.Resolve<IEventStorePlayer>(builder.Name);
             builder.Container.RegisterSingleton<EventStoreIndexPlayer>(() => new EventStoreIndexPlayer(eventStoreFactory(), projectionStore(), projectionRepository()), builder.Name);
         }
     }
