@@ -11,26 +11,25 @@ namespace Elders.Cronus.Discoveries
 {
     public abstract class DiscoveryBasedOnExecutingDirAssemblies : IDiscovery
     {
-        static DiscoveryBasedOnExecutingDirAssemblies()
-        {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_ReflectionOnlyAssemblyResolve;
-        }
-
         static readonly ILog log = LogProvider.GetLogger(typeof(DiscoveryBasedOnExecutingDirAssemblies));
 
-        static int shouldLoadAssembliesFromDir = 1;
-        static List<Assembly> assemblies = new List<Assembly>();
-
-        public DiscoveryBasedOnExecutingDirAssemblies()
+        static DiscoveryBasedOnExecutingDirAssemblies()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+            AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += CurrentDomain_AssemblyResolve;
+
             InitAssemblies();
         }
+
+        static int shouldLoadAssembliesFromDir = 1;
+        //static List<Assembly> assemblies = new List<Assembly>();
+        static IDictionary<string, Assembly> assemblies = new Dictionary<string, Assembly>();
 
         public void Discover(ISettingsBuilder builder)
         {
             if (ReferenceEquals(null, builder)) throw new ArgumentNullException(nameof(builder));
 
-            DiscoverFromAssemblies(builder, assemblies);
+            DiscoverFromAssemblies(builder, assemblies.Values);
         }
 
         /// <summary>
@@ -51,23 +50,39 @@ namespace Elders.Cronus.Discoveries
                     if (assembly == null)
                     {
                         byte[] assemblyRaw = File.ReadAllBytes(assemblyFile);
+                        //#if DEBUG
+                        //                        var dllFile = new FileInfo(assemblyFile);
+                        //                        var pdbFile = new FileInfo(dllFile.FullName.Replace(dllFile.Extension, ".pdb"));
+                        //                        if (pdbFile.Exists)
+                        //                        {
+                        //                            byte[] pdbBytes = File.ReadAllBytes(pdbFile.FullName);
+                        //                            assembly = Assembly.Load(assemblyRaw, pdbBytes);
+                        //                        }
+                        //                        else
+                        //                        {
+                        //                            assembly = Assembly.Load(assemblyRaw);
+                        //                        }
+                        //#else
                         assembly = Assembly.Load(assemblyRaw);
+                        //#endif
                     }
 
                     // Sometimes the assembly is loaded but if there are mixed or wrong dependencies TypeLoadException is thrown.
                     // So we try to load all types once during initial load and do not let such assemblies to be used.
                     List<Type> exportedTypes = assembly.GetExportedTypes().ToList();
 
-                    assemblies.Add(assembly);
+                    assemblies.Add(assembly.FullName, assembly);
                 }
                 catch (Exception ex)
                 {
                     log.ErrorException($"Unable to do discovery from assembly {assemblyFile}", ex);
                 }
             }
+
+
         }
 
-        void InitAssemblies()
+        static void InitAssemblies()
         {
             if (1 == Interlocked.Exchange(ref shouldLoadAssembliesFromDir, 0))
             {
@@ -77,20 +92,13 @@ namespace Elders.Cronus.Discoveries
                 var dir = Path.GetDirectoryName(path);
                 LoadAssembliesInDirecotry(dir);
             }
-
-
         }
 
-        static Assembly CurrentDomain_ReflectionOnlyAssemblyResolve(object sender, ResolveEventArgs args)
+        static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
-            try
-            {
-                return System.Reflection.Assembly.ReflectionOnlyLoad(args.Name);
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            Assembly res;
+            assemblies.TryGetValue(args.Name, out res);
+            return res;
         }
     }
 
@@ -102,7 +110,7 @@ namespace Elders.Cronus.Discoveries
                 .SelectMany(asm =>
                 {
                     IEnumerable<Type> exportedTypes = asm.GetExportedTypes();
-                    return exportedTypes.Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery).IsAssignableFrom(type));
+                    return exportedTypes.Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery).IsAssignableFrom(type) && type != typeof(FindDiscoveries));
                 })
                 .Select(dt => (IDiscovery)FastActivator.CreateInstance(dt)).ToList();
 
