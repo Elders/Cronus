@@ -16,21 +16,21 @@ namespace Elders.Cronus.Projections
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionPlayer));
 
-        private readonly IEventStore eventStore;
+        private readonly IEventStoreFactory eventStoreFactory;
         private readonly IProjectionStore projectionStore;
         private readonly IProjectionRepository projectionRepository;
         private readonly ISnapshotStore snapshotStore;
         private readonly EventTypeIndexForProjections index;
-        private readonly IEventStorePlayer eventStorePlayer;
+        private readonly ITenantResolver tenantResolver;
 
-        public ProjectionPlayer(IEventStore eventStore, IProjectionStore projectionStore, IProjectionRepository projectionRepository, ISnapshotStore snapshotStore, EventTypeIndexForProjections index, IEventStorePlayer eventStorePlayer)
+        public ProjectionPlayer(IEventStoreFactory eventStoreFactory, IProjectionStore projectionStore, IProjectionRepository projectionRepository, ISnapshotStore snapshotStore, EventTypeIndexForProjections index, ITenantResolver tenantResolver)
         {
-            this.eventStore = eventStore;
+            this.eventStoreFactory = eventStoreFactory;
             this.projectionStore = projectionStore;
             this.projectionRepository = projectionRepository;
             this.snapshotStore = snapshotStore;
             this.index = index;
-            this.eventStorePlayer = eventStorePlayer;
+            this.tenantResolver = tenantResolver;
         }
 
         public bool Rebuild(Type projectionType, ProjectionVersion version, DateTime replayUntil)
@@ -66,6 +66,7 @@ namespace Elders.Cronus.Projections
                         return false;
                     }
                     IAggregateRootId arId = GetAggregateRootId(indexCommit.EventOrigin.AggregateRootId);
+                    IEventStore eventStore = eventStoreFactory.GetEventStore(tenantResolver.Resolve(arId));
                     EventStream stream = eventStore.Load(arId, theId => projectionType.GetBoundedContext().BoundedContextName);
 
                     foreach (AggregateCommit arCommit in stream.Commits)
@@ -94,23 +95,28 @@ namespace Elders.Cronus.Projections
                 return true;
 
             var indexBuilder = index.GetIndexBuilder();
-            foreach (var aggregateCommit in eventStorePlayer.LoadAggregateCommits())
+            var eventStorePlayers = eventStoreFactory.GetEventStorePlayers();
+            foreach (var eventStorePlayer in eventStorePlayers)
             {
-                foreach (var @event in aggregateCommit.Events)
+                foreach (var aggregateCommit in eventStorePlayer.LoadAggregateCommits())
                 {
-                    try
+                    foreach (var @event in aggregateCommit.Events)
                     {
-                        var unwrapedEvent = @event.Unwrap();
-                        var rootId = System.Text.Encoding.UTF8.GetString(aggregateCommit.AggregateRootId);
-                        var eventOrigin = new EventOrigin(rootId, aggregateCommit.Revision, aggregateCommit.Events.IndexOf(@event), aggregateCommit.Timestamp);
-                        indexBuilder.Feed(unwrapedEvent, eventOrigin);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorException(ex.Message, ex);
+                        try
+                        {
+                            var unwrapedEvent = @event.Unwrap();
+                            var rootId = System.Text.Encoding.UTF8.GetString(aggregateCommit.AggregateRootId);
+                            var eventOrigin = new EventOrigin(rootId, aggregateCommit.Revision, aggregateCommit.Events.IndexOf(@event), aggregateCommit.Timestamp);
+                            indexBuilder.Feed(unwrapedEvent, eventOrigin);
+                        }
+                        catch (Exception ex)
+                        {
+                            log.ErrorException(ex.Message, ex);
+                        }
                     }
                 }
             }
+
             indexBuilder.Complete();
             return true;
         }

@@ -322,17 +322,17 @@ namespace Elders.Cronus.Pipeline.Config
             var builder = this as ISettingsBuilder;
 
 
-            var projectionRepository = builder.Container.Resolve<IProjectionRepository>(builder.Name);
-            var es = builder.Container.Resolve<IEventStore>(builder.Name);
-            var esPlayer = builder.Container.Resolve<IEventStorePlayer>(builder.Name);
-            var projectionStore = builder.Container.Resolve<IProjectionStore>(builder.Name);
-            var snapshotStore = builder.Container.Resolve<ISnapshotStore>(builder.Name);
+            Func<IProjectionRepository> projectionRepository = () => builder.Container.Resolve<IProjectionRepository>(builder.Name);
+            Func<IProjectionStore> projectionStore = () => builder.Container.Resolve<IProjectionStore>(builder.Name);
+            Func<ISnapshotStore> snapshotStore = () => builder.Container.Resolve<ISnapshotStore>(builder.Name);
             Func<EventTypeIndexForProjections> eventIndexForProjections = () => builder.Container.Resolve<EventTypeIndexForProjections>();
+            Func<IEventStoreFactory> eventStoreFactory = () => builder.Container.Resolve<IEventStoreFactory>(builder.Name);
+            ITenantResolver tenantResolver = new DefaultTenantResolver();
 
-            builder.Container.RegisterSingleton<ProjectionPlayer>(() => new ProjectionPlayer(es, projectionStore, projectionRepository, snapshotStore, eventIndexForProjections(), esPlayer), builder.Name);
+            builder.Container.RegisterSingleton<ProjectionPlayer>(() => new ProjectionPlayer(eventStoreFactory(), projectionStore(), projectionRepository(), snapshotStore(), eventIndexForProjections(), tenantResolver), builder.Name);
 
             var eventStorePlayer = builder.Container.Resolve<IEventStorePlayer>(builder.Name);
-            builder.Container.RegisterSingleton<EventStoreIndexPlayer>(() => new EventStoreIndexPlayer(eventStorePlayer, projectionStore, projectionRepository), builder.Name);
+            builder.Container.RegisterSingleton<EventStoreIndexPlayer>(() => new EventStoreIndexPlayer(eventStoreFactory(), projectionStore(), projectionRepository()), builder.Name);
         }
     }
 
