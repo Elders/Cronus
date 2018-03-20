@@ -1,3 +1,6 @@
+#### 4.1.0-beta0008 - 21.03.2018
+* Removes Mono.Cecil. It was a good try
+
 #### 4.1.0-beta0007 - 20.03.2018
 * Removes Mono.Cecil. It was a good try
 
