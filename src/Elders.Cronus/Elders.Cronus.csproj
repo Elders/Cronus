@@ -38,6 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Mono.Cecil" Version="0.10.0" />
         <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
         <PackageReference Include="Cronus.DomainModeling" Version="4.0.4" />
     </ItemGroup>
