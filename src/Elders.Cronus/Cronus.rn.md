@@ -1,3 +1,7 @@
+#### 4.1.0-beta0006 - 20.03.2018
+* Starts experimenting with Mono.Cecil for discovery mechanizm
+* First steps towards multitenancy
+
 #### 4.1.0-beta0005 - 19.03.2018
 * Trying new approach using DiscoveryBasedOnExecutingDirAssemblies. Previous one was a nice attempt but the compiler removes any references from the assembly of there is no code using it.
 
