@@ -7,7 +7,7 @@ namespace Elders.Cronus.Projections.Versioning
     {
         ProjectionVersionManagerId() : base() { }
 
-        public ProjectionVersionManagerId(string projectionName) : base(projectionName, "projectionmanager", "elders") { }
+        public ProjectionVersionManagerId(string projectionName) : base(projectionName, "projectionmanager", CronusAssembly.EldersTenant) { }
         public ProjectionVersionManagerId(IUrn urn) : base(urn, "projectionmanager") { }
     }
 }

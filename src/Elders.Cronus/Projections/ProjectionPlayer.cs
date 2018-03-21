@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.Logging;
+using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;

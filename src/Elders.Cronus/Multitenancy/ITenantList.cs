@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Elders.Cronus.EventStore
+namespace Elders.Cronus.Multitenancy
 {
     public interface ITenantList
     {

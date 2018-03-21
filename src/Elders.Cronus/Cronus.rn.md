@@ -1,3 +1,6 @@
+#### 4.1.0-beta0009 - 21.03.2018
+* Adds configuration options for multitenancy
+
 #### 4.1.0-beta0008 - 21.03.2018
 * Removes Mono.Cecil. It was a good try
 

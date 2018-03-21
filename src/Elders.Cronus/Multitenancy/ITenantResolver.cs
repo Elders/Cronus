@@ -1,7 +1,8 @@
 ﻿using System;
+using Elders.Cronus.EventStore;
 using Elders.Cronus.Projections;
 
-namespace Elders.Cronus.EventStore
+namespace Elders.Cronus.Multitenancy
 {
     public interface ITenantResolver
     {

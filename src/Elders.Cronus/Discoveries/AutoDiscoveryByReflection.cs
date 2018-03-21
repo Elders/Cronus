@@ -78,8 +78,6 @@ namespace Elders.Cronus.Discoveries
                     log.ErrorException($"Unable to do discovery from assembly {assemblyFile}", ex);
                 }
             }
-
-
         }
 
         static void InitAssemblies()
