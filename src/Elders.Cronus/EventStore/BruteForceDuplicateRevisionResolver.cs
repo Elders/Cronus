@@ -3,17 +3,6 @@ using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.EventStore
 {
-
-    //public class MissingFirstRevisionValidator : IEventStreamValidator
-    //{
-    //    public IValidatorResult Validate(EventStream eventStream)
-    //    {
-    //        //var gg = eventStream.aggregateCommits(x=>x.Revision
-    //    }
-    //}
-
-
-
     public class BruteForceDuplicateRevisionResolver
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(BruteForceDuplicateRevisionResolver));

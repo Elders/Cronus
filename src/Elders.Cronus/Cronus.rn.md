@@ -1,3 +1,7 @@
+#### 4.1.0 - 22.03.2018
+* Adds support for event store multitenancy
+* Auto discovery feature which will automatically configure cronus settings
+
 #### 4.0.11 - 13.03.2018
 * Fixes an exception while working with ProjectionVersions collection
 
