@@ -15,9 +15,6 @@ namespace Elders.Cronus.Discoveries
 
         static DiscoveryBasedOnExecutingDirAssemblies()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-            AppDomain.CurrentDomain.ReflectionOnlyAssemblyResolve += CurrentDomain_AssemblyResolve;
-
             InitAssemblies();
         }
 
@@ -46,32 +43,22 @@ namespace Elders.Cronus.Discoveries
             {
                 try
                 {
-                    var assembly = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.IsDynamic == false).ToList().Where(x => x.Location.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase)).SingleOrDefault();
+                    var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                        .Where(x => x.IsDynamic == false)
+                        .ToList()
+                        .Where(x => x.Location.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase))
+                        .SingleOrDefault();
+
                     if (assembly == null)
                     {
                         byte[] assemblyRaw = File.ReadAllBytes(assemblyFile);
-                        //#if DEBUG
-                        //                        var dllFile = new FileInfo(assemblyFile);
-                        //                        var pdbFile = new FileInfo(dllFile.FullName.Replace(dllFile.Extension, ".pdb"));
-                        //                        if (pdbFile.Exists)
-                        //                        {
-                        //                            byte[] pdbBytes = File.ReadAllBytes(pdbFile.FullName);
-                        //                            assembly = Assembly.Load(assemblyRaw, pdbBytes);
-                        //                        }
-                        //                        else
-                        //                        {
-                        //                            assembly = Assembly.Load(assemblyRaw);
-                        //                        }
-                        //#else
-                        assembly = Assembly.Load(assemblyRaw);
-                        //#endif
+                        assembly = Assembly.ReflectionOnlyLoad(assemblyRaw);
+                        assembly = AppDomain.CurrentDomain.Load(assembly.GetName());
                     }
-
+                    assemblies.Add(assembly.FullName, assembly);
                     // Sometimes the assembly is loaded but if there are mixed or wrong dependencies TypeLoadException is thrown.
                     // So we try to load all types once during initial load and do not let such assemblies to be used.
                     List<Type> exportedTypes = assembly.GetExportedTypes().ToList();
-
-                    assemblies.Add(assembly.FullName, assembly);
                 }
                 catch (Exception ex)
                 {
@@ -90,13 +77,6 @@ namespace Elders.Cronus.Discoveries
                 var dir = Path.GetDirectoryName(path);
                 LoadAssembliesInDirecotry(dir);
             }
-        }
-
-        static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            Assembly res;
-            assemblies.TryGetValue(args.Name, out res);
-            return res;
         }
     }
 
