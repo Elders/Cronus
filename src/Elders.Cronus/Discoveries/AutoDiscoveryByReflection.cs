@@ -79,34 +79,4 @@ namespace Elders.Cronus.Discoveries
             }
         }
     }
-
-    public class FindDiscoveries : DiscoveryBasedOnExecutingDirAssemblies
-    {
-        protected override void DiscoverFromAssemblies(ISettingsBuilder builder, IEnumerable<Assembly> assemblies)
-        {
-            var discoveries = assemblies
-                .SelectMany(asm =>
-                {
-                    IEnumerable<Type> exportedTypes = asm.GetExportedTypes();
-                    return exportedTypes.Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery).IsAssignableFrom(type) && type != typeof(FindDiscoveries));
-                })
-                .Select(dt => (IDiscovery)FastActivator.CreateInstance(dt)).ToList();
-
-            discoveries.ForEach(x => x.Discover(builder));
-        }
-    }
-
-    public static class FileSearchExtentions
-    {
-        public static IEnumerable<string> GetFiles(this string path, string regexPattern = "", SearchOption searchOption = SearchOption.TopDirectoryOnly)
-        {
-            System.Text.RegularExpressions.Regex reSearchPattern = new System.Text.RegularExpressions.Regex(regexPattern);
-            return Directory.EnumerateFiles(path, "*", searchOption).Where(file => reSearchPattern.IsMatch(Path.GetFileName(file)));
-        }
-
-        public static IEnumerable<string> GetFiles(this string path, string[] searchPatterns, SearchOption searchOption = SearchOption.TopDirectoryOnly)
-        {
-            return searchPatterns.AsParallel().SelectMany(searchPattern => Directory.EnumerateFiles(path, searchPattern, searchOption));
-        }
-    }
 }
