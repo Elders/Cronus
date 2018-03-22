@@ -22,7 +22,7 @@
     </PropertyGroup>
     <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
         <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.1" />
     </ItemGroup>
 
     <!--NETFULL-->
@@ -39,6 +39,6 @@
 
     <ItemGroup>
         <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
-        <PackageReference Include="Cronus.DomainModeling" Version="4.0.4" />
+        <PackageReference Include="Cronus.DomainModeling" Version="4.0.6" />
     </ItemGroup>
 </Project>
