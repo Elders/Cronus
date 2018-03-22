@@ -9,7 +9,7 @@ namespace Elders.Cronus.Multitenancy
         public static T WithTenants<T>(this T self, ITenantList tenants) where T : ICronusSettings
         {
             Func<ITenantList> combinedTenants = () => new ClientTenantsIncludingElders(tenants);
-            self.Container.RegisterSingleton(typeof(ITenantList), () => combinedTenants);
+            self.Container.RegisterSingleton(typeof(ITenantList), combinedTenants);
 
             return self;
         }
@@ -17,7 +17,7 @@ namespace Elders.Cronus.Multitenancy
         public static T WithNoTenants<T>(this T self) where T : ICronusSettings
         {
             Func<ITenantList> combinedTenants = () => new ClientTenantsIncludingElders();
-            self.Container.RegisterSingleton(typeof(ITenantList), () => combinedTenants);
+            self.Container.RegisterSingleton(typeof(ITenantList), combinedTenants);
 
             return self;
         }
