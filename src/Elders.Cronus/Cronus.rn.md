@@ -1,29 +1,5 @@
-#### 4.1.0-beta0009 - 21.03.2018
-* Adds configuration options for multitenancy
-
-#### 4.1.0-beta0008 - 21.03.2018
-* Removes Mono.Cecil. It was a good try
-
-#### 4.1.0-beta0007 - 20.03.2018
-* Removes Mono.Cecil. It was a good try
-
-#### 4.1.0-beta0006 - 20.03.2018
-* Starts experimenting with Mono.Cecil for discovery mechanizm
-* First steps towards multitenancy
-
-#### 4.1.0-beta0005 - 19.03.2018
-* Trying new approach using DiscoveryBasedOnExecutingDirAssemblies. Previous one was a nice attempt but the compiler removes any references from the assembly of there is no code using it.
-
-#### 4.1.0-beta0004 - 19.03.2018
-* Slightly rework the base discovery class to AutoDiscoveryBasedOnReferencedAssemblies
-
-#### 4.1.0-beta0003 - 16.03.2018
-* Fixes Discovery finder
-
-#### 4.1.0-beta0002 - 16.03.2018
-* Fixes a breaking change introduced by renaming ProjectionContractId to ProjectionName
-
-#### 4.1.0-beta0001 - 16.03.2018
+#### 4.1.0 - 22.03.2018
+* Adds support for event store multitenancy
 * Auto discovery feature which will automatically configure cronus settings
 
 #### 4.0.11 - 13.03.2018
