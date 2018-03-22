@@ -62,7 +62,7 @@ namespace Elders.Cronus.Discoveries
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorException($"Unable to do discovery from assembly {assemblyFile}", ex);
+                    log.WarnException($"Unable to do discovery from assembly {assemblyFile}", ex);
                 }
             }
         }

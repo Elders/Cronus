@@ -1,3 +1,6 @@
+#### 4.1.1 - 22.03.2018
+* Log a Warning instead of an Error when loading assemblies dynamically for discovery
+
 #### 4.1.0 - 22.03.2018
 * Adds support for event store multitenancy
 * Auto discovery feature which will automatically configure cronus settings
