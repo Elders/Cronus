@@ -1,3 +1,6 @@
+#### 4.1.2 - 28.03.2018
+* Fixes EventStore bug
+
 #### 4.1.1 - 22.03.2018
 * Log a Warning instead of an Error when loading assemblies dynamically for discovery
 

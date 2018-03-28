@@ -11,7 +11,6 @@ namespace Elders.Cronus.EventStore
         readonly IAggregateRootAtomicAction atomicAction;
         readonly IEventStore eventStore;
         readonly IIntegrityPolicy<EventStream> integrityPolicy;
-        readonly Func<IAggregateRootId, string> getBoundedContext = arid => arid.GetType().GetBoundedContext().BoundedContextName;
 
         public AggregateRepository(IEventStore eventStore, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
         {
@@ -54,7 +53,7 @@ namespace Elders.Cronus.EventStore
         /// <returns></returns>
         public AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
-            EventStream eventStream = eventStore.Load(id, getBoundedContext);
+            EventStream eventStream = eventStore.Load(id);
             var integrityResult = integrityPolicy.Apply(eventStream);
             if (integrityResult.IsIntegrityViolated)
                 throw new EventStreamIntegrityViolationException("asd");
@@ -75,7 +74,7 @@ namespace Elders.Cronus.EventStore
         public bool TryLoad<AR>(IAggregateRootId id, out AR aggregateRoot) where AR : IAggregateRoot
         {
             aggregateRoot = default(AR);
-            EventStream eventStream = eventStore.Load(id, getBoundedContext);
+            EventStream eventStream = eventStore.Load(id);
             var integrityResult = integrityPolicy.Apply(eventStream);
             if (integrityResult.IsIntegrityViolated)
                 return false;
