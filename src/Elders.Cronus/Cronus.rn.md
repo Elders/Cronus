@@ -1,4 +1,4 @@
-#### 4.1.2 - 28.03.2018
+#### 4.1.3 - 28.03.2018
 * Release build by Developer machine. For some reason the version 4.1.1 built by AppVeyor is not working properly.
 
 #### 4.1.1 - 22.03.2018
