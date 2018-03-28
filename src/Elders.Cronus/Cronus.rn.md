@@ -1,3 +1,6 @@
+#### 5.0.0-beta0001 - 28.03.2018
+* Removes Obsolete EventStore methods
+
 #### 4.1.4 - 28.03.2018
 * Fixes a bug related to projection store initialization
 
