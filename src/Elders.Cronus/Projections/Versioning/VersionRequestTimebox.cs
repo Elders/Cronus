@@ -30,10 +30,21 @@ namespace Elders.Cronus.Projections.Versioning
 
         public VersionRequestTimebox GetNext()
         {
-            var newStartAt = RebuildFinishUntil.AddMinutes(5);
+            var newStartAt = DateTime.UtcNow;
+            if (newStartAt < RebuildFinishUntil)
+                newStartAt = RebuildFinishUntil;
 
             return new VersionRequestTimebox(newStartAt);
 
+        }
+
+        public VersionRequestTimebox Reset()
+        {
+            return new VersionRequestTimebox()
+            {
+                RebuildStartAt = RebuildStartAt,
+                RebuildFinishUntil = DateTime.UtcNow
+            };
         }
     }
 }

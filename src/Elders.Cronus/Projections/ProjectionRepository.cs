@@ -142,34 +142,41 @@ namespace Elders.Cronus.Projections
 
         ProjectionVersions GetProjectionVersions(string contractId)
         {
-            if (string.IsNullOrEmpty(contractId)) throw new ArgumentNullException(nameof(contractId));
-
-            var persistentVersionContractId = typeof(PersistentProjectionVersionHandler).GetContractId();
-            if (string.Equals(persistentVersionContractId, contractId, StringComparison.OrdinalIgnoreCase))
-                return GetPersistentProjectionVersions(persistentVersionContractId);
-
-            ProjectionVersions versions = inMemoryVersionStore.Get(contractId);
-            if (versions == null || versions.Count == 0)
+            try
             {
-                var queryResult = GetProjectionVersionsFromStore(contractId);
-                if (queryResult.Success)
-                {
-                    if (queryResult.Projection.State.Live != null)
-                        inMemoryVersionStore.Cache(queryResult.Projection.State.Live);
-                    if (queryResult.Projection.State.Building != null)
-                        inMemoryVersionStore.Cache(queryResult.Projection.State.Building);
-                    versions = inMemoryVersionStore.Get(contractId);
-                }
+                if (string.IsNullOrEmpty(contractId)) throw new ArgumentNullException(nameof(contractId));
 
+                var persistentVersionContractId = typeof(PersistentProjectionVersionHandler).GetContractId();
+                if (string.Equals(persistentVersionContractId, contractId, StringComparison.OrdinalIgnoreCase))
+                    return GetPersistentProjectionVersions(persistentVersionContractId);
+
+                ProjectionVersions versions = inMemoryVersionStore.Get(contractId);
                 if (versions == null || versions.Count == 0)
                 {
-                    var initialVersion = new ProjectionVersion(contractId, ProjectionStatus.Building, 1, contractId.GetTypeByContract().GetProjectionHash());
-                    inMemoryVersionStore.Cache(initialVersion);
-                    versions = inMemoryVersionStore.Get(contractId);
-                }
-            }
+                    var queryResult = GetProjectionVersionsFromStore(contractId);
+                    if (queryResult.Success)
+                    {
+                        if (queryResult.Projection.State.Live != null)
+                            inMemoryVersionStore.Cache(queryResult.Projection.State.Live);
+                        if (queryResult.Projection.State.Building != null)
+                            inMemoryVersionStore.Cache(queryResult.Projection.State.Building);
+                        versions = inMemoryVersionStore.Get(contractId);
+                    }
 
-            return versions ?? new ProjectionVersions();
+                    if (versions == null || versions.Count == 0)
+                    {
+                        var initialVersion = new ProjectionVersion(contractId, ProjectionStatus.Building, 1, contractId.GetTypeByContract().GetProjectionHash());
+                        inMemoryVersionStore.Cache(initialVersion);
+                        versions = inMemoryVersionStore.Get(contractId);
+                    }
+                }
+
+                return versions ?? new ProjectionVersions();
+            }
+            catch (Exception)
+            {
+                return new ProjectionVersions();
+            }
         }
 
         ProjectionVersions GetPersistentProjectionVersions(string contractId)

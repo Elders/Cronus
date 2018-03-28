@@ -1,3 +1,6 @@
+#### 4.1.4 - 28.03.2018
+* Fixes a bug related to projection store initialization
+
 #### 4.1.3 - 28.03.2018
 * Release build by Developer machine. For some reason the version 4.1.1 built by AppVeyor is not working properly.
 

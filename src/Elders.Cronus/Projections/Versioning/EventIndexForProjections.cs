@@ -54,11 +54,18 @@ namespace Elders.Cronus.Projections.Versioning
 
         public IndexState GetIndexState()
         {
-            var state = internalStore.Load<IndexState>(StateId);
-            if (state == null)
+            try
+            {
+                var state = internalStore.Load<IndexState>(StateId);
+                if (state == null)
+                    return IndexState.NotPresent;
+                else
+                    return state;
+            }
+            catch (Exception)
+            {
                 return IndexState.NotPresent;
-            else
-                return state;
+            }
         }
         public IndexBuilder GetIndexBuilder()
         {

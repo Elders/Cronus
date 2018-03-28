@@ -30,12 +30,14 @@
         {
             Id = e.Id;
             Versions.Add(e.ProjectionVersion);
+            LastVersionRequestTimebox = LastVersionRequestTimebox.Reset();
         }
 
         public void When(ProjectionVersionRequestTimedout e)
         {
             Id = e.Id;
             Versions.Add(e.Version);
+            LastVersionRequestTimebox = LastVersionRequestTimebox.Reset();
         }
     }
 }
