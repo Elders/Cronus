@@ -35,10 +35,5 @@ namespace Elders.Cronus.EventStore.InMemory
         {
             eventStoreStorage.Flush(aggregateCommit);
         }
-
-        public EventStream Load(IAggregateRootId aggregateId)
-        {
-            return new EventStream(eventStoreStorage.Seek(aggregateId));
-        }
     }
 }

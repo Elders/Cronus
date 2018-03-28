@@ -68,7 +68,7 @@ namespace Elders.Cronus.Projections
                     }
                     IAggregateRootId arId = GetAggregateRootId(indexCommit.EventOrigin.AggregateRootId);
                     IEventStore eventStore = eventStoreFactory.GetEventStore(tenantResolver.Resolve(arId));
-                    EventStream stream = eventStore.Load(arId);
+                    EventStream stream = eventStore.Load(arId, theId => projectionType.GetBoundedContext().BoundedContextName);
 
                     foreach (AggregateCommit arCommit in stream.Commits)
                     {
