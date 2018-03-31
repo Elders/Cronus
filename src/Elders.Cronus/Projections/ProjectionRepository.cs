@@ -31,10 +31,6 @@ namespace Elders.Cronus.Projections
 
         ProjectionStream LoadProjectionStream(Type projectionType, ProjectionVersion projectionVersion, IBlobId projectionId, ISnapshot snapshot)
         {
-            if (ReferenceEquals(null, projectionVersion)) throw new ArgumentNullException(nameof(projectionVersion));
-            if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
-            if (ReferenceEquals(null, snapshot)) throw new ArgumentNullException(nameof(snapshot));
-
             ISnapshot currentSnapshot = snapshot;
             string contractId = projectionVersion.ProjectionName;
 
@@ -45,8 +41,8 @@ namespace Elders.Cronus.Projections
                 snapshotMarker++;
                 var loadedCommits = projectionStore.Load(projectionVersion, projectionId, snapshotMarker).ToList();
                 projectionCommits.AddRange(loadedCommits);
-                bool isSnapshotable = typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
 
+                bool isSnapshotable = typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
                 if (isSnapshotable && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshot.Revision))
                 {
                     ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, currentSnapshot);
@@ -59,14 +55,11 @@ namespace Elders.Cronus.Projections
 
                     log.Debug(() => $"Snapshot created for projection `{contractId}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{snapshot.GetType().Name}`");
                 }
-                else if (loadedCommits.Count() < snapshotStrategy.EventsInSnapshot)
-                {
+
+                if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
                     break;
-                }
                 else
-                {
                     log.Warn($"Potential memory leak. The system will be down fairly soon. The projection `{contractId}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) and snapshot `{snapshot.GetType().Name}` which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
-                }
             }
 
             ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, currentSnapshot);
@@ -78,54 +71,41 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
 
             Type projectionType = typeof(T);
-            string contractId = projectionType.GetContractId();
-            try
-            {
-                ProjectionVersion liveVersion = GetProjectionVersions(contractId).GetLive();
-                if (ReferenceEquals(null, liveVersion))
-                {
-                    log.Warn(() => $"Unable to find `live` version for projection with contract id {contractId} and name {projectionType.Name}");
-                    return new ProjectionGetResult<T>(default(T));
-                }
 
-                ISnapshot snapshot = snapshotStore.Load(contractId, projectionId, liveVersion);
-                ProjectionStream stream = LoadProjectionStream(projectionType, liveVersion, projectionId, snapshot);
-                IProjectionGetResult<T> queryResult = stream.RestoreFromHistory<T>();
-
-                return queryResult;
-            }
-            catch (Exception ex)
-            {
-                log.ErrorException($"Unable to load projection. ProjectionId:{projectionId} ProjectionContractId:{contractId} ProjectionName:{projectionType.Name}", ex);
-                return new ProjectionGetResult<T>(default(T));
-            }
+            ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
+            return stream.RestoreFromHistory<T>();
         }
 
         public IProjectionGetResult<IProjectionDefinition> Get(IBlobId projectionId, Type projectionType)
         {
             if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
 
-            string contractId = projectionType.GetContractId();
+            ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
+            return stream.RestoreFromHistory(projectionType);
+        }
+
+        ProjectionStream LoadProjectionStream(Type projectionType, IBlobId projectionId)
+        {
+            string projectionName = projectionType.GetContractId();
 
             try
             {
-                ProjectionVersion liveVersion = GetProjectionVersions(contractId).GetLive();
+                ProjectionVersion liveVersion = GetProjectionVersions(projectionName).GetLive();
                 if (ReferenceEquals(null, liveVersion))
                 {
-                    log.Warn(() => $"Unable to find `live` version for projection with contract id {contractId} and name {projectionType.Name}");
-                    return new ProjectionGetResult<IProjectionDefinition>(null);
+                    log.Warn(() => $"Unable to find `live` version for projection with contract id {projectionName} and name {projectionType.Name}");
+                    return ProjectionStream.Empty();
                 }
 
-                ISnapshot snapshot = snapshotStore.Load(contractId, projectionId, liveVersion);
+                ISnapshot snapshot = snapshotStore.Load(projectionName, projectionId, liveVersion);
                 ProjectionStream stream = LoadProjectionStream(projectionType, liveVersion, projectionId, snapshot);
-                IProjectionGetResult<IProjectionDefinition> queryResult = stream.RestoreFromHistory(projectionType);
 
-                return queryResult;
+                return stream;
             }
             catch (Exception ex)
             {
-                log.ErrorException($"Unable to load projection. ProjectionId:{projectionId} ProjectionContractId:{contractId} ProjectionName:{projectionType.Name}", ex);
-                return new ProjectionGetResult<IProjectionDefinition>(null);
+                log.ErrorException($"Unable to load projection stream. ProjectionId:{projectionId} ProjectionContractId:{projectionName} ProjectionName:{projectionType.Name}", ex);
+                return ProjectionStream.Empty();
             }
         }
 
@@ -173,8 +153,9 @@ namespace Elders.Cronus.Projections
 
                 return versions ?? new ProjectionVersions();
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                log.WarnException($"Unable to load projection versions. ProjectionContractId:{contractId}", ex);
                 return new ProjectionVersions();
             }
         }
@@ -215,19 +196,17 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, @event)) throw new ArgumentNullException(nameof(@event));
             if (ReferenceEquals(null, eventOrigin)) throw new ArgumentNullException(nameof(eventOrigin));
 
-            string contractId = projectionType.GetContractId();
-            var instance = FastActivator.CreateInstance(projectionType);
-
-            var statefullProjection = instance as IProjectionDefinition;
-            if (statefullProjection != null)
+            string projectionName = projectionType.GetContractId();
+            var projection = FastActivator.CreateInstance(projectionType) as IProjectionDefinition;
+            if (projection != null)
             {
-                var projectionIds = statefullProjection.GetProjectionIds(@event);
+                var projectionIds = projection.GetProjectionIds(@event);
 
-                foreach (var version in GetProjectionVersions(contractId))
+                foreach (var projectionId in projectionIds)
                 {
-                    foreach (var projectionId in projectionIds)
+                    foreach (var version in GetProjectionVersions(projectionName))
                     {
-                        ISnapshot snapshot = snapshotStore.Load(contractId, projectionId, version);
+                        ISnapshot snapshot = snapshotStore.Load(projectionName, projectionId, version);
                         ProjectionStream projectionStream = LoadProjectionStream(projectionType, version, projectionId, snapshot);
                         int snapshotMarker = snapshotStrategy.GetSnapshotMarker(projectionStream.Commits, snapshot.Revision);
 
@@ -243,29 +222,10 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
             if (ReferenceEquals(null, cronusMessage)) throw new ArgumentNullException(nameof(cronusMessage));
 
-            var projection = FastActivator.CreateInstance(projectionType) as IProjectionDefinition;
-            if (projection != null)
-            {
-                var projectionIds = projection.GetProjectionIds(cronusMessage.Payload as IEvent);
-                string contractId = projectionType.GetContractId();
+            EventOrigin eventOrigin = cronusMessage.GetEventOrigin();
+            IEvent @event = cronusMessage.Payload as IEvent;
 
-                foreach (var projectionId in projectionIds)
-                {
-                    foreach (var version in GetProjectionVersions(contractId))
-                    {
-                        ISnapshot snapshot = snapshotStore.Load(contractId, projectionId, version);
-                        ProjectionStream projectionStream = LoadProjectionStream(projectionType, version, projectionId, snapshot);
-                        int snapshotMarker = snapshotStrategy.GetSnapshotMarker(projectionStream.Commits, snapshot.Revision);
-
-                        EventOrigin eventOrigin = cronusMessage.GetEventOrigin();
-                        DateTime timestamp = DateTime.UtcNow;
-                        IEvent @event = cronusMessage.Payload as IEvent;
-
-                        var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, timestamp);
-                        projectionStore.Save(commit);
-                    }
-                }
-            }
+            Save(projectionType, @event, eventOrigin);
         }
     }
 }

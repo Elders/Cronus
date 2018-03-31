@@ -72,5 +72,10 @@ namespace Elders.Cronus.Projections
 
             return new ProjectionGetResult<T>(projection);
         }
+
+        public static ProjectionStream Empty()
+        {
+            return new ProjectionStream(null, Enumerable.Empty<ProjectionCommit>().ToList(), null);
+        }
     }
 }
