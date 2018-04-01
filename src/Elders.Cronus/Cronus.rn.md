@@ -1,3 +1,6 @@
+#### 5.0.0-beta0002 - 01.04.2018
+* Removes all obsolete code
+
 #### 5.0.0-beta0001 - 28.03.2018
 * Removes Obsolete EventStore methods
 

@@ -26,9 +26,6 @@ namespace Elders.Cronus.Projections
         [DataMember(Order = 4)]
         public string Hash { get; private set; }
 
-        [Obsolete("Use ProjectionName instead.")]
-        public string ProjectionContractId { get { return ProjectionName; } }
-
         public ProjectionVersion WithStatus(ProjectionStatus status)
         {
             return new ProjectionVersion(ProjectionName, status, Revision, Hash);
