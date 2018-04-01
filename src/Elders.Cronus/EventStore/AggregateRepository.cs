@@ -42,7 +42,7 @@ namespace Elders.Cronus.EventStore
             }
             else
             {
-                throw new AggregateStateFirstLevelConcurrencyException("", result.Errors.MakeJustOneException());
+                throw new AggregateStateFirstLevelConcurrencyException("Unable to save AR" + Environment.NewLine + arCommit.ToString(), result.Errors.MakeJustOneException());
             }
         }
 

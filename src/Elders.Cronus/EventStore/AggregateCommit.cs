@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace Elders.Cronus.EventStore
 {
@@ -48,5 +50,17 @@ namespace Elders.Cronus.EventStore
 
         [DataMember(Order = 5)]
         public long Timestamp { get; private set; }
+
+        public override string ToString()
+        {
+            string commitInfo =
+                "AggregateCommit details" + Environment.NewLine +
+                "BoundedContext:" + BoundedContext + Environment.NewLine +
+                "RootId:" + AggregateRootId.ToString() + Environment.NewLine +
+                "Revision:" + Revision + Environment.NewLine +
+                "Events:" + string.Join(Environment.NewLine, Events.Select(e => "\t" + e.ToString()));
+
+            return commitInfo;
+        }
     }
 }
