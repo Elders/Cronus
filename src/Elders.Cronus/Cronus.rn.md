@@ -1,3 +1,6 @@
+#### 5.0.0-beta0003 - 02.04.2018
+* IProjectionLoader and IProjectionRepository are registered in Cronus. Moved from Elders.Cronus.Projections.Cassandra
+
 #### 5.0.0-beta0002 - 01.04.2018
 * Removes all obsolete code
 

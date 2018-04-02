@@ -6,6 +6,9 @@ using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Projections.Versioning;
+using Elders.Cronus.Projections;
+using Elders.Cronus.Projections.Snapshotting;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -56,6 +59,16 @@ namespace Elders.Cronus.Pipeline.Config
     public class ProjectionConsumerSettings : PipelineConsumerSettings<IEvent>
     {
         public ProjectionConsumerSettings(ISettingsBuilder settingsBuilder, string name) : base(settingsBuilder, name) { }
+
+        public override void Build()
+        {
+            base.Build();
+
+            var builder = this as ISettingsBuilder;
+            builder.Container.RegisterSingleton<InMemoryProjectionVersionStore>(() => new InMemoryProjectionVersionStore(), builder.Name);
+            builder.Container.RegisterSingleton<IProjectionLoader>(() => new ProjectionRepository(builder.Container.Resolve<IProjectionStore>(builder.Name), builder.Container.Resolve<ISnapshotStore>(builder.Name), builder.Container.Resolve<ISnapshotStrategy>(builder.Name), builder.Container.Resolve<InMemoryProjectionVersionStore>(builder.Name)), builder.Name);
+            builder.Container.RegisterSingleton<IProjectionRepository>(() => new ProjectionRepository(builder.Container.Resolve<IProjectionStore>(builder.Name), builder.Container.Resolve<ISnapshotStore>(builder.Name), builder.Container.Resolve<ISnapshotStrategy>(builder.Name), builder.Container.Resolve<InMemoryProjectionVersionStore>(builder.Name)), builder.Name);
+        }
     }
 
     public class PortConsumerSettings : PipelineConsumerSettings<IEvent>
