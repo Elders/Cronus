@@ -150,12 +150,6 @@ namespace Elders.Cronus.Pipeline.Config
             return self;
         }
 
-        public static T UseSystemServiceConsumer<T>(this T self, Action<CommandConsumerSettings> configure = null) where T : ICronusSettings
-        {
-            return UseCommandConsumer(self, "SystemAppServices", configure);
-            //return UseSystemConsumer(self, "System", configure);
-        }
-
         //public static T UseSystemConsumer<T>(this T self, string name, Action<SystemConsumerSettings> configure = null) where T : ICronusSettings
         //{
         //    SystemConsumerSettings settings = new SystemConsumerSettings(self, name);

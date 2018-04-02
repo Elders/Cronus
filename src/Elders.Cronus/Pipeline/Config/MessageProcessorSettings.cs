@@ -35,6 +35,7 @@ namespace Elders.Cronus.Pipeline.Config
                 .Select(x => x.GetGenericArguments().FirstOrDefault().Assembly).SelectMany(x => x.GetTypes().Where(y => ievent.IsAssignableFrom(y)));
             return allEventTypes;
         }
+
         public override void Build()
         {
             var hasher = new ProjectionHasher();
@@ -322,7 +323,8 @@ namespace Elders.Cronus.Pipeline.Config
             base.Build();
             var builder = this as ISettingsBuilder;
 
-
+            builder.Container.RegisterSingleton<InMemoryProjectionVersionStore>(() => new InMemoryProjectionVersionStore(), builder.Name);
+            builder.Container.RegisterSingleton<IProjectionRepository>(() => new ProjectionRepository(builder.Container.Resolve<IProjectionStore>(builder.Name), builder.Container.Resolve<ISnapshotStore>(builder.Name), builder.Container.Resolve<ISnapshotStrategy>(builder.Name), builder.Container.Resolve<InMemoryProjectionVersionStore>(builder.Name)), builder.Name);
             Func<IProjectionRepository> projectionRepository = () => builder.Container.Resolve<IProjectionRepository>(builder.Name);
             Func<IProjectionStore> projectionStore = () => builder.Container.Resolve<IProjectionStore>(builder.Name);
             Func<ISnapshotStore> snapshotStore = () => builder.Container.Resolve<ISnapshotStore>(builder.Name);
