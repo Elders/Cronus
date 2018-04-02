@@ -15,6 +15,12 @@ namespace Elders.Cronus.Projections
         IList<ProjectionCommit> commits;
         readonly ISnapshot snapshot;
 
+        ProjectionStream()
+        {
+            this.commits = Enumerable.Empty<ProjectionCommit>().ToList();
+            this.snapshot = new NoSnapshot(null, null);
+        }
+
         public ProjectionStream(IBlobId projectionId, IList<ProjectionCommit> commits, ISnapshot snapshot)
         {
             if (ReferenceEquals(null, projectionId) == true) throw new ArgumentException(nameof(projectionId));
@@ -75,7 +81,7 @@ namespace Elders.Cronus.Projections
 
         public static ProjectionStream Empty()
         {
-            return new ProjectionStream(null, Enumerable.Empty<ProjectionCommit>().ToList(), null);
+            return new ProjectionStream();
         }
     }
 }

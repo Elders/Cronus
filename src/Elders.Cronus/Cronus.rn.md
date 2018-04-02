@@ -1,3 +1,6 @@
+#### 5.0.0-beta0005 - 02.04.2018
+* Properly create Empty instance of ProjectionStream
+
 #### 5.0.0-beta0004 - 02.04.2018
 * IProjectionLoader and IProjectionRepository are registered in Cronus. Moved from Elders.Cronus.Projections.Cassandra
 
