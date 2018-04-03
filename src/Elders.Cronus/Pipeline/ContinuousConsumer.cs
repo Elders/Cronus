@@ -23,7 +23,7 @@ namespace Elders.Cronus.Pipeline
 
         public DateTime ScheduledStart { get; set; }
 
-        protected abstract void MessageConsumed(CronusMessage message);
+        protected abstract void MessageDelivered(CronusMessage message);
         protected abstract void WorkStart();
         protected abstract void WorkStop();
         protected abstract CronusMessage GetMessage();
@@ -43,6 +43,7 @@ namespace Elders.Cronus.Pipeline
                     if (ReferenceEquals(null, message)) break;
                     try
                     {
+                        MessageDelivered(message);
                         var subscribers = subscriptions.GetInterestedSubscribers(message);
                         foreach (var subscriber in subscribers)
                         {
@@ -51,11 +52,7 @@ namespace Elders.Cronus.Pipeline
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorException("Unexpected Exception.", ex);
-                    }
-                    finally
-                    {
-                        MessageConsumed(message);
+                        log.ErrorException("Failed to process message.", ex);
                     }
                 }
             }

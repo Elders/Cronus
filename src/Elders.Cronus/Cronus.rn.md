@@ -1,3 +1,6 @@
+#### 5.0.0-beta0006 - 03.04.2018
+* Immediately aknowledge/consume message when it is delivered
+
 #### 5.0.0-beta0005 - 02.04.2018
 * Properly create Empty instance of ProjectionStream
 
