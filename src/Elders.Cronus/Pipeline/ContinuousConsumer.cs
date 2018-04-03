@@ -23,7 +23,7 @@ namespace Elders.Cronus.Pipeline
 
         public DateTime ScheduledStart { get; set; }
 
-        protected abstract void MessageDelivered(CronusMessage message);
+        protected abstract void MessageConsumed(CronusMessage message);
         protected abstract void WorkStart();
         protected abstract void WorkStop();
         protected abstract CronusMessage GetMessage();
@@ -43,7 +43,7 @@ namespace Elders.Cronus.Pipeline
                     if (ReferenceEquals(null, message)) break;
                     try
                     {
-                        MessageDelivered(message);
+                        MessageConsumed(message);
                         var subscribers = subscriptions.GetInterestedSubscribers(message);
                         foreach (var subscriber in subscribers)
                         {

@@ -1,3 +1,6 @@
+#### 5.0.0-beta0007 - 03.04.2018
+* Rolls back accidental rename
+
 #### 5.0.0-beta0006 - 03.04.2018
 * Immediately aknowledge/consume message when it is delivered
 
