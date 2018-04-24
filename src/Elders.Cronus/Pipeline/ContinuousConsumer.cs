@@ -43,7 +43,6 @@ namespace Elders.Cronus.Pipeline
                     if (ReferenceEquals(null, message)) break;
                     try
                     {
-                        MessageConsumed(message);
                         var subscribers = subscriptions.GetInterestedSubscribers(message);
                         foreach (var subscriber in subscribers)
                         {
@@ -53,6 +52,10 @@ namespace Elders.Cronus.Pipeline
                     catch (Exception ex)
                     {
                         log.ErrorException("Failed to process message.", ex);
+                    }
+                    finally
+                    {
+                        MessageConsumed(message);
                     }
                 }
             }

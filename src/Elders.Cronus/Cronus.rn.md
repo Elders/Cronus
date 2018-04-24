@@ -1,3 +1,6 @@
+#### 5.0.0-beta0008 - 24.04.2018
+* Rolls back how the message is acknowledged
+
 #### 5.0.0-beta0007 - 03.04.2018
 * Rolls back accidental rename
 
