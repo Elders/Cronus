@@ -29,7 +29,7 @@ namespace Elders.Cronus.Projections
 
             if (existingVersion.ProjectionName.Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
             {
-                throw new ArgumentException("Invalid version. " + version.ToString() + Environment.NewLine + "Expecting version similar to an existing one: " + existingVersion, nameof(version));
+                throw new ArgumentException("Invalid version. " + version.ToString() + Environment.NewLine + "Expected version for projection: " + existingVersion.ProjectionName, nameof(version));
             }
         }
 
