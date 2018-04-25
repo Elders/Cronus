@@ -17,6 +17,7 @@
         {
             Id = e.Id;
             Versions.Add(e.ProjectionVersion);
+            LastVersionRequestTimebox = LastVersionRequestTimebox.Reset();
         }
 
         public void When(ProjectionVersionRequested e)
