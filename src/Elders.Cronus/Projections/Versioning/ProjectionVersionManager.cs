@@ -14,12 +14,11 @@ namespace Elders.Cronus.Projections.Versioning
             RequestVersion(id, initialVersion, timebox);
         }
 
-        public void CancelVersionRequest(ProjectionVersion version)
+        public void CancelVersionRequest(ProjectionVersion version, string reason)
         {
             if (CanCancel(version))
             {
-                var projectionVersion = state.Versions.Where(x => x.Status == ProjectionStatus.Building).Single();
-                var @event = new ProjectionVersionRequestCanceled(state.Id, projectionVersion.WithStatus(ProjectionStatus.Canceled));
+                var @event = new ProjectionVersionRequestCanceled(state.Id, version.WithStatus(ProjectionStatus.Canceled), reason);
                 Apply(@event);
             }
         }
@@ -75,6 +74,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         private bool IsHashTheLiveOne(string hash)
         {
+            if (HasLiveVersion() == false)
+                return false;
+
             bool isHashTheLiveOne = state.Versions.GetLive().Hash.Equals(hash, StringComparison.Ordinal);
             return isHashTheLiveOne;
         }
@@ -84,7 +86,7 @@ namespace Elders.Cronus.Projections.Versioning
             if (version.Status != ProjectionStatus.Building)
                 return false;
 
-            return state.Versions.Any(x => x == version);
+            return state.Versions.Where(x => x == version).Any();
         }
 
         private VersionRequestTimebox GetVersionRequestTimebox(string hash)

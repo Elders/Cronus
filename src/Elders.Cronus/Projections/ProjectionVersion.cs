@@ -61,16 +61,6 @@ namespace Elders.Cronus.Projections
             return Revision.GetHashCode() ^ ProjectionName.GetHashCode() ^ Hash.GetHashCode();
         }
 
-        public static bool operator ==(ProjectionVersion left, ProjectionVersion right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(ProjectionVersion left, ProjectionVersion right)
-        {
-            return (left == right) == false;
-        }
-
         public static bool operator >(ProjectionVersion left, ProjectionVersion right)
         {
             if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
@@ -80,6 +70,15 @@ namespace Elders.Cronus.Projections
             return left.Revision > right.Revision;
         }
 
+        public static bool operator >=(ProjectionVersion left, ProjectionVersion right)
+        {
+            if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
+            if (ReferenceEquals(null, right)) throw new ArgumentNullException(nameof(right));
+            if (left.ProjectionName.Equals(right.ProjectionName) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionNames do not match. {left.ProjectionName} != {right.ProjectionName}");
+
+            return left.Revision >= right.Revision;
+        }
+
         public static bool operator <(ProjectionVersion left, ProjectionVersion right)
         {
             if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
@@ -87,6 +86,15 @@ namespace Elders.Cronus.Projections
             if (left.ProjectionName.Equals(right.ProjectionName) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionNames do not match. {left.ProjectionName} != {right.ProjectionName}");
 
             return left.Revision < right.Revision;
+        }
+
+        public static bool operator <=(ProjectionVersion left, ProjectionVersion right)
+        {
+            if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
+            if (ReferenceEquals(null, right)) throw new ArgumentNullException(nameof(right));
+            if (left.ProjectionName.Equals(right.ProjectionName) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionNames do not match. {left.ProjectionName} != {right.ProjectionName}");
+
+            return left.Revision <= right.Revision;
         }
 
         public override string ToString()

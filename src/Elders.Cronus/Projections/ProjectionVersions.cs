@@ -33,6 +33,7 @@ namespace Elders.Cronus.Projections
             }
         }
 
+        // fix me
         public void Add(ProjectionVersion version)
         {
             if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
@@ -42,16 +43,29 @@ namespace Elders.Cronus.Projections
             {
                 var versionInBuild = this.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault();
                 versions.Remove(versionInBuild);
+
+                if (version.Status != ProjectionStatus.Live)
+                    versions.Add(version);
             }
+
+            if (version.Status == ProjectionStatus.Building)
+                versions.Add(version);
 
             if (version.Status == ProjectionStatus.Live)
             {
-                var currentLiveVer = GetLive();
-                if (currentLiveVer < version)
-                    versions.Remove(currentLiveVer);
-            }
+                var canceled = this.Where(x => x == version.WithStatus(ProjectionStatus.Canceled)).SingleOrDefault();
+                versions.Remove(canceled);
 
-            versions.Add(version);
+                var timedout = this.Where(x => x == version.WithStatus(ProjectionStatus.Timedout)).SingleOrDefault();
+                versions.Remove(timedout);
+
+                var currentLiveVer = GetLive();
+                if (currentLiveVer != null && currentLiveVer <= version)
+                {
+                    versions.Remove(currentLiveVer);
+                    versions.Add(version);
+                }
+            }
         }
 
         public ProjectionVersion GetLatest()

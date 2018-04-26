@@ -34,10 +34,16 @@ namespace Elders.Cronus.Projections.Versioning
 
             var theType = @event.ProjectionVersionRequest.Version.ProjectionName.GetTypeByContract();
             var rebuildTimesOutAt = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
-            if (Player.Rebuild(theType, @event.ProjectionVersionRequest.Version, rebuildTimesOutAt))
+            ReplayResult replayResult = Player.Rebuild(theType, @event.ProjectionVersionRequest.Version, rebuildTimesOutAt);
+            if (replayResult.IsSuccess)
             {
-                var command = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);
-                CommandPublisher.Publish(command);
+                var finalize = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);
+                CommandPublisher.Publish(finalize);
+            }
+            else
+            {
+                var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, replayResult.Error);
+                CommandPublisher.Publish(cancel);
             }
         }
 
