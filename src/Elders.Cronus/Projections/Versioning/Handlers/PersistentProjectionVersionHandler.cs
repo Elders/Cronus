@@ -17,7 +17,7 @@ namespace Elders.Cronus.Projections.Versioning
         public void Handle(ProjectionVersionRequested @event)
         {
             State.Id = @event.Id;
-            State.Building = @event.ProjectionVersion;
+            State.Building = @event.Version;
         }
 
         public void Handle(NewProjectionVersionIsNowLive @event)

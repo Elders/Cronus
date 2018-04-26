@@ -9,23 +9,29 @@ namespace Elders.Cronus.Projections.Versioning
 
         public ProjectionVersionManager(ProjectionVersionManagerId id, string hash)
         {
-            ProjectionVersion initialVersion = new ProjectionVersion(id.Id, ProjectionStatus.Building, 1, hash);
-
+            var initialVersion = new ProjectionVersion(id.Id, ProjectionStatus.Building, 1, hash);
             var timebox = new VersionRequestTimebox(DateTime.UtcNow);
             RequestVersion(id, initialVersion, timebox);
         }
 
-        public void Replay(string hash)
+        public void CancelVersionRequest(ProjectionVersion version)
         {
-            var projectionVersion = new ProjectionVersion(state.Id.Id, ProjectionStatus.Building, 1, hash);
-            var timebox = GetVersionRequestTimebox(hash);
-            RequestVersion(state.Id, projectionVersion, timebox);
+            if (CanCancel(version))
+            {
+                var projectionVersion = state.Versions.Where(x => x.Status == ProjectionStatus.Building).Single();
+                var @event = new ProjectionVersionRequestCanceled(state.Id, projectionVersion.WithStatus(ProjectionStatus.Canceled));
+                Apply(@event);
+            }
         }
 
-        void RequestVersion(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
+        public void Replay(string hash)
         {
-            var @event = new ProjectionVersionRequested(id, projectionVersion, timebox);
-            Apply(@event);
+            if (CanReplayHash(hash))
+            {
+                var projectionVersion = state.Versions.GetNext();
+                var timebox = GetVersionRequestTimebox(hash);
+                RequestVersion(state.Id, projectionVersion, timebox);
+            }
         }
 
         public void VersionRequestTimedout(ProjectionVersion version, VersionRequestTimebox timebox)
@@ -34,22 +40,54 @@ namespace Elders.Cronus.Projections.Versioning
             Apply(@event);
         }
 
-        public void CancelVersionRequest()
+        public void NotifyHash(string hash)
         {
-            if (CanCancel())
+            if (HasLiveVersion() == false || IsHashTheLiveOne(hash) == false)
             {
-                var projectionVersion = state.Versions.Where(x => x.Status == ProjectionStatus.Building).Single();
-                var @event = new ProjectionVersionRequestCanceled(state.Id, projectionVersion.WithStatus(ProjectionStatus.Canceled));
+                Replay(hash);
+            }
+        }
+
+        public void FinalizeVersionRequest(ProjectionVersion version)
+        {
+            var buildingVersion = state.Versions.Where(x => x == version).SingleOrDefault();
+            if (ReferenceEquals(null, buildingVersion) == false)
+            {
+                var @event = new NewProjectionVersionIsNowLive(state.Id, buildingVersion.WithStatus(ProjectionStatus.Live));
                 Apply(@event);
             }
         }
 
-        bool CanCancel()
+        private bool HasLiveVersion()
         {
-            return state.Versions.Any(x => x.Status == ProjectionStatus.Building);
+            ProjectionVersion liveVersion = state.Versions.GetLive();
+
+            return ReferenceEquals(null, liveVersion) == false;
         }
 
-        VersionRequestTimebox GetVersionRequestTimebox(string hash)
+        private bool CanReplayHash(string hash)
+        {
+            bool isHashUsedBefore = state.HashHistoryOfLiveVersions.Contains(hash);
+            bool isHashTheLiveOne = IsHashTheLiveOne(hash);
+
+            return isHashUsedBefore == false || isHashTheLiveOne;
+        }
+
+        private bool IsHashTheLiveOne(string hash)
+        {
+            bool isHashTheLiveOne = state.Versions.GetLive().Hash.Equals(hash, StringComparison.Ordinal);
+            return isHashTheLiveOne;
+        }
+
+        private bool CanCancel(ProjectionVersion version)
+        {
+            if (version.Status != ProjectionStatus.Building)
+                return false;
+
+            return state.Versions.Any(x => x == version);
+        }
+
+        private VersionRequestTimebox GetVersionRequestTimebox(string hash)
         {
             ProjectionVersion live = state.Versions.GetLive();
             if (live == null) return new VersionRequestTimebox(DateTime.UtcNow);
@@ -61,24 +99,10 @@ namespace Elders.Cronus.Projections.Versioning
             return new VersionRequestTimebox(DateTime.UtcNow);
         }
 
-        public void NotifyHash(string hash)
+        private void RequestVersion(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
         {
-            ProjectionVersion live = state.Versions.GetLive();
-
-            if (live == null || string.Equals(live.Hash, hash, StringComparison.OrdinalIgnoreCase) == false)
-            {
-                Replay(hash);
-            }
-        }
-
-        public void FinalizeVersionRequest(ProjectionVersion version)
-        {
-            var buildingVersion = state.Versions.Where(x => x == version).SingleOrDefault();
-            // if (ReferenceEquals(null, buildingVersion) == false)
-            {
-                var @event = new NewProjectionVersionIsNowLive(state.Id, buildingVersion.WithStatus(ProjectionStatus.Live));
-                Apply(@event);
-            }
+            var @event = new ProjectionVersionRequested(id, projectionVersion, timebox);
+            Apply(@event);
         }
     }
 }

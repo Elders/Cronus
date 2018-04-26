@@ -31,9 +31,13 @@ namespace Elders.Cronus.Projections
             return new ProjectionVersion(ProjectionName, status, Revision, Hash);
         }
 
+        /// <summary>
+        /// Gets the next <see cref="ProjectionVersion"/> which is always with <see cref="ProjectionStatus"/> <see cref="ProjectionStatus.Building"/> and increased Revision.
+        /// </summary>
+        /// <returns>Returns a <see cref="ProjectionVersion"/></returns>
         public ProjectionVersion NextRevision()
         {
-            return new ProjectionVersion(ProjectionName, Status, Revision + 1, Hash);
+            return new ProjectionVersion(ProjectionName, ProjectionStatus.Building, Revision + 1, Hash);
         }
 
         public override bool Equals(ProjectionVersion other)
@@ -72,7 +76,6 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
             if (ReferenceEquals(null, right)) throw new ArgumentNullException(nameof(right));
             if (left.ProjectionName.Equals(right.ProjectionName) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionNames do not match. {left.ProjectionName} != {right.ProjectionName}");
-            if (left.Hash.Equals(right.Hash) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionHashes do not match. {left.Hash} != {right.Hash}");
 
             return left.Revision > right.Revision;
         }
@@ -82,7 +85,6 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
             if (ReferenceEquals(null, right)) throw new ArgumentNullException(nameof(right));
             if (left.ProjectionName.Equals(right.ProjectionName) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionNames do not match. {left.ProjectionName} != {right.ProjectionName}");
-            if (left.Hash.Equals(right.Hash) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionHashes do not match. {left.Hash} != {right.Hash}");
 
             return left.Revision < right.Revision;
         }

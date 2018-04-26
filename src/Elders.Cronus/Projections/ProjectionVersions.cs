@@ -38,37 +38,41 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
             ValidateVersion(version);
 
-            if (version.Status == ProjectionStatus.Canceled)
+            if (version.Status != ProjectionStatus.Building)
             {
                 var versionInBuild = this.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault();
-                if (versions.Remove(versionInBuild))
-                    versions.Add(version);
-            }
-            else if (version.Status == ProjectionStatus.Live)
-            {
-                var versionInBuild = versions.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault();
                 versions.Remove(versionInBuild);
-                versions.Add(version);
             }
-            else
+
+            if (version.Status == ProjectionStatus.Live)
             {
-                versions.Add(version);
+                var currentLiveVer = GetLive();
+                if (currentLiveVer < version)
+                    versions.Remove(currentLiveVer);
             }
+
+            versions.Add(version);
         }
 
         public ProjectionVersion GetLatest()
         {
+            if (this.Count == 0) return default(ProjectionVersion);
+
             var maxRevision = this.Max(ver => ver.Revision);
             return this.Where(x => x.Revision == maxRevision).SingleOrDefault();
         }
 
-        public ProjectionVersion GetNextRevision()
+        public ProjectionVersion GetNext()
         {
+            if (this.Count == 0) return default(ProjectionVersion);
+
             return GetLatest().NextRevision();
         }
 
         public ProjectionVersion GetLive()
         {
+            if (this.Count == 0) return default(ProjectionVersion);
+
             return this.Where(x => x.Status == ProjectionStatus.Live).SingleOrDefault();
         }
 

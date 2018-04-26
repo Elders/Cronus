@@ -27,6 +27,10 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 4)]
         public VersionRequestTimebox Timebox { get; private set; }
-    }
 
+        public override string ToString()
+        {
+            return $"Projection version was request timedout. Version:{Version} Timebox:{Timebox}";
+        }
+    }
 }

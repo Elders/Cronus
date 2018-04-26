@@ -23,6 +23,11 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 3)]
         public long Timestamp { get; private set; }
+
+        public override string ToString()
+        {
+            return $"New ProjectionVersion is now live since. {ProjectionVersion.ToString()}";
+        }
     }
 
 }

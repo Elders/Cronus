@@ -35,7 +35,6 @@ namespace Elders.Cronus.Projections.Versioning
                 newStartAt = RebuildFinishUntil;
 
             return new VersionRequestTimebox(newStartAt);
-
         }
 
         public VersionRequestTimebox Reset()
@@ -45,6 +44,11 @@ namespace Elders.Cronus.Projections.Versioning
                 RebuildStartAt = RebuildStartAt,
                 RebuildFinishUntil = DateTime.UtcNow
             };
+        }
+
+        public override string ToString()
+        {
+            return $"Version request timebox: Starts at {RebuildStartAt}. Expires at {RebuildFinishUntil}";
         }
     }
 }

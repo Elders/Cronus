@@ -32,18 +32,18 @@ namespace Elders.Cronus.Projections.Versioning
             if (rebuildUntil < DateTime.UtcNow)
                 return;
 
-            var theType = @event.ProjectionVersionRequest.ProjectionVersion.ProjectionName.GetTypeByContract();
+            var theType = @event.ProjectionVersionRequest.Version.ProjectionName.GetTypeByContract();
             var rebuildTimesOutAt = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
-            if (Player.Rebuild(theType, @event.ProjectionVersionRequest.ProjectionVersion, rebuildTimesOutAt))
+            if (Player.Rebuild(theType, @event.ProjectionVersionRequest.Version, rebuildTimesOutAt))
             {
-                var command = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.ProjectionVersion);
+                var command = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);
                 CommandPublisher.Publish(command);
             }
         }
 
         public void Handle(ProjectionVersionRebuildTimedout sagaTimeout)
         {
-            var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.ProjectionVersion, sagaTimeout.ProjectionVersionRequest.Timebox);
+            var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             CommandPublisher.Publish(timedout);
         }
     }

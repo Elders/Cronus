@@ -10,16 +10,15 @@ namespace Elders.Cronus.Tests.Projections
         Establish context = () =>
         {
             lower = new ProjectionVersion("compare_lt", ProjectionStatus.Live, 1, "compare_lt_hash");
-            higher = new ProjectionVersion("compare_lt", ProjectionStatus.Live, 1, "ops");
+            higher = new ProjectionVersion("compare_lt", ProjectionStatus.Live, 2, "ops");
         };
 
-        Because of = () => exception = Catch.Exception(() => lower < higher);
+        Because of = () => result = lower < higher;
 
-        It should_fail = () => exception.ShouldNotBeNull();
+        It should_be_able_to_compare_with_lt = () => result.ShouldBeTrue();
 
         static bool result;
         static ProjectionVersion lower;
         static ProjectionVersion higher;
-        static Exception exception;
     }
 }

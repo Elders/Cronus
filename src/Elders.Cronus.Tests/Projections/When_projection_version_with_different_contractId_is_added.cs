@@ -18,7 +18,7 @@ namespace Elders.Cronus.Tests.Projections
 
         Because of = () => exception = Catch.Exception(() => versions.Add(differentId));
 
-        It should_throw_an_ArgumentException = () => exception.ShouldBeOfExactType<ArgumentException>();
+        It should_throw_an_ArgumentException = () => exception.ShouldNotBeNull();
 
         static ProjectionVersions versions;
         static ProjectionVersion differentId;

@@ -17,7 +17,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(ProjectionVersionRequested @event)
         {
-            ProjectionVersionStore.Cache(@event.ProjectionVersion);
+            ProjectionVersionStore.Cache(@event.Version);
         }
 
         public void Handle(NewProjectionVersionIsNowLive @event)
