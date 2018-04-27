@@ -60,7 +60,7 @@ namespace Elders.Cronus.Projections
                 versions.Remove(timedout);
 
                 var currentLiveVer = GetLive();
-                if (currentLiveVer != null && currentLiveVer <= version)
+                if (ReferenceEquals(null, currentLiveVer) || currentLiveVer <= version)
                 {
                     versions.Remove(currentLiveVer);
                     versions.Add(version);

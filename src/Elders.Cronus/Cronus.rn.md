@@ -1,3 +1,6 @@
+#### 5.0.0-beta0011 - 27.04.2018
+* Adds support for Revision in ProjectionVersion
+
 #### 5.0.0-beta0010 - 26.04.2018
 * Adds support for Revision in ProjectionVersion
 
