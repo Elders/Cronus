@@ -16,7 +16,6 @@ namespace Elders.Cronus.Pipeline
         public ContinuousConsumer(SubscriptionMiddleware subscriptions)
         {
             this.subscriptions = subscriptions;
-            stopping = false;
         }
 
         public string Name { get; set; }
@@ -35,7 +34,7 @@ namespace Elders.Cronus.Pipeline
                 if (stopping) return;
 
                 WorkStart();
-                while (stopping)
+                while (stopping == false)
                 {
                     CronusMessage message = GetMessage();
                     if (ReferenceEquals(null, message)) break;
