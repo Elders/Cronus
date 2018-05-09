@@ -1,3 +1,6 @@
+#### 5.0.0-beta0012 - 09.05.2018
+* Properly stops consumer
+
 #### 5.0.0-beta0011 - 27.04.2018
 * Adds support for Revision in ProjectionVersion
 

@@ -11,12 +11,12 @@ namespace Elders.Cronus.Pipeline
 
         SubscriptionMiddleware subscriptions;
 
-        volatile bool isRunning;
+        bool stopping;
 
         public ContinuousConsumer(SubscriptionMiddleware subscriptions)
         {
             this.subscriptions = subscriptions;
-            isRunning = true;
+            stopping = false;
         }
 
         public string Name { get; set; }
@@ -32,12 +32,10 @@ namespace Elders.Cronus.Pipeline
         {
             try
             {
-                if (isRunning)
-                    WorkStart();
-                else
-                    WorkStop();
+                if (stopping) return;
 
-                while (isRunning)
+                WorkStart();
+                while (stopping)
                 {
                     CronusMessage message = GetMessage();
                     if (ReferenceEquals(null, message)) break;
@@ -71,7 +69,8 @@ namespace Elders.Cronus.Pipeline
 
         public void Stop()
         {
-            isRunning = false;
+            stopping = true;
+            WorkStop();
         }
     }
 }
