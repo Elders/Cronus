@@ -1,3 +1,6 @@
+#### 5.0.0-beta0014 - 11.05.2018
+* Logs for index rebuilding
+
 #### 5.0.0-beta0013 - 09.05.2018
 * Properly stops consumer. For real this time!
 

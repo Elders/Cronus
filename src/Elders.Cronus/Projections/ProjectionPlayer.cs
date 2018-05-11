@@ -111,37 +111,66 @@ namespace Elders.Cronus.Projections
             }
         }
 
+        public bool HasIndex()
+        {
+            log.Info(() => "Getting index state");
+            var indexState = index.GetIndexState();
+            var indexIsPresent = indexState.IsPresent();
+
+            if (indexIsPresent)
+                log.Info(() => "Index is present");
+            else
+                log.Info(() => "Index is NOT present");
+
+            return indexIsPresent;
+        }
+
         public bool RebuildIndex()
         {
-            var indexState = index.GetIndexState();
-            if (indexState.IsPresent())
-                return true;
-
-            var indexBuilder = index.GetIndexBuilder();
-            var eventStorePlayers = eventStoreFactory.GetEventStorePlayers();
-            foreach (var eventStorePlayer in eventStorePlayers)
+            try
             {
-                foreach (var aggregateCommit in eventStorePlayer.LoadAggregateCommits())
+                log.Info(() => "Start rebuilding index...");
+                var indexBuilder = index.GetIndexBuilder();
+                var eventStorePlayers = eventStoreFactory.GetEventStorePlayers();
+
+                var eventsCounter = 0;
+                foreach (var eventStorePlayer in eventStorePlayers)
                 {
-                    foreach (var @event in aggregateCommit.Events)
+                    foreach (var aggregateCommit in eventStorePlayer.LoadAggregateCommits())
                     {
-                        try
+                        foreach (var @event in aggregateCommit.Events)
                         {
-                            var unwrapedEvent = @event.Unwrap();
-                            var rootId = System.Text.Encoding.UTF8.GetString(aggregateCommit.AggregateRootId);
-                            var eventOrigin = new EventOrigin(rootId, aggregateCommit.Revision, aggregateCommit.Events.IndexOf(@event), aggregateCommit.Timestamp);
-                            indexBuilder.Feed(unwrapedEvent, eventOrigin);
-                        }
-                        catch (Exception ex)
-                        {
-                            log.ErrorException(ex.Message, ex);
+                            try
+                            {
+                                if (eventsCounter % 1000 == 0)
+                                    log.Info(() => $"Rebuilding index progress: {eventsCounter}");
+
+                                var unwrapedEvent = @event.Unwrap();
+                                var rootId = System.Text.Encoding.UTF8.GetString(aggregateCommit.AggregateRootId);
+                                var eventOrigin = new EventOrigin(rootId, aggregateCommit.Revision, aggregateCommit.Events.IndexOf(@event), aggregateCommit.Timestamp);
+                                indexBuilder.Feed(unwrapedEvent, eventOrigin);
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorException($"Rebuilding index for event {@event.ToString()} failed with {ex.Message}", ex);
+                            }
+
+                            eventsCounter++;
                         }
                     }
                 }
-            }
 
-            indexBuilder.Complete();
-            return true;
+                indexBuilder.Complete();
+
+                log.Info(() => "Completed rebuilding index");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                log.ErrorException("Failed to rebuild index", ex);
+                return false;
+            }
         }
 
         IEnumerable<string> GetInvolvedEvents(Type projectionType)

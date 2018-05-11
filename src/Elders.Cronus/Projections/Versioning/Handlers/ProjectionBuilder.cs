@@ -23,11 +23,12 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(RebuildProjectionVersion @event)
         {
-            if (Player.RebuildIndex() == false)
+            if (Player.HasIndex() == false || Player.RebuildIndex() == false)
             {
                 RequestTimeout(new RebuildProjectionVersion(@event.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
                 return;
             }
+
             var rebuildUntil = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
             if (rebuildUntil < DateTime.UtcNow)
                 return;
