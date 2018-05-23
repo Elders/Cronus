@@ -1,3 +1,8 @@
+#### 5.0.0-beta0015 - 23.05.2018
+* Fixes an index creation problem. In addition we now ensure that only one index is built at the same moment (single node only)
+* Projection rebuild is not terminated when the deadline hits but a want log messages is written
+* Adds caching for processed aggregates. This potentially could result in out of memory. This is a temporary solution
+
 #### 5.0.0-beta0014 - 11.05.2018
 * Logs for index rebuilding
 
