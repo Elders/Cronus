@@ -78,9 +78,9 @@ namespace Elders.Cronus.Projections
                         }
                         if (DateTime.UtcNow >= replayUntil)
                         {
-                            string message = $"Rebuilding projection `{projectionType.Name}` stopped bacause the deadline has been reached. PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.";
-                            log.Info(() => message);
-                            return new ReplayResult(message);
+                            string message = $"Rebuilding projection `{projectionType.Name}` takes longer than expected. PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.";
+                            log.Warn(() => message);
+                            //return new ReplayResult(message);
                         }
                         IAggregateRootId arId = GetAggregateRootId(indexCommit.EventOrigin.AggregateRootId);
                         IEventStore eventStore = eventStoreFactory.GetEventStore(tenantResolver.Resolve(arId));
