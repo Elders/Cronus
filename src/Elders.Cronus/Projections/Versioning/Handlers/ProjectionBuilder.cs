@@ -23,28 +23,29 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(RebuildProjectionVersion @event)
         {
-            if (Player.HasIndex() == false || Player.RebuildIndex() == false)
-            {
+            bool indexExists = Player.HasIndex();
+            if (indexExists == false)
                 RequestTimeout(new RebuildProjectionVersion(@event.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
-                return;
-            }
 
-            var rebuildUntil = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
-            if (rebuildUntil < DateTime.UtcNow)
-                return;
+            if (indexExists || Player.RebuildIndex())
+            {
+                var rebuildUntil = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
+                if (rebuildUntil < DateTime.UtcNow)
+                    return;
 
-            var theType = @event.ProjectionVersionRequest.Version.ProjectionName.GetTypeByContract();
-            var rebuildTimesOutAt = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
-            ReplayResult replayResult = Player.Rebuild(theType, @event.ProjectionVersionRequest.Version, rebuildTimesOutAt);
-            if (replayResult.IsSuccess)
-            {
-                var finalize = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);
-                CommandPublisher.Publish(finalize);
-            }
-            else
-            {
-                var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, replayResult.Error);
-                CommandPublisher.Publish(cancel);
+                var theType = @event.ProjectionVersionRequest.Version.ProjectionName.GetTypeByContract();
+                var rebuildTimesOutAt = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
+                ReplayResult replayResult = Player.Rebuild(theType, @event.ProjectionVersionRequest.Version, rebuildTimesOutAt);
+                if (replayResult.IsSuccess)
+                {
+                    var finalize = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);
+                    CommandPublisher.Publish(finalize);
+                }
+                else
+                {
+                    var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, replayResult.Error);
+                    CommandPublisher.Publish(cancel);
+                }
             }
         }
 

@@ -73,8 +73,9 @@ namespace Elders.Cronus.Projections
                     {
                         progressCounter++;
                         if (progressCounter % 1000 == 0)
-                            log.Trace(() => $"Rebuilding projection {projectionType.Name} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{replayUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()}");
-                        // if the replay did not finish in time (specified by the AR) we need to abort.
+                        {
+                            log.Trace(() => $"Rebuilding projection {projectionType.Name} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{replayUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()} ProcessedAggregatesSize:{processedAggregates.Count}");
+                        }
                         if (DateTime.UtcNow >= replayUntil)
                         {
                             string message = $"Rebuilding projection `{projectionType.Name}` stopped bacause the deadline has been reached. PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.";
@@ -127,6 +128,24 @@ namespace Elders.Cronus.Projections
 
         public bool RebuildIndex()
         {
+            if (isBuilding == false)
+            {
+                lock (playerSync)
+                {
+                    if (isBuilding == false)
+                        isBuilding = true;
+                    else
+                    {
+                        log.Debug(() => "Index is currently built by someone");
+                        return false;
+                    }
+                }
+            }
+            else
+            {
+                log.Debug(() => "Index is currently built by someone");
+                return false;
+            }
             try
             {
                 log.Info(() => "Start rebuilding index...");
@@ -163,6 +182,7 @@ namespace Elders.Cronus.Projections
                 indexBuilder.Complete();
 
                 log.Info(() => "Completed rebuilding index");
+                isBuilding = false;
 
                 return true;
             }
