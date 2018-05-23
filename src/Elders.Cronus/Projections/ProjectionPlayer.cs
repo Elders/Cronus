@@ -29,6 +29,8 @@ namespace Elders.Cronus.Projections
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionPlayer));
 
+        object playerSync = new object();
+        private bool isBuilding = false;
         private readonly IEventStoreFactory eventStoreFactory;
         private readonly IProjectionStore projectionStore;
         private readonly IProjectionRepository projectionRepository;
@@ -64,6 +66,8 @@ namespace Elders.Cronus.Projections
                     return new ReplayResult("Projection index does not exists");
                 foreach (var eventType in projectionEventTypes)
                 {
+                    Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
+
                     log.Debug(() => $"Rebuilding projection `{projectionType.Name}` for version {version} using eventType `{eventType}`. Deadline is {replayUntil}");
 
                     var indexId = new EventStoreIndexEventTypeId(eventType);
@@ -76,12 +80,19 @@ namespace Elders.Cronus.Projections
                         {
                             log.Trace(() => $"Rebuilding projection {projectionType.Name} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{replayUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()} ProcessedAggregatesSize:{processedAggregates.Count}");
                         }
+
                         if (DateTime.UtcNow >= replayUntil)
                         {
                             string message = $"Rebuilding projection `{projectionType.Name}` takes longer than expected. PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.";
                             log.Warn(() => message);
                             //return new ReplayResult(message);
                         }
+
+                        if (processedAggregates.ContainsKey(indexCommit.EventOrigin.AggregateRootId.GetHashCode()))
+                            continue;
+
+                        processedAggregates.Add(indexCommit.EventOrigin.AggregateRootId.GetHashCode(), null);
+
                         IAggregateRootId arId = GetAggregateRootId(indexCommit.EventOrigin.AggregateRootId);
                         IEventStore eventStore = eventStoreFactory.GetEventStore(tenantResolver.Resolve(arId));
                         EventStream stream = eventStore.Load(arId);
@@ -146,6 +157,7 @@ namespace Elders.Cronus.Projections
                 log.Debug(() => "Index is currently built by someone");
                 return false;
             }
+
             try
             {
                 log.Info(() => "Start rebuilding index...");
