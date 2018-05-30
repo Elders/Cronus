@@ -26,10 +26,16 @@ namespace Elders.Cronus
                     messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
 
                 var cronusMessage = new CronusMessage(message, messageHeaders);
-                PublishInternal(cronusMessage);
+                var published = PublishInternal(cronusMessage);
+                if (published == false)
+                {
+                    log.Error(() => "Failed to publish => " + BuildDebugLog(message, messageHeaders));
+                    return false;
+                }
 
                 log.Info(() => message.ToString());
                 log.Debug(() => "PUBLISH => " + BuildDebugLog(message, messageHeaders));
+
                 return true;
             }
             catch (Exception ex)

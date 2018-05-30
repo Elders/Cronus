@@ -1,3 +1,6 @@
+#### 5.0.0-beta0016 - 30.05.2018
+* Return the result from publishing a command
+
 #### 5.0.0-beta0015 - 23.05.2018
 * Fixes an index creation problem. In addition we now ensure that only one index is built at the same moment (single node only)
 * Projection rebuild is not terminated when the deadline hits but a want log messages is written
