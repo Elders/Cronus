@@ -4,6 +4,8 @@
     {
         ISnapshot Load(string projectionName, IBlobId id, ProjectionVersion version);
 
+        SnapshotMeta LoadMeta(string projectionName, IBlobId id, ProjectionVersion version);
+
         void Save(ISnapshot snapshot, ProjectionVersion version);
 
         void InitializeProjectionSnapshotStore(ProjectionVersion version);
@@ -16,6 +18,11 @@
         public ISnapshot Load(string projectionName, IBlobId id, ProjectionVersion version)
         {
             return new NoSnapshot(id, projectionName);
+        }
+
+        public SnapshotMeta LoadMeta(string projectionName, IBlobId id, ProjectionVersion version)
+        {
+            return new SnapshotMeta(0, projectionName);
         }
 
         public void Save(ISnapshot snapshot, ProjectionVersion version) { }
