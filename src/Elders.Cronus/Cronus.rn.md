@@ -1,3 +1,6 @@
+#### 5.0.0-beta0018 - 18.06.2018
+* Splits DefaultSnapshotStrategy into two. The EventsCountSnapshotStrategy is based only on number of projection events. The TimeOffsetSnapshotStrategy adds on top of EventsCountSnapshotStrategy the ability to create a snapshot based on time difference between the last written event and at the time of loading a projection
+
 #### 5.0.0-beta0017 - 18.06.2018
 * Improves projection write performance. Projection state is now loaded only when a new state is going to be created
 
