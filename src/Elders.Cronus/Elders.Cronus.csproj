@@ -21,7 +21,7 @@
     <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;LIBLOG_PORTABLE;RELEASE</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.1" />
   </ItemGroup>
 
