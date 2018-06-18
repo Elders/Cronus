@@ -1,3 +1,6 @@
+#### 5.0.0-beta0017 - 18.06.2018
+* Improves projection write performance. Projection state is now loaded only when a new state is going to be created
+
 #### 5.0.0-beta0016 - 30.05.2018
 * Return the result from publishing a command
 
