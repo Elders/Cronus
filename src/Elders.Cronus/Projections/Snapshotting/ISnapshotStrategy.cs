@@ -5,7 +5,6 @@ namespace Elders.Cronus.Projections.Snapshotting
 {
     public interface ISnapshotStrategy
     {
-        TimeSpan SnapshotOffset { get; }
         int EventsInSnapshot { get; }
 
         int GetSnapshotMarker(IEnumerable<ProjectionCommit> commits, int lastSnapshotRevision);
