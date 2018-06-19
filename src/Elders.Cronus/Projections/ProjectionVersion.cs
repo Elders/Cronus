@@ -61,6 +61,19 @@ namespace Elders.Cronus.Projections
             return Revision.GetHashCode() ^ ProjectionName.GetHashCode() ^ Hash.GetHashCode();
         }
 
+        public static bool operator ==(ProjectionVersion left, ProjectionVersion right)
+        {
+            if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
+            if (ReferenceEquals(null, right)) throw new ArgumentNullException(nameof(right));
+
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ProjectionVersion left, ProjectionVersion right)
+        {
+            return !(left == right);
+        }
+
         public static bool operator >(ProjectionVersion left, ProjectionVersion right)
         {
             if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
