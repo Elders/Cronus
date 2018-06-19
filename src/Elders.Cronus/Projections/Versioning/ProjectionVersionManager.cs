@@ -96,6 +96,12 @@ namespace Elders.Cronus.Projections.Versioning
             return state.Versions.Where(x => x == version).Any();
         }
 
+        /// <summary>
+        /// When the same hash is requested multiple times for a Live hash we just make sure that the timeboxes are placed one after another
+        /// In every other case we issue a timebox with immediate execution
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
         private VersionRequestTimebox GetVersionRequestTimebox(string hash)
         {
             ProjectionVersion live = state.Versions.GetLive();
