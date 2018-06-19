@@ -35,8 +35,14 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void VersionRequestTimedout(ProjectionVersion version, VersionRequestTimebox timebox)
         {
-            var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
-            Apply(@event);
+            var foundVersion = state.Versions.Where(ver => ver == version).SingleOrDefault();
+            if (ReferenceEquals(null, foundVersion)) return; // Should we do something about this? It is a not expected and should never happen!!!
+
+            if (foundVersion.Status == ProjectionStatus.Building)
+            {
+                var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
+                Apply(@event);
+            }
         }
 
         public void NotifyHash(string hash)
