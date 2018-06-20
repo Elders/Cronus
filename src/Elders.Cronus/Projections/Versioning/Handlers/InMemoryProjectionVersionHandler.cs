@@ -12,7 +12,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(ProjectionVersionRequestCanceled @event)
         {
-            ProjectionVersionStore.Cache(@event.ProjectionVersion);
+            ProjectionVersionStore.Cache(@event.Version);
         }
 
         public void Handle(ProjectionVersionRequested @event)

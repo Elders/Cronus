@@ -8,11 +8,11 @@ namespace Elders.Cronus.Projections.Versioning
     {
         ProjectionVersionRequestCanceled() { }
 
-        public ProjectionVersionRequestCanceled(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, string reason)
+        public ProjectionVersionRequestCanceled(ProjectionVersionManagerId id, ProjectionVersion version, string reason)
         {
             Id = id;
             Timestamp = DateTime.UtcNow.ToFileTimeUtc();
-            ProjectionVersion = projectionVersion;
+            Version = version;
             Reason = reason;
         }
 
@@ -20,7 +20,7 @@ namespace Elders.Cronus.Projections.Versioning
         public ProjectionVersionManagerId Id { get; private set; }
 
         [DataMember(Order = 2)]
-        public ProjectionVersion ProjectionVersion { get; private set; }
+        public ProjectionVersion Version { get; private set; }
 
         [DataMember(Order = 3)]
         public long Timestamp { get; private set; }

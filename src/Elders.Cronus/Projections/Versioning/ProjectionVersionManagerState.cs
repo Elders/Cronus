@@ -36,7 +36,7 @@ namespace Elders.Cronus.Projections.Versioning
         public void When(ProjectionVersionRequestCanceled e)
         {
             Id = e.Id;
-            Versions.Add(e.ProjectionVersion);
+            Versions.Add(e.Version);
             LastVersionRequestTimebox = LastVersionRequestTimebox.Reset();
         }
 
