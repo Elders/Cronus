@@ -1,3 +1,6 @@
+#### 5.0.0-beta0020 - 21.06.2018
+* Do not return snapshots for projections with `IAmNotSnapshotable`
+
 #### 5.0.0-beta0019 - 20.06.2018
 * Adds `ProjectionVersionsHandler` which tracks all versions of a projection including full history
 

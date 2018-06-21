@@ -63,8 +63,14 @@ namespace Elders.Cronus.Projections
 
         public static bool operator ==(ProjectionVersion left, ProjectionVersion right)
         {
-            if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
-            if (ReferenceEquals(null, right)) throw new ArgumentNullException(nameof(right));
+            if (ReferenceEquals(null, left) && ReferenceEquals(null, right))
+                return true;
+
+            if (ReferenceEquals(null, left))
+                return false;
+
+            if (ReferenceEquals(null, right))
+                return false;
 
             return left.Equals(right);
         }

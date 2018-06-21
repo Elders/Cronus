@@ -43,19 +43,23 @@ namespace Elders.Cronus.Projections
                 projectionCommits.AddRange(loadedCommits);
 
                 bool isSnapshotable = typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
-                if (isSnapshotable && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshotMeta.Revision))
+                if (isSnapshotable)
                 {
+                    if (snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshotMeta.Revision))
+                    {
+                        ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
+                        var projectionState = checkpointStream.RestoreFromHistory(projectionType).Projection.State;
+                        ISnapshot newSnapshot = new Snapshot(projectionId, projectionName, projectionState, snapshotMeta.Revision + 1);
+                        snapshotStore.Save(newSnapshot, projectionVersion);
+                        loadSnapshot = () => newSnapshot;
 
-                    ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
-                    var projectionState = checkpointStream.RestoreFromHistory(projectionType).Projection.State;
-                    ISnapshot newSnapshot = new Snapshot(projectionId, projectionName, projectionState, snapshotMeta.Revision + 1);
-                    snapshotStore.Save(newSnapshot, projectionVersion);
-                    loadSnapshot = () => newSnapshot;
+                        projectionCommits.Clear();
 
-                    projectionCommits.Clear();
-
-                    log.Debug(() => $"Snapshot created for projection `{projectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{newSnapshot.GetType().Name}`");
+                        log.Debug(() => $"Snapshot created for projection `{projectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{newSnapshot.GetType().Name}`");
+                    }
                 }
+                else
+                    loadSnapshot = () => new NoSnapshot(projectionId, projectionName);
 
                 if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
                     break;
@@ -139,7 +143,13 @@ namespace Elders.Cronus.Projections
                     return ProjectionStream.Empty();
                 }
 
-                ISnapshot snapshot = snapshotStore.Load(projectionName, projectionId, liveVersion);
+                ISnapshot snapshot = null;
+                bool isSnapshotable = typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
+                if (isSnapshotable)
+                    snapshot = snapshotStore.Load(projectionName, projectionId, liveVersion);
+                else
+                    snapshot = new NoSnapshot(projectionId, projectionName);
+
                 ProjectionStream stream = LoadProjectionStream(projectionType, liveVersion, projectionId, snapshot);
 
                 return stream;
