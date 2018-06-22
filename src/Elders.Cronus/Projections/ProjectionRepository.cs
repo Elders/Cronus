@@ -41,8 +41,7 @@ namespace Elders.Cronus.Projections
                 var loadedCommits = projectionStore.Load(version, projectionId, snapshotMarker).ToList();
                 projectionCommits.AddRange(loadedCommits);
 
-                bool isSnapshotable = typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
-                if (isSnapshotable)
+                if (projectionType.IsSnapshotable())
                 {
                     if (snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshotMeta.Revision))
                     {
@@ -85,10 +84,8 @@ namespace Elders.Cronus.Projections
                 var loadedCommits = projectionStore.Load(version, projectionId, snapshotMarker).ToList();
                 projectionCommits.AddRange(loadedCommits);
 
-                bool isSnapshotable = typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
-                if (isSnapshotable && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshot.Revision))
+                if (projectionType.IsSnapshotable() && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshot.Revision))
                 {
-
                     ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
                     var projectionState = checkpointStream.RestoreFromHistory(projectionType).Projection.State;
                     ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshot.Revision + 1);
@@ -276,6 +273,14 @@ namespace Elders.Cronus.Projections
             IEvent @event = cronusMessage.Payload as IEvent;
 
             Save(projectionType, @event, eventOrigin);
+        }
+    }
+
+    public static class ProjectionExtensions
+    {
+        public static bool IsSnapshotable(this Type projectionType)
+        {
+            return typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
         }
     }
 }
