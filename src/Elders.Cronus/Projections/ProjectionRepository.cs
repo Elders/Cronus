@@ -274,12 +274,4 @@ namespace Elders.Cronus.Projections
             Save(projectionType, @event, eventOrigin);
         }
     }
-
-    public static class ProjectionExtensions
-    {
-        public static bool IsSnapshotable(this Type projectionType)
-        {
-            return typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
-        }
-    }
 }
