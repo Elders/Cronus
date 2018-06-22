@@ -29,17 +29,16 @@ namespace Elders.Cronus.Projections
             this.inMemoryVersionStore = inMemoryVersionStore;
         }
 
-        ProjectionStream LoadProjectionStream(Type projectionType, ProjectionVersion projectionVersion, IBlobId projectionId, SnapshotMeta snapshotMeta)
+        ProjectionStream LoadProjectionStream(Type projectionType, ProjectionVersion version, IBlobId projectionId, SnapshotMeta snapshotMeta)
         {
-            string projectionName = projectionVersion.ProjectionName;
-            Func<ISnapshot> loadSnapshot = () => snapshotStore.Load(projectionName, projectionId, projectionVersion);
+            Func<ISnapshot> loadSnapshot = () => snapshotStore.Load(version.ProjectionName, projectionId, version);
 
             List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
             int snapshotMarker = snapshotMeta.Revision;
             while (true)
             {
                 snapshotMarker++;
-                var loadedCommits = projectionStore.Load(projectionVersion, projectionId, snapshotMarker).ToList();
+                var loadedCommits = projectionStore.Load(version, projectionId, snapshotMarker).ToList();
                 projectionCommits.AddRange(loadedCommits);
 
                 bool isSnapshotable = typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
@@ -49,22 +48,22 @@ namespace Elders.Cronus.Projections
                     {
                         ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
                         var projectionState = checkpointStream.RestoreFromHistory(projectionType).Projection.State;
-                        ISnapshot newSnapshot = new Snapshot(projectionId, projectionName, projectionState, snapshotMeta.Revision + 1);
-                        snapshotStore.Save(newSnapshot, projectionVersion);
+                        ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshotMeta.Revision + 1);
+                        snapshotStore.Save(newSnapshot, version);
                         loadSnapshot = () => newSnapshot;
 
                         projectionCommits.Clear();
 
-                        log.Debug(() => $"Snapshot created for projection `{projectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{newSnapshot.GetType().Name}`");
+                        log.Debug(() => $"Snapshot created for projection `{version.ProjectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{newSnapshot.GetType().Name}`");
                     }
                 }
                 else
-                    loadSnapshot = () => new NoSnapshot(projectionId, projectionName);
+                    loadSnapshot = () => new NoSnapshot(projectionId, version.ProjectionName);
 
                 if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
                     break;
                 else
-                    log.Warn($"Potential memory leak. The system will be down fairly soon. The projection `{projectionName}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
+                    log.Warn($"Potential memory leak. The system will be down fairly soon. The projection `{version.ProjectionName}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
             }
 
             ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
@@ -74,9 +73,8 @@ namespace Elders.Cronus.Projections
         /// <summary>
         /// You can remove this once c# 8 is released with Traits.
         /// </summary>
-        ProjectionStream LoadProjectionStream(Type projectionType, ProjectionVersion projectionVersion, IBlobId projectionId, ISnapshot snapshot)
+        ProjectionStream LoadProjectionStream(Type projectionType, ProjectionVersion version, IBlobId projectionId, ISnapshot snapshot)
         {
-            string projectionName = projectionVersion.ProjectionName;
             Func<ISnapshot> loadSnapshot = () => snapshot;
 
             List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
@@ -84,7 +82,7 @@ namespace Elders.Cronus.Projections
             while (true)
             {
                 snapshotMarker++;
-                var loadedCommits = projectionStore.Load(projectionVersion, projectionId, snapshotMarker).ToList();
+                var loadedCommits = projectionStore.Load(version, projectionId, snapshotMarker).ToList();
                 projectionCommits.AddRange(loadedCommits);
 
                 bool isSnapshotable = typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
@@ -93,19 +91,19 @@ namespace Elders.Cronus.Projections
 
                     ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
                     var projectionState = checkpointStream.RestoreFromHistory(projectionType).Projection.State;
-                    ISnapshot newSnapshot = new Snapshot(projectionId, projectionName, projectionState, snapshot.Revision + 1);
-                    snapshotStore.Save(newSnapshot, projectionVersion);
+                    ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshot.Revision + 1);
+                    snapshotStore.Save(newSnapshot, version);
                     loadSnapshot = () => newSnapshot;
 
                     projectionCommits.Clear();
 
-                    log.Debug(() => $"Snapshot created for projection `{projectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{snapshot.GetType().Name}`");
+                    log.Debug(() => $"Snapshot created for projection `{version.ProjectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{snapshot.GetType().Name}`");
                 }
 
                 if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
                     break;
                 else
-                    log.Warn($"Potential memory leak. The system will be down fairly soon. The projection `{projectionName}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) and snapshot `{snapshot.GetType().Name}` which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
+                    log.Warn($"Potential memory leak. The system will be down fairly soon. The projection `{version.ProjectionName}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) and snapshot `{snapshot.GetType().Name}` which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
             }
 
             ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
