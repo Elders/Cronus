@@ -139,8 +139,7 @@ namespace Elders.Cronus.Projections
                 }
 
                 ISnapshot snapshot = null;
-                bool isSnapshotable = typeof(IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
-                if (isSnapshotable)
+                if (projectionType.IsSnapshotable())
                     snapshot = snapshotStore.Load(projectionName, projectionId, liveVersion);
                 else
                     snapshot = new NoSnapshot(projectionId, projectionName);
