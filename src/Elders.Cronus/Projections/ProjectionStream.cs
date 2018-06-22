@@ -48,7 +48,7 @@ namespace Elders.Cronus.Projections
         {
             if (commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return ProjectionGetResult<T>.NoResult;
 
-            T projection = (T)Activator.CreateInstance(typeof(T), true);
+            T projection = (T)FastActivator.CreateInstance(typeof(T), true);
             return RestoreFromHistoryMamamia<T>(projection);
         }
 
