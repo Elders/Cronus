@@ -134,7 +134,7 @@ namespace Elders.Cronus.Projections
                 ProjectionVersion liveVersion = GetProjectionVersions(projectionName).GetLive();
                 if (ReferenceEquals(null, liveVersion))
                 {
-                    log.Warn(() => $"Unable to find `live` version for projection with contract id {projectionName} and name {projectionType.Name}");
+                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}");
                     return ProjectionStream.Empty();
                 }
 
@@ -150,7 +150,7 @@ namespace Elders.Cronus.Projections
             }
             catch (Exception ex)
             {
-                log.ErrorException($"Unable to load projection stream. ProjectionId:{projectionId} ProjectionContractId:{projectionName} ProjectionName:{projectionType.Name}", ex);
+                log.ErrorException($"Unable to load projection stream. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}", ex);
                 return ProjectionStream.Empty();
             }
         }
@@ -166,34 +166,34 @@ namespace Elders.Cronus.Projections
             return queryResult;
         }
 
-        ProjectionVersions GetProjectionVersions(string contractId)
+        ProjectionVersions GetProjectionVersions(string projectionName)
         {
             try
             {
-                if (string.IsNullOrEmpty(contractId)) throw new ArgumentNullException(nameof(contractId));
+                if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
 
                 var persistentVersionContractId = typeof(PersistentProjectionVersionHandler).GetContractId();
-                if (string.Equals(persistentVersionContractId, contractId, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(persistentVersionContractId, projectionName, StringComparison.OrdinalIgnoreCase))
                     return GetPersistentProjectionVersions(persistentVersionContractId);
 
-                ProjectionVersions versions = inMemoryVersionStore.Get(contractId);
+                ProjectionVersions versions = inMemoryVersionStore.Get(projectionName);
                 if (versions == null || versions.Count == 0)
                 {
-                    var queryResult = GetProjectionVersionsFromStore(contractId);
+                    var queryResult = GetProjectionVersionsFromStore(projectionName);
                     if (queryResult.Success)
                     {
                         if (queryResult.Projection.State.Live != null)
                             inMemoryVersionStore.Cache(queryResult.Projection.State.Live);
                         if (queryResult.Projection.State.Building != null)
                             inMemoryVersionStore.Cache(queryResult.Projection.State.Building);
-                        versions = inMemoryVersionStore.Get(contractId);
+                        versions = inMemoryVersionStore.Get(projectionName);
                     }
 
                     if (versions == null || versions.Count == 0)
                     {
-                        var initialVersion = new ProjectionVersion(contractId, ProjectionStatus.Building, 1, contractId.GetTypeByContract().GetProjectionHash());
+                        var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Building, 1, projectionName.GetTypeByContract().GetProjectionHash());
                         inMemoryVersionStore.Cache(initialVersion);
-                        versions = inMemoryVersionStore.Get(contractId);
+                        versions = inMemoryVersionStore.Get(projectionName);
                     }
                 }
 
@@ -201,35 +201,35 @@ namespace Elders.Cronus.Projections
             }
             catch (Exception ex)
             {
-                log.WarnException($"Unable to load projection versions. ProjectionContractId:{contractId}", ex);
+                log.WarnException($"Unable to load projection versions. ProjectionName:{projectionName}", ex);
                 return new ProjectionVersions();
             }
         }
 
-        ProjectionVersions GetPersistentProjectionVersions(string contractId)
+        ProjectionVersions GetPersistentProjectionVersions(string projectionName)
         {
-            if (string.IsNullOrEmpty(contractId)) throw new ArgumentNullException(nameof(contractId));
+            if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
 
-            ProjectionVersions versions = inMemoryVersionStore.Get(contractId);
+            ProjectionVersions versions = inMemoryVersionStore.Get(projectionName);
             if (versions == null || versions.Count == 0)
             {
-                var queryResult = GetProjectionVersionsFromStore(contractId);
+                var queryResult = GetProjectionVersionsFromStore(projectionName);
                 if (queryResult.Success)
                 {
                     if (queryResult.Projection.State.Live != null)
                         inMemoryVersionStore.Cache(queryResult.Projection.State.Live);
                     if (queryResult.Projection.State.Building != null)
                         inMemoryVersionStore.Cache(queryResult.Projection.State.Building.WithStatus(ProjectionStatus.Live));
-                    versions = inMemoryVersionStore.Get(contractId);
+                    versions = inMemoryVersionStore.Get(projectionName);
                 }
 
                 // inception
                 if (versions == null || versions.Count == 0)
                 {
-                    var initialVersion = new ProjectionVersion(contractId, ProjectionStatus.Live, 1, typeof(PersistentProjectionVersionHandler).GetProjectionHash());
+                    var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Live, 1, typeof(PersistentProjectionVersionHandler).GetProjectionHash());
 
                     inMemoryVersionStore.Cache(initialVersion);
-                    versions = inMemoryVersionStore.Get(contractId);
+                    versions = inMemoryVersionStore.Get(projectionName);
                 }
             }
 
