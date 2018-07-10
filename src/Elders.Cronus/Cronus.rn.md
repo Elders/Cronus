@@ -1,3 +1,6 @@
+#### 5.0.0-beta0021 - 10.07.2018
+* Force rebuild projection
+
 #### 5.0.0-beta0020 - 21.06.2018
 * Do not return snapshots for projections with `IAmNotSnapshotable`
 

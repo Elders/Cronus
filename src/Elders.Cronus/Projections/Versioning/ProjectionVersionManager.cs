@@ -23,7 +23,7 @@ namespace Elders.Cronus.Projections.Versioning
             }
         }
 
-        public void Replay(string hash)
+        public void Replay(string hash) // maybe rename to Rebuild
         {
             if (CanReplayHash(hash))
             {

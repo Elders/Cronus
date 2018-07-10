@@ -2,6 +2,7 @@
 {
     public class ProjectionVersionManagerAppService : AggregateRootApplicationService<ProjectionVersionManager>, ISystemService,
         ICommandHandler<RegisterProjection>,
+        ICommandHandler<RebuildProjection>,
         ICommandHandler<FinalizeProjectionVersionRequest>,
         ICommandHandler<CancelProjectionVersionRequest>,
         ICommandHandler<TimeoutProjectionVersionRequest>
@@ -19,6 +20,11 @@
             }
 
             Repository.Save(ar);
+        }
+
+        public void Handle(RebuildProjection command)
+        {
+            Update(command.Id, ar => ar.Replay(command.Hash));
         }
 
         public void Handle(FinalizeProjectionVersionRequest command)

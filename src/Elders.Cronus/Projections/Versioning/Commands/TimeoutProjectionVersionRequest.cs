@@ -23,5 +23,4 @@ namespace Elders.Cronus.Projections.Versioning
         [DataMember(Order = 3)]
         public VersionRequestTimebox Timebox { get; private set; }
     }
-
 }
