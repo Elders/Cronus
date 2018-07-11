@@ -22,7 +22,7 @@
 
         public SnapshotMeta LoadMeta(string projectionName, IBlobId id, ProjectionVersion version)
         {
-            return new SnapshotMeta(0, projectionName);
+            return new NoSnapshot(id, projectionName).GetMeta();
         }
 
         public void Save(ISnapshot snapshot, ProjectionVersion version) { }
