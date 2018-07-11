@@ -155,14 +155,14 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        IProjectionGetResult<PersistentProjectionVersionHandler> GetProjectionVersionsFromStore(string contractId)
+        IProjectionGetResult<ProjectionVersionsHandler> GetProjectionVersionsFromStore(string projectionName)
         {
-            var versionId = new ProjectionVersionManagerId(contractId);
-            var persistentVersionType = typeof(PersistentProjectionVersionHandler);
+            var versionId = new ProjectionVersionManagerId(projectionName);
+            var persistentVersionType = typeof(ProjectionVersionsHandler);
             var persistentVersionContractId = persistentVersionType.GetContractId();
             var persistentVersion = new ProjectionVersion(persistentVersionContractId, ProjectionStatus.Live, 1, persistentVersionType.GetProjectionHash());
-            ProjectionStream stream = LoadProjectionStream(persistentVersionType, persistentVersion, versionId, new NoSnapshot(versionId, contractId).GetMeta());
-            var queryResult = stream.RestoreFromHistory<PersistentProjectionVersionHandler>();
+            ProjectionStream stream = LoadProjectionStream(persistentVersionType, persistentVersion, versionId, new NoSnapshot(versionId, projectionName).GetMeta());
+            var queryResult = stream.RestoreFromHistory<ProjectionVersionsHandler>();
             return queryResult;
         }
 
@@ -172,7 +172,7 @@ namespace Elders.Cronus.Projections
             {
                 if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
 
-                var persistentVersionContractId = typeof(PersistentProjectionVersionHandler).GetContractId();
+                var persistentVersionContractId = typeof(ProjectionVersionsHandler).GetContractId();
                 if (string.Equals(persistentVersionContractId, projectionName, StringComparison.OrdinalIgnoreCase))
                     return GetPersistentProjectionVersions(persistentVersionContractId);
 
@@ -184,8 +184,10 @@ namespace Elders.Cronus.Projections
                     {
                         if (queryResult.Projection.State.Live != null)
                             inMemoryVersionStore.Cache(queryResult.Projection.State.Live);
-                        if (queryResult.Projection.State.Building != null)
-                            inMemoryVersionStore.Cache(queryResult.Projection.State.Building);
+                        foreach (var buildingVersion in queryResult.Projection.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
+                        {
+                            inMemoryVersionStore.Cache(buildingVersion);
+                        }
                         versions = inMemoryVersionStore.Get(projectionName);
                     }
 
@@ -218,15 +220,17 @@ namespace Elders.Cronus.Projections
                 {
                     if (queryResult.Projection.State.Live != null)
                         inMemoryVersionStore.Cache(queryResult.Projection.State.Live);
-                    if (queryResult.Projection.State.Building != null)
-                        inMemoryVersionStore.Cache(queryResult.Projection.State.Building.WithStatus(ProjectionStatus.Live));
+                    foreach (var buildingVersion in queryResult.Projection.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
+                    {
+                        inMemoryVersionStore.Cache(buildingVersion.WithStatus(ProjectionStatus.Live));
+                    }
                     versions = inMemoryVersionStore.Get(projectionName);
                 }
 
                 // inception
                 if (versions == null || versions.Count == 0)
                 {
-                    var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Live, 1, typeof(PersistentProjectionVersionHandler).GetProjectionHash());
+                    var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Live, 1, typeof(ProjectionVersionsHandler).GetProjectionHash());
 
                     inMemoryVersionStore.Cache(initialVersion);
                     versions = inMemoryVersionStore.Get(projectionName);
