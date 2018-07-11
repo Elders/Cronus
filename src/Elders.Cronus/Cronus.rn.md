@@ -1,3 +1,6 @@
+#### 5.0.0-beta0024 - 11.07.2018
+* Persist index building status
+
 #### 5.0.0-beta0023 - 11.07.2018
 * Logs an error message when an event could not be persisted in projection store for specific projection version. Other projection versions are not interrupted.
 
