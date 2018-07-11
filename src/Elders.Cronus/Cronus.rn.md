@@ -1,3 +1,6 @@
+#### 5.0.0-beta0023 - 11.07.2018
+* Logs an error message when an event could not be persisted in projection store for specific projection version. Other projection versions are not interrupted.
+
 #### 5.0.0-beta0022 - 11.07.2018
 * Projection versions are not requested for rebuild if there are other versions already scheduled
 * The snapshotStore is not queried anymore if the projection is not snapshotable
