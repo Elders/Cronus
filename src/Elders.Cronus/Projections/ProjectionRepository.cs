@@ -252,7 +252,11 @@ namespace Elders.Cronus.Projections
                 {
                     foreach (var version in GetProjectionVersions(projectionName))
                     {
-                        SnapshotMeta snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
+                        SnapshotMeta snapshotMeta = null;
+                        if (projectionType.IsSnapshotable())
+                            snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
+                        else
+                            snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
                         ProjectionStream projectionStream = LoadProjectionStream(projectionType, version, projectionId, snapshotMeta);
                         int snapshotMarker = snapshotStrategy.GetSnapshotMarker(projectionStream.Commits, snapshotMeta.Revision);
 
