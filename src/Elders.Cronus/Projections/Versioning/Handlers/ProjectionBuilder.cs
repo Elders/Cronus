@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -9,6 +10,8 @@ namespace Elders.Cronus.Projections.Versioning
         ISagaTimeoutHandler<RebuildProjectionVersion>,
         ISagaTimeoutHandler<ProjectionVersionRebuildTimedout>
     {
+        static ILog log = LogProvider.GetLogger(typeof(ProjectionBuilder));
+
         public ProjectionPlayer Player { get; set; }
 
         public void Handle(ProjectionVersionRequested @event)
@@ -43,8 +46,16 @@ namespace Elders.Cronus.Projections.Versioning
                 }
                 else
                 {
-                    var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, replayResult.Error);
-                    CommandPublisher.Publish(cancel);
+                    log.Error(() => replayResult.Error);
+                    if (replayResult.IsTimeout)
+                    {
+                        var timedout = new TimeoutProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox);
+                        CommandPublisher.Publish(timedout);
+                    }
+                    {
+                        var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, replayResult.Error);
+                        CommandPublisher.Publish(cancel);
+                    }
                 }
             }
         }
