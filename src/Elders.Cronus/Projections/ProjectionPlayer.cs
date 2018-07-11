@@ -141,19 +141,24 @@ namespace Elders.Cronus.Projections
             if (indexIsPresent)
                 log.Info(() => "Index is present");
             else
-                log.Info(() => "Index is NOT present");
+                log.Info(() => "Index is not present");
 
             return indexIsPresent;
         }
 
         public bool RebuildIndex()
         {
+            var indexBuilder = index.GetIndexBuilder();
+
             if (isBuilding == false)
             {
                 lock (playerSync)
                 {
                     if (isBuilding == false)
+                    {
                         isBuilding = true;
+                        indexBuilder.Prepare();
+                    }
                     else
                     {
                         log.Debug(() => "Index is currently built by someone");
@@ -170,7 +175,7 @@ namespace Elders.Cronus.Projections
             try
             {
                 log.Info(() => "Start rebuilding index...");
-                var indexBuilder = index.GetIndexBuilder();
+
                 var eventStorePlayers = eventStoreFactory.GetEventStorePlayers();
 
                 var eventsCounter = 0;

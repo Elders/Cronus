@@ -56,7 +56,7 @@ namespace Elders.Cronus.Projections.Versioning
         {
             try
             {
-                var state = internalStore.Load<IndexState>(StateId);
+                var state = internalStore.Load<IndexState>(StateId, currentHash);
                 if (state == null)
                     return IndexState.NotPresent;
                 else
@@ -69,7 +69,7 @@ namespace Elders.Cronus.Projections.Versioning
         }
         public IndexBuilder GetIndexBuilder()
         {
-            return new IndexBuilder(Version, store, internalStore);
+            return new IndexBuilder(Version, store, internalStore, currentHash);
         }
 
         public class IndexBuilder
@@ -77,12 +77,19 @@ namespace Elders.Cronus.Projections.Versioning
             private readonly ProjectionVersion indexVersion;
             private readonly IProjectionStore store;
             private readonly ICornusInternalStore internalStore;
+            private readonly string indexHash;
 
-            public IndexBuilder(ProjectionVersion indexVersion, IProjectionStore store, ICornusInternalStore internalStore)
+            public IndexBuilder(ProjectionVersion indexVersion, IProjectionStore store, ICornusInternalStore internalStore, string indexHash)
             {
                 this.indexVersion = indexVersion;
                 this.store = store;
                 this.internalStore = internalStore;
+                this.indexHash = indexHash;
+            }
+
+            public void Prepare()
+            {
+                internalStore.Save(StateId, IndexState.Building, indexHash);
             }
 
             public void Feed(IEvent @event, EventOrigin origin)
@@ -94,7 +101,7 @@ namespace Elders.Cronus.Projections.Versioning
 
             public void Complete()
             {
-                internalStore.Save(StateId, IndexState.Present);
+                internalStore.Save(StateId, IndexState.Present, indexHash);
             }
         }
     }
@@ -114,10 +121,17 @@ namespace Elders.Cronus.Projections.Versioning
             return this.status == Present.status;
         }
 
+        public bool IsBuilding()
+        {
+            return this.status == Building.status;
+        }
+
         [DataMember(Order = 1)]
         string status;
 
         public static IndexState NotPresent = new IndexState("notpresent");
+
+        public static IndexState Building = new IndexState("building");
 
         public static IndexState Present = new IndexState("present");
     }
@@ -125,8 +139,8 @@ namespace Elders.Cronus.Projections.Versioning
 
     public interface ICornusInternalStore
     {
-        void Save<T>(string id, T state);
-        T Load<T>(string id);
+        void Save<T>(string id, T state, string hash);
+        T Load<T>(string id, string hash);
     }
 
     public class StupidProjectionStore : ICornusInternalStore
@@ -137,18 +151,18 @@ namespace Elders.Cronus.Projections.Versioning
         {
             this.store = store;
         }
-        public T Load<T>(string id)
+        public T Load<T>(string id, string hash)
         {
-            var version = new ProjectionVersion(typeof(T).GetContractId(), ProjectionStatus.Live, 1, "1");
+            var version = new ProjectionVersion(typeof(T).GetContractId(), ProjectionStatus.Live, 1, hash);
             var states = store.Load(version, new StupidId(id), 1);
             var lastState = states.OrderByDescending(x => x.TimeStamp).FirstOrDefault();
             return (T)((states.OrderByDescending(x => x.TimeStamp).FirstOrDefault()?.Event as StupidEvent)?.Payload);
         }
 
-        public void Save<T>(string id, T state)
+        public void Save<T>(string id, T state, string hash)
         {
             var origin = new EventOrigin("StupidProjectionStore", 1, 1, 1);
-            var version = new ProjectionVersion(state.GetType().GetContractId(), ProjectionStatus.Live, 1, "1");
+            var version = new ProjectionVersion(state.GetType().GetContractId(), ProjectionStatus.Live, 1, hash);
             var commit = new ProjectionCommit(new StupidId(id), version, new StupidEvent(state), 1, origin, DateTime.UtcNow);
             store.Save(commit);
         }
