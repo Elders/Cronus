@@ -1,3 +1,10 @@
+#### 5.0.0-beta0022 - 11.07.2018
+* Projection versions are not requested for rebuild if there are other versions already scheduled
+* The snapshotStore is not queried anymore if the projection is not snapshotable
+* When rebuilding a projection version and it times out the result which is returned has additional context to indicate that this is a timeout
+* Outdated version builds are being canceled
+* BREAKING: Replaces `PersistentProjectionVersionHandler` with `ProjectionVersionsHandler`
+
 #### 5.0.0-beta0021 - 10.07.2018
 * Force rebuild projection
 
