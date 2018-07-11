@@ -11,16 +11,19 @@ using Elders.Cronus.Projections.Versioning;
 
 namespace Elders.Cronus.Projections
 {
-    public class ReplayResult
+    public sealed class ReplayResult
     {
-        public ReplayResult(string error = null)
+        public ReplayResult(string error = null, bool isTimeOut = false)
         {
             Error = error;
+            IsTimeout = isTimeOut;
         }
 
         public string Error { get; private set; }
 
-        public bool IsSuccess { get { return string.IsNullOrEmpty(Error); } }
+        public bool IsSuccess { get { return string.IsNullOrEmpty(Error) && IsTimeout != true; } }
+
+        public bool IsTimeout { get; private set; }
     }
 
     public interface IProjectionPlayer { }
@@ -84,8 +87,7 @@ namespace Elders.Cronus.Projections
                         if (DateTime.UtcNow >= replayUntil)
                         {
                             string message = $"Rebuilding projection `{projectionType.Name}` takes longer than expected. PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.";
-                            log.Warn(() => message);
-                            //return new ReplayResult(message);
+                            return new ReplayResult(message, true);
                         }
 
                         if (processedAggregates.ContainsKey(indexCommit.EventOrigin.AggregateRootId.GetHashCode()))
