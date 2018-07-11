@@ -41,7 +41,7 @@ namespace Elders.Cronus.Projections
 
             if (version.Status != ProjectionStatus.Building)
             {
-                var versionInBuild = this.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault();
+                var versionInBuild = this.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault(); // searches for building version for the version hash
                 versions.Remove(versionInBuild);
 
                 if (version.Status != ProjectionStatus.Live)
