@@ -54,8 +54,14 @@ namespace Elders.Cronus.Projections
         public ReplayResult Rebuild(Type projectionType, ProjectionVersion version, DateTime replayUntil)
         {
             if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
+
             try
             {
+                if (IsVersionOutdated(version))
+                {
+                    return new ReplayResult($"Version `{version}` is outdated. There is a newer one which is already live.");
+                }
+
                 DateTime startRebuildTimestamp = DateTime.UtcNow;
                 int progressCounter = 0;
                 log.Info(() => $"Start rebuilding projection `{projectionType.Name}` for version {version}. Deadline is {replayUntil}");
@@ -241,6 +247,41 @@ namespace Elders.Cronus.Projections
             }
 
             throw new ArgumentException($"Invalid aggregate root id: {mess}", nameof(mess));
+        }
+
+        ProjectionVersions GetProjectionVersionsFromStore(ProjectionVersion version)
+        {
+            var versionId = new ProjectionVersionManagerId(version.ProjectionName);
+
+            var persistentVersionType = typeof(ProjectionVersionsHandler);
+            var projectionName = persistentVersionType.GetContractId();
+
+            var persistentVersion = new ProjectionVersion(projectionName, ProjectionStatus.Live, 1, persistentVersionType.GetProjectionHash());
+
+
+            List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
+
+            var loadedCommits = projectionStore.Load(persistentVersion, versionId, 1).ToList();
+            projectionCommits.AddRange(loadedCommits);
+
+            var snapshot = new NoSnapshot(versionId, projectionName);
+
+            ProjectionStream stream = new ProjectionStream(versionId, projectionCommits, () => snapshot);
+            var queryResult = stream.RestoreFromHistory<ProjectionVersionsHandler>();
+
+            if (queryResult.Success)
+                return queryResult.Projection.State.AllVersions;
+
+            return new ProjectionVersions();
+        }
+
+        bool IsVersionOutdated(ProjectionVersion version)
+        {
+            ProjectionVersions versions = GetProjectionVersionsFromStore(version);
+            ProjectionVersion liveVersion = versions.GetLive();
+            if (ReferenceEquals(null, liveVersion)) return false;
+
+            return liveVersion > version;
         }
     }
 }
