@@ -254,18 +254,28 @@ namespace Elders.Cronus.Projections
 
                 foreach (var projectionId in projectionIds)
                 {
-                    foreach (var version in GetProjectionVersions(projectionName))
+                    foreach (ProjectionVersion version in GetProjectionVersions(projectionName))
                     {
-                        SnapshotMeta snapshotMeta = null;
-                        if (projectionType.IsSnapshotable())
-                            snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
-                        else
-                            snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
-                        ProjectionStream projectionStream = LoadProjectionStream(projectionType, version, projectionId, snapshotMeta);
-                        int snapshotMarker = snapshotStrategy.GetSnapshotMarker(projectionStream.Commits, snapshotMeta.Revision);
+                        if (version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Live)
+                        {
+                            try
+                            {
+                                SnapshotMeta snapshotMeta = null;
+                                if (projectionType.IsSnapshotable())
+                                    snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
+                                else
+                                    snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
+                                ProjectionStream projectionStream = LoadProjectionStream(projectionType, version, projectionId, snapshotMeta);
+                                int snapshotMarker = snapshotStrategy.GetSnapshotMarker(projectionStream.Commits, snapshotMeta.Revision);
 
-                        var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
-                        projectionStore.Save(commit);
+                                var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
+                                projectionStore.Save(commit);
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorException("Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}", ex);
+                            }
+                        }
                     }
                 }
             }
