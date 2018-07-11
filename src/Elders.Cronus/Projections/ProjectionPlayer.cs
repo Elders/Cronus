@@ -53,6 +53,7 @@ namespace Elders.Cronus.Projections
 
         public ReplayResult Rebuild(Type projectionType, ProjectionVersion version, DateTime replayUntil)
         {
+            if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
             try
             {
                 DateTime startRebuildTimestamp = DateTime.UtcNow;
