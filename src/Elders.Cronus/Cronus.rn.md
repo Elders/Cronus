@@ -1,3 +1,9 @@
+#### 5.0.0-beta0026 - 12.07.2018
+* Write events only for the specified version when rebuilding
+* Mark ProjectionVersionsHandler as a system projection with ISystemProjection
+* When rebuilding a projection version and it times out the result which is returned has additional context to indicate that this is a timeout
+* Improved logging for RebuildProjection command
+
 #### 5.0.0-beta0025 - 12.07.2018
 * Improved logging for rebuilding projections
 * Always use global registration of InMemoryProjectionVersionStore
