@@ -75,10 +75,11 @@ namespace Elders.Cronus.Projections.Versioning
             bool isHashUsedBefore = state.HashHistoryOfLiveVersions.Contains(hash);
             bool isHashTheLiveOne = IsHashTheLiveOne(hash);
             bool hasLiveVersion = ReferenceEquals(null, state.Versions.GetLive()) == false;
-            ProjectionVersion buildingVersion = state.Versions.Where(ver => ver.Status == ProjectionStatus.Building).FirstOrDefault();
-            bool hasPreviousRevisionsInBuildingStatus = ReferenceEquals(null, buildingVersion) == false;
+            ProjectionVersion buildingVersion = state.Versions.Where(ver => ver.Status == ProjectionStatus.Building).OrderByDescending(x => x.Revision).FirstOrDefault();
+            bool hasBuildingVersion = ReferenceEquals(null, buildingVersion) == false;
+            bool hasOutdatedBuildingVersion = hasLiveVersion && hasBuildingVersion && buildingVersion < state.Versions.GetLive();
 
-            return hasPreviousRevisionsInBuildingStatus == false && (hasLiveVersion == false || isHashUsedBefore == false || isHashTheLiveOne);
+            return hasOutdatedBuildingVersion == false && (hasLiveVersion == false || isHashUsedBefore == false || isHashTheLiveOne);
         }
 
         private bool IsHashTheLiveOne(string hash)
