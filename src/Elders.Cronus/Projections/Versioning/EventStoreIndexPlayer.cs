@@ -39,7 +39,7 @@ namespace Elders.Cronus.Projections.Versioning
                             var rootId = System.Text.Encoding.UTF8.GetString(aggregateCommit.AggregateRootId);
                             var eventOrigin = new EventOrigin(rootId, aggregateCommit.Revision, aggregateCommit.Events.IndexOf(@event), aggregateCommit.Timestamp);
 
-                            projectionRepository.Save(projectionType, @event, eventOrigin);
+                            projectionRepository.Save(projectionType, @event, eventOrigin, version);
                         }
                         catch (Exception ex)
                         {
