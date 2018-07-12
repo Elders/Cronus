@@ -291,5 +291,47 @@ namespace Elders.Cronus.Projections
 
             Save(projectionType, @event, eventOrigin);
         }
+
+        public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
+        {
+            if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
+            if (ReferenceEquals(null, @event)) throw new ArgumentNullException(nameof(@event));
+            if (ReferenceEquals(null, eventOrigin)) throw new ArgumentNullException(nameof(eventOrigin));
+            if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
+
+            if ((version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Live) == false)
+                throw new ArgumentException("Invalid version. Only versions in `Building` and `Live` status are eligable for persistence.", nameof(version));
+
+            string projectionName = projectionType.GetContractId();
+            if (projectionName.Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
+                throw new ArgumentException($"Invalid version. The version `{version}` does not match projection `{projectionName}`", nameof(version));
+
+            var projection = FastActivator.CreateInstance(projectionType) as IProjectionDefinition;
+            if (projection != null)
+            {
+                var projectionIds = projection.GetProjectionIds(@event);
+
+                foreach (var projectionId in projectionIds)
+                {
+                    try
+                    {
+                        SnapshotMeta snapshotMeta = null;
+                        if (projectionType.IsSnapshotable())
+                            snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
+                        else
+                            snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
+                        ProjectionStream projectionStream = LoadProjectionStream(projectionType, version, projectionId, snapshotMeta);
+                        int snapshotMarker = snapshotStrategy.GetSnapshotMarker(projectionStream.Commits, snapshotMeta.Revision);
+
+                        var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
+                        projectionStore.Save(commit);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorException("Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}", ex);
+                    }
+                }
+            }
+        }
     }
 }

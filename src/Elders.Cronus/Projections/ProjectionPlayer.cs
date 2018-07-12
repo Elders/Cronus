@@ -115,7 +115,7 @@ namespace Elders.Cronus.Projections
                                 if (projectionEventTypes.Contains(theEvent.GetType().GetContractId()))
                                 {
                                     var origin = new EventOrigin(Convert.ToBase64String(arCommit.AggregateRootId), arCommit.Revision, i, arCommit.Timestamp);
-                                    projectionRepository.Save(projectionType, theEvent, origin); // overwrite
+                                    projectionRepository.Save(projectionType, theEvent, origin, version);
                                 }
                             }
                         }
