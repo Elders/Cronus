@@ -1,3 +1,8 @@
+#### 5.0.0-beta0025 - 12.07.2018
+* Improved logging for rebuilding projections
+* Always use global registration of InMemoryProjectionVersionStore
+* Projection versions are not requested for rebuild if there are other versions already scheduled
+
 #### 5.0.0-beta0024 - 11.07.2018
 * Persist index building status
 
