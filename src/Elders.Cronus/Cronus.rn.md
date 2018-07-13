@@ -1,3 +1,7 @@
+#### 5.0.0-beta0028 - 13.07.2018
+* Mark ProjectionVersionsHandler as a system projection with ISystemProjection. Apparently we need it
+* Register EventTypeIndexForProjections only if it hasn't been
+
 #### 5.0.0-beta0027 - 13.07.2018
 * Do not mark ProjectionVersionsHandler as a system projection. Strange things are happening
 * Improved logs for projection versioning
