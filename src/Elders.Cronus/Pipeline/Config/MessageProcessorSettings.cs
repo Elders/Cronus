@@ -113,7 +113,8 @@ namespace Elders.Cronus.Pipeline.Config
                 return indexSubscriber;
             };
 
-            builder.Container.RegisterSingleton<EventTypeIndexForProjections>(() => eventIndexForProjectionsFactory());
+            if (builder.Container.IsRegistered(typeof(EventTypeIndexForProjections)) == false)
+                builder.Container.RegisterSingleton<EventTypeIndexForProjections>(() => eventIndexForProjectionsFactory());
         }
     }
 
