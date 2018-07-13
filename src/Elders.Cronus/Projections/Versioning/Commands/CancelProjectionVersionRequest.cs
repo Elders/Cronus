@@ -22,6 +22,10 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 3)]
         public string Reason { get; private set; }
-    }
 
+        public override string ToString()
+        {
+            return $"Cancel projection rebuilding for version `{Version}`. {nameof(ProjectionVersionManagerId)}: `{Id}`. Reason: `{Reason}`.";
+        }
+    }
 }

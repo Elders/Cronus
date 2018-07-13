@@ -18,6 +18,10 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 2)]
         public ProjectionVersion Version { get; private set; }
-    }
 
+        public override string ToString()
+        {
+            return $"Finalize projection rebuilding for version '{Version}'. {nameof(ProjectionVersionManagerId)}: `{Id}`";
+        }
+    }
 }

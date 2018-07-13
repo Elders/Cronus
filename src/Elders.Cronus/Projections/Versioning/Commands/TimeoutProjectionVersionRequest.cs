@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -22,5 +23,10 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 3)]
         public VersionRequestTimebox Timebox { get; private set; }
+
+        public override string ToString()
+        {
+            return $"Timeout projection rebuilding for version `{Version}`. {Environment.NewLine}{nameof(ProjectionVersionManagerId)}: `{Id}`. {Environment.NewLine}Timebox: `{Timebox}`.";
+        }
     }
 }

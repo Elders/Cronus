@@ -27,5 +27,10 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 4)]
         public string Reason { get; private set; }
+
+        public override string ToString()
+        {
+            return $"Projection version request has been canceled for `{Version}`. {Environment.NewLine}{nameof(ProjectionVersionManagerId)}: `{Id}`.{Environment.NewLine}Timestamp: `{Timestamp}`.{Environment.NewLine}Reason: `{Reason}`.";
+        }
     }
 }

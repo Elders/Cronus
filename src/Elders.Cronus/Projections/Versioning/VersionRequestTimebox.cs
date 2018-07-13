@@ -57,7 +57,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public override string ToString()
         {
-            return $"Version request timebox: Starts at {RebuildStartAt}. Expires at {RebuildFinishUntil}";
+            return $"Version request timebox: Starts at `{RebuildStartAt}`. Expires at `{RebuildFinishUntil}`";
         }
     }
 }

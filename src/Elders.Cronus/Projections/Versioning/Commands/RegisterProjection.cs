@@ -21,8 +21,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public override string ToString()
         {
-            return $"Register projection `{Hash}`. ProjectionVersionManagerId: `{Id}`.";
+            return $"Register projection with `{Hash}`. {nameof(ProjectionVersionManagerId)}: `{Id}`.";
         }
     }
-
 }

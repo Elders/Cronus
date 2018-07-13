@@ -30,7 +30,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public override string ToString()
         {
-            return $"Projection version was request timedout. Version:{Version} Timebox:{Timebox}";
+            return $"Timeout projection version requested for `{Version}` with timebox `{Timebox}`";
         }
     }
 }

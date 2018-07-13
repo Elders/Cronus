@@ -26,8 +26,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public override string ToString()
         {
-            return $"New ProjectionVersion is now live since. {ProjectionVersion.ToString()}";
+            return $"New projection version `{ProjectionVersion}` is now live.";
         }
     }
-
 }
