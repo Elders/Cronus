@@ -1,3 +1,7 @@
+#### 5.0.0-beta0027 - 13.07.2018
+* Do not mark ProjectionVersionsHandler as a system projection. Strange things are happening
+* Improved logs for projection versioning
+
 #### 5.0.0-beta0026 - 12.07.2018
 * Write events only for the specified version when rebuilding
 * Mark ProjectionVersionsHandler as a system projection with ISystemProjection
