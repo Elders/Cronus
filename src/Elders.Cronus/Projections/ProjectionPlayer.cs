@@ -149,6 +149,7 @@ namespace Elders.Cronus.Projections
         public bool RebuildIndex()
         {
             var indexBuilder = index.GetIndexBuilder();
+            isBuilding = index.GetIndexState().IsBuilding();
 
             if (isBuilding == false)
             {
@@ -156,8 +157,8 @@ namespace Elders.Cronus.Projections
                 {
                     if (isBuilding == false)
                     {
-                        isBuilding = true;
                         indexBuilder.Prepare();
+                        isBuilding = true;
                     }
                     else
                     {
