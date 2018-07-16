@@ -3,13 +3,15 @@ using Elders.Cronus.Projections.Snapshotting;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Name = "ad755d78-4ecb-4930-837e-160effbfee14")]
+    [DataContract(Name = ContractId)]
     public class ProjectionVersionsHandler : ProjectionDefinition<ProjectionVersionsHandlerState, ProjectionVersionManagerId>, IAmNotSnapshotable, ISystemProjection,
         IEventHandler<ProjectionVersionRequested>,
         IEventHandler<NewProjectionVersionIsNowLive>,
         IEventHandler<ProjectionVersionRequestCanceled>,
         IEventHandler<ProjectionVersionRequestTimedout>
     {
+        public const string ContractId = "ad755d78-4ecb-4930-837e-160effbfee14";
+
         public ProjectionVersionsHandler()
         {
             Subscribe<ProjectionVersionRequested>(x => x.Id);
