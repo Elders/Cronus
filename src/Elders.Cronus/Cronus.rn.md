@@ -1,3 +1,8 @@
+#### 5.0.0-beta0032 - 16.07.2018
+* Cancel building projection version
+* IsOutdatad refactoring
+* Null checks
+
 #### 5.0.0-beta0031 - 16.07.2018
 * It is milliseconds, apparently.
 
