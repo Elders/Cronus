@@ -66,6 +66,7 @@ namespace Elders.Cronus.Projections
                 {
                     return new ReplayResult($"Version `{version}` was canceled.");
                 }
+
                 DateTime startRebuildTimestamp = DateTime.UtcNow;
                 int progressCounter = 0;
                 log.Info(() => $"Start rebuilding projection `{projectionType.Name}` for version {version}. Deadline is {replayUntil}");
@@ -288,10 +289,10 @@ namespace Elders.Cronus.Projections
         bool IsVersionOutdated(ProjectionVersion version)
         {
             ProjectionVersions versions = GetProjectionVersionsFromStore(version);
-            ProjectionVersion liveVersion = versions.GetLive();
-            if (ReferenceEquals(null, liveVersion)) return false;
 
-            return liveVersion > version;
+            return versions.IsOutdatad(version);
+        }
+
         bool IsCanceled(ProjectionVersion version)
         {
             ProjectionVersions versions = GetProjectionVersionsFromStore(version);
