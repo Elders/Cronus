@@ -13,9 +13,11 @@ namespace Elders.Cronus.Projections.Versioning
 
         const int EightHours = 28800000;
 
+        const int RealyLongTime = 24 * 60 * 60;
+
         VersionRequestTimebox() { }
 
-        public VersionRequestTimebox(DateTime rebuildStartAt) : this(rebuildStartAt, rebuildStartAt.AddMilliseconds(EightHours)) { }
+        public VersionRequestTimebox(DateTime rebuildStartAt) : this(rebuildStartAt, rebuildStartAt.AddMilliseconds(RealyLongTime)) { }
 
         public VersionRequestTimebox(DateTime rebuildStartAt, DateTime rebuildFinishUntil)
         {
