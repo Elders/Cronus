@@ -1,3 +1,8 @@
+#### 5.0.0-beta0030 - 16.07.2018
+* Delete redundant code
+* Renamed local variable
+* Check the persisted index state before rebuilding
+
 #### 5.0.0-beta0029 - 16.07.2018
 * Make sure ProjectionVersionsHandler will never be rebuilt
 * Increase the rebuild timebox to 24 hours
