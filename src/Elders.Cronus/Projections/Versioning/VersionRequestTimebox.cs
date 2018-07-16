@@ -13,7 +13,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         const int EightHours = 28800000;
 
-        const int RealyLongTime = 24 * 60 * 60;
+        const int RealyLongTime = 24 * 60 * 60 * 1000; // 24h
 
         VersionRequestTimebox() { }
 
