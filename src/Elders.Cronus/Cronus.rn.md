@@ -1,3 +1,7 @@
+#### 5.0.0-beta0029 - 16.07.2018
+* Make sure ProjectionVersionsHandler will never be rebuilt
+* Increase the rebuild timebox to 24 hours
+
 #### 5.0.0-beta0028 - 13.07.2018
 * Mark ProjectionVersionsHandler as a system projection with ISystemProjection. Apparently we need it
 * Register EventTypeIndexForProjections only if it hasn't been
