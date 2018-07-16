@@ -1,3 +1,6 @@
+#### 5.0.0-beta0031 - 16.07.2018
+* It is milliseconds, apparently.
+
 #### 5.0.0-beta0030 - 16.07.2018
 * Delete redundant code
 * Renamed local variable
