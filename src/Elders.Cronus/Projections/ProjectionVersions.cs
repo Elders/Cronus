@@ -23,6 +23,8 @@ namespace Elders.Cronus.Projections
 
         public void ValidateVersion(ProjectionVersion version)
         {
+            if (version is null) throw new ArgumentNullException(nameof(version));
+
             var existingVersion = this.FirstOrDefault();
             if (ReferenceEquals(null, existingVersion))
                 return;
@@ -97,6 +99,8 @@ namespace Elders.Cronus.Projections
 
         public bool Contains(ProjectionVersion item)
         {
+            if (item is null) throw new ArgumentNullException(nameof(item));
+
             return this.Contains(item);
         }
 
@@ -107,6 +111,8 @@ namespace Elders.Cronus.Projections
 
         public bool Remove(ProjectionVersion item)
         {
+            if (item is null) throw new ArgumentNullException(nameof(item));
+
             return versions.Remove(item);
         }
 
@@ -138,5 +144,4 @@ namespace Elders.Cronus.Projections
             return new HashSet<ProjectionVersion>(versions).GetEnumerator();
         }
     }
-
 }
