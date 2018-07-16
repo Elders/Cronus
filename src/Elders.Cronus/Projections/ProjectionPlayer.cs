@@ -62,6 +62,10 @@ namespace Elders.Cronus.Projections
                     return new ReplayResult($"Version `{version}` is outdated. There is a newer one which is already live.");
                 }
 
+                if (IsCanceled(version))
+                {
+                    return new ReplayResult($"Version `{version}` was canceled.");
+                }
                 DateTime startRebuildTimestamp = DateTime.UtcNow;
                 int progressCounter = 0;
                 log.Info(() => $"Start rebuilding projection `{projectionType.Name}` for version {version}. Deadline is {replayUntil}");
@@ -288,6 +292,11 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, liveVersion)) return false;
 
             return liveVersion > version;
+        bool IsCanceled(ProjectionVersion version)
+        {
+            ProjectionVersions versions = GetProjectionVersionsFromStore(version);
+
+            return versions.IsCanceled(version);
         }
     }
 }

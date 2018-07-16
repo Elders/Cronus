@@ -115,6 +115,13 @@ namespace Elders.Cronus.Projections
             return new HashSet<ProjectionVersion>(versions).GetEnumerator();
         }
 
+        public bool IsCanceled(ProjectionVersion version)
+        {
+            if (version is null) throw new ArgumentNullException(nameof(version));
+
+            var canceledVersion = versions.Where(ver => ver == version.WithStatus(ProjectionStatus.Canceled)).SingleOrDefault();
+            return (canceledVersion is null) == false;
+        }
         IEnumerator IEnumerable.GetEnumerator()
         {
             return new HashSet<ProjectionVersion>(versions).GetEnumerator();
