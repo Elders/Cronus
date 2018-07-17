@@ -79,9 +79,11 @@ namespace Elders.Cronus.Projections
                 var indexState = index.GetIndexState();
                 if (indexState.IsPresent() == false)
                     return new ReplayResult("Projection index does not exists");
+
+                Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
+
                 foreach (var eventType in projectionEventTypes)
                 {
-                    Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
 
                     log.Debug(() => $"Rebuilding projection `{projectionType.Name}` for version {version} using eventType `{eventType}`. Deadline is {replayUntil}");
 
