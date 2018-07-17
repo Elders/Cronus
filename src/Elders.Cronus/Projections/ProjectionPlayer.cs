@@ -84,7 +84,6 @@ namespace Elders.Cronus.Projections
 
                 foreach (var eventType in projectionEventTypes)
                 {
-
                     log.Debug(() => $"Rebuilding projection `{projectionType.Name}` for version {version} using eventType `{eventType}`. Deadline is {replayUntil}");
 
                     var indexId = new EventStoreIndexEventTypeId(eventType);
@@ -112,6 +111,7 @@ namespace Elders.Cronus.Projections
                         IAggregateRootId arId = GetAggregateRootId(indexCommit.EventOrigin.AggregateRootId);
                         IEventStore eventStore = eventStoreFactory.GetEventStore(tenantResolver.Resolve(arId));
                         EventStream stream = eventStore.Load(arId);
+                        string aggregateIdAsBase64 = Convert.ToBase64String(arId.RawId);
 
                         foreach (AggregateCommit arCommit in stream.Commits)
                         {
@@ -121,7 +121,7 @@ namespace Elders.Cronus.Projections
 
                                 if (projectionEventTypes.Contains(theEvent.GetType().GetContractId()))
                                 {
-                                    var origin = new EventOrigin(Convert.ToBase64String(arCommit.AggregateRootId), arCommit.Revision, i, arCommit.Timestamp);
+                                    var origin = new EventOrigin(aggregateIdAsBase64, arCommit.Revision, i, arCommit.Timestamp);
                                     projectionRepository.Save(projectionType, theEvent, origin, version);
                                 }
                             }
