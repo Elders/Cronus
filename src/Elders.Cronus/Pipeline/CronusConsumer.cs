@@ -30,7 +30,7 @@ namespace Elders.Cronus.Pipeline
             if (string.IsNullOrEmpty(name)) throw new ArgumentException("Invalid consumer name", nameof(name));
             if (ReferenceEquals(null, transport)) throw new ArgumentNullException(nameof(transport));
             if (ReferenceEquals(null, subscriptions)) throw new ArgumentNullException(nameof(subscriptions));
-            if (subscriptions.Subscribers.Count() == 0) throw new ArgumentException("A consumer must have at least one subscriber to work properly.", nameof(subscriptions));
+            if (subscriptions.Subscribers.Any() == false) throw new ArgumentException("A consumer must have at least one subscriber to work properly.", nameof(subscriptions));
             if (ReferenceEquals(null, serializer)) throw new ArgumentNullException(nameof(serializer));
 
             this.Name = name;

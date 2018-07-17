@@ -21,7 +21,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -81,7 +81,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -125,7 +125,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -160,7 +160,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -196,7 +196,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -234,7 +234,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -271,7 +271,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 

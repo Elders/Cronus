@@ -45,7 +45,6 @@ namespace Elders.Cronus.Discoveries
                 {
                     var assembly = AppDomain.CurrentDomain.GetAssemblies()
                         .Where(x => x.IsDynamic == false)
-                        .ToList()
                         .Where(x => x.Location.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase))
                         .SingleOrDefault();
 
@@ -56,9 +55,8 @@ namespace Elders.Cronus.Discoveries
                         assembly = AppDomain.CurrentDomain.Load(assembly.GetName());
                     }
                     assemblies.Add(assembly.FullName, assembly);
-                    // Sometimes the assembly is loaded but if there are mixed or wrong dependencies TypeLoadException is thrown.
-                    // So we try to load all types once during initial load and do not let such assemblies to be used.
-                    List<Type> exportedTypes = assembly.GetExportedTypes().ToList();
+
+                    ForceLoadAssemblyTypes(assembly);
                 }
                 catch (Exception ex)
                 {
@@ -77,6 +75,16 @@ namespace Elders.Cronus.Discoveries
                 var dir = Path.GetDirectoryName(path);
                 LoadAssembliesInDirecotry(dir);
             }
+        }
+
+        /// <summary>
+        /// Sometimes the assembly is loaded but if there are mixed or wrong dependencies TypeLoadException is thrown.
+        /// So we try to load all types once during initial load and do not let such assemblies to be used.
+        /// </summary>
+        /// <param name="assembly">The assembly with to force</param>
+        static void ForceLoadAssemblyTypes(Assembly assembly)
+        {
+            List<Type> exportedTypes = assembly.GetExportedTypes().ToList();
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Elders.Cronus.Pipeline.Config
     {
         public static T RegisterHandlersInAssembly<T>(this T self, Assembly[] messageHandlers, Func<Type, object> messageHandlerFactory) where T : ISubscrptionMiddlewareSettings
         {
-            var handlerTypes = messageHandlers.SelectMany(x => x.GetExportedTypes()).ToList();
+            var handlerTypes = messageHandlers.SelectMany(x => x.GetExportedTypes());
             self.HandlerRegistrations = handlerTypes;
             self.HandlerFactory = messageHandlerFactory;
             return self;

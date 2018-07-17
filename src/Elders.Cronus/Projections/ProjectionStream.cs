@@ -34,7 +34,7 @@ namespace Elders.Cronus.Projections
             this.getSnapshot = getSnapshot;
         }
 
-        public IEnumerable<ProjectionCommit> Commits { get { return commits.ToList().AsReadOnly(); } }
+        public IEnumerable<ProjectionCommit> Commits { get { return commits; } }
 
         public IProjectionGetResult<IProjectionDefinition> RestoreFromHistory(Type projectionType)
         {

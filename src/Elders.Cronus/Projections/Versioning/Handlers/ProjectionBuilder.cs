@@ -38,7 +38,7 @@ namespace Elders.Cronus.Projections.Versioning
 
                 var theType = @event.ProjectionVersionRequest.Version.ProjectionName.GetTypeByContract();
                 var rebuildTimesOutAt = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
-                ReplayResult replayResult = Player.Rebuild(theType, @event.ProjectionVersionRequest.Version, rebuildTimesOutAt);
+                ReplayResult replayResult = Player.Rebuild(@event.ProjectionVersionRequest.Version, rebuildTimesOutAt);
                 if (replayResult.IsSuccess)
                 {
                     var finalize = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);

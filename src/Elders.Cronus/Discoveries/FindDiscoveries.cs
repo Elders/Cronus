@@ -16,9 +16,12 @@ namespace Elders.Cronus.Discoveries
                     IEnumerable<Type> exportedTypes = asm.GetExportedTypes();
                     return exportedTypes.Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery).IsAssignableFrom(type) && type != typeof(FindDiscoveries));
                 })
-                .Select(dt => (IDiscovery)FastActivator.CreateInstance(dt)).ToList();
+                .Select(dt => (IDiscovery)FastActivator.CreateInstance(dt));
 
-            discoveries.ForEach(x => x.Discover(builder));
+            foreach (IDiscovery discovery in discoveries)
+            {
+                discovery.Discover(builder);
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Elders.Cronus.Pipeline.Config
 
     public interface ISubscrptionMiddlewareSettings : ISettingsBuilder
     {
-        List<Type> HandlerRegistrations { get; set; }
+        IEnumerable<Type> HandlerRegistrations { get; set; }
 
         Func<Type, object> HandlerFactory { get; set; }
 

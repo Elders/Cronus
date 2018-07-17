@@ -51,10 +51,10 @@ namespace Elders.Cronus.Projections
             this.tenantResolver = tenantResolver;
         }
 
-        public ReplayResult Rebuild(Type projectionType, ProjectionVersion version, DateTime replayUntil)
+        public ReplayResult Rebuild(ProjectionVersion version, DateTime replayUntil)
         {
             if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
-
+            Type projectionType = version.ProjectionName.GetTypeByContract();
             try
             {
                 if (IsVersionOutdated(version))
@@ -69,10 +69,9 @@ namespace Elders.Cronus.Projections
 
                 DateTime startRebuildTimestamp = DateTime.UtcNow;
                 int progressCounter = 0;
-                log.Info(() => $"Start rebuilding projection `{projectionType.Name}` for version {version}. Deadline is {replayUntil}");
+                log.Info(() => $"Start rebuilding projection `{version.ProjectionName}` for version {version}. Deadline is {replayUntil}");
 
-                var projection = FastActivator.CreateInstance(projectionType) as IProjectionDefinition;
-                var projectionEventTypes = GetInvolvedEvents(projectionType).ToList();
+                var projectionEventTypes = GetInvolvedEvents(projectionType);
 
                 projectionStore.InitializeProjectionStore(version);
                 snapshotStore.InitializeProjectionSnapshotStore(version);
@@ -84,7 +83,7 @@ namespace Elders.Cronus.Projections
 
                 foreach (var eventType in projectionEventTypes)
                 {
-                    log.Debug(() => $"Rebuilding projection `{projectionType.Name}` for version {version} using eventType `{eventType}`. Deadline is {replayUntil}");
+                    log.Debug(() => $"Rebuilding projection `{version.ProjectionName}` for version {version} using eventType `{eventType}`. Deadline is {replayUntil}");
 
                     var indexId = new EventStoreIndexEventTypeId(eventType);
                     IEnumerable<ProjectionCommit> indexCommits = index.EnumerateCommitsByEventType(indexId);
@@ -94,12 +93,12 @@ namespace Elders.Cronus.Projections
                         progressCounter++;
                         if (progressCounter % 1000 == 0)
                         {
-                            log.Trace(() => $"Rebuilding projection {projectionType.Name} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{replayUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()} ProcessedAggregatesSize:{processedAggregates.Count}");
+                            log.Trace(() => $"Rebuilding projection {version.ProjectionName} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{replayUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()} ProcessedAggregatesSize:{processedAggregates.Count}");
                         }
 
                         if (DateTime.UtcNow >= replayUntil)
                         {
-                            string message = $"Rebuilding projection `{projectionType.Name}` takes longer than expected. PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.";
+                            string message = $"Rebuilding projection `{version.ProjectionName}` takes longer than expected. PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.";
                             return new ReplayResult(message, true);
                         }
 
@@ -111,7 +110,6 @@ namespace Elders.Cronus.Projections
                         IAggregateRootId arId = GetAggregateRootId(indexCommit.EventOrigin.AggregateRootId);
                         IEventStore eventStore = eventStoreFactory.GetEventStore(tenantResolver.Resolve(arId));
                         EventStream stream = eventStore.Load(arId);
-                        string aggregateIdAsBase64 = Convert.ToBase64String(arId.RawId);
 
                         foreach (AggregateCommit arCommit in stream.Commits)
                         {
@@ -121,7 +119,7 @@ namespace Elders.Cronus.Projections
 
                                 if (projectionEventTypes.Contains(theEvent.GetType().GetContractId()))
                                 {
-                                    var origin = new EventOrigin(aggregateIdAsBase64, arCommit.Revision, i, arCommit.Timestamp);
+                                    var origin = new EventOrigin(indexCommit.EventOrigin.AggregateRootId, arCommit.Revision, i, arCommit.Timestamp);
                                     projectionRepository.Save(projectionType, theEvent, origin, version);
                                 }
                             }
@@ -275,7 +273,7 @@ namespace Elders.Cronus.Projections
 
             List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
 
-            var loadedCommits = projectionStore.Load(persistentVersion, versionId, 1).ToList();
+            var loadedCommits = projectionStore.Load(persistentVersion, versionId, 1);
             projectionCommits.AddRange(loadedCommits);
 
             var snapshot = new NoSnapshot(versionId, projectionName);
