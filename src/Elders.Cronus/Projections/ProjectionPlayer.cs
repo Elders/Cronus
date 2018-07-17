@@ -288,16 +288,32 @@ namespace Elders.Cronus.Projections
 
         bool IsVersionOutdated(ProjectionVersion version)
         {
-            ProjectionVersions versions = GetProjectionVersionsFromStore(version);
+            try
+            {
+                ProjectionVersions versions = GetProjectionVersionsFromStore(version);
 
-            return versions.IsOutdatad(version);
+                return versions.IsOutdatad(version);
+            }
+            catch (Exception ex)
+            {
+                log.WarnException("Failed to check if a version is outdated. Assuming it is not.", ex);
+                return false;
+            }
         }
 
         bool IsCanceled(ProjectionVersion version)
         {
-            ProjectionVersions versions = GetProjectionVersionsFromStore(version);
+            try
+            {
+                ProjectionVersions versions = GetProjectionVersionsFromStore(version);
 
-            return versions.IsCanceled(version);
+                return versions.IsCanceled(version);
+            }
+            catch (Exception ex)
+            {
+                log.WarnException("Failed to check if a version is canceled. Assuming it is not.", ex);
+                return false;
+            }
         }
     }
 }
