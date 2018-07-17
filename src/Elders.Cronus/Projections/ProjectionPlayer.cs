@@ -215,6 +215,7 @@ namespace Elders.Cronus.Projections
 
                 indexBuilder.Complete();
 
+                log.Info(() => $"Rebuilding index progress: {eventsCounter}. Done!");
                 log.Info(() => "Completed rebuilding index");
                 isBuilding = false;
 
