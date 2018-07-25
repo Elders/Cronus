@@ -1,3 +1,6 @@
+#### 5.0.0-beta0034 - 25.07.2018
+* Added ILock and InMemoryLock implementation
+
 #### 5.0.0-beta0033 - 17.07.2018
 * Do not clear processed aggregates on every event type
 * Get base 64 string once
