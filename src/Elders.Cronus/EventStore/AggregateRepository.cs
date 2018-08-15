@@ -27,7 +27,7 @@ namespace Elders.Cronus.EventStore
         /// <exception cref="Elders.Cronus.DomainModeling.AggregateRootException"></exception>
         public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
-            if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Count() == 0)
+            if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Any() == false)
                 return;
 
             var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList());
