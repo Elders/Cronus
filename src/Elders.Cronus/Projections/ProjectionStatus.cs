@@ -74,6 +74,4 @@ namespace Elders.Cronus.Projections
             return status;
         }
     }
-
-
 }
