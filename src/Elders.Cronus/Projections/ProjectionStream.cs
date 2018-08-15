@@ -7,38 +7,38 @@ using Elders.Cronus.Projections.Snapshotting;
 
 namespace Elders.Cronus.Projections
 {
-    public class ProjectionStream
+    internal sealed class ProjectionStream
     {
-        static ILog log = LogProvider.GetLogger(typeof(ProjectionStream));
+        private static readonly ILog log = LogProvider.GetLogger(typeof(ProjectionStream));
+
+        private static readonly List<ProjectionCommit> _empty = new List<ProjectionCommit>();
 
         private readonly IBlobId projectionId;
-        IList<ProjectionCommit> commits;
-
-        Func<ISnapshot> getSnapshot;
-        ISnapshot snapshot;
+        private readonly Func<ISnapshot> getSnapshot;
+        private ISnapshot snapshot;
 
         ProjectionStream()
         {
-            this.commits = Enumerable.Empty<ProjectionCommit>().ToList();
+            this.Commits = _empty;
             this.snapshot = new NoSnapshot(null, null);
         }
 
-        public ProjectionStream(IBlobId projectionId, IList<ProjectionCommit> commits, Func<ISnapshot> getSnapshot)
+        public ProjectionStream(IBlobId projectionId, List<ProjectionCommit> commits, Func<ISnapshot> getSnapshot)
         {
             if (ReferenceEquals(null, projectionId)) throw new ArgumentException(nameof(projectionId));
             if (ReferenceEquals(null, commits)) throw new ArgumentException(nameof(commits));
             if (ReferenceEquals(null, getSnapshot)) throw new ArgumentException(nameof(getSnapshot));
 
             this.projectionId = projectionId;
-            this.commits = commits;
+            this.Commits = commits;
             this.getSnapshot = getSnapshot;
         }
 
-        public IEnumerable<ProjectionCommit> Commits { get { return commits; } }
+        public List<ProjectionCommit> Commits { get; private set; }
 
         public IProjectionGetResult<IProjectionDefinition> RestoreFromHistory(Type projectionType)
         {
-            if (commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return ProjectionGetResult<IProjectionDefinition>.NoResult;
+            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return ProjectionGetResult<IProjectionDefinition>.NoResult;
 
             IProjectionDefinition projection = (IProjectionDefinition)FastActivator.CreateInstance(projectionType, true);
             return RestoreFromHistoryMamamia(projection);
@@ -46,7 +46,7 @@ namespace Elders.Cronus.Projections
 
         public IProjectionGetResult<T> RestoreFromHistory<T>() where T : IProjectionDefinition
         {
-            if (commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return ProjectionGetResult<T>.NoResult;
+            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return ProjectionGetResult<T>.NoResult;
 
             T projection = (T)FastActivator.CreateInstance(typeof(T), true);
             return RestoreFromHistoryMamamia<T>(projection);
@@ -67,18 +67,18 @@ namespace Elders.Cronus.Projections
 
             log.Debug(() =>
             {
-                var markers = commits.Select(x => x.SnapshotMarker).DefaultIfEmpty(localSnapshot.Revision).ToList();
+                var markers = Commits.Select(x => x.SnapshotMarker).DefaultIfEmpty(localSnapshot.Revision).ToList();
                 var message =
                     $"Restoring projection `{typeof(T).Name}` from history...{Environment.NewLine}" +
                     $"ProjectionId: {Encoding.UTF8.GetString(projection.Id.RawId)}||{Convert.ToBase64String(projection.Id.RawId)}{Environment.NewLine}" +
                     $"Snapshot revision: {localSnapshot.Revision}{Environment.NewLine}" +
                     $"MIN/MAX snapshot marker: {markers.Min()}/{markers.Max()}{Environment.NewLine}" +
-                    $"Projection commits after snapshot: {commits.Count}";
+                    $"Projection commits after snapshot: {Commits.Count}";
 
                 return message;
             });
 
-            var groupedBySnapshotMarker = commits.GroupBy(x => x.SnapshotMarker).OrderBy(x => x.Key);
+            var groupedBySnapshotMarker = Commits.GroupBy(x => x.SnapshotMarker).OrderBy(x => x.Key);
             foreach (var snapshotGroup in groupedBySnapshotMarker)
             {
                 var eventsByAggregate = snapshotGroup.GroupBy(x => x.EventOrigin.AggregateRootId);
@@ -97,9 +97,11 @@ namespace Elders.Cronus.Projections
             return new ProjectionGetResult<T>(projection);
         }
 
+        private readonly static ProjectionStream _emptyProjectionStream = new ProjectionStream();
+
         public static ProjectionStream Empty()
         {
-            return new ProjectionStream();
+            return _emptyProjectionStream;
         }
     }
 }
