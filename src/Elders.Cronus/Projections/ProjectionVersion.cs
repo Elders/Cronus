@@ -58,7 +58,15 @@ namespace Elders.Cronus.Projections
 
         public override int GetHashCode()
         {
-            return Revision.GetHashCode() ^ ProjectionName.GetHashCode() ^ Hash.GetHashCode();
+            unchecked
+            {
+                int hashCode = 5749;
+                int multiplier = 7919;
+                hashCode = (hashCode * multiplier) ^ Revision.GetHashCode();
+                hashCode = (hashCode * multiplier) ^ ProjectionName.GetHashCode();
+                hashCode = (hashCode * multiplier) ^ Hash.GetHashCode();
+                return hashCode;
+            }
         }
 
         public static bool operator ==(ProjectionVersion left, ProjectionVersion right)
