@@ -9,7 +9,7 @@
     <Product>Cronus</Product>
     <Title>Cronus</Title>
     <Authors>Elders OSS</Authors>
-    <Copyright>Copyright © Elders OSS 2016</Copyright>
+    <Copyright>Copyright © Elders OSS 2013</Copyright>
     <Description>Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind</Description>
     <PackageTags>CQRS DDD ES Event store sourcing</PackageTags>
     <PackageLicenseUrl>https://github.com/Elders/Cronus/blob/master/LICENSE</PackageLicenseUrl>
