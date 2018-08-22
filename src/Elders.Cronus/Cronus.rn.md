@@ -6,6 +6,9 @@
 * Get base 64 string once
 * Log total commits after projection rebuilding finishes
 
+#### 5.0.0-beta0033 - 22.08.2018
+* Makes ProjectionStream internal
+
 #### 5.0.0-beta0032 - 16.07.2018
 * Cancel building projection version
 * IsOutdatad refactoring
