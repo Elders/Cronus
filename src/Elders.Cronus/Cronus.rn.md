@@ -1,3 +1,6 @@
+#### 5.0.0-beta0035 - 22.08.2018
+* Makes ProjectionStream internal
+
 #### 5.0.0-beta0034 - 25.07.2018
 * Added ILock and InMemoryLock implementation
 
@@ -6,8 +9,9 @@
 * Get base 64 string once
 * Log total commits after projection rebuilding finishes
 
-#### 5.0.0-beta0033 - 22.08.2018
-* Makes ProjectionStream internal
+#### 5.0.0-beta0033 - 17.07.2018
+* Do not clear processed aggregates on every event type
+* Get base 64 string once
 
 #### 5.0.0-beta0032 - 16.07.2018
 * Cancel building projection version
