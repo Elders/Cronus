@@ -1,17 +1,17 @@
-Cronus is a lightweight framework for building event based systems with DDD/CQRS in mind
+Cronus is a lightweight framework for building event driven systems with DDD/CQRS in mind
 ==================================================================================================================
-[![Build status](https://ci.appveyor.com/api/projects/status/0ka8b6vnwjj9lhav?svg=true)](https://ci.appveyor.com/project/Elders-OSS/cronus) 
-[![NuGet](https://img.shields.io/nuget/v/Cronus.svg)](https://www.nuget.org/packages/Cronus) 
-[![GitHub issues](https://img.shields.io/github/issues/Elders/Cronus/shields.svg)](https://github.com/Elders/Cronus/issues) 
+[![Build status](https://ci.appveyor.com/api/projects/status/0ka8b6vnwjj9lhav?svg=true)](https://ci.appveyor.com/project/Elders-OSS/cronus)
+[![NuGet](https://img.shields.io/nuget/v/Cronus.svg)](https://www.nuget.org/packages/Cronus)
+[![GitHub issues](https://img.shields.io/github/issues/Elders/Cronus/shields.svg)](https://github.com/Elders/Cronus/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Elders/Cronus.svg)](https://github.com/Elders/Cronus/pulls)
 
-# Motivation  
-Building software is not an easy task. It involves specific domain knowledge and a lot of software infrastructure. The goal of Cronus is to keep the software engineers focused on the domain problems because this is important at the end of the day. Cronus aims to keep you away from the software infrastructure.  
+# Motivation
+Building software is not an easy task. It involves specific domain knowledge and a lot of software infrastructure. The goal of Cronus is to keep the software engineers focused on the domain problems because this is important at the end of the day. Cronus aims to keep you away from the software infrastructure.
 
 Usually you do not need a CQRS framework to develop greate apps. However, we noticed a common infrastructure code written with every applicaiton. We started to abstract and move that code to github. The key aspect was that even with a framework you still have full control and flexibility over the application code.
 
 # Domain Modeling
-To get out the maximum of Cronus you need to mark certain parts of your code to give hints to Cronus. 
+To get out the maximum of Cronus you need to mark certain parts of your code to give hints to Cronus.
 
 ## Serialization
 [ISerializer](https://github.com/Elders/Cronus/blob/master/src/Elders.Cronus/Serializer/ISerializer.cs#L5-L9) interface is really simple. You can plugin your own implementation but do not do it once you are in production.
@@ -114,7 +114,7 @@ public class AccountAppService : AggregateRootApplicationService<Account>,
     {
         Update(message.Id, account => account.Suspend());
     }
-    
+
     ...
 }
 ```
@@ -150,7 +150,7 @@ public class Account : AggregateRoot<AccountState>
             Apply(evnt);
         }
     }
-    
+
     ...
 }
 ```
@@ -179,7 +179,7 @@ public class AccountState : AggregateRootState<Account, AccountId>
     {
         IsSuspended = true;
     }
-    
+
     ...
 }
 ```
@@ -233,7 +233,7 @@ Projection tracks events and project their data for specific purposes.
 - a projection should not establish calls to external systems
 
 ## IPort
-Port is the mechanism to establish communication between aggregates. Usually this involves one aggregate who triggered an event and one aggregate which needs to react. 
+Port is the mechanism to establish communication between aggregates. Usually this involves one aggregate who triggered an event and one aggregate which needs to react.
 
 If you feel the need to do more complex interactions it is advised to use ISaga. The reason for this is that ports do not provide a transparent view of the business flow because they do not have persistent state.
 
