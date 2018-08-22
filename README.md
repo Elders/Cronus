@@ -1,4 +1,4 @@
-Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind
+Cronus is a lightweight framework for building event based systems with DDD/CQRS in mind
 ==================================================================================================================
 [![Build status](https://ci.appveyor.com/api/projects/status/0ka8b6vnwjj9lhav?svg=true)](https://ci.appveyor.com/project/Elders-OSS/cronus) 
 [![NuGet](https://img.shields.io/nuget/v/Cronus.svg)](https://www.nuget.org/packages/Cronus) 
