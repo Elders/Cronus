@@ -18,7 +18,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageIconUrl>https://raw.githubusercontent.com/Elders/logo/master/cronus/frame.png</PackageIconUrl>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AssemblyName>Cronus</AssemblyName>
+    <AssemblyName>Elders.Cronus</AssemblyName>
     <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
