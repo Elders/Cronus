@@ -1,3 +1,6 @@
+#### 5.0.0-beta0036 - 24.08.2018
+* Fixes the assembly name
+
 #### 5.0.0-beta0035 - 22.08.2018
 * Makes ProjectionStream internal
 
