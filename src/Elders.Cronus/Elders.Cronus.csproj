@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net45;net451;net452;net46;net461;net462</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;net45;net451;net452;net46;net461;net462;net472</TargetFrameworks>
   </PropertyGroup>
 
   <!--Nuget-->
@@ -45,7 +45,7 @@
 
   <ItemGroup>
     <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
-    <PackageReference Include="Cronus.DomainModeling" Version="4.0.7" />
+    <PackageReference Include="Cronus.DomainModeling" Version="4.0.10" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
