@@ -19,7 +19,6 @@ namespace Elders.Cronus.Discoveries
         }
 
         static int shouldLoadAssembliesFromDir = 1;
-        //static List<Assembly> assemblies = new List<Assembly>();
         static IDictionary<string, Assembly> assemblies = new Dictionary<string, Assembly>();
 
         public void Discover(ISettingsBuilder builder)
@@ -31,37 +30,30 @@ namespace Elders.Cronus.Discoveries
 
         /// <summary>
         /// Do your specific discovery logic here. You get a list of assemblies which this discovery is interested in based on the <see cref="GetInterestedTypes"/>
-        /// Usually do you configure the IOC using the ISettingsBuilder.
+        /// Usually you do configure the IOC using the ISettingsBuilder.
         /// </summary>
         /// <param name="builder">Cronus configuration builder. Contains Container property to .Register<T>() whatever you need</param>
         /// <param name="assemblies">List of assemblies to inspect</param>
         protected abstract void DiscoverFromAssemblies(ISettingsBuilder builder, IEnumerable<Assembly> assemblies);
 
-        static void LoadAssembliesInDirecotry(string directoryWithAssemblies)
+        static void LoadAssembliesFromDirecotry(string directoryWithAssemblies)
         {
             foreach (var assemblyFile in directoryWithAssemblies.GetFiles(new[] { "*.exe", "*.dll" }))
             {
-                try
-                {
-                    var assembly = AppDomain.CurrentDomain.GetAssemblies()
-                        .Where(x => x.IsDynamic == false)
-                        .Where(x => x.Location.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase))
-                        .SingleOrDefault();
+                var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                    .Where(x => x.IsDynamic == false)
+                    .Where(x => x.Location.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase))
+                    .SingleOrDefault();
 
-                    if (assembly == null)
-                    {
-                        byte[] assemblyRaw = File.ReadAllBytes(assemblyFile);
-                        assembly = Assembly.ReflectionOnlyLoad(assemblyRaw);
-                        assembly = AppDomain.CurrentDomain.Load(assembly.GetName());
-                    }
+                if (assembly == null)
+                {
+                    byte[] assemblyRaw = File.ReadAllBytes(assemblyFile);
+                    assembly = Assembly.ReflectionOnlyLoad(assemblyRaw);
+                    assembly = AppDomain.CurrentDomain.Load(assembly.GetName());
+                }
+
+                if (IsForceLoadAssemblyTypesSuccessful(assembly))
                     assemblies.Add(assembly.FullName, assembly);
-
-                    ForceLoadAssemblyTypes(assembly);
-                }
-                catch (Exception ex)
-                {
-                    log.WarnException($"Unable to do discovery from assembly {assemblyFile}", ex);
-                }
             }
         }
 
@@ -73,7 +65,7 @@ namespace Elders.Cronus.Discoveries
                 UriBuilder uri = new UriBuilder(codeBase);
                 string path = Uri.UnescapeDataString(uri.Path);
                 var dir = Path.GetDirectoryName(path);
-                LoadAssembliesInDirecotry(dir);
+                LoadAssembliesFromDirecotry(dir);
             }
         }
 
@@ -82,9 +74,18 @@ namespace Elders.Cronus.Discoveries
         /// So we try to load all types once during initial load and do not let such assemblies to be used.
         /// </summary>
         /// <param name="assembly">The assembly with to force</param>
-        static void ForceLoadAssemblyTypes(Assembly assembly)
+        static bool IsForceLoadAssemblyTypesSuccessful(Assembly assembly)
         {
-            List<Type> exportedTypes = assembly.GetExportedTypes().ToList();
+            try
+            {
+                List<Type> exportedTypes = assembly.GetExportedTypes().ToList();
+                return true;
+            }
+            catch (TypeLoadException ex)
+            {
+                log.WarnException($"Unable to do discovery from assembly {assembly.FullName}", ex);
+                return false;
+            }
         }
     }
 }
