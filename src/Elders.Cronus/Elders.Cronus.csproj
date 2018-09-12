@@ -24,7 +24,7 @@
 
   <!--netstandard2.0-->
   <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;LIBLOG_PORTABLE;RELEASE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
@@ -33,7 +33,7 @@
 
   <!--NETFULL-->
   <PropertyGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-    <DefineConstants>TRACE;DEBUG;NETFULL;LIBLOG_PORTABLE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETFULL</DefineConstants>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
     <Reference Include="mscorlib" />
@@ -44,6 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="LibLog" Version="5.0.2" />
     <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
     <PackageReference Include="Cronus.DomainModeling" Version="4.0.10" />
   </ItemGroup>
