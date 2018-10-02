@@ -1,3 +1,7 @@
+#### 5.0.0-beta0037 - 02.10.2018
+* Updates CronusDomainModeling
+* Adds Async Functionality to IProjectionLoader
+
 #### 5.0.0-beta0036 - 24.08.2018
 * Fixes the assembly name
 
