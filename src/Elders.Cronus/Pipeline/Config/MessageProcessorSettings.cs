@@ -21,7 +21,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -35,6 +35,7 @@ namespace Elders.Cronus.Pipeline.Config
                 .Select(x => x.GetGenericArguments().FirstOrDefault().Assembly).SelectMany(x => x.GetTypes().Where(y => ievent.IsAssignableFrom(y)));
             return allEventTypes;
         }
+
         public override void Build()
         {
             var hasher = new ProjectionHasher();
@@ -80,7 +81,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -112,7 +113,8 @@ namespace Elders.Cronus.Pipeline.Config
                 return indexSubscriber;
             };
 
-            builder.Container.RegisterSingleton<EventTypeIndexForProjections>(() => eventIndexForProjectionsFactory());
+            if (builder.Container.IsRegistered(typeof(EventTypeIndexForProjections)) == false)
+                builder.Container.RegisterSingleton<EventTypeIndexForProjections>(() => eventIndexForProjectionsFactory());
         }
     }
 
@@ -123,7 +125,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -158,7 +160,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -194,7 +196,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -232,7 +234,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -269,7 +271,7 @@ namespace Elders.Cronus.Pipeline.Config
             (this as ISubscrptionMiddlewareSettings).HandleMiddleware = (x) => x;
         }
 
-        List<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
+        IEnumerable<Type> ISubscrptionMiddlewareSettings.HandlerRegistrations { get; set; }
 
         Func<Type, object> ISubscrptionMiddlewareSettings.HandlerFactory { get; set; }
 
@@ -322,7 +324,9 @@ namespace Elders.Cronus.Pipeline.Config
             base.Build();
             var builder = this as ISettingsBuilder;
 
-
+            if (builder.Container.IsRegistered(typeof(InMemoryProjectionVersionStore)) == false)
+                builder.Container.RegisterSingleton<InMemoryProjectionVersionStore>(() => new InMemoryProjectionVersionStore());
+            builder.Container.RegisterSingleton<IProjectionRepository>(() => new ProjectionRepository(builder.Container.Resolve<IProjectionStore>(builder.Name), builder.Container.Resolve<ISnapshotStore>(builder.Name), builder.Container.Resolve<ISnapshotStrategy>(builder.Name), builder.Container.Resolve<InMemoryProjectionVersionStore>()), builder.Name);
             Func<IProjectionRepository> projectionRepository = () => builder.Container.Resolve<IProjectionRepository>(builder.Name);
             Func<IProjectionStore> projectionStore = () => builder.Container.Resolve<IProjectionStore>(builder.Name);
             Func<ISnapshotStore> snapshotStore = () => builder.Container.Resolve<ISnapshotStore>(builder.Name);
@@ -402,7 +406,7 @@ namespace Elders.Cronus.Pipeline.Config
             SystemProjectionMessageProcessorSettings settings = new SystemProjectionMessageProcessorSettings(self);
             if (configure != null)
                 configure(settings);
-            ;
+
             (settings as ISettingsBuilder).Build();
             return self;
         }

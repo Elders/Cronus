@@ -12,12 +12,10 @@ namespace Elders.Cronus.IocContainer
         /// </summary>
         public Type Type { get; protected set; }
 
-
         /// <summary>
         /// Name of the instance (optional)
         /// </summary>
         public string InstanceName { get; protected set; }
-
 
         /// <summary>
         /// Creates a new instance of <see cref="MappingKey"/>
@@ -34,7 +32,6 @@ namespace Elders.Cronus.IocContainer
             InstanceName = instanceName;
         }
 
-
         /// <summary>
         /// Returns the hash code for this instance
         /// </summary>
@@ -43,16 +40,16 @@ namespace Elders.Cronus.IocContainer
         {
             unchecked
             {
-                const int multiplier = 31;
-                int hash = GetType().GetHashCode();
-
-                hash = hash * multiplier + Type.GetHashCode();
-                hash = hash * multiplier + (InstanceName == null ? 0 : InstanceName.GetHashCode());
-
-                return hash;
+                unchecked
+                {
+                    int hashCode = 5749;
+                    int multiplier = 31;
+                    hashCode = (hashCode * multiplier) ^ Type.GetHashCode();
+                    hashCode = (hashCode * multiplier) ^ (InstanceName == null ? 0 : InstanceName.GetHashCode());
+                    return hashCode;
+                }
             }
         }
-
 
         /// <summary>
         /// Determines whether the specified object is equal to the current object.
@@ -78,7 +75,6 @@ namespace Elders.Cronus.IocContainer
                 string.Equals(InstanceName, compareTo.InstanceName, StringComparison.InvariantCultureIgnoreCase);
         }
 
-
         /// <summary>
         /// For debugging purposes only
         /// </summary>
@@ -92,7 +88,6 @@ namespace Elders.Cronus.IocContainer
                 GetHashCode()
             );
         }
-
 
         /// <summary>
         /// In case you need to return an error to the client program

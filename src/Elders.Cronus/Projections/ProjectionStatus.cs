@@ -16,12 +16,29 @@ namespace Elders.Cronus.Projections
         [DataMember(Order = 1)]
         string status;
 
+        /// <summary>
+        /// The projection is currently rebuilding
+        /// </summary>
         public static ProjectionStatus Building = new ProjectionStatus("building");
 
+        /// <summary>
+        /// The projection is scheduled for rebuild but it is not started yet
+        /// </summary>
+        public static ProjectionStatus Pending = new ProjectionStatus("pending");
+
+        /// <summary>
+        /// The projection is rebuilt and ready for use
+        /// </summary>
         public static ProjectionStatus Live = new ProjectionStatus("live");
 
+        /// <summary>
+        /// The projection rebuild is canceled by a user or an error happened during rebuild. Check the reason for more details
+        /// </summary>
         public static ProjectionStatus Canceled = new ProjectionStatus("canceled");
 
+        /// <summary>
+        /// The projection rebuild has timed out because the rebuild process went beyond the allowed <see cref="Elders.Cronus.Projections.Versioning.VersionRequestTimebox"/>
+        /// </summary>
         public static ProjectionStatus Timedout = new ProjectionStatus("timedout");
 
         public static ProjectionStatus Create(string status)
@@ -57,6 +74,4 @@ namespace Elders.Cronus.Projections
             return status;
         }
     }
-
-
 }

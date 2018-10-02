@@ -35,14 +35,5 @@ namespace Elders.Cronus.EventStore
             var store = factory.GetEventStore(tenant);
             return store.Load(aggregateId);
         }
-
-        public EventStream Load(IAggregateRootId aggregateId, Func<IAggregateRootId, string> getBoundedContext = null)
-        {
-            if (ReferenceEquals(null, aggregateId) == true) throw new ArgumentNullException(nameof(aggregateId));
-
-            var tenant = tenantResolver.Resolve(aggregateId);
-            var store = factory.GetEventStore(tenant);
-            return store.Load(aggregateId, getBoundedContext);
-        }
     }
 }

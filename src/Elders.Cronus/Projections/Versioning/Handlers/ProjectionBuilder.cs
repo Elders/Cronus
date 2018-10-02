@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -9,6 +10,8 @@ namespace Elders.Cronus.Projections.Versioning
         ISagaTimeoutHandler<RebuildProjectionVersion>,
         ISagaTimeoutHandler<ProjectionVersionRebuildTimedout>
     {
+        static ILog log = LogProvider.GetLogger(typeof(ProjectionBuilder));
+
         public ProjectionPlayer Player { get; set; }
 
         public void Handle(ProjectionVersionRequested @event)
@@ -23,27 +26,43 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(RebuildProjectionVersion @event)
         {
-            if (Player.RebuildIndex() == false)
-            {
+            bool indexExists = Player.HasIndex();
+            if (indexExists == false)
                 RequestTimeout(new RebuildProjectionVersion(@event.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
-                return;
-            }
-            var rebuildUntil = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
-            if (rebuildUntil < DateTime.UtcNow)
-                return;
 
-            var theType = @event.ProjectionVersionRequest.ProjectionVersion.ProjectionName.GetTypeByContract();
-            var rebuildTimesOutAt = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
-            if (Player.Rebuild(theType, @event.ProjectionVersionRequest.ProjectionVersion, rebuildTimesOutAt))
+            if (indexExists || Player.RebuildIndex())
             {
-                var command = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.ProjectionVersion);
-                CommandPublisher.Publish(command);
+                var rebuildUntil = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
+                if (rebuildUntil < DateTime.UtcNow)
+                    return;
+
+                var theType = @event.ProjectionVersionRequest.Version.ProjectionName.GetTypeByContract();
+                var rebuildTimesOutAt = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
+                ReplayResult replayResult = Player.Rebuild(@event.ProjectionVersionRequest.Version, rebuildTimesOutAt);
+                if (replayResult.IsSuccess)
+                {
+                    var finalize = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);
+                    CommandPublisher.Publish(finalize);
+                }
+                else
+                {
+                    log.Error(() => replayResult.Error);
+                    if (replayResult.IsTimeout)
+                    {
+                        var timedout = new TimeoutProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox);
+                        CommandPublisher.Publish(timedout);
+                    }
+                    {
+                        var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, replayResult.Error);
+                        CommandPublisher.Publish(cancel);
+                    }
+                }
             }
         }
 
         public void Handle(ProjectionVersionRebuildTimedout sagaTimeout)
         {
-            var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.ProjectionVersion, sagaTimeout.ProjectionVersionRequest.Timebox);
+            var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             CommandPublisher.Publish(timedout);
         }
     }

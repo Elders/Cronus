@@ -4,20 +4,16 @@ using System.Linq;
 
 namespace Elders.Cronus.Projections.Snapshotting
 {
-    public class DefaultSnapshotStrategy : ISnapshotStrategy
+    public class EventsCountSnapshotStrategy : ISnapshotStrategy
     {
-        private TimeSpan snapshotOffset;
-        private int eventsInSnapshot;
+        protected int eventsInSnapshot;
 
-        public DefaultSnapshotStrategy(TimeSpan snapshotOffset, int eventsInSnapshot)
+        public EventsCountSnapshotStrategy(int eventsInSnapshot)
         {
             if (eventsInSnapshot < 1) throw new ArgumentOutOfRangeException(nameof(eventsInSnapshot), $"{nameof(eventsInSnapshot)} must be greater than 0");
 
-            this.snapshotOffset = snapshotOffset;
             this.eventsInSnapshot = eventsInSnapshot;
         }
-
-        public TimeSpan SnapshotOffset { get { return snapshotOffset; } }
 
         public int EventsInSnapshot { get { return eventsInSnapshot; } }
 
@@ -30,13 +26,13 @@ namespace Elders.Cronus.Projections.Snapshotting
             return snapshotMarker;
         }
 
-        public bool ShouldCreateSnapshot(IEnumerable<ProjectionCommit> commits, int lastSnapshotRevision)
+        public virtual bool ShouldCreateSnapshot(IEnumerable<ProjectionCommit> commits, int lastSnapshotRevision)
         {
             var commitsAfterLastSnapshotRevision = commits.Where(x => x.SnapshotMarker > lastSnapshotRevision);
             int latestSnapshotMarker = commitsAfterLastSnapshotRevision.Select(x => x.SnapshotMarker).DefaultIfEmpty(lastSnapshotRevision + 1).Max();
             if (latestSnapshotMarker > lastSnapshotRevision)
             {
-                bool shouldCreateSnapshot = commitsAfterLastSnapshotRevision.Count() >= eventsInSnapshot || commits.Select(x => x.TimeStamp).DefaultIfEmpty(DateTime.MaxValue).Min() <= DateTime.UtcNow - snapshotOffset;
+                bool shouldCreateSnapshot = commitsAfterLastSnapshotRevision.Count() >= eventsInSnapshot;
                 if (shouldCreateSnapshot)
                     return true;
             }

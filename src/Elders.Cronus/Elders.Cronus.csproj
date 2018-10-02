@@ -1,44 +1,68 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net45;net451;net452;net46;net461;net462</TargetFrameworks>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
+  </PropertyGroup>
 
-    <!--Nuget-->
-    <PropertyGroup>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <PackageId>Cronus</PackageId>
-        <PackageLicenseUrl>https://github.com/Elders/Cronus/blob/master/LICENSE</PackageLicenseUrl>
-        <PackageProjectUrl>http://Elders.github.io/Cronus</PackageProjectUrl>
-        <PackageTags>CQRS DDD ES Event store sourcing</PackageTags>
-        <RepositoryUrl>https://github.com/Elders/Cronus</RepositoryUrl>
-        <PackageIconUrl>https://raw.githubusercontent.com/Elders/logo/master/cronus/frame.png</PackageIconUrl>
-        <RepositoryType>Framework</RepositoryType>
-        <Authors>Elders</Authors>
-    </PropertyGroup>
+  <!--Nuget-->
+  <PropertyGroup>
+    <PackageId>Cronus</PackageId>
+    <Product>Cronus</Product>
+    <Title>Cronus</Title>
+    <Authors>Elders OSS</Authors>
+    <Copyright>Copyright © Elders OSS 2013</Copyright>
+    <Description>Cronus is a lightweight framework for dispatching and receiving messages between microservices with DDD/CQRS in mind</Description>
+    <PackageTags>CQRS DDD ES Event store sourcing</PackageTags>
+    <PackageLicenseUrl>https://github.com/Elders/Cronus/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Elders/Cronus</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Elders/Cronus.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIconUrl>https://raw.githubusercontent.com/Elders/logo/master/cronus/frame.png</PackageIconUrl>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AssemblyName>Elders.Cronus</AssemblyName>
+    <NeutralLanguage>en-US</NeutralLanguage>
+  </PropertyGroup>
 
-    <!--netstandard2.0-->
-    <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-        <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0;LIBLOG_PORTABLE</DefineConstants>
-    </PropertyGroup>
-    <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-        <PackageReference Include="Microsoft.CSharp" Version="4.4.1" />
-        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.0.1" />
-    </ItemGroup>
+  <!--netstandard2.0-->
+  <PropertyGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
+    <PackageReference Include="Microsoft.CSharp" Version="4.5.0" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="2.1.0" />
+  </ItemGroup>
 
-    <!--NETFULL-->
-    <PropertyGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-        <DefineConstants>TRACE;DEBUG;NETFULL;LIBLOG_PORTABLE</DefineConstants>
-    </PropertyGroup>
-    <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
-        <Reference Include="mscorlib" />
-        <Reference Include="System" />
-        <Reference Include="System.Core" />
-        <Reference Include="System.Runtime.Caching" />
-        <Reference Include="Microsoft.CSharp" />
-    </ItemGroup>
+  <!--NETFULL-->
+  <PropertyGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
+    <DefineConstants>TRACE;DEBUG;NETFULL</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(TargetFramework)'!='netstandard2.0'">
+    <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
-        <PackageReference Include="Cronus.DomainModeling" Version="4.0.6" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="LibLog" Version="5.0.2" />
+    <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
+    <PackageReference Include="Cronus.DomainModeling" Version="5.0.0-beta0002" />
+  </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <EmbedSources>true</EmbedSources>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>portable</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <EmbedSources>true</EmbedSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.2" PrivateAssets="All" />
+  </ItemGroup>
+
 </Project>

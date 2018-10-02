@@ -18,6 +18,10 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 2)]
         public string Hash { get; private set; }
-    }
 
+        public override string ToString()
+        {
+            return $"Register projection with `{Hash}`. {nameof(ProjectionVersionManagerId)}: `{Id}`.";
+        }
+    }
 }

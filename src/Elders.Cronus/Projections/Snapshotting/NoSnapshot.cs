@@ -17,5 +17,10 @@
         public object State { get; private set; }
 
         public void InitializeState(object state) { }
+
+        public SnapshotMeta GetMeta()
+        {
+            return new SnapshotMeta(Revision, ProjectionName);
+        }
     }
 }
