@@ -20,6 +20,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>Elders.Cronus</AssemblyName>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <RootNamespace>Elders.Cronus</RootNamespace>
   </PropertyGroup>
 
   <!--netstandard2.0-->
@@ -49,13 +50,7 @@
     <PackageReference Include="Cronus.DomainModeling" Version="5.0.0-beta0002" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <EmbedSources>true</EmbedSources>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+  <PropertyGroup>
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <EmbedSources>true</EmbedSources>
@@ -63,6 +58,7 @@
 
   <ItemGroup>
     <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.2" PrivateAssets="All" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
 
 </Project>

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading;
 using Elders.Cronus.Logging;
-using Elders.Cronus.Pipeline.Config;
 
 namespace Elders.Cronus.Discoveries
 {
@@ -21,25 +21,28 @@ namespace Elders.Cronus.Discoveries
         static int shouldLoadAssembliesFromDir = 1;
         static IDictionary<string, Assembly> assemblies = new Dictionary<string, Assembly>();
 
-        public void Discover(ISettingsBuilder builder)
-        {
-            if (ReferenceEquals(null, builder)) throw new ArgumentNullException(nameof(builder));
+        public virtual string Name { get { return this.GetType().Name; } }
 
-            DiscoverFromAssemblies(builder, assemblies.Values);
+        public DiscoveryResult Discover()
+        {
+            DiscoveryContext context = new DiscoveryContext();
+            context.Assemblies = assemblies.Values;
+            return DiscoverFromAssemblies(context);
         }
 
         /// <summary>
         /// Do your specific discovery logic here. You get a list of assemblies which this discovery is interested in based on the <see cref="GetInterestedTypes"/>
         /// Usually you do configure the IOC using the ISettingsBuilder.
         /// </summary>
-        /// <param name="builder">Cronus configuration builder. Contains Container property to .Register<T>() whatever you need</param>
-        /// <param name="assemblies">List of assemblies to inspect</param>
-        protected abstract void DiscoverFromAssemblies(ISettingsBuilder builder, IEnumerable<Assembly> assemblies);
+        protected abstract DiscoveryResult DiscoverFromAssemblies(DiscoveryContext context);
 
         static void LoadAssembliesFromDirecotry(string directoryWithAssemblies)
         {
-            foreach (var assemblyFile in directoryWithAssemblies.GetFiles(new[] { "*.exe", "*.dll" }))
+            var files = directoryWithAssemblies.GetFiles(new[] { "*.exe", "*.dll" });
+            foreach (var assemblyFile in files)
             {
+                if (assemblyFile.Contains("microsoft")) continue;
+
                 var assembly = AppDomain.CurrentDomain.GetAssemblies()
                     .Where(x => x.IsDynamic == false)
                     .Where(x => x.Location.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase))
@@ -47,9 +50,10 @@ namespace Elders.Cronus.Discoveries
 
                 if (assembly == null)
                 {
-                    byte[] assemblyRaw = File.ReadAllBytes(assemblyFile);
-                    assembly = Assembly.ReflectionOnlyLoad(assemblyRaw);
-                    assembly = AppDomain.CurrentDomain.Load(assembly.GetName());
+                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
+                    //byte[] assemblyRaw = File.ReadAllBytes(assemblyFile);
+                    //assembly = Assembly.ReflectionOnlyLoad(assemblyRaw);
+                    //assembly = AppDomain.CurrentDomain.Load(assembly.GetName());
                 }
 
                 if (IsForceLoadAssemblyTypesSuccessful(assembly))
@@ -61,7 +65,7 @@ namespace Elders.Cronus.Discoveries
         {
             if (1 == Interlocked.Exchange(ref shouldLoadAssembliesFromDir, 0))
             {
-                string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+                string codeBase = Assembly.GetEntryAssembly().CodeBase;
                 UriBuilder uri = new UriBuilder(codeBase);
                 string path = Uri.UnescapeDataString(uri.Path);
                 var dir = Path.GetDirectoryName(path);

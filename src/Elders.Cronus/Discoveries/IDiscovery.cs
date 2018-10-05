@@ -4,6 +4,8 @@ namespace Elders.Cronus.Discoveries
 {
     public interface IDiscovery
     {
-        void Discover(ISettingsBuilder builder);
+        string Name { get; }
+
+        DiscoveryResult Discover();
     }
 }

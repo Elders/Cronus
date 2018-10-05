@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Elders.Cronus.Pipeline.Hosts.DisposableExtensions;
 using Elders.Cronus.Logging;
+using Elders.Cronus.Discoveries;
+using Elders.Cronus.IocContainer;
 
 namespace Elders.Cronus.Pipeline.Hosts
 {
@@ -18,12 +20,26 @@ namespace Elders.Cronus.Pipeline.Hosts
 
         public bool Start()
         {
+            log.Info("Cronus is starting...");
             foreach (var consumer in Consumers)
             {
                 consumer.Start();
             }
-            log.Info("Cronus hosts started succesfully.");
+            log.Info("Cronus has stared succesfully.");
             return true;
+        }
+
+        public bool StartUsingDiscovery()
+        {
+            log.Info("Looking for Cronus discoveries...");
+
+            IContainer container = new Container();
+            ICronusSettings settings = new CronusSettings(container);
+
+            var discoveryFinder = new DiscoveryScanner(null);
+            discoveryFinder.Discover();
+
+            return Start();
         }
 
         public bool Stop()
