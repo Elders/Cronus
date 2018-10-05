@@ -1,4 +1,7 @@
-﻿using Elders.Cronus.Pipeline.Config;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using Elders.Cronus.Pipeline.Hosts;
 
 namespace Elders.Cronus.Discoveries
@@ -11,6 +14,14 @@ namespace Elders.Cronus.Discoveries
             discoveryFinder.Discover();
 
             return self;
+        }
+
+        public static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)
+        {
+            if (assembly is null) throw new ArgumentNullException(nameof(assembly));
+
+            try { return assembly.GetTypes(); }
+            catch (ReflectionTypeLoadException e) { return e.Types.Where(t => t != null); }
         }
     }
 }

@@ -30,10 +30,6 @@ namespace Elders.Cronus.Discoveries
             return DiscoverFromAssemblies(context);
         }
 
-        /// <summary>
-        /// Do your specific discovery logic here. You get a list of assemblies which this discovery is interested in based on the <see cref="GetInterestedTypes"/>
-        /// Usually you do configure the IOC using the ISettingsBuilder.
-        /// </summary>
         protected abstract DiscoveryResult DiscoverFromAssemblies(DiscoveryContext context);
 
         static void LoadAssembliesFromDirecotry(string directoryWithAssemblies)
@@ -55,9 +51,6 @@ namespace Elders.Cronus.Discoveries
                     //assembly = Assembly.ReflectionOnlyLoad(assemblyRaw);
                     //assembly = AppDomain.CurrentDomain.Load(assembly.GetName());
                 }
-
-                if (IsForceLoadAssemblyTypesSuccessful(assembly))
-                    assemblies.Add(assembly.FullName, assembly);
             }
         }
 
@@ -70,25 +63,6 @@ namespace Elders.Cronus.Discoveries
                 string path = Uri.UnescapeDataString(uri.Path);
                 var dir = Path.GetDirectoryName(path);
                 LoadAssembliesFromDirecotry(dir);
-            }
-        }
-
-        /// <summary>
-        /// Sometimes the assembly is loaded but if there are mixed or wrong dependencies TypeLoadException is thrown.
-        /// So we try to load all types once during initial load and do not let such assemblies to be used.
-        /// </summary>
-        /// <param name="assembly">The assembly with to force</param>
-        static bool IsForceLoadAssemblyTypesSuccessful(Assembly assembly)
-        {
-            try
-            {
-                List<Type> exportedTypes = assembly.GetExportedTypes().ToList();
-                return true;
-            }
-            catch (TypeLoadException ex)
-            {
-                log.WarnException($"Unable to do discovery from assembly {assembly.FullName}", ex);
-                return false;
             }
         }
     }

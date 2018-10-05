@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Discoveries
@@ -18,11 +19,9 @@ namespace Elders.Cronus.Discoveries
         protected override DiscoveryResult DiscoverFromAssemblies(DiscoveryContext context)
         {
             var discoveries = context.Assemblies
-                .SelectMany(asm =>
-                {
-                    IEnumerable<Type> exportedTypes = asm.GetExportedTypes();
-                    return exportedTypes.Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery).IsAssignableFrom(type) && type != typeof(DiscoveryScanner));
-                })
+                .SelectMany(asm => asm
+                    .GetLoadableTypes()
+                    .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery).IsAssignableFrom(type) && type != typeof(DiscoveryScanner)))
                 .Select(dt => (IDiscovery)FastActivator.CreateInstance(dt));
 
             foreach (IDiscovery discovery in discoveries)
