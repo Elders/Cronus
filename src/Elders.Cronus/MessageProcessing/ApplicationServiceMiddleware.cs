@@ -16,7 +16,7 @@ namespace Elders.Cronus.MessageProcessing
             });
         }
 
-        class CronusAggregateRepository : IAggregateRepository
+        sealed class CronusAggregateRepository : IAggregateRepository
         {
             readonly IAggregateRepository aggregateRepository;
             readonly IPublisher<IEvent> eventPublisher;
