@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0001 - 05.10.2018
+* Reworks the discovery interface
+
 #### 5.0.0-beta0037 - 02.10.2018
 * Updates CronusDomainModeling
 * Adds Async Functionality to IProjectionLoader
