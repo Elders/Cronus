@@ -1,5 +1,5 @@
 ﻿using System;
-using Elders.Cronus.Serializer;
+using Elders.Cronus.Projections;
 
 namespace Elders.Cronus.Discoveries
 {
@@ -13,8 +13,10 @@ namespace Elders.Cronus.Discoveries
             Handle(dynamicModel);
         }
 
-        protected abstract void Handle(DiscoveryResult<ISerializer> discoveredModel);
+        protected abstract void Handle(DiscoveryResult<ISerializer> discoveryResult);
 
-        protected abstract void Handle(DiscoveryResult<ITransport> discoveredModel);
+        protected abstract void Handle(DiscoveryResult<ITransport> discoveryResult);
+
+        protected abstract void Handle(DiscoveryResult<IProjectionLoader> discoveryResult);
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using Elders.Cronus.IocContainer;
 using Elders.Cronus.Pipeline.Hosts;
-using Elders.Cronus.Serializer;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.IntegrityValidation;

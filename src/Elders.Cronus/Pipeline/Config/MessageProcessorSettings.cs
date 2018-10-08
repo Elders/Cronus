@@ -10,7 +10,6 @@ using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections;
 using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;
-using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Pipeline.Config
 {

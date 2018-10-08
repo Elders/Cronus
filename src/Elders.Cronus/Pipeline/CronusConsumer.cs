@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Elders.Cronus.Serializer;
 using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
 using System.Linq;
