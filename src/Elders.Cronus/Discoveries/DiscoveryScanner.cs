@@ -1,37 +1,38 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Linq;
 using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class DiscoveryScanner : DiscoveryBasedOnExecutingDirAssemblies
+    public class DiscoveryScanner : DiscoveryBasedOnExecutingDirAssemblies<DiscoveryScanner>
     {
         private readonly static ILog log = LogProvider.GetLogger(typeof(DiscoveryScanner));
-        private readonly CronusServices cronusServices;
+        private readonly CronusServicesProvider cronusServicesProvider;
 
-        public DiscoveryScanner(CronusServices cronusServices)
+        public DiscoveryScanner(CronusServicesProvider cronusServicesProvider)
         {
-            this.cronusServices = cronusServices;
+            this.cronusServicesProvider = cronusServicesProvider;
         }
 
-        protected override DiscoveryResult DiscoverFromAssemblies(DiscoveryContext context)
+        protected override DiscoveryResult<DiscoveryScanner> DiscoverFromAssemblies(DiscoveryContext context)
         {
+            var theJson = context.Assemblies
+                .Where(asm => asm.FullName == "Elders.Cronus.Serialization.NewtonsoftJson, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")
+                .Single();
+
             var discoveries = context.Assemblies
                 .SelectMany(asm => asm
                     .GetLoadableTypes()
-                    .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery).IsAssignableFrom(type) && type != typeof(DiscoveryScanner)))
-                .Select(dt => (IDiscovery)FastActivator.CreateInstance(dt));
+                    .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery<object>).IsAssignableFrom(type) && type != typeof(DiscoveryScanner)))
+                .Select(dt => (IDiscovery<object>)FastActivator.CreateInstance(dt));
 
-            foreach (IDiscovery discovery in discoveries)
+            foreach (var discovery in discoveries)
             {
                 log.Info($"Discovered {discovery.Name}");
                 var discoveryResult = discovery.Discover();
-                cronusServices.Handle(discoveryResult);
+                cronusServicesProvider.HandleDiscoveredModel(discoveryResult);
             }
 
-            return new DiscoveryResult();
+            return new DiscoveryResult<DiscoveryScanner>();
         }
     }
 }

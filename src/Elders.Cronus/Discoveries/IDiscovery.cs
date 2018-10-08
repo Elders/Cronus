@@ -1,11 +1,9 @@
-﻿using Elders.Cronus.Pipeline.Config;
-
-namespace Elders.Cronus.Discoveries
+﻿namespace Elders.Cronus.Discoveries
 {
-    public interface IDiscovery
+    public interface IDiscovery<out T>
     {
         string Name { get; }
 
-        DiscoveryResult Discover();
+        IDiscoveryResult<T> Discover();
     }
 }

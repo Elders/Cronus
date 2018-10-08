@@ -9,9 +9,9 @@ using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Discoveries
 {
-    public abstract class DiscoveryBasedOnExecutingDirAssemblies : IDiscovery
+    public abstract class DiscoveryBasedOnExecutingDirAssemblies<T> : IDiscovery<T>
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(DiscoveryBasedOnExecutingDirAssemblies));
+        static readonly ILog log = LogProvider.GetLogger(nameof(DiscoveryBasedOnExecutingDirAssemblies<T>));
 
         static DiscoveryBasedOnExecutingDirAssemblies()
         {
@@ -23,21 +23,21 @@ namespace Elders.Cronus.Discoveries
 
         public virtual string Name { get { return this.GetType().Name; } }
 
-        public DiscoveryResult Discover()
+        public IDiscoveryResult<T> Discover()
         {
             DiscoveryContext context = new DiscoveryContext();
             context.Assemblies = assemblies.Values;
             return DiscoverFromAssemblies(context);
         }
 
-        protected abstract DiscoveryResult DiscoverFromAssemblies(DiscoveryContext context);
+        protected abstract DiscoveryResult<T> DiscoverFromAssemblies(DiscoveryContext context);
 
         static void LoadAssembliesFromDirecotry(string directoryWithAssemblies)
         {
             var files = directoryWithAssemblies.GetFiles(new[] { "*.exe", "*.dll" });
             foreach (var assemblyFile in files)
             {
-                if (assemblyFile.Contains("microsoft")) continue;
+                if (assemblyFile.ToLower().Contains("microsoft")) continue;
 
                 var assembly = AppDomain.CurrentDomain.GetAssemblies()
                     .Where(x => x.IsDynamic == false)
@@ -51,6 +51,8 @@ namespace Elders.Cronus.Discoveries
                     //assembly = Assembly.ReflectionOnlyLoad(assemblyRaw);
                     //assembly = AppDomain.CurrentDomain.Load(assembly.GetName());
                 }
+
+                assemblies.Add(assembly.FullName, assembly);
             }
         }
 
