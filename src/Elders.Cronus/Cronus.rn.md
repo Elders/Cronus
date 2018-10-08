@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0002 - 08.10.2018
+* Changes the IDiscovery interface to have a specific discovery target like IDiscovery<ISerializer>
+
 #### 5.0.0-discovery0001 - 05.10.2018
 * Reworks the discovery interface
 
