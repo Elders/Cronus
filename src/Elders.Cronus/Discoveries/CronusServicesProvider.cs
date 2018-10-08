@@ -1,12 +1,15 @@
-﻿using Elders.Cronus.Serializer;
+﻿using System;
+using Elders.Cronus.Serializer;
 
 namespace Elders.Cronus.Discoveries
 {
     public abstract class CronusServicesProvider
     {
-        public void HandleDiscoveredModel(IDiscoveryResult<object> discoveredModel)
+        public void HandleDiscoveredModel(IDiscoveryResult<object> discoveryResult)
         {
-            dynamic dynamicModel = (dynamic)discoveredModel;
+            if (discoveryResult is null) throw new ArgumentNullException(nameof(discoveryResult));
+
+            dynamic dynamicModel = (dynamic)discoveryResult;
             Handle(dynamicModel);
         }
 
