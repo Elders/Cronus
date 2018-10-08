@@ -15,10 +15,6 @@ namespace Elders.Cronus.Discoveries
 
         protected override DiscoveryResult<DiscoveryScanner> DiscoverFromAssemblies(DiscoveryContext context)
         {
-            var theJson = context.Assemblies
-                .Where(asm => asm.FullName == "Elders.Cronus.Serialization.NewtonsoftJson, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null")
-                .Single();
-
             var discoveries = context.Assemblies
                 .SelectMany(asm => asm
                     .GetLoadableTypes()
