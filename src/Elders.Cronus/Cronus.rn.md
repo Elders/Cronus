@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0003 - 08.10.2018
+* Moves the ISerializer to Elders.Cronus namespace
+
 #### 5.0.0-discovery0002 - 08.10.2018
 * Changes the IDiscovery interface to have a specific discovery target like IDiscovery<ISerializer>
 
