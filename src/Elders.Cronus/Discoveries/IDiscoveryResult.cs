@@ -20,6 +20,14 @@ namespace Elders.Cronus.Discoveries
 
     public class DiscoveredModel
     {
+        public DiscoveredModel(Type implementationType)
+        {
+            if (implementationType is null) throw new ArgumentNullException(nameof(implementationType));
+
+            AbstractionType = implementationType;
+            ImplementationType = implementationType;
+        }
+
         public DiscoveredModel(Type abstractionType, Type implementationType)
         {
             if (abstractionType is null) throw new ArgumentNullException(nameof(abstractionType));

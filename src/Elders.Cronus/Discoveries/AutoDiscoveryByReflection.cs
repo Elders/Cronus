@@ -6,10 +6,16 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
 using Elders.Cronus.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace Elders.Cronus.Discoveries
 {
-    public abstract class DiscoveryBasedOnExecutingDirAssemblies<T> : IDiscovery<T>
+    public interface IHaveConfiguration
+    {
+        IConfiguration Configuration { get; set; }
+    }
+
+    public abstract class DiscoveryBasedOnExecutingDirAssemblies<T> : IDiscovery<T>, IHaveConfiguration
     {
         static readonly ILog log = LogProvider.GetLogger(nameof(DiscoveryBasedOnExecutingDirAssemblies<T>));
 
@@ -23,9 +29,12 @@ namespace Elders.Cronus.Discoveries
 
         public virtual string Name { get { return this.GetType().Name; } }
 
+        public IConfiguration Configuration { get; set; }
+
         public IDiscoveryResult<T> Discover()
         {
             DiscoveryContext context = new DiscoveryContext();
+            context.Configuration = Configuration;
             context.Assemblies = assemblies.Values;
             return DiscoverFromAssemblies(context);
         }
@@ -38,6 +47,8 @@ namespace Elders.Cronus.Discoveries
             foreach (var assemblyFile in files)
             {
                 if (assemblyFile.ToLower().Contains("microsoft")) continue;
+                if (assemblyFile.ToLower().Contains("api-ms-win")) continue;
+                if (assemblyFile.ToLower().Contains("clrcompression")) continue;
 
                 var assembly = AppDomain.CurrentDomain.GetAssemblies()
                     .Where(x => x.IsDynamic == false)
@@ -46,13 +57,21 @@ namespace Elders.Cronus.Discoveries
 
                 if (assembly == null)
                 {
-                    assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
-                    //byte[] assemblyRaw = File.ReadAllBytes(assemblyFile);
-                    //assembly = Assembly.ReflectionOnlyLoad(assemblyRaw);
-                    //assembly = AppDomain.CurrentDomain.Load(assembly.GetName());
+                    try
+                    {
+                        assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(assemblyFile);
+                        //byte[] assemblyRaw = File.ReadAllBytes(assemblyFile);
+                        //assembly = Assembly.ReflectionOnlyLoad(assemblyRaw);
+                        //assembly = AppDomain.CurrentDomain.Load(assembly.GetName());
+                    }
+                    catch (BadImageFormatException ex)
+                    {
+                        log.WarnException($"Unable to load assembly {assemblyFile} which is not a bad thing at all", ex);
+                    }
                 }
 
-                assemblies.Add(assembly.FullName, assembly);
+                if (assembly is null == false)
+                    assemblies.Add(assembly.FullName, assembly);
             }
         }
 

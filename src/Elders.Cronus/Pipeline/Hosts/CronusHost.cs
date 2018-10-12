@@ -36,7 +36,7 @@ namespace Elders.Cronus.Pipeline.Hosts
             IContainer container = new Container();
             ICronusSettings settings = new CronusSettings(container);
 
-            var discoveryFinder = new DiscoveryScanner(null);
+            var discoveryFinder = new DiscoveryScanner(null, null);
             discoveryFinder.Discover();
 
             return Start();

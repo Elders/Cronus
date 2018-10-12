@@ -46,8 +46,10 @@
 
   <ItemGroup>
     <PackageReference Include="LibLog" Version="5.0.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.1.1" />
     <PackageReference Include="Multithreading.Scheduler" Version="2.0.1" />
     <PackageReference Include="Cronus.DomainModeling" Version="5.0.0-beta0002" />
+    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -58,7 +60,6 @@
 
   <ItemGroup>
     <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.2" PrivateAssets="All" />
-    <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
 
 </Project>

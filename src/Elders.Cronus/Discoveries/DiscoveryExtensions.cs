@@ -10,7 +10,7 @@ namespace Elders.Cronus.Discoveries
     {
         public static T WithDiscovery<T>(this T self) where T : ICronusSettings
         {
-            var discoveryFinder = new DiscoveryScanner(null);
+            var discoveryFinder = new DiscoveryScanner(null, null);
             discoveryFinder.Discover();
 
             return self;
