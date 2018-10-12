@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0004 - 12.10.2018
+* Adds more discoveries
+
 #### 5.0.0-discovery0003 - 08.10.2018
 * Moves the ISerializer to Elders.Cronus namespace
 
