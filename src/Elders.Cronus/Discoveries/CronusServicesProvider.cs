@@ -4,6 +4,7 @@ using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Middleware;
 using Elders.Cronus.Multitenancy;
+using Elders.Cronus.Pipeline;
 using Elders.Cronus.Projections;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -38,7 +39,9 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual void Handle(DiscoveryResult<ISerializer> discoveryResult) => AddServices(discoveryResult);
 
-        protected virtual void Handle(DiscoveryResult<ITransport> discoveryResult) => AddServices(discoveryResult);
+        protected virtual void Handle(DiscoveryResult<IConsumer<object>> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<IPublisher<IMessage>> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<IProjectionReader> discoveryResult) => AddServices(discoveryResult);
 
