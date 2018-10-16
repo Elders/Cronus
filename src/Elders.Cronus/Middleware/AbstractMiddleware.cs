@@ -3,7 +3,9 @@ using System.Collections.Generic;
 
 namespace Elders.Cronus.Middleware
 {
-    public abstract class AbstractMiddleware<TContext>
+    public interface IMiddleware { }
+
+    public abstract class AbstractMiddleware<TContext> : IMiddleware
     {
         protected ExecutionChain<TContext> ExecutionChain { get; set; }
 

@@ -7,9 +7,9 @@ namespace Elders.Cronus.InMemory
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<>));
 
-        SubscriptionMiddleware subscribtions;
+        SubscriptionMiddleware<object> subscribtions;
 
-        public InMemoryPublisher(SubscriptionMiddleware messageProcessor)
+        public InMemoryPublisher(SubscriptionMiddleware<object> messageProcessor)
         {
             this.subscribtions = messageProcessor;
         }

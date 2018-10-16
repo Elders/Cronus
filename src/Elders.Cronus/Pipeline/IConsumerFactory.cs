@@ -1,7 +1,7 @@
 ﻿namespace Elders.Cronus.Pipeline
 {
-    public interface IConsumerFactory
+    public interface IConsumerFactory<T>
     {
-        ContinuousConsumer CreateConsumer();
+        ContinuousConsumer<T> CreateConsumer();
     }
 }

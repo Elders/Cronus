@@ -7,10 +7,14 @@
         ICommandHandler<CancelProjectionVersionRequest>,
         ICommandHandler<TimeoutProjectionVersionRequest>
     {
+        public ProjectionVersionManagerAppService(IAggregateRepository repository) : base(repository)
+        {
+        }
+
         public void Handle(RegisterProjection command)
         {
             ProjectionVersionManager ar;
-            if (Repository.TryLoad(command.Id, out ar) == false)
+            if (repository.TryLoad(command.Id, out ar) == false)
             {
                 ar = new ProjectionVersionManager(command.Id, command.Hash);
             }
@@ -19,7 +23,7 @@
                 ar.NotifyHash(command.Hash);
             }
 
-            Repository.Save(ar);
+            repository.Save(ar);
         }
 
         public void Handle(RebuildProjection command)

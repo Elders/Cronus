@@ -2,6 +2,7 @@
 using System.Linq;
 using Elders.Cronus.Logging;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
@@ -31,7 +32,9 @@ namespace Elders.Cronus.Discoveries
             foreach (var discovery in discoveries)
             {
                 log.Info($"Discovered {discovery.Name}");
+
                 discovery.AssignPropertySafely<IHaveConfiguration>(x => x.Configuration = context.Configuration);
+
                 var discoveryResult = discovery.Discover();
                 cronusServicesProvider.HandleDiscoveredModel(discoveryResult);
             }

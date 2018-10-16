@@ -49,9 +49,9 @@ namespace Elders.Cronus.Projections
 
     public class EventSourcedProjectionsMiddleware : Middleware<HandleContext>
     {
-        readonly IProjectionRepository repository;
+        readonly IProjectionWriter repository;
 
-        public EventSourcedProjectionsMiddleware(IProjectionRepository repository)
+        public EventSourcedProjectionsMiddleware(IProjectionWriter repository)
         {
             if (ReferenceEquals(null, repository) == true) throw new ArgumentNullException(nameof(repository));
 

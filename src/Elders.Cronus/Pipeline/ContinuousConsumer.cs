@@ -5,15 +5,15 @@ using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Pipeline
 {
-    public abstract class ContinuousConsumer : IWork
+    public abstract class ContinuousConsumer<T> : IWork
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(ContinuousConsumer));
+        static readonly ILog log = LogProvider.GetLogger(typeof(ContinuousConsumer<>));
 
-        SubscriptionMiddleware subscriptions;
+        ISubscriptionMiddleware<T> subscriptions;
 
         bool stopping;
 
-        public ContinuousConsumer(SubscriptionMiddleware subscriptions)
+        public ContinuousConsumer(ISubscriptionMiddleware<T> subscriptions)
         {
             this.subscriptions = subscriptions;
         }

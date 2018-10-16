@@ -7,11 +7,11 @@ using Elders.Multithreading.Scheduler;
 
 namespace Elders.Cronus.Pipeline
 {
-    public class CronusConsumer : ICronusConsumer
+    public class CronusConsumer<T> : ICronusConsumer<T>
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(CronusConsumer));
+        static readonly ILog log = LogProvider.GetLogger(typeof(CronusConsumer<>));
 
-        readonly SubscriptionMiddleware subscriptions;
+        readonly ISubscriptionMiddleware<T> subscriptions;
         readonly ITransport transport;
         readonly List<WorkPool> pools;
         readonly ISerializer serializer;
@@ -24,16 +24,16 @@ namespace Elders.Cronus.Pipeline
         /// </summary>
         /// <param name="transport">The transport.</param>
         /// <param name="serializer">The serializer.</param>
-        public CronusConsumer(string name, ITransport transport, SubscriptionMiddleware subscriptions, ISerializer serializer, int numberOfWorkers = 1)
+        public CronusConsumer(ITransport transport, ISubscriptionMiddleware<T> subscriptions, ISerializer serializer)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentException("Invalid consumer name", nameof(name));
+            //if (string.IsNullOrEmpty(name)) throw new ArgumentException("Invalid consumer name", nameof(name));
             if (ReferenceEquals(null, transport)) throw new ArgumentNullException(nameof(transport));
             if (ReferenceEquals(null, subscriptions)) throw new ArgumentNullException(nameof(subscriptions));
             if (subscriptions.Subscribers.Any() == false) throw new ArgumentException("A consumer must have at least one subscriber to work properly.", nameof(subscriptions));
             if (ReferenceEquals(null, serializer)) throw new ArgumentNullException(nameof(serializer));
 
-            this.Name = name;
-            NumberOfWorkers = numberOfWorkers;
+            this.Name = typeof(T).Name;
+            NumberOfWorkers = 1;
             this.subscriptions = subscriptions;
             this.transport = transport;
             this.serializer = serializer;

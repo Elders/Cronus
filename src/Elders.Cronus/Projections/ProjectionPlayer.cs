@@ -36,12 +36,12 @@ namespace Elders.Cronus.Projections
         private bool isBuilding = false;
         private readonly IEventStoreFactory eventStoreFactory;
         private readonly IProjectionStore projectionStore;
-        private readonly IProjectionRepository projectionRepository;
+        private readonly IProjectionWriter projectionRepository;
         private readonly ISnapshotStore snapshotStore;
         private readonly EventTypeIndexForProjections index;
         private readonly ITenantResolver tenantResolver;
 
-        public ProjectionPlayer(IEventStoreFactory eventStoreFactory, IProjectionStore projectionStore, IProjectionRepository projectionRepository, ISnapshotStore snapshotStore, EventTypeIndexForProjections index, ITenantResolver tenantResolver)
+        public ProjectionPlayer(IEventStoreFactory eventStoreFactory, IProjectionStore projectionStore, IProjectionWriter projectionRepository, ISnapshotStore snapshotStore, EventTypeIndexForProjections index, ITenantResolver tenantResolver)
         {
             this.eventStoreFactory = eventStoreFactory;
             this.projectionStore = projectionStore;

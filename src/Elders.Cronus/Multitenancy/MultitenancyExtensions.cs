@@ -6,24 +6,24 @@ using Microsoft.Extensions.Configuration;
 
 namespace Elders.Cronus.Multitenancy
 {
-    public static class MultitenancyExtensions
-    {
-        public static T WithTenants<T>(this T self, ITenantList tenants) where T : ICronusSettings
-        {
-            Func<ITenantList> combinedTenants = () => new ObsoleteClientTenantsIncludingElders(tenants);
-            self.Container.RegisterSingleton(typeof(ITenantList), combinedTenants);
+    //public static class MultitenancyExtensions
+    //{
+    //    public static T WithTenants<T>(this T self, ITenantList tenants) where T : ICronusSettings
+    //    {
+    //        Func<ITenantList> combinedTenants = () => new ObsoleteClientTenantsIncludingElders(tenants);
+    //        self.Container.RegisterSingleton(typeof(ITenantList), combinedTenants);
 
-            return self;
-        }
+    //        return self;
+    //    }
 
-        public static T WithNoTenants<T>(this T self) where T : ICronusSettings
-        {
-            Func<ITenantList> combinedTenants = () => new ObsoleteClientTenantsIncludingElders();
-            self.Container.RegisterSingleton(typeof(ITenantList), combinedTenants);
+    //    public static T WithNoTenants<T>(this T self) where T : ICronusSettings
+    //    {
+    //        Func<ITenantList> combinedTenants = () => new ObsoleteClientTenantsIncludingElders();
+    //        self.Container.RegisterSingleton(typeof(ITenantList), combinedTenants);
 
-            return self;
-        }
-    }
+    //        return self;
+    //    }
+    //}
 
     public class ClientTenantsIncludingElders : ITenantList
     {

@@ -1,4 +1,6 @@
-﻿using Elders.Cronus.Multitenancy;
+﻿using System.Collections.Generic;
+using Elders.Cronus.Multitenancy;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
@@ -6,11 +8,13 @@ namespace Elders.Cronus.Discoveries
     {
         protected override DiscoveryResult<ITenantList> DiscoverFromAssemblies(DiscoveryContext context)
         {
-            var result = new DiscoveryResult<ITenantList>();
-            result.Models.Add(new DiscoveredModel(typeof(ITenantList), typeof(ClientTenantsIncludingElders)));
-            result.Models.Add(new DiscoveredModel(typeof(ITenantResolver), typeof(DefaultTenantResolver)));
+            return new DiscoveryResult<ITenantList>(GetModels());
+        }
 
-            return result;
+        IEnumerable<DiscoveredModel> GetModels()
+        {
+            yield return new DiscoveredModel(typeof(ITenantList), typeof(ClientTenantsIncludingElders), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(ITenantResolver), typeof(DefaultTenantResolver), ServiceLifetime.Transient);
         }
     }
 }

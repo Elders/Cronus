@@ -8,7 +8,7 @@ using Elders.Cronus.Projections.Versioning;
 
 namespace Elders.Cronus.Projections
 {
-    public class ProjectionRepository : IProjectionRepository
+    public class ProjectionRepository : IProjectionWriter
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionRepository));
 

@@ -1,16 +1,16 @@
 namespace Elders.Cronus.Pipeline
 {
-    public interface IConsumer
+    public interface IConsumer<T>
     {
 
     }
 
-    interface IInMemoryConsumer : IConsumer
+    interface IInMemoryConsumer<T> : IConsumer<T>
     {
 
     }
 
-    public interface ICronusConsumer : IConsumer
+    public interface ICronusConsumer<T> : IConsumer<T>
     {
         int NumberOfWorkers { get; }
 

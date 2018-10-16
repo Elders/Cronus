@@ -4,10 +4,9 @@ using Microsoft.Extensions.Configuration;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class DiscoveryContext
+    public class DiscoveryContext : IHaveConfiguration
     {
         public IEnumerable<Assembly> Assemblies { get; set; }
-
         public IConfiguration Configuration { get; set; }
     }
 }

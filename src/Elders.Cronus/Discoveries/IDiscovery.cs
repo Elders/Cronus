@@ -1,9 +1,10 @@
 ﻿namespace Elders.Cronus.Discoveries
 {
-    public interface IDiscovery<out T>
+    public interface IDiscovery<out TCronusService>
+    //where TCronusService : ICronusService
     {
         string Name { get; }
 
-        IDiscoveryResult<T> Discover();
+        IDiscoveryResult<TCronusService> Discover();
     }
 }

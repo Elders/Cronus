@@ -12,9 +12,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         readonly IEventStoreFactory eventStoreFactory;
         readonly IProjectionStore projectionStore;
-        readonly IProjectionRepository projectionRepository;
+        readonly IProjectionWriter projectionRepository;
 
-        public EventStoreIndexPlayer(IEventStoreFactory eventStoreFactory, IProjectionStore projectionStore, IProjectionRepository projectionRepository)
+        public EventStoreIndexPlayer(IEventStoreFactory eventStoreFactory, IProjectionStore projectionStore, IProjectionWriter projectionRepository)
         {
             this.eventStoreFactory = eventStoreFactory;
             this.projectionStore = projectionStore;

@@ -1,16 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.EventStore;
-using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Middleware;
 using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
-    public abstract class CronusServicesProvider
+    public class CronusServicesProvider
     {
+        private readonly IServiceCollection services;
+
+        public CronusServicesProvider(IServiceCollection services)
+        {
+            if (services is null) throw new ArgumentNullException(nameof(services));
+
+            this.services = services;
+        }
+
         public void HandleDiscoveredModel(IDiscoveryResult<object> discoveryResult)
         {
             if (discoveryResult is null) throw new ArgumentNullException(nameof(discoveryResult));
@@ -19,53 +28,42 @@ namespace Elders.Cronus.Discoveries
             Handle(dynamicModel);
         }
 
-        protected abstract void Handle(DiscoveryResult<ISerializer> discoveryResult);
-
-        protected abstract void Handle(DiscoveryResult<ITransport> discoveryResult);
-
-        protected abstract void Handle(DiscoveryResult<IProjectionLoader> discoveryResult);
-
-        protected abstract void Handle(DiscoveryResult<IAggregateRootApplicationService> discoveryResult);
-
-        protected abstract void Handle(DiscoveryResult<IHandlerFactory> discoveryResult);
-
-        protected abstract void Handle(DiscoveryResult<IEventStore> discoveryResult);
-
-        protected abstract void Handle(DiscoveryResult<IAggregateRepository> discoveryResult);
-
-        protected abstract void Handle(DiscoveryResult<ITenantList> discoveryResult);
-    }
-
-    public class AggregateRepositoryDiscovery : DiscoveryBasedOnExecutingDirAssemblies<IAggregateRepository>
-    {
-        protected override DiscoveryResult<IAggregateRepository> DiscoverFromAssemblies(DiscoveryContext context)
+        void AddServices(IDiscoveryResult<object> discoveryResult)
         {
-            var result = new DiscoveryResult<IAggregateRepository>();
-            result.Models.AddRange(GetModels());
-
-            return result;
+            foreach (var discoveredModel in discoveryResult.Models)
+            {
+                services.Add(discoveredModel);
+            }
         }
 
-        IEnumerable<DiscoveredModel> GetModels()
-        {
-            yield return new DiscoveredModel(typeof(IIntegrityPolicy<EventStream>), typeof(EventStreamIntegrityPolicy));
-            yield return new DiscoveredModel(typeof(IAggregateRepository), typeof(AggregateRepository));
-        }
-    }
+        protected virtual void Handle(DiscoveryResult<ISerializer> discoveryResult) => AddServices(discoveryResult);
 
-    public class ApplicationServicesDiscovery : DiscoveryBasedOnExecutingDirAssemblies<IAggregateRootApplicationService>
-    {
-        protected override DiscoveryResult<IAggregateRootApplicationService> DiscoverFromAssemblies(DiscoveryContext context)
-        {
-            var result = new DiscoveryResult<IAggregateRootApplicationService>();
-            result.Models.AddRange(GetModels());
+        protected virtual void Handle(DiscoveryResult<ITransport> discoveryResult) => AddServices(discoveryResult);
 
-            return result;
-        }
+        protected virtual void Handle(DiscoveryResult<IProjectionReader> discoveryResult) => AddServices(discoveryResult);
 
-        IEnumerable<DiscoveredModel> GetModels()
-        {
-            yield return new DiscoveredModel(typeof(ApplicationServiceMiddleware));
-        }
+        protected virtual void Handle(DiscoveryResult<IProjectionWriter> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<IAggregateRootAtomicAction> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<IAggregateRootApplicationService> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<IProjection> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<IPort> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<ISaga> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<IGateway> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<IMiddleware> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<IHandlerFactory> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<IEventStore> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<IAggregateRepository> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<ITenantList> discoveryResult) => AddServices(discoveryResult);
     }
 }

@@ -7,17 +7,24 @@ using System.Runtime.Loader;
 using System.Threading;
 using Elders.Cronus.Logging;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
+    public interface IHaveServiceCollection
+    {
+        IServiceCollection Services { get; set; }
+    }
+
     public interface IHaveConfiguration
     {
         IConfiguration Configuration { get; set; }
     }
 
-    public abstract class DiscoveryBasedOnExecutingDirAssemblies<T> : IDiscovery<T>, IHaveConfiguration
+    public abstract class DiscoveryBasedOnExecutingDirAssemblies<TCronusService> : IDiscovery<TCronusService>, IHaveConfiguration
+    //where TCronusService : ICronusService
     {
-        static readonly ILog log = LogProvider.GetLogger(nameof(DiscoveryBasedOnExecutingDirAssemblies<T>));
+        static readonly ILog log = LogProvider.GetLogger(nameof(DiscoveryBasedOnExecutingDirAssemblies<TCronusService>));
 
         static DiscoveryBasedOnExecutingDirAssemblies()
         {
@@ -30,16 +37,18 @@ namespace Elders.Cronus.Discoveries
         public virtual string Name { get { return this.GetType().Name; } }
 
         public IConfiguration Configuration { get; set; }
+        public IServiceCollection Services { get; set; }
 
-        public IDiscoveryResult<T> Discover()
+        public IDiscoveryResult<TCronusService> Discover()
         {
             DiscoveryContext context = new DiscoveryContext();
             context.Configuration = Configuration;
             context.Assemblies = assemblies.Values;
-            return DiscoverFromAssemblies(context);
+            var discoveryResult = DiscoverFromAssemblies(context);
+            return discoveryResult;
         }
 
-        protected abstract DiscoveryResult<T> DiscoverFromAssemblies(DiscoveryContext context);
+        protected abstract DiscoveryResult<TCronusService> DiscoverFromAssemblies(DiscoveryContext context);
 
         static void LoadAssembliesFromDirecotry(string directoryWithAssemblies)
         {

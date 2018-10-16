@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
     public interface IDiscoveryResult<out T>
     {
-        List<DiscoveredModel> Models { get; }
+        IEnumerable<DiscoveredModel> Models { get; }
     }
 
     public class DiscoveryResult<T> : IDiscoveryResult<T>
@@ -15,50 +16,20 @@ namespace Elders.Cronus.Discoveries
             Models = new List<DiscoveredModel>();
         }
 
-        public List<DiscoveredModel> Models { get; protected set; }
+        public DiscoveryResult(IEnumerable<DiscoveredModel> models)
+        {
+            Models = models;
+        }
+
+        public IEnumerable<DiscoveredModel> Models { get; protected set; }
     }
 
-    public class DiscoveredModel
+    public class DiscoveredModel : ServiceDescriptor
     {
-        public DiscoveredModel(Type implementationType)
-        {
-            if (implementationType is null) throw new ArgumentNullException(nameof(implementationType));
+        public DiscoveredModel(Type serviceType, object instance) : base(serviceType, instance) { }
 
-            AbstractionType = implementationType;
-            ImplementationType = implementationType;
-        }
+        public DiscoveredModel(Type serviceType, Type implementationType, ServiceLifetime lifetime) : base(serviceType, implementationType, lifetime) { }
 
-        public DiscoveredModel(Type abstractionType, Type implementationType)
-        {
-            if (abstractionType is null) throw new ArgumentNullException(nameof(abstractionType));
-            if (implementationType is null) throw new ArgumentNullException(nameof(implementationType));
-
-            AbstractionType = abstractionType;
-            ImplementationType = implementationType;
-        }
-
-        public DiscoveredModel(Type abstractionType, Type implementationType, object instance)
-            : this(abstractionType, implementationType)
-        {
-            if (instance is null) throw new ArgumentNullException(nameof(instance));
-
-            Instance = instance;
-        }
-
-        public DiscoveredModel(Type abstractionType, Type implementationType, Func<object> factory)
-            : this(abstractionType, implementationType)
-        {
-            if (factory is null) throw new ArgumentNullException(nameof(factory));
-
-            Factory = factory;
-        }
-
-        public Type AbstractionType { get; private set; }
-
-        public Type ImplementationType { get; private set; }
-
-        public Func<object> Factory { get; private set; }
-
-        public object Instance { get; private set; }
+        public DiscoveredModel(Type serviceType, Func<IServiceProvider, object> factory, ServiceLifetime lifetime) : base(serviceType, factory, lifetime) { }
     }
 }

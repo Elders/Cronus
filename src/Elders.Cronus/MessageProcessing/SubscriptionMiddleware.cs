@@ -10,7 +10,7 @@ namespace Elders.Cronus.MessageProcessing
     /// It also allows to dynamically add subscribers.
     /// Probably this class should be something like IObservable<ISubscriber>
     /// </summary>
-    public interface ISubscriptionMiddleware
+    public interface ISubscriptionMiddleware<T>
     {
         IEnumerable<ISubscriber> Subscribers { get; }
 
@@ -28,7 +28,7 @@ namespace Elders.Cronus.MessageProcessing
         void UnsubscribeAll();
     }
 
-    public class SubscriptionMiddleware : ISubscriptionMiddleware
+    public class SubscriptionMiddleware<T> : ISubscriptionMiddleware<T>
     {
         ConcurrentBag<ISubscriber> subscribers;
 
