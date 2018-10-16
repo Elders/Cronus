@@ -3,9 +3,6 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.AtomicAction
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [Serializable]
     public class AggregateStateFirstLevelConcurrencyException : Exception
     {
@@ -35,6 +32,5 @@ namespace Elders.Cronus.AtomicAction
         /// Constructs a new AggregateStateFirstLevelConcurrencyException.
         /// </summary>
         public AggregateStateFirstLevelConcurrencyException() { }
-
     }
 }

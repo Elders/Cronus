@@ -63,7 +63,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="AtomicAction\Config\" />
     <Folder Include="Cluster\Config\" />
   </ItemGroup>
 
