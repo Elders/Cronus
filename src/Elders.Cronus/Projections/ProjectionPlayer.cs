@@ -73,7 +73,7 @@ namespace Elders.Cronus.Projections
 
                 var projectionEventTypes = GetInvolvedEvents(projectionType);
 
-                projectionStore.InitializeProjectionStore(version);
+                //projectionStore.InitializeProjectionStore(version);
                 snapshotStore.InitializeProjectionSnapshotStore(version);
                 var indexState = index.GetIndexState();
                 if (indexState.IsPresent() == false)

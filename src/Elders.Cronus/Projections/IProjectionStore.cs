@@ -11,7 +11,7 @@ namespace Elders.Cronus.Projections
 
         IEnumerable<ProjectionCommit> EnumerateProjection(ProjectionVersion version, IBlobId projectionId);
 
-        void InitializeProjectionStore(ProjectionVersion projectionVersion);
+        //void InitializeProjectionStore(ProjectionVersion projectionVersion);
 
         void Save(ProjectionCommit commit);
     }

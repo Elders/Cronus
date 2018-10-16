@@ -23,7 +23,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Rebuild(Type projectionType, ProjectionVersion version)
         {
-            projectionStore.InitializeProjectionStore(version);
+            //projectionStore.InitializeProjectionStore(version);
 
             IEnumerable<IEventStorePlayer> eventStorePlayers = eventStoreFactory.GetEventStorePlayers();
 

@@ -25,7 +25,7 @@ namespace Elders.Cronus.Projections.Versioning
             currentHash = hasher.CalculateHash(typeof(EventTypeIndexForProjections));
 
             var version = new ProjectionVersion(ContractId, ProjectionStatus.Live, 1, currentHash);
-            store.InitializeProjectionStore(version);
+            //store.InitializeProjectionStore(version);
 
             this.allEventTypesInTheSystem = new HashSet<Type>(allEventTypesInTheSystem);
             this.store = store;
