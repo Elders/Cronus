@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0005 - 16.10.2018
+* Adds MS dependency injection
+
 #### 5.0.0-discovery0004 - 12.10.2018
 * Adds more discoveries
 
