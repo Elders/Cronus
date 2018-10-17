@@ -5,11 +5,25 @@ using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Middleware;
 using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Pipeline;
+using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Projections;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Elders.Cronus.Discoveries
 {
+    public static class Cronus
+    {
+        public static IServiceCollection UseCronus(this IServiceCollection services, IConfiguration configuration)
+        {
+            var discoveryFinder = new DiscoveryScanner(new CronusServicesProvider(services), configuration);
+            discoveryFinder.Discover();
+
+            return services;
+        }
+    }
+
     public class CronusServicesProvider
     {
         private readonly IServiceCollection services;
@@ -19,6 +33,9 @@ namespace Elders.Cronus.Discoveries
             if (services is null) throw new ArgumentNullException(nameof(services));
 
             this.services = services;
+
+
+            this.services.AddSingleton<GenericFactory>(provider => new GenericFactory(type => provider.GetService(type)));
         }
 
         public void HandleDiscoveredModel(IDiscoveryResult<object> discoveryResult)
@@ -33,7 +50,7 @@ namespace Elders.Cronus.Discoveries
         {
             foreach (var discoveredModel in discoveryResult.Models)
             {
-                services.Add(discoveredModel);
+                services.TryAdd(discoveredModel);
             }
         }
 

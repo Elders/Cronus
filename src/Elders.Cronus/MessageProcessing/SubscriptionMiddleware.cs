@@ -40,7 +40,7 @@ namespace Elders.Cronus.MessageProcessing
         public void Subscribe(ISubscriber subscriber)
         {
             if (ReferenceEquals(null, subscriber)) throw new ArgumentNullException(nameof(subscriber));
-            if (subscriber.GetInvolvedMessageTypes().Any() == false) throw new ArgumentException($"Subscirber '{subscriber.Id}' does not care about any message types. Any reason?");
+            //if (subscriber.GetInvolvedMessageTypes().Any() == false) throw new ArgumentException($"Subscirber '{subscriber.Id}' does not care about any message types. Any reason?");
             if (subscribers.Any(x => x.Id == subscriber.Id)) throw new ArgumentException($"There is already subscriber with id '{subscriber.Id}'");
 
             subscribers.Add(subscriber);
