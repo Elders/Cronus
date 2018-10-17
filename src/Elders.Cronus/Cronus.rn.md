@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0007 - 17.10.2018
+* Fixes how assemblies are loaded from the executing dir
+
 #### 5.0.0-discovery0006 - 17.10.2018
 * Removes all consumers and moved them to he RabbitMQ project because they were too specific about how RabbitMQ works. With this the MultiThreading.Scheduler was also removed
 
