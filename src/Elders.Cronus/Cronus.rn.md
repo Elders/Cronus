@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0010 - 18.10.2018
+* Removes the abstract modifier from the CronusHost
+
 #### 5.0.0-discovery0009 - 18.10.2018
 * Introduces CronusServiceCollectionExtensions
 
