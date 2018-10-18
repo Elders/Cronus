@@ -1,5 +1,4 @@
 ﻿using System;
-//using Elders.Cronus.Cluster.Config;
 
 namespace Elders.Cronus.Pipeline.Config
 {
@@ -9,6 +8,8 @@ namespace Elders.Cronus.Pipeline.Config
 
         public ServiceLocalor(Func<Type, object> factory)
         {
+            if (factory is null) throw new ArgumentNullException(nameof(factory));
+
             this.factory = factory;
         }
 
