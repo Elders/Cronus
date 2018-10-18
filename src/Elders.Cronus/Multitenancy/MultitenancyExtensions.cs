@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 
 namespace Elders.Cronus.Multitenancy
@@ -9,6 +10,8 @@ namespace Elders.Cronus.Multitenancy
 
         public ClientTenantsIncludingElders(IConfiguration configuration)
         {
+            if (configuration is null) throw new ArgumentNullException(nameof(configuration));
+
             tenants = new List<string>();
             tenants.Add(CronusAssembly.EldersTenant);
 
