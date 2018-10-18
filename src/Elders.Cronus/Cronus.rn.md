@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0009 - 18.10.2018
+* Introduces CronusServiceCollectionExtensions
+
 #### 5.0.0-discovery0008 - 18.10.2018
 * Updates DomainModeling and adds CronusHost discovery
 
