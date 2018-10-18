@@ -12,16 +12,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Elders.Cronus.Discoveries
 {
-    public static class Cronus
-    {
-        public static IServiceCollection UseCronus(this IServiceCollection services, IConfiguration configuration)
-        {
-            var discoveryFinder = new DiscoveryScanner(new CronusServicesProvider(services), configuration);
-            discoveryFinder.Discover();
-
-            return services;
-        }
-    }
 
     public class CronusServicesProvider
     {
