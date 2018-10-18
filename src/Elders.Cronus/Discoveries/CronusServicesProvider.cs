@@ -22,7 +22,7 @@ namespace Elders.Cronus.Discoveries
             if (services is null) throw new ArgumentNullException(nameof(services));
 
             this.services = services;
-            this.services.AddSingleton<GenericFactory>(provider => new GenericFactory(type => provider.GetService(type)));
+            this.services.AddSingleton<ServiceLocalor>(provider => new ServiceLocalor(type => provider.GetService(type)));
         }
 
         public void HandleDiscoveredModel(IDiscoveryResult<object> discoveryResult)
