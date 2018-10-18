@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
-    public abstract class CronusHostDiscovery : DiscoveryBasedOnExecutingDirAssemblies<ICronusHost>
+    public class CronusHostDiscovery : DiscoveryBasedOnExecutingDirAssemblies<ICronusHost>
     {
         protected override DiscoveryResult<ICronusHost> DiscoverFromAssemblies(DiscoveryContext context)
         {
