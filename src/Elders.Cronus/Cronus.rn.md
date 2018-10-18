@@ -1,4 +1,4 @@
-#### 5.0.0-discovery0007 - 17.10.2018
+#### 5.0.0-discovery0008 - 18.10.2018
 * Updates DomainModeling and adds CronusHost discovery
 
 #### 5.0.0-discovery0007 - 17.10.2018
