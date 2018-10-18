@@ -1,4 +1,7 @@
 #### 5.0.0-discovery0007 - 17.10.2018
+* Updates DomainModeling and adds CronusHost discovery
+
+#### 5.0.0-discovery0007 - 17.10.2018
 * Fixes how assemblies are loaded from the executing dir
 
 #### 5.0.0-discovery0006 - 17.10.2018
