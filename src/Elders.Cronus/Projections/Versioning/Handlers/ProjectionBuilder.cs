@@ -12,7 +12,13 @@ namespace Elders.Cronus.Projections.Versioning
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionBuilder));
 
-        public ProjectionPlayer Player { get; set; }
+        private readonly ProjectionPlayer player;
+
+        public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ProjectionPlayer player)
+            : base(commandPublisher, timeoutRequestPublisher)
+        {
+            this.player = player;
+        }
 
         public void Handle(ProjectionVersionRequested @event)
         {
@@ -26,11 +32,11 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(RebuildProjectionVersion @event)
         {
-            bool indexExists = Player.HasIndex();
+            bool indexExists = player.HasIndex();
             if (indexExists == false)
                 RequestTimeout(new RebuildProjectionVersion(@event.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
 
-            if (indexExists || Player.RebuildIndex())
+            if (indexExists || player.RebuildIndex())
             {
                 var rebuildUntil = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
                 if (rebuildUntil < DateTime.UtcNow)
@@ -38,11 +44,11 @@ namespace Elders.Cronus.Projections.Versioning
 
                 var theType = @event.ProjectionVersionRequest.Version.ProjectionName.GetTypeByContract();
                 var rebuildTimesOutAt = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
-                ReplayResult replayResult = Player.Rebuild(@event.ProjectionVersionRequest.Version, rebuildTimesOutAt);
+                ReplayResult replayResult = player.Rebuild(@event.ProjectionVersionRequest.Version, rebuildTimesOutAt);
                 if (replayResult.IsSuccess)
                 {
                     var finalize = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);
-                    CommandPublisher.Publish(finalize);
+                    commandPublisher.Publish(finalize);
                 }
                 else
                 {
@@ -50,11 +56,11 @@ namespace Elders.Cronus.Projections.Versioning
                     if (replayResult.IsTimeout)
                     {
                         var timedout = new TimeoutProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox);
-                        CommandPublisher.Publish(timedout);
+                        commandPublisher.Publish(timedout);
                     }
                     {
                         var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, replayResult.Error);
-                        CommandPublisher.Publish(cancel);
+                        commandPublisher.Publish(cancel);
                     }
                 }
             }
@@ -63,7 +69,7 @@ namespace Elders.Cronus.Projections.Versioning
         public void Handle(ProjectionVersionRebuildTimedout sagaTimeout)
         {
             var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
-            CommandPublisher.Publish(timedout);
+            commandPublisher.Publish(timedout);
         }
     }
 

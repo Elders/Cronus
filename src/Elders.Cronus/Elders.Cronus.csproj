@@ -48,7 +48,7 @@
     <PackageReference Include="LibLog" Version="5.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.1.1" />
-    <PackageReference Include="Cronus.DomainModeling" Version="5.0.0-discovery0002" />
+    <PackageReference Include="Cronus.DomainModeling" Version="5.0.0-discovery0003" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
   </ItemGroup>
 
@@ -60,10 +60,6 @@
 
   <ItemGroup>
     <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Cluster\Config\" />
   </ItemGroup>
 
 </Project>

@@ -281,8 +281,8 @@ namespace Elders.Cronus.Projections
             ProjectionStream stream = new ProjectionStream(versionId, projectionCommits, () => snapshot);
             var queryResult = stream.RestoreFromHistory<ProjectionVersionsHandler>();
 
-            if (queryResult.Success)
-                return queryResult.Projection.State.AllVersions;
+            if (queryResult.IsSuccess)
+                return queryResult.Data.State.AllVersions;
 
             return new ProjectionVersions();
         }

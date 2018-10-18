@@ -1,4 +1,4 @@
-namespace Elders.Cronus.Pipeline
+namespace Elders.Cronus
 {
     public interface IConsumer<T>
     {

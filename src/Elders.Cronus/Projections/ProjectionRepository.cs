@@ -124,7 +124,7 @@ namespace Elders.Cronus.Projections
             this.inMemoryVersionStore = inMemoryVersionStore;
         }
 
-        public IProjectionGetResult<T> Get<T>(IBlobId projectionId) where T : IProjectionDefinition
+        public ReadResult<T> Get<T>(IBlobId projectionId) where T : IProjectionDefinition
         {
             if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
 
@@ -134,7 +134,7 @@ namespace Elders.Cronus.Projections
             return stream.RestoreFromHistory<T>();
         }
 
-        public IProjectionGetResult<IProjectionDefinition> Get(IBlobId projectionId, Type projectionType)
+        public ReadResult<IProjectionDefinition> Get(IBlobId projectionId, Type projectionType)
         {
             if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
 
@@ -142,7 +142,7 @@ namespace Elders.Cronus.Projections
             return stream.RestoreFromHistory(projectionType);
         }
 
-        public async Task<IProjectionGetResult<T>> GetAsync<T>(IBlobId projectionId) where T : IProjectionDefinition
+        public async Task<ReadResult<T>> GetAsync<T>(IBlobId projectionId) where T : IProjectionDefinition
         {
             if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
 
@@ -152,7 +152,7 @@ namespace Elders.Cronus.Projections
             return stream.RestoreFromHistory<T>();
         }
 
-        public async Task<IProjectionGetResult<IProjectionDefinition>> GetAsync(IBlobId projectionId, Type projectionType)
+        public async Task<ReadResult<IProjectionDefinition>> GetAsync(IBlobId projectionId, Type projectionType)
         {
             if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
 
@@ -174,11 +174,11 @@ namespace Elders.Cronus.Projections
                 if (versions == null || versions.Count == 0)
                 {
                     var queryResult = GetProjectionVersionsFromStore(projectionName);
-                    if (queryResult.Success)
+                    if (queryResult.IsSuccess)
                     {
-                        if (queryResult.Projection.State.Live != null)
-                            inMemoryVersionStore.Cache(queryResult.Projection.State.Live);
-                        foreach (var buildingVersion in queryResult.Projection.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
+                        if (queryResult.Data.State.Live != null)
+                            inMemoryVersionStore.Cache(queryResult.Data.State.Live);
+                        foreach (var buildingVersion in queryResult.Data.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
                         {
                             inMemoryVersionStore.Cache(buildingVersion);
                         }
@@ -210,11 +210,11 @@ namespace Elders.Cronus.Projections
             if (versions == null || versions.Count == 0)
             {
                 var queryResult = GetProjectionVersionsFromStore(projectionName);
-                if (queryResult.Success)
+                if (queryResult.IsSuccess)
                 {
-                    if (queryResult.Projection.State.Live != null)
-                        inMemoryVersionStore.Cache(queryResult.Projection.State.Live);
-                    foreach (var buildingVersion in queryResult.Projection.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
+                    if (queryResult.Data.State.Live != null)
+                        inMemoryVersionStore.Cache(queryResult.Data.State.Live);
+                    foreach (var buildingVersion in queryResult.Data.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
                     {
                         inMemoryVersionStore.Cache(buildingVersion.WithStatus(ProjectionStatus.Live));
                     }
@@ -234,7 +234,7 @@ namespace Elders.Cronus.Projections
             return versions ?? new ProjectionVersions();
         }
 
-        IProjectionGetResult<ProjectionVersionsHandler> GetProjectionVersionsFromStore(string projectionName)
+        ReadResult<ProjectionVersionsHandler> GetProjectionVersionsFromStore(string projectionName)
         {
             var versionId = new ProjectionVersionManagerId(projectionName);
             var persistentVersionType = typeof(ProjectionVersionsHandler);
@@ -290,7 +290,7 @@ namespace Elders.Cronus.Projections
                 if (projectionType.IsSnapshotable() && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshot.Revision))
                 {
                     ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
-                    var projectionState = checkpointStream.RestoreFromHistory(projectionType).Projection.State;
+                    var projectionState = checkpointStream.RestoreFromHistory(projectionType).Data.State;
                     ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshot.Revision + 1);
                     snapshotStore.Save(newSnapshot, version);
                     loadSnapshot = () => newSnapshot;
@@ -327,7 +327,7 @@ namespace Elders.Cronus.Projections
                     if (snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshotMeta.Revision))
                     {
                         ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
-                        var projectionState = checkpointStream.RestoreFromHistory(projectionType).Projection.State;
+                        var projectionState = checkpointStream.RestoreFromHistory(projectionType).Data.State;
                         ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshotMeta.Revision + 1);
                         snapshotStore.Save(newSnapshot, version);
                         loadSnapshot = () => newSnapshot;
@@ -397,7 +397,7 @@ namespace Elders.Cronus.Projections
                 if (projectionType.IsSnapshotable() && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshot.Revision))
                 {
                     ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
-                    var projectionState = checkpointStream.RestoreFromHistory(projectionType).Projection.State;
+                    var projectionState = checkpointStream.RestoreFromHistory(projectionType).Data.State;
                     ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshot.Revision + 1);
                     snapshotStore.Save(newSnapshot, version);
                     loadSnapshot = () => newSnapshot;

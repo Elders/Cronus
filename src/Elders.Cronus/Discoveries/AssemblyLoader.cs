@@ -13,15 +13,17 @@ namespace Elders.Cronus.Discoveries
     {
         static readonly ILog log = LogProvider.GetLogger(nameof(AssemblyLoader));
 
+        static int shouldLoadAssembliesFromDir = 1;
+        static string[] excludedAssemblies = new string[] { "apphost.exe", "clrcompression.dll", "clretwrc.dll", "clrjit.dll", "coreclr.dll", "dbgshim.dll", "hostfxr.dll", "hostpolicy.dll", "mscordaccore.dll", "mscordaccore_amd64_amd64_4.6.26814.03.dll", "mscordbi.dll", "mscorrc.debug.dll", "mscorrc.dll", "sos.dll", "sos_amd64_amd64_4.6.26814.03.dll", "ucrtbase.dll" };
+        static string[] wildcards = new string[] { "microsoft", "api-ms" };
+
         internal static IDictionary<string, Assembly> assemblies = new Dictionary<string, Assembly>();
+
         static AssemblyLoader()
         {
             InitAssemblies();
         }
 
-        static int shouldLoadAssembliesFromDir = 1;
-        static string[] excludedAssemblies = new string[] { "apphost.exe", "clrcompression.dll", "clretwrc.dll", "clrjit.dll", "coreclr.dll", "dbgshim.dll", "hostfxr.dll", "hostpolicy.dll", "mscordaccore.dll", "mscordaccore_amd64_amd64_4.6.26814.03.dll", "mscordbi.dll", "mscorrc.debug.dll", "mscorrc.dll", "sos.dll", "sos_amd64_amd64_4.6.26814.03.dll", "ucrtbase.dll" };
-        static string[] wildcards = new string[] { "microsoft", "api-ms" };
         static void LoadAssembliesFromDirecotry(string directoryWithAssemblies)
         {
             var files = directoryWithAssemblies.GetFiles(new[] { "*.exe", "*.dll" }).Select(filepath => filepath.ToLower());
@@ -35,7 +37,7 @@ namespace Elders.Cronus.Discoveries
                     .Where(x => x.Location.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase))
                     .SingleOrDefault();
 
-                if (assembly == null)
+                if (assembly is null)
                 {
                     try
                     {

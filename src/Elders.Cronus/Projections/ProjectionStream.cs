@@ -36,17 +36,17 @@ namespace Elders.Cronus.Projections
 
         public List<ProjectionCommit> Commits { get; private set; }
 
-        public IProjectionGetResult<IProjectionDefinition> RestoreFromHistory(Type projectionType)
+        public ReadResult<IProjectionDefinition> RestoreFromHistory(Type projectionType)
         {
-            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return ProjectionGetResult<IProjectionDefinition>.NoResult;
+            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return new ReadResult<IProjectionDefinition>();
 
             IProjectionDefinition projection = (IProjectionDefinition)FastActivator.CreateInstance(projectionType, true);
             return RestoreFromHistoryMamamia(projection);
         }
 
-        public IProjectionGetResult<T> RestoreFromHistory<T>() where T : IProjectionDefinition
+        public ReadResult<T> RestoreFromHistory<T>() where T : IProjectionDefinition
         {
-            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return ProjectionGetResult<T>.NoResult;
+            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return new ReadResult<T>();
 
             T projection = (T)FastActivator.CreateInstance(typeof(T), true);
             return RestoreFromHistoryMamamia<T>(projection);
@@ -60,7 +60,7 @@ namespace Elders.Cronus.Projections
             return snapshot;
         }
 
-        IProjectionGetResult<T> RestoreFromHistoryMamamia<T>(T projection) where T : IProjectionDefinition
+        ReadResult<T> RestoreFromHistoryMamamia<T>(T projection) where T : IProjectionDefinition
         {
             ISnapshot localSnapshot = GetSnapshot();
             projection.InitializeState(projectionId, localSnapshot.State);
@@ -94,7 +94,7 @@ namespace Elders.Cronus.Projections
                 }
             }
 
-            return new ProjectionGetResult<T>(projection);
+            return new ReadResult<T>(projection);
         }
 
         private readonly static ProjectionStream _emptyProjectionStream = new ProjectionStream();

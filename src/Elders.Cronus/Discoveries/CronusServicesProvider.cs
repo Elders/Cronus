@@ -4,7 +4,6 @@ using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Middleware;
 using Elders.Cronus.Multitenancy;
-using Elders.Cronus.Pipeline;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Projections;
 using Microsoft.Extensions.Configuration;
@@ -33,8 +32,6 @@ namespace Elders.Cronus.Discoveries
             if (services is null) throw new ArgumentNullException(nameof(services));
 
             this.services = services;
-
-
             this.services.AddSingleton<GenericFactory>(provider => new GenericFactory(type => provider.GetService(type)));
         }
 
@@ -53,6 +50,8 @@ namespace Elders.Cronus.Discoveries
                 services.TryAdd(discoveredModel);
             }
         }
+
+        protected virtual void Handle(DiscoveryResult<ICronusHost> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<ISerializer> discoveryResult) => AddServices(discoveryResult);
 
