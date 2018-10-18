@@ -14,11 +14,11 @@ namespace Elders.Cronus
         public CronusHost(IConsumer<IAggregateRootApplicationService> appServices, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, ProjectionsBootstrapper projectionsBootstrapper)
         {
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
-            this.projections = projections ?? throw new ArgumentNullException(nameof(appServices));
-            this.ports = ports ?? throw new ArgumentNullException(nameof(appServices));
-            this.sagas = sagas ?? throw new ArgumentNullException(nameof(appServices));
-            this.gateways = gateways ?? throw new ArgumentNullException(nameof(appServices));
-            this.projectionsBootstrapper = projectionsBootstrapper;
+            this.projections = projections ?? throw new ArgumentNullException(nameof(projections));
+            this.ports = ports ?? throw new ArgumentNullException(nameof(ports));
+            this.sagas = sagas ?? throw new ArgumentNullException(nameof(sagas));
+            this.gateways = gateways ?? throw new ArgumentNullException(nameof(gateways));
+            this.projectionsBootstrapper = projectionsBootstrapper ?? throw new ArgumentNullException(nameof(projectionsBootstrapper));
         }
 
         public void Start()
