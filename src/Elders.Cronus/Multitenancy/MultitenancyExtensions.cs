@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 
 namespace Elders.Cronus.Multitenancy
@@ -18,18 +19,15 @@ namespace Elders.Cronus.Multitenancy
             string tenantsFromConfiguration = configuration["cronus_tenants"];
             if (string.IsNullOrEmpty(tenantsFromConfiguration) == false)
             {
-                var cfgTenants = configuration["cronus_tenants"].Split(',');
-                foreach (var tenant in cfgTenants)
-                {
-                    if (tenants.Contains(tenant)) continue;
-                    tenants.Add(tenant);
-                }
+                var cfgTenants = configuration["cronus_tenants"]
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(tenant => tenant.ToLower())
+                    .Distinct();
+
+                tenants.AddRange(cfgTenants);
             }
         }
 
-        public IEnumerable<string> GetTenants()
-        {
-            return tenants;
-        }
+        public IEnumerable<string> GetTenants() => tenants;
     }
 }
