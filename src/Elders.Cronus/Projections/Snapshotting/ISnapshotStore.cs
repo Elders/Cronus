@@ -1,4 +1,6 @@
-﻿namespace Elders.Cronus.Projections.Snapshotting
+﻿using System.Collections.Generic;
+
+namespace Elders.Cronus.Projections.Snapshotting
 {
     public interface ISnapshotStore
     {
@@ -11,20 +13,9 @@
         void InitializeProjectionSnapshotStore(ProjectionVersion version);
     }
 
-    public class NoSnapshotStore : ISnapshotStore
+    public interface ISnapshotStoreFactory
     {
-        public void InitializeProjectionSnapshotStore(ProjectionVersion version) { }
-
-        public ISnapshot Load(string projectionName, IBlobId id, ProjectionVersion version)
-        {
-            return new NoSnapshot(id, projectionName);
-        }
-
-        public SnapshotMeta LoadMeta(string projectionName, IBlobId id, ProjectionVersion version)
-        {
-            return new NoSnapshot(id, projectionName).GetMeta();
-        }
-
-        public void Save(ISnapshot snapshot, ProjectionVersion version) { }
+        ISnapshotStore GetSnapshotStore(string tenant);
+        IEnumerable<ISnapshotStore> GetSnapshotStores();
     }
 }

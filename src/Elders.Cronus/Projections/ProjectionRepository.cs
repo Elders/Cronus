@@ -8,7 +8,7 @@ using Elders.Cronus.Projections.Versioning;
 
 namespace Elders.Cronus.Projections
 {
-    public class ProjectionRepository : IProjectionWriter
+    public class ProjectionRepository : IProjectionWriter, IProjectionReader
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionRepository));
 
@@ -16,6 +16,19 @@ namespace Elders.Cronus.Projections
         readonly ISnapshotStore snapshotStore;
         readonly ISnapshotStrategy snapshotStrategy;
         readonly InMemoryProjectionVersionStore inMemoryVersionStore;
+
+        public ProjectionRepository(IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, InMemoryProjectionVersionStore inMemoryVersionStore)
+        {
+            if (ReferenceEquals(null, projectionStore) == true) throw new ArgumentException(nameof(projectionStore));
+            if (ReferenceEquals(null, snapshotStore) == true) throw new ArgumentException(nameof(snapshotStore));
+            if (ReferenceEquals(null, snapshotStrategy) == true) throw new ArgumentException(nameof(snapshotStrategy));
+            if (ReferenceEquals(null, inMemoryVersionStore) == true) throw new ArgumentException(nameof(inMemoryVersionStore));
+
+            this.projectionStore = projectionStore;
+            this.snapshotStore = snapshotStore;
+            this.snapshotStrategy = snapshotStrategy;
+            this.inMemoryVersionStore = inMemoryVersionStore;
+        }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin)
         {
@@ -109,19 +122,6 @@ namespace Elders.Cronus.Projections
                     }
                 }
             }
-        }
-
-        public ProjectionRepository(IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, InMemoryProjectionVersionStore inMemoryVersionStore)
-        {
-            if (ReferenceEquals(null, projectionStore) == true) throw new ArgumentException(nameof(projectionStore));
-            if (ReferenceEquals(null, snapshotStore) == true) throw new ArgumentException(nameof(snapshotStore));
-            if (ReferenceEquals(null, snapshotStrategy) == true) throw new ArgumentException(nameof(snapshotStrategy));
-            if (ReferenceEquals(null, inMemoryVersionStore) == true) throw new ArgumentException(nameof(inMemoryVersionStore));
-
-            this.projectionStore = projectionStore;
-            this.snapshotStore = snapshotStore;
-            this.snapshotStrategy = snapshotStrategy;
-            this.inMemoryVersionStore = inMemoryVersionStore;
         }
 
         public ReadResult<T> Get<T>(IBlobId projectionId) where T : IProjectionDefinition
@@ -415,6 +415,14 @@ namespace Elders.Cronus.Projections
 
             ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
             return stream;
+        }
+
+        public void Initialize(ProjectionVersion version)
+        {
+            var initializableProjectionStore = projectionStore as IInitializable;
+            initializableProjectionStore?.Initialize(version);
+
+
         }
     }
 }

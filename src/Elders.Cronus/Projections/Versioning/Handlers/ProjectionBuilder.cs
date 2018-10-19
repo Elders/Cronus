@@ -1,9 +1,40 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.Serialization;
+using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Logging;
+using Elders.Cronus.Pipeline.Config;
 
 namespace Elders.Cronus.Projections.Versioning
 {
+    public class ProjectionPlayerFactory
+    {
+        private readonly IEventStoreFactory eventStoreFactory;
+        private readonly IProjectionStoreFactory projectionStoreFactory;
+        private readonly IProjectionServicesFactory projectionServicesFactory;
+
+        public ProjectionPlayerFactory(IEventStoreFactory eventStoreFactory, IProjectionStoreFactory projectionStoreFactory, IProjectionServicesFactory projectionServicesFactory)
+        {
+            this.eventStoreFactory = eventStoreFactory;
+            this.projectionStoreFactory = projectionStoreFactory;
+            this.projectionServicesFactory = projectionServicesFactory;
+        }
+
+        public ProjectionPlayer GetPlayerFor(string tenant)
+        {
+            IEventStore eventStore = eventStoreFactory.GetEventStore(tenant);
+            IEventStorePlayer eventStorePlayer = eventStoreFactory.GetEventStorePlayer(tenant);
+            EventStoreIndex index = eventStoreFactory.GetEventStoreIndex(tenant);
+            IProjectionStore projectionStore = projectionStoreFactory.GetProjectionStore(tenant);
+            IProjectionReader projectionReader = projectionServicesFactory.GetProjectionReader(tenant);
+            IProjectionWriter projectionWriter = projectionServicesFactory.GetProjectionWriter(tenant);
+
+            return new ProjectionPlayer(eventStore, eventStorePlayer, index, projectionWriter, projectionReader);
+        }
+    }
+
+
     [DataContract(Name = "d0dc548e-cbb1-4cb8-861b-e5f6bef68116")]
     public class ProjectionBuilder : Saga,
         IEventHandler<ProjectionVersionRequested>,
@@ -12,12 +43,12 @@ namespace Elders.Cronus.Projections.Versioning
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionBuilder));
 
-        private readonly ProjectionPlayer player;
+        private readonly ProjectionPlayerFactory projectionPlayerFactory;
 
-        public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ProjectionPlayer player)
+        public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ProjectionPlayerFactory projectionPlayerFactory)
             : base(commandPublisher, timeoutRequestPublisher)
         {
-            this.player = player;
+            this.projectionPlayerFactory = projectionPlayerFactory;
         }
 
         public void Handle(ProjectionVersionRequested @event)
@@ -32,36 +63,35 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(RebuildProjectionVersion @event)
         {
-            bool indexExists = player.HasIndex();
-            if (indexExists == false)
-                RequestTimeout(new RebuildProjectionVersion(@event.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
+            ReplayResult result = projectionPlayerFactory
+                .GetPlayerFor(@event.ProjectionVersionRequest.Tenant)
+                .Rebuild(@event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil);
 
-            if (indexExists || player.RebuildIndex())
+            HandleRebuildResult(result, @event);
+        }
+
+        void HandleRebuildResult(ReplayResult result, RebuildProjectionVersion @event)
+        {
+            if (result.IsSuccess)
             {
-                var rebuildUntil = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
-                if (rebuildUntil < DateTime.UtcNow)
-                    return;
-
-                var theType = @event.ProjectionVersionRequest.Version.ProjectionName.GetTypeByContract();
-                var rebuildTimesOutAt = @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil;
-                ReplayResult replayResult = player.Rebuild(@event.ProjectionVersionRequest.Version, rebuildTimesOutAt);
-                if (replayResult.IsSuccess)
+                var finalize = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);
+                commandPublisher.Publish(finalize);
+            }
+            else if (result.ShouldRetry)
+            {
+                RequestTimeout(new RebuildProjectionVersion(@event.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
+            }
+            else
+            {
+                log.Error(() => result.Error);
+                if (result.IsTimeout)
                 {
-                    var finalize = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);
-                    commandPublisher.Publish(finalize);
+                    var timedout = new TimeoutProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox);
+                    commandPublisher.Publish(timedout);
                 }
-                else
                 {
-                    log.Error(() => replayResult.Error);
-                    if (replayResult.IsTimeout)
-                    {
-                        var timedout = new TimeoutProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox);
-                        commandPublisher.Publish(timedout);
-                    }
-                    {
-                        var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, replayResult.Error);
-                        commandPublisher.Publish(cancel);
-                    }
+                    var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, result.Error);
+                    commandPublisher.Publish(cancel);
                 }
             }
         }
@@ -70,6 +100,38 @@ namespace Elders.Cronus.Projections.Versioning
         {
             var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             commandPublisher.Publish(timedout);
+        }
+    }
+
+    public class SystemProjectionsGG
+    {
+        private readonly TypeContainer<IProjection> handlerTypeContainer;
+        private readonly IProjectionReader projectionReader;
+
+        public SystemProjectionsGG(TypeContainer<IProjection> handlerTypeContainer, IProjectionReader projectionReader)
+        {
+            this.handlerTypeContainer = handlerTypeContainer;
+            this.projectionReader = projectionReader;
+        }
+
+        public bool AreWeOK()
+        {
+            var systemProjectionsTypes = handlerTypeContainer.Items.Where(x => x is ISystemProjection);
+
+            try
+            {
+                foreach (var systemProjectionType in systemProjectionsTypes)
+                {
+                    //projectionReader.Get(new StupidId(""), systemProjectionType);
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+
+            return true;
         }
     }
 

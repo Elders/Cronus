@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Logging;
 using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
@@ -13,17 +14,30 @@ namespace Elders.Cronus.Projections
 {
     public sealed class ReplayResult
     {
-        public ReplayResult(string error = null, bool isTimeOut = false)
+        public ReplayResult(string error = null, bool isTimeOut = false, bool canRetry = false)
         {
             Error = error;
             IsTimeout = isTimeOut;
+            ShouldRetry = canRetry;
         }
 
         public string Error { get; private set; }
 
-        public bool IsSuccess { get { return string.IsNullOrEmpty(Error) && IsTimeout != true; } }
+        public bool IsSuccess { get { return string.IsNullOrEmpty(Error) && IsTimeout == false && ShouldRetry == false; } }
 
         public bool IsTimeout { get; private set; }
+
+        public bool ShouldRetry { get; private set; }
+
+        public static ReplayResult Timeout(string error)
+        {
+            return new ReplayResult(error, true);
+        }
+
+        public static ReplayResult RetryLater(string message)
+        {
+            return new ReplayResult(message, isTimeOut: false, canRetry: true);
+        }
     }
 
     public interface IProjectionPlayer { }
@@ -32,83 +46,66 @@ namespace Elders.Cronus.Projections
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionPlayer));
 
-        object playerSync = new object();
-        private bool isBuilding = false;
-        private readonly IEventStoreFactory eventStoreFactory;
-        private readonly IProjectionStore projectionStore;
-        private readonly IProjectionWriter projectionRepository;
-        private readonly ISnapshotStore snapshotStore;
-        private readonly EventTypeIndexForProjections index;
-        private readonly ITenantResolver tenantResolver;
+        private readonly IEventStore eventStore;
+        private readonly IEventStorePlayer eventStorePlayer;
+        private readonly IProjectionWriter projectionWriter;
+        private readonly IProjectionReader systemProjectionsReader;
+        private readonly EventStoreIndex index;
 
-        public ProjectionPlayer(IEventStoreFactory eventStoreFactory, IProjectionStore projectionStore, IProjectionWriter projectionRepository, ISnapshotStore snapshotStore, EventTypeIndexForProjections index, ITenantResolver tenantResolver)
+        public ProjectionPlayer(IEventStore eventStore, IEventStorePlayer eventStorePlayer, EventStoreIndex index, IProjectionWriter projectionRepository, IProjectionReader systemProjections)
         {
-            this.eventStoreFactory = eventStoreFactory;
-            this.projectionStore = projectionStore;
-            this.projectionRepository = projectionRepository;
-            this.snapshotStore = snapshotStore;
+            this.eventStore = eventStore;
+            this.eventStorePlayer = eventStorePlayer;
+            this.projectionWriter = projectionRepository;
+            this.systemProjectionsReader = systemProjections;
             this.index = index;
-            this.tenantResolver = tenantResolver;
         }
 
-        public ReplayResult Rebuild(ProjectionVersion version, DateTime replayUntil)
+        public ReplayResult Rebuild(ProjectionVersion version, DateTime rebuildUntil)
         {
             if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
+
+            if (index.Status.IsNotPresent()) RebuildIndex(); //TODO (2)
+
             Type projectionType = version.ProjectionName.GetTypeByContract();
             try
             {
-                if (IsVersionOutdated(version))
-                {
-                    return new ReplayResult($"Version `{version}` is outdated. There is a newer one which is already live.");
-                }
+                var allVersions = GetAllVersions(version);
 
-                if (IsCanceled(version))
-                {
-                    return new ReplayResult($"Version `{version}` was canceled.");
-                }
+                if (HasReplayTimeout(rebuildUntil)) return ReplayResult.Timeout($"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{rebuildUntil}.");
+                if (allVersions.IsOutdatad(version)) return new ReplayResult($"Version `{version}` is outdated. There is a newer one which is already live.");
+                if (allVersions.IsCanceled(version)) return new ReplayResult($"Version `{version}` was canceled.");
+                if (index.Status.IsNotPresent()) return ReplayResult.RetryLater($"Projection `{version}` still don't have present index."); //WHEN TO RETRY AGAIN
 
                 DateTime startRebuildTimestamp = DateTime.UtcNow;
                 int progressCounter = 0;
-                log.Info(() => $"Start rebuilding projection `{version.ProjectionName}` for version {version}. Deadline is {replayUntil}");
-
-                var projectionEventTypes = GetInvolvedEvents(projectionType);
-
-                //projectionStore.InitializeProjectionStore(version);
-                snapshotStore.InitializeProjectionSnapshotStore(version);
-                var indexState = index.GetIndexState();
-                if (indexState.IsPresent() == false)
-                    return new ReplayResult("Projection index does not exists");
-
+                log.Info(() => $"Start rebuilding projection `{version.ProjectionName}` for version {version}. Deadline is {rebuildUntil}");
                 Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
 
-                foreach (var eventType in projectionEventTypes)
+                projectionWriter.Initialize(version);
+
+                var projectionHandledEventTypes = GetInvolvedEvents(projectionType);
+                foreach (var eventType in projectionHandledEventTypes)
                 {
-                    log.Debug(() => $"Rebuilding projection `{version.ProjectionName}` for version {version} using eventType `{eventType}`. Deadline is {replayUntil}");
+                    log.Debug(() => $"Rebuilding projection `{version.ProjectionName}` for version {version} using eventType `{eventType}`. Deadline is {rebuildUntil}");
 
-                    var indexId = new EventStoreIndexEventTypeId(eventType);
-                    IEnumerable<ProjectionCommit> indexCommits = index.EnumerateCommitsByEventType(indexId);
-
-                    foreach (var indexCommit in indexCommits)
+                    IEnumerable<IndexRecord> indexRecords = index.EnumerateRecords(eventType);
+                    foreach (IndexRecord indexRecord in indexRecords)
                     {
+                        // TODO: (5) Decorator pattern which will give us the tracking 
                         progressCounter++;
                         if (progressCounter % 1000 == 0)
                         {
-                            log.Trace(() => $"Rebuilding projection {version.ProjectionName} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{replayUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()} ProcessedAggregatesSize:{processedAggregates.Count}");
+                            log.Trace(() => $"Rebuilding projection {version.ProjectionName} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{rebuildUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()} ProcessedAggregatesSize:{processedAggregates.Count}");
                         }
 
-                        if (DateTime.UtcNow >= replayUntil)
-                        {
-                            string message = $"Rebuilding projection `{version.ProjectionName}` takes longer than expected. PROGRESS:{progressCounter} Version:{version} EventType:`{eventType}` Deadline:{replayUntil}.";
-                            return new ReplayResult(message, true);
-                        }
-
-                        if (processedAggregates.ContainsKey(indexCommit.EventOrigin.AggregateRootId.GetHashCode()))
+                        int aggreagteRootIdHash = indexRecord.AggregateRootId.GetHashCode();
+                        if (processedAggregates.ContainsKey(aggreagteRootIdHash))
                             continue;
+                        processedAggregates.Add(aggreagteRootIdHash, null);
 
-                        processedAggregates.Add(indexCommit.EventOrigin.AggregateRootId.GetHashCode(), null);
-
-                        IAggregateRootId arId = GetAggregateRootId(indexCommit.EventOrigin.AggregateRootId);
-                        IEventStore eventStore = eventStoreFactory.GetEventStore(tenantResolver.Resolve(arId));
+                        string mess = Encoding.UTF8.GetString(indexRecord.AggregateRootId);
+                        IAggregateRootId arId = GetAggregateRootId(mess);
                         EventStream stream = eventStore.Load(arId);
 
                         foreach (AggregateCommit arCommit in stream.Commits)
@@ -117,16 +114,17 @@ namespace Elders.Cronus.Projections
                             {
                                 IEvent theEvent = arCommit.Events[i].Unwrap();
 
-                                if (projectionEventTypes.Contains(theEvent.GetType().GetContractId()))
+                                if (projectionHandledEventTypes.Contains(theEvent.GetType().GetContractId())) // filter out the events which are not part of the projection
                                 {
-                                    var origin = new EventOrigin(indexCommit.EventOrigin.AggregateRootId, arCommit.Revision, i, arCommit.Timestamp);
-                                    projectionRepository.Save(projectionType, theEvent, origin, version);
+                                    var origin = new EventOrigin(mess, arCommit.Revision, i, arCommit.Timestamp);
+                                    projectionWriter.Save(projectionType, theEvent, origin, version);
                                 }
                             }
                         }
                     }
                 }
-                log.Info(() => $"Finish rebuilding projection `{projectionType.Name}` for version {version}. Deadline was {replayUntil}");
+
+                log.Info(() => $"Finish rebuilding projection `{projectionType.Name}` for version {version}. Deadline was {rebuildUntil}");
                 return new ReplayResult();
             }
             catch (Exception ex)
@@ -137,85 +135,34 @@ namespace Elders.Cronus.Projections
             }
         }
 
+        private bool HasReplayTimeout(DateTime replayUntil)
+        {
+            return DateTime.UtcNow >= replayUntil;
+        }
+
         public bool HasIndex()
         {
             log.Info(() => "Getting index state");
-            var indexState = index.GetIndexState();
-            var indexIsPresent = indexState.IsPresent();
 
-            if (indexIsPresent)
+            var status = index.Status;
+
+            if (status.IsPresent())
                 log.Info(() => "Index is present");
             else
                 log.Info(() => "Index is not present");
 
-            return indexIsPresent;
+            return status.IsPresent();
         }
 
         public bool RebuildIndex()
         {
-            var indexBuilder = index.GetIndexBuilder();
-            isBuilding = index.GetIndexState().IsBuilding();
-
-            if (isBuilding == false)
-            {
-                lock (playerSync)
-                {
-                    if (isBuilding == false)
-                    {
-                        indexBuilder.Prepare();
-                        isBuilding = true;
-                    }
-                    else
-                    {
-                        log.Debug(() => "Index is currently built by someone");
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                log.Debug(() => "Index is currently built by someone");
-                return false;
-            }
-
             try
             {
                 log.Info(() => "Start rebuilding index...");
 
-                var eventStorePlayers = eventStoreFactory.GetEventStorePlayers();
+                index.Rebuild(GetAllIndexRecords);
 
-                var eventsCounter = 0;
-                foreach (var eventStorePlayer in eventStorePlayers)
-                {
-                    foreach (var aggregateCommit in eventStorePlayer.LoadAggregateCommits())
-                    {
-                        foreach (var @event in aggregateCommit.Events)
-                        {
-                            try
-                            {
-                                if (eventsCounter % 1000 == 0)
-                                    log.Info(() => $"Rebuilding index progress: {eventsCounter}");
-
-                                var unwrapedEvent = @event.Unwrap();
-                                var rootId = System.Text.Encoding.UTF8.GetString(aggregateCommit.AggregateRootId);
-                                var eventOrigin = new EventOrigin(rootId, aggregateCommit.Revision, aggregateCommit.Events.IndexOf(@event), aggregateCommit.Timestamp);
-                                indexBuilder.Feed(unwrapedEvent, eventOrigin);
-                            }
-                            catch (Exception ex)
-                            {
-                                log.ErrorException($"Rebuilding index for event {@event.ToString()} failed with {ex.Message}", ex);
-                            }
-
-                            eventsCounter++;
-                        }
-                    }
-                }
-
-                indexBuilder.Complete();
-
-                log.Info(() => $"Rebuilding index progress: {eventsCounter}. Done!");
                 log.Info(() => "Completed rebuilding index");
-                isBuilding = false;
 
                 return true;
             }
@@ -224,6 +171,27 @@ namespace Elders.Cronus.Projections
                 log.ErrorException("Failed to rebuild index", ex);
                 return false;
             }
+        }
+
+        IEnumerable<IndexRecord> GetAllIndexRecords()
+        {
+            var eventsCounter = 0;
+
+            foreach (var aggregateCommit in eventStorePlayer.LoadAggregateCommits())
+            {
+                foreach (var @event in aggregateCommit.Events)
+                {
+                    // TODO: Decorator
+                    if (eventsCounter % 1000 == 0)
+                        log.Info(() => $"Rebuilding index progress: {eventsCounter}");
+
+                    string eventTypeId = @event.Unwrap().GetType().GetContractId();
+                    yield return new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId);
+
+                    eventsCounter++;
+                }
+            }
+
         }
 
         IEnumerable<string> GetInvolvedEvents(Type projectionType)
@@ -261,60 +229,20 @@ namespace Elders.Cronus.Projections
             throw new ArgumentException($"Invalid aggregate root id: {mess}", nameof(mess));
         }
 
-        ProjectionVersions GetProjectionVersionsFromStore(ProjectionVersion version)
-        {
-            var versionId = new ProjectionVersionManagerId(version.ProjectionName);
-
-            var persistentVersionType = typeof(ProjectionVersionsHandler);
-            var projectionName = persistentVersionType.GetContractId();
-
-            var persistentVersion = new ProjectionVersion(projectionName, ProjectionStatus.Live, 1, persistentVersionType.GetProjectionHash());
-
-
-            List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
-
-            var loadedCommits = projectionStore.Load(persistentVersion, versionId, 1);
-            projectionCommits.AddRange(loadedCommits);
-
-            var snapshot = new NoSnapshot(versionId, projectionName);
-
-            ProjectionStream stream = new ProjectionStream(versionId, projectionCommits, () => snapshot);
-            var queryResult = stream.RestoreFromHistory<ProjectionVersionsHandler>();
-
-            if (queryResult.IsSuccess)
-                return queryResult.Data.State.AllVersions;
-
-            return new ProjectionVersions();
-        }
-
-        bool IsVersionOutdated(ProjectionVersion version)
+        ProjectionVersions GetAllVersions(ProjectionVersion version)
         {
             try
             {
-                ProjectionVersions versions = GetProjectionVersionsFromStore(version);
-
-                return versions.IsOutdatad(version);
+                var versionId = new ProjectionVersionManagerId(version.ProjectionName);
+                var result = systemProjectionsReader.Get<ProjectionVersionsHandler>(versionId);
+                return result.Data.State.AllVersions;
             }
             catch (Exception ex)
             {
                 log.WarnException("Failed to check if a version is outdated. Assuming it is not.", ex);
-                return false;
+                return new ProjectionVersions();
             }
         }
 
-        bool IsCanceled(ProjectionVersion version)
-        {
-            try
-            {
-                ProjectionVersions versions = GetProjectionVersionsFromStore(version);
-
-                return versions.IsCanceled(version);
-            }
-            catch (Exception ex)
-            {
-                log.WarnException("Failed to check if a version is canceled. Assuming it is not.", ex);
-                return false;
-            }
-        }
     }
 }
