@@ -5,11 +5,11 @@ namespace Elders.Cronus
 {
     public class ProjectionsBootstrapper
     {
-        private readonly HandlerTypeContainer<IProjection> projectionTypes;
+        private readonly TypeContainer<IProjection> projectionTypes;
         private readonly ProjectionHasher hasher;
         private readonly IPublisher<ICommand> publisher;
 
-        public ProjectionsBootstrapper(HandlerTypeContainer<IProjection> projectionTypes, ProjectionHasher hasher, IPublisher<ICommand> publisher)
+        public ProjectionsBootstrapper(TypeContainer<IProjection> projectionTypes, ProjectionHasher hasher, IPublisher<ICommand> publisher)
         {
             this.projectionTypes = projectionTypes;
             this.hasher = hasher;

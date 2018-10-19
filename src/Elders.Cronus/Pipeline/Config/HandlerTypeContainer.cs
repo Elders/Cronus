@@ -48,9 +48,9 @@ namespace Elders.Cronus.Pipeline.Config
     //    }
     //}
 
-    public class HandlerTypeContainer<T>
+    public class TypeContainer<T>
     {
-        public HandlerTypeContainer(IEnumerable<Type> items)
+        public TypeContainer(IEnumerable<Type> items)
         {
             var expectedHandlerType = typeof(T);
             Items = items.Where(handlerType => expectedHandlerType.IsAssignableFrom(handlerType)).ToList();

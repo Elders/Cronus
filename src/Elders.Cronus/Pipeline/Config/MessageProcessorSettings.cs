@@ -9,9 +9,9 @@ namespace Elders.Cronus.Pipeline.Config
         private readonly ISubscriptionMiddleware<T> internalMiddleware;
 
         private readonly ServiceLocalor messageHandlerMiddlewareFactory;
-        private readonly HandlerTypeContainer<T> handlerTypeContainer;
+        private readonly TypeContainer<T> handlerTypeContainer;
 
-        public SubscriprionMiddlewareFactory(ServiceLocalor serviceLocator, HandlerTypeContainer<T> handlerTypeContainer)
+        public SubscriprionMiddlewareFactory(ServiceLocalor serviceLocator, TypeContainer<T> handlerTypeContainer)
         {
             this.messageHandlerMiddlewareFactory = serviceLocator;
             this.handlerTypeContainer = handlerTypeContainer;

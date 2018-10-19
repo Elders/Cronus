@@ -23,7 +23,7 @@ namespace Elders.Cronus.Discoveries
                 yield return new DiscoveredModel(handlerType, handlerType, ServiceLifetime.Transient);
             }
 
-            yield return new DiscoveredModel(typeof(HandlerTypeContainer<T>), new HandlerTypeContainer<T>(handlerTypes));
+            yield return new DiscoveredModel(typeof(TypeContainer<T>), new TypeContainer<T>(handlerTypes));
             yield return new DiscoveredModel(typeof(IHandlerFactory), provider => new DefaultHandlerFactory(type => provider.GetService(type)), ServiceLifetime.Singleton);
         }
     }
