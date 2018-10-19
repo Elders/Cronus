@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
@@ -6,7 +7,7 @@ using Elders.Cronus.Middleware;
 using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Projections;
-using Microsoft.Extensions.Configuration;
+using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -29,8 +30,16 @@ namespace Elders.Cronus.Discoveries
         {
             if (discoveryResult is null) throw new ArgumentNullException(nameof(discoveryResult));
 
-            dynamic dynamicModel = (dynamic)discoveryResult;
-            Handle(dynamicModel);
+            try
+            {
+                dynamic dynamicModel = (dynamic)discoveryResult;
+                Handle(dynamicModel);
+            }
+            catch (RuntimeBinderException ex)
+            {
+                var serviceTypeName = discoveryResult.GetType().GetGenericArguments().Single().Name;
+                throw new RuntimeBinderException($"Missing handle for IDiscoveryResult<{serviceTypeName}>", ex);
+            }
         }
 
         void AddServices(IDiscoveryResult<object> discoveryResult)
