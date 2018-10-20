@@ -14,6 +14,10 @@ namespace Elders.Cronus.EventStore
 
         public AggregateRepository(IEventStore eventStore, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
         {
+            if (eventStore is null) throw new ArgumentNullException(nameof(eventStore));
+            if (atomicAction is null) throw new ArgumentNullException(nameof(atomicAction));
+            if (integrityPolicy is null) throw new ArgumentNullException(nameof(integrityPolicy));
+
             this.eventStore = eventStore;
             this.atomicAction = atomicAction;
             this.integrityPolicy = integrityPolicy;

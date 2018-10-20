@@ -13,7 +13,6 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Elders.Cronus.Discoveries
 {
-
     public class CronusServicesProvider
     {
         private readonly IServiceCollection services;
@@ -23,7 +22,7 @@ namespace Elders.Cronus.Discoveries
             if (services is null) throw new ArgumentNullException(nameof(services));
 
             this.services = services;
-            this.services.AddSingleton<ServiceLocalor>(provider => new ServiceLocalor(type => provider.GetService(type)));
+            this.services.AddTransient<ServiceLocalor>(provider => new ServiceLocalor(type => provider.GetRequiredService(type)));
         }
 
         public void HandleDiscoveredModel(IDiscoveryResult<object> discoveryResult)
@@ -49,6 +48,8 @@ namespace Elders.Cronus.Discoveries
                 services.TryAdd(discoveredModel);
             }
         }
+
+        protected virtual void Handle(DiscoveryResult<ProjectionPlayer> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<ICronusHost> discoveryResult) => AddServices(discoveryResult);
 

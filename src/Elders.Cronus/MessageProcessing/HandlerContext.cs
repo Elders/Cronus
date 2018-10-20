@@ -14,4 +14,14 @@
 
         public CronusMessage CronusMessage { get; private set; }
     }
+
+    public class CronusContext
+    {
+        public CronusContext()
+        {
+
+        }
+
+        public string Tenant { get; set; }
+    }
 }

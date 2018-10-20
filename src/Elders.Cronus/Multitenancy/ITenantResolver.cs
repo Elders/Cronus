@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.Projections;
 
@@ -13,6 +14,8 @@ namespace Elders.Cronus.Multitenancy
         string Resolve(ProjectionCommit projectionCommit);
 
         string Resolve(IBlobId id);
+
+        string Resolve(IMessage message);
     }
 
     public class DefaultTenantResolver : ITenantResolver
@@ -58,6 +61,24 @@ namespace Elders.Cronus.Multitenancy
                 return tenant;
 
             throw new NotSupportedException($"Unable to resolve tenant for id {aggregateCommit.AggregateRootId}");
+        }
+
+        public string Resolve(IMessage message)
+        {
+            var tenantPropertyMeta = message.GetType().GetProperty("tenant", typeof(string));
+            if (tenantPropertyMeta is null == false)
+            {
+                return (string)tenantPropertyMeta.GetValue(message);
+            }
+
+            var idMeta = message.GetType().GetProperties().Where(p => typeof(IBlobId).IsAssignableFrom(p.PropertyType)).FirstOrDefault();
+            IBlobId id = idMeta?.GetValue(message) as IBlobId;
+            if (id is null == false)
+            {
+                return Resolve(id);
+            }
+
+            throw new NotSupportedException($"Unable to resolve tenant from {message}");
         }
 
         bool TryResolve(byte[] id, out string tenant)

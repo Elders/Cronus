@@ -37,6 +37,13 @@ namespace Elders.Cronus
             return 0;
         }
 
+        public static string GetTenant(this CronusMessage message)
+        {
+            string tenant = "notenant";
+            message.Headers.TryGetValue(MessageHeader.Tenant, out tenant);
+            return tenant;
+        }
+
         public static string GetRootId(this CronusMessage message)
         {
             var aggregateRootId = string.Empty;

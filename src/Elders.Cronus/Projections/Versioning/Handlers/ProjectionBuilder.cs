@@ -43,12 +43,12 @@ namespace Elders.Cronus.Projections.Versioning
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionBuilder));
 
-        private readonly ProjectionPlayerFactory projectionPlayerFactory;
+        private readonly ProjectionPlayer projectionPlayer;
 
-        public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ProjectionPlayerFactory projectionPlayerFactory)
+        public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ProjectionPlayer projectionPlayer)
             : base(commandPublisher, timeoutRequestPublisher)
         {
-            this.projectionPlayerFactory = projectionPlayerFactory;
+            this.projectionPlayer = projectionPlayer;
         }
 
         public void Handle(ProjectionVersionRequested @event)
@@ -63,9 +63,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(RebuildProjectionVersion @event)
         {
-            ReplayResult result = projectionPlayerFactory
-                .GetPlayerFor(@event.ProjectionVersionRequest.Tenant)
-                .Rebuild(@event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil);
+            ReplayResult result = projectionPlayer.Rebuild(@event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil);
 
             HandleRebuildResult(result, @event);
         }

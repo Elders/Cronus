@@ -1,12 +1,17 @@
 ﻿using System;
+using Elders.Cronus.EventStore;
 using Elders.Cronus.Logging;
 using Elders.Cronus.Middleware;
+using Elders.Cronus.Multitenancy;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.MessageProcessing
 {
-    public class MessageHandlerMiddleware : Middleware<HandleContext>
+    public sealed class MessageHandlerMiddleware : Middleware<HandleContext>
     {
         static ILog log = LogProvider.GetLogger(typeof(MessageHandlerMiddleware));
+
+        private readonly IServiceProvider ioc;
 
         public Middleware<Type, IHandlerInstance> CreateHandler { get; private set; }
 
@@ -25,9 +30,9 @@ namespace Elders.Cronus.MessageProcessing
             ActualHandle = handle(ActualHandle);
         }
 
-        public MessageHandlerMiddleware(IHandlerFactory factory)
+        public MessageHandlerMiddleware(IServiceProvider ioc)
         {
-            CreateHandler = MiddlewareExtensions.Lambda<Type, IHandlerInstance>((execution) => factory.Create(execution.Context));
+            CreateHandler = MiddlewareExtensions.Lambda<Type, IHandlerInstance>();
 
             BeginHandle = MiddlewareExtensions.Lamda<HandlerContext>();
 
@@ -38,29 +43,44 @@ namespace Elders.Cronus.MessageProcessing
             Error = MiddlewareExtensions.Lamda<ErrorContext>();
 
             Finalize = MiddlewareExtensions.Lamda<HandleContext>();
+
+            this.ioc = ioc;
         }
 
         protected override void Run(Execution<HandleContext> execution)
         {
-            try
+            using (IServiceScope scope = ioc.CreateScope())
             {
-                using (var handler = CreateHandler.Run(execution.Context.HandlerType))
+                try
                 {
-                    var handleContext = new HandlerContext(execution.Context.Message.Payload, handler.Current, execution.Context.Message);
+                    string tenant = execution.Context.Message.GetTenant();
+                    if (string.IsNullOrEmpty(tenant)) throw new Exception($"Unable to resolve tenant from message {execution.Context.Message}");
 
-                    BeginHandle.Run(handleContext);
-                    ActualHandle.Run(handleContext);
-                    EndHandle.Run(handleContext);
+                    var cronusContext = scope.ServiceProvider.GetRequiredService<CronusContext>();
+                    cronusContext.Tenant = tenant;
+
+                    IHandlerFactory factory = new DefaultHandlerFactory(type => scope.ServiceProvider.GetRequiredService(type));
+                    CreateHandler = MiddlewareExtensions.Lambda<Type, IHandlerInstance>((exec) => factory.Create(exec.Context));
+
+                    using (IHandlerInstance handler = CreateHandler.Run(execution.Context.HandlerType))
+                    {
+                        var handleContext = new HandlerContext(execution.Context.Message.Payload, handler.Current, execution.Context.Message);
+
+                        BeginHandle.Run(handleContext);
+                        ActualHandle.Run(handleContext);
+                        EndHandle.Run(handleContext);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                Error.Run(new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType));
-                throw;
-            }
-            finally
-            {
-                Finalize.Run(execution.Context);
+
+                catch (Exception ex)
+                {
+                    Error.Run(new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType));
+                    throw;
+                }
+                finally
+                {
+                    Finalize.Run(execution.Context);
+                }
             }
         }
     }

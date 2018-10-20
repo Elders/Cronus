@@ -3,16 +3,6 @@ using System.Linq;
 
 namespace Elders.Cronus.MessageProcessing
 {
-    //public ApplicationServiceMiddleware(IHandlerFactory factory, IAggregateRepository aggregateRepository, IPublisher<IEvent> eventPublisher) : base(factory)
-    //    {
-    //        BeginHandle.Use((execution) =>
-    //        {
-    //            IPublisher<IEvent> cronusEventPublisher = new CronusPublisher<IEvent>(eventPublisher, execution.Context.CronusMessage);
-    //            var repo = new CronusAggregateRepository(aggregateRepository, cronusEventPublisher);
-    //            execution.Context.HandlerInstance.AssignPropertySafely<IAggregateRootApplicationService>(x => x.Repository = repo);
-    //        });
-    //    }
-
     public class CronusAggregateRepository : IAggregateRepository
     {
         readonly IAggregateRepository aggregateRepository;

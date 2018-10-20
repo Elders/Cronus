@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Multitenancy;
 
 namespace Elders.Cronus.InMemory
 {
@@ -10,6 +11,7 @@ namespace Elders.Cronus.InMemory
         SubscriptionMiddleware<object> subscribtions;
 
         public InMemoryPublisher(SubscriptionMiddleware<object> messageProcessor)
+            : base(new DefaultTenantResolver())
         {
             this.subscribtions = messageProcessor;
         }
