@@ -27,19 +27,7 @@ namespace Elders.Cronus.EventStore.Index
         {
             if (Prepare())
             {
-                while (true)
-                {
-                    var records = indexRecords();
-                    if (records.Any())
-                    {
-                        indexStore.Apend(records);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
+                indexStore.Apend(indexRecords());
                 Complete();
             }
 
@@ -48,11 +36,11 @@ namespace Elders.Cronus.EventStore.Index
 
         bool Prepare()
         {
-            if (IsBuilding())
+            if (CanBuild())
             {
                 lock (rebuildSync)
                 {
-                    if (IsBuilding())
+                    if (CanBuild())
                     {
                         indexStatus.Save(StateId, IndexStatus.Building);
                         isBuilding = true;
@@ -73,9 +61,9 @@ namespace Elders.Cronus.EventStore.Index
             return true;
         }
 
-        bool IsBuilding()
+        bool CanBuild()
         {
-            return isBuilding = isBuilding || indexStatus.Get(StateId).IsBuilding();
+            return isBuilding == false || indexStatus.Get(StateId).IsNotBuilding();
         }
 
         void Complete()
