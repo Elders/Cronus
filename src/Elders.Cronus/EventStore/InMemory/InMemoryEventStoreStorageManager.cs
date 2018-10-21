@@ -17,5 +17,10 @@ namespace Elders.Cronus.EventStore.InMemory
         {
 
         }
+
+        public void CreateIndecies()
+        {
+
+        }
     }
 }
