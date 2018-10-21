@@ -149,6 +149,8 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 2)]
         public DateTime PublishAt { get; set; }
+
+        public string Tenant { get { return ProjectionVersionRequest.Tenant; } }
     }
 
     [DataContract(Name = "11c1ae7d-04f4-4266-a21e-78ddc440d68b")]
@@ -167,5 +169,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 2)]
         public DateTime PublishAt { get; set; }
+
+        public string Tenant { get { return ProjectionVersionRequest.Tenant; } }
     }
 }

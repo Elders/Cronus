@@ -8,11 +8,12 @@ namespace Elders.Cronus.Projections.Versioning
     {
         NewProjectionVersionIsNowLive() { }
 
-        public NewProjectionVersionIsNowLive(ProjectionVersionManagerId id, ProjectionVersion projectionVersion)
+        public NewProjectionVersionIsNowLive(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, string tenant)
         {
             Id = id;
             Timestamp = DateTime.UtcNow.ToFileTimeUtc();
             ProjectionVersion = projectionVersion;
+            Tenant = tenant;
         }
 
         [DataMember(Order = 1)]
@@ -23,6 +24,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 3)]
         public long Timestamp { get; private set; }
+
+        [DataMember(Order = 4)]
+        public string Tenant { get; private set; }
 
         public override string ToString()
         {
