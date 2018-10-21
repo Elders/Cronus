@@ -40,5 +40,25 @@ namespace Elders.Cronus.EventStore.Index
         public static IndexStatus Building = new IndexStatus("building");
 
         public static IndexStatus Present = new IndexStatus("present");
+
+        public static IndexStatus Parse(string status)
+        {
+            switch (status)
+            {
+                case "building": return Building;
+                case "present": return Present;
+                default: return NotPresent;
+            }
+        }
+
+        public override string ToString()
+        {
+            return status;
+        }
+
+        public static implicit operator string(IndexStatus d)
+        {
+            return d.status;
+        }
     }
 }
