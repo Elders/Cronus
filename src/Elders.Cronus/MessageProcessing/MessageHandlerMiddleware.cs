@@ -53,11 +53,13 @@ namespace Elders.Cronus.MessageProcessing
             {
                 try
                 {
-                    string tenant = execution.Context.Message.GetTenant();
-                    if (string.IsNullOrEmpty(tenant)) throw new Exception($"Unable to resolve tenant from message {execution.Context.Message}");
-
                     var cronusContext = scope.ServiceProvider.GetRequiredService<CronusContext>();
-                    cronusContext.Tenant = tenant;
+                    if (string.IsNullOrEmpty(cronusContext.Tenant))
+                    {
+                        string tenant = execution.Context.Message.GetTenant();
+                        if (string.IsNullOrEmpty(tenant)) throw new Exception($"Unable to resolve tenant from {execution.Context.Message}");
+                        cronusContext.Tenant = tenant;
+                    }
 
                     IHandlerFactory factory = new DefaultHandlerFactory(type => scope.ServiceProvider.GetRequiredService(type));
                     CreateHandler = MiddlewareExtensions.Lambda<Type, IHandlerInstance>((exec) => factory.Create(exec.Context));
