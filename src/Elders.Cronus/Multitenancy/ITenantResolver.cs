@@ -65,7 +65,7 @@ namespace Elders.Cronus.Multitenancy
 
         public string Resolve(IMessage message)
         {
-            var tenantPropertyMeta = message.GetType().GetProperty("tenant", typeof(string));
+            var tenantPropertyMeta = message.GetType().GetProperty("Tenant", typeof(string));
             if (tenantPropertyMeta is null == false)
             {
                 return (string)tenantPropertyMeta.GetValue(message);
