@@ -1,5 +1,8 @@
+#### 5.0.0-discovery0012 - 21.10.2018
+* Rework a bit how the current tenant is set during message handling
+
 #### 5.0.0-discovery0011 - 20.10.2018
-* Removes the abstract modifier from the CronusHost
+* Every message is now consumed inside a DI scope
 
 #### 5.0.0-discovery0010 - 18.10.2018
 * Removes the abstract modifier from the CronusHost
