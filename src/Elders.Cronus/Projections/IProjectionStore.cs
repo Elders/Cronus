@@ -14,7 +14,7 @@ namespace Elders.Cronus.Projections
         void Save(ProjectionCommit commit);
     }
 
-    public interface IInitializable
+    public interface IInitializableProjectionStore
     {
         void Initialize(ProjectionVersion version);
     }

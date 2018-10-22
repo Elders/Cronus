@@ -1,6 +1,7 @@
 ﻿using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Projections.Versioning;
+using System;
 
 namespace Elders.Cronus
 {
@@ -13,6 +14,11 @@ namespace Elders.Cronus
 
         public ProjectionsBootstrapper(ITenantList tenants, TypeContainer<IProjection> projectionTypes, ProjectionHasher hasher, IPublisher<ICommand> publisher)
         {
+            if (tenants is null) throw new ArgumentNullException(nameof(tenants));
+            if (tenants is null) throw new ArgumentNullException(nameof(projectionTypes));
+            if (tenants is null) throw new ArgumentNullException(nameof(hasher));
+            if (tenants is null) throw new ArgumentNullException(nameof(publisher));
+
             this.tenants = tenants;
             this.projectionTypes = projectionTypes;
             this.hasher = hasher;

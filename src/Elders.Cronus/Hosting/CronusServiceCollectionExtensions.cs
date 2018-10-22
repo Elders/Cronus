@@ -27,7 +27,7 @@ namespace Elders.Cronus
 
             return services;
         }
-
+    
         public static IServiceCollection AddTenantSingleton<TService, TImplementation>(this IServiceCollection services)
             where TService : class
             where TImplementation : class, TService

@@ -419,7 +419,7 @@ namespace Elders.Cronus.Projections
 
         public void Initialize(ProjectionVersion version)
         {
-            var initializableProjectionStore = projectionStore as IInitializable;
+            var initializableProjectionStore = projectionStore as IInitializableProjectionStore;
             initializableProjectionStore?.Initialize(version);
 
 
