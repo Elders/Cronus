@@ -2,6 +2,7 @@
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Projections.Versioning;
 using System;
+using System.Linq;
 
 namespace Elders.Cronus
 {
@@ -27,7 +28,25 @@ namespace Elders.Cronus
 
         public void Bootstrap()
         {
-            foreach (var handler in projectionTypes.Items)
+            BootstrapSystemProjections();
+            BootstrapProjections();
+        }
+
+        void BootstrapSystemProjections()
+        {
+            var projections = projectionTypes.Items.Where(t => typeof(ISystemProjection).IsAssignableFrom(t));
+            foreach (var handler in projections)
+            {
+                var id = new ProjectionVersionManagerId($"{CronusAssembly.EldersTenant}_{handler.GetContractId()}");
+                var command = new RegisterProjection(id, hasher.CalculateHash(handler), CronusAssembly.EldersTenant);
+                publisher.Publish(command);
+            }
+        }
+
+        void BootstrapProjections()
+        {
+            var projections = projectionTypes.Items.Where(t => typeof(ISystemProjection).IsAssignableFrom(t) == false);
+            foreach (var handler in projections)
             {
                 foreach (var tenant in tenants.GetTenants())
                 {
