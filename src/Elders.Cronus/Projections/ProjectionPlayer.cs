@@ -5,6 +5,7 @@ using System.Text;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Logging;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using Elders.Cronus.Projections.Versioning;
 
@@ -13,15 +14,16 @@ namespace Elders.Cronus.Projections
     public class ProjectionPlayer : IProjectionPlayer
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionPlayer));
-
+        private readonly CronusContext context;
         private readonly IEventStore eventStore;
         private readonly IEventStorePlayer eventStorePlayer;
         private readonly IProjectionWriter projectionWriter;
         private readonly IProjectionReader systemProjectionsReader;
         private readonly EventStoreIndex index;
 
-        public ProjectionPlayer(IEventStore eventStore, IEventStorePlayer eventStorePlayer, EventStoreIndex index, IProjectionWriter projectionRepository, IProjectionReader systemProjections)
+        public ProjectionPlayer(CronusContext context, IEventStore eventStore, IEventStorePlayer eventStorePlayer, EventStoreIndex index, IProjectionWriter projectionRepository, IProjectionReader systemProjections)
         {
+            this.context = context;
             this.eventStore = eventStore;
             this.eventStorePlayer = eventStorePlayer;
             this.projectionWriter = projectionRepository;
@@ -201,7 +203,7 @@ namespace Elders.Cronus.Projections
         {
             try
             {
-                var versionId = new ProjectionVersionManagerId(version.ProjectionName, "mynkow");
+                var versionId = new ProjectionVersionManagerId(version.ProjectionName, context.Tenant);
                 var result = systemProjectionsReader.Get<ProjectionVersionsHandler>(versionId);
                 return result.Data.State.AllVersions;
             }
