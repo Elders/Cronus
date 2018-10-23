@@ -31,8 +31,8 @@ namespace Elders.Cronus
             {
                 foreach (var tenant in tenants.GetTenants())
                 {
-                    var id = new ProjectionVersionManagerId($"{tenant}_{handler.GetContractId()}");
-                    var command = new RegisterProjection(id, hasher.CalculateHash(handler), tenant);
+                    var id = new ProjectionVersionManagerId(handler.GetContractId(), tenant);
+                    var command = new RegisterProjection(id, hasher.CalculateHash(handler));
                     publisher.Publish(command);
                 }
             }

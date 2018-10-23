@@ -4,7 +4,7 @@ namespace Elders.Cronus
 {
     public class CronusAssembly
     {
-        public const string EldersTenant = "elders";
+
     }
 
     public interface ISystemService { }

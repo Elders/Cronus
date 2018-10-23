@@ -8,15 +8,13 @@ namespace Elders.Cronus.Projections.Versioning
     {
         RegisterProjection() { }
 
-        public RegisterProjection(ProjectionVersionManagerId id, string hash, string tenant)
+        public RegisterProjection(ProjectionVersionManagerId id, string hash)
         {
             if (id is null) throw new ArgumentNullException(nameof(id));
             if (string.IsNullOrEmpty(hash)) throw new ArgumentNullException(nameof(hash));
-            if (string.IsNullOrEmpty(tenant)) throw new ArgumentNullException(nameof(tenant));
 
             Id = id;
             Hash = hash;
-            Tenant = tenant;
         }
 
         [DataMember(Order = 1)]
@@ -24,9 +22,6 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 2)]
         public string Hash { get; private set; }
-
-        [DataMember(Order = 3)]
-        public string Tenant { get; private set; }
 
         public override string ToString()
         {

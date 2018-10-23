@@ -1,40 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.Serialization;
-using Elders.Cronus.EventStore;
-using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Logging;
 using Elders.Cronus.Pipeline.Config;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    public class ProjectionPlayerFactory
-    {
-        private readonly IEventStoreFactory eventStoreFactory;
-        private readonly IProjectionStoreFactory projectionStoreFactory;
-        private readonly IProjectionServicesFactory projectionServicesFactory;
-
-        public ProjectionPlayerFactory(IEventStoreFactory eventStoreFactory, IProjectionStoreFactory projectionStoreFactory, IProjectionServicesFactory projectionServicesFactory)
-        {
-            this.eventStoreFactory = eventStoreFactory;
-            this.projectionStoreFactory = projectionStoreFactory;
-            this.projectionServicesFactory = projectionServicesFactory;
-        }
-
-        public ProjectionPlayer GetPlayerFor(string tenant)
-        {
-            IEventStore eventStore = eventStoreFactory.GetEventStore(tenant);
-            IEventStorePlayer eventStorePlayer = eventStoreFactory.GetEventStorePlayer(tenant);
-            EventStoreIndex index = eventStoreFactory.GetEventStoreIndex(tenant);
-            IProjectionStore projectionStore = projectionStoreFactory.GetProjectionStore(tenant);
-            IProjectionReader projectionReader = projectionServicesFactory.GetProjectionReader(tenant);
-            IProjectionWriter projectionWriter = projectionServicesFactory.GetProjectionWriter(tenant);
-
-            return new ProjectionPlayer(eventStore, eventStorePlayer, index, projectionWriter, projectionReader);
-        }
-    }
-
-
     [DataContract(Name = "d0dc548e-cbb1-4cb8-861b-e5f6bef68116")]
     public class ProjectionBuilder : Saga,
         IEventHandler<ProjectionVersionRequested>,
@@ -150,7 +121,7 @@ namespace Elders.Cronus.Projections.Versioning
         [DataMember(Order = 2)]
         public DateTime PublishAt { get; set; }
 
-        public string Tenant { get { return ProjectionVersionRequest.Tenant; } }
+        public string Tenant { get { return ProjectionVersionRequest.Id.Tenant; } }
     }
 
     [DataContract(Name = "11c1ae7d-04f4-4266-a21e-78ddc440d68b")]
@@ -170,6 +141,6 @@ namespace Elders.Cronus.Projections.Versioning
         [DataMember(Order = 2)]
         public DateTime PublishAt { get; set; }
 
-        public string Tenant { get { return ProjectionVersionRequest.Tenant; } }
+        public string Tenant { get { return ProjectionVersionRequest.Id.Tenant; } }
     }
 }

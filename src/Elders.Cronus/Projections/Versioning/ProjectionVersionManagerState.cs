@@ -18,14 +18,11 @@ namespace Elders.Cronus.Projections.Versioning
 
         public VersionRequestTimebox LastVersionRequestTimebox { get; set; }
 
-        public string Tenant { get; set; }
-
         public void When(ProjectionVersionRequested e)
         {
             Id = e.Id;
             Versions.Add(e.Version);
             LastVersionRequestTimebox = e.Timebox;
-            Tenant = e.Tenant;
         }
 
         public void When(NewProjectionVersionIsNowLive e)

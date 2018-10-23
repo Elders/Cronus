@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Elders.Cronus.Logging;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;
 
@@ -11,19 +12,21 @@ namespace Elders.Cronus.Projections
     public class ProjectionRepository : IProjectionWriter, IProjectionReader
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionRepository));
-
+        private readonly CronusContext context;
         readonly IProjectionStore projectionStore;
         readonly ISnapshotStore snapshotStore;
         readonly ISnapshotStrategy snapshotStrategy;
         readonly InMemoryProjectionVersionStore inMemoryVersionStore;
 
-        public ProjectionRepository(IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, InMemoryProjectionVersionStore inMemoryVersionStore)
+        public ProjectionRepository(CronusContext context, IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, InMemoryProjectionVersionStore inMemoryVersionStore)
         {
-            if (ReferenceEquals(null, projectionStore) == true) throw new ArgumentException(nameof(projectionStore));
-            if (ReferenceEquals(null, snapshotStore) == true) throw new ArgumentException(nameof(snapshotStore));
-            if (ReferenceEquals(null, snapshotStrategy) == true) throw new ArgumentException(nameof(snapshotStrategy));
-            if (ReferenceEquals(null, inMemoryVersionStore) == true) throw new ArgumentException(nameof(inMemoryVersionStore));
+            if (context is null) throw new ArgumentException(nameof(context));
+            if (projectionStore is null) throw new ArgumentException(nameof(projectionStore));
+            if (snapshotStore is null) throw new ArgumentException(nameof(snapshotStore));
+            if (snapshotStrategy is null) throw new ArgumentException(nameof(snapshotStrategy));
+            if (inMemoryVersionStore is null) throw new ArgumentException(nameof(inMemoryVersionStore));
 
+            this.context = context;
             this.projectionStore = projectionStore;
             this.snapshotStore = snapshotStore;
             this.snapshotStrategy = snapshotStrategy;
@@ -207,7 +210,7 @@ namespace Elders.Cronus.Projections
             if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
 
             ProjectionVersions versions = inMemoryVersionStore.Get(projectionName);
-            if (versions == null || versions.Count == 0)
+            if (versions is null || versions.Count == 0)
             {
                 var queryResult = GetProjectionVersionsFromStore(projectionName);
                 if (queryResult.IsSuccess)
@@ -222,7 +225,7 @@ namespace Elders.Cronus.Projections
                 }
 
                 // inception
-                if (versions == null || versions.Count == 0)
+                if (versions is null || versions.Count == 0)
                 {
                     var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Live, 1, typeof(ProjectionVersionsHandler).GetProjectionHash());
 
@@ -236,7 +239,7 @@ namespace Elders.Cronus.Projections
 
         ReadResult<ProjectionVersionsHandler> GetProjectionVersionsFromStore(string projectionName)
         {
-            var versionId = new ProjectionVersionManagerId(projectionName);
+            var versionId = new ProjectionVersionManagerId(projectionName, context.Tenant);
             var persistentVersionType = typeof(ProjectionVersionsHandler);
             var persistentVersionContractId = persistentVersionType.GetContractId();
             var persistentVersion = new ProjectionVersion(persistentVersionContractId, ProjectionStatus.Live, 1, persistentVersionType.GetProjectionHash());

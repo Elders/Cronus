@@ -13,7 +13,7 @@ namespace Elders.Cronus.Discoveries
 
         IEnumerable<DiscoveredModel> GetModels()
         {
-            yield return new DiscoveredModel(typeof(ITenantList), typeof(ClientTenantsIncludingElders), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(ITenantList), typeof(Tenants), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(ITenantResolver), typeof(DefaultTenantResolver), ServiceLifetime.Transient);
         }
     }

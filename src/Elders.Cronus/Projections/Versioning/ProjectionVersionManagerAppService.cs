@@ -16,7 +16,7 @@
             ProjectionVersionManager ar;
             if (repository.TryLoad(command.Id, out ar) == false)
             {
-                ar = new ProjectionVersionManager(command.Id, command.Hash, command.Tenant);
+                ar = new ProjectionVersionManager(command.Id, command.Hash);
             }
             else
             {

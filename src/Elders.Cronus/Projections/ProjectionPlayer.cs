@@ -5,43 +5,11 @@ using System.Text;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Logging;
-using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
-using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;
 
 namespace Elders.Cronus.Projections
 {
-    public sealed class ReplayResult
-    {
-        public ReplayResult(string error = null, bool isTimeOut = false, bool canRetry = false)
-        {
-            Error = error;
-            IsTimeout = isTimeOut;
-            ShouldRetry = canRetry;
-        }
-
-        public string Error { get; private set; }
-
-        public bool IsSuccess { get { return string.IsNullOrEmpty(Error) && IsTimeout == false && ShouldRetry == false; } }
-
-        public bool IsTimeout { get; private set; }
-
-        public bool ShouldRetry { get; private set; }
-
-        public static ReplayResult Timeout(string error)
-        {
-            return new ReplayResult(error, true);
-        }
-
-        public static ReplayResult RetryLater(string message)
-        {
-            return new ReplayResult(message, isTimeOut: false, canRetry: true);
-        }
-    }
-
-    public interface IProjectionPlayer { }
-
     public class ProjectionPlayer : IProjectionPlayer
     {
         static ILog log = LogProvider.GetLogger(typeof(ProjectionPlayer));
@@ -233,7 +201,7 @@ namespace Elders.Cronus.Projections
         {
             try
             {
-                var versionId = new ProjectionVersionManagerId(version.ProjectionName);
+                var versionId = new ProjectionVersionManagerId(version.ProjectionName, "mynkow");
                 var result = systemProjectionsReader.Get<ProjectionVersionsHandler>(versionId);
                 return result.Data.State.AllVersions;
             }

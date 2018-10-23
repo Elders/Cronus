@@ -8,13 +8,12 @@ namespace Elders.Cronus.Projections.Versioning
     {
         ProjectionVersionRequestTimedout() { }
 
-        public ProjectionVersionRequestTimedout(ProjectionVersionManagerId id, ProjectionVersion version, VersionRequestTimebox timebox, string tenant)
+        public ProjectionVersionRequestTimedout(ProjectionVersionManagerId id, ProjectionVersion version, VersionRequestTimebox timebox)
         {
             Id = id;
             Version = version;
             RequestTimestamp = DateTime.UtcNow.ToFileTimeUtc();
             Timebox = timebox;
-            Tenant = tenant;
         }
 
         [DataMember(Order = 1)]
@@ -28,9 +27,6 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 4)]
         public VersionRequestTimebox Timebox { get; private set; }
-
-        [DataMember(Order = 5)]
-        public string Tenant { get; private set; }
 
         public override string ToString()
         {

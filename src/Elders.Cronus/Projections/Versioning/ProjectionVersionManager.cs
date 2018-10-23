@@ -7,12 +7,12 @@ namespace Elders.Cronus.Projections.Versioning
     {
         ProjectionVersionManager() { }
 
-        public ProjectionVersionManager(ProjectionVersionManagerId id, string hash, string tenant)
+        public ProjectionVersionManager(ProjectionVersionManagerId id, string hash)
         {
-            string projectionName = id.Id.Replace($"{tenant}_", string.Empty);
+            string projectionName = id.Id;
             var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Building, 1, hash);
             var timebox = new VersionRequestTimebox(DateTime.UtcNow);
-            RequestVersion(id, initialVersion, timebox, tenant);
+            RequestVersion(id, initialVersion, timebox);
         }
 
         public void CancelVersionRequest(ProjectionVersion version, string reason)
@@ -30,7 +30,7 @@ namespace Elders.Cronus.Projections.Versioning
             {
                 var projectionVersion = state.Versions.GetNext();
                 var timebox = GetVersionRequestTimebox(hash);
-                RequestVersion(state.Id, projectionVersion, timebox, state.Tenant);
+                RequestVersion(state.Id, projectionVersion, timebox);
             }
         }
 
@@ -41,7 +41,7 @@ namespace Elders.Cronus.Projections.Versioning
 
             if (foundVersion.Status == ProjectionStatus.Building)
             {
-                var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox, state.Tenant);
+                var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
                 Apply(@event);
             }
         }
@@ -59,7 +59,7 @@ namespace Elders.Cronus.Projections.Versioning
             var buildingVersion = state.Versions.Where(x => x == version).SingleOrDefault();
             if (ReferenceEquals(null, buildingVersion) == false)
             {
-                var @event = new NewProjectionVersionIsNowLive(state.Id, buildingVersion.WithStatus(ProjectionStatus.Live), state.Tenant);
+                var @event = new NewProjectionVersionIsNowLive(state.Id, buildingVersion.WithStatus(ProjectionStatus.Live));
                 Apply(@event);
             }
         }
@@ -124,9 +124,9 @@ namespace Elders.Cronus.Projections.Versioning
             return new VersionRequestTimebox(DateTime.UtcNow);
         }
 
-        private void RequestVersion(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox, string tenant)
+        private void RequestVersion(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
         {
-            var @event = new ProjectionVersionRequested(id, projectionVersion, timebox, tenant);
+            var @event = new ProjectionVersionRequested(id, projectionVersion, timebox);
             Apply(@event);
         }
     }
