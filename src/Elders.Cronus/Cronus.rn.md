@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0014 - 24.10.2018
+* Fixes the workflow
+
 #### 5.0.0-discovery0013 - 21.10.2018
 * ProjectionVersions are now per tenant. Based on the client's tenant configuration there will be commands issued upon start. If a client removes one tenant frpm the configuration there is no need to rebuild/replay the projections for that tenant.
 * Adds IndexStatus parser
