@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.Logging;
-using Elders.Cronus.Middleware;
+using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -10,23 +10,18 @@ namespace Elders.Cronus.MessageProcessing
     {
         static ILog log = LogProvider.GetLogger(typeof(HandlerSubscriber));
 
-        protected readonly Middleware<HandleContext> handlerMiddleware;
+        protected readonly Workflow<HandleContext> handlerWorkflow;
 
         protected readonly Type handlerType;
 
-        public HandlerSubscriber(Type handlerType, Middleware<HandleContext> handlerMiddleware, string subscriberId = null)
+        public HandlerSubscriber(Type handlerType, Workflow<HandleContext> handlerWorkflow, string subscriberId = null)
         {
-            if (ReferenceEquals(null, handlerType)) throw new ArgumentNullException(nameof(handlerType));
-            if (ReferenceEquals(null, handlerMiddleware)) throw new ArgumentNullException(nameof(handlerMiddleware));
+            if (handlerType is null) throw new ArgumentNullException(nameof(handlerType));
+            if (handlerWorkflow is null) throw new ArgumentNullException(nameof(handlerWorkflow));
 
             this.handlerType = handlerType;
-            this.handlerMiddleware = handlerMiddleware;
+            this.handlerWorkflow = handlerWorkflow;
             Id = subscriberId ?? handlerType.FullName;
-        }
-
-        protected string BuildDebugLog(CronusMessage message)
-        {
-            return message.Payload.ToString($"{message.Payload.ToString()} |=> @subscriber '{Id}'");
         }
 
         public string Id { get; private set; }
@@ -34,9 +29,8 @@ namespace Elders.Cronus.MessageProcessing
         public virtual void Process(CronusMessage message)
         {
             var context = new HandleContext(message, handlerType);
-            handlerMiddleware.Run(context);
+            handlerWorkflow.Run(context);
             log.Info(() => message.Payload.ToString());
-            log.Debug(() => "HANDLE => " + handlerType.Name + "( " + BuildDebugLog(message) + " )");
         }
 
         public virtual IEnumerable<Type> GetInvolvedMessageTypes()

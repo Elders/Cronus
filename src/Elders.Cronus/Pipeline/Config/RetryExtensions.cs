@@ -1,13 +1,13 @@
 ﻿using Elders.Cronus.FaultHandling;
-using Elders.Cronus.Middleware;
+using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.Pipeline.Config
 {
     public static class RetryExtensions
     {
-        public static Middleware<TContext> UseRetries<TContext>(this Middleware<TContext> self)
+        public static Workflow<TContext> UseRetries<TContext>(this Workflow<TContext> self)
         {
-            return new InMemoryRetryMiddleware<TContext>(self);
+            return new InMemoryRetryWorkflow<TContext>(self);
         }
     }
 }

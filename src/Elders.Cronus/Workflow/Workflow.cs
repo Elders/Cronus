@@ -1,6 +1,6 @@
-﻿namespace Elders.Cronus.Middleware
+﻿namespace Elders.Cronus.Workflow
 {
-    public abstract class Middleware<TContext> : AbstractMiddleware<TContext>
+    public abstract class Workflow<TContext> : WorkflowBase<TContext>
     {
         protected override object AbstractRun(Execution<TContext> execution)
         {
@@ -15,7 +15,7 @@
         protected abstract void Run(Execution<TContext> execution);
     }
 
-    public abstract class Middleware<TContext, TResult> : AbstractMiddleware<TContext>
+    public abstract class Workflow<TContext, TResult> : WorkflowBase<TContext>
     {
         protected override object AbstractRun(Execution<TContext> execution)
         {

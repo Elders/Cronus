@@ -38,13 +38,11 @@ namespace Elders.Cronus.EventStore
         {
             var performanceCriticalOutputBuilder = new StringBuilder();
             AggregateCommit firstCommit = aggregateCommits.First();
-            string boundedContext = firstCommit.BoundedContext;
             string base64AggregateRootId = Convert.ToBase64String(firstCommit.AggregateRootId);
             string aggregateName = Encoding.UTF8.GetString(firstCommit.AggregateRootId).Split('@')[0];
 
             performanceCriticalOutputBuilder.AppendLine("Aggregate Info");
             performanceCriticalOutputBuilder.AppendLine("==============");
-            performanceCriticalOutputBuilder.AppendLine($"- Bounded Context: `{boundedContext}`");
             performanceCriticalOutputBuilder.AppendLine($"- Aggregate root ID (base64): `{base64AggregateRootId}`");
             performanceCriticalOutputBuilder.AppendLine($"- Aggregate name: `{aggregateName}`");
             performanceCriticalOutputBuilder.AppendLine();

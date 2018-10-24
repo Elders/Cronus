@@ -1,4 +1,4 @@
-﻿using Elders.Cronus.Middleware;
+﻿using Elders.Cronus.Workflow;
 using Machine.Specifications;
 using System.Collections.Generic;
 

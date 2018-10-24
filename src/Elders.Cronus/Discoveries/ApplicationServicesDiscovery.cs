@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Pipeline.Config;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
@@ -15,15 +14,15 @@ namespace Elders.Cronus.Discoveries
 
         IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
         {
-            var handlerTypes = context.Assemblies.SelectMany(asm => asm.GetLoadableTypes())
+            var loadedTypes = context.Assemblies.SelectMany(asm => asm.GetLoadableTypes())
                 .Where(type => type.IsAbstract == false && type.IsInterface == false && typeof(T).IsAssignableFrom(type));
 
-            foreach (var handlerType in handlerTypes)
+            foreach (var type in loadedTypes)
             {
-                yield return new DiscoveredModel(handlerType, handlerType, ServiceLifetime.Transient);
+                yield return new DiscoveredModel(type, type, ServiceLifetime.Transient);
             }
 
-            yield return new DiscoveredModel(typeof(TypeContainer<T>), new TypeContainer<T>(handlerTypes));
+            yield return new DiscoveredModel(typeof(TypeContainer<T>), new TypeContainer<T>(loadedTypes));
             yield return new DiscoveredModel(typeof(IHandlerFactory), provider => new DefaultHandlerFactory(type => provider.GetRequiredService(type)), ServiceLifetime.Transient);
         }
     }

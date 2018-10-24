@@ -1,8 +1,8 @@
-﻿using Elders.Cronus.Middleware;
+﻿using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.MessageProcessing
 {
-    public class DynamicMessageHandle : Middleware<HandlerContext>
+    public class DynamicMessageHandle : Workflow<HandlerContext>
     {
         protected override void Run(Execution<HandlerContext> execution)
         {

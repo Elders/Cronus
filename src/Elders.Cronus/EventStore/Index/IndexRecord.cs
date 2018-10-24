@@ -26,6 +26,4 @@ namespace Elders.Cronus.EventStore.Index
 
         public byte[] AggregateRootId { get; private set; }
     }
-
-
 }

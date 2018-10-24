@@ -18,16 +18,16 @@ namespace Elders.Cronus.Projections
         private readonly IEventStore eventStore;
         private readonly IEventStorePlayer eventStorePlayer;
         private readonly IProjectionWriter projectionWriter;
-        private readonly IProjectionReader systemProjectionsReader;
+        private readonly IProjectionReader projectionReader;
         private readonly EventStoreIndex index;
 
-        public ProjectionPlayer(CronusContext context, IEventStore eventStore, IEventStorePlayer eventStorePlayer, EventStoreIndex index, IProjectionWriter projectionRepository, IProjectionReader systemProjections)
+        public ProjectionPlayer(CronusContext context, IEventStore eventStore, IEventStorePlayer eventStorePlayer, EventStoreIndex index, IProjectionWriter projectionRepository, IProjectionReader projectionReader)
         {
             this.context = context;
             this.eventStore = eventStore;
             this.eventStorePlayer = eventStorePlayer;
             this.projectionWriter = projectionRepository;
-            this.systemProjectionsReader = systemProjections;
+            this.projectionReader = projectionReader;
             this.index = index;
         }
 
@@ -40,9 +40,10 @@ namespace Elders.Cronus.Projections
             Type projectionType = version.ProjectionName.GetTypeByContract();
             try
             {
-                var allVersions = GetAllVersions(version);
-
+                if (IsVersionTrackerMissing() && IsNotSystemProjection(projectionType)) return ReplayResult.RetryLater($"Projection `{version}` still don't have present index."); //WHEN TO RETRY AGAIN
                 if (HasReplayTimeout(rebuildUntil)) return ReplayResult.Timeout($"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{rebuildUntil}.");
+
+                var allVersions = GetAllVersions(version);
                 if (allVersions.IsOutdatad(version)) return new ReplayResult($"Version `{version}` is outdated. There is a newer one which is already live.");
                 if (allVersions.IsCanceled(version)) return new ReplayResult($"Version `{version}` was canceled.");
                 if (index.Status.IsNotPresent()) return ReplayResult.RetryLater($"Projection `{version}` still don't have present index."); //WHEN TO RETRY AGAIN
@@ -201,18 +202,25 @@ namespace Elders.Cronus.Projections
 
         ProjectionVersions GetAllVersions(ProjectionVersion version)
         {
-            try
-            {
-                var versionId = new ProjectionVersionManagerId(version.ProjectionName, context.Tenant);
-                var result = systemProjectionsReader.Get<ProjectionVersionsHandler>(versionId);
+            var versionId = new ProjectionVersionManagerId(version.ProjectionName, context.Tenant);
+            var result = projectionReader.Get<ProjectionVersionsHandler>(versionId);
+            if (result.IsSuccess)
                 return result.Data.State.AllVersions;
-            }
-            catch (Exception ex)
-            {
-                log.WarnException("Failed to check if a version is outdated. Assuming it is not.", ex);
-                return new ProjectionVersions();
-            }
+
+            return new ProjectionVersions();
         }
 
+        bool IsNotSystemProjection(Type projectionType)
+        {
+            return typeof(ISystemProjection).IsAssignableFrom(projectionType) == false;
+        }
+
+        bool IsVersionTrackerMissing()
+        {
+            var versionId = new ProjectionVersionManagerId(ProjectionVersionsHandler.ContractId, context.Tenant);
+            var result = projectionReader.Get<ProjectionVersionsHandler>(versionId);
+
+            return result.HasFailed;
+        }
     }
 }

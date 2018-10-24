@@ -32,6 +32,11 @@ namespace Elders.Cronus.Projections
         public static ProjectionStatus Live = new ProjectionStatus("live");
 
         /// <summary>
+        /// The projection does not exist
+        /// </summary>
+        public static ProjectionStatus NotPresent = new ProjectionStatus("not_present");
+
+        /// <summary>
         /// The projection rebuild is canceled by a user or an error happened during rebuild. Check the reason for more details
         /// </summary>
         public static ProjectionStatus Canceled = new ProjectionStatus("canceled");

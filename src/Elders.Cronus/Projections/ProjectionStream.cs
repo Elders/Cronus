@@ -36,17 +36,17 @@ namespace Elders.Cronus.Projections
 
         public List<ProjectionCommit> Commits { get; private set; }
 
-        public ReadResult<IProjectionDefinition> RestoreFromHistory(Type projectionType)
+        public IProjectionDefinition RestoreFromHistory(Type projectionType)
         {
-            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return new ReadResult<IProjectionDefinition>();
+            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return null;
 
             IProjectionDefinition projection = (IProjectionDefinition)FastActivator.CreateInstance(projectionType, true);
             return RestoreFromHistoryMamamia(projection);
         }
 
-        public ReadResult<T> RestoreFromHistory<T>() where T : IProjectionDefinition
+        public T RestoreFromHistory<T>() where T : IProjectionDefinition
         {
-            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return new ReadResult<T>();
+            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return default(T);
 
             T projection = (T)FastActivator.CreateInstance(typeof(T), true);
             return RestoreFromHistoryMamamia<T>(projection);
@@ -60,7 +60,7 @@ namespace Elders.Cronus.Projections
             return snapshot;
         }
 
-        ReadResult<T> RestoreFromHistoryMamamia<T>(T projection) where T : IProjectionDefinition
+        T RestoreFromHistoryMamamia<T>(T projection) where T : IProjectionDefinition
         {
             ISnapshot localSnapshot = GetSnapshot();
             projection.InitializeState(projectionId, localSnapshot.State);
@@ -94,7 +94,7 @@ namespace Elders.Cronus.Projections
                 }
             }
 
-            return new ReadResult<T>(projection);
+            return projection;
         }
 
         private readonly static ProjectionStream _emptyProjectionStream = new ProjectionStream();

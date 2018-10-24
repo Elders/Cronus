@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Elders.Cronus.Middleware
+namespace Elders.Cronus.Workflow
 {
-    public interface IMiddleware { }
 
-    public abstract class AbstractMiddleware<TContext> : IMiddleware
+    public abstract class WorkflowBase<TContext> : IWorkflow
     {
         protected ExecutionChain<TContext> ExecutionChain { get; set; }
 
-        public AbstractMiddleware()
+        public WorkflowBase()
         {
             ExecutionChain = new ExecutionChain<TContext>();
         }
@@ -22,18 +21,29 @@ namespace Elders.Cronus.Middleware
         }
 
         /// <summary>
-        /// Adds the next middleware in the execution chain.
+        /// Adds the next workflow in the execution chain.
         /// </summary>
-        /// <param name="nextMiddleware"></param>
-        public void Use(AbstractMiddleware<TContext> nextMiddleware)
+        /// <param name="nextWorkflow"></param>
+        public void Use(WorkflowBase<TContext> nextWorkflow)
         {
-            if (ReferenceEquals(null, nextMiddleware)) throw new ArgumentNullException(nameof(nextMiddleware), "Who are you?");
-            ExecutionChain.Append(nextMiddleware);
+            if (nextWorkflow is null) throw new ArgumentNullException(nameof(nextWorkflow));
+
+            ExecutionChain.Append(nextWorkflow);
+        }
+
+        /// <summary>
+        /// Overrides the whole execution flow.
+        /// </summary>
+        /// <param name="nextWorkflow"></param>
+        public void Override(WorkflowBase<TContext> nextWorkflow)
+        {
+            if (nextWorkflow is null) throw new ArgumentNullException(nameof(nextWorkflow));
+            ExecutionChain.Override(nextWorkflow);
         }
 
         protected object InvokeChain(Execution<TContext> control)
         {
-            var iterator = control as IEnumerator<AbstractMiddleware<TContext>>;
+            var iterator = control as IEnumerator<WorkflowBase<TContext>>;
             control.Follow(ExecutionChain);
             var result = this.AbstractRun(control);
             control.ExecutionResult(result);

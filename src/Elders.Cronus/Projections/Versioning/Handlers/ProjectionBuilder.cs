@@ -72,38 +72,6 @@ namespace Elders.Cronus.Projections.Versioning
         }
     }
 
-    public class SystemProjectionsGG
-    {
-        private readonly TypeContainer<IProjection> handlerTypeContainer;
-        private readonly IProjectionReader projectionReader;
-
-        public SystemProjectionsGG(TypeContainer<IProjection> handlerTypeContainer, IProjectionReader projectionReader)
-        {
-            this.handlerTypeContainer = handlerTypeContainer;
-            this.projectionReader = projectionReader;
-        }
-
-        public bool AreWeOK()
-        {
-            var systemProjectionsTypes = handlerTypeContainer.Items.Where(x => x is ISystemProjection);
-
-            try
-            {
-                foreach (var systemProjectionType in systemProjectionsTypes)
-                {
-                    //projectionReader.Get(new StupidId(""), systemProjectionType);
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-
-            return true;
-        }
-    }
-
     [DataContract(Name = "029602fa-db90-47a4-9c8b-c304d5ee177a")]
     public class RebuildProjectionVersion : IScheduledMessage
     {

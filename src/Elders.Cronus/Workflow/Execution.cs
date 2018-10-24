@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Elders.Cronus.Middleware
+namespace Elders.Cronus.Workflow
 {
     public class Execution<TContext, TResult> : Execution<TContext>
     {
@@ -13,11 +13,11 @@ namespace Elders.Cronus.Middleware
         new public TResult PreviousResult { get { return (TResult)base.PreviousResult; } }
     }
 
-    public class Execution<TContext> : IEnumerator<AbstractMiddleware<TContext>>
+    public class Execution<TContext> : IEnumerator<WorkflowBase<TContext>>
     {
-        LinkedList<AbstractMiddleware<TContext>> executionQueue;
+        LinkedList<WorkflowBase<TContext>> executionQueue;
 
-        AbstractMiddleware<TContext> current;
+        WorkflowBase<TContext> current;
 
         public TContext Context { get; private set; }
 
@@ -25,7 +25,7 @@ namespace Elders.Cronus.Middleware
 
         public Execution(TContext context)
         {
-            this.executionQueue = new LinkedList<AbstractMiddleware<TContext>>();
+            this.executionQueue = new LinkedList<WorkflowBase<TContext>>();
             Context = context;
         }
 
@@ -41,13 +41,13 @@ namespace Elders.Cronus.Middleware
             executionQueue.Clear();
         }
 
-        public void Transfer(AbstractMiddleware<TContext> next)
+        public void Transfer(WorkflowBase<TContext> next)
         {
             executionQueue.Clear();
             executionQueue.Enqueue(next);
         }
 
-        public void Next(AbstractMiddleware<TContext> next)
+        public void Next(WorkflowBase<TContext> next)
         {
             executionQueue.Push(next);
         }
@@ -67,7 +67,7 @@ namespace Elders.Cronus.Middleware
             PreviousResult = result;
         }
 
-        AbstractMiddleware<TContext> IEnumerator<AbstractMiddleware<TContext>>.Current { get { return current; } }
+        WorkflowBase<TContext> IEnumerator<WorkflowBase<TContext>>.Current { get { return current; } }
 
         object IEnumerator.Current { get { return current; } }
 
@@ -86,7 +86,7 @@ namespace Elders.Cronus.Middleware
 
         void IEnumerator.Reset()
         {
-            executionQueue = new LinkedList<AbstractMiddleware<TContext>>();
+            executionQueue = new LinkedList<WorkflowBase<TContext>>();
         }
     }
 }

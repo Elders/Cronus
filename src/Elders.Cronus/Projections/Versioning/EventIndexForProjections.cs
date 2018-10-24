@@ -1,34 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Text;
+using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Pipeline.Config;
+using Elders.Cronus.Projections.Cassandra.EventSourcing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Name = IndexEventTypeSubscriber.ContractId)]
-    public class IndexEventTypeSubscriber : ISubscriber
+    [DataContract(Name = IndexByEventTypeSubscriber.ContractId)]
+    public class IndexByEventTypeSubscriber : ISubscriber
     {
-        public const string ContractId = "13423df4-b815-421d-a53d-c767b157cc81";
+        public const string ContractId = "c8091ae7-a75a-4d66-a66b-de740f6bf9fd";
 
         private readonly TypeContainer<IEvent> allEventTypesInTheSystem;
-        private readonly IProjectionStore projectionStore;
-        private string currentHash;
-        private readonly ProjectionVersion projectionVersion;
+        private readonly IServiceProvider ioc;
+        private readonly Func<IServiceScope, IIndexStore> indexProvider;
 
-        public string Id { get { return nameof(IndexEventTypeSubscriber); } }
+        public string Id { get { return nameof(IndexByEventTypeSubscriber); } }
 
-        public IndexEventTypeSubscriber(TypeContainer<IEvent> allEventTypesInTheSystem, IPublisher<ICommand> publisher, IProjectionStore projectionStore)
+        public IndexByEventTypeSubscriber(TypeContainer<IEvent> allEventTypesInTheSystem, IServiceProvider ioc, Func<IServiceScope, IIndexStore> indexProvider)
         {
-            var hasher = new ProjectionHasher();
-            this.currentHash = hasher.CalculateHash(typeof(IndexEventTypeSubscriber));
-
-            this.projectionVersion = new ProjectionVersion(ContractId, ProjectionStatus.Live, 1, currentHash);
             this.allEventTypesInTheSystem = allEventTypesInTheSystem;
-            //projectionStore.InitializeProjectionStores(version);
-
-
-            this.projectionStore = projectionStore;
+            this.ioc = ioc;
+            this.indexProvider = indexProvider;
         }
 
         public IEnumerable<Type> GetInvolvedMessageTypes()
@@ -38,21 +34,24 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Process(CronusMessage message)
         {
-            var indexId = new EventStoreIndexEventTypeId(message.Payload.GetType().GetContractId());
-            var commit = new ProjectionCommit(indexId, projectionVersion, (IEvent)message.Payload, 1, message.GetEventOrigin(), DateTime.FromFileTimeUtc(message.GetRootEventTimestamp()));
-            projectionStore.Save(commit);
+            using (IServiceScope scope = ioc.CreateScope())
+            {
+                var cronusContext = scope.ServiceProvider.GetRequiredService<CronusContext>();
+                if (string.IsNullOrEmpty(cronusContext.Tenant))
+                {
+                    string tenant = message.GetTenant();
+                    if (string.IsNullOrEmpty(tenant)) throw new Exception($"Unable to resolve tenant from {message}");
+                    cronusContext.Tenant = tenant;
+                }
+                var index = indexProvider(scope);
+                var indexRecord = new List<IndexRecord>();
+                var @event = message.Payload as IEvent;
+
+                string eventTypeId = @event.Unwrap().GetType().GetContractId();
+                indexRecord.Add(new IndexRecord(eventTypeId, Encoding.UTF8.GetBytes(message.GetRootId())));
+                index.Apend(indexRecord);
+            }
+
         }
-
-        //public IEnumerable<ProjectionCommit> EnumerateCommitsByEventType(EventStoreIndexEventTypeId indexId)
-        //{
-        //    return factory.GetProjectionStore(CronusAssembly.EldersTenant).EnumerateProjection(Version, indexId);
-        //}
-
-
-        //public IndexBuilder GetIndexBuilder()
-        //{
-        //    return new IndexBuilder(Version, factory, internalStore);
-        //}
-
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Elders.Cronus.FaultHandling;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -9,7 +10,6 @@ namespace Elders.Cronus.MessageProcessing
             Message = message;
             HandlerType = handlerType;
         }
-
         public CronusMessage Message { get; private set; }
 
         public Type HandlerType { get; private set; }

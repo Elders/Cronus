@@ -27,7 +27,7 @@ namespace Elders.Cronus
 
             return services;
         }
-    
+
         public static IServiceCollection AddTenantSingleton<TService, TImplementation>(this IServiceCollection services)
             where TService : class
             where TImplementation : class, TService
@@ -39,6 +39,7 @@ namespace Elders.Cronus
         }
     }
 
+    // TODO: mynkow
     public class SingletonPerTenant<T>
     {
         static ConcurrentDictionary<string, T> cache = new ConcurrentDictionary<string, T>();

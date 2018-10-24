@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace Elders.Cronus.Middleware
+namespace Elders.Cronus.Workflow
 {
-    public static class MiddlewareExtensions
+    public static class WorkflowExtensions
     {
         /// <summary>
         /// Adds the next middleware in the execution chain
@@ -11,9 +11,9 @@ namespace Elders.Cronus.Middleware
         /// <param name="self">The current middleware</param>
         /// <param name="action">The action which will be executed after the current middleware</param>
         /// <returns></returns>
-        public static Middleware<TContext> Use<TContext>(this Middleware<TContext> self, Action<Execution<TContext>> action)
+        public static Workflow<TContext> Use<TContext>(this Workflow<TContext> self, Action<Execution<TContext>> action)
         {
-            self.Use(new SimpleMiddleware<TContext>(action));
+            self.Use(new ActionWorkflow<TContext>(action));
             return self;
         }
 
@@ -25,26 +25,26 @@ namespace Elders.Cronus.Middleware
         /// <param name="self">The current middleware</param>
         /// <param name="action">The action which will be executed after the current middleware</param>
         /// <returns></returns>
-        public static Middleware<TContext, TResult> Use<TContext, TResult>(this Middleware<TContext, TResult> self, Func<Execution<TContext>, TResult> action)
+        public static Workflow<TContext, TResult> Use<TContext, TResult>(this Workflow<TContext, TResult> self, Func<Execution<TContext>, TResult> action)
         {
-            self.Use(new SimpleMiddleware<TContext, TResult>(action));
+            self.Use(new ActionWorkflow<TContext, TResult>(action));
             return self;
         }
 
         /// <summary>
-        /// Creates a <see cref="SimpleMiddleware{TContext}"/> out of the specified <see cref="Action"/>
+        /// Creates a <see cref="ActionWorkflow{TContext}"/> out of the specified <see cref="Action"/>
         /// </summary>
         /// <typeparam name="TContext">The context</typeparam>
         /// <param name="action">The action of the middleware</param>
         /// <returns></returns>
-        public static Middleware<TContext> Lamda<TContext>(Action<Execution<TContext>> action = null)
+        public static Workflow<TContext> Lamda<TContext>(Action<Execution<TContext>> action = null)
         {
-            return new SimpleMiddleware<TContext>(action);
+            return new ActionWorkflow<TContext>(action);
         }
 
-        public static Middleware<TContext, TResult> Lambda<TContext, TResult>(Func<Execution<TContext>, TResult> action = null)
+        public static Workflow<TContext, TResult> Lambda<TContext, TResult>(Func<Execution<TContext>, TResult> action = null)
         {
-            return new SimpleMiddleware<TContext, TResult>(action);
+            return new ActionWorkflow<TContext, TResult>(action);
         }
     }
 }

@@ -139,6 +139,13 @@ namespace Elders.Cronus.Projections
             return liveVersion > version;
         }
 
+        public bool IsNotPresent(ProjectionVersion version)
+        {
+            if (version is null) throw new ArgumentNullException(nameof(version));
+
+            return this.Any() == false;
+        }
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return new HashSet<ProjectionVersion>(versions).GetEnumerator();

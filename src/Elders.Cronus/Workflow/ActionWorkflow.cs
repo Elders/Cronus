@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace Elders.Cronus.Middleware
+namespace Elders.Cronus.Workflow
 {
-    public class SimpleMiddleware<TContext> : Middleware<TContext>
+    public class ActionWorkflow<TContext> : Workflow<TContext>
     {
         Action<Execution<TContext>> implementation;
 
-        public SimpleMiddleware(Action<Execution<TContext>> action = null)
+        public ActionWorkflow(Action<Execution<TContext>> action = null)
         {
             this.implementation = action;
         }
@@ -18,11 +18,11 @@ namespace Elders.Cronus.Middleware
         }
     }
 
-    public class SimpleMiddleware<TContext, TResult> : Middleware<TContext, TResult>
+    public class ActionWorkflow<TContext, TResult> : Workflow<TContext, TResult>
     {
         Func<Execution<TContext>, TResult> implementation;
 
-        public SimpleMiddleware(Func<Execution<TContext>, TResult> action = null)
+        public ActionWorkflow(Func<Execution<TContext>, TResult> action = null)
         {
             this.implementation = action;
         }

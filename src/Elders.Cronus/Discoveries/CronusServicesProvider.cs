@@ -2,8 +2,9 @@
 using System.Linq;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.EventStore;
+using Elders.Cronus.FaultHandling;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Middleware;
+using Elders.Cronus.Workflow;
 using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Projections;
@@ -75,7 +76,7 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual void Handle(DiscoveryResult<IGateway> discoveryResult) => AddServices(discoveryResult);
 
-        protected virtual void Handle(DiscoveryResult<IMiddleware> discoveryResult) => AddServices(discoveryResult);
+        protected virtual void Handle(DiscoveryResult<IWorkflow> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<IHandlerFactory> discoveryResult) => AddServices(discoveryResult);
 
