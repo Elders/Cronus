@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0015 - 25.10.2018
+* Adds BoundedContext which represents the configuration setting cronus_boundedcontext so that other services can get it injected directly
+
 #### 5.0.0-discovery0014 - 24.10.2018
 * Fixes the workflow
 
