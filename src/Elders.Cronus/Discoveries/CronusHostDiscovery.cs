@@ -28,6 +28,8 @@ namespace Elders.Cronus.Discoveries
                 .Where(type => type.IsAbstract == false && type.IsInterface == false && typeof(IEvent).IsAssignableFrom(type) && type != typeof(EntityEvent));
 
             yield return new DiscoveredModel(typeof(TypeContainer<IEvent>), new TypeContainer<IEvent>(loadedTypes));
+
+            yield return new DiscoveredModel(typeof(BoundedContext), typeof(BoundedContext), ServiceLifetime.Transient);
         }
     }
 }
