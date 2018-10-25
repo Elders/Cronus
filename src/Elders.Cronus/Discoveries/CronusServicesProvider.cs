@@ -66,7 +66,7 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual void Handle(DiscoveryResult<IAggregateRootAtomicAction> discoveryResult) => AddServices(discoveryResult);
 
-        protected virtual void Handle(DiscoveryResult<IAggregateRootApplicationService> discoveryResult) => AddServices(discoveryResult);
+        protected virtual void Handle(DiscoveryResult<IApplicationService> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<IProjection> discoveryResult) => AddServices(discoveryResult);
 

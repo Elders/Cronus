@@ -6,14 +6,14 @@ using Elders.Cronus.Multitenancy;
 
 namespace Elders.Cronus
 {
-    public class ApplicationServicesStartup : StartupBase<IAggregateRootApplicationService>
+    public class ApplicationServicesStartup : StartupBase<IApplicationService>
     {
         private readonly ITenantList tenants;
-        private readonly SubscriberCollection<IAggregateRootApplicationService> subscriberCollection;
-        private readonly TypeContainer<IAggregateRootApplicationService> typeContainer;
+        private readonly SubscriberCollection<IApplicationService> subscriberCollection;
+        private readonly TypeContainer<IApplicationService> typeContainer;
         private Workflow<HandleContext> customWorkflow;
 
-        public ApplicationServicesStartup(IServiceProvider ioc, IConsumer<IAggregateRootApplicationService> consumer, SubscriberCollection<IAggregateRootApplicationService> subscriberCollection, TypeContainer<IAggregateRootApplicationService> typeContainer, ITenantList tenants)
+        public ApplicationServicesStartup(IServiceProvider ioc, IConsumer<IApplicationService> consumer, SubscriberCollection<IApplicationService> subscriberCollection, TypeContainer<IApplicationService> typeContainer, ITenantList tenants)
             : base(consumer)
         {
             this.subscriberCollection = subscriberCollection;
