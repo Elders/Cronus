@@ -1,4 +1,6 @@
-﻿namespace Elders.Cronus.MessageProcessing
+﻿using System;
+
+namespace Elders.Cronus.MessageProcessing
 {
     public class HandlerContext
     {
@@ -17,11 +19,16 @@
 
     public class CronusContext
     {
-        public CronusContext()
+        private string tenant;
+
+        public string Tenant
         {
-
+            get
+            {
+                if (string.IsNullOrEmpty(tenant)) throw new ArgumentException("Unknown tenant. CronusContext is not properly built. Make sure that someone properly resolves the current tenant and sets it to this instance.");
+                return tenant;
+            }
+            set => tenant = value;
         }
-
-        public string Tenant { get; set; }
     }
 }

@@ -22,7 +22,7 @@ namespace Elders.Cronus
 
         internal static IServiceCollection AddTenantSupport(this IServiceCollection services)
         {
-            services.AddTransient(typeof(SingletonPerTenant<>));
+            services.AddSingleton(typeof(SingletonPerTenant<>));
             services.AddScoped<CronusContext>();
 
             return services;
@@ -40,24 +40,24 @@ namespace Elders.Cronus
     }
 
     // TODO: mynkow
-    public class SingletonPerTenant<T>
+    public class SingletonPerTenant<T> : IDisposable
     {
         static ConcurrentDictionary<string, T> cache = new ConcurrentDictionary<string, T>();
 
         private readonly CronusContext context;
         private readonly IServiceProvider provider;
 
-        public SingletonPerTenant(CronusContext context, IServiceProvider provider)
+        public SingletonPerTenant(IServiceProvider provider)
         {
-            if (context is null) throw new ArgumentNullException(nameof(context));
             if (provider is null) throw new ArgumentNullException(nameof(provider));
 
-            this.context = context;
             this.provider = provider;
         }
 
         public T Get()
         {
+            CronusContext context = provider.GetRequiredService<CronusContext>();
+
             if (cache.TryGetValue(context.Tenant, out T instance) == false)
             {
                 instance = provider.GetRequiredService<T>();
@@ -65,6 +65,16 @@ namespace Elders.Cronus
             }
 
             return instance;
+        }
+
+        public void Dispose()
+        {
+            foreach (var item in cache.Values)
+            {
+                if (item is IDisposable)
+                    (item as IDisposable).Dispose();
+            }
+            cache.Clear();
         }
     }
 }
