@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0016 - 26.10.2018
+* Updates domain modeling
+
 #### 5.0.0-discovery0015 - 25.10.2018
 * Adds BoundedContext which represents the configuration setting cronus_boundedcontext so that other services can get it injected directly
 
