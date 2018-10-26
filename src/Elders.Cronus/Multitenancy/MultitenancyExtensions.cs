@@ -7,6 +7,8 @@ namespace Elders.Cronus.Multitenancy
 {
     public class Tenants : ITenantList
     {
+        public const string SettingKey = "cronus_tenants";
+
         List<string> tenants;
 
         public Tenants(IConfiguration configuration)
@@ -15,10 +17,10 @@ namespace Elders.Cronus.Multitenancy
 
             tenants = new List<string>();
 
-            string tenantsFromConfiguration = configuration["cronus_tenants"];
+            string tenantsFromConfiguration = configuration[SettingKey];
             if (string.IsNullOrEmpty(tenantsFromConfiguration) == false)
             {
-                var cfgTenants = configuration["cronus_tenants"]
+                var cfgTenants = tenantsFromConfiguration
                     .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                     .Select(tenant => tenant.ToLower())
                     .Distinct();
