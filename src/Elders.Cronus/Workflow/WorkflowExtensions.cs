@@ -5,11 +5,11 @@ namespace Elders.Cronus.Workflow
     public static class WorkflowExtensions
     {
         /// <summary>
-        /// Adds the next middleware in the execution chain
+        /// Adds the next flow in the execution chain
         /// </summary>
         /// <typeparam name="TContext">The context</typeparam>
-        /// <param name="self">The current middleware</param>
-        /// <param name="action">The action which will be executed after the current middleware</param>
+        /// <param name="self">The current flow</param>
+        /// <param name="action">The action which will be executed after the current flow</param>
         /// <returns></returns>
         public static Workflow<TContext> Use<TContext>(this Workflow<TContext> self, Action<Execution<TContext>> action)
         {
@@ -18,12 +18,12 @@ namespace Elders.Cronus.Workflow
         }
 
         /// <summary>
-        /// Adds the next middleware in the execution chain
+        /// Adds the next flow in the execution chain
         /// </summary>
         /// <typeparam name="TContext">The context</typeparam>
         /// <typeparam name="TResult">The result</typeparam>
-        /// <param name="self">The current middleware</param>
-        /// <param name="action">The action which will be executed after the current middleware</param>
+        /// <param name="self">The current flow</param>
+        /// <param name="action">The action which will be executed after the current flow</param>
         /// <returns></returns>
         public static Workflow<TContext, TResult> Use<TContext, TResult>(this Workflow<TContext, TResult> self, Func<Execution<TContext>, TResult> action)
         {
@@ -35,7 +35,7 @@ namespace Elders.Cronus.Workflow
         /// Creates a <see cref="ActionWorkflow{TContext}"/> out of the specified <see cref="Action"/>
         /// </summary>
         /// <typeparam name="TContext">The context</typeparam>
-        /// <param name="action">The action of the middleware</param>
+        /// <param name="action">The action of the flow</param>
         /// <returns></returns>
         public static Workflow<TContext> Lamda<TContext>(Action<Execution<TContext>> action = null)
         {
