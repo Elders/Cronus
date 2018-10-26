@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Runtime.Serialization;
 using Elders.Cronus.Logging;
-using Elders.Cronus.Pipeline.Config;
 
 namespace Elders.Cronus.Projections.Versioning
 {

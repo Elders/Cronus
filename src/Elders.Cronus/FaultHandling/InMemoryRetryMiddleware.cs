@@ -1,8 +1,6 @@
 ﻿using System;
 using Elders.Cronus.FaultHandling.Strategies;
-using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Workflow;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.FaultHandling
 {

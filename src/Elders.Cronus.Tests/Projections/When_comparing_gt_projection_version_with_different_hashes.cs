@@ -1,5 +1,4 @@
-﻿using System;
-using Elders.Cronus.Projections;
+﻿using Elders.Cronus.Projections;
 using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.Projections

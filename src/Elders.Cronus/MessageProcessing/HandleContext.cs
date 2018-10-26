@@ -1,5 +1,4 @@
 using System;
-using Elders.Cronus.FaultHandling;
 
 namespace Elders.Cronus.MessageProcessing
 {

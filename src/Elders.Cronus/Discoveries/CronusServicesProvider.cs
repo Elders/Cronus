@@ -2,7 +2,6 @@
 using System.Linq;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.EventStore;
-using Elders.Cronus.FaultHandling;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Workflow;
 using Elders.Cronus.Multitenancy;

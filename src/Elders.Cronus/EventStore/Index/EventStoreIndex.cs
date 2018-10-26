@@ -1,7 +1,6 @@
 ﻿using Elders.Cronus.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Elders.Cronus.EventStore.Index
 {

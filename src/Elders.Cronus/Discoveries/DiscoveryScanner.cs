@@ -2,7 +2,6 @@
 using System.Linq;
 using Elders.Cronus.Logging;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Configuration;
