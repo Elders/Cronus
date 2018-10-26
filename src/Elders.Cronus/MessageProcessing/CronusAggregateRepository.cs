@@ -14,7 +14,7 @@ namespace Elders.Cronus.MessageProcessing
             this.eventPublisher = eventPublisher;
         }
 
-        public AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        public ReadResult<AR> Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
             return aggregateRepository.Load<AR>(id);
         }
@@ -33,11 +33,6 @@ namespace Elders.Cronus.MessageProcessing
 
                 eventPublisher.Publish(theEvent, BuildHeaders(aggregateRoot, i));
             }
-        }
-
-        public bool TryLoad<AR>(IAggregateRootId id, out AR aggregateRoot) where AR : IAggregateRoot
-        {
-            return aggregateRepository.TryLoad<AR>(id, out aggregateRoot);
         }
 
         Dictionary<string, string> BuildHeaders(IAggregateRoot aggregateRoot, int eventPosition)

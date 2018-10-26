@@ -55,7 +55,7 @@ namespace Elders.Cronus.EventStore
         /// <typeparam name="AR">The type of the r.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        public ReadResult<AR> Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
             EventStream eventStream = eventStore.Load(id);
             var integrityResult = integrityPolicy.Apply(eventStream);
@@ -64,25 +64,9 @@ namespace Elders.Cronus.EventStore
             eventStream = integrityResult.Output;
             AR aggregateRoot;
             if (eventStream.TryRestoreFromHistory<AR>(out aggregateRoot) == false)
-                throw new AggregateLoadException("Unable to load AR with ID=" + id.Urn.Value);
+                return new ReadResult<AR>(new AggregateLoadException("Unable to load AR with ID=" + id.Urn.Value));
 
-            return aggregateRoot;
-        }
-
-        /// <summary>
-        /// Loads an aggregate with the specified identifier.
-        /// </summary>
-        /// <typeparam name="AR">The type of the r.</typeparam>
-        /// <param name="id">The identifier.</param>
-        /// <returns></returns>
-        public bool TryLoad<AR>(IAggregateRootId id, out AR aggregateRoot) where AR : IAggregateRoot
-        {
-            aggregateRoot = default(AR);
-            EventStream eventStream = eventStore.Load(id);
-            var integrityResult = integrityPolicy.Apply(eventStream);
-            if (integrityResult.IsIntegrityViolated)
-                return false;
-            return eventStream.TryRestoreFromHistory<AR>(out aggregateRoot);
+            return new ReadResult<AR>(aggregateRoot);
         }
     }
 }

@@ -8,13 +8,11 @@ using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 {
-
     [Subject("Entity")]
     public class When_loading_aggregate_root_with_entity_from_event_store
     {
         Establish context = () =>
         {
-
             versionService = new InMemoryAggregateRootAtomicAction();
             eventStoreStorage = new InMemoryEventStoreStorage();
             eventStore = new InMemoryEventStore(eventStoreStorage);
@@ -28,18 +26,18 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             aggregateRoot = new TestAggregateRoot(id);
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
 
-            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id);
+            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
             var entityId0 = new TestEntityId(id);
             aggregateRoot.CreateEntity(entityId0);
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
 
-            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id);
+            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
             var entityId1 = new TestEntityId(id);
             aggregateRoot.CreateEntity(entityId1);
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
         };
 
-        Because of = () => loadedAggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id);
+        Because of = () => loadedAggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
 
         It should_instansiate_aggregate_root = () => loadedAggregateRoot.ShouldNotBeNull();
 

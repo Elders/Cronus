@@ -29,7 +29,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 
         It should_instansiate_aggregate_root = () => aggregateRepository.Load<TestAggregateRoot>(id).ShouldNotBeNull();
 
-        It should_instansiate_aggregate_root_with_valid_state = () => aggregateRepository.Load<TestAggregateRoot>(id).State.Id.ShouldEqual(id);
+        It should_instansiate_aggregate_root_with_valid_state = () => aggregateRepository.Load<TestAggregateRoot>(id).Data.State.Id.ShouldEqual(id);
 
         static TestAggregateId id;
         static InMemoryEventStoreStorage eventStoreStorage;
