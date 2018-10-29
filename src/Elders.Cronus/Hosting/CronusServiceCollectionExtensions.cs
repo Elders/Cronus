@@ -21,7 +21,8 @@ namespace Elders.Cronus
 
         internal static IServiceCollection AddTenantSupport(this IServiceCollection services)
         {
-            services.AddSingleton(typeof(SingletonPerTenant<>));
+            services.AddTransient(typeof(SingletonPerTenant<>));
+            services.AddSingleton(typeof(SingletonPerTenantContainer<>));
             services.AddScoped<CronusContext>();
 
             return services;
@@ -37,43 +38,48 @@ namespace Elders.Cronus
             return services;
         }
     }
-
-    // TODO: mynkow
-    public class SingletonPerTenant<T> : IDisposable
+    public class SingletonPerTenantContainer<T> : IDisposable
     {
-        static ConcurrentDictionary<string, T> cache = new ConcurrentDictionary<string, T>();
-
-        private readonly CronusContext context;
-        private readonly IServiceProvider provider;
-
-        public SingletonPerTenant(IServiceProvider provider)
+        public SingletonPerTenantContainer()
         {
-            if (provider is null) throw new ArgumentNullException(nameof(provider));
-
-            this.provider = provider;
+            Stash = new ConcurrentDictionary<string, T>();
         }
 
-        public T Get()
-        {
-            CronusContext context = provider.GetRequiredService<CronusContext>();
-
-            if (cache.TryGetValue(context.Tenant, out T instance) == false)
-            {
-                instance = provider.GetRequiredService<T>();
-                cache.TryAdd(context.Tenant, instance);
-            }
-
-            return instance;
-        }
+        public ConcurrentDictionary<string, T> Stash { get; private set; }
 
         public void Dispose()
         {
-            foreach (var item in cache.Values)
+            foreach (var item in Stash.Values)
             {
                 if (item is IDisposable)
                     (item as IDisposable).Dispose();
             }
-            cache.Clear();
+            Stash.Clear();
+        }
+    }
+
+    // TODO: mynkow
+    public class SingletonPerTenant<T>
+    {
+        private readonly SingletonPerTenantContainer<T> container;
+        private readonly CronusContext context;
+
+        public SingletonPerTenant(SingletonPerTenantContainer<T> container, CronusContext context)
+        {
+            if (context is null) throw new ArgumentNullException(nameof(context));
+            this.container = container;
+            this.context = context;
+        }
+
+        public T Get()
+        {
+            if (container.Stash.TryGetValue(context.Tenant, out T instance) == false)
+            {
+                instance = context.ServiceProvider.GetRequiredService<T>();
+                container.Stash.TryAdd(context.Tenant, instance);
+            }
+
+            return instance;
         }
     }
 }

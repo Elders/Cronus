@@ -1,71 +1,64 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
-using Elders.Cronus.MessageProcessing;
+using System.Threading.Tasks;
 using Machine.Specifications;
 
 namespace Elders.Cronus.Tests
 {
-    public class When__SingletonPerTenant__is_used
+    public class When__SingletonPerTenantContainer__is_used
     {
         Establish context = () =>
         {
-            singleton = new SingletonPerTenant<DisposableObject>(new DummyProvider());
+            container = new SingletonPerTenantContainer<DisposableObject>();
+            instance = new DisposableObject();
+            container.Stash.TryAdd("tenant", instance);
         };
 
-        Because of = () => instance = singleton.Get();
+        Because of = () => container.Stash.TryGetValue("tenant", out instance);
 
         It should_run_fine = () => instance.Running.ShouldBeTrue();
 
-        Cleanup cln = () =>
+        Cleanup cleanup = () =>
         {
             instance.Dispose();
         };
 
-        static SingletonPerTenant<DisposableObject> singleton;
+        static SingletonPerTenantContainer<DisposableObject> container;
         static DisposableObject instance;
     }
 
-    public class When__SingletonPerTenant__is_disposed
+    public class When__SingletonPerTenantContainer__is_disposed
     {
         Establish context = () =>
         {
-            singleton = new SingletonPerTenant<DisposableObject>(new DummyProvider());
-            instance = singleton.Get();
+            container = new SingletonPerTenantContainer<DisposableObject>();
+            instance = new DisposableObject();
+            container.Stash.TryAdd("tenant", instance);
         };
 
-        Because of = () => singleton.Dispose();
+        Because of = () => container.Dispose();
 
-        It should_dispose_properly = () => instance.Running.ShouldBeFalse();
+        It should_dispose_the_instance = () => instance.Running.ShouldBeFalse();
 
-        static SingletonPerTenant<DisposableObject> singleton;
+        It should_clear_the_container = () => container.Stash.Any().ShouldBeFalse();
+
+        static SingletonPerTenantContainer<DisposableObject> container;
         static DisposableObject instance;
-    }
-
-    public class DummyProvider : IServiceProvider
-    {
-        public object GetService(Type serviceType)
-        {
-            if (serviceType == typeof(CronusContext))
-                return new CronusContext() { Tenant = "elders" };
-
-            return new DisposableObject();
-        }
     }
 
     public class DisposableObject : IDisposable
     {
-        Thread trd;
-
-        bool shouldRun = true;
         public bool Running { get; private set; }
+
         public DisposableObject()
         {
             Running = true;
-            trd = new Thread(() =>
+            Task.Factory.StartNew(() =>
             {
-                while (shouldRun)
+                while (Running)
                 {
-                    Thread.Sleep(1000);
+                    Thread.Sleep(100);
                 }
 
             });
