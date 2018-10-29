@@ -17,8 +17,9 @@ namespace Elders.Cronus.Projections
         readonly ISnapshotStore snapshotStore;
         readonly ISnapshotStrategy snapshotStrategy;
         readonly InMemoryProjectionVersionStore inMemoryVersionStore;
+        private readonly IHandlerFactory handlerFactory;
 
-        public ProjectionRepository(CronusContext context, IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, InMemoryProjectionVersionStore inMemoryVersionStore)
+        public ProjectionRepository(CronusContext context, IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, InMemoryProjectionVersionStore inMemoryVersionStore, IHandlerFactory handlerFactory)
         {
             if (context is null) throw new ArgumentException(nameof(context));
             if (projectionStore is null) throw new ArgumentException(nameof(projectionStore));
@@ -31,6 +32,7 @@ namespace Elders.Cronus.Projections
             this.snapshotStore = snapshotStore;
             this.snapshotStrategy = snapshotStrategy;
             this.inMemoryVersionStore = inMemoryVersionStore;
+            this.handlerFactory = handlerFactory;
         }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin)
@@ -40,7 +42,8 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, eventOrigin)) throw new ArgumentNullException(nameof(eventOrigin));
 
             string projectionName = projectionType.GetContractId();
-            var projection = FastActivator.CreateInstance(projectionType) as IProjectionDefinition;
+            var handlerInstance = handlerFactory.Create(projectionType);
+            var projection = handlerInstance.Current as IProjectionDefinition;
             if (projection != null)
             {
                 var projectionIds = projection.GetProjectionIds(@event);
