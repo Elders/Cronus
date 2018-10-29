@@ -40,11 +40,11 @@ namespace Elders.Cronus.MessageProcessing
         void EnsureTenantIsSet(IServiceScope scope, CronusMessage message)
         {
             var cronusContext = scope.ServiceProvider.GetRequiredService<CronusContext>();
-            if (string.IsNullOrEmpty(cronusContext.Tenant))
+            if (cronusContext.IsNotInitialized)
             {
                 string tenant = message.GetTenant();
                 if (string.IsNullOrEmpty(tenant)) throw new Exception($"Unable to resolve tenant from {message}");
-                cronusContext.Tenant = tenant;
+                cronusContext.Initialize(tenant, scope.ServiceProvider);
             }
         }
     }

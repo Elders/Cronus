@@ -37,11 +37,11 @@ namespace Elders.Cronus.Projections.Versioning
             using (IServiceScope scope = ioc.CreateScope())
             {
                 var cronusContext = scope.ServiceProvider.GetRequiredService<CronusContext>();
-                if (string.IsNullOrEmpty(cronusContext.Tenant))
+                if (cronusContext.IsNotInitialized)
                 {
                     string tenant = message.GetTenant();
                     if (string.IsNullOrEmpty(tenant)) throw new Exception($"Unable to resolve tenant from {message}");
-                    cronusContext.Tenant = tenant;
+                    cronusContext.Initialize(tenant, scope.ServiceProvider);
                 }
                 var index = indexProvider(scope);
                 var indexRecord = new List<IndexRecord>();
