@@ -14,7 +14,6 @@ namespace Elders.Cronus.Workflow
         public DiagnosticsWorkflow(Workflow<TContext> workflow)
         {
             this.workflow = workflow;
-
         }
 
         protected override void Run(Execution<TContext> execution)

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace Elders.Cronus.Workflow
 {
-
     public abstract class WorkflowBase<TContext> : IWorkflow
     {
         protected ExecutionChain<TContext> ExecutionChain { get; set; }
