@@ -1,3 +1,7 @@
+#### 5.0.0-discovery0017 - 02.11.2018
+* Replaces handle logging with DiagnosticsWorkflow
+* ProjectionRepository is now creating the handler instances using the IHandlerFactory
+
 #### 5.0.0-discovery0016 - 26.10.2018
 * Updates domain modeling
 
