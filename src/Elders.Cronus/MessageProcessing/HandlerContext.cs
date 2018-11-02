@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -16,6 +15,11 @@ namespace Elders.Cronus.MessageProcessing
         public object HandlerInstance { get; private set; }
 
         public CronusMessage CronusMessage { get; private set; }
+
+        public override string ToString()
+        {
+            return $"{HandlerInstance.GetType().Name}({Message.GetType().Name})";
+        }
     }
 
     public sealed class CronusContext
