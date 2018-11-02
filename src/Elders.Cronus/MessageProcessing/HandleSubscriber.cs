@@ -8,8 +8,6 @@ namespace Elders.Cronus.MessageProcessing
 {
     public class HandlerSubscriber : ISubscriber
     {
-        static ILog log = LogProvider.GetLogger(typeof(HandlerSubscriber));
-
         protected readonly Workflow<HandleContext> handlerWorkflow;
 
         protected readonly Type handlerType;
@@ -30,7 +28,6 @@ namespace Elders.Cronus.MessageProcessing
         {
             var context = new HandleContext(message, handlerType);
             handlerWorkflow.Run(context);
-            log.Info(() => message.Payload.ToString());
         }
 
         public virtual IEnumerable<Type> GetInvolvedMessageTypes()

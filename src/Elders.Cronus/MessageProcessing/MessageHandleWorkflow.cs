@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Diagnostics;
+using Elders.Cronus.Logging;
 using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.MessageProcessing
@@ -42,7 +44,7 @@ namespace Elders.Cronus.MessageProcessing
                 {
                     var handleContext = new HandlerContext(execution.Context.Message.Payload, handler.Current, execution.Context.Message);
                     BeginHandle.Run(handleContext);
-                    ActualHandle.Run(handleContext);
+                    new DiagnosticsWorkflow<HandlerContext>(ActualHandle).Run(handleContext);
                     EndHandle.Run(handleContext);
                 }
             }
