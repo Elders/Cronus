@@ -44,7 +44,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
         static InMemoryEventStoreStorage eventStoreStorage;
         static IAggregateRootAtomicAction versionService;
         static IEventStore eventStore;
-        static IEventStoreStorageManager eventStoreManager;
+        static InMemoryEventStoreStorageManager eventStoreManager;
         static IEventStorePlayer eventStorePlayer;
         static IAggregateRepository aggregateRepository;
         static TestAggregateRoot aggregateRoot;
