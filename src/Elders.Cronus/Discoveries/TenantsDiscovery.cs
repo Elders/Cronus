@@ -14,7 +14,7 @@ namespace Elders.Cronus.Discoveries
         IEnumerable<DiscoveredModel> GetModels()
         {
             yield return new DiscoveredModel(typeof(ITenantList), typeof(Tenants), ServiceLifetime.Transient);
-            yield return new DiscoveredModel(typeof(ITenantResolver), typeof(DefaultTenantResolver), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(ITenantResolver), typeof(DefaultTenantResolver), ServiceLifetime.Singleton);
         }
     }
 }
