@@ -321,24 +321,6 @@ Projections persistence
 | [ElasticSearch](https://github.com/Elders/Cronus.Projection.ElasticSearch) | olympus | Builds projections dynamically. Very usefull for projects which just started and changes occur frequently. However, it must be switched to another persister such as Cassandra after the initial stages of the project |
 | [AtomicAction](https://github.com/Elders/Cronus.AtomicAction.Redis) | olympus | Aggregate distributed lock with Redis |
 
-Configurations
------------------------
-These configurations should(could) be specified in the cronus configurations (EV, Pandora etc.)
-
-
-| Store | Example | Description | Required |
-|-------|---------|-------------|----------|
-| cronus_transport_rabbimq_server | 127.0.0.1 | PC name or an IP to the RabbitMQ server | +
-| cronus_transport_rabbimq_port   | 5672 | Port number where the RabbitMQ server is running | +
-| cronus_transport_rabbimq_vhost   | myhost | How should the virual host used by Cronus be named | +
-| cronus_transport_rabbimq_username   | guest | RabbitMQ Username | +
-| cronus_transport_rabbimq_password   | guest | RabbitMQ Password | +
-| cronus_boundedcontext   | Company.ApplicationName | The name of the bonded context which the current instance of Cronus is configured for | +
-| cronus_transport_rabbimq_consumer_workerscount   | 5 | Specify how many treads could be used by the configured Cronus Host. Default value is 5 | -
-| cronus_applicationservices_enabled   | false | Enable/Disable Application Services. Default is "false" | -
-| cronus_projections_enabled   | false | Enable/Disable Projections. Default is "false" | -
-| cronus_ports_enabled   | false | Enable/Disable Ports. Default is "false" | -
-| cronus_sagas_enabled   | false | Enable/Disable Sagas. Default is "false" | -
 
 Other
 -------------
