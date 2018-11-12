@@ -62,6 +62,7 @@ namespace Elders.Cronus.Discoveries
             if (1 == Interlocked.Exchange(ref shouldLoadAssembliesFromDir, 0))
             {
                 string codeBase = Assembly.GetEntryAssembly().CodeBase;
+                log.Info($"Try loading assemblies from directory `{codeBase}`");
                 UriBuilder uri = new UriBuilder(codeBase);
                 string path = Uri.UnescapeDataString(uri.Path);
                 var dir = Path.GetDirectoryName(path);
