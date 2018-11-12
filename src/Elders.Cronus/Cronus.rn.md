@@ -1,3 +1,6 @@
+#### 5.0.0-discovery0019 - 12.11.2018
+* Improves logging when loading assemblies using discoveries
+
 #### 5.0.0-discovery0018 - 12.11.2018
 * Added tenant resolve on Cronus Message handlerTypeContainer
 * Added CronusHostOptions from which you can disable Application Services, Projections, Ports, Sagas or Gateways explicitly 
