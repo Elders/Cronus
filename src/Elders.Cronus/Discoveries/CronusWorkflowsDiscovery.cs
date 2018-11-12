@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class CronusMiddwaresDiscovery : DiscoveryBasedOnExecutingDirAssemblies<IWorkflow>
+    public class CronusWorkflowsDiscovery : DiscoveryBasedOnExecutingDirAssemblies<IWorkflow>
     {
         protected override DiscoveryResult<IWorkflow> DiscoverFromAssemblies(DiscoveryContext context)
         {
