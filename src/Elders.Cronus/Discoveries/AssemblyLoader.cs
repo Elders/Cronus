@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Text;
 using System.Threading;
 using Elders.Cronus.Logging;
 
@@ -14,8 +15,8 @@ namespace Elders.Cronus.Discoveries
         static readonly ILog log = LogProvider.GetLogger(nameof(AssemblyLoader));
 
         static int shouldLoadAssembliesFromDir = 1;
-        static string[] excludedAssemblies = new string[] { "apphost.exe", "clrcompression.dll", "clretwrc.dll", "clrjit.dll", "coreclr.dll", "dbgshim.dll", "hostfxr.dll", "hostpolicy.dll", "mscordaccore.dll", "mscordaccore_amd64_amd64_4.6.26814.03.dll", "mscordbi.dll", "mscorrc.debug.dll", "mscorrc.dll", "sos.dll", "sos_amd64_amd64_4.6.26814.03.dll", "ucrtbase.dll" };
-        static string[] wildcards = new string[] { "microsoft", "api-ms" };
+        static string[] excludedAssemblies = new string[] { "sni.dll", "apphost.exe", "clrcompression.dll", "clretwrc.dll", "clrjit.dll", "coreclr.dll", "dbgshim.dll", "hostfxr.dll", "hostpolicy.dll", "sos.dll", "ucrtbase.dll" };
+        static string[] wildcards = new string[] { "microsoft", "api-ms", "sos_", "mscordaccore", "mscor" };
 
         internal static IDictionary<string, Assembly> assemblies = new Dictionary<string, Assembly>();
 
@@ -26,6 +27,10 @@ namespace Elders.Cronus.Discoveries
 
         static void LoadAssembliesFromDirecotry(string directoryWithAssemblies)
         {
+            StringBuilder loadAssembliesLog = new StringBuilder();
+            loadAssembliesLog.AppendLine($"Try loading assemblies from directory: {directoryWithAssemblies}");
+            loadAssembliesLog.AppendLine("Some assemblies will not be loaded because they are not managed which is fine and we output them bellow if any for completeness.");
+
             var files = directoryWithAssemblies.GetFiles(new[] { "*.exe", "*.dll" }).Select(filepath => filepath.ToLower());
             foreach (var assemblyFile in files)
             {
@@ -48,13 +53,15 @@ namespace Elders.Cronus.Discoveries
                     }
                     catch (BadImageFormatException ex)
                     {
-                        log.WarnException($"Unable to load assembly {assemblyFile} which is not a bad thing at all", ex);
+                        loadAssembliesLog.AppendLine($"Unable to load assembly {assemblyFile}. Reason:{ex.Message}");
                     }
                 }
 
                 if (assembly is null == false)
                     assemblies.Add(assembly.FullName, assembly);
             }
+
+            log.Info(loadAssembliesLog.ToString());
         }
 
         static void InitAssemblies()
@@ -62,7 +69,6 @@ namespace Elders.Cronus.Discoveries
             if (1 == Interlocked.Exchange(ref shouldLoadAssembliesFromDir, 0))
             {
                 string codeBase = Assembly.GetEntryAssembly().CodeBase;
-                log.Info($"Try loading assemblies from directory `{codeBase}`");
                 UriBuilder uri = new UriBuilder(codeBase);
                 string path = Uri.UnescapeDataString(uri.Path);
                 var dir = Path.GetDirectoryName(path);
