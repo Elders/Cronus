@@ -1,9 +1,7 @@
 # Overview
 By default Cronus and its sub-components have good default settings. However not everything could be auto configured, such as connection strings to databases or endpoints to various services.
 
-# Configuration
-
-## Cronus
+# Cronus
 #### `cronus_boundedcontext` >> *string | Required: Yes*
 Cronus uses this setting to personalize your application. Once set you could use [`BoundedContext`](src/Elders.Cronus/BoundedContext.cs) object via Dependency Injection for other purposes. This setting is used to name the following components:
 * RabbiMQ exchange and queue names
@@ -24,7 +22,7 @@ Example: `"tenant1,tenant2,tenant3"`
 ---
 
 #### `cronus_applicationservices_enabled` >> *boolean | Required: No | Default: True*
-Specifies whether to start a consumer for the Application Services 
+Specifies whether to start a consumer for the Application Services
 
 ---
 
@@ -46,9 +44,32 @@ Specifies whether to start a consumer for the Sagas
 #### `cronus_gateways_enabled` >> *boolean | Required: No | Default: True*
 Specifies whether to start a consumer for the Gateways
 
+# Cronus.Persistence.Cassandra
+
+#### `cronus_persistence_cassandra_connectionstring` >> *string | Required: Yes*
+The connection to the Cassandra database server
+
 ---
 
-## Cronus.Transport.RabbitMq
+#### `cronus_persistence_cassandra_replication_strategy` >> *string | Required: No | Default: simple*
+Configures Cassandra replication strategy. This setting has effect only in the first run when creating the database.
+
+Valid values:
+* simple
+* network_topology - when using this setting you need to specify `cronus_persistence_cassandra_replication_factor` and  `cronus_persistence_cassandra__datacenters` as well
+
+---
+
+#### `cronus_persistence_cassandra_replication_factor` >> *integer | Required: No | Default: 1*
+
+---
+
+#### `cronus_persistence_cassandra__datacenters` >> *string[] | Required: No*
+
+---
+
+
+# Cronus.Transport.RabbitMq
 
 #### `cronus_transport_rabbimq_consumer_workerscount` >> *integer | Required: Yes | Default: 5*
 Configures the number of threads which will be dedicated for consuming messages from RabbitMQ for *every* consumer.
