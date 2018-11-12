@@ -12,7 +12,7 @@ namespace Elders.Cronus.Discoveries
             return new DiscoveryResult<T>(GetModels(context));
         }
 
-        IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
+        protected virtual IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
         {
             var loadedTypes = context.Assemblies.SelectMany(asm => asm.GetLoadableTypes())
                 .Where(type => type.IsAbstract == false && type.IsInterface == false && typeof(T).IsAssignableFrom(type));
@@ -29,7 +29,16 @@ namespace Elders.Cronus.Discoveries
 
     public class ApplicationServicesDiscovery : HandlersDiscovery<IApplicationService> { }
 
-    public class ProjectionsDiscovery : HandlersDiscovery<IProjection> { }
+    public class ProjectionsDiscovery : HandlersDiscovery<IProjection>
+    {
+        protected override IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
+        {
+            var models = base.GetModels(context).ToList();
+            models.Add(new DiscoveredModel(typeof(Projections.Versioning.ProjectionHasher), typeof(Projections.Versioning.ProjectionHasher), ServiceLifetime.Singleton));
+
+            return models;
+        }
+    }
 
     public class PortsDiscovery : HandlersDiscovery<IPort> { }
 

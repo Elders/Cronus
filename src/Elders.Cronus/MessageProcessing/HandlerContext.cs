@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Elders.Cronus.MessageProcessing
+﻿namespace Elders.Cronus.MessageProcessing
 {
     public class HandlerContext
     {

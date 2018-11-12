@@ -4,15 +4,15 @@ using System.Linq;
 
 namespace Elders.Cronus
 {
-    public class TypeContainer<T> : ITypeContainer
+    public class TypeContainer<T>
     {
         public TypeContainer(IEnumerable<Type> items)
         {
             var expectedType = typeof(T);
-            Items = items.Where(type => expectedType.IsAssignableFrom(type)).ToList();
+            Items = items.Where(type => expectedType.IsAssignableFrom(type));
         }
 
-        public List<Type> Items { get; set; }
+        public IEnumerable<Type> Items { get; set; }
     }
 
 

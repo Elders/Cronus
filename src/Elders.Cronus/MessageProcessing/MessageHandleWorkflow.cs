@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
-using Elders.Cronus.Logging;
 using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.MessageProcessing
