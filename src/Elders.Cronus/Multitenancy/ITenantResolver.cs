@@ -16,6 +16,8 @@ namespace Elders.Cronus.Multitenancy
         string Resolve(IBlobId id);
 
         string Resolve(IMessage message);
+
+        string Resolve(CronusMessage cronusMessage);
     }
 
     public class DefaultTenantResolver : ITenantResolver
@@ -80,6 +82,18 @@ namespace Elders.Cronus.Multitenancy
 
             throw new NotSupportedException($"Unable to resolve tenant from {message}");
         }
+
+        public string Resolve(CronusMessage cronusMessage)
+        {
+            var tenant = cronusMessage.GetTenant();
+            if (string.IsNullOrEmpty(tenant))
+            {
+                return Resolve(cronusMessage.Payload);
+            }
+
+            return tenant;
+        }
+
 
         bool TryResolve(byte[] id, out string tenant)
         {

@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,14 +18,16 @@ namespace Elders.Cronus.Projections.Versioning
         private readonly TypeContainer<IEvent> allEventTypesInTheSystem;
         private readonly IServiceProvider ioc;
         private readonly Func<IServiceScope, IIndexStore> indexProvider;
+        private readonly ITenantResolver tenantResolver;
 
         public string Id { get { return nameof(IndexByEventTypeSubscriber); } }
 
-        public IndexByEventTypeSubscriber(TypeContainer<IEvent> allEventTypesInTheSystem, IServiceProvider ioc, Func<IServiceScope, IIndexStore> indexProvider)
+        public IndexByEventTypeSubscriber(TypeContainer<IEvent> allEventTypesInTheSystem, IServiceProvider ioc, Func<IServiceScope, IIndexStore> indexProvider, ITenantResolver tenantResolver)
         {
             this.allEventTypesInTheSystem = allEventTypesInTheSystem;
             this.ioc = ioc;
             this.indexProvider = indexProvider;
+            this.tenantResolver = tenantResolver;
         }
 
         public IEnumerable<Type> GetInvolvedMessageTypes()
@@ -39,8 +42,7 @@ namespace Elders.Cronus.Projections.Versioning
                 var cronusContext = scope.ServiceProvider.GetRequiredService<CronusContext>();
                 if (cronusContext.IsNotInitialized)
                 {
-                    string tenant = message.GetTenant();
-                    if (string.IsNullOrEmpty(tenant)) throw new Exception($"Unable to resolve tenant from {message}");
+                    string tenant = tenantResolver.Resolve(message);
                     cronusContext.Initialize(tenant, scope.ServiceProvider);
                 }
                 var index = indexProvider(scope);

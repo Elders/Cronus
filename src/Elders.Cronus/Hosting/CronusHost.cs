@@ -9,32 +9,34 @@ namespace Elders.Cronus
         private readonly PortsStartup ports;
         private readonly SagasStartup sagas;
         private readonly GatewaysStartup gateways;
+        private readonly CronusHostOptions cronusHostOptions;
 
-        public CronusHost(ApplicationServicesStartup appServices, ProjectionsStartup projections, PortsStartup ports, SagasStartup sagas, GatewaysStartup gateways)
+        public CronusHost(ApplicationServicesStartup appServices, ProjectionsStartup projections, PortsStartup ports, SagasStartup sagas, GatewaysStartup gateways, CronusHostOptions cronusHostOptions)
         {
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
             this.projections = projections ?? throw new ArgumentNullException(nameof(projections));
             this.ports = ports ?? throw new ArgumentNullException(nameof(ports));
             this.sagas = sagas ?? throw new ArgumentNullException(nameof(sagas));
             this.gateways = gateways ?? throw new ArgumentNullException(nameof(gateways));
+            this.cronusHostOptions = cronusHostOptions;
         }
 
         public void Start()
         {
-            appServices.Start();
-            projections.Start();
-            ports.Start();
-            sagas.Start();
-            gateways.Start();
+            if (cronusHostOptions.ApplicationServicesEnabled) appServices.Start();
+            if (cronusHostOptions.ProjectionsEnabled) projections.Start();
+            if (cronusHostOptions.PortsEnabled) ports.Start();
+            if (cronusHostOptions.SagasEnabled) sagas.Start();
+            if (cronusHostOptions.GatewaysEnabled) gateways.Start();
         }
 
         public void Stop()
         {
-            appServices.Stop();
-            projections.Stop();
-            ports.Stop();
-            sagas.Stop();
-            gateways.Stop();
+            if (cronusHostOptions.ApplicationServicesEnabled) appServices.Stop();
+            if (cronusHostOptions.ProjectionsEnabled) projections.Stop();
+            if (cronusHostOptions.PortsEnabled) ports.Stop();
+            if (cronusHostOptions.SagasEnabled) sagas.Stop();
+            if (cronusHostOptions.GatewaysEnabled) gateways.Stop();
         }
 
         public void Dispose() => Stop();

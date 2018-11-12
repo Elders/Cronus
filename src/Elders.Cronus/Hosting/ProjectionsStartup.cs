@@ -15,29 +15,36 @@ namespace Elders.Cronus
         private readonly ITenantList tenants;
         private readonly ProjectionHasher hasher;
         private readonly IPublisher<ICommand> publisher;
+        private readonly ITenantResolver tenantResolver;
         private readonly IServiceProvider ioc;
         private readonly SubscriberCollection<IProjection> projectionSubscrbers;
         private readonly TypeContainer<IProjection> handlerTypeContainer;
         private readonly TypeContainer<IEvent> eventsContainer;
         private Workflow<HandleContext> projectionsWorkflow;
 
-        public ProjectionsStartup(IServiceProvider ioc, IConsumer<IProjection> consumer, SubscriberCollection<IProjection> projectionSubscrbers, TypeContainer<IProjection> handlerTypeContainer, TypeContainer<IEvent> eventsContainer, ITenantList tenants, ProjectionHasher hasher, IPublisher<ICommand> publisher)
+        public ProjectionsStartup(IServiceProvider ioc, IConsumer<IProjection> consumer, SubscriberCollection<IProjection> projectionSubscrbers, TypeContainer<IProjection> handlerTypeContainer, TypeContainer<IEvent> eventsContainer, ITenantList tenants, ProjectionHasher hasher, IPublisher<ICommand> publisher, ITenantResolver tenantResolver)
             : base(consumer)
         {
             this.tenants = tenants;
             this.hasher = hasher;
             this.publisher = publisher;
+            this.tenantResolver = tenantResolver;
             this.ioc = ioc;
             this.projectionSubscrbers = projectionSubscrbers;
             this.handlerTypeContainer = handlerTypeContainer;
             this.eventsContainer = eventsContainer;
+        }
+
+        public override void Start()
+        {
             RegisterProjections();
             var messageHandleWorkflow = new MessageHandleWorkflow(new CreateScopedHandlerWorkflow());
-            var scopedWorkflow = new ScopedMessageWorkflow(ioc, messageHandleWorkflow);
+            var scopedWorkflow = new ScopedMessageWorkflow(ioc, messageHandleWorkflow, tenantResolver);
             messageHandleWorkflow.Finalize.Use(new ProjectionsWorkflow(x => ScopedMessageWorkflow.GetScope(x).ServiceProvider.GetRequiredService<IProjectionWriter>()));
             projectionsWorkflow = new InMemoryRetryWorkflow<HandleContext>(scopedWorkflow);
-
             RegisterSubscribers();
+
+            base.Start();
         }
 
         void RegisterSubscribers()
@@ -47,7 +54,7 @@ namespace Elders.Cronus
                 var handlerSubscriber = new HandlerSubscriber(type, projectionsWorkflow);
                 projectionSubscrbers.Subscribe(handlerSubscriber);
             }
-            var indexSubscriber = new IndexByEventTypeSubscriber(eventsContainer, ioc, scope => scope.ServiceProvider.GetRequiredService<IIndexStore>());
+            var indexSubscriber = new IndexByEventTypeSubscriber(eventsContainer, ioc, scope => scope.ServiceProvider.GetRequiredService<IIndexStore>(), tenantResolver);
             projectionSubscrbers.Subscribe(indexSubscriber);
         }
 

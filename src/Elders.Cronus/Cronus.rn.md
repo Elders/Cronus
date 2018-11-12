@@ -1,3 +1,7 @@
+#### 5.0.0-discovery0018 - 12.11.2018
+* Added tenant resolve on Cronus Message handlerTypeContainer
+* Added CronusHostOptions from which you can disable Application Services, Projections, Ports, Sagas or Gateways explicitly 
+
 #### 5.0.0-discovery0017 - 02.11.2018
 * Replaces handle logging with DiagnosticsWorkflow
 * ProjectionRepository is now creating the handler instances using the IHandlerFactory

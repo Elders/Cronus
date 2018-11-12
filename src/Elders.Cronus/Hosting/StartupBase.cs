@@ -9,8 +9,8 @@
             this.consumer = consumer;
         }
 
-        public void Start() => consumer.Start();
+        public virtual void Start() => consumer.Start();
 
-        public void Stop() => consumer.Stop();
+        public virtual void Stop() => consumer.Stop();
     }
 }

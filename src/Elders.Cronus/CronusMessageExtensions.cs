@@ -39,7 +39,7 @@ namespace Elders.Cronus
 
         public static string GetTenant(this CronusMessage message)
         {
-            string tenant = "notenant";
+            string tenant = null;
             message.Headers.TryGetValue(MessageHeader.Tenant, out tenant);
             return tenant;
         }

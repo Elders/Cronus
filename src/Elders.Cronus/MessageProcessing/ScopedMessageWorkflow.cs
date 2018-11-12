@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,11 +13,13 @@ namespace Elders.Cronus.MessageProcessing
 
         private readonly IServiceProvider ioc;
         readonly Workflow<HandleContext> workflow;
+        private readonly ITenantResolver tenantResolver;
 
-        public ScopedMessageWorkflow(IServiceProvider ioc, Workflow<HandleContext> workflow)
+        public ScopedMessageWorkflow(IServiceProvider ioc, Workflow<HandleContext> workflow, ITenantResolver tenantResolver)
         {
             this.ioc = ioc;
             this.workflow = workflow;
+            this.tenantResolver = tenantResolver;
         }
 
         protected override void Run(Execution<HandleContext> execution)
@@ -42,8 +45,7 @@ namespace Elders.Cronus.MessageProcessing
             var cronusContext = scope.ServiceProvider.GetRequiredService<CronusContext>();
             if (cronusContext.IsNotInitialized)
             {
-                string tenant = message.GetTenant();
-                if (string.IsNullOrEmpty(tenant)) throw new Exception($"Unable to resolve tenant from {message}");
+                string tenant = tenantResolver.Resolve(message);
                 cronusContext.Initialize(tenant, scope.ServiceProvider);
             }
         }

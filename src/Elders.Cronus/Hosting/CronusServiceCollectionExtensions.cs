@@ -12,6 +12,7 @@ namespace Elders.Cronus
         public static IServiceCollection AddCronus(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddTenantSupport();
+            services.AddCronusHostOptions();
 
             var discoveryFinder = new DiscoveryScanner(new CronusServicesProvider(services), configuration);
             discoveryFinder.Discover();
@@ -24,6 +25,13 @@ namespace Elders.Cronus
             services.AddTransient(typeof(SingletonPerTenant<>));
             services.AddSingleton(typeof(SingletonPerTenantContainer<>));
             services.AddScoped<CronusContext>();
+
+            return services;
+        }
+
+        internal static IServiceCollection AddCronusHostOptions(this IServiceCollection services)
+        {
+            services.AddTransient<CronusHostOptions>();
 
             return services;
         }

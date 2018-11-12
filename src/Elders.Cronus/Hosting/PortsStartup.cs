@@ -7,20 +7,29 @@ namespace Elders.Cronus
     public class PortsStartup : StartupBase<IPort>
     {
         private readonly ITenantList tenants;
+        private readonly ITenantResolver tenantResolver;
+        private readonly IServiceProvider ioc;
         private readonly SubscriberCollection<IPort> subscriberCollection;
         private readonly TypeContainer<IPort> typeContainer;
-        private readonly ScopedMessageWorkflow defaultWorkflow;
+        private ScopedMessageWorkflow defaultWorkflow;
 
-        public PortsStartup(IServiceProvider ioc, IConsumer<IPort> consumer, SubscriberCollection<IPort> subscriberCollection, TypeContainer<IPort> typeContainer, ITenantList tenants)
+        public PortsStartup(IServiceProvider ioc, IConsumer<IPort> consumer, SubscriberCollection<IPort> subscriberCollection, TypeContainer<IPort> typeContainer, ITenantList tenants, ITenantResolver tenantResolver)
             : base(consumer)
         {
+            this.ioc = ioc;
             this.subscriberCollection = subscriberCollection;
             this.typeContainer = typeContainer;
             this.tenants = tenants;
+            this.tenantResolver = tenantResolver;
 
-            defaultWorkflow = new ScopedMessageWorkflow(ioc, new MessageHandleWorkflow(new CreateScopedHandlerWorkflow()));
+        }
 
+        public override void Start()
+        {
+            defaultWorkflow = new ScopedMessageWorkflow(ioc, new MessageHandleWorkflow(new CreateScopedHandlerWorkflow()), tenantResolver);
             RegisterSubscribers();
+
+            base.Start();
         }
 
         void RegisterSubscribers()
