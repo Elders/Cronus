@@ -19,6 +19,8 @@ List of tenants allowed to use the system. Cronus is designed with multitenancy 
 
 Example: `"tenant1,tenant2,tenant3"`
 
+Once set you could use [`Tenants`](../src/Elders.Cronus/Multitenancy/Tenants.cs) object via Dependency Injection for other purposes.
+
 ---
 
 #### `cronus_applicationservices_enabled` >> *boolean | Required: No | Default: True*
