@@ -13,7 +13,8 @@ namespace Elders.Cronus.Projections
 {
     public class ProjectionPlayer : IProjectionPlayer
     {
-        static ILog log = LogProvider.GetLogger(typeof(ProjectionPlayer));
+        private readonly static ILog log = LogProvider.GetLogger(typeof(ProjectionPlayer));
+
         private readonly CronusContext context;
         private readonly IEventStore eventStore;
         private readonly IEventStorePlayer eventStorePlayer;
