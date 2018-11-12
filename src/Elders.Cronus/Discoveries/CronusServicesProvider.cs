@@ -5,7 +5,6 @@ using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Workflow;
 using Elders.Cronus.Multitenancy;
-using Elders.Cronus.Pipeline.Config;
 using Elders.Cronus.Projections;
 using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,7 +21,6 @@ namespace Elders.Cronus.Discoveries
             if (services is null) throw new ArgumentNullException(nameof(services));
 
             this.services = services;
-            this.services.AddTransient<ServiceLocalor>(provider => new ServiceLocalor(type => provider.GetRequiredService(type)));
         }
 
         public void HandleDiscoveredModel(IDiscoveryResult<object> discoveryResult)

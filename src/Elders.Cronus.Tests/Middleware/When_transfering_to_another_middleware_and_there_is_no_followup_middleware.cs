@@ -39,8 +39,6 @@ namespace Elders.Cronus.Tests.Middleware
 
         static List<ExecutionToken> expectedExecution;
 
-        static ExecutionToken thirdToken;
-
         static string invocationContext = "Test context";
 
     }

@@ -17,7 +17,6 @@ namespace Elders.Cronus.Tests.Projections
 
         It should_fail = () => exception.ShouldNotBeNull();
 
-        static bool result;
         static ProjectionVersion lower;
         static ProjectionVersion higher;
         static Exception exception;
