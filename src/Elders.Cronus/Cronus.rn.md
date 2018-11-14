@@ -1,63 +1,22 @@
-#### 5.0.0-discovery0019 - 12.11.2018
-* Improves logging when loading assemblies using discoveries
-
-#### 5.0.0-discovery0018 - 12.11.2018
+#### 5.0.0-beta0038 - 12.11.2018
 * Added tenant resolve on Cronus Message handlerTypeContainer
 * Added CronusHostOptions from which you can disable Application Services, Projections, Ports, Sagas or Gateways explicitly 
-
-#### 5.0.0-discovery0017 - 02.11.2018
 * Replaces handle logging with DiagnosticsWorkflow
 * ProjectionRepository is now creating the handler instances using the IHandlerFactory
-
-#### 5.0.0-discovery0016 - 26.10.2018
-* Updates domain modeling
-
-#### 5.0.0-discovery0015 - 25.10.2018
 * Adds BoundedContext which represents the configuration setting cronus_boundedcontext so that other services can get it injected directly
-
-#### 5.0.0-discovery0014 - 24.10.2018
-* Fixes the workflow
-
-#### 5.0.0-discovery0013 - 21.10.2018
 * ProjectionVersions are now per tenant. Based on the client's tenant configuration there will be commands issued upon start. If a client removes one tenant frpm the configuration there is no need to rebuild/replay the projections for that tenant.
 * Adds IndexStatus parser
 * Fixes index rebuild flow
 * Extends the IEventStoreStorageManager to support indices creating
-
-#### 5.0.0-discovery0012 - 21.10.2018
-* Rework a bit how the current tenant is set during message handling
-
-#### 5.0.0-discovery0011 - 20.10.2018
+* Rework how the current tenant is set during message handling
 * Every message is now consumed inside a DI scope
-
-#### 5.0.0-discovery0010 - 18.10.2018
 * Removes the abstract modifier from the CronusHost
-
-#### 5.0.0-discovery0009 - 18.10.2018
 * Introduces CronusServiceCollectionExtensions
-
-#### 5.0.0-discovery0008 - 18.10.2018
-* Updates DomainModeling and adds CronusHost discovery
-
-#### 5.0.0-discovery0007 - 17.10.2018
 * Fixes how assemblies are loaded from the executing dir
-
-#### 5.0.0-discovery0006 - 17.10.2018
-* Removes all consumers and moved them to he RabbitMQ project because they were too specific about how RabbitMQ works. With this the MultiThreading.Scheduler was also removed
-
-#### 5.0.0-discovery0005 - 16.10.2018
+* Removes all consumers and moved them to he RabbitMQ project because they were too specific about how RabbitMQ works. With this the MultiThreading.Scheduler is removed
 * Adds MS dependency injection
-
-#### 5.0.0-discovery0004 - 12.10.2018
-* Adds more discoveries
-
-#### 5.0.0-discovery0003 - 08.10.2018
 * Moves the ISerializer to Elders.Cronus namespace
-
-#### 5.0.0-discovery0002 - 08.10.2018
 * Changes the IDiscovery interface to have a specific discovery target like IDiscovery<ISerializer>
-
-#### 5.0.0-discovery0001 - 05.10.2018
 * Reworks the discovery interface
 
 #### 5.0.0-beta0037 - 02.10.2018
