@@ -6,9 +6,8 @@ using System.Linq;
 namespace Elders.Cronus.MessageProcessing
 {
     /// <summary>
-    /// The responsibility of this middleware is to collect and and work with all the messsage subscirbers in the Cornus infrasturcutre.
+    /// The responsibility of this collection is to collect and and work with all the messsage subscirbers in the Cornus infrasturcutre.
     /// It also allows to dynamically add subscribers.
-    /// Probably this class should be something like IObservable<ISubscriber>
     /// </summary>
     public sealed class SubscriberCollection<T>
     {
