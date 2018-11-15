@@ -5,4 +5,9 @@ namespace Elders.Cronus.EventStore
         void Append(AggregateCommit aggregateCommit);
         EventStream Load(IAggregateRootId aggregateId);
     }
+
+    public interface IEventStore<TSettings> : IEventStore
+        where TSettings : class
+    {
+    }
 }
