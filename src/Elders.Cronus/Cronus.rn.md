@@ -1,3 +1,6 @@
+#### 5.0.0-migrations0002 - 15.11.2018
+* Adds migration discovery
+
 #### 5.0.0-migrations0001 - 15.11.2018
 * Move the Cronus.Migration.Middleware repository inside Cronus
 * Adds generic interfaces `IEventStore<TSettings>` and `IEventStorePlayer<TSettings>`
