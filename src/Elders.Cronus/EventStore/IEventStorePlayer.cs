@@ -11,4 +11,8 @@ namespace Elders.Cronus.EventStore
         /// <returns></returns>
         IEnumerable<AggregateCommit> LoadAggregateCommits(int batchSize = 100);
     }
+
+    public interface IEventStorePlayer<TSettings> : IEventStorePlayer
+        where TSettings : class
+    { }
 }
