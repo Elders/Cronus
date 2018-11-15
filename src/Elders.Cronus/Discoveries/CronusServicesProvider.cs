@@ -82,5 +82,7 @@ namespace Elders.Cronus.Discoveries
         protected virtual void Handle(DiscoveryResult<IAggregateRepository> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<ITenantList> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<MigrationDiscovery> discoveryResult) => AddServices(discoveryResult);
     }
 }
