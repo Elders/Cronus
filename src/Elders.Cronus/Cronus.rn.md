@@ -1,4 +1,8 @@
-#### 5.0.0-beta0038 - 12.11.2018
+#### 5.0.0-migrations0001 - 15.11.2018
+* Move the Cronus.Migration.Middleware repository inside Cronus
+* Adds generic interfaces `IEventStore<TSettings>` and `IEventStorePlayer<TSettings>`
+
+#### 5.0.0-beta0038 - 14.11.2018
 * Added tenant resolve on Cronus Message handlerTypeContainer
 * Added CronusHostOptions from which you can disable Application Services, Projections, Ports, Sagas or Gateways explicitly 
 * Replaces handle logging with DiagnosticsWorkflow
