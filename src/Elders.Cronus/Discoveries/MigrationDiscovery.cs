@@ -13,7 +13,7 @@ namespace Elders.Cronus.Discoveries
 
         IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
         {
-            yield return new DiscoveredModel(typeof(MigrationRunner<,>), typeof(MigrationRunner<,>), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(CopyEventStore<,>), typeof(CopyEventStore<,>), ServiceLifetime.Transient);
         }
     }
 }

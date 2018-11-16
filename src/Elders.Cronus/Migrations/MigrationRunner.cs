@@ -4,34 +4,43 @@ using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Migrations
 {
-    public class MigrationRunner<TSourceEventStorePlayer, TTargetEventStore>
+    public abstract class MigrationRunnerBase<TDataFormat, TSourceEventStorePlayer, TTargetEventStore>
         where TSourceEventStorePlayer : IEventStorePlayer
         where TTargetEventStore : IEventStore
     {
-        private static readonly ILog log = LogProvider.GetLogger(typeof(MigrationRunner<,>));
+        protected readonly IEventStorePlayer source;
+        protected readonly IEventStore target;
 
-        private readonly IEventStorePlayer source;
-        private readonly IEventStore target;
-
-        public MigrationRunner(TSourceEventStorePlayer source, TTargetEventStore target)
+        public MigrationRunnerBase(TSourceEventStorePlayer source, TTargetEventStore target)
         {
             this.source = source;
             this.target = target;
         }
 
-        public void Run(IEnumerable<IMigration<AggregateCommit>> migrations)
+        /// <summary>
+        /// Applies the specified migrations to every <see cref="TDataFormat"/>
+        /// </summary>
+        /// <param name="migrations"></param>
+        public abstract void Run(IEnumerable<IMigration<TDataFormat>> migrations);
+
+    }
+
+    public class CopyEventStore<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateCommitRaw, TSourceEventStorePlayer, TTargetEventStore>
+        where TSourceEventStorePlayer : IEventStorePlayer
+        where TTargetEventStore : IEventStore
+    {
+        private static readonly ILog log = LogProvider.GetLogger(typeof(MigrationRunnerBase<,,>));
+
+        public CopyEventStore(TSourceEventStorePlayer source, TTargetEventStore target) : base(source, target) { }
+
+        public override void Run(IEnumerable<IMigration<AggregateCommitRaw>> migrations)
         {
             int counter = 0;
-            foreach (var sourceCommit in source.LoadAggregateCommits(5000))
+            foreach (var sourceCommit in source.LoadAggregateCommitsRaw(5000))
             {
-                if (counter % 10000 == 0) log.Info($"Migrations counter: {counter}");
+                if (counter % 10000 == 0) log.Info($"[Migrations] Migrated records: {counter}");
 
-                AggregateCommit current = sourceCommit;
-                foreach (var migration in migrations)
-                {
-                    current = new OverwriteAggregateCommitMigrationWorkflow(migration).Run(sourceCommit);
-                }
-                target.Append(current);
+                target.Append(sourceCommit);
 
                 counter++;
             }
