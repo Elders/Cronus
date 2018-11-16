@@ -7,7 +7,7 @@ using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.Migrations
 {
-    public class AggregateCommitMigrationWorkflow : GenericMigrationWorkflow<AggregateCommit, IEnumerable<AggregateCommit>>
+    public class AggregateCommitMigrationWorkflow : MigrationWorkflowBase<AggregateCommit, IEnumerable<AggregateCommit>>
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(AggregateCommitMigrationWorkflow));
 
