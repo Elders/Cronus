@@ -9,7 +9,14 @@ namespace Elders.Cronus.EventStore
         /// </summary>
         /// <param name="batchSize">Size of the batch.</param>
         /// <returns></returns>
-        IEnumerable<AggregateCommit> LoadAggregateCommits(int batchSize = 100);
+        IEnumerable<AggregateCommit> LoadAggregateCommits(int batchSize = 5000);
+
+        /// <summary>
+        /// Loads all aggregate commits. The commits are unordered.
+        /// </summary>
+        /// <param name="batchSize">Size of the batch.</param>
+        /// <returns></returns>
+        IEnumerable<AggregateCommitRaw> LoadAggregateCommitsRaw(int batchSize = 5000);
     }
 
     public interface IEventStorePlayer<TSettings> : IEventStorePlayer
