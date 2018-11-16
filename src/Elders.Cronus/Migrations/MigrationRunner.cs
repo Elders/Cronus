@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Elders.Cronus.EventStore;
-using Microsoft.Extensions.DependencyInjection;
+using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Migrations
 {
@@ -8,6 +8,8 @@ namespace Elders.Cronus.Migrations
         where TSourceEventStorePlayer : IEventStorePlayer
         where TTargetEventStore : IEventStore
     {
+        private static readonly ILog log = LogProvider.GetLogger(typeof(MigrationRunner<,>));
+
         private readonly IEventStorePlayer source;
         private readonly IEventStore target;
 
@@ -19,27 +21,20 @@ namespace Elders.Cronus.Migrations
 
         public void Run(IEnumerable<IMigration<AggregateCommit>> migrations)
         {
-            foreach (var sourceCommit in source.LoadAggregateCommits(1000))
+            int counter = 0;
+            foreach (var sourceCommit in source.LoadAggregateCommits(5000))
             {
+                if (counter % 10000 == 0) log.Info($"Migrations counter: {counter}");
+
                 AggregateCommit current = sourceCommit;
                 foreach (var migration in migrations)
                 {
                     current = new OverwriteAggregateCommitMigrationWorkflow(migration).Run(sourceCommit);
                 }
                 target.Append(current);
+
+                counter++;
             }
-        }
-    }
-
-
-
-    public static class Alabala
-    {
-        public static IServiceCollection AddMigrationRunner(this IServiceCollection services)
-        {
-
-
-            return services;
         }
     }
 }

@@ -12,10 +12,15 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
             if (ReferenceEquals(eventStore, null) == true) throw new ArgumentNullException(nameof(eventStore));
             this.eventStore = eventStore;
         }
-        public IEnumerable<AggregateCommit> LoadAggregateCommits(int batchSize = 100)
+        public IEnumerable<AggregateCommit> LoadAggregateCommits(int batchSize = 5000)
         {
             // hack
             return eventStore.Storage;
+        }
+
+        public IEnumerable<AggregateCommitRaw> LoadAggregateCommitsRaw(int batchSize = 5000)
+        {
+            throw new NotImplementedException();
         }
     }
 }
