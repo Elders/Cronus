@@ -1,3 +1,6 @@
+#### 5.0.0-migrations0003 - 16.11.2018
+* Adds an option to read the event store without deserializing the data to an object
+
 #### 5.0.0-migrations0002 - 15.11.2018
 * Adds migration discovery
 
