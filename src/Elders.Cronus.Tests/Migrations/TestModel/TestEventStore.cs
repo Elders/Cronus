@@ -23,5 +23,10 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
             var es = new EventStream(Storage.Where(x => x.AggregateRootId.SequenceEqual(aggregateId.RawId)).ToList());
             return es;
         }
+
+        public void Append(AggregateCommitRaw aggregateCommitRaw)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

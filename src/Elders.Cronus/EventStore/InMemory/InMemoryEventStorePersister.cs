@@ -33,5 +33,10 @@ namespace Elders.Cronus.EventStore.InMemory
         {
             eventStoreStorage.Flush(aggregateCommit);
         }
+
+        public void Append(AggregateCommitRaw aggregateCommitRaw)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
