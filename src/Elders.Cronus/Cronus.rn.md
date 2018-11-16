@@ -1,3 +1,6 @@
+#### 5.0.0-migrations0004 - 16.11.2018
+* Introduces CopyEventStore class
+
 #### 5.0.0-migrations0003 - 16.11.2018
 * Adds an option to read the event store without deserializing the data to an object
 
