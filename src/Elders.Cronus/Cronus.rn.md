@@ -1,3 +1,6 @@
+#### 5.0.0-migrations0005 - 16.11.2018
+* Adds more context to the AggregateCommitRaw
+
 #### 5.0.0-migrations0004 - 16.11.2018
 * Introduces CopyEventStore class
 
