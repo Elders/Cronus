@@ -1,3 +1,7 @@
+#### 5.0.0-migrations0006 - 19.11.2018
+* Now we can replay system projections
+* Refreshes the projections status every 5 min
+
 #### 5.0.0-migrations0005 - 16.11.2018
 * Adds more context to the AggregateCommitRaw
 
