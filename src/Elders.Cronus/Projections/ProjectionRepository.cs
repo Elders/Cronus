@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Elders.Cronus.Logging;
@@ -11,7 +12,10 @@ namespace Elders.Cronus.Projections
 {
     public class ProjectionRepository : IProjectionWriter, IProjectionReader
     {
-        static ILog log = LogProvider.GetLogger(typeof(ProjectionRepository));
+        private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
+        private static readonly ILog log = LogProvider.GetLogger(typeof(ProjectionRepository));
+        private static long LastRefreshTimestamp = 0;
+
         private readonly CronusContext context;
         readonly IProjectionStore projectionStore;
         readonly ISnapshotStore snapshotStore;
@@ -33,6 +37,23 @@ namespace Elders.Cronus.Projections
             this.snapshotStrategy = snapshotStrategy;
             this.inMemoryVersionStore = inMemoryVersionStore;
             this.handlerFactory = handlerFactory;
+        }
+
+        public void Initialize(ProjectionVersion version)
+        {
+            var initializableProjectionStore = projectionStore as IInitializableProjectionStore;
+            initializableProjectionStore?.Initialize(version);
+        }
+
+        public void Save(Type projectionType, CronusMessage cronusMessage)
+        {
+            if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
+            if (ReferenceEquals(null, cronusMessage)) throw new ArgumentNullException(nameof(cronusMessage));
+
+            EventOrigin eventOrigin = cronusMessage.GetEventOrigin();
+            IEvent @event = cronusMessage.Payload as IEvent;
+
+            Save(projectionType, @event, eventOrigin);
         }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin)
@@ -75,17 +96,6 @@ namespace Elders.Cronus.Projections
                     }
                 }
             }
-        }
-
-        public void Save(Type projectionType, CronusMessage cronusMessage)
-        {
-            if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
-            if (ReferenceEquals(null, cronusMessage)) throw new ArgumentNullException(nameof(cronusMessage));
-
-            EventOrigin eventOrigin = cronusMessage.GetEventOrigin();
-            IEvent @event = cronusMessage.Payload as IEvent;
-
-            Save(projectionType, @event, eventOrigin);
         }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
@@ -168,38 +178,31 @@ namespace Elders.Cronus.Projections
 
         ProjectionVersions GetProjectionVersions(string projectionName)
         {
+            if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
+
             try
             {
-                if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
-
-                var persistentVersionContractId = typeof(ProjectionVersionsHandler).GetContractId();
-                if (string.Equals(persistentVersionContractId, projectionName, StringComparison.OrdinalIgnoreCase))
-                    return GetPersistentProjectionVersions(persistentVersionContractId);
+                var elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - LastRefreshTimestamp)));
 
                 ProjectionVersions versions = inMemoryVersionStore.Get(projectionName);
-                if (versions is null || versions.Count == 0)
+                if (versions is null || versions.Count == 0 || elapsed.TotalMinutes > 5)
                 {
-                    var queryResult = GetProjectionVersionsFromStore(projectionName);
+                    var queryResult = GetProjectionVersionsFromStore();
                     if (queryResult.IsSuccess)
                     {
                         if (queryResult.Data.State.Live != null)
                             inMemoryVersionStore.Cache(queryResult.Data.State.Live);
                         foreach (var buildingVersion in queryResult.Data.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
                         {
-                            inMemoryVersionStore.Cache(buildingVersion);
+                            inMemoryVersionStore.Cache(buildingVersion.WithStatus(ProjectionStatus.Live));
                         }
                         versions = inMemoryVersionStore.Get(projectionName);
-                    }
-
-                    if (versions is null || versions.Count == 0)
-                    {
-                        var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Building, 1, projectionName.GetTypeByContract().GetProjectionHash());
-                        inMemoryVersionStore.Cache(initialVersion);
-                        versions = inMemoryVersionStore.Get(projectionName);
+                        LastRefreshTimestamp = Stopwatch.GetTimestamp();
                     }
                 }
 
                 return versions ?? new ProjectionVersions();
+
             }
             catch (Exception ex)
             {
@@ -208,54 +211,17 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        ProjectionVersions GetPersistentProjectionVersions(string projectionName)
+        ReadResult<ProjectionVersionsHandler> GetProjectionVersionsFromStore()
         {
-            if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
+            var persistentVersionType = typeof(ProjectionVersionsHandler);
+            var projectionVersions_ProjectionName = persistentVersionType.GetContractId();
 
-            ProjectionVersions versions = inMemoryVersionStore.Get(projectionName);
-            if (versions is null || versions.Count == 0)
-            {
-                var queryResult = GetProjectionVersionsFromStore(projectionName);
-                if (queryResult.IsSuccess)
-                {
-                    if (queryResult.Data.State.Live != null)
-                        inMemoryVersionStore.Cache(queryResult.Data.State.Live);
-                    foreach (var buildingVersion in queryResult.Data.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
-                    {
-                        inMemoryVersionStore.Cache(buildingVersion.WithStatus(ProjectionStatus.Live));
-                    }
-                    versions = inMemoryVersionStore.Get(projectionName);
-                }
+            var versionId = new ProjectionVersionManagerId(projectionVersions_ProjectionName, context.Tenant);
+            var persistentVersion = new ProjectionVersion(projectionVersions_ProjectionName, ProjectionStatus.Live, 1, persistentVersionType.GetProjectionHash());
+            ProjectionStream stream = LoadProjectionStream(persistentVersionType, persistentVersion, versionId, new NoSnapshot(versionId, projectionVersions_ProjectionName).GetMeta());
+            var queryResult = stream.RestoreFromHistory<ProjectionVersionsHandler>();
 
-                //// inception
-                //if (versions is null || versions.Count == 0)
-                //{
-                //    var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.NotPresent, 1, typeof(ProjectionVersionsHandler).GetProjectionHash());
-
-                //    inMemoryVersionStore.Cache(initialVersion);
-                //    versions = inMemoryVersionStore.Get(projectionName);
-                //}
-            }
-
-            return versions ?? new ProjectionVersions();
-        }
-
-        ReadResult<ProjectionVersionsHandler> GetProjectionVersionsFromStore(string projectionName)
-        {
-            try
-            {
-                var versionId = new ProjectionVersionManagerId(projectionName, context.Tenant);
-                var persistentVersionType = typeof(ProjectionVersionsHandler);
-                var persistentVersionContractId = persistentVersionType.GetContractId();
-                var persistentVersion = new ProjectionVersion(persistentVersionContractId, ProjectionStatus.Live, 1, persistentVersionType.GetProjectionHash());
-                ProjectionStream stream = LoadProjectionStream(persistentVersionType, persistentVersion, versionId, new NoSnapshot(versionId, projectionName).GetMeta());
-                var queryResult = stream.RestoreFromHistory<ProjectionVersionsHandler>();
-                return new ReadResult<ProjectionVersionsHandler>(queryResult);
-            }
-            catch (Exception ex)
-            {
-                return new ReadResult<ProjectionVersionsHandler>(ex);
-            }
+            return new ReadResult<ProjectionVersionsHandler>(queryResult);
         }
 
         ProjectionStream LoadProjectionStream(Type projectionType, IBlobId projectionId)
@@ -430,10 +396,5 @@ namespace Elders.Cronus.Projections
             return stream;
         }
 
-        public void Initialize(ProjectionVersion version)
-        {
-            var initializableProjectionStore = projectionStore as IInitializableProjectionStore;
-            initializableProjectionStore?.Initialize(version);
-        }
     }
 }
