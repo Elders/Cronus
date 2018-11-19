@@ -73,9 +73,6 @@ namespace Elders.Cronus.Projections.Versioning
 
         private bool CanReplayHash(string hash)
         {
-            if (state.Id.Id == ProjectionVersionsHandler.ContractId) // TODO: get rid of this. This projection should become replayable in the future
-                return false;
-
             bool isHashUsedBefore = state.HashHistoryOfLiveVersions.Contains(hash);
             bool isHashTheLiveOne = IsHashTheLiveOne(hash);
             bool hasLiveVersion = ReferenceEquals(null, state.Versions.GetLive()) == false;
