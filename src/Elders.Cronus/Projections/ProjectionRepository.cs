@@ -281,7 +281,8 @@ namespace Elders.Cronus.Projections
 
                 if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
                     break;
-                else
+
+                if (loadedCommits.Count > snapshotStrategy.EventsInSnapshot * 1.5)
                     log.Warn(() => $"Potential memory leak. The system will be down fairly soon. The projection `{version.ProjectionName}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) and snapshot `{snapshot.GetType().Name}` which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
             }
 
@@ -321,7 +322,8 @@ namespace Elders.Cronus.Projections
 
                 if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
                     break;
-                else
+
+                if (loadedCommits.Count > snapshotStrategy.EventsInSnapshot * 1.5)
                     log.Warn(() => $"Potential memory leak. The system will be down fairly soon. The projection `{version.ProjectionName}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
             }
 
@@ -388,7 +390,8 @@ namespace Elders.Cronus.Projections
 
                 if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
                     break;
-                else
+
+                if (loadedCommits.Count > snapshotStrategy.EventsInSnapshot * 1.5)
                     log.Warn(() => $"Potential memory leak. The system will be down fairly soon. The projection `{version.ProjectionName}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) and snapshot `{snapshot.GetType().Name}` which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
             }
 
