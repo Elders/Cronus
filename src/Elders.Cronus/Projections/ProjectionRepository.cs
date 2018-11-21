@@ -112,7 +112,8 @@ namespace Elders.Cronus.Projections
             if (projectionName.Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
                 throw new ArgumentException($"Invalid version. The version `{version}` does not match projection `{projectionName}`", nameof(version));
 
-            var projection = FastActivator.CreateInstance(projectionType) as IProjectionDefinition;
+            var handlerInstance = handlerFactory.Create(projectionType);
+            var projection = handlerInstance.Current as IProjectionDefinition;
             if (projection != null)
             {
                 var projectionIds = projection.GetProjectionIds(@event);
