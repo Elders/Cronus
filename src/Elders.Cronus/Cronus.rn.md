@@ -1,3 +1,10 @@
+#### 5.0.0-migrations0007 - 21.11.2018
+* Fixes concurrency problem with the Workflow objects
+* Fixes handler initialization bug. Handlers must be initialized using the handlerFactory
+* Splits IProjectionWriter and IInitializeProjectionStore
+* Improves logs
+* Introduces ProjectionRepositoryWithFallback. It gives the ability to use a secondary/fallback projection repository. It is useful while rebuilding the projections
+
 #### 5.0.0-migrations0006 - 19.11.2018
 * Now we can replay system projections
 * Refreshes the projections status every 5 min
