@@ -4,7 +4,7 @@ using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.FaultHandling
 {
-    public class InMemoryRetryWorkflow<TContext> : Workflow<TContext>
+    public class InMemoryRetryWorkflow<TContext> : Workflow<TContext> where TContext : class
     {
         private RetryPolicy retryPolicy;
 
@@ -19,6 +19,9 @@ namespace Elders.Cronus.FaultHandling
 
         protected override void Run(Execution<TContext> execution)
         {
+            if (execution is null) throw new ArgumentNullException(nameof(execution));
+
+            TContext context = execution.Context;
             retryPolicy.ExecuteAction(() =>
             {
                 workflow.Run(execution.Context);

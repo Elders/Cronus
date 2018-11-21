@@ -4,7 +4,7 @@ using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.Migrations
 {
-    public class MigrationWorkflowBase<TInput, TResult> : Workflow<TInput, TResult>
+    public class MigrationWorkflowBase<TInput, TResult> : Workflow<TInput, TResult> where TInput : class
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(MigrationWorkflowBase<TInput, TResult>));
 

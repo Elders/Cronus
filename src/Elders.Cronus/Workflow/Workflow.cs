@@ -1,6 +1,6 @@
 ﻿namespace Elders.Cronus.Workflow
 {
-    public abstract class Workflow<TContext> : WorkflowBase<TContext>
+    public abstract class Workflow<TContext> : WorkflowBase<TContext> where TContext : class
     {
         protected override object AbstractRun(Execution<TContext> execution)
         {
@@ -15,7 +15,7 @@
         protected abstract void Run(Execution<TContext> execution);
     }
 
-    public abstract class Workflow<TContext, TResult> : WorkflowBase<TContext>
+    public abstract class Workflow<TContext, TResult> : WorkflowBase<TContext> where TContext : class
     {
         protected override object AbstractRun(Execution<TContext> execution)
         {

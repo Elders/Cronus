@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +8,7 @@ namespace Elders.Cronus.MessageProcessing
 {
     public class ScopedMessageWorkflow : Workflow<HandleContext>
     {
-        private static Dictionary<HandleContext, IServiceScope> scopes = new Dictionary<HandleContext, IServiceScope>();
+        private static ConcurrentDictionary<HandleContext, IServiceScope> scopes = new ConcurrentDictionary<HandleContext, IServiceScope>();
         public static IServiceScope GetScope(HandleContext context) => scopes[context];
 
         private readonly IServiceProvider ioc;
@@ -28,14 +28,14 @@ namespace Elders.Cronus.MessageProcessing
             {
                 EnsureTenantIsSet(scope, execution.Context.Message);
 
-                scopes.Add(execution.Context, scope);
+                scopes.AddOrUpdate(execution.Context, scope, (c, s) => scope);
                 try
                 {
                     workflow.Run(execution.Context);
                 }
                 finally
                 {
-                    scopes.Remove(execution.Context);
+                    scopes.TryRemove(execution.Context, out IServiceScope s);
                 }
             }
         }

@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Elders.Cronus.Workflow
 {
-    public class ExecutionChain<TContext>
+    public class ExecutionChain<TContext> where TContext : class
     {
         Queue<WorkflowBase<TContext>> executionQueue;
 
