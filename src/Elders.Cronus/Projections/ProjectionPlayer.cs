@@ -20,15 +20,17 @@ namespace Elders.Cronus.Projections
         private readonly IEventStorePlayer eventStorePlayer;
         private readonly IProjectionWriter projectionWriter;
         private readonly IProjectionReader projectionReader;
+        private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly EventStoreIndex index;
 
-        public ProjectionPlayer(CronusContext context, IEventStore eventStore, IEventStorePlayer eventStorePlayer, EventStoreIndex index, IProjectionWriter projectionRepository, IProjectionReader projectionReader)
+        public ProjectionPlayer(CronusContext context, IEventStore eventStore, IEventStorePlayer eventStorePlayer, EventStoreIndex index, IProjectionWriter projectionRepository, IProjectionReader projectionReader, IInitializableProjectionStore projectionStoreInitializer)
         {
             this.context = context;
             this.eventStore = eventStore;
             this.eventStorePlayer = eventStorePlayer;
             this.projectionWriter = projectionRepository;
             this.projectionReader = projectionReader;
+            this.projectionStoreInitializer = projectionStoreInitializer;
             this.index = index;
         }
 
@@ -54,7 +56,7 @@ namespace Elders.Cronus.Projections
                 log.Info(() => $"Start rebuilding projection `{version.ProjectionName}` for version {version}. Deadline is {rebuildUntil}");
                 Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
 
-                projectionWriter.Initialize(version);
+                projectionStoreInitializer.Initialize(version);
 
                 var projectionHandledEventTypes = GetInvolvedEvents(projectionType);
                 foreach (var eventType in projectionHandledEventTypes)
