@@ -61,7 +61,7 @@ namespace Elders.Cronus.Projections
                 var projectionHandledEventTypes = GetInvolvedEvents(projectionType);
                 foreach (var eventType in projectionHandledEventTypes)
                 {
-                    log.Debug(() => $"Rebuilding projection `{version.ProjectionName}` for version {version} using eventType `{eventType}`. Deadline is {rebuildUntil}");
+                    log.Info(() => $"Rebuilding projection `{version.ProjectionName}` for version {version} using eventType `{eventType}`. Deadline is {rebuildUntil}");
 
                     IEnumerable<IndexRecord> indexRecords = index.EnumerateRecords(eventType);
                     foreach (IndexRecord indexRecord in indexRecords)
@@ -70,7 +70,7 @@ namespace Elders.Cronus.Projections
                         progressCounter++;
                         if (progressCounter % 1000 == 0)
                         {
-                            log.Trace(() => $"Rebuilding projection {version.ProjectionName} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{rebuildUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()} ProcessedAggregatesSize:{processedAggregates.Count}");
+                            log.Info(() => $"Rebuilding projection {version.ProjectionName} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{rebuildUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()} ProcessedAggregatesSize:{processedAggregates.Count}");
                         }
 
                         int aggreagteRootIdHash = indexRecord.AggregateRootId.GetHashCode();
