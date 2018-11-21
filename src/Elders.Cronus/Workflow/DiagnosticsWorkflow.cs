@@ -4,7 +4,7 @@ using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Workflow
 {
-    public class DiagnosticsWorkflow<TContext> : Workflow<TContext>
+    public class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext : class
     {
         private static readonly ILog log = LogProvider.GetLogger(typeof(DiagnosticsWorkflow<>));
         private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
@@ -18,6 +18,8 @@ namespace Elders.Cronus.Workflow
 
         protected override void Run(Execution<TContext> execution)
         {
+            if (execution is null) throw new ArgumentNullException(nameof(execution));
+
             long startTimestamp = 0;
             if (log.IsInfoEnabled())
                 startTimestamp = Stopwatch.GetTimestamp();

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Elders.Cronus.Workflow
 {
-    public class Execution<TContext, TResult> : Execution<TContext>
+    public class Execution<TContext, TResult> : Execution<TContext> where TContext : class
     {
         public Execution(TContext context) : base(context) { }
 
@@ -13,7 +13,7 @@ namespace Elders.Cronus.Workflow
         new public TResult PreviousResult { get { return (TResult)base.PreviousResult; } }
     }
 
-    public class Execution<TContext> : IEnumerator<WorkflowBase<TContext>>
+    public class Execution<TContext> : IEnumerator<WorkflowBase<TContext>> where TContext : class
     {
         LinkedList<WorkflowBase<TContext>> executionQueue;
 
@@ -25,6 +25,8 @@ namespace Elders.Cronus.Workflow
 
         public Execution(TContext context)
         {
+            if (context is null) throw new ArgumentNullException(nameof(context));
+
             this.executionQueue = new LinkedList<WorkflowBase<TContext>>();
             Context = context;
         }
