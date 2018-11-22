@@ -1,3 +1,8 @@
+#### 5.0.0-migrations0008 - 22.11.2018
+* Adds the ability to override how ProjectionVersions are loaded
+* Renames parameters
+* Removes the Initialize option because it is in a separate class now
+
 #### 5.0.0-migrations0007 - 21.11.2018
 * Fixes concurrency problem with the Workflow objects
 * Fixes handler initialization bug. Handlers must be initialized using the handlerFactory
