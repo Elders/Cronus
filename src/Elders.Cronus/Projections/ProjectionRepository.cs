@@ -39,12 +39,6 @@ namespace Elders.Cronus.Projections
             this.handlerFactory = handlerFactory;
         }
 
-        public void Initialize(ProjectionVersion version)
-        {
-            var initializableProjectionStore = projectionStore as IInitializableProjectionStore;
-            initializableProjectionStore?.Initialize(version);
-        }
-
         public void Save(Type projectionType, CronusMessage cronusMessage)
         {
             if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
