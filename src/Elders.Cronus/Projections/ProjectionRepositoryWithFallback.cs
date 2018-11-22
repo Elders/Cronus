@@ -11,20 +11,20 @@ namespace Elders.Cronus.Projections
             : base(configuration, main, fallback) { }
     }
 
-    public class ProjectionRepositoryWithFallback<TMain, TFallback> : IProjectionReader, IProjectionWriter
-        where TMain : class, IProjectionReader, IProjectionWriter
+    public class ProjectionRepositoryWithFallback<TPrimary, TFallback> : IProjectionReader, IProjectionWriter
+        where TPrimary : class, IProjectionReader, IProjectionWriter
         where TFallback : class, IProjectionReader, IProjectionWriter
     {
         private readonly bool isFallbackEnabled;
         private readonly bool useOnlyFallback;
-        private readonly TMain main;
+        private readonly TPrimary primary;
         private readonly TFallback fallback;
 
-        public ProjectionRepositoryWithFallback(IConfiguration configuration, TMain main, TFallback fallback)
+        public ProjectionRepositoryWithFallback(IConfiguration configuration, TPrimary primary, TFallback fallback)
         {
             isFallbackEnabled = configuration.GetValue<bool>("cronus_projections_fallback_enabled", false) && fallback is null == false;
             useOnlyFallback = configuration.GetValue<bool>("cronus_projections_useonlyfallback_enabled", false) && isFallbackEnabled;
-            this.main = main;
+            this.primary = primary;
             this.fallback = fallback;
         }
 
@@ -50,21 +50,21 @@ namespace Elders.Cronus.Projections
 
         public void Save(Type projectionType, CronusMessage cronusMessage)
         {
-            main.Save(projectionType, cronusMessage);
+            primary.Save(projectionType, cronusMessage);
             if (isFallbackEnabled)
                 fallback.Save(projectionType, cronusMessage);
         }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin)
         {
-            main.Save(projectionType, @event, eventOrigin);
+            primary.Save(projectionType, @event, eventOrigin);
             if (isFallbackEnabled)
                 fallback.Save(projectionType, @event, eventOrigin);
         }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
         {
-            main.Save(projectionType, @event, eventOrigin);
+            primary.Save(projectionType, @event, eventOrigin);
             // this method is specific for the ProjectionsPlayer and it does not make sense to execute the fallback. We need to rethink this
         }
 
@@ -76,7 +76,7 @@ namespace Elders.Cronus.Projections
             }
             else
             {
-                var result = func(main);
+                var result = func(primary);
                 if (result.HasFailed && isFallbackEnabled)
                     result = func(fallback);
 
@@ -92,7 +92,7 @@ namespace Elders.Cronus.Projections
             }
             else
             {
-                var result = await func(main).ConfigureAwait(false);
+                var result = await func(primary).ConfigureAwait(false);
                 if (result.HasFailed && isFallbackEnabled)
                     result = await func(fallback).ConfigureAwait(false);
 
