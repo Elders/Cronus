@@ -177,7 +177,7 @@ namespace Elders.Cronus.Projections
             return new ReadResult<IProjectionDefinition>(stream.RestoreFromHistory(projectionType));
         }
 
-        ProjectionVersions GetProjectionVersions(string projectionName)
+        protected virtual ProjectionVersions GetProjectionVersions(string projectionName)
         {
             if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
 
