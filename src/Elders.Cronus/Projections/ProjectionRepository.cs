@@ -22,8 +22,9 @@ namespace Elders.Cronus.Projections
         readonly ISnapshotStrategy snapshotStrategy;
         readonly InMemoryProjectionVersionStore inMemoryVersionStore;
         private readonly IHandlerFactory handlerFactory;
+        private readonly ProjectionHasher projectionHasher;
 
-        public ProjectionRepository(CronusContext context, IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, InMemoryProjectionVersionStore inMemoryVersionStore, IHandlerFactory handlerFactory)
+        public ProjectionRepository(CronusContext context, IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, InMemoryProjectionVersionStore inMemoryVersionStore, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
         {
             if (context is null) throw new ArgumentException(nameof(context));
             if (projectionStore is null) throw new ArgumentException(nameof(projectionStore));
@@ -37,6 +38,7 @@ namespace Elders.Cronus.Projections
             this.snapshotStrategy = snapshotStrategy;
             this.inMemoryVersionStore = inMemoryVersionStore;
             this.handlerFactory = handlerFactory;
+            this.projectionHasher = projectionHasher;
         }
 
         public void Save(Type projectionType, CronusMessage cronusMessage)
@@ -86,6 +88,11 @@ namespace Elders.Cronus.Projections
                             {
                                 log.ErrorException("Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}", ex);
                             }
+                        }
+                        else if (version.Status == ProjectionStatus.NotPresent)
+                        {
+                            var commit = new ProjectionCommit(projectionId, version, @event, 1, eventOrigin, DateTime.UtcNow);
+                            projectionStore.Save(commit);
                         }
                     }
                 }
@@ -180,7 +187,7 @@ namespace Elders.Cronus.Projections
                 var elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - LastRefreshTimestamp)));
 
                 ProjectionVersions versions = inMemoryVersionStore.Get(projectionName);
-                if (versions is null || versions.Count == 0 || elapsed.TotalMinutes > 5)
+                if (elapsed.TotalMinutes > 5 || versions is null || versions.Count == 0)
                 {
                     var queryResult = GetProjectionVersionsFromStore();
                     if (queryResult.IsSuccess)
@@ -195,8 +202,13 @@ namespace Elders.Cronus.Projections
                         LastRefreshTimestamp = Stopwatch.GetTimestamp();
                     }
                 }
+                if (versions is null)
+                    versions = new ProjectionVersions();
 
-                return versions ?? new ProjectionVersions();
+                if (versions.Any() == false)
+                    versions.Add(new ProjectionVersion(projectionName, ProjectionStatus.NotPresent, 0, projectionHasher.CalculateHash(projectionName)));
+
+                return versions;
 
             }
             catch (Exception ex)
@@ -212,7 +224,7 @@ namespace Elders.Cronus.Projections
             var projectionVersions_ProjectionName = persistentVersionType.GetContractId();
 
             var versionId = new ProjectionVersionManagerId(projectionVersions_ProjectionName, context.Tenant);
-            var persistentVersion = new ProjectionVersion(projectionVersions_ProjectionName, ProjectionStatus.Live, 1, persistentVersionType.GetProjectionHash());
+            var persistentVersion = new ProjectionVersion(projectionVersions_ProjectionName, ProjectionStatus.Live, 1, projectionHasher.CalculateHash(persistentVersionType));
             ProjectionStream stream = LoadProjectionStream(persistentVersionType, persistentVersion, versionId, new NoSnapshot(versionId, projectionVersions_ProjectionName).GetMeta());
             var queryResult = stream.RestoreFromHistory<ProjectionVersionsHandler>();
 
