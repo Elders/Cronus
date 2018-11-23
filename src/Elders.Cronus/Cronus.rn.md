@@ -1,3 +1,6 @@
+#### 5.0.0-migrations0010 - 23.11.2018
+* Adds logging when ProjectionRepositoryWithFallback is fired
+
 #### 5.0.0-migrations0009 - 22.11.2018
 * Handles the situation where a projection does not exist and sets the version status to NotPresent
 
