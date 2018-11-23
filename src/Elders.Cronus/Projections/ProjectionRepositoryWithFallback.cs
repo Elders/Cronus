@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Elders.Cronus.Logging;
 using Microsoft.Extensions.Configuration;
 
 namespace Elders.Cronus.Projections
@@ -15,6 +16,8 @@ namespace Elders.Cronus.Projections
         where TPrimary : class, IProjectionReader, IProjectionWriter
         where TFallback : class, IProjectionReader, IProjectionWriter
     {
+        private static readonly ILog log = LogProvider.GetLogger(typeof(ProjectionRepositoryWithFallback<,>));
+
         private readonly bool isFallbackEnabled;
         private readonly bool useOnlyFallback;
         private readonly TPrimary primary;
@@ -78,7 +81,10 @@ namespace Elders.Cronus.Projections
             {
                 var result = func(primary);
                 if (result.HasFailed && isFallbackEnabled)
+                {
+                    log.Info(() => $"Primary projection has failed. Falling back... Primary: {primary.ToString()} Fallback: {fallback.ToString()}");
                     result = func(fallback);
+                }
 
                 return result;
             }
@@ -94,7 +100,10 @@ namespace Elders.Cronus.Projections
             {
                 var result = await func(primary).ConfigureAwait(false);
                 if (result.HasFailed && isFallbackEnabled)
+                {
+                    log.Info(() => $"Primary projection has failed. Falling back... Primary: {primary.ToString()} Fallback: {fallback.ToString()}");
                     result = await func(fallback).ConfigureAwait(false);
+                }
 
                 return result;
             }
