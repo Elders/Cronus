@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Elders.Cronus.Projections.Versioning
@@ -22,10 +23,14 @@ namespace Elders.Cronus.Projections.Versioning
                 var @event = new ProjectionVersionRequestCanceled(state.Id, version.WithStatus(ProjectionStatus.Canceled), reason);
                 Apply(@event);
             }
+
+            EnsureThereIsNoOutdatedBuildingVersions();
         }
 
         public void Replay(string hash) // maybe rename to Rebuild
         {
+            EnsureThereIsNoOutdatedBuildingVersions();
+
             if (CanReplayHash(hash))
             {
                 var projectionVersion = state.Versions.GetNext();
@@ -44,10 +49,14 @@ namespace Elders.Cronus.Projections.Versioning
                 var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
                 Apply(@event);
             }
+
+            EnsureThereIsNoOutdatedBuildingVersions();
         }
 
         public void NotifyHash(string hash)
         {
+            EnsureThereIsNoOutdatedBuildingVersions();
+
             if (HasLiveVersion() == false || IsHashTheLiveOne(hash) == false)
             {
                 Replay(hash);
@@ -62,28 +71,40 @@ namespace Elders.Cronus.Projections.Versioning
                 var @event = new NewProjectionVersionIsNowLive(state.Id, buildingVersion.WithStatus(ProjectionStatus.Live));
                 Apply(@event);
             }
+
+            EnsureThereIsNoOutdatedBuildingVersions();
         }
 
-        private bool HasLiveVersion()
-        {
-            ProjectionVersion liveVersion = state.Versions.GetLive();
+        private bool HasLiveVersion() => state.Versions.GetLive() is null == false;
 
-            return ReferenceEquals(null, liveVersion) == false;
+        private bool HasBuildingVersion()
+        {
+            return state.Versions
+                .Where(ver => ver.Status == ProjectionStatus.Building)
+                .OrderByDescending(x => x.Revision)
+                .Any();
         }
 
         private bool CanReplayHash(string hash)
         {
-            bool isHashUsedBefore = state.HashHistoryOfLiveVersions.Contains(hash);
             bool isHashTheLiveOne = IsHashTheLiveOne(hash);
-            bool hasLiveVersion = ReferenceEquals(null, state.Versions.GetLive()) == false;
-            ProjectionVersion buildingVersion = state.Versions
-                .Where(ver => ver.Status == ProjectionStatus.Building && ver.Hash.Equals(hash, StringComparison.Ordinal))
-                .OrderByDescending(x => x.Revision)
-                .FirstOrDefault();
-            bool hasBuildingVersion = ReferenceEquals(null, buildingVersion) == false;
-            bool hasOutdatedBuildingVersion = hasLiveVersion && hasBuildingVersion && buildingVersion < state.Versions.GetLive() && isHashUsedBefore == false;
 
-            return hasOutdatedBuildingVersion == false && hasBuildingVersion == false && (hasLiveVersion == false || isHashUsedBefore == false || isHashTheLiveOne);
+            return HasBuildingVersion() == false && (HasLiveVersion() == false || isHashTheLiveOne);
+        }
+
+        private void EnsureThereIsNoOutdatedBuildingVersions()
+        {
+            if (HasLiveVersion() == false) return;
+
+            IEnumerable<ProjectionVersion> buildingVersions = state.Versions
+                .Where(ver => ver.Status == ProjectionStatus.Building)
+                .OrderByDescending(x => x.Revision);
+
+            foreach (var buildingVersion in buildingVersions)
+            {
+                if (buildingVersion < state.Versions.GetLive())
+                    CancelVersionRequest(buildingVersion, "Outdated version. There is already a live version.");
+            }
         }
 
         private bool IsHashTheLiveOne(string hash)
@@ -108,7 +129,7 @@ namespace Elders.Cronus.Projections.Versioning
         /// In every other case we issue a timebox with immediate execution
         /// </summary>
         /// <param name="hash"></param>
-        /// <returns></returns>
+        /// <returns>The timebox for the requested hash</returns>
         private VersionRequestTimebox GetVersionRequestTimebox(string hash)
         {
             ProjectionVersion live = state.Versions.GetLive();
