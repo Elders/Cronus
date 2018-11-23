@@ -45,7 +45,7 @@ namespace Elders.Cronus.EventStore
             }
             else
             {
-                throw new AggregateStateFirstLevelConcurrencyException("Unable to save AR" + Environment.NewLine + arCommit.ToString(), result.Errors.MakeJustOneException());
+                throw new AggregateStateFirstLevelConcurrencyException($"Unable to save AR {Environment.NewLine}{arCommit.ToString()}", result.Errors.MakeJustOneException());
             }
         }
 
@@ -60,11 +60,11 @@ namespace Elders.Cronus.EventStore
             EventStream eventStream = eventStore.Load(id);
             var integrityResult = integrityPolicy.Apply(eventStream);
             if (integrityResult.IsIntegrityViolated)
-                throw new EventStreamIntegrityViolationException("asd");
+                throw new EventStreamIntegrityViolationException($"AR integrity is violated for ID={id.Urn.Value}");
             eventStream = integrityResult.Output;
             AR aggregateRoot;
             if (eventStream.TryRestoreFromHistory<AR>(out aggregateRoot) == false)
-                return new ReadResult<AR>(new AggregateLoadException("Unable to load AR with ID=" + id.Urn.Value));
+                return ReadResult<AR>.WithNotFoundHint($"Unable to load AR with ID={id.Urn.Value}");
 
             return new ReadResult<AR>(aggregateRoot);
         }

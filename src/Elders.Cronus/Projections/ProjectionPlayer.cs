@@ -223,7 +223,7 @@ namespace Elders.Cronus.Projections
             var versionId = new ProjectionVersionManagerId(ProjectionVersionsHandler.ContractId, context.Tenant);
             var result = projectionReader.Get<ProjectionVersionsHandler>(versionId);
 
-            return result.HasFailed;
+            return result.HasError || result.NotFound;
         }
     }
 }
