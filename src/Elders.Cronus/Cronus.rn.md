@@ -1,3 +1,6 @@
+#### 5.0.0-migrations0012 - 23.11.2018
+* Improves logging for the ProjectionRepositoryWithFallback
+
 #### 5.0.0-migrations0011 - 23.11.2018
 * Fixes execution flow for the projection which had mixed understandings about not found data and an error when doing a projection query
 * Outdated build versions are now canceled
