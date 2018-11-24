@@ -70,16 +70,60 @@ namespace Elders.Cronus.Projections
 
         public void Save(Type projectionType, CronusMessage cronusMessage)
         {
-            primary.Save(projectionType, cronusMessage);
+            Exception exception = null;
+            try
+            {
+                primary.Save(projectionType, cronusMessage);
+                log.Info($"Projection saved successfully using primary {primary.GetType().Name}");
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+                log.ErrorException($"Failed to Save projection using primary {primary.GetType().Name}. ProjectionType: {projectionType.Name} | Event: {cronusMessage.Payload.GetType().Name}", ex);
+            }
             if (isFallbackEnabled)
-                fallback.Save(projectionType, cronusMessage);
+            {
+                try
+                {
+                    fallback.Save(projectionType, cronusMessage);
+                    log.Info($"Projection saved successfully using fallback {fallback.GetType().Name}");
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                    log.ErrorException($"Failed to Save projection using fallback {primary.GetType().Name}. ProjectionType: {projectionType.Name} | Event: {cronusMessage.Payload.GetType().Name}", ex);
+                }
+            }
+
+            if (exception is null == false) throw exception;
         }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin)
         {
-            primary.Save(projectionType, @event, eventOrigin);
+            Exception exception = null;
+            try
+            {
+                primary.Save(projectionType, @event, eventOrigin);
+            }
+            catch (Exception ex)
+            {
+                exception = ex;
+                log.ErrorException($"Failed to Save projection using primary {primary.GetType().Name}. ProjectionType: {projectionType.Name} | Event: {@event.GetType().Name}", ex);
+            }
             if (isFallbackEnabled)
-                fallback.Save(projectionType, @event, eventOrigin);
+            {
+                try
+                {
+                    fallback.Save(projectionType, @event, eventOrigin);
+                }
+                catch (Exception ex)
+                {
+                    exception = ex;
+                    log.ErrorException($"Failed to Save projection using fallback {primary.GetType().Name}. ProjectionType: {projectionType.Name} | Event: {@event.GetType().Name}", ex);
+                }
+            }
+
+            if (exception is null == false) throw exception;
         }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
