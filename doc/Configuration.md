@@ -68,6 +68,28 @@ Valid values:
 
 #### `cronus_persistence_cassandra__datacenters` >> *string[] | Required: No*
 
+# Cronus.Projections.Cassandra
+
+#### `cronus_projections_cassandra_connectionstring` >> *string | Required: Yes*
+The connection to the Cassandra database server
+
+---
+
+#### `cronus_projections_cassandra_replication_strategy` >> *string | Required: No | Default: simple*
+Configures Cassandra replication strategy. This setting has effect only in the first run when creating the database.
+
+Valid values:
+* simple
+* network_topology - when using this setting you need to specify `cronus_projections_cassandra_replication_factor` and  `cronus_projections_cassandra__datacenters` as well
+
+---
+
+#### `cronus_projections_cassandra_replication_factor` >> *integer | Required: No | Default: 1*
+
+---
+
+#### `cronus_projections_cassandra__datacenters` >> *string[] | Required: No*
+
 
 # Cronus.Transport.RabbitMq
 
