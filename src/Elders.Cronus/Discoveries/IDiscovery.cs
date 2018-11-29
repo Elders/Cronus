@@ -1,9 +1,10 @@
-﻿using Elders.Cronus.Pipeline.Config;
-
-namespace Elders.Cronus.Discoveries
+﻿namespace Elders.Cronus.Discoveries
 {
-    public interface IDiscovery
+    public interface IDiscovery<out TCronusService>
+    //where TCronusService : ICronusService
     {
-        void Discover(ISettingsBuilder builder);
+        string Name { get; }
+
+        IDiscoveryResult<TCronusService> Discover();
     }
 }

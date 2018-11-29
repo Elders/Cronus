@@ -14,6 +14,8 @@
 
         public const string MessageId = "messageid";
 
+        public const string Tenant = "tenant";
+
         public const string PublishTimestamp = "publish_timestamp";
     }
 }

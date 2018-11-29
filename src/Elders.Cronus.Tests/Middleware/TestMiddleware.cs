@@ -1,8 +1,8 @@
-﻿using Elders.Cronus.Middleware;
+﻿using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.Tests.Middleware
 {
-    public class TestMiddleware : Middleware<string>
+    public class TestMiddleware : Workflow<string>
     {
         ExecutionToken token;
 

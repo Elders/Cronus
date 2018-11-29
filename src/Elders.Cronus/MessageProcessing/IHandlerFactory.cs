@@ -1,4 +1,5 @@
 using System;
+using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -9,6 +10,8 @@ namespace Elders.Cronus.MessageProcessing
 
     public class DefaultHandlerFactory : IHandlerFactory
     {
+        public static Workflow<HandleContext, IHandlerInstance> FactoryWrokflow = WorkflowExtensions.Lambda<HandleContext, IHandlerInstance>((exec) => factory.Create(exec.Context.HandlerType));
+
         readonly Func<Type, object> handlerFctory;
 
         public DefaultHandlerFactory(Func<Type, object> handlerFactory)
@@ -20,6 +23,10 @@ namespace Elders.Cronus.MessageProcessing
         {
             return new DefaultHandlerInstance(handlerFctory(handlerType));
         }
+
+        private static DefaultHandlerFactory factory = new DefaultHandlerFactory(x => FastActivator.CreateInstance(x));
+
+
     }
 
     public interface IHandlerInstance : IDisposable

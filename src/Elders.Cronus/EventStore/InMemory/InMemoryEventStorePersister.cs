@@ -1,5 +1,3 @@
-using System;
-
 namespace Elders.Cronus.EventStore.InMemory
 {
 
@@ -21,7 +19,7 @@ namespace Elders.Cronus.EventStore.InMemory
         /// </summary>
         /// <param name="aggregateId">The aggregate identifier.</param>
         /// <returns></returns>
-        public EventStream Load(IAggregateRootId aggregateId, Func<IAggregateRootId, string> getBoundedContext)
+        public EventStream Load(IAggregateRootId aggregateId)
         {
             return new EventStream(eventStoreStorage.Seek(aggregateId));
         }
@@ -34,6 +32,11 @@ namespace Elders.Cronus.EventStore.InMemory
         public void Append(AggregateCommit aggregateCommit)
         {
             eventStoreStorage.Flush(aggregateCommit);
+        }
+
+        public void Append(AggregateCommitRaw aggregateCommitRaw)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

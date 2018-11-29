@@ -1,16 +1,18 @@
-﻿using Elders.Cronus.Pipeline.Config;
-using Elders.Cronus.Pipeline.Hosts;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace Elders.Cronus.Discoveries
 {
     public static class DiscoveryExtensions
     {
-        public static T WithDiscovery<T>(this T self) where T : ICronusSettings
+        public static IEnumerable<Type> GetLoadableTypes(this Assembly assembly)
         {
-            var discoveryFinder = new FindDiscoveries();
-            discoveryFinder.Discover(self as ISettingsBuilder);
+            if (assembly is null) throw new ArgumentNullException(nameof(assembly));
 
-            return self;
+            try { return assembly.GetTypes(); }
+            catch (ReflectionTypeLoadException e) { return e.Types.Where(t => t != null); }
         }
     }
 }

@@ -4,20 +4,20 @@ namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = "f92c320f-ef20-49aa-a8bc-c7085cc3a731")]
     public class InMemoryProjectionVersionHandler : ISystemProjection,
-            IEventHandler<ProjectionVersionRequested>,
-            IEventHandler<NewProjectionVersionIsNowLive>,
-            IEventHandler<ProjectionVersionRequestCanceled>
+        IEventHandler<ProjectionVersionRequested>,
+        IEventHandler<NewProjectionVersionIsNowLive>,
+        IEventHandler<ProjectionVersionRequestCanceled>
     {
         public InMemoryProjectionVersionStore ProjectionVersionStore { get; set; }
 
         public void Handle(ProjectionVersionRequestCanceled @event)
         {
-            ProjectionVersionStore.Cache(@event.ProjectionVersion);
+            ProjectionVersionStore.Cache(@event.Version);
         }
 
         public void Handle(ProjectionVersionRequested @event)
         {
-            ProjectionVersionStore.Cache(@event.ProjectionVersion);
+            ProjectionVersionStore.Cache(@event.Version);
         }
 
         public void Handle(NewProjectionVersionIsNowLive @event)

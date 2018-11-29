@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Elders.Cronus.Projections;
 
 namespace Elders.Cronus
@@ -37,6 +35,13 @@ namespace Elders.Cronus
             if (message.Headers.TryGetValue(MessageHeader.PublishTimestamp, out value) && long.TryParse(value, out timestamp))
                 return timestamp;
             return 0;
+        }
+
+        public static string GetTenant(this CronusMessage message)
+        {
+            string tenant = null;
+            message.Headers.TryGetValue(MessageHeader.Tenant, out tenant);
+            return tenant;
         }
 
         public static string GetRootId(this CronusMessage message)

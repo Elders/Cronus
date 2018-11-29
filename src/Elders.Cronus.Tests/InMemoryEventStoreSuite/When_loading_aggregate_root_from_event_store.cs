@@ -25,12 +25,12 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
-            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id);
+            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
             aggregateRoot.Update("When_build_aggregate_root_from_events");
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
         };
 
-        Because of = () => loadedAggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id);
+        Because of = () => loadedAggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
 
         It should_instansiate_aggregate_root = () => loadedAggregateRoot.ShouldNotBeNull();
 
@@ -44,7 +44,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
         static InMemoryEventStoreStorage eventStoreStorage;
         static IAggregateRootAtomicAction versionService;
         static IEventStore eventStore;
-        static IEventStoreStorageManager eventStoreManager;
+        static InMemoryEventStoreStorageManager eventStoreManager;
         static IEventStorePlayer eventStorePlayer;
         static IAggregateRepository aggregateRepository;
         static TestAggregateRoot aggregateRoot;

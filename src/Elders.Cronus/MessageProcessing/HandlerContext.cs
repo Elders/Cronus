@@ -13,5 +13,10 @@
         public object HandlerInstance { get; private set; }
 
         public CronusMessage CronusMessage { get; private set; }
+
+        public override string ToString()
+        {
+            return $"{HandlerInstance.GetType().Name}({Message.GetType().Name})";
+        }
     }
 }
