@@ -1,49 +1,23 @@
-#### 5.0.0-migrations0012 - 23.11.2018
+#### 5.0.0 - 29.11.2018
 * Improves logging for the ProjectionRepositoryWithFallback
-
-#### 5.0.0-migrations0011 - 23.11.2018
 * Fixes execution flow for the projection which had mixed understandings about not found data and an error when doing a projection query
 * Outdated build versions are now canceled
-
-#### 5.0.0-migrations0010 - 23.11.2018
 * Adds logging when ProjectionRepositoryWithFallback is fired
-
-#### 5.0.0-migrations0009 - 22.11.2018
 * Handles the situation where a projection does not exist and sets the version status to NotPresent
-
-#### 5.0.0-migrations0008 - 22.11.2018
 * Adds the ability to override how ProjectionVersions are loaded
-* Renames parameters
 * Removes the Initialize option because it is in a separate class now
-
-#### 5.0.0-migrations0007 - 21.11.2018
 * Fixes concurrency problem with the Workflow objects
 * Fixes handler initialization bug. Handlers must be initialized using the handlerFactory
 * Splits IProjectionWriter and IInitializeProjectionStore
-* Improves logs
 * Introduces ProjectionRepositoryWithFallback. It gives the ability to use a secondary/fallback projection repository. It is useful while rebuilding the projections
-
-#### 5.0.0-migrations0006 - 19.11.2018
 * Now we can replay system projections
 * Refreshes the projections status every 5 min
-
-#### 5.0.0-migrations0005 - 16.11.2018
 * Adds more context to the AggregateCommitRaw
-
-#### 5.0.0-migrations0004 - 16.11.2018
 * Introduces CopyEventStore class
-
-#### 5.0.0-migrations0003 - 16.11.2018
 * Adds an option to read the event store without deserializing the data to an object
-
-#### 5.0.0-migrations0002 - 15.11.2018
 * Adds migration discovery
-
-#### 5.0.0-migrations0001 - 15.11.2018
 * Move the Cronus.Migration.Middleware repository inside Cronus
 * Adds generic interfaces `IEventStore<TSettings>` and `IEventStorePlayer<TSettings>`
-
-#### 5.0.0-beta0038 - 14.11.2018
 * Added tenant resolve on Cronus Message handlerTypeContainer
 * Added CronusHostOptions from which you can disable Application Services, Projections, Ports, Sagas or Gateways explicitly 
 * Replaces handle logging with DiagnosticsWorkflow
@@ -63,141 +37,56 @@
 * Moves the ISerializer to Elders.Cronus namespace
 * Changes the IDiscovery interface to have a specific discovery target like IDiscovery<ISerializer>
 * Reworks the discovery interface
-
-#### 5.0.0-beta0037 - 02.10.2018
-* Updates CronusDomainModeling
 * Adds Async Functionality to IProjectionLoader
-
-#### 5.0.0-beta0036 - 24.08.2018
 * Fixes the assembly name
-
-#### 5.0.0-beta0035 - 22.08.2018
 * Makes ProjectionStream internal
-
-#### 5.0.0-beta0034 - 25.07.2018
 * Added ILock and InMemoryLock implementation
-
-#### 5.0.0-beta0033 - 17.07.2018
 * Do not clear processed aggregates on every event type
 * Get base 64 string once
 * Log total commits after projection rebuilding finishes
-
-#### 5.0.0-beta0033 - 17.07.2018
 * Do not clear processed aggregates on every event type
 * Get base 64 string once
-
-#### 5.0.0-beta0032 - 16.07.2018
 * Cancel building projection version
 * IsOutdatad refactoring
-* Null checks
-
-#### 5.0.0-beta0031 - 16.07.2018
 * It is milliseconds, apparently.
-
-#### 5.0.0-beta0030 - 16.07.2018
 * Delete redundant code
-* Renamed local variable
 * Check the persisted index state before rebuilding
-
-#### 5.0.0-beta0029 - 16.07.2018
 * Make sure ProjectionVersionsHandler will never be rebuilt
 * Increase the rebuild timebox to 24 hours
-
-#### 5.0.0-beta0028 - 13.07.2018
 * Mark ProjectionVersionsHandler as a system projection with ISystemProjection. Apparently we need it
 * Register EventTypeIndexForProjections only if it hasn't been
-
-#### 5.0.0-beta0027 - 13.07.2018
 * Do not mark ProjectionVersionsHandler as a system projection. Strange things are happening
 * Improved logs for projection versioning
-
-#### 5.0.0-beta0026 - 12.07.2018
 * Write events only for the specified version when rebuilding
 * Mark ProjectionVersionsHandler as a system projection with ISystemProjection
 * When rebuilding a projection version and it times out the result which is returned has additional context to indicate that this is a timeout
 * Improved logging for RebuildProjection command
-
-#### 5.0.0-beta0025 - 12.07.2018
 * Improved logging for rebuilding projections
 * Always use global registration of InMemoryProjectionVersionStore
 * Projection versions are not requested for rebuild if there are other versions already scheduled
-
-#### 5.0.0-beta0024 - 11.07.2018
 * Persist index building status
-
-#### 5.0.0-beta0023 - 11.07.2018
 * Logs an error message when an event could not be persisted in projection store for specific projection version. Other projection versions are not interrupted.
-
-#### 5.0.0-beta0022 - 11.07.2018
 * Projection versions are not requested for rebuild if there are other versions already scheduled
 * The snapshotStore is not queried anymore if the projection is not snapshotable
 * When rebuilding a projection version and it times out the result which is returned has additional context to indicate that this is a timeout
 * Outdated version builds are being canceled
 * BREAKING: Replaces `PersistentProjectionVersionHandler` with `ProjectionVersionsHandler`
-
-#### 5.0.0-beta0021 - 10.07.2018
 * Force rebuild projection
-
-#### 5.0.0-beta0020 - 21.06.2018
 * Do not return snapshots for projections with `IAmNotSnapshotable`
-
-#### 5.0.0-beta0019 - 20.06.2018
 * Adds `ProjectionVersionsHandler` which tracks all versions of a projection including full history
-
-#### 5.0.0-beta0018 - 18.06.2018
 * Splits DefaultSnapshotStrategy into two. The EventsCountSnapshotStrategy is based only on number of projection events. The TimeOffsetSnapshotStrategy adds on top of EventsCountSnapshotStrategy the ability to create a snapshot based on time difference between the last written event and at the time of loading a projection
-
-#### 5.0.0-beta0017 - 18.06.2018
 * Improves projection write performance. Projection state is now loaded only when a new state is going to be created
-
-#### 5.0.0-beta0016 - 30.05.2018
 * Return the result from publishing a command
-
-#### 5.0.0-beta0015 - 23.05.2018
 * Fixes an index creation problem. In addition we now ensure that only one index is built at the same moment (single node only)
 * Projection rebuild is not terminated when the deadline hits but a want log messages is written
 * Adds caching for processed aggregates. This potentially could result in out of memory. This is a temporary solution
-
-#### 5.0.0-beta0014 - 11.05.2018
 * Logs for index rebuilding
-
-#### 5.0.0-beta0013 - 09.05.2018
-* Properly stops consumer. For real this time!
-
-#### 5.0.0-beta0012 - 09.05.2018
 * Properly stops consumer
-
-#### 5.0.0-beta0011 - 27.04.2018
 * Adds support for Revision in ProjectionVersion
-
-#### 5.0.0-beta0010 - 26.04.2018
-* Adds support for Revision in ProjectionVersion
-
-#### 5.0.0-beta0009 - 26.04.2018
-* Adds support for Revision in ProjectionVersion
-
-#### 5.0.0-beta0008 - 24.04.2018
-* Rolls back how the message is acknowledged
-
-#### 5.0.0-beta0007 - 03.04.2018
-* Rolls back accidental rename
-
-#### 5.0.0-beta0006 - 03.04.2018
 * Immediately aknowledge/consume message when it is delivered
-
-#### 5.0.0-beta0005 - 02.04.2018
 * Properly create Empty instance of ProjectionStream
-
-#### 5.0.0-beta0004 - 02.04.2018
 * IProjectionLoader and IProjectionRepository are registered in Cronus. Moved from Elders.Cronus.Projections.Cassandra
-
-#### 5.0.0-beta0003 - 02.04.2018
-* IProjectionLoader and IProjectionRepository are registered in Cronus. Moved from Elders.Cronus.Projections.Cassandra
-
-#### 5.0.0-beta0002 - 01.04.2018
 * Removes all obsolete code
-
-#### 5.0.0-beta0001 - 28.03.2018
 * Removes Obsolete EventStore methods
 
 #### 4.1.4 - 28.03.2018
