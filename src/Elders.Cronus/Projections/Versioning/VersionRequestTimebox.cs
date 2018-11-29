@@ -3,6 +3,9 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
+    /// <summary>
+    /// Specifies a time frame when a projection rebuild starts and when it expires
+    /// </summary>
     [DataContract(Name = "4c8d4c59-cc5a-40f8-9b08-14fcc57f51a9")]
     public class VersionRequestTimebox
     {
@@ -10,9 +13,11 @@ namespace Elders.Cronus.Projections.Versioning
 
         const int EightHours = 28800000;
 
+        const int RealyLongTime = 24 * 60 * 60 * 1000; // 24h
+
         VersionRequestTimebox() { }
 
-        public VersionRequestTimebox(DateTime rebuildStartAt) : this(rebuildStartAt, rebuildStartAt.AddMilliseconds(EightHours)) { }
+        public VersionRequestTimebox(DateTime rebuildStartAt) : this(rebuildStartAt, rebuildStartAt.AddMilliseconds(RealyLongTime)) { }
 
         public VersionRequestTimebox(DateTime rebuildStartAt, DateTime rebuildFinishUntil)
         {
@@ -22,9 +27,15 @@ namespace Elders.Cronus.Projections.Versioning
             RebuildFinishUntil = rebuildFinishUntil;
         }
 
+        /// <summary>
+        /// The time when a <see cref="VersionRequestTimebox"/> starts
+        /// </summary>
         [DataMember(Order = 1)]
         public DateTime RebuildStartAt { get; private set; }
 
+        /// <summary>
+        /// The time when a <see cref="VersionRequestTimebox"/> expires
+        /// </summary>
         [DataMember(Order = 2)]
         public DateTime RebuildFinishUntil { get; private set; }
 
@@ -35,7 +46,6 @@ namespace Elders.Cronus.Projections.Versioning
                 newStartAt = RebuildFinishUntil;
 
             return new VersionRequestTimebox(newStartAt);
-
         }
 
         public VersionRequestTimebox Reset()
@@ -45,6 +55,11 @@ namespace Elders.Cronus.Projections.Versioning
                 RebuildStartAt = RebuildStartAt,
                 RebuildFinishUntil = DateTime.UtcNow
             };
+        }
+
+        public override string ToString()
+        {
+            return $"Version request timebox: Starts at `{RebuildStartAt}`. Expires at `{RebuildFinishUntil}`";
         }
     }
 }

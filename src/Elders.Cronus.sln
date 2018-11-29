@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elders.Cronus", "Elders.Cronus\Elders.Cronus.csproj", "{32EA2250-01B3-4171-9AE7-214037A0D524}"
 EndProject
@@ -14,23 +14,23 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{8A014C
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{3E4FD560-9AA1-46FF-9FC0-EEBD5B3C8D39}"
+	ProjectSection(SolutionItems) = preProject
+		..\doc\Configuration.md = ..\doc\Configuration.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
-		Internal|Any CPU = Internal|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{32EA2250-01B3-4171-9AE7-214037A0D524}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{32EA2250-01B3-4171-9AE7-214037A0D524}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{32EA2250-01B3-4171-9AE7-214037A0D524}.Internal|Any CPU.ActiveCfg = Release|Any CPU
-		{32EA2250-01B3-4171-9AE7-214037A0D524}.Internal|Any CPU.Build.0 = Release|Any CPU
 		{32EA2250-01B3-4171-9AE7-214037A0D524}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32EA2250-01B3-4171-9AE7-214037A0D524}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3C04DC56-460C-4240-B118-6B6A31BBA6A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3C04DC56-460C-4240-B118-6B6A31BBA6A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C04DC56-460C-4240-B118-6B6A31BBA6A8}.Internal|Any CPU.ActiveCfg = Release|Any CPU
-		{3C04DC56-460C-4240-B118-6B6A31BBA6A8}.Internal|Any CPU.Build.0 = Release|Any CPU
 		{3C04DC56-460C-4240-B118-6B6A31BBA6A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C04DC56-460C-4240-B118-6B6A31BBA6A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

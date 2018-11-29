@@ -8,6 +8,12 @@ namespace Elders.Cronus.Projections.Versioning
     {
         static readonly char[] padding = { '=' };
 
+        public string CalculateHash(string projectionName)
+        {
+            Type projectionType = projectionName.GetTypeByContract();
+            return CalculateHash(projectionType);
+        }
+
         public string CalculateHash(Type projectionType)
         {
             var ieventHandler = typeof(IEventHandler<>).GetGenericTypeDefinition();

@@ -1,6 +1,6 @@
 namespace Elders.Cronus.EventStore.InMemory
 {
-    public class InMemoryEventStoreStorageManager : IEventStoreStorageManager
+    public class InMemoryEventStoreStorageManager
     {
         public void CreateStorage()
         {
@@ -14,6 +14,11 @@ namespace Elders.Cronus.EventStore.InMemory
         }
 
         public void CreateSnapshotsStorage()
+        {
+
+        }
+
+        public void CreateIndecies()
         {
 
         }

@@ -1,4 +1,4 @@
-﻿using Elders.Cronus.Middleware;
+﻿using Elders.Cronus.Workflow;
 using Machine.Specifications;
 using System.Collections.Generic;
 
@@ -38,8 +38,6 @@ namespace Elders.Cronus.Tests.Middleware
         static TestExecutionChain executionChain;
 
         static List<ExecutionToken> expectedExecution;
-
-        static ExecutionToken thirdToken;
 
         static string invocationContext = "Test context";
 

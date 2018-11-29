@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -13,6 +14,8 @@ namespace Elders.Cronus.Projections.Versioning
 
         public ProjectionVersions Get(string projectionName)
         {
+            if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
+
             ProjectionVersions versions;
             if (store.TryGetValue(projectionName, out versions))
                 return versions;
@@ -22,6 +25,8 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Cache(ProjectionVersion version)
         {
+            if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
+
             ProjectionVersions versions;
             if (store.TryGetValue(version.ProjectionName, out versions))
             {

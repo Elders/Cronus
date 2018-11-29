@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Elders.Cronus.Projections.Versioning
@@ -9,47 +10,127 @@ namespace Elders.Cronus.Projections.Versioning
 
         public ProjectionVersionManager(ProjectionVersionManagerId id, string hash)
         {
-            ProjectionVersion initialVersion = new ProjectionVersion(id.Id, ProjectionStatus.Building, 1, hash);
-
+            string projectionName = id.Id;
+            var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Building, 1, hash);
             var timebox = new VersionRequestTimebox(DateTime.UtcNow);
             RequestVersion(id, initialVersion, timebox);
         }
 
-        public void Replay(string hash)
+        public void CancelVersionRequest(ProjectionVersion version, string reason)
         {
-            var projectionVersion = new ProjectionVersion(state.Id.Id, ProjectionStatus.Building, 1, hash);
-            var timebox = GetVersionRequestTimebox(hash);
-            RequestVersion(state.Id, projectionVersion, timebox);
+            if (CanCancel(version))
+            {
+                var @event = new ProjectionVersionRequestCanceled(state.Id, version.WithStatus(ProjectionStatus.Canceled), reason);
+                Apply(@event);
+            }
+
+            EnsureThereIsNoOutdatedBuildingVersions();
         }
 
-        void RequestVersion(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
+        public void Replay(string hash) // maybe rename to Rebuild
         {
-            var @event = new ProjectionVersionRequested(id, projectionVersion, timebox);
-            Apply(@event);
+            EnsureThereIsNoOutdatedBuildingVersions();
+
+            if (CanReplayHash(hash))
+            {
+                var projectionVersion = state.Versions.GetNext();
+                var timebox = GetVersionRequestTimebox(hash);
+                RequestVersion(state.Id, projectionVersion, timebox);
+            }
         }
 
         public void VersionRequestTimedout(ProjectionVersion version, VersionRequestTimebox timebox)
         {
-            var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
-            Apply(@event);
+            var foundVersion = state.Versions.Where(ver => ver == version).SingleOrDefault();
+            if (ReferenceEquals(null, foundVersion)) return; // Should we do something about this? It is a not expected and should never happen!!!
+
+            if (foundVersion.Status == ProjectionStatus.Building)
+            {
+                var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
+                Apply(@event);
+            }
+
+            EnsureThereIsNoOutdatedBuildingVersions();
         }
 
-        public void CancelVersionRequest()
+        public void NotifyHash(string hash)
         {
-            if (CanCancel())
+            EnsureThereIsNoOutdatedBuildingVersions();
+
+            if (HasLiveVersion() == false || IsHashTheLiveOne(hash) == false)
             {
-                var projectionVersion = state.Versions.Where(x => x.Status == ProjectionStatus.Building).Single();
-                var @event = new ProjectionVersionRequestCanceled(state.Id, projectionVersion.WithStatus(ProjectionStatus.Canceled));
-                Apply(@event);
+                Replay(hash);
             }
         }
 
-        bool CanCancel()
+        public void FinalizeVersionRequest(ProjectionVersion version)
         {
-            return state.Versions.Any(x => x.Status == ProjectionStatus.Building);
+            var buildingVersion = state.Versions.Where(x => x == version).SingleOrDefault();
+            if (ReferenceEquals(null, buildingVersion) == false)
+            {
+                var @event = new NewProjectionVersionIsNowLive(state.Id, buildingVersion.WithStatus(ProjectionStatus.Live));
+                Apply(@event);
+            }
+
+            EnsureThereIsNoOutdatedBuildingVersions();
         }
 
-        VersionRequestTimebox GetVersionRequestTimebox(string hash)
+        private bool HasLiveVersion() => state.Versions.GetLive() is null == false;
+
+        private bool HasBuildingVersion()
+        {
+            return state.Versions
+                .Where(ver => ver.Status == ProjectionStatus.Building)
+                .OrderByDescending(x => x.Revision)
+                .Any();
+        }
+
+        private bool CanReplayHash(string hash)
+        {
+            bool isHashTheLiveOne = IsHashTheLiveOne(hash);
+
+            return HasBuildingVersion() == false && (HasLiveVersion() == false || isHashTheLiveOne);
+        }
+
+        private void EnsureThereIsNoOutdatedBuildingVersions()
+        {
+            if (HasLiveVersion() == false) return;
+
+            IEnumerable<ProjectionVersion> buildingVersions = state.Versions
+                .Where(ver => ver.Status == ProjectionStatus.Building)
+                .OrderByDescending(x => x.Revision);
+
+            foreach (var buildingVersion in buildingVersions)
+            {
+                if (buildingVersion < state.Versions.GetLive())
+                    CancelVersionRequest(buildingVersion, "Outdated version. There is already a live version.");
+            }
+        }
+
+        private bool IsHashTheLiveOne(string hash)
+        {
+            if (HasLiveVersion() == false)
+                return false;
+
+            bool isHashTheLiveOne = state.Versions.GetLive().Hash.Equals(hash, StringComparison.Ordinal);
+            return isHashTheLiveOne;
+        }
+
+        private bool CanCancel(ProjectionVersion version)
+        {
+            if (version.Status != ProjectionStatus.Building)
+                return false;
+
+            return state.Versions.Where(x => x == version).Any();
+        }
+
+        /// <summary>
+        /// When the same hash is requested multiple times for a Live hash we just make sure that the timeboxes are placed one after another
+        /// In every other case we issue a timebox with immediate execution
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns>The timebox for the requested hash</returns>
+        private VersionRequestTimebox GetVersionRequestTimebox(string hash)
         {
             ProjectionVersion live = state.Versions.GetLive();
             if (live == null) return new VersionRequestTimebox(DateTime.UtcNow);
@@ -61,24 +142,10 @@ namespace Elders.Cronus.Projections.Versioning
             return new VersionRequestTimebox(DateTime.UtcNow);
         }
 
-        public void NotifyHash(string hash)
+        private void RequestVersion(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
         {
-            ProjectionVersion live = state.Versions.GetLive();
-
-            if (live == null || string.Equals(live.Hash, hash, StringComparison.OrdinalIgnoreCase) == false)
-            {
-                Replay(hash);
-            }
-        }
-
-        public void FinalizeVersionRequest(ProjectionVersion version)
-        {
-            var buildingVersion = state.Versions.Where(x => x == version).SingleOrDefault();
-            // if (ReferenceEquals(null, buildingVersion) == false)
-            {
-                var @event = new NewProjectionVersionIsNowLive(state.Id, buildingVersion.WithStatus(ProjectionStatus.Live));
-                Apply(@event);
-            }
+            var @event = new ProjectionVersionRequested(id, projectionVersion, timebox);
+            Apply(@event);
         }
     }
 }

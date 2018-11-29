@@ -23,10 +23,8 @@ namespace Elders.Cronus.EventStore
 
         private IEnumerable<string> GetErrorMessages(EventStream eventStream)
         {
-            List<AggregateCommit> commits = eventStream.Commits.ToList();
-
             int previousRevision = 0;
-            foreach (var current in commits)
+            foreach (var current in eventStream.Commits)
             {
                 if (previousRevision > current.Revision)
                 {

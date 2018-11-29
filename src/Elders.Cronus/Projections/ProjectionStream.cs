@@ -7,54 +7,78 @@ using Elders.Cronus.Projections.Snapshotting;
 
 namespace Elders.Cronus.Projections
 {
-    public class ProjectionStream
+    internal sealed class ProjectionStream
     {
-        static ILog log = LogProvider.GetLogger(typeof(ProjectionStream));
+        private static readonly ILog log = LogProvider.GetLogger(typeof(ProjectionStream));
+
+        private static readonly List<ProjectionCommit> _empty = new List<ProjectionCommit>();
 
         private readonly IBlobId projectionId;
-        IList<ProjectionCommit> commits;
-        readonly ISnapshot snapshot;
+        private readonly Func<ISnapshot> getSnapshot;
+        private ISnapshot snapshot;
 
-        public ProjectionStream(IBlobId projectionId, IList<ProjectionCommit> commits, ISnapshot snapshot)
+        ProjectionStream()
         {
-            if (ReferenceEquals(null, projectionId) == true) throw new ArgumentException(nameof(projectionId));
-            if (ReferenceEquals(null, commits) == true) throw new ArgumentException(nameof(commits));
-            if (ReferenceEquals(null, snapshot) == true) throw new ArgumentException(nameof(snapshot));
-
-            this.projectionId = projectionId;
-            this.commits = commits;
-            this.snapshot = snapshot;
+            this.Commits = _empty;
+            this.snapshot = new NoSnapshot(null, null);
         }
 
-        public IEnumerable<ProjectionCommit> Commits { get { return commits.ToList().AsReadOnly(); } }
-
-        public IProjectionGetResult<IProjectionDefinition> RestoreFromHistory(Type projectionType)
+        public ProjectionStream(IBlobId projectionId, List<ProjectionCommit> commits, Func<ISnapshot> getSnapshot)
         {
-            if (commits.Count <= 0 && ReferenceEquals(null, snapshot.State)) return ProjectionGetResult<IProjectionDefinition>.NoResult;
+            if (ReferenceEquals(null, projectionId)) throw new ArgumentException(nameof(projectionId));
+            if (ReferenceEquals(null, commits)) throw new ArgumentException(nameof(commits));
+            if (ReferenceEquals(null, getSnapshot)) throw new ArgumentException(nameof(getSnapshot));
+
+            this.projectionId = projectionId;
+            this.Commits = commits;
+            this.getSnapshot = getSnapshot;
+        }
+
+        public List<ProjectionCommit> Commits { get; private set; }
+
+        public IProjectionDefinition RestoreFromHistory(Type projectionType)
+        {
+            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return null;
 
             IProjectionDefinition projection = (IProjectionDefinition)FastActivator.CreateInstance(projectionType, true);
             return RestoreFromHistoryMamamia(projection);
         }
 
-        public IProjectionGetResult<T> RestoreFromHistory<T>() where T : IProjectionDefinition
+        public T RestoreFromHistory<T>() where T : IProjectionDefinition
         {
-            if (commits.Count <= 0 && ReferenceEquals(null, snapshot.State)) return ProjectionGetResult<T>.NoResult;
+            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return default(T);
 
-            T projection = (T)Activator.CreateInstance(typeof(T), true);
+            T projection = (T)FastActivator.CreateInstance(typeof(T), true);
             return RestoreFromHistoryMamamia<T>(projection);
         }
 
-        IProjectionGetResult<T> RestoreFromHistoryMamamia<T>(T projection) where T : IProjectionDefinition
+        ISnapshot GetSnapshot()
         {
-            projection.InitializeState(projectionId, snapshot.State);
+            if (ReferenceEquals(null, snapshot))
+                snapshot = getSnapshot();
 
-            log.Debug(() => $"Restoring projection `{typeof(T).Name}` from history...{Environment.NewLine}" +
-                $"ProjectionId: {Encoding.UTF8.GetString(projection.Id.RawId)}||{Convert.ToBase64String(projection.Id.RawId)}{Environment.NewLine}" +
-                $"Snapshot revision: {snapshot.Revision}{Environment.NewLine}" +
-                $"MIN/MAX snapshot marker: {commits.Select(x => x.SnapshotMarker).DefaultIfEmpty(snapshot.Revision).Min()}/{commits.Select(x => x.SnapshotMarker).DefaultIfEmpty(snapshot.Revision).Max()}{Environment.NewLine}" +
-                $"Projection commits after snapshot: {commits.Count}");
+            return snapshot;
+        }
 
-            var groupedBySnapshotMarker = commits.GroupBy(x => x.SnapshotMarker).OrderBy(x => x.Key);
+        T RestoreFromHistoryMamamia<T>(T projection) where T : IProjectionDefinition
+        {
+            ISnapshot localSnapshot = GetSnapshot();
+            projection.InitializeState(projectionId, localSnapshot.State);
+
+            log.Debug(() =>
+            {
+                var markers = Commits.Select(x => x.SnapshotMarker).DefaultIfEmpty(localSnapshot.Revision).ToList();
+                var message =
+                    $"Restoring projection `{typeof(T).Name}` from history...{Environment.NewLine}" +
+                    $"ProjectionId: {Encoding.UTF8.GetString(projection.Id.RawId)}||{Convert.ToBase64String(projection.Id.RawId)}{Environment.NewLine}" +
+                    $"Snapshot revision: {localSnapshot.Revision}{Environment.NewLine}" +
+                    $"MIN/MAX snapshot marker: {markers.Min()}/{markers.Max()}{Environment.NewLine}" +
+                    $"Projection commits after snapshot: {Commits.Count}";
+
+                return message;
+            });
+
+            var groupedBySnapshotMarker = Commits.GroupBy(x => x.SnapshotMarker).OrderBy(x => x.Key);
             foreach (var snapshotGroup in groupedBySnapshotMarker)
             {
                 var eventsByAggregate = snapshotGroup.GroupBy(x => x.EventOrigin.AggregateRootId);
@@ -70,12 +94,14 @@ namespace Elders.Cronus.Projections
                 }
             }
 
-            return new ProjectionGetResult<T>(projection);
+            return projection;
         }
+
+        private readonly static ProjectionStream _emptyProjectionStream = new ProjectionStream();
 
         public static ProjectionStream Empty()
         {
-            return new ProjectionStream(null, Enumerable.Empty<ProjectionCommit>().ToList(), null);
+            return _emptyProjectionStream;
         }
     }
 }

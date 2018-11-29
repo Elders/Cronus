@@ -2,7 +2,7 @@
 
 namespace Elders.Cronus.Multitenancy
 {
-    public interface ITenantList
+    public interface ITenantList : ICronusService
     {
         IEnumerable<string> GetTenants();
     }

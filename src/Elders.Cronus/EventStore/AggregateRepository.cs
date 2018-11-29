@@ -11,10 +11,13 @@ namespace Elders.Cronus.EventStore
         readonly IAggregateRootAtomicAction atomicAction;
         readonly IEventStore eventStore;
         readonly IIntegrityPolicy<EventStream> integrityPolicy;
-        readonly Func<IAggregateRootId, string> getBoundedContext = arid => arid.GetType().GetBoundedContext().BoundedContextName;
 
         public AggregateRepository(IEventStore eventStore, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
         {
+            if (eventStore is null) throw new ArgumentNullException(nameof(eventStore));
+            if (atomicAction is null) throw new ArgumentNullException(nameof(atomicAction));
+            if (integrityPolicy is null) throw new ArgumentNullException(nameof(integrityPolicy));
+
             this.eventStore = eventStore;
             this.atomicAction = atomicAction;
             this.integrityPolicy = integrityPolicy;
@@ -28,7 +31,7 @@ namespace Elders.Cronus.EventStore
         /// <exception cref="Elders.Cronus.DomainModeling.AggregateRootException"></exception>
         public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
-            if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Count() == 0)
+            if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Any() == false)
                 return;
 
             var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList());
@@ -42,7 +45,7 @@ namespace Elders.Cronus.EventStore
             }
             else
             {
-                throw new AggregateStateFirstLevelConcurrencyException("Unable to save AR" + Environment.NewLine + arCommit.ToString(), result.Errors.MakeJustOneException());
+                throw new AggregateStateFirstLevelConcurrencyException($"Unable to save AR {Environment.NewLine}{arCommit.ToString()}", result.Errors.MakeJustOneException());
             }
         }
 
@@ -52,34 +55,18 @@ namespace Elders.Cronus.EventStore
         /// <typeparam name="AR">The type of the r.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public AR Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        public ReadResult<AR> Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
-            EventStream eventStream = eventStore.Load(id, getBoundedContext);
+            EventStream eventStream = eventStore.Load(id);
             var integrityResult = integrityPolicy.Apply(eventStream);
             if (integrityResult.IsIntegrityViolated)
-                throw new EventStreamIntegrityViolationException("asd");
+                throw new EventStreamIntegrityViolationException($"AR integrity is violated for ID={id.Urn.Value}");
             eventStream = integrityResult.Output;
             AR aggregateRoot;
             if (eventStream.TryRestoreFromHistory<AR>(out aggregateRoot) == false)
-                throw new AggregateLoadException("Unable to load AR with ID=" + id.Urn.Value);
+                return ReadResult<AR>.WithNotFoundHint($"Unable to load AR with ID={id.Urn.Value}");
 
-            return aggregateRoot;
-        }
-
-        /// <summary>
-        /// Loads an aggregate with the specified identifier.
-        /// </summary>
-        /// <typeparam name="AR">The type of the r.</typeparam>
-        /// <param name="id">The identifier.</param>
-        /// <returns></returns>
-        public bool TryLoad<AR>(IAggregateRootId id, out AR aggregateRoot) where AR : IAggregateRoot
-        {
-            aggregateRoot = default(AR);
-            EventStream eventStream = eventStore.Load(id, getBoundedContext);
-            var integrityResult = integrityPolicy.Apply(eventStream);
-            if (integrityResult.IsIntegrityViolated)
-                return false;
-            return eventStream.TryRestoreFromHistory<AR>(out aggregateRoot);
+            return new ReadResult<AR>(aggregateRoot);
         }
     }
 }

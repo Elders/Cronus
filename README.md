@@ -321,6 +321,7 @@ Projections persistence
 | [ElasticSearch](https://github.com/Elders/Cronus.Projection.ElasticSearch) | olympus | Builds projections dynamically. Very usefull for projects which just started and changes occur frequently. However, it must be switched to another persister such as Cassandra after the initial stages of the project |
 | [AtomicAction](https://github.com/Elders/Cronus.AtomicAction.Redis) | olympus | Aggregate distributed lock with Redis |
 
+
 Other
 -------------
 

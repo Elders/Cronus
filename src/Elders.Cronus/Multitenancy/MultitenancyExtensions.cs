@@ -1,45 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using Elders.Cronus.Pipeline.Hosts;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
 
 namespace Elders.Cronus.Multitenancy
 {
-    public static class MultitenancyExtensions
+    public class Tenants : ITenantList
     {
-        public static T WithTenants<T>(this T self, ITenantList tenants) where T : ICronusSettings
-        {
-            Func<ITenantList> combinedTenants = () => new ClientTenantsIncludingElders(tenants);
-            self.Container.RegisterSingleton(typeof(ITenantList), combinedTenants);
+        public const string SettingKey = "cronus_tenants";
 
-            return self;
-        }
-
-        public static T WithNoTenants<T>(this T self) where T : ICronusSettings
-        {
-            Func<ITenantList> combinedTenants = () => new ClientTenantsIncludingElders();
-            self.Container.RegisterSingleton(typeof(ITenantList), combinedTenants);
-
-            return self;
-        }
-    }
-
-    public class ClientTenantsIncludingElders : ITenantList
-    {
         List<string> tenants;
 
-        public ClientTenantsIncludingElders(ITenantList clientTenants = null)
+        public Tenants(IConfiguration configuration)
         {
-            if (ReferenceEquals(null, clientTenants))
-                tenants = new List<string>();
-            else
-                this.tenants = new List<string>(clientTenants.GetTenants());
+            if (configuration is null) throw new ArgumentNullException(nameof(configuration));
 
-            this.tenants.Add(CronusAssembly.EldersTenant);
+            tenants = new List<string>();
+
+            string tenantsFromConfiguration = configuration[SettingKey];
+            if (string.IsNullOrEmpty(tenantsFromConfiguration) == false)
+            {
+                var cfgTenants = tenantsFromConfiguration
+                    .Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    .Select(tenant => tenant.ToLower())
+                    .Distinct();
+
+                tenants.AddRange(cfgTenants);
+            }
         }
 
-        public IEnumerable<string> GetTenants()
-        {
-            return tenants;
-        }
+        public IEnumerable<string> GetTenants() => tenants;
     }
 }

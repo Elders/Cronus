@@ -1,21 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <OutputType>Library</OutputType>
-        <TargetFramework>netcoreapp2.0</TargetFramework>
-        <StartupObject />
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <ApplicationIcon />
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-        <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0</DefineConstants>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Machine.Specifications" Version="0.12.0" />
-        <PackageReference Include="Machine.Specifications.Runner.VisualStudio" Version="2.6.1" />
-        <PackageReference Include="Machine.Specifications.Should" Version="0.11.0" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0" />
-    </ItemGroup>
-    <ItemGroup>
-        <ProjectReference Include="..\Elders.Cronus\Elders.Cronus.csproj" />
-    </ItemGroup>
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <StartupObject />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <ApplicationIcon />
+    <RootNamespace>Elders.Cronus</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD2_0</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Machine.Specifications" Version="0.12.0" />
+    <PackageReference Include="Machine.Specifications.Runner.VisualStudio" Version="2.7.0" />
+    <PackageReference Include="Machine.Specifications.Should" Version="0.11.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Elders.Cronus\Elders.Cronus.csproj" />
+  </ItemGroup>
 </Project>

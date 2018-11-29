@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -9,6 +10,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         public RegisterProjection(ProjectionVersionManagerId id, string hash)
         {
+            if (id is null) throw new ArgumentNullException(nameof(id));
+            if (string.IsNullOrEmpty(hash)) throw new ArgumentNullException(nameof(hash));
+
             Id = id;
             Hash = hash;
         }
@@ -18,6 +22,10 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 2)]
         public string Hash { get; private set; }
-    }
 
+        public override string ToString()
+        {
+            return $"Register projection with `{Hash}`. {nameof(ProjectionVersionManagerId)}: `{Id}`.";
+        }
+    }
 }
