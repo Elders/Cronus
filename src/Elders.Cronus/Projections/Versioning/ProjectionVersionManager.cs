@@ -102,7 +102,9 @@ namespace Elders.Cronus.Projections.Versioning
 
             foreach (var buildingVersion in buildingVersions)
             {
-                if (buildingVersion < state.Versions.GetLive())
+                if (state.LastVersionRequestTimebox.HasExpired)
+                    VersionRequestTimedout(buildingVersion, state.LastVersionRequestTimebox);
+                else if (buildingVersion < state.Versions.GetLive())
                     CancelVersionRequest(buildingVersion, "Outdated version. There is already a live version.");
             }
         }
