@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Configuration;
@@ -11,10 +12,15 @@ namespace Elders.Cronus
     {
         public static IServiceCollection AddCronus(this IServiceCollection services, IConfiguration configuration)
         {
+            return AddCronus(services, new CronusServicesProvider(services, configuration));
+        }
+
+        public static IServiceCollection AddCronus(this IServiceCollection services, CronusServicesProvider cronusServicesProvider)
+        {
             services.AddTenantSupport();
             services.AddCronusHostOptions();
 
-            var discoveryFinder = new DiscoveryScanner(new CronusServicesProvider(services), configuration);
+            var discoveryFinder = new DiscoveryScanner(cronusServicesProvider);
             discoveryFinder.Discover();
 
             return services;
@@ -42,6 +48,22 @@ namespace Elders.Cronus
         {
             services.AddTransient<TImplementation>();
             services.AddTransient<TService>(provider => provider.GetRequiredService<SingletonPerTenant<TImplementation>>().Get());
+
+            return services;
+        }
+
+        public static IServiceCollection Replace<TService, TImplementation>(this IServiceCollection services)
+            where TService : class
+            where TImplementation : class, TService
+        {
+            var descriptorToRemove = services.FirstOrDefault(d => d.ServiceType == typeof(TService));
+            if (descriptorToRemove is null)
+            {
+                throw new ArgumentException($"Service of type {typeof(TService).Name} is not registered and cannot be replaced.");
+            }
+            services.Remove(descriptorToRemove);
+            var descriptorToAdd = new ServiceDescriptor(typeof(TService), typeof(TImplementation), descriptorToRemove.Lifetime);
+            services.Add(descriptorToAdd);
 
             return services;
         }
