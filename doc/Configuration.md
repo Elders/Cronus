@@ -130,3 +130,14 @@ The RabbitMQ password
 #### `cronus_transport_rabbimq_adminport` >> *integer | Required: Yes | Default: 5672*
 RabbitMQ admin port used to create, delete rabbitmq resources
 
+
+# Cronus.AtomicAction.Redis
+
+#### `cronus_atomicaction_redis_connectionstring` >> *string | Required: Yes *
+Configures the connection string where Redis is located
+
+#### `cronus_atomicaction_redis_ttl_lock_ms` >> *double | Required: No | Default: 1000 ms *
+
+#### `cronus_atomicaction_redis_ttl_short_ms` >> *double | Required: No | Default: 1000 ms *
+
+#### `cronus_atomicaction_redis_ttl_long_ms` >> *double | Required: No | Default: 300000 ms *
