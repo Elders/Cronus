@@ -17,7 +17,7 @@ List of tenants allowed to use the system. Cronus is designed with multitenancy 
 * Event Store - every tenant has a separate storage
 * Projection Store - every tenant has a separate storage
 
-Example: `"tenant1,tenant2,tenant3"`
+Example: `"["tenant1","tenant2","tenant3"]"`
 
 Once set you could use [`Tenants`](../src/Elders.Cronus/Multitenancy/Tenants.cs) object via Dependency Injection for other purposes.
 
