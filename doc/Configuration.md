@@ -8,6 +8,9 @@ Cronus uses this setting to personalize your application. Once set you could use
 * Cassandra EventStore names
 * Cassandra Projection store names
 
+Allowed Characters: `cronus_boundedcontext` must be alphanumeric character or underscore only: `^\b([\w\d_]+$)`'
+
+
 ---
 
 #### `cronus_tenants` >> *string[] | Required: yes*
@@ -19,7 +22,7 @@ List of tenants allowed to use the system. Cronus is designed with multitenancy 
 
 Each value you provide in the array is converted and used further to lower. 
 
-Allowed Characters: letters `ABC...abc...`, numbers `1,2,3,4...` and underscore `_`. The following regex validates the values `^\b([\w\d_]+$)`.
+Allowed Characters: `cronus_tenants` must be alphanumeric character or underscore only: `^\b([\w\d_]+$)`'
 
 Example: `"["tenant1","tenant2","tenant3"]"`
 
