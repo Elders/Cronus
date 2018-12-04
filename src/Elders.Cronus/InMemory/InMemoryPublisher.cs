@@ -8,17 +8,24 @@ namespace Elders.Cronus.InMemory
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<>));
 
-        SubscriberCollection<object> subscribtions;
+<<<<<<< Updated upstream
 
         public InMemoryPublisher(SubscriberCollection<object> messageProcessor)
+=======
+        private readonly SubscriberCollection<IApplicationService> subscribtions;
+        private readonly InMemoryQueue messageQueue;
+
+        public InMemoryPublisher(SubscriberCollection<IApplicationService> messageProcessor, InMemoryQueue messageQueue)
             : base(new DefaultTenantResolver())
+>>>>>>> Stashed changes
         {
             this.subscribtions = messageProcessor;
+            this.messageQueue = messageQueue;
         }
 
         protected override bool PublishInternal(CronusMessage message)
         {
-            subscribtions.GetInterestedSubscribers(message);
+            messageQueue.Publish(message);
             return true;
         }
     }

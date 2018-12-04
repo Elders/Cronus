@@ -8,7 +8,7 @@ namespace Elders.Cronus
         public static string GetRequired(this IConfiguration configuration, string key)
         {
             string value = configuration[key];
-            if (string.IsNullOrEmpty(value)) throw new ArgumentException($"Missing setting: {key}");
+            if (string.IsNullOrEmpty(value)) throw new ArgumentException($"Missing setting: {key} (for reference see here  https://github.com/Elders/Cronus/blob/master/doc/Configuration.md)");
 
             return value;
         }
