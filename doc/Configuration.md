@@ -8,6 +8,9 @@ Cronus uses this setting to personalize your application. Once set you could use
 * Cassandra EventStore names
 * Cassandra Projection store names
 
+Allowed Characters: `cronus_boundedcontext` must be alphanumeric character or underscore only: `^\b([\w\d_]+$)`'
+
+
 ---
 
 #### `cronus_tenants` >> *string[] | Required: yes*
@@ -17,7 +20,11 @@ List of tenants allowed to use the system. Cronus is designed with multitenancy 
 * Event Store - every tenant has a separate storage
 * Projection Store - every tenant has a separate storage
 
-Example: `"tenant1,tenant2,tenant3"`
+Each value you provide in the array is converted and used further to lower. 
+
+Allowed Characters: `cronus_tenants` must be alphanumeric character or underscore only: `^\b([\w\d_]+$)`'
+
+Example: `"["tenant1","tenant2","tenant3"]"`
 
 Once set you could use [`Tenants`](../src/Elders.Cronus/Multitenancy/Tenants.cs) object via Dependency Injection for other purposes.
 
@@ -126,3 +133,14 @@ The RabbitMQ password
 #### `cronus_transport_rabbimq_adminport` >> *integer | Required: Yes | Default: 5672*
 RabbitMQ admin port used to create, delete rabbitmq resources
 
+
+# Cronus.AtomicAction.Redis
+
+#### `cronus_atomicaction_redis_connectionstring` >> *string | Required: Yes *
+Configures the connection string where Redis is located
+
+#### `cronus_atomicaction_redis_ttl_lock_ms` >> *double | Required: No | Default: 1000 ms *
+
+#### `cronus_atomicaction_redis_ttl_short_ms` >> *double | Required: No | Default: 1000 ms *
+
+#### `cronus_atomicaction_redis_ttl_long_ms` >> *double | Required: No | Default: 300000 ms *
