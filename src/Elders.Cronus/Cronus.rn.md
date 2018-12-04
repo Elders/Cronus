@@ -1,3 +1,6 @@
+#### 5.0.1 - 04.12.2018
+* Added Multitenancy configurations format validation and support for providing tenants as Json Array
+
 #### 5.0.0 - 29.11.2018
 * Improves logging for the ProjectionRepositoryWithFallback
 * Fixes execution flow for the projection which had mixed understandings about not found data and an error when doing a projection query

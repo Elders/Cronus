@@ -17,6 +17,10 @@ List of tenants allowed to use the system. Cronus is designed with multitenancy 
 * Event Store - every tenant has a separate storage
 * Projection Store - every tenant has a separate storage
 
+Each value you provide in the array is converted and used further to lower. 
+
+Allowed Characters: letters `ABC...abc...`, numbers `1,2,3,4...` and underscore `_`. The following regex validates the values `^\b([\w\d_]+$)`.
+
 Example: `"["tenant1","tenant2","tenant3"]"`
 
 Once set you could use [`Tenants`](../src/Elders.Cronus/Multitenancy/Tenants.cs) object via Dependency Injection for other purposes.
