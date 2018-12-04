@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Elders.Cronus.Multitenancy
+namespace Elders.Cronus
 {
     public class MockedConfiguration : IConfiguration
     {

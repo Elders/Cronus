@@ -12,7 +12,7 @@ namespace Elders.Cronus.Multitenancy
         Establish context = () =>
         {
             configuration = new MockedConfiguration();
-            configuration["cronus_tenants"] = @"Market@_!Vision";
+            configuration[Tenants.SettingKey] = @"Market@_!Vision";
         };
 
         Because of = () => exception = Catch.Exception(() => new Tenants(configuration));
@@ -25,6 +25,5 @@ namespace Elders.Cronus.Multitenancy
 
         static Exception exception;
         static MockedConfiguration configuration;
-        static Tenants tenants;
     }
 }

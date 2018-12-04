@@ -9,7 +9,7 @@ namespace Elders.Cronus.Multitenancy
         Establish context = () =>
         {
             configuration = new MockedConfiguration();
-            configuration["cronus_tenants"] = @"["" tenant1 "", "" tenant2 ""]";
+            configuration[Tenants.SettingKey] = @"["" tenant1 "", "" tenant2 ""]";
         };
 
         Because of = () => tenants = new Tenants(configuration);
