@@ -1,3 +1,6 @@
+#### 5.1.0-beta0001 - 08.12.2018
+* Creates an extension point where the client application could override Cronus services
+
 #### 5.0.1 - 04.12.2018
 * Added Multitenancy configurations format validation and support for providing tenants as Json Array
 
