@@ -94,8 +94,6 @@ namespace Elders.Cronus.Projections.Versioning
 
         private void EnsureThereIsNoOutdatedBuildingVersions()
         {
-            if (HasLiveVersion() == false) return;
-
             IEnumerable<ProjectionVersion> buildingVersions = state.Versions
                 .Where(ver => ver.Status == ProjectionStatus.Building)
                 .OrderByDescending(x => x.Revision);
@@ -104,7 +102,7 @@ namespace Elders.Cronus.Projections.Versioning
             {
                 if (state.LastVersionRequestTimebox.HasExpired)
                     VersionRequestTimedout(buildingVersion, state.LastVersionRequestTimebox);
-                else if (buildingVersion < state.Versions.GetLive())
+                else if (HasLiveVersion() && buildingVersion < state.Versions.GetLive())
                     CancelVersionRequest(buildingVersion, "Outdated version. There is already a live version.");
             }
         }
