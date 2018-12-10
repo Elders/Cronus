@@ -1,9 +1,8 @@
 ﻿using Elders.Cronus.Projections.Versioning;
+using Elders.Cronus.Testing;
 using Machine.Specifications;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace Elders.Cronus.Projections
 {
@@ -35,68 +34,5 @@ namespace Elders.Cronus.Projections
 
         static ProjectionVersionManager ar;
         static string hash;
-    }
-
-    public static class Aggregate<T> where T : IAggregateRoot
-    {
-        public static AggregateRootHistory<T> FromHistory()
-        {
-            return new AggregateRootHistory<T>();
-        }
-
-        public class AggregateRootHistory<TT> where TT : IAggregateRoot
-        {
-            public AggregateRootHistory()
-            {
-                Events = new List<IEvent>();
-            }
-
-            public List<IEvent> Events { get; set; }
-
-            public AggregateRootHistory<TT> Event(IEvent @event)
-            {
-                Events.Add(@event);
-                return this;
-            }
-
-            public TT Build()
-            {
-                var instance = (TT)Activator.CreateInstance(typeof(TT), true);
-                instance.ReplayEvents(Events, 1);
-                return instance;
-            }
-        }
-    }
-
-    public static class AggregateRootExtensions
-    {
-        public static T PublishedEvent<T>(this IAggregateRoot root) where T : IEvent
-        {
-            var @event = root.UncommittedEvents.SingleOrDefault(x => x is T);
-            if (ReferenceEquals(@event, null) || @event.Equals(default(T)))
-                return default(T);
-            return (T)@event;
-        }
-
-        public static IEnumerable<IEvent> PublishedEvents<T>(this IAggregateRoot root) where T : IEvent
-        {
-            var events = root.UncommittedEvents.Where(x => x is T);
-            return events;
-        }
-
-        public static bool IsEventPublished<T>(this IAggregateRoot root) where T : IEvent
-        {
-            return ReferenceEquals(default(T), PublishedEvent<T>(root)) == false;
-        }
-
-        public static bool HasNewEvents(this IAggregateRoot root)
-        {
-            return root.UncommittedEvents.Any();
-        }
-
-        public static T RootState<T>(this AggregateRoot<T> root) where T : IAggregateRootState, new()
-        {
-            return (T)(root as IHaveState<IAggregateRootState>).State;
-        }
     }
 }
