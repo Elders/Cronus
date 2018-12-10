@@ -1,12 +1,8 @@
-#### 5.1.0-beta0003 - 10.12.2018
+#### 5.1.0 - 10.12.2018
 * Updates DomainModeling
 * Updates to DNC 2.2
-
-#### 5.1.0-beta0002 - 09.12.2018
 * Fixes a bug where you were not able to rebuild a projection without live state
 * Improves the logs for the ProjectionRepositoryWithFallback
-
-#### 5.1.0-beta0001 - 08.12.2018
 * Creates an extension point where the client application could override Cronus services
 
 #### 5.0.1 - 04.12.2018
