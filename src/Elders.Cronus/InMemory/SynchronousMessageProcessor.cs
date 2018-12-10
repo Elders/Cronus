@@ -1,29 +1,38 @@
-﻿using Elders.Cronus.Logging;
-using Elders.Cronus.MessageProcessing;
+﻿using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Multitenancy;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Elders.Cronus.InMemory
 {
     public class SynchronousMessageProcessor<T> : Publisher<IMessage> where T : IMessage
     {
-        //static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<>));
         private readonly ISubscriberCollection<IApplicationService> appServiceSubscribers;
+        private readonly ISubscriberCollection<IProjection> projectionSubscribers;
+        private readonly ISubscriberCollection<IPort> portSubscribers;
+        private readonly ISubscriberCollection<IGateway> gatewaySubscribers;
         private readonly ISubscriberCollection<ISaga> sagaSubscribers;
 
         //TODO
-        public SynchronousMessageProcessor(ISubscriberCollection<IApplicationService> appServiceSubscribers, ISubscriberCollection<ISaga> sagaSubscribers)
+        public SynchronousMessageProcessor(
+            ISubscriberCollection<IApplicationService> appServiceSubscribers,
+            ISubscriberCollection<IProjection> projectionSubscribers,
+            ISubscriberCollection<IPort> portSubscribers,
+            ISubscriberCollection<IGateway> gatewaySubscribers,
+            ISubscriberCollection<ISaga> sagaSubscribers)
             : base(new DefaultTenantResolver())
         {
             this.appServiceSubscribers = appServiceSubscribers;
+            this.projectionSubscribers = projectionSubscribers;
+            this.portSubscribers = portSubscribers;
+            this.gatewaySubscribers = gatewaySubscribers;
             this.sagaSubscribers = sagaSubscribers;
         }
 
         protected override bool PublishInternal(CronusMessage message)
         {
             NotifySubscribers(message, appServiceSubscribers);
+            NotifySubscribers(message, projectionSubscribers);
+            NotifySubscribers(message, portSubscribers);
+            NotifySubscribers(message, gatewaySubscribers);
             NotifySubscribers(message, sagaSubscribers);
 
             return true;
