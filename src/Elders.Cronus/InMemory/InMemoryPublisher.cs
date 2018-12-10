@@ -8,9 +8,9 @@ namespace Elders.Cronus.InMemory
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<>));
 
-        private readonly SubscriberCollection<IApplicationService> subscribtions;
-        private readonly InMemoryQueue messageQueue;
-        public InMemoryPublisher(SubscriberCollection<IApplicationService> messageProcessor, InMemoryQueue messageQueue)
+        SubscriberCollection<object> subscribtions;
+
+        public InMemoryPublisher(SubscriberCollection<object> messageProcessor)
             : base(new DefaultTenantResolver())
         {
             this.subscribtions = messageProcessor;
