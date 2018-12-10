@@ -1,3 +1,7 @@
+#### 5.1.0-beta0003 - 10.12.2018
+* Updates DomainModeling
+* Updates to DNC 2.2
+
 #### 5.1.0-beta0002 - 09.12.2018
 * Fixes a bug where you were not able to rebuild a projection without live state
 * Improves the logs for the ProjectionRepositoryWithFallback
