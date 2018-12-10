@@ -15,9 +15,9 @@
 
 //        IEnumerable<DiscoveredModel> GetModels()
 //        {
-//            yield return new DiscoveredModel(typeof(InMemoryQueue), typeof(InMemoryQueue), ServiceLifetime.Singleton);
-//            yield return new DiscoveredModel(typeof(IPublisher<>), typeof(InMemoryPublisher<>), ServiceLifetime.Transient);
-//            yield return new DiscoveredModel(typeof(IConsumer<>), typeof(InMemoryConsumer<>), ServiceLifetime.Transient);
+            //yield return new DiscoveredModel(typeof(InMemoryQueue), typeof(InMemoryQueue), ServiceLifetime.Singleton);
+            yield return new DiscoveredModel(typeof(IPublisher<>), typeof(SynchronousMessageProcessor<>), ServiceLifetime.Singleton);
+            //yield return new DiscoveredModel(typeof(IConsumer<>), typeof(InMemoryConsumer<>), ServiceLifetime.Transient);
 //            yield return new DiscoveredModel(typeof(IAggregateRootAtomicAction), typeof(InMemoryAggregateRootAtomicAction), ServiceLifetime.Transient);
 //        }
 //    }

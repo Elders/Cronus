@@ -3,6 +3,7 @@ using Elders.Cronus.MessageProcessing;
 using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.InMemory
 {
@@ -31,43 +32,50 @@ namespace Elders.Cronus.InMemory
                 return;
             }
 
-            try
-            {
-                if (stopping) return;
-
-                while (stopping == false)
-                {
-                    var messageToConsume = messageQueue.Consume() as CronusMessage;
-                    if (messageToConsume is null)
-                        Thread.Sleep(100);
-                    else
-                    {
-                        try
-                        {
-                            var subsribers = subscriberCollection.GetInterestedSubscribers(messageToConsume);
-
-                            foreach (var subscriber in subsribers)
-                            {
-                                subscriber.Process(messageToConsume);
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            messageQueue.Publish(messageToConsume);
-                            log.ErrorException("Failed to process message.", ex);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                log.ErrorException("Unexpected Exception.", ex);
-            }
+            ConsumerStart();
         }
 
         public void Stop()
         {
             stopping = true;
+        }
+
+        private void ConsumerStart()
+        {
+            Task.Run(() =>
+            {
+                try
+                {
+                    if (stopping) return;
+
+                    while (stopping == false)
+                    {
+                        var messageToConsume = messageQueue.Consume() as CronusMessage;
+                        if (messageToConsume is null)
+                            Thread.Sleep(100);
+                        else
+                        {
+                            try
+                            {
+                                var subsribers = subscriberCollection.GetInterestedSubscribers(messageToConsume);
+
+                                foreach (var subscriber in subsribers)
+                                {
+                                    subscriber.Process(messageToConsume);
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                log.ErrorException("Failed to process message.", ex);
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorException("Unexpected Exception.", ex);
+                }
+            });
         }
     }
 }
