@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Elders.Cronus.Workflow
 {
-    public static class LinkedListExtensions
+    internal static class LinkedListExtensions
     {
         public static T Dequeue<T>(this LinkedList<T> self)
         {
