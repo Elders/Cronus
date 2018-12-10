@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Elders.Cronus.Multitenancy;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Linq;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -10,12 +13,11 @@ namespace Elders.Cronus.MessageProcessing
         {
             get
             {
-                if (string.IsNullOrEmpty(tenant)) throw new ArgumentException("Unknown tenant. CronusContext is not properly built. Make sure that someone properly resolves the current tenant and sets it to this instance.");
+                if (string.IsNullOrEmpty(tenant)) throw new ArgumentException($"Unknown tenant. CronusContext is not properly built. Please call `Initialize(...)` and make sure that you properly configured `cronus_tenants`. More info at https://github.com/Elders/Cronus/blob/master/doc/Configuration.md");
                 return tenant;
             }
             private set
             {
-                if (string.IsNullOrEmpty(value)) throw new ArgumentNullException(nameof(Tenant));
                 tenant = value;
             }
         }
@@ -26,8 +28,20 @@ namespace Elders.Cronus.MessageProcessing
 
         public void Initialize(string tenant, IServiceProvider serviceProvider)
         {
-            Tenant = tenant;
             ServiceProvider = serviceProvider;
+
+            EnsureValidTenant(tenant);
+            Tenant = tenant;
+
+        }
+
+        private void EnsureValidTenant(string tenant)
+        {
+            if (string.IsNullOrEmpty(tenant)) throw new ArgumentNullException(nameof(tenant));
+
+            ITenantList tenants = ServiceProvider.GetRequiredService<ITenantList>();
+            if (tenants.GetTenants().Where(t => t.Equals(tenant, StringComparison.OrdinalIgnoreCase)).Any() == false)
+                throw new ArgumentException($"The tenant `{tenant}` is not registered. Make sure that the tenant `{tenant}` is properly configured using `cronus_tenants`. More info at https://github.com/Elders/Cronus/blob/master/doc/Configuration.md", nameof(tenant));
         }
     }
 }

@@ -1,22 +1,17 @@
 environment:
+  # The.NET Core CLI tries to add the default locations to the PATH environmentvariable on its first usage. Set to true to skip caching
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+  # Specifies whether data about the.NET Coretools usageis collected and sent to Microsoft. Set to true to opt-out of thetelemetry feature
   DOTNET_CLI_TELEMETRY_OPTOUT: true
-install:
-  # Download .NET Core 2.0 SDK and add to PATH
-  - ps: $urlCurrent = "https://download.microsoft.com/download/1/1/5/115B762D-2B41-4AF3-9A63-92D9680B9409/dotnet-sdk-2.1.4-win-x64.zip"
-  - ps: $env:DOTNET_INSTALL_DIR = "$pwd\.dotnetsdk"
-  - ps: mkdir $env:DOTNET_INSTALL_DIR -Force | Out-Null
-  - ps: $tempFileCurrent = [System.IO.Path]::GetTempFileName()
-  - ps: (New-Object System.Net.WebClient).DownloadFile($urlCurrent, $tempFileCurrent)
-  - ps: Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::ExtractToDirectory($tempFileCurrent, $env:DOTNET_INSTALL_DIR)
-  - ps: $env:Path = "$env:DOTNET_INSTALL_DIR;$env:Path"
 image: Visual Studio 2017
 build: off
 deploy: off
+skip_tags: true
+platform: Any CPU
+configuration: Release
 build_script:
   - git config --global credential.helper store
   - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:ghtoken):x-oauth-basic@github.com`n"
   - git config --global user.email "mynkow@gmail.com"
   - git config --global user.name "mynkow"
   - build.cmd %nuget_key%
-

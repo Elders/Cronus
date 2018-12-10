@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Elders.Cronus.Logging;
 using Microsoft.Extensions.Configuration;
@@ -70,60 +73,61 @@ namespace Elders.Cronus.Projections
 
         public void Save(Type projectionType, CronusMessage cronusMessage)
         {
-            Exception exception = null;
+            var reporter = new FallbackReporter(this, projectionType);
+
             try
             {
                 primary.Save(projectionType, cronusMessage);
-                log.Info($"Projection saved successfully using primary {primary.GetType().Name}");
+                reporter.PrimaryWriteOK();
             }
             catch (Exception ex)
             {
-                exception = ex;
-                log.ErrorException($"Failed to Save projection using primary {primary.GetType().Name}. ProjectionType: {projectionType.Name} | Event: {cronusMessage.Payload.GetType().Name}", ex);
+                reporter.PrimaryWriteFailed(ex, cronusMessage.Payload);
             }
+
             if (isFallbackEnabled)
             {
                 try
                 {
                     fallback.Save(projectionType, cronusMessage);
-                    log.Info($"Projection saved successfully using fallback {fallback.GetType().Name}");
+                    reporter.FallbackWriteOK();
                 }
                 catch (Exception ex)
                 {
-                    exception = ex;
-                    log.ErrorException($"Failed to Save projection using fallback {primary.GetType().Name}. ProjectionType: {projectionType.Name} | Event: {cronusMessage.Payload.GetType().Name}", ex);
+                    reporter.FallbackWriteFailed(ex, cronusMessage.Payload);
                 }
             }
 
-            if (exception is null == false) throw exception;
+            reporter.ReportAndThrowIfError();
         }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin)
         {
-            Exception exception = null;
+            var reporter = new FallbackReporter(this, projectionType);
+
             try
             {
                 primary.Save(projectionType, @event, eventOrigin);
+                reporter.PrimaryWriteOK();
             }
             catch (Exception ex)
             {
-                exception = ex;
-                log.ErrorException($"Failed to Save projection using primary {primary.GetType().Name}. ProjectionType: {projectionType.Name} | Event: {@event.GetType().Name}", ex);
+                reporter.PrimaryWriteFailed(ex, @event);
             }
             if (isFallbackEnabled)
             {
                 try
                 {
                     fallback.Save(projectionType, @event, eventOrigin);
+                    reporter.FallbackWriteOK();
                 }
                 catch (Exception ex)
                 {
-                    exception = ex;
-                    log.ErrorException($"Failed to Save projection using fallback {primary.GetType().Name}. ProjectionType: {projectionType.Name} | Event: {@event.GetType().Name}", ex);
+                    reporter.FallbackWriteFailed(ex, @event);
                 }
             }
 
-            if (exception is null == false) throw exception;
+            reporter.ReportAndThrowIfError();
         }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
@@ -134,18 +138,27 @@ namespace Elders.Cronus.Projections
 
         private ReadResult<T> ExecuteWithFallback<T>(Func<IProjectionReader, ReadResult<T>> func)
         {
+            var report = new FallbackReporter(this, typeof(T));
+
             if (useOnlyFallback && IsFallbackNested == false)
             {
-                return func(fallback);
+                var result = func(fallback);
+                report.FallbackReadResult<T>(result);
+                report.Report();
+
+                return result;
             }
             else
             {
                 var result = func(primary);
+                report.PrimaryReadResult<T>(result);
+
                 if (result.HasError && isFallbackEnabled)
                 {
-                    log.Info(() => $"Primary projection has failed. Falling back... Primary: {primary.ToString()} Fallback: {fallback.ToString()}");
                     result = func(fallback);
+                    report.FallbackReadResult<T>(result);
                 }
+                report.Report();
 
                 return result;
             }
@@ -153,20 +166,129 @@ namespace Elders.Cronus.Projections
 
         private async Task<ReadResult<T>> ExecuteWithFallbackAsync<T>(Func<IProjectionReader, Task<ReadResult<T>>> func)
         {
+            var reporter = new FallbackReporter(this, typeof(T));
+
             if (useOnlyFallback && IsFallbackNested == false)
             {
-                return await func(fallback).ConfigureAwait(false);
+                var result = await func(fallback).ConfigureAwait(false);
+                reporter.FallbackReadResult<T>(result);
+                reporter.Report();
+
+                return result;
             }
             else
             {
                 var result = await func(primary).ConfigureAwait(false);
+                reporter.PrimaryReadResult<T>(result);
+
                 if (result.HasError && isFallbackEnabled)
                 {
-                    log.Info(() => $"Primary projection has failed. Falling back... Primary: {primary.ToString()} Fallback: {fallback.ToString()}");
                     result = await func(fallback).ConfigureAwait(false);
+                    reporter.FallbackReadResult<T>(result);
                 }
+                reporter.Report();
 
                 return result;
+            }
+        }
+
+        public class FallbackReporter
+        {
+            private readonly StringBuilder report;
+            private readonly ProjectionRepositoryWithFallback<TPrimary, TFallback> repository;
+
+            List<Exception> exceptions = new List<Exception>();
+
+            public FallbackReporter(ProjectionRepositoryWithFallback<TPrimary, TFallback> repository, Type projectionType)
+            {
+                this.repository = repository;
+
+                report = ReportPrepare(projectionType);
+            }
+
+            StringBuilder ReportPrepare(Type projectionType)
+            {
+                StringBuilder report = new StringBuilder();
+                report.AppendLine($"Projection report using fallback. | ProjectionType: {projectionType.Name}");
+                report.AppendLine($"Primary: {repository.primary.GetType().Name}");
+                report.AppendLine($"Fallback: {repository.fallback.GetType().Name} | FallbackEnabled: {repository.isFallbackEnabled} | UseOnlyFallback: {repository.useOnlyFallback} | IsFallbackNested: {repository.IsFallbackNested}");
+
+                return report;
+            }
+
+            public void PrimaryReadOK() => report.AppendLine("Primary read: OK");
+            public void FallbackReadOK() => report.AppendLine("Fallback read: OK");
+
+            public void PrimaryReadResult<T>(ReadResult<T> result)
+            {
+                if (result.IsSuccess)
+                    PrimaryReadOK();
+
+                else if (result.HasError)
+                    PrimaryReadFailed($"{result.Error} - {result.NotFoundHint}");
+            }
+
+            public void FallbackReadResult<T>(ReadResult<T> result)
+            {
+                if (result.IsSuccess)
+                    FallbackReadOK();
+
+                else if (result.HasError)
+                    FallbackReadFailed($"{result.Error} - {result.NotFoundHint}");
+            }
+
+            public void PrimaryReadFailed(string error)
+            {
+                exceptions.Add(new Exception(error));
+                report.AppendLine($"Primary read: FAILED - {error}");
+            }
+
+            public void FallbackReadFailed(string error)
+            {
+                exceptions.Add(new Exception(error));
+                report.AppendLine($"Fallback read: FAILED - {error}");
+            }
+
+            public void PrimaryWriteOK() => report.AppendLine("Primary write: OK");
+            public void FallbackWriteOK() => report.AppendLine("Fallback write: OK");
+
+            public void PrimaryWriteFailed(Exception error, IMessage message)
+            {
+                exceptions.Add(error);
+                report.AppendLine($"Primary write: FAILED - {error.Message} | Event: {message.GetType().Name}");
+            }
+
+            public void FallbackWriteFailed(Exception error, IMessage message)
+            {
+                exceptions.Add(error);
+                report.AppendLine($"Fallback write: FAILED - {error.Message} | Event: {message.GetType().Name}");
+            }
+
+            public void Report()
+            {
+                if (exceptions.Any())
+                {
+                    var exception = new AggregateException(exceptions);
+                    log.WarnException(report.ToString(), exception);
+                }
+                else
+                {
+                    log.Info(() => report.ToString());
+                }
+            }
+
+            public void ReportAndThrowIfError()
+            {
+                if (exceptions.Any())
+                {
+                    var exception = new AggregateException(exceptions);
+                    log.WarnException(report.ToString(), exception);
+                    throw exception;
+                }
+                else
+                {
+                    log.Info(() => report.ToString());
+                }
             }
         }
     }

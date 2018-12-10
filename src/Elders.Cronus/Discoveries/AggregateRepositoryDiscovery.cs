@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Elders.Cronus.EventStore;
+using Elders.Cronus.InMemory;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.DependencyInjection;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Elders.Cronus.Logging;
-using Microsoft.Extensions.Configuration;
 
 namespace Elders.Cronus.Discoveries
 {
@@ -11,13 +10,12 @@ namespace Elders.Cronus.Discoveries
 
         private readonly CronusServicesProvider cronusServicesProvider;
 
-        public DiscoveryScanner(CronusServicesProvider cronusServicesProvider, IConfiguration configuration)
+        public DiscoveryScanner(CronusServicesProvider cronusServicesProvider)
         {
             if (cronusServicesProvider is null) throw new ArgumentNullException(nameof(cronusServicesProvider));
-            if (configuration is null) throw new ArgumentNullException(nameof(configuration));
 
             this.cronusServicesProvider = cronusServicesProvider;
-            Configuration = configuration;
+            Configuration = cronusServicesProvider.Configuration;
         }
 
         protected override DiscoveryResult<DiscoveryScanner> DiscoverFromAssemblies(DiscoveryContext context)

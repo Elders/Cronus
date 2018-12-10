@@ -9,18 +9,22 @@ using Elders.Cronus.Projections;
 using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Configuration;
 
 namespace Elders.Cronus.Discoveries
 {
     public class CronusServicesProvider
     {
-        private readonly IServiceCollection services;
+        protected readonly IServiceCollection services;
 
-        public CronusServicesProvider(IServiceCollection services)
+        public IConfiguration Configuration { get; }
+
+        public CronusServicesProvider(IServiceCollection services, IConfiguration configuration)
         {
             if (services is null) throw new ArgumentNullException(nameof(services));
 
             this.services = services;
+            Configuration = configuration;
         }
 
         public void HandleDiscoveredModel(IDiscoveryResult<object> discoveryResult)
@@ -85,4 +89,6 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual void Handle(DiscoveryResult<MigrationDiscovery> discoveryResult) => AddServices(discoveryResult);
     }
+
+
 }

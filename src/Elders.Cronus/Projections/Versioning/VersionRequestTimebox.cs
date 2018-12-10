@@ -57,6 +57,8 @@ namespace Elders.Cronus.Projections.Versioning
             };
         }
 
+        public bool HasExpired => RebuildFinishUntil < DateTime.UtcNow;
+
         public override string ToString()
         {
             return $"Version request timebox: Starts at `{RebuildStartAt}`. Expires at `{RebuildFinishUntil}`";
