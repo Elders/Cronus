@@ -225,7 +225,7 @@ namespace Elders.Cronus.Projections
                     PrimaryReadOK();
 
                 else if (result.HasError)
-                    PrimaryReadFailed(result.Error);
+                    PrimaryReadFailed($"{result.Error} - {result.NotFoundHint}");
             }
 
             public void FallbackReadResult<T>(ReadResult<T> result)
@@ -234,19 +234,19 @@ namespace Elders.Cronus.Projections
                     FallbackReadOK();
 
                 else if (result.HasError)
-                    FallbackReadFailed(result.Error);
+                    FallbackReadFailed($"{result.Error} - {result.NotFoundHint}");
             }
 
             public void PrimaryReadFailed(string error)
             {
                 exceptions.Add(new Exception(error));
-                report.AppendLine($"Primary read: FAILED with {error}");
+                report.AppendLine($"Primary read: FAILED - {error}");
             }
 
             public void FallbackReadFailed(string error)
             {
                 exceptions.Add(new Exception(error));
-                report.AppendLine($"Fallback read: FAILED with {error}");
+                report.AppendLine($"Fallback read: FAILED - {error}");
             }
 
             public void PrimaryWriteOK() => report.AppendLine("Primary write: OK");
@@ -255,13 +255,13 @@ namespace Elders.Cronus.Projections
             public void PrimaryWriteFailed(Exception error, IMessage message)
             {
                 exceptions.Add(error);
-                report.AppendLine($"Primary write: FAILED with {error.Message} | Event: {message.GetType().Name}");
+                report.AppendLine($"Primary write: FAILED - {error.Message} | Event: {message.GetType().Name}");
             }
 
             public void FallbackWriteFailed(Exception error, IMessage message)
             {
                 exceptions.Add(error);
-                report.AppendLine($"Fallback write: FAILED with {error.Message} | Event: {message.GetType().Name}");
+                report.AppendLine($"Fallback write: FAILED - {error.Message} | Event: {message.GetType().Name}");
             }
 
             public void Report()
