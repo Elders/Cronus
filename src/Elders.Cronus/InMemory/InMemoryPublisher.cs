@@ -10,7 +10,6 @@ namespace Elders.Cronus.InMemory
 
         private readonly SubscriberCollection<IApplicationService> subscribtions;
         private readonly InMemoryQueue messageQueue;
-
         public InMemoryPublisher(SubscriberCollection<IApplicationService> messageProcessor, InMemoryQueue messageQueue)
             : base(new DefaultTenantResolver())
         {
