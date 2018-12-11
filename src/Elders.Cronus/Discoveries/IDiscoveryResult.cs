@@ -31,5 +31,7 @@ namespace Elders.Cronus.Discoveries
         public DiscoveredModel(Type serviceType, Type implementationType, ServiceLifetime lifetime) : base(serviceType, implementationType, lifetime) { }
 
         public DiscoveredModel(Type serviceType, Func<IServiceProvider, object> factory, ServiceLifetime lifetime) : base(serviceType, factory, lifetime) { }
+
+        public bool CanOverrideDefaults { get; set; }
     }
 }

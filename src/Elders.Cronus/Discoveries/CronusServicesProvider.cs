@@ -47,7 +47,14 @@ namespace Elders.Cronus.Discoveries
         {
             foreach (var discoveredModel in discoveryResult.Models)
             {
-                services.TryAdd(discoveredModel);
+                if (discoveredModel.CanOverrideDefaults)
+                {
+                    services.Replace(discoveredModel);
+                }
+                else
+                {
+                    services.TryAdd(discoveredModel);
+                }
             }
         }
 
