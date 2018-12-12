@@ -1,3 +1,7 @@
+#### 5.2.0-beta0004 - 12.12.2018
+* Adds startup ranking via CronusStartupAttribute
+* Introduces InMemory publisher
+
 #### 5.2.0-beta0003 - 12.12.2018
 * Registers all ICronusStarup services
 
