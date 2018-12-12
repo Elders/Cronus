@@ -7,7 +7,7 @@ namespace Elders.Cronus
     {
         Establish context = () =>
         {
-            configuration = new MockedConfiguration();
+            configuration = new ConfigurationMock();
             configuration[BoundedContext.SettingKey] = "elders_test";
         };
 
@@ -16,6 +16,6 @@ namespace Elders.Cronus
         It should_have_correct_name = () => boundedContext.Name.ShouldBeTheSameAs("elders_test");
 
         static BoundedContext boundedContext;
-        static MockedConfiguration configuration;
+        static ConfigurationMock configuration;
     }
 }

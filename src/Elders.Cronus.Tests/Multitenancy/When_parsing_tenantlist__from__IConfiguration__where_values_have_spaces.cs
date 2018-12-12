@@ -8,7 +8,7 @@ namespace Elders.Cronus.Multitenancy
     {
         Establish context = () =>
         {
-            configuration = new MockedConfiguration();
+            configuration = new ConfigurationMock();
             configuration[Tenants.SettingKey] = @"["" tenant1 "", "" tenant2 ""]";
         };
 
@@ -20,7 +20,7 @@ namespace Elders.Cronus.Multitenancy
 
         It should_be_able_to_get_second_tenant = () => tenants.GetTenants().Last().ShouldEqual("tenant2");
 
-        static MockedConfiguration configuration;
+        static ConfigurationMock configuration;
         static Tenants tenants;
     }
 }

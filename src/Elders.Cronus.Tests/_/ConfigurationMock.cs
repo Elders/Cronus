@@ -2,15 +2,14 @@
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Elders.Cronus
 {
-    public class MockedConfiguration : IConfiguration
+    public class ConfigurationMock : IConfiguration
     {
         private readonly Dictionary<string, string> configurations;
 
-        public MockedConfiguration()
+        public ConfigurationMock()
         {
             configurations = new Dictionary<string, string>();
         }

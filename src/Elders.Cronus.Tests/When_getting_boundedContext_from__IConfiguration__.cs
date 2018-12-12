@@ -8,7 +8,7 @@ namespace Elders.Cronus
     {
         Establish context = () =>
         {
-            configuration = new MockedConfiguration();
+            configuration = new ConfigurationMock();
             configuration[BoundedContext.SettingKey] = @"elders.test";
         };
 
@@ -19,6 +19,6 @@ namespace Elders.Cronus
         It should_throw__ArgumentException__ = () => exception.ShouldBeOfExactType<ArgumentException>();
 
         static Exception exception;
-        static MockedConfiguration configuration;
+        static ConfigurationMock configuration;
     }
 }
