@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries

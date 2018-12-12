@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 
 namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 {

@@ -1,9 +1,7 @@
 ﻿using Elders.Cronus.Projections.Versioning;
-using Elders.Cronus.Testing;
 using Machine.Specifications;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Elders.Cronus.Projections
 {

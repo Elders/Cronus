@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.Discoveries;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 

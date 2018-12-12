@@ -1,7 +1,5 @@
 ﻿using Machine.Specifications;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Elders.Cronus.Multitenancy
 {
