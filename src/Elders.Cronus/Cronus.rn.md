@@ -1,3 +1,6 @@
+#### 5.2.0-beta0003 - 12.12.2018
+* Registers all ICronusStarup services
+
 #### 5.2.0-beta0002 - 12.12.2018
 * Adds extension point to write cronus bootstrap logic
 * Introduces DiscoveryBase as a successor of DiscoveryBasedOnExecutingDirAssemblies
