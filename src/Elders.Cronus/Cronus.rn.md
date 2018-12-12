@@ -1,3 +1,10 @@
+#### 5.2.0-beta0001 - 12.12.2018
+* Introduces InMemoryDiscovery which adds default in memory services
+* Adds the ability non-default Cronus services to override the defaults
+* Projections will replay for a long time until we resolve performance issues
+* Changed Subscriber Collection Implementation and the way cronus host work
+* Added Synchronous Message Processor
+
 #### 5.1.0 - 10.12.2018
 * Updates DomainModeling
 * Updates to DNC 2.2
