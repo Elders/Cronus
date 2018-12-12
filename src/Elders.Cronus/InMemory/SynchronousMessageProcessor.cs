@@ -1,10 +1,14 @@
-﻿using Elders.Cronus.MessageProcessing;
+﻿using Elders.Cronus.Logging;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Multitenancy;
+using System;
 
 namespace Elders.Cronus.InMemory
 {
     public class SynchronousMessageProcessor<T> : Publisher<IMessage> where T : IMessage
     {
+        private readonly static ILog log = LogProvider.GetLogger(typeof(SynchronousMessageProcessor<>));
+
         private readonly ISubscriberCollection<IApplicationService> appServiceSubscribers;
         private readonly ISubscriberCollection<IProjection> projectionSubscribers;
         private readonly ISubscriberCollection<IPort> portSubscribers;
@@ -40,10 +44,17 @@ namespace Elders.Cronus.InMemory
 
         void NotifySubscribers<TContract>(CronusMessage message, ISubscriberCollection<TContract> subscribers)
         {
-            var interestedSubscribers = subscribers.GetInterestedSubscribers(message);
-            foreach (var subscriber in interestedSubscribers)
+            try
             {
-                subscriber.Process(message);
+                var interestedSubscribers = subscribers.GetInterestedSubscribers(message);
+                foreach (var subscriber in interestedSubscribers)
+                {
+                    subscriber.Process(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Unable to process message", ex);
             }
         }
     }
