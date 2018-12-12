@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using Elders.Cronus.Logging;
 
-namespace Elders.Cronus.Hosting
+namespace Elders.Cronus
 {
     internal class AssemblyLoader
     {

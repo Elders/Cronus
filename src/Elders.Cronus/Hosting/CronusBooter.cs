@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Elders.Cronus.Hosting
+namespace Elders.Cronus
 {
     public class CronusBooter
     {

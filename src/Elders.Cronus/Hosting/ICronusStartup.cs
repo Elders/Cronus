@@ -1,4 +1,4 @@
-﻿namespace Elders.Cronus.Hosting
+﻿namespace Elders.Cronus
 {
     public interface ICronusStartup
     {

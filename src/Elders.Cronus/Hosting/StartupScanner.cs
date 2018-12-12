@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Elders.Cronus.Hosting
+namespace Elders.Cronus
 {
     public class CronusStartupScanner
     {

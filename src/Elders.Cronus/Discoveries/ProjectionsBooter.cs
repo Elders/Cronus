@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Elders.Cronus.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries

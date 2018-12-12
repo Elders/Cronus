@@ -2,7 +2,7 @@
 using System.IO;
 using System.Linq;
 
-namespace Elders.Cronus.Hosting
+namespace Elders.Cronus
 {
     internal static class FileSearchExtentions
     {
