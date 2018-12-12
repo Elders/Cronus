@@ -5,7 +5,7 @@ using System;
 
 namespace Elders.Cronus.InMemory
 {
-    public class SynchronousMessageProcessor<T> : Publisher<IMessage> where T : IMessage
+    public class SynchronousMessageProcessor<T> : ImMemoryPublisher<IMessage> where T : IMessage
     {
         private readonly static ILog log = LogProvider.GetLogger(typeof(SynchronousMessageProcessor<>));
 
@@ -15,7 +15,6 @@ namespace Elders.Cronus.InMemory
         private readonly ISubscriberCollection<IGateway> gatewaySubscribers;
         private readonly ISubscriberCollection<ISaga> sagaSubscribers;
 
-        //TODO
         public SynchronousMessageProcessor(
             ISubscriberCollection<IApplicationService> appServiceSubscribers,
             ISubscriberCollection<IProjection> projectionSubscribers,

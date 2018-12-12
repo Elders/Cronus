@@ -55,14 +55,14 @@ namespace Elders.Cronus
             }
         }
 
-        public bool Publish(TMessage message, DateTime publishAt, Dictionary<string, string> messageHeaders = null)
+        public virtual bool Publish(TMessage message, DateTime publishAt, Dictionary<string, string> messageHeaders = null)
         {
             messageHeaders = messageHeaders ?? new Dictionary<string, string>();
             messageHeaders.Add(MessageHeader.PublishTimestamp, publishAt.ToFileTimeUtc().ToString());
             return Publish(message, messageHeaders);
         }
 
-        public bool Publish(TMessage message, TimeSpan publishAfter, Dictionary<string, string> messageHeaders = null)
+        public virtual bool Publish(TMessage message, TimeSpan publishAfter, Dictionary<string, string> messageHeaders = null)
         {
             DateTime publishAt = DateTime.UtcNow.Add(publishAfter);
             return Publish(message, publishAt, messageHeaders);
