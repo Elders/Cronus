@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class TenantsDiscovery : DiscoveryBasedOnExecutingDirAssemblies<ITenantList>
+    public class TenantsDiscovery : DiscoveryBase<ITenantList>
     {
         protected override DiscoveryResult<ITenantList> DiscoverFromAssemblies(DiscoveryContext context)
         {

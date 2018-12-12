@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class InMemoryDiscovery : DiscoveryBasedOnExecutingDirAssemblies<IPublisher<IMessage>>
+    public class InMemoryDiscovery : DiscoveryBase<IPublisher<IMessage>>
     {
         protected override DiscoveryResult<IPublisher<IMessage>> DiscoverFromAssemblies(DiscoveryContext context)
         {

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class ProjectionsBooter : DiscoveryBasedOnExecutingDirAssemblies<ICronusHost>
+    public class ProjectionsBooter : DiscoveryBase<ICronusHost>
     {
         protected override DiscoveryResult<ICronusHost> DiscoverFromAssemblies(DiscoveryContext context)
         {
