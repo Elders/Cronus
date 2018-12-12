@@ -20,7 +20,7 @@ namespace Elders.Cronus
         /// <summary>
         /// Bootstraps the environment and prapare it for Cronus
         /// </summary>
-        Environment = 10,
+        Environment = 0,
 
         /// <summary>
         /// Bootstraps external resources such as database or message broker services
