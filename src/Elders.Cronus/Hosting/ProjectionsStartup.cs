@@ -3,7 +3,8 @@ using Elders.Cronus.Projections.Versioning;
 
 namespace Elders.Cronus
 {
-    public class ProjectionsBooter
+    [CronusStartup(Bootstraps.Projections)]
+    public class ProjectionsBooter : ICronusStartup
     {
         private readonly ITenantList tenants;
         private readonly ProjectionHasher hasher;
@@ -18,7 +19,7 @@ namespace Elders.Cronus
             this.handlerTypeContainer = handlerTypeContainer;
         }
 
-        public void RegisterProjections()
+        public void Bootstrap()
         {
             foreach (var handler in handlerTypeContainer.Items)
             {

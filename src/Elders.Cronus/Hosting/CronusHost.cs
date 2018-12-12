@@ -31,7 +31,7 @@ namespace Elders.Cronus
             if (cronusHostOptions.ProjectionsEnabled)
             {
                 projections.Start();
-                projectionsBoot.RegisterProjections();
+                //projectionsBoot.Bootstrap();
             }
             if (cronusHostOptions.PortsEnabled) ports.Start();
 
