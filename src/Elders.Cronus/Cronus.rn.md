@@ -1,3 +1,7 @@
+#### 5.2.0-beta0002 - 12.12.2018
+* Adds extension point to write cronus bootstrap logic
+* Introduces DiscoveryBase as a successor of DiscoveryBasedOnExecutingDirAssemblies
+
 #### 5.2.0-beta0001 - 12.12.2018
 * Introduces InMemoryDiscovery which adds default in memory services
 * Adds the ability non-default Cronus services to override the defaults
