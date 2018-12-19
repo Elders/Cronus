@@ -62,7 +62,7 @@ namespace Elders.Cronus
             return Publish(message, messageHeaders);
         }
 
-        public virtual bool Publish(TMessage message, TimeSpan publishAfter, Dictionary<string, string> messageHeaders = null)
+        public bool Publish(TMessage message, TimeSpan publishAfter, Dictionary<string, string> messageHeaders = null)
         {
             DateTime publishAt = DateTime.UtcNow.Add(publishAfter);
             return Publish(message, publishAt, messageHeaders);
