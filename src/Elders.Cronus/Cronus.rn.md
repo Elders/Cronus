@@ -1,3 +1,6 @@
+#### 5.2.0-beta0005 - 19.12.2018
+* Adds InMemory implementations for ILock and Publisher
+
 #### 5.2.0-beta0004 - 12.12.2018
 * Adds startup ranking via CronusStartupAttribute
 * Introduces InMemory publisher
