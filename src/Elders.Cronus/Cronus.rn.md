@@ -1,3 +1,7 @@
+#### 5.2.0-beta0006 - 21.12.2018
+* Fixed loading assemblies on linux since its case sensitive.
+* Fixed a SingleOrDefault blowup when an Assembly is loaded twice - for some reason, when using xUnit, xunit is loaded twice. 
+
 #### 5.2.0-beta0005 - 19.12.2018
 * Adds InMemory implementations for ILock and Publisher
 
