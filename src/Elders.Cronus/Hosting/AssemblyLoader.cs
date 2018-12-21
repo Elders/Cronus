@@ -38,10 +38,12 @@ namespace Elders.Cronus
                 if (wildcards.Any(x => lowerAssemblyFile.Contains(x))) continue;
                 if (excludedAssemblies.Any(x => lowerAssemblyFile.EndsWith(x))) continue;
 
-                var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies()
                     .Where(x => x.IsDynamic == false)
                     .Where(x => x.Location.Equals(lowerAssemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(lowerAssemblyFile, StringComparison.OrdinalIgnoreCase))
-                    .SingleOrDefault();
+                    .ToList();
+
+                var assembly = loadedAssemblies.FirstOrDefault();
 
                 if (assembly is null)
                 {
