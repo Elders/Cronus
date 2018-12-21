@@ -31,15 +31,16 @@ namespace Elders.Cronus
             loadAssembliesLog.AppendLine($"Try loading assemblies from directory: {directoryWithAssemblies}");
             loadAssembliesLog.AppendLine("Some assemblies will not be loaded because they are not managed which is fine and we output them bellow if any for completeness.");
 
-            var files = directoryWithAssemblies.GetFiles(new[] { "*.exe", "*.dll" }).Select(filepath => filepath.ToLower());
+            var files = directoryWithAssemblies.GetFiles(new[] { "*.exe", "*.dll" });
             foreach (var assemblyFile in files)
             {
-                if (wildcards.Any(x => assemblyFile.Contains(x))) continue;
-                if (excludedAssemblies.Any(x => assemblyFile.EndsWith(x))) continue;
+                var lowerAssemblyFile = assemblyFile.ToLower();
+                if (wildcards.Any(x => lowerAssemblyFile.Contains(x))) continue;
+                if (excludedAssemblies.Any(x => lowerAssemblyFile.EndsWith(x))) continue;
 
                 var assembly = AppDomain.CurrentDomain.GetAssemblies()
                     .Where(x => x.IsDynamic == false)
-                    .Where(x => x.Location.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase))
+                    .Where(x => x.Location.Equals(lowerAssemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(lowerAssemblyFile, StringComparison.OrdinalIgnoreCase))
                     .SingleOrDefault();
 
                 if (assembly is null)
