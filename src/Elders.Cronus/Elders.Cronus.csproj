@@ -19,10 +19,9 @@
     <RepositoryUrl>https://github.com/Elders/Cronus.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageIconUrl>https://raw.githubusercontent.com/Elders/logo/master/cronus/frame.png</PackageIconUrl>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AssemblyName>Elders.Cronus</AssemblyName>
-    <NeutralLanguage>en-US</NeutralLanguage>
     <RootNamespace>Elders.Cronus</RootNamespace>
+    <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
 
   <!--netstandard2.0-->
