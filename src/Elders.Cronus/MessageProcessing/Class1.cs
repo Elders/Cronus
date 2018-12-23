@@ -18,10 +18,7 @@ namespace Elders.Cronus.MessageProcessing
 
         public HandlerSubscriberFactory(ISubscriberWorkflow<T> subscriberWorkflow)
         {
-            var asd = subscriberWorkflow.GetWorkflow();
-            workflow = asd as Workflow<HandleContext>;
-
-            var gg = (Workflow<HandleContext>)asd;
+            workflow = subscriberWorkflow.GetWorkflow() as Workflow<HandleContext>;
         }
 
         public ISubscriber Create(Type handlerType)
@@ -34,6 +31,7 @@ namespace Elders.Cronus.MessageProcessing
     {
         IWorkflow GetWorkflow();
     }
+
     public class ScopedSubscriberWorkflow<T> : ISubscriberWorkflow<T>
     {
         private readonly IServiceProvider serviceProvider;
