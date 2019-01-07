@@ -1,3 +1,10 @@
+#### 5.2.0-beta0008 - 07.01.2019
+* Adds CronusOptionsProviderBase which allows easy options setup
+* Drops net472 because netstandard2.0 supports it out of the box
+
+#### 5.2.0-beta0007 - 07.01.2019
+* Adds async load methods for projections ISnapshotStore
+
 #### 5.2.0-beta0007 - 07.01.2019
 * Adds async load methods for projections ISnapshotStore
 
