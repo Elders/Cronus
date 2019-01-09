@@ -5,9 +5,6 @@
 #### 5.2.0-beta0007 - 07.01.2019
 * Adds async load methods for projections ISnapshotStore
 
-#### 5.2.0-beta0007 - 07.01.2019
-* Adds async load methods for projections ISnapshotStore
-
 #### 5.2.0-beta0006 - 21.12.2018
 * Fixed loading assemblies on linux since its case sensitive.
 * Fixed a SingleOrDefault blowup when an Assembly is loaded twice - for some reason, when using xUnit, xunit is loaded twice. 
