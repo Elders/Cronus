@@ -22,6 +22,7 @@
     <AssemblyName>Elders.Cronus</AssemblyName>
     <RootNamespace>Elders.Cronus</RootNamespace>
     <NeutralLanguage>en-US</NeutralLanguage>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <ItemGroup>
