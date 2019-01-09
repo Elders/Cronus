@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 
-namespace Elders.Cronus.Discoveries
+namespace Elders.Cronus.Hosting
 {
     public abstract class CronusOptionsProviderBase<TOptions> :
         IConfigureOptions<TOptions>,
