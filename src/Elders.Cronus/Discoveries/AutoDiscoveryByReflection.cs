@@ -4,11 +4,6 @@ using System;
 
 namespace Elders.Cronus.Discoveries
 {
-    public interface IHaveServiceCollection
-    {
-        IServiceCollection Services { get; set; }
-    }
-
     public interface IHaveConfiguration
     {
         IConfiguration Configuration { get; set; }
