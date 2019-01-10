@@ -1,29 +1,15 @@
-#### 5.2.0-beta0008 - 07.01.2019
+#### 5.2.0 - 10.01.2019
 * Adds CronusOptionsProviderBase which allows easy options setup
 * Drops net472 because netstandard2.0 supports it out of the box
-
-#### 5.2.0-beta0007 - 07.01.2019
 * Adds async load methods for projections ISnapshotStore
-
-#### 5.2.0-beta0006 - 21.12.2018
 * Fixed loading assemblies on linux since its case sensitive.
 * Fixed a SingleOrDefault blowup when an Assembly is loaded twice - for some reason, when using xUnit, xunit is loaded twice. 
-
-#### 5.2.0-beta0005 - 19.12.2018
 * Adds InMemory implementations for ILock and Publisher
-
-#### 5.2.0-beta0004 - 12.12.2018
 * Adds startup ranking via CronusStartupAttribute
 * Introduces InMemory publisher
-
-#### 5.2.0-beta0003 - 12.12.2018
 * Registers all ICronusStartup services
-
-#### 5.2.0-beta0002 - 12.12.2018
 * Adds extension point to write cronus bootstrap logic
 * Introduces DiscoveryBase as a successor of DiscoveryBasedOnExecutingDirAssemblies
-
-#### 5.2.0-beta0001 - 12.12.2018
 * Introduces InMemoryDiscovery which adds default in memory services
 * Adds the ability non-default Cronus services to override the defaults
 * Projections will replay for a long time until we resolve performance issues
