@@ -166,10 +166,10 @@ namespace Elders.Cronus.Projections
 
         public ReadResult<IProjectionDefinition> Get(IBlobId projectionId, Type projectionType)
         {
+            if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+
             try
             {
-                if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
-
                 ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
                 return new ReadResult<IProjectionDefinition>(stream.RestoreFromHistory(projectionType));
             }
@@ -182,10 +182,10 @@ namespace Elders.Cronus.Projections
 
         public async Task<ReadResult<T>> GetAsync<T>(IBlobId projectionId) where T : IProjectionDefinition
         {
+            if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+
             try
             {
-                if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
-
                 Type projectionType = typeof(T);
 
                 ProjectionStream stream = await LoadProjectionStreamAsync(projectionType, projectionId);
@@ -200,10 +200,10 @@ namespace Elders.Cronus.Projections
 
         public async Task<ReadResult<IProjectionDefinition>> GetAsync(IBlobId projectionId, Type projectionType)
         {
+            if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+
             try
             {
-                if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
-
                 ProjectionStream stream = await LoadProjectionStreamAsync(projectionType, projectionId);
                 return new ReadResult<IProjectionDefinition>(stream.RestoreFromHistory(projectionType));
             }

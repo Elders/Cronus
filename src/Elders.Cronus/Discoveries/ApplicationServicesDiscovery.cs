@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
-    public abstract class HandlersDiscovery<T> : DiscoveryBasedOnExecutingDirAssemblies<T>
+    public abstract class HandlersDiscovery<T> : DiscoveryBase<T>
     {
         protected override DiscoveryResult<T> DiscoverFromAssemblies(DiscoveryContext context)
         {

@@ -1,20 +1,21 @@
 ﻿using Elders.Cronus.Projections.Versioning;
+using Elders.Cronus.Testing;
 using Machine.Specifications;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Elders.Cronus.Projections
 {
     [Subject("Projections")]
-    public class When_projection_state
+    public class When_projection_version_with_status_building_is_outside_of_the_timebox
     {
         Establish context = () =>
         {
             string projectionName = "26ff30da-bf0d-4b3b-874f-e305d5870741";
-            hash = "lm0bzg";
+            hash = "e4glzg";
             var id = new ProjectionVersionManagerId(projectionName, "elders");
 
-            projectionHistory = Projection<ProjectionVersionsHandler>
+            ar = Aggregate<ProjectionVersionManager>
                 .FromHistory()
                 .Event(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 1, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T11:07:47.9657464Z"), DateTime.Parse("2018-11-29T11:07:47.9657464Z"))))
                 .Event(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 2, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T11:28:47.8453615Z"), DateTime.Parse("2018-11-29T11:28:47.8453615Z"))))
@@ -23,56 +24,15 @@ namespace Elders.Cronus.Projections
                 .Event(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 5, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:43:35.834907Z"), DateTime.Parse("2018-11-29T14:43:35.834907Z"))))
                 .Event(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 1, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T10:58:41.4293469Z"), DateTime.Parse("2018-11-29T10:58:41.4293469Z"))))
                 .Event(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 4, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:41:44.5082787Z"), DateTime.Parse("2018-11-29T14:41:44.5082787Z"))))
-                .Event(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 5, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:43:35.834907Z"), DateTime.Parse("2018-11-29T14:43:35.834907Z"))));
+                .Event(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 5, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:43:35.834907Z"), DateTime.Parse("2018-11-29T14:43:35.834907Z"))))
+                .Build();
         };
 
-        Because of = () => projection = projectionHistory.Build();
+        Because of = () => ar.Replay(hash);
 
-        It should_timeout_the_obsolete_building_versions = () => projection.State.ShouldNotBeNull();
+        It should_timeout_the_obsolete_building_versions = () => ar.PublishedEvents<ProjectionVersionRequestTimedout>().Count().ShouldEqual(2);
 
-        static ProjectionVersionsHandler projection;
+        static ProjectionVersionManager ar;
         static string hash;
-        static Projection<ProjectionVersionsHandler>.ProjectionHistory projectionHistory;
-    }
-
-    public static class Projection<T> where T : IProjectionDefinition
-    {
-        public static ProjectionHistory FromHistory()
-        {
-            return new ProjectionHistory();
-        }
-
-        public class ProjectionHistory
-        {
-            public ProjectionHistory()
-            {
-                Events = new List<IEvent>();
-            }
-
-            public List<IEvent> Events { get; private set; }
-
-            public ProjectionHistory Event(IEvent @event)
-            {
-                if (@event is null) throw new ArgumentNullException(nameof(@event));
-
-                Events.Add(@event);
-                return this;
-            }
-
-            public T Build()
-            {
-                var instance = (T)Activator.CreateInstance(typeof(T), true);
-                instance.ReplayEvents(Events);
-                return instance;
-            }
-        }
-    }
-
-    public static class AggregateRootExtensions
-    {
-        public static T State<T>(this IProjectionDefinition projection) where T : class, new()
-        {
-            return (T)(projection.State);
-        }
     }
 }

@@ -19,6 +19,7 @@ namespace Elders.Cronus
         {
             services.AddTenantSupport();
             services.AddCronusHostOptions();
+            services.AddDefaultSubscribers();
 
             var discoveryFinder = new DiscoveryScanner(cronusServicesProvider);
             discoveryFinder.Discover();
@@ -68,6 +69,63 @@ namespace Elders.Cronus
             return services;
         }
     }
+
+    public static class SubscriberCollectionServiceCollectionExtensions
+    {
+        public static IServiceCollection AddSubscribers<T>(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(ISubscriberCollection<T>), typeof(SubscriberCollection<T>));
+            services.AddSingleton(typeof(ISubscriberFinder<T>), typeof(SubscriberFinder<T>));
+            services.AddSingleton(typeof(ISubscriberWorkflow<T>), typeof(ScopedSubscriberWorkflow<T>));
+            services.AddSingleton(typeof(ISubscriberFactory<T>), typeof(HandlerSubscriberFactory<T>));
+
+            return services;
+        }
+
+        public static IServiceCollection AddDefaultSubscribers(this IServiceCollection services)
+        {
+            services.AddSubscribersWithOpenGenerics();
+
+            services.AddApplicationServiceSubscribers();
+            services.AddProjectionSubscribers();
+            services.AddSubscribers<IPort>();
+            services.AddSubscribers<IGateway>();
+            services.AddSubscribers<ISaga>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddSubscribersWithOpenGenerics(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(ISubscriberCollection<>), typeof(SubscriberCollection<>));
+            services.AddSingleton(typeof(ISubscriberFinder<>), typeof(SubscriberFinder<>));
+            services.AddSingleton(typeof(ISubscriberWorkflow<>), typeof(ScopedSubscriberWorkflow<>));
+            services.AddSingleton(typeof(ISubscriberFactory<>), typeof(HandlerSubscriberFactory<>));
+
+            return services;
+        }
+
+        public static IServiceCollection AddApplicationServiceSubscribers(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(ISubscriberCollection<IApplicationService>), typeof(SubscriberCollection<IApplicationService>));
+            services.AddSingleton(typeof(ISubscriberFinder<IApplicationService>), typeof(SubscriberFinder<IApplicationService>));
+            services.AddSingleton(typeof(ISubscriberWorkflow<IApplicationService>), typeof(ApplicationServiceSubscriberWorkflow));
+            services.AddSingleton(typeof(ISubscriberFactory<IApplicationService>), typeof(HandlerSubscriberFactory<IApplicationService>));
+
+            return services;
+        }
+
+        public static IServiceCollection AddProjectionSubscribers(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(ISubscriberCollection<IProjection>), typeof(SubscriberCollection<IProjection>));
+            services.AddSingleton(typeof(ISubscriberFinder<IProjection>), typeof(SubscriberFinder<IProjection>));
+            services.AddSingleton(typeof(ISubscriberWorkflow<IProjection>), typeof(ProjectionSubscriberWorkflow));
+            services.AddSingleton(typeof(ISubscriberFactory<IProjection>), typeof(HandlerSubscriberFactory<IProjection>));
+
+            return services;
+        }
+    }
+
     public class SingletonPerTenantContainer<T> : IDisposable
     {
         public SingletonPerTenantContainer()

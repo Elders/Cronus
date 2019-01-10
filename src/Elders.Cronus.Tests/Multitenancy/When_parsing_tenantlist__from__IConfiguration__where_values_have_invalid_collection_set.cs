@@ -1,7 +1,5 @@
 ﻿using Machine.Specifications;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Elders.Cronus.Multitenancy
 {
@@ -11,7 +9,7 @@ namespace Elders.Cronus.Multitenancy
     {
         Establish context = () =>
         {
-            configuration = new MockedConfiguration();
+            configuration = new ConfigurationMock();
             configuration[Tenants.SettingKey] = @"Market@_!Vision";
         };
 
@@ -24,6 +22,6 @@ namespace Elders.Cronus.Multitenancy
         It should_have_doc_in_exception_message = () => exception.Message.ShouldContain("Configuration.md");
 
         static Exception exception;
-        static MockedConfiguration configuration;
+        static ConfigurationMock configuration;
     }
 }

@@ -1,20 +1,11 @@
 using System;
-
 using System.Globalization;
 using System.Threading;
 using Elders.Cronus.Userfull;
-
-
-#if NETSTANDARD2_0
 using Microsoft.Extensions.Caching.Memory;
-#else
-using System.Runtime.Caching;
-using System.Collections.Specialized;
-#endif
 
 namespace Elders.Cronus.AtomicAction.InMemory
 {
-#if NETSTANDARD2_0
     public class InMemoryAggregateRootAtomicAction : IAggregateRootAtomicAction
     {
         readonly MemoryCache aggregateLock = null;
@@ -110,98 +101,6 @@ namespace Elders.Cronus.AtomicAction.InMemory
             aggregateLock?.Dispose();
         }
     }
-#else
-    public class InMemoryAggregateRootAtomicAction : IAggregateRootAtomicAction
-    {
-        readonly MemoryCache aggregateLock = null;
-        readonly MemoryCache aggregateRevisions = null;
-        readonly CacheItemPolicy sliding30seconds;
-
-        public InMemoryAggregateRootAtomicAction()
-        {
-            var _cacheConfig = new NameValueCollection();
-            _cacheConfig.Add("pollingInterval", "00:01:00");
-            _cacheConfig.Add("cacheMemoryLimitMegabytes", "500");
-            _cacheConfig.Add("physicalMemoryLimitPercentage", "10");
-
-            aggregateLock = new MemoryCache("aggregateLock", _cacheConfig);
-            aggregateRevisions = new MemoryCache("aggregateRevisions", _cacheConfig);
-
-            sliding30seconds = new CacheItemPolicy();
-            sliding30seconds.SlidingExpiration = TimeSpan.FromSeconds(30d);
-        }
-
-        public Result<bool> Execute(IAggregateRootId aggregateRootId, int aggregateRootRevision, Action action)
-        {
-            var result = new Result<bool>(false);
-            var acquired = new AtomicBoolean(false);
-
-            try
-            {
-                acquired = aggregateLock.Get(aggregateRootId.Urn.Value) as AtomicBoolean;
-                if (ReferenceEquals(null, acquired))
-                {
-                    acquired = acquired ?? new AtomicBoolean(false);
-                    if (aggregateLock.Add(aggregateRootId.Urn.Value, acquired, sliding30seconds) == false)
-                    {
-                        acquired = aggregateLock.Get(aggregateRootId.Urn.Value) as AtomicBoolean;
-                        if (ReferenceEquals(null, acquired))
-                            return result;
-                    }
-                }
-
-                if (acquired.CompareAndSet(false, true))
-                {
-                    try
-                    {
-                        AtomicInteger revision = aggregateRevisions.Get(aggregateRootId.Urn.Value) as AtomicInteger;
-                        if (ReferenceEquals(null, revision))
-                        {
-                            revision = new AtomicInteger(aggregateRootRevision - 1);
-                            if (aggregateRevisions.Add(aggregateRootId.Urn.Value, revision, sliding30seconds) == false)
-                            {
-                                revision = aggregateRevisions.Get(aggregateRootId.Urn.Value) as AtomicInteger;
-                                if (ReferenceEquals(null, revision))
-                                    return result;
-                            }
-                        }
-
-                        var currentRevision = revision.Value;
-                        if (revision.CompareAndSet(aggregateRootRevision - 1, aggregateRootRevision))
-                        {
-                            try
-                            {
-                                action();
-                                return Result.Success;
-                            }
-                            catch (Exception)
-                            {
-                                revision.GetAndSet(currentRevision);
-                                throw;
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        acquired.GetAndSet(false);
-                    }
-                }
-
-                return result;
-            }
-            catch (Exception ex)
-            {
-                return result.WithError(ex);
-            }
-        }
-
-        public void Dispose()
-        {
-            aggregateRevisions?.Dispose();
-            aggregateLock?.Dispose();
-        }
-    }
-#endif
 
     [Serializable]
     public class AtomicBoolean : IFormattable

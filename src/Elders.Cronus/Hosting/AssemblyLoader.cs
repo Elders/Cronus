@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using Elders.Cronus.Logging;
 
-namespace Elders.Cronus.Discoveries
+namespace Elders.Cronus
 {
     internal class AssemblyLoader
     {
@@ -18,7 +18,7 @@ namespace Elders.Cronus.Discoveries
         static string[] excludedAssemblies = new string[] { "sni.dll", "apphost.exe", "clrcompression.dll", "clretwrc.dll", "clrjit.dll", "coreclr.dll", "dbgshim.dll", "hostfxr.dll", "hostpolicy.dll", "sos.dll", "ucrtbase.dll" };
         static string[] wildcards = new string[] { "microsoft", "api-ms", "sos_", "mscordaccore", "mscor" };
 
-        internal static IDictionary<string, Assembly> assemblies = new Dictionary<string, Assembly>();
+        internal static IDictionary<string, Assembly> Assemblies = new Dictionary<string, Assembly>();
 
         static AssemblyLoader()
         {
@@ -31,16 +31,19 @@ namespace Elders.Cronus.Discoveries
             loadAssembliesLog.AppendLine($"Try loading assemblies from directory: {directoryWithAssemblies}");
             loadAssembliesLog.AppendLine("Some assemblies will not be loaded because they are not managed which is fine and we output them bellow if any for completeness.");
 
-            var files = directoryWithAssemblies.GetFiles(new[] { "*.exe", "*.dll" }).Select(filepath => filepath.ToLower());
+            var files = directoryWithAssemblies.GetFiles(new[] { "*.exe", "*.dll" });
             foreach (var assemblyFile in files)
             {
-                if (wildcards.Any(x => assemblyFile.Contains(x))) continue;
-                if (excludedAssemblies.Any(x => assemblyFile.EndsWith(x))) continue;
+                var lowerAssemblyFile = assemblyFile.ToLower();
+                if (wildcards.Any(x => lowerAssemblyFile.Contains(x))) continue;
+                if (excludedAssemblies.Any(x => lowerAssemblyFile.EndsWith(x))) continue;
 
-                var assembly = AppDomain.CurrentDomain.GetAssemblies()
+                var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies()
                     .Where(x => x.IsDynamic == false)
-                    .Where(x => x.Location.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(assemblyFile, StringComparison.OrdinalIgnoreCase))
-                    .SingleOrDefault();
+                    .Where(x => x.Location.Equals(lowerAssemblyFile, StringComparison.OrdinalIgnoreCase) || x.CodeBase.Equals(lowerAssemblyFile, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+                var assembly = loadedAssemblies.FirstOrDefault();
 
                 if (assembly is null)
                 {
@@ -58,7 +61,7 @@ namespace Elders.Cronus.Discoveries
                 }
 
                 if (assembly is null == false)
-                    assemblies.Add(assembly.FullName, assembly);
+                    Assemblies.Add(assembly.FullName, assembly);
             }
 
             log.Info(loadAssembliesLog.ToString());

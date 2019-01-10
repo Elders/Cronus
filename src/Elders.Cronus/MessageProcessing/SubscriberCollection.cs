@@ -6,20 +6,30 @@ using System.Linq;
 namespace Elders.Cronus.MessageProcessing
 {
     /// <summary>
-    /// The responsibility of this collection is to collect and and work with all the messsage subscirbers in the Cornus infrasturcutre.
+    /// The responsibility of this collection is to collect and work with all the message subscribers in the Cronus infrastructure.
     /// It also allows to dynamically add subscribers.
     /// </summary>
-    public sealed class SubscriberCollection<T>
+    public sealed class SubscriberCollection<T> : ISubscriberCollection<T>
     {
         ConcurrentBag<ISubscriber> subscribers;
+        private readonly ISubscriberFinder<T> subscriberFinder;
+        private readonly ISubscriberFactory<T> subscriberFactory;
 
-        public SubscriberCollection()
+        public SubscriberCollection(ISubscriberFinder<T> subscriberFinder, ISubscriberFactory<T> subscriberFactory)
         {
             subscribers = new ConcurrentBag<ISubscriber>();
+
+            this.subscriberFinder = subscriberFinder;
+            this.subscriberFactory = subscriberFactory;
+            foreach (var handlerType in subscriberFinder.Find())
+            {
+                ISubscriber subscriber = subscriberFactory.Create(handlerType);
+                Subscribe(subscriber);
+            }
         }
 
         /// <summary>
-        /// Adds a new subscriber to the Cornus infrastructure with intent to notify all intersted parties when a new subscriber comes in (e.g. for creating queus etc.)
+        /// Adds a new subscriber to the Cronus infrastructure with intent to notify all interested parties when a new subscriber comes in (e.g. for creating queues etc.)
         /// </summary>
         /// <param name="subscriber"></param>
         public void Subscribe(ISubscriber subscriber)

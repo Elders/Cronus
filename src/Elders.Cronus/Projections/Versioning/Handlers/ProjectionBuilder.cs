@@ -56,6 +56,7 @@ namespace Elders.Cronus.Projections.Versioning
                     var timedout = new TimeoutProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox);
                     commandPublisher.Publish(timedout);
                 }
+                else
                 {
                     var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, result.Error);
                     commandPublisher.Publish(cancel);

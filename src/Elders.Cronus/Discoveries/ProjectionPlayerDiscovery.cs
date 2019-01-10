@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class ProjectionPlayerDiscovery : DiscoveryBasedOnExecutingDirAssemblies<ProjectionPlayer>
+    public class ProjectionPlayerDiscovery : DiscoveryBase<ProjectionPlayer>
     {
         protected override DiscoveryResult<ProjectionPlayer> DiscoverFromAssemblies(DiscoveryContext context)
         {

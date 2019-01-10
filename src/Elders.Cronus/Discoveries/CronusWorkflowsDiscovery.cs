@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class CronusWorkflowsDiscovery : DiscoveryBasedOnExecutingDirAssemblies<IWorkflow>
+    public class CronusWorkflowsDiscovery : DiscoveryBase<IWorkflow>
     {
         protected override DiscoveryResult<IWorkflow> DiscoverFromAssemblies(DiscoveryContext context)
         {
@@ -15,7 +15,6 @@ namespace Elders.Cronus.Discoveries
         IEnumerable<DiscoveredModel> GetModels()
         {
             yield return new DiscoveredModel(typeof(Workflow<HandleContext>), typeof(MessageHandleWorkflow), ServiceLifetime.Transient);
-            yield return new DiscoveredModel(typeof(SubscriberCollection<>), typeof(SubscriberCollection<>), ServiceLifetime.Singleton);
         }
     }
 }

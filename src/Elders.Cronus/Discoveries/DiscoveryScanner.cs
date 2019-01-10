@@ -4,7 +4,7 @@ using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class DiscoveryScanner : DiscoveryBasedOnExecutingDirAssemblies<DiscoveryScanner>
+    public class DiscoveryScanner : DiscoveryBase<DiscoveryScanner>
     {
         private readonly static ILog log = LogProvider.GetLogger(typeof(DiscoveryScanner));
 

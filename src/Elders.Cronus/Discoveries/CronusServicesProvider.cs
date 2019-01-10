@@ -10,10 +10,11 @@ using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Configuration;
+using System.Reflection;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class CronusServicesProvider
+    public class CronusServicesProvider : ICronusServicesProvider
     {
         protected readonly IServiceCollection services;
 
@@ -31,23 +32,31 @@ namespace Elders.Cronus.Discoveries
         {
             if (discoveryResult is null) throw new ArgumentNullException(nameof(discoveryResult));
 
-            try
-            {
-                dynamic dynamicModel = (dynamic)discoveryResult;
-                Handle(dynamicModel);
-            }
-            catch (RuntimeBinderException ex)
-            {
-                var serviceTypeName = discoveryResult.GetType().GetGenericArguments().Single().Name;
-                throw new RuntimeBinderException($"Missing handle for IDiscoveryResult<{serviceTypeName}>", ex);
-            }
+            Type discoveryResultType = discoveryResult.GetType();
+            Type genericArgumentType = discoveryResultType.GetGenericArguments().Single();
+            MethodInfo handler = this.GetType().GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
+                .Where(m => m.Name.Equals("Handle", StringComparison.OrdinalIgnoreCase))
+                .Where(m => m.GetParameters().Any(p => p.ParameterType.GetGenericArguments().Single() == genericArgumentType))
+                .SingleOrDefault();
+
+            if (handler is null)
+                throw new RuntimeBinderException($"Missing handle for IDiscoveryResult<{genericArgumentType.Name}>");
+
+            handler.Invoke(this, new[] { discoveryResult });
         }
 
-        void AddServices(IDiscoveryResult<object> discoveryResult)
+        protected void AddServices(IDiscoveryResult<object> discoveryResult)
         {
             foreach (var discoveredModel in discoveryResult.Models)
             {
-                services.TryAdd(discoveredModel);
+                if (discoveredModel.CanOverrideDefaults)
+                {
+                    services.Replace(discoveredModel);
+                }
+                else
+                {
+                    services.TryAdd(discoveredModel);
+                }
             }
         }
 
@@ -89,6 +98,4 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual void Handle(DiscoveryResult<MigrationDiscovery> discoveryResult) => AddServices(discoveryResult);
     }
-
-
 }

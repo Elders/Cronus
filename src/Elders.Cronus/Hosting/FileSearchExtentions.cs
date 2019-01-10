@@ -2,9 +2,9 @@
 using System.IO;
 using System.Linq;
 
-namespace Elders.Cronus.Discoveries
+namespace Elders.Cronus
 {
-    public static class FileSearchExtentions
+    internal static class FileSearchExtentions
     {
         public static IEnumerable<string> GetFiles(this string path, string regexPattern = "", SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {
