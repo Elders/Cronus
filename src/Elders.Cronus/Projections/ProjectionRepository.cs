@@ -230,7 +230,7 @@ namespace Elders.Cronus.Projections
                         inMemoryVersionStore.Cache(queryResult.Data.State.Live);
                     foreach (var buildingVersion in queryResult.Data.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
                     {
-                        inMemoryVersionStore.Cache(buildingVersion.WithStatus(ProjectionStatus.Live));
+                        inMemoryVersionStore.Cache(buildingVersion);
                     }
                     versions = inMemoryVersionStore.Get(projectionName);
                     LastRefreshTimestamp = Stopwatch.GetTimestamp();
