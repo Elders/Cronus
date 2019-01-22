@@ -30,7 +30,7 @@ namespace Elders.Cronus.Projections
 
         Because of = () => ar.Replay(hash);
 
-        It should_timeout_the_obsolete_building_versions = () => ar.PublishedEvents<ProjectionVersionRequestTimedout>().Count().ShouldEqual(2);
+        It should_timeout_the_obsolete_building_versions = () => ar.PublishedEvents<ProjectionVersionRequestTimedout>().Count().ShouldEqual(3);
 
         static ProjectionVersionManager ar;
         static string hash;

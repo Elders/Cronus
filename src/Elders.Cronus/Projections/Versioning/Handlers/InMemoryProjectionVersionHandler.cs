@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -8,21 +9,26 @@ namespace Elders.Cronus.Projections.Versioning
         IEventHandler<NewProjectionVersionIsNowLive>,
         IEventHandler<ProjectionVersionRequestCanceled>
     {
-        public InMemoryProjectionVersionStore ProjectionVersionStore { get; set; }
+        private readonly InMemoryProjectionVersionStore projectionVersionStore;
+
+        public InMemoryProjectionVersionHandler(InMemoryProjectionVersionStore projectionVersionStore)
+        {
+            this.projectionVersionStore = projectionVersionStore ?? throw new ArgumentNullException(nameof(projectionVersionStore));
+        }
 
         public void Handle(ProjectionVersionRequestCanceled @event)
         {
-            ProjectionVersionStore.Cache(@event.Version);
+            projectionVersionStore.Cache(@event.Version);
         }
 
         public void Handle(ProjectionVersionRequested @event)
         {
-            ProjectionVersionStore.Cache(@event.Version);
+            projectionVersionStore.Cache(@event.Version);
         }
 
         public void Handle(NewProjectionVersionIsNowLive @event)
         {
-            ProjectionVersionStore.Cache(@event.ProjectionVersion);
+            projectionVersionStore.Cache(@event.ProjectionVersion);
         }
     }
 }

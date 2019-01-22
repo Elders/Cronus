@@ -89,15 +89,15 @@ namespace Elders.Cronus.Projections
                                 }
                                 catch (Exception ex)
                                 {
-                                    log.ErrorException("Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}", ex);
+                                    log.ErrorException("Failed to update projection. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}", ex);
                                 }
                             }
-                            else if (version.Status == ProjectionStatus.NotPresent)
-                            {
-                                var commit = new ProjectionCommit(projectionId, version, @event, 1, eventOrigin, DateTime.UtcNow);
-                                projectionStore.Save(commit);
-                            }
                         }
+                    }
+
+                    if (result.HasError)
+                    {
+                        log.Error("Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
                     }
                 }
             }
@@ -230,7 +230,7 @@ namespace Elders.Cronus.Projections
                         inMemoryVersionStore.Cache(queryResult.Data.State.Live);
                     foreach (var buildingVersion in queryResult.Data.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
                     {
-                        inMemoryVersionStore.Cache(buildingVersion.WithStatus(ProjectionStatus.Live));
+                        inMemoryVersionStore.Cache(buildingVersion);
                     }
                     versions = inMemoryVersionStore.Get(projectionName);
                     LastRefreshTimestamp = Stopwatch.GetTimestamp();
@@ -240,6 +240,9 @@ namespace Elders.Cronus.Projections
                 {
                     versions.Add(new ProjectionVersion(projectionName, ProjectionStatus.NotPresent, 0, projectionHasher.CalculateHash(projectionName)));
                 }
+
+                if (queryResult.HasError)
+                    return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
             }
 
             return new ReadResult<ProjectionVersions>(versions);
@@ -261,7 +264,8 @@ namespace Elders.Cronus.Projections
             }
             catch (Exception ex)
             {
-                return ReadResult<ProjectionVersionsHandler>.WithNotFoundHint(ex.Message);
+                log.WarnException($"Failed to load projection versions. ProjectionName: {projectionName}", ex);
+                return ReadResult<ProjectionVersionsHandler>.WithError(ex.Message);
             }
         }
 
