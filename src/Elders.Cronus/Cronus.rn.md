@@ -1,3 +1,6 @@
+#### 5.2.1 - 22.01.2019
+* Fixes a projection bug
+
 #### 5.2.0 - 10.01.2019
 * Adds CronusOptionsProviderBase which allows easy options setup
 * Drops net472 because netstandard2.0 supports it out of the box
