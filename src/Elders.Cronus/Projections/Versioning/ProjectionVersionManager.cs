@@ -94,7 +94,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         private void EnsureThereIsNoOutdatedBuildingVersions()
         {
-            IEnumerable<ProjectionVersion> buildingVersions = state.Versions
+            IEnumerable<ProjectionVersion> buildingVersions = state.Versions.WithoutTheGarbage()
                 .Where(ver => ver.Status == ProjectionStatus.Building)
                 .OrderByDescending(x => x.Revision);
 
