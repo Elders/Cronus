@@ -35,61 +35,50 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        // fix me
+        //public ProjectionVersions WithoutTheGarbage()
+        //{
+        //    ValidateVersion(version);
+
+        //    if (version.Status != ProjectionStatus.Building)
+        //    {
+        //        var versionInBuild = this.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault(); // searches for building version for the version hash
+        //        versions.Remove(versionInBuild);
+
+        //        if (version.Status != ProjectionStatus.Live)
+        //            versions.Add(version);
+        //    }
+
+        //    if (version.Status == ProjectionStatus.Building)
+        //        versions.Add(version);
+
+        //    if (version.Status == ProjectionStatus.Live)
+        //    {
+        //        var canceled = this.Where(x => x == version.WithStatus(ProjectionStatus.Canceled)).SingleOrDefault();
+        //        versions.Remove(canceled);
+
+        //        var timedout = this.Where(x => x == version.WithStatus(ProjectionStatus.Timedout)).SingleOrDefault();
+        //        versions.Remove(timedout);
+
+        //        var currentLiveVer = GetLive();
+        //        if (ReferenceEquals(null, currentLiveVer) || currentLiveVer <= version)
+        //        {
+        //            versions.Remove(currentLiveVer);
+        //            versions.Add(version);
+        //        }
+        //    }
+        //}
+
         public void Add(ProjectionVersion version)
         {
-            if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
             ValidateVersion(version);
 
-            if (version.Status != ProjectionStatus.Building)
-            {
-                var versionInBuild = this.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault(); // searches for building version for the version hash
-                versions.Remove(versionInBuild);
-
-                if (version.Status != ProjectionStatus.Live)
-                    versions.Add(version);
-            }
-
-            if (version.Status == ProjectionStatus.Building)
-                versions.Add(version);
+            versions.Add(version);
 
             if (version.Status == ProjectionStatus.Live)
             {
-                var canceled = this.Where(x => x == version.WithStatus(ProjectionStatus.Canceled)).SingleOrDefault();
-                versions.Remove(canceled);
-
-                var timedout = this.Where(x => x == version.WithStatus(ProjectionStatus.Timedout)).SingleOrDefault();
-                versions.Remove(timedout);
-
-                var currentLiveVer = GetLive();
-                if (ReferenceEquals(null, currentLiveVer) || currentLiveVer <= version)
-                {
-                    versions.Remove(currentLiveVer);
-                    versions.Add(version);
-                }
+                if (liveVersion is null || liveVersion < version)
+                    liveVersion = version;
             }
-        }
-
-        public ProjectionVersion GetLatest()
-        {
-            if (this.Count == 0) return default(ProjectionVersion);
-
-            var maxRevision = this.Max(ver => ver.Revision);
-            return this.Where(x => x.Revision == maxRevision).SingleOrDefault();
-        }
-
-        public ProjectionVersion GetNext()
-        {
-            if (this.Count == 0) return default(ProjectionVersion);
-
-            return GetLatest().NextRevision();
-        }
-
-        public ProjectionVersion GetLive()
-        {
-            if (this.Count == 0) return default(ProjectionVersion);
-
-            return this.Where(x => x.Status == ProjectionStatus.Live).SingleOrDefault();
         }
 
         public void Clear()
@@ -116,39 +105,52 @@ namespace Elders.Cronus.Projections
             return versions.Remove(item);
         }
 
-        public IEnumerator<ProjectionVersion> GetEnumerator()
+
+
+        public ProjectionVersion GetNext()
         {
-            return new HashSet<ProjectionVersion>(versions).GetEnumerator();
+            if (this.Count == 0) return default(ProjectionVersion);
+
+            var maxRevision = this.Max(ver => ver.Revision);
+            var candidate = this.Where(x => x.Revision == maxRevision).FirstOrDefault();
+            return candidate.NextRevision();
         }
+
+        ProjectionVersion liveVersion;
+
+        public ProjectionVersion GetLive() => liveVersion;
 
         public bool IsCanceled(ProjectionVersion version)
         {
             if (version is null) throw new ArgumentNullException(nameof(version));
 
-            var canceledVersion = versions.Where(ver => ver == version.WithStatus(ProjectionStatus.Canceled)).SingleOrDefault();
-            return (canceledVersion is null) == false;
+            return versions.Where(ver => ver == version.WithStatus(ProjectionStatus.Canceled)).Any();
         }
 
         public bool IsOutdatad(ProjectionVersion version)
         {
             if (version is null) throw new ArgumentNullException(nameof(version));
 
-            ProjectionVersion liveVersion = GetLive();
-            if (ReferenceEquals(null, liveVersion)) return false;
+            if (liveVersion is null)
+                return false;
 
             return liveVersion > version;
         }
 
-        public bool IsNotPresent(ProjectionVersion version)
+        public bool IsNotPresent()
         {
-            if (version is null) throw new ArgumentNullException(nameof(version));
-
             return this.Any() == false;
+        }
+
+        public IEnumerator<ProjectionVersion> GetEnumerator()
+        {
+            return new HashSet<ProjectionVersion>(versions).GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return new HashSet<ProjectionVersion>(versions).GetEnumerator();
         }
+
     }
 }
