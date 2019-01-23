@@ -228,7 +228,7 @@ namespace Elders.Cronus.Projections
                 {
                     if (queryResult.Data.State.Live != null)
                         inMemoryVersionStore.Cache(queryResult.Data.State.Live);
-                    foreach (var buildingVersion in queryResult.Data.State.AllVersions.Where(x => x.Status == ProjectionStatus.Building))
+                    foreach (var buildingVersion in queryResult.Data.State.AllVersions.WithoutTheGarbage().Where(x => x.Status == ProjectionStatus.Building))
                     {
                         inMemoryVersionStore.Cache(buildingVersion);
                     }

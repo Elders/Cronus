@@ -11,7 +11,11 @@ namespace Elders.Cronus.Projections
     {
         public ProjectionVersions(HashSet<ProjectionVersion> seed)
         {
-            versions = seed;
+            versions = new HashSet<ProjectionVersion>();
+            foreach (var item in seed)
+            {
+                Add(item);
+            }
         }
 
         public ProjectionVersions() : this(new HashSet<ProjectionVersion>()) { }
