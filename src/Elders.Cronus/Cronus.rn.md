@@ -1,3 +1,6 @@
+#### 5.2.2 - 23.01.2019
+* Fixes which projection versions will be used for persistence
+
 #### 5.2.1 - 22.01.2019
 * Fixes a projection bug
 
