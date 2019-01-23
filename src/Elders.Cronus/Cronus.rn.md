@@ -1,3 +1,6 @@
+#### 5.2.3 - 23.01.2019
+* Fixes the initilization of ProjectionRepository collection
+
 #### 5.2.2 - 23.01.2019
 * Fixes which projection versions will be used for persistence
 
