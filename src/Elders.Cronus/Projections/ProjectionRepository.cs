@@ -236,16 +236,11 @@ namespace Elders.Cronus.Projections
                     LastRefreshTimestamp = Stopwatch.GetTimestamp();
                 }
 
-                if (queryResult.NotFound)
-                {
-                    versions.Add(new ProjectionVersion(projectionName, ProjectionStatus.NotPresent, 0, projectionHasher.CalculateHash(projectionName)));
-                }
-
                 if (queryResult.HasError)
                     return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
             }
 
-            return new ReadResult<ProjectionVersions>(versions);
+            return new ReadResult<ProjectionVersions>(versions.WithoutTheGarbage());
         }
 
         ReadResult<ProjectionVersionsHandler> GetProjectionVersionsFromStore(string projectionName)
