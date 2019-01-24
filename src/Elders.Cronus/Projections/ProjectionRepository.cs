@@ -383,7 +383,7 @@ namespace Elders.Cronus.Projections
 
                 ISnapshot snapshot = null;
                 if (projectionType.IsSnapshotable())
-                    snapshot = snapshotStore.Load(projectionName, projectionId, liveVersion);
+                    snapshot = await snapshotStore.LoadAsync(projectionName, projectionId, liveVersion).ConfigureAwait(false);
                 else
                     snapshot = new NoSnapshot(projectionId, projectionName);
 
