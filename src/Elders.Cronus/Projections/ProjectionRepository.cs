@@ -274,7 +274,7 @@ namespace Elders.Cronus.Projections
                 ProjectionVersion liveVersion = result.Data.GetLive();
                 if (liveVersion is null)
                 {
-                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}");
+                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}{Environment.NewLine}AvailableVersions:{Environment.NewLine}{result.Data.ToString()}");
                     return ProjectionStream.Empty();
                 }
 
@@ -377,7 +377,7 @@ namespace Elders.Cronus.Projections
                 ProjectionVersion liveVersion = result.Data.GetLive();
                 if (liveVersion is null)
                 {
-                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}");
+                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}{Environment.NewLine}AvailableVersions:{Environment.NewLine}{result.Data.ToString()}");
                     return ProjectionStream.Empty();
                 }
 
