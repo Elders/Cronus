@@ -1,3 +1,8 @@
+#### 5.3.0 - 28.01.2019
+* Uses async version for loading a Snapshot
+* Improves error logging
+* ProjectionVersions does not inherit ICollection anymore. Adds more responsibilities to that class as well
+
 #### 5.2.3 - 23.01.2019
 * Fixes the initilization of ProjectionRepository collection
 

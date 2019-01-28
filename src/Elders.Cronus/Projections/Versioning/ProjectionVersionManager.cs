@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -41,10 +40,10 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void VersionRequestTimedout(ProjectionVersion version, VersionRequestTimebox timebox)
         {
-            var foundVersion = state.Versions.Where(ver => ver == version).SingleOrDefault();
-            if (ReferenceEquals(null, foundVersion)) return; // Should we do something about this? It is a not expected and should never happen!!!
+            bool foundVersion = state.Versions.Contains(version);
+            if (foundVersion == false) return;
 
-            if (foundVersion.Status == ProjectionStatus.Building)
+            if (version.Status == ProjectionStatus.Building)
             {
                 var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
                 Apply(@event);
@@ -57,7 +56,7 @@ namespace Elders.Cronus.Projections.Versioning
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
-            if (HasLiveVersion() == false || IsHashTheLiveOne(hash) == false)
+            if (state.Versions.HasLiveVersion == false || state.Versions.IsHashTheLiveOne(hash) == false)
             {
                 Replay(hash);
             }
@@ -65,55 +64,35 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void FinalizeVersionRequest(ProjectionVersion version)
         {
-            var buildingVersion = state.Versions.Where(x => x == version).SingleOrDefault();
-            if (ReferenceEquals(null, buildingVersion) == false)
+            var isVersionFound = state.Versions.Contains(version);
+            if (isVersionFound)
             {
-                var @event = new NewProjectionVersionIsNowLive(state.Id, buildingVersion.WithStatus(ProjectionStatus.Live));
+                var @event = new NewProjectionVersionIsNowLive(state.Id, version.WithStatus(ProjectionStatus.Live));
                 Apply(@event);
             }
 
             EnsureThereIsNoOutdatedBuildingVersions();
         }
 
-        private bool HasLiveVersion() => state.Versions.GetLive() is null == false;
-
-        private bool HasBuildingVersion()
-        {
-            return state.Versions
-                .Where(ver => ver.Status == ProjectionStatus.Building)
-                .OrderByDescending(x => x.Revision)
-                .Any();
-        }
-
         private bool CanReplayHash(string hash)
         {
-            bool isHashTheLiveOne = IsHashTheLiveOne(hash);
+            bool isHashTheLiveOne = state.Versions.IsHashTheLiveOne(hash);
 
-            return HasBuildingVersion() == false && (HasLiveVersion() == false || isHashTheLiveOne);
+            return state.Versions.HasBuildingVersion() == false && (state.Versions.HasLiveVersion == false || isHashTheLiveOne);
         }
 
         private void EnsureThereIsNoOutdatedBuildingVersions()
         {
-            IEnumerable<ProjectionVersion> buildingVersions = state.Versions.WithoutTheGarbage()
-                .Where(ver => ver.Status == ProjectionStatus.Building)
-                .OrderByDescending(x => x.Revision);
+            IEnumerable<ProjectionVersion> buildingVersions = state.Versions.GetBuildingVersions();
 
             foreach (var buildingVersion in buildingVersions)
             {
                 if (state.LastVersionRequestTimebox.HasExpired)
                     VersionRequestTimedout(buildingVersion, state.LastVersionRequestTimebox);
-                else if (HasLiveVersion() && buildingVersion < state.Versions.GetLive())
+
+                if (state.Versions.HasLiveVersion && buildingVersion < state.Versions.GetLive())
                     CancelVersionRequest(buildingVersion, "Outdated version. There is already a live version.");
             }
-        }
-
-        private bool IsHashTheLiveOne(string hash)
-        {
-            if (HasLiveVersion() == false)
-                return false;
-
-            bool isHashTheLiveOne = state.Versions.GetLive().Hash.Equals(hash, StringComparison.Ordinal);
-            return isHashTheLiveOne;
         }
 
         private bool CanCancel(ProjectionVersion version)
@@ -121,7 +100,7 @@ namespace Elders.Cronus.Projections.Versioning
             if (version.Status != ProjectionStatus.Building)
                 return false;
 
-            return state.Versions.Where(x => x == version).Any();
+            return state.Versions.Contains(version);
         }
 
         /// <summary>

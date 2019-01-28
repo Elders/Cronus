@@ -25,7 +25,7 @@ namespace Elders.Cronus.Tests.Projections
             }
         };
 
-        It should_be_possible_to_add_new_versions = () => versions.Count.ShouldEqual(2);
+        It should_be_possible_to_add_new_versions = () => versions.Count.ShouldEqual(1);
 
         It should_have_the_new_version = () => versions.IsCanceled(another).ShouldBeTrue();
 

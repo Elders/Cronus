@@ -208,7 +208,7 @@ namespace Elders.Cronus.Projections
             var versionId = new ProjectionVersionManagerId(version.ProjectionName, context.Tenant);
             var result = projectionReader.Get<ProjectionVersionsHandler>(versionId);
             if (result.IsSuccess)
-                return result.Data.State.AllVersions.WithoutTheGarbage();
+                return result.Data.State.AllVersions;
 
             return new ProjectionVersions();
         }

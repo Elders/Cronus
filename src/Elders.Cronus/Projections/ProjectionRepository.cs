@@ -97,7 +97,7 @@ namespace Elders.Cronus.Projections
 
                     if (result.HasError)
                     {
-                        log.Error("Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
+                        log.Error("Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + result.Error + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
                     }
                 }
             }
@@ -228,7 +228,7 @@ namespace Elders.Cronus.Projections
                 {
                     if (queryResult.Data.State.Live != null)
                         inMemoryVersionStore.Cache(queryResult.Data.State.Live);
-                    foreach (var buildingVersion in queryResult.Data.State.AllVersions.WithoutTheGarbage().Where(x => x.Status == ProjectionStatus.Building))
+                    foreach (var buildingVersion in queryResult.Data.State.AllVersions.GetBuildingVersions())
                     {
                         inMemoryVersionStore.Cache(buildingVersion);
                     }
@@ -240,7 +240,7 @@ namespace Elders.Cronus.Projections
                     return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
             }
 
-            return new ReadResult<ProjectionVersions>(versions.WithoutTheGarbage());
+            return new ReadResult<ProjectionVersions>(versions);
         }
 
         ReadResult<ProjectionVersionsHandler> GetProjectionVersionsFromStore(string projectionName)
@@ -274,7 +274,7 @@ namespace Elders.Cronus.Projections
                 ProjectionVersion liveVersion = result.Data.GetLive();
                 if (liveVersion is null)
                 {
-                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}");
+                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}{Environment.NewLine}AvailableVersions:{Environment.NewLine}{result.Data.ToString()}");
                     return ProjectionStream.Empty();
                 }
 
@@ -377,13 +377,13 @@ namespace Elders.Cronus.Projections
                 ProjectionVersion liveVersion = result.Data.GetLive();
                 if (liveVersion is null)
                 {
-                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}");
+                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}{Environment.NewLine}AvailableVersions:{Environment.NewLine}{result.Data.ToString()}");
                     return ProjectionStream.Empty();
                 }
 
                 ISnapshot snapshot = null;
                 if (projectionType.IsSnapshotable())
-                    snapshot = snapshotStore.Load(projectionName, projectionId, liveVersion);
+                    snapshot = await snapshotStore.LoadAsync(projectionName, projectionId, liveVersion).ConfigureAwait(false);
                 else
                     snapshot = new NoSnapshot(projectionId, projectionName);
 
