@@ -228,7 +228,7 @@ namespace Elders.Cronus.Projections
                 {
                     if (queryResult.Data.State.Live != null)
                         inMemoryVersionStore.Cache(queryResult.Data.State.Live);
-                    foreach (var buildingVersion in queryResult.Data.State.AllVersions.WithoutTheGarbage().Where(x => x.Status == ProjectionStatus.Building))
+                    foreach (var buildingVersion in queryResult.Data.State.AllVersions.GetBuildingVersions())
                     {
                         inMemoryVersionStore.Cache(buildingVersion);
                     }
@@ -240,7 +240,7 @@ namespace Elders.Cronus.Projections
                     return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
             }
 
-            return new ReadResult<ProjectionVersions>(versions.WithoutTheGarbage());
+            return new ReadResult<ProjectionVersions>(versions);
         }
 
         ReadResult<ProjectionVersionsHandler> GetProjectionVersionsFromStore(string projectionName)
