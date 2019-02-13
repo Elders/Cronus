@@ -40,6 +40,8 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void VersionRequestTimedout(ProjectionVersion version, VersionRequestTimebox timebox)
         {
+            // TODO: check if the timebox really has expired LOL :), Believe me, do it
+            // Ask the SAGA if this is for real??
             bool foundVersion = state.Versions.Contains(version);
             if (foundVersion == false) return;
 
