@@ -1,7 +1,9 @@
+#### 5.3.1-beta0002 - 13.02.2019
+* InMemoryPublisher that publishes commands & events in the correct order with Correlation Id
+
 #### 5.3.1-beta0001 - 13.02.2019
 * The Projection Builder now has the right order for publishing Timeouts.
 * Projection Versions are now added properly.
-
 
 #### 5.3.0 - 28.01.2019
 * Uses async version for loading a Snapshot
