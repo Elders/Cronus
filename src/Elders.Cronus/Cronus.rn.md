@@ -1,3 +1,8 @@
+#### 5.3.1-beta0003 - 14.02.2019
+* Added ordering in projections registrations
+* Simplified InMemoryProjectionVersionStore
+* Added using in the InMemoryPublisher
+
 #### 5.3.1-beta0002 - 13.02.2019
 * InMemoryPublisher that publishes commands & events in the correct order with Correlation Id
 
