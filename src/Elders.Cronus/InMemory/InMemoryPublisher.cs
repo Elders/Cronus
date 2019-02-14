@@ -33,16 +33,18 @@ namespace Elders.Cronus.InMemory
 
         protected override bool PublishInternal(CronusMessage message)
         {
-            var queue = queues.GetQueue(message);
-            queue.Enqueue(message);
-            while (queue.Any())
+            using (var queue = queues.GetQueue(message))
             {
-                var msg = queue.Dequeue();
-                NotifySubscribers(msg, appServiceSubscribers);
-                NotifySubscribers(msg, projectionSubscribers);
-                NotifySubscribers(msg, portSubscribers);
-                NotifySubscribers(msg, gatewaySubscribers);
-                NotifySubscribers(msg, sagaSubscribers);
+                queue.Enqueue(message);
+                while (queue.Any())
+                {
+                    var msg = queue.Dequeue();
+                    NotifySubscribers(msg, appServiceSubscribers);
+                    NotifySubscribers(msg, projectionSubscribers);
+                    NotifySubscribers(msg, portSubscribers);
+                    NotifySubscribers(msg, gatewaySubscribers);
+                    NotifySubscribers(msg, sagaSubscribers);
+                }
             }
             return true;
         }
