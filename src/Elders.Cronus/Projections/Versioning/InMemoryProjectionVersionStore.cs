@@ -16,15 +16,18 @@ namespace Elders.Cronus.Projections.Versioning
         {
             if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
 
-            var versions = store.GetOrAdd(projectionName, new ProjectionVersions());
-            return versions;
+            return store.GetOrAdd(projectionName, new ProjectionVersions());
         }
 
         public void Cache(ProjectionVersion version)
         {
-            if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
-            var versions = store.GetOrAdd(version.ProjectionName, new ProjectionVersions());
-            versions.Add(version);
+            if (version is null) throw new ArgumentNullException(nameof(version));
+
+            ProjectionVersions versions = Get(version.ProjectionName);
+            lock (versions)
+            {
+                versions.Add(version);
+            }
         }
     }
 }
