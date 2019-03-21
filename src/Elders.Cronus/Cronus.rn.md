@@ -1,12 +1,9 @@
-#### 5.3.1-beta0003 - 14.02.2019
+#### 5.3.1 - 21.03.2019
+* Fixes a concurrency issue when working with versions => https://github.com/dotnet/corefx/pull/28225
 * Added ordering in projections registrations
 * Simplified InMemoryProjectionVersionStore
 * Added using in the InMemoryPublisher
-
-#### 5.3.1-beta0002 - 13.02.2019
 * InMemoryPublisher that publishes commands & events in the correct order with Correlation Id
-
-#### 5.3.1-beta0001 - 13.02.2019
 * The Projection Builder now has the right order for publishing Timeouts.
 * Projection Versions are now added properly.
 
