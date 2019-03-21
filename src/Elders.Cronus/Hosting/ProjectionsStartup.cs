@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections.Versioning;
+using System.Linq;
 
 namespace Elders.Cronus
 {
@@ -21,7 +22,8 @@ namespace Elders.Cronus
 
         public void Bootstrap()
         {
-            foreach (var handler in handlerTypeContainer.Items)
+            var systemProjection = typeof(ISystemProjection);
+            foreach (var handler in handlerTypeContainer.Items.OrderByDescending(x => systemProjection.IsAssignableFrom(x)))
             {
                 foreach (var tenant in tenants.GetTenants())
                 {

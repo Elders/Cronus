@@ -16,27 +16,17 @@ namespace Elders.Cronus.Projections.Versioning
         {
             if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
 
-            ProjectionVersions versions;
-            if (store.TryGetValue(projectionName, out versions))
-                return versions;
-
-            return new ProjectionVersions();
+            return store.GetOrAdd(projectionName, new ProjectionVersions());
         }
 
         public void Cache(ProjectionVersion version)
         {
-            if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
+            if (version is null) throw new ArgumentNullException(nameof(version));
 
-            ProjectionVersions versions;
-            if (store.TryGetValue(version.ProjectionName, out versions))
+            ProjectionVersions versions = Get(version.ProjectionName);
+            lock (versions)
             {
                 versions.Add(version);
-            }
-            else
-            {
-                var initialVersion = new ProjectionVersions();
-                initialVersion.Add(version);
-                store.AddOrUpdate(version.ProjectionName, initialVersion, (key, val) => val);
             }
         }
     }

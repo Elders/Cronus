@@ -1,45 +1,68 @@
 ﻿using Elders.Cronus.Logging;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Multitenancy;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
 
 namespace Elders.Cronus.InMemory
 {
-    public abstract class InMemoryPublisher<T> : Publisher<IMessage> where T : IMessage
+    public class InMemoryPublisher<T> : Publisher<IMessage> where T : IMessage
     {
-        private readonly static ILog log = LogProvider.GetLogger(typeof(SynchronousMessageProcessor<>));
+        private readonly static ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<>));
 
-        private static ConcurrentDictionary<object, Timer> timers = new ConcurrentDictionary<object, Timer>();
+        private readonly ISubscriberCollection<IApplicationService> appServiceSubscribers;
+        private readonly ISubscriberCollection<IProjection> projectionSubscribers;
+        private readonly ISubscriberCollection<IPort> portSubscribers;
+        private readonly ISubscriberCollection<IGateway> gatewaySubscribers;
+        private readonly ISubscriberCollection<ISaga> sagaSubscribers;
+        private readonly ScopedQueues queues = new ScopedQueues();
 
-        public InMemoryPublisher(ITenantResolver tenantResolver) : base(tenantResolver) { }
-
-        public override bool Publish(IMessage message, DateTime publishAt, Dictionary<string, string> messageHeaders = null)
+        public InMemoryPublisher(
+            ISubscriberCollection<IApplicationService> appServiceSubscribers,
+            ISubscriberCollection<IProjection> projectionSubscribers,
+            ISubscriberCollection<IPort> portSubscribers,
+            ISubscriberCollection<IGateway> gatewaySubscribers,
+            ISubscriberCollection<ISaga> sagaSubscribers)
+            : base(new DefaultTenantResolver())
         {
-            messageHeaders = messageHeaders ?? new Dictionary<string, string>();
-            messageHeaders.Add(MessageHeader.PublishTimestamp, publishAt.ToFileTimeUtc().ToString());
+            this.appServiceSubscribers = appServiceSubscribers;
+            this.projectionSubscribers = projectionSubscribers;
+            this.portSubscribers = portSubscribers;
+            this.gatewaySubscribers = gatewaySubscribers;
+            this.sagaSubscribers = sagaSubscribers;
+        }
 
-            TimeSpan delta = publishAt - DateTime.UtcNow;
-            if (delta.TotalSeconds > 1)
+        protected override bool PublishInternal(CronusMessage message)
+        {
+            using (var queue = queues.GetQueue(message))
             {
-                Guid timerKey = Guid.NewGuid();
-                log.Debug($"{timerKey} => STARTED => {DateTime.UtcNow}");
-
-                TimerCallback handler = (key) =>
+                queue.Enqueue(message);
+                while (queue.Any())
                 {
-                    Publish(message, messageHeaders);
-                    timers.TryRemove(key, out Timer timerInstance);
-                    log.Debug($"{timerKey} => FINISHED => {DateTime.UtcNow}");
-                };
-                var timer = new Timer(handler, timerKey, delta, TimeSpan.FromMilliseconds(-1));
-                timers.TryAdd(timerKey, timer);
-            }
-            else
-            {
-                Publish(message, messageHeaders);
+                    var msg = queue.Dequeue();
+                    NotifySubscribers(msg, appServiceSubscribers);
+                    NotifySubscribers(msg, projectionSubscribers);
+                    NotifySubscribers(msg, portSubscribers);
+                    NotifySubscribers(msg, gatewaySubscribers);
+                    NotifySubscribers(msg, sagaSubscribers);
+                }
             }
             return true;
+        }
+
+        void NotifySubscribers<TContract>(CronusMessage message, ISubscriberCollection<TContract> subscribers)
+        {
+            try
+            {
+                var interestedSubscribers = subscribers.GetInterestedSubscribers(message);
+                foreach (var subscriber in interestedSubscribers)
+                {
+                    subscriber.Process(message);
+                }
+            }
+            catch (Exception ex)
+            {
+                log.Error("Unable to process message", ex);
+            }
         }
     }
 }

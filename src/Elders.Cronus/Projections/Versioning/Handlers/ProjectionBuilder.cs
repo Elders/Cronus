@@ -23,10 +23,10 @@ namespace Elders.Cronus.Projections.Versioning
         public void Handle(ProjectionVersionRequested @event)
         {
             var startRebuildAt = @event.Timebox.RebuildStartAt;
-            if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow)
+            if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
             {
-                RequestTimeout(new ProjectionVersionRebuildTimedout(@event, @event.Timebox.RebuildFinishUntil));
                 RequestTimeout(new RebuildProjectionVersion(@event, @event.Timebox.RebuildStartAt));
+                RequestTimeout(new ProjectionVersionRebuildTimedout(@event, @event.Timebox.RebuildFinishUntil));
             }
         }
 
