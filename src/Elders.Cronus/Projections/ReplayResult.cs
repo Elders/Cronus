@@ -1,6 +1,6 @@
 ﻿namespace Elders.Cronus.Projections
 {
-    public sealed class ReplayResult
+    public struct ReplayResult
     {
         public ReplayResult(string error = null, bool isTimeOut = false, bool canRetry = false)
         {
