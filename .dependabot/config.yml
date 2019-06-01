@@ -5,4 +5,4 @@ update_configs:
   update_schedule: live
   default_assignees:
   - mynkow
-target_branch: release-6.0.0
+- target_branch: release-6.0.0
