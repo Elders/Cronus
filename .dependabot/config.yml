@@ -5,16 +5,4 @@ update_configs:
   update_schedule: live
   default_assignees:
   - mynkow
-allowed_updates:
-- match:
-    update_type: all
-    dependency_type: direct
-- match:
-    update_type: all
-    dependency_type: indirect
-automerged_updates: []
-default_labels:
-- dependencies
-default_reviewers: []
-ignored_updates: []
 target_branch: release-6.0.0
