@@ -10,11 +10,17 @@ namespace Elders.Cronus
 {
     public static class CronusServiceCollectionExtensions
     {
+        /// <summary>
+        /// // Adds Cronus core services
+        /// </summary>
         public static IServiceCollection AddCronus(this IServiceCollection services, IConfiguration configuration)
         {
             return AddCronus(services, new CronusServicesProvider(services, configuration));
         }
 
+        /// <summary>
+        /// // Adds Cronus core services
+        /// </summary>
         public static IServiceCollection AddCronus(this IServiceCollection services, CronusServicesProvider cronusServicesProvider)
         {
             services.AddTenantSupport();
@@ -43,6 +49,9 @@ namespace Elders.Cronus
             return services;
         }
 
+        /// <summary>
+        /// Adds a service which lifestyle is singleton per tenant
+        /// </summary>
         public static IServiceCollection AddTenantSingleton<TService, TImplementation>(this IServiceCollection services)
             where TService : class
             where TImplementation : class, TService
@@ -53,6 +62,9 @@ namespace Elders.Cronus
             return services;
         }
 
+        /// <summary>
+        /// Replaces a service with a new one
+        /// </summary>
         public static IServiceCollection Replace<TService, TImplementation>(this IServiceCollection services)
             where TService : class
             where TImplementation : class, TService
