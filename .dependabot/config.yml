@@ -6,4 +6,12 @@ update_configs:
   default_assignees:
   - mynkow
   target_branch: release-6.0.0
-
+  default_labels:
+  - dependencies
+  allowed_updates:
+  - match:
+      update_type: all
+      dependency_type: direct
+  - match:
+      update_type: all
+      dependency_type: indirect
