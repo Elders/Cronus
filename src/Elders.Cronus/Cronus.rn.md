@@ -1,3 +1,6 @@
+#### 6.0.0-beta0001 - 01.06.2019
+* Targets netcoreapp3.0
+
 #### 5.3.1 - 21.03.2019
 * Fixes a concurrency issue when working with versions => https://github.com/dotnet/corefx/pull/28225
 * Added ordering in projections registrations
