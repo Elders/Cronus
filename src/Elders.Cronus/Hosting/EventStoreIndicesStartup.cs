@@ -1,5 +1,4 @@
 ﻿using Elders.Cronus.EventStore.Index;
-using Elders.Cronus.EventStore.Index.Commands;
 using Elders.Cronus.Multitenancy;
 
 namespace Elders.Cronus
