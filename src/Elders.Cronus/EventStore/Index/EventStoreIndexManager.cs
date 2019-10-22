@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.EventStore.Index.Events;
-using Elders.Cronus.Projections.Versioning;
+﻿using Elders.Cronus.Projections.Versioning;
 using System;
 
 namespace Elders.Cronus.EventStore.Index
@@ -34,6 +33,15 @@ namespace Elders.Cronus.EventStore.Index
         {
             var @event = new EventStoreIndexRequested(id, DateTimeOffset.UtcNow, timebox);
             Apply(@event);
+        }
+
+        public void FinalizeRequest()
+        {
+            if (state.IsBuilding)
+            {
+                var @event = new EventStoreIndexIsNowPresent(state.Id);
+                Apply(@event);
+            }
         }
     }
 }

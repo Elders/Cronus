@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Elders.Cronus.EventStore.Index.Commands
+namespace Elders.Cronus.EventStore.Index
 {
     [DataContract(Name = "f9c1c15b-ed60-4fa8-ab5f-251403aa8681")]
     public class RebuildIndex : ICommand

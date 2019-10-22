@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Elders.Cronus.EventStore.Index.Events
+namespace Elders.Cronus.EventStore.Index
 {
     [DataContract(Name = "b57d0dd4-4c86-4f8f-9247-fdb71820095a")]
     public class EventStoreIndexRequested : IEvent

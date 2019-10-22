@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.EventStore.Index.Events;
-using Elders.Cronus.Projections.Versioning;
+﻿using Elders.Cronus.Projections.Versioning;
 
 namespace Elders.Cronus.EventStore.Index
 {

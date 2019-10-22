@@ -1,10 +1,9 @@
-﻿using Elders.Cronus.EventStore.Index.Commands;
-
-namespace Elders.Cronus.EventStore.Index
+﻿namespace Elders.Cronus.EventStore.Index
 {
     public class EventStoreIndexManagerAppService : ApplicationService<EventStoreIndexManager>, ISystemService,
         ICommandHandler<RegisterIndex>,
-        ICommandHandler<RebuildIndex>
+        ICommandHandler<RebuildIndex>,
+        ICommandHandler<FinalizeEventStoreIndexRequest>
     {
         public EventStoreIndexManagerAppService(IAggregateRepository repository) : base(repository) { }
 
@@ -27,6 +26,11 @@ namespace Elders.Cronus.EventStore.Index
         public void Handle(RebuildIndex command)
         {
             Update(command.Id, ar => ar.Rebuild());
+        }
+
+        public void Handle(FinalizeEventStoreIndexRequest command)
+        {
+            Update(command.Id, ar => ar.FinalizeRequest());
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using Elders.Cronus.Cluster.Job;
-using Elders.Cronus.EventStore.Index.Events;
 using System;
 using System.Runtime.Serialization;
 
@@ -43,7 +42,8 @@ namespace Elders.Cronus.EventStore.Index.Handlers
             }
             else if (result == JobExecutionStatus.Completed)
             {
-                // finish
+                var finalize = new FinalizeEventStoreIndexRequest(sagaTimeout.EventStoreIndexRequest.Id);
+                commandPublisher.Publish(finalize);
             }
         }
 

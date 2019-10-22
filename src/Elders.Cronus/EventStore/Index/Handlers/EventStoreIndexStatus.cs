@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.EventStore.Index.Events;
-using Elders.Cronus.Projections;
+﻿using Elders.Cronus.Projections;
 using Elders.Cronus.Projections.Snapshotting;
 using System.Runtime.Serialization;
 
@@ -7,8 +6,8 @@ namespace Elders.Cronus.EventStore.Index.Handlers
 {
     [DataContract(Name = ContractId)]
     public class EventStoreIndexStatus : ProjectionDefinition<EventStoreIndexStatusState, EventStoreIndexManagerId>, IAmNotSnapshotable, ISystemEventStoreIndex,
-        IEventHandler<EventStoreIndexRequested>
-    //IEventHandler<NewProjectionVersionIsNowLive>,
+        IEventHandler<EventStoreIndexRequested>,
+        IEventHandler<EventStoreIndexIsNowPresent>
     //IEventHandler<ProjectionVersionRequestCanceled>,
     //IEventHandler<ProjectionVersionRequestTimedout>
     {
@@ -23,6 +22,12 @@ namespace Elders.Cronus.EventStore.Index.Handlers
         {
             State.Id = @event.Id;
             State.Status = IndexStatus.Building;
+        }
+
+        public void Handle(EventStoreIndexIsNowPresent @event)
+        {
+            State.Id = @event.Id;
+            State.Status = IndexStatus.Present;
         }
     }
 
