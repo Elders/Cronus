@@ -36,6 +36,7 @@ namespace Elders.Cronus
         Ports = 40,
         Sagas = 50,
         Projections = 60,
+        EventStoreIndices = 65,
         Gateways = 70,
 
         /// <summary>

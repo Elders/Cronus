@@ -17,9 +17,23 @@ namespace Elders.Cronus.EventStore
         /// <param name="batchSize">Size of the batch.</param>
         /// <returns></returns>
         IEnumerable<AggregateCommitRaw> LoadAggregateCommitsRaw(int batchSize = 5000);
+
+        /// <summary>
+        /// Loads all aggregate commits. The commits are unordered.
+        /// </summary>
+        /// <param name="batchSize">Size of the batch.</param>
+        /// <returns></returns>
+        LoadAggregateCommitsResult LoadAggregateCommits(string paginationToken, int batchSize = 5000);
     }
 
     public interface IEventStorePlayer<TSettings> : IEventStorePlayer
         where TSettings : class
     { }
+
+    public class LoadAggregateCommitsResult
+    {
+        public string PaginationToken { get; set; }
+
+        public List<AggregateCommit> Commits { get; set; }
+    }
 }
