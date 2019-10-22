@@ -5,14 +5,14 @@ using System.Linq;
 namespace Elders.Cronus
 {
     [CronusStartup(Bootstraps.Projections)]
-    public class ProjectionsBooter : ICronusStartup
+    public class ProjectionsStartup : ICronusStartup
     {
         private readonly ITenantList tenants;
         private readonly ProjectionHasher hasher;
         private readonly IPublisher<ICommand> publisher;
         private readonly TypeContainer<IProjection> handlerTypeContainer;
 
-        public ProjectionsBooter(TypeContainer<IProjection> handlerTypeContainer, ITenantList tenants, ProjectionHasher hasher, IPublisher<ICommand> publisher)
+        public ProjectionsStartup(TypeContainer<IProjection> handlerTypeContainer, ITenantList tenants, ProjectionHasher hasher, IPublisher<ICommand> publisher)
         {
             this.tenants = tenants;
             this.hasher = hasher;
