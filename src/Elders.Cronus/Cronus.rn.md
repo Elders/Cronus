@@ -1,3 +1,8 @@
+#### 6.0.0-beta0002 - 25.10.2019
+* Introduces Cronus jobs which are intended to run in a cluster
+* Improves the EventStore interfaces so when you do page the store the reult contains a pagination token
+* Rewrites the event store index with ARs and projections
+
 #### 6.0.0-beta0001 - 01.06.2019
 * Targets netcoreapp3.0
 
