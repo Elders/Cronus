@@ -9,9 +9,9 @@ namespace Elders.Cronus
     public abstract class Publisher<TMessage> : IPublisher<TMessage> where TMessage : IMessage
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(Publisher<TMessage>));
-        private readonly ITenantResolver tenantResolver;
+        private readonly ITenantResolver<IMessage> tenantResolver;
 
-        public Publisher(ITenantResolver tenantResolver)
+        public Publisher(ITenantResolver<IMessage> tenantResolver)
         {
             this.tenantResolver = tenantResolver;
         }

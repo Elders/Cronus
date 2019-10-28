@@ -5,13 +5,19 @@ using Elders.Cronus.Projections;
 
 namespace Elders.Cronus.Multitenancy
 {
-    public class DefaultTenantResolver : ITenantResolver
+    public class DefaultTenantResolver :
+        ITenantResolver<IAggregateRootId>,
+        ITenantResolver<AggregateCommit>,
+        ITenantResolver<ProjectionCommit>,
+        ITenantResolver<IMessage>,
+        ITenantResolver<IBlobId>,
+        ITenantResolver<CronusMessage>
     {
         public string Resolve(ProjectionCommit projectionCommit)
         {
             if (ReferenceEquals(null, projectionCommit) == true) throw new ArgumentNullException(nameof(projectionCommit));
 
-            var tenant = string.Empty;
+            string tenant;
             if (TryResolve(projectionCommit.ProjectionId.RawId, out tenant))
                 return tenant;
 
@@ -22,7 +28,7 @@ namespace Elders.Cronus.Multitenancy
         {
             if (ReferenceEquals(null, id) == true) throw new ArgumentNullException(nameof(id));
 
-            var tenant = string.Empty;
+            string tenant;
             if (TryResolve(id.RawId, out tenant))
                 return tenant;
 
@@ -43,7 +49,7 @@ namespace Elders.Cronus.Multitenancy
         {
             if (ReferenceEquals(null, aggregateCommit) == true) throw new ArgumentNullException(nameof(aggregateCommit));
 
-            var tenant = string.Empty;
+            string tenant;
             if (TryResolve(aggregateCommit.AggregateRootId, out tenant))
                 return tenant;
 
@@ -78,7 +84,6 @@ namespace Elders.Cronus.Multitenancy
 
             return tenant;
         }
-
 
         bool TryResolve(byte[] id, out string tenant)
         {

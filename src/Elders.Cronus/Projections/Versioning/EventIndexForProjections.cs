@@ -4,7 +4,6 @@ using System.Runtime.Serialization;
 using System.Text;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -18,16 +17,14 @@ namespace Elders.Cronus.Projections.Versioning
         private readonly TypeContainer<IEvent> allEventTypesInTheSystem;
         private readonly IServiceProvider ioc;
         private readonly Func<IServiceScope, IIndexStore> indexProvider;
-        private readonly ITenantResolver tenantResolver;
 
         public string Id { get { return nameof(IndexByEventTypeSubscriber); } }
 
-        public IndexByEventTypeSubscriber(TypeContainer<IEvent> allEventTypesInTheSystem, IServiceProvider ioc, Func<IServiceScope, IIndexStore> indexProvider, ITenantResolver tenantResolver)
+        public IndexByEventTypeSubscriber(TypeContainer<IEvent> allEventTypesInTheSystem, IServiceProvider ioc, Func<IServiceScope, IIndexStore> indexProvider)
         {
             this.allEventTypesInTheSystem = allEventTypesInTheSystem;
             this.ioc = ioc;
             this.indexProvider = indexProvider;
-            this.tenantResolver = tenantResolver;
         }
 
         public IEnumerable<Type> GetInvolvedMessageTypes()
@@ -39,12 +36,9 @@ namespace Elders.Cronus.Projections.Versioning
         {
             using (IServiceScope scope = ioc.CreateScope())
             {
-                var cronusContext = scope.ServiceProvider.GetRequiredService<CronusContext>();
-                if (cronusContext.IsNotInitialized)
-                {
-                    string tenant = tenantResolver.Resolve(message);
-                    cronusContext.Initialize(tenant, scope.ServiceProvider);
-                }
+                var cronusContextFactory = scope.ServiceProvider.GetRequiredService<CronusContextFactory>();
+                CronusContext cronusContext = cronusContextFactory.GetContext(message, scope.ServiceProvider);
+
                 var index = indexProvider(scope);
                 var indexRecord = new List<IndexRecord>();
                 var @event = message.Payload as IEvent;
