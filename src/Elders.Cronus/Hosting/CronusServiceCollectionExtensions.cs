@@ -38,6 +38,7 @@ namespace Elders.Cronus
             services.AddTransient(typeof(SingletonPerTenant<>));
             services.AddSingleton(typeof(SingletonPerTenantContainer<>));
             services.AddScoped<CronusContext>();
+            services.AddScoped<CronusContextFactory>();
 
             return services;
         }
