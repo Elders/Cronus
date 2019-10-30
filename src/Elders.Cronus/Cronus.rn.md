@@ -1,3 +1,7 @@
+#### 6.0.0-beta0004 - 30.10.2019
+* Sets assembly version to 6.0.0
+* Reworks the MultitenancyDiscovery
+
 #### 6.0.0-beta0003 - 28.10.2019
 * Refactors tenant resolver dependencies
 
