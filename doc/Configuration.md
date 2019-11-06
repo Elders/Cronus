@@ -53,6 +53,61 @@ Specifies whether to start a consumer for the Sagas
 #### `cronus_gateways_enabled` >> *boolean | Required: No | Default: True*
 Specifies whether to start a consumer for the Gateways
 
+# Cronus.Api
+
+## Hosting
+The api is hosted with Kestrel.
+
+By default the Api is hosted on port `7477`.
+
+A configuration could be provided by [KestrelOptions](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-3.0#kestrel-options). You can supply them directly in the DI or through a configuration file.
+
+#### `Cronus:Api:Kestrel` >> *configurationSection | Required: no*
+
+```
+{
+    "Cronus": {
+        "Api": {
+            "Kestrel": {
+                "Endpoints": {
+                    "Https": {
+                        "Url": "https://*:7477",
+                        "Certificate": {
+                            "Subject": "*.example.com",
+                            "Store": "My",
+                            "Location": "CurrentUser",
+                            "AllowInvalid": "true"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+## Authentication
+The API could be protected using a JWT bearer authentication.
+
+The configuration is provided by [JwtBearerOptions](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.builder.jwtbeareroptions?view=aspnetcore-1.1&viewFallbackFrom=aspnetcore-2.2). You can supply them directly in the DI or through a configuration file.
+
+```
+{
+    "Cronus": {
+        "Api": {
+            "JwtAuthentication": {
+                "Authority": "https://example.com",
+                "Audience": "https://example.com/resources"
+            }
+        }
+    }
+}
+```
+
+Remarks: https://stackoverflow.com/a/58736850/224667
+
+---
+
 # Cronus.Persistence.Cassandra
 
 #### `cronus_persistence_cassandra_connectionstring` >> *string | Required: Yes*
