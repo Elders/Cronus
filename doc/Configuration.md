@@ -91,6 +91,8 @@ The API could be protected using a JWT bearer authentication.
 
 The configuration is provided by [JwtBearerOptions](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.builder.jwtbeareroptions?view=aspnetcore-1.1&viewFallbackFrom=aspnetcore-2.2). You can supply them directly in the DI or through a configuration file.
 
+#### `Cronus:Api:JwtAuthentication` >> *configurationSection | Required: no*
+
 ```
 {
     "Cronus": {
