@@ -1,3 +1,7 @@
+#### 6.0.0-beta0005 - 11.11.2019
+* Adds tenant resolver which gets the tenant from a string source
+* Adds EventStoreDiscoveryBase which registers event store indices
+
 #### 6.0.0-beta0004 - 30.10.2019
 * Sets assembly version to 6.0.0
 * Reworks the MultitenancyDiscovery
