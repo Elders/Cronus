@@ -6,6 +6,7 @@ using Elders.Cronus.Projections;
 namespace Elders.Cronus.Multitenancy
 {
     public class DefaultTenantResolver :
+        ITenantResolver<string>,
         ITenantResolver<IAggregateRootId>,
         ITenantResolver<AggregateCommit>,
         ITenantResolver<ProjectionCommit>,
@@ -83,6 +84,11 @@ namespace Elders.Cronus.Multitenancy
             }
 
             return tenant;
+        }
+
+        public string Resolve(string source)
+        {
+            return source;
         }
 
         bool TryResolve(byte[] id, out string tenant)
