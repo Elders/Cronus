@@ -18,5 +18,11 @@ namespace Elders.Cronus.EventStore.Index
             LastVersionRequestTimebox = e.Timebox;
             IsBuilding = true;
         }
+
+        public void When(EventStoreIndexIsNowPresent e)
+        {
+            Id = e.Id;
+            IsBuilding = false;
+        }
     }
 }
