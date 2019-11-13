@@ -1,3 +1,9 @@
+#### 6.0.0-beta0006 - 11.13.2019
+* Initializes the commits collection
+* Bypasses the event store index check when ISystemProjection is rebuilt
+* Allows manual overriding of a Cronus Job data
+* Handles the EventStoreIndexIsNowPresent event in the AR
+
 #### 6.0.0-beta0005 - 11.11.2019
 * Adds tenant resolver which gets the tenant from a string source
 * Adds EventStoreDiscoveryBase which registers event store indices
