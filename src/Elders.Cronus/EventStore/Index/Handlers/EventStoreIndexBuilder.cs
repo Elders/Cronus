@@ -10,11 +10,13 @@ namespace Elders.Cronus.EventStore.Index.Handlers
         ISagaTimeoutHandler<EventStoreIndexRebuildTimedout>
     {
         private readonly ICronusJobRunner jobRunner;
+        private readonly RebuildIndex_EventToAggregateRootId_JobFactory jobFactory;
 
-        public EventStoreIndexBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner)
+        public EventStoreIndexBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, RebuildIndex_EventToAggregateRootId_JobFactory jobFactory)
             : base(commandPublisher, timeoutRequestPublisher)
         {
             this.jobRunner = jobRunner;
+            this.jobFactory = jobFactory;
         }
 
         public void Handle(EventStoreIndexRequested @event)
@@ -29,7 +31,8 @@ namespace Elders.Cronus.EventStore.Index.Handlers
 
         public void Handle(RebuildIndexInternal sagaTimeout)
         {
-            var result = jobRunner.ExecuteAsync(null).GetAwaiter().GetResult();
+            var job = jobFactory.CreateJob(sagaTimeout.EventStoreIndexRequest.Timebox);
+            var result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
 
             if (result == JobExecutionStatus.Running)
             {
