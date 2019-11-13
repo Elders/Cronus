@@ -41,7 +41,7 @@ namespace Elders.Cronus.Projections
             try
             {
                 IndexStatus indexStatus = GetIndexStatus<EventToAggregateRootId>();
-                if (indexStatus.IsNotPresent()) return ReplayResult.RetryLater($"The index is not present");
+                if (indexStatus.IsNotPresent() && IsNotSystemProjection(projectionType)) return ReplayResult.RetryLater($"The index is not present");
 
                 if (IsVersionTrackerMissing() && IsNotSystemProjection(projectionType)) return ReplayResult.RetryLater($"Projection `{version}` still don't have present index."); //WHEN TO RETRY AGAIN
                 if (HasReplayTimeout(rebuildUntil)) return ReplayResult.Timeout($"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{rebuildUntil}.");
