@@ -1,4 +1,4 @@
-name: Add a new GitHub issue to the specified project column
+name: Add PR to project
 on: [pull_request]
 jobs:
   add-new-issues-to-project-column:
