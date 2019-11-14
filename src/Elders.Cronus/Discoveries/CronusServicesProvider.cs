@@ -22,8 +22,6 @@ namespace Elders.Cronus.Discoveries
 
         public CronusServicesProvider(IServiceCollection services, IConfiguration configuration)
         {
-            if (services is null) throw new ArgumentNullException(nameof(services));
-
             this.services = services;
             Configuration = configuration;
         }
