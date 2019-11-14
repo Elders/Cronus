@@ -1,7 +1,7 @@
-#### 6.0.0-beta0006 - 11.13.2019
+#### 6.0.0-beta0007 - 14.11.2019
 * Adds an option directly to add services to IServiceCollection
 
-#### 6.0.0-beta0006 - 11.13.2019
+#### 6.0.0-beta0006 - 13.11.2019
 * Initializes the commits collection
 * Bypasses the event store index check when ISystemProjection is rebuilt
 * Allows manual overriding of a Cronus Job data
