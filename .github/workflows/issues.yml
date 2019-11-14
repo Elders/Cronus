@@ -1,0 +1,13 @@
+name: Add a new GitHub issue to the specified project column
+on: [pull_request]
+jobs:
+  add-new-issues-to-project-column:
+    runs-on: ubuntu-latest
+    steps:
+    - name: add-new-prs-to-repository-based-project-column
+      uses: docker://takanabe/github-actions-automate-projects:v0.0.1
+      if: github.event_name == 'pull_request' && github.event.action == 'opened'
+      env:
+        GITHUB_TOKEN: ${{ secrets.auto }}
+        GITHUB_PROJECT_URL: https://github.com/orgs/Elders/projects/1
+        GITHUB_PROJECT_COLUMN_NAME: Development
