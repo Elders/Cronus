@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System;
 
 namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 {
@@ -15,6 +16,8 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
         {
             new DiscoveredModel(typeof(ITestService), typeof(OverriderService), ServiceLifetime.Transient)
         };
+
+        public Action<IServiceCollection> AddServices => throw new NotImplementedException();
     }
 
     public class CronusServicesProviderTest : CronusServicesProvider

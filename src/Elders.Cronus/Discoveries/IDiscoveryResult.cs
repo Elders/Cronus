@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
@@ -7,21 +8,24 @@ namespace Elders.Cronus.Discoveries
     public interface IDiscoveryResult<out T>
     {
         IEnumerable<DiscoveredModel> Models { get; }
+        Action<IServiceCollection> AddServices { get; }
     }
 
     public class DiscoveryResult<T> : IDiscoveryResult<T>
     {
-        public DiscoveryResult()
-        {
-            Models = new List<DiscoveredModel>();
-        }
+        public DiscoveryResult() : this(Enumerable.Empty<DiscoveredModel>()) { }
 
-        public DiscoveryResult(IEnumerable<DiscoveredModel> models)
+        public DiscoveryResult(IEnumerable<DiscoveredModel> models) : this(models, s => { }) { }
+
+        public DiscoveryResult(IEnumerable<DiscoveredModel> models, Action<IServiceCollection> servicesAction)
         {
             Models = models;
+            AddServices = servicesAction;
         }
 
         public IEnumerable<DiscoveredModel> Models { get; protected set; }
+
+        public Action<IServiceCollection> AddServices { get; protected set; }
     }
 
     public class DiscoveredModel : ServiceDescriptor

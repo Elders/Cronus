@@ -4,7 +4,7 @@ using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class DiscoveryScanner : DiscoveryBase<DiscoveryScanner>
+    public sealed class DiscoveryScanner : DiscoveryBase<DiscoveryScanner>
     {
         private readonly static ILog log = LogProvider.GetLogger(typeof(DiscoveryScanner));
 
@@ -12,10 +12,7 @@ namespace Elders.Cronus.Discoveries
 
         public DiscoveryScanner(CronusServicesProvider cronusServicesProvider)
         {
-            if (cronusServicesProvider is null) throw new ArgumentNullException(nameof(cronusServicesProvider));
-
             this.cronusServicesProvider = cronusServicesProvider;
-            Configuration = cronusServicesProvider.Configuration;
         }
 
         protected override DiscoveryResult<DiscoveryScanner> DiscoverFromAssemblies(DiscoveryContext context)
@@ -30,10 +27,8 @@ namespace Elders.Cronus.Discoveries
             {
                 log.Info($"Discovered {discovery.Name}");
 
-                discovery.AssignPropertySafely<IHaveConfiguration>(x => x.Configuration = context.Configuration);
+                var discoveryResult = discovery.Discover(context);
 
-                var discoveryResult = discovery.Discover();
-                cronusServicesProvider.HandleDiscoveredModel(discoveryResult);
             }
 
             return new DiscoveryResult<DiscoveryScanner>();
