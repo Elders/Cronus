@@ -16,17 +16,15 @@ namespace Elders.Cronus.Discoveries
 {
     public class CronusServicesProvider : ICronusServicesProvider
     {
-        protected readonly IServiceCollection services;
-
-        public IConfiguration Configuration { get; }
-
         public CronusServicesProvider(IServiceCollection services, IConfiguration configuration)
         {
-            if (services is null) throw new ArgumentNullException(nameof(services));
-
-            this.services = services;
+            Services = services;
             Configuration = configuration;
         }
+
+        public IServiceCollection Services { get; }
+
+        public IConfiguration Configuration { get; }
 
         public void HandleDiscoveredModel(IDiscoveryResult<object> discoveryResult)
         {
@@ -47,15 +45,17 @@ namespace Elders.Cronus.Discoveries
 
         protected void AddServices(IDiscoveryResult<object> discoveryResult)
         {
+            discoveryResult.AddServices(Services);
+
             foreach (var discoveredModel in discoveryResult.Models)
             {
                 if (discoveredModel.CanOverrideDefaults)
                 {
-                    services.Replace(discoveredModel);
+                    Services.Replace(discoveredModel);
                 }
                 else
                 {
-                    services.TryAdd(discoveredModel);
+                    Services.TryAdd(discoveredModel);
                 }
             }
         }

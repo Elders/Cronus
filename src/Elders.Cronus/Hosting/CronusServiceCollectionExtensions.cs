@@ -28,7 +28,9 @@ namespace Elders.Cronus
             services.AddDefaultSubscribers();
 
             var discoveryFinder = new DiscoveryScanner(cronusServicesProvider);
-            discoveryFinder.Discover();
+            var discoveryContext = new DiscoveryContext(AssemblyLoader.Assemblies.Values, cronusServicesProvider.Configuration);
+            var discoveryResult = discoveryFinder.Discover(discoveryContext);
+            cronusServicesProvider.HandleDiscoveredModel(discoveryResult);
 
             return services;
         }

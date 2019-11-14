@@ -1,28 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace Elders.Cronus.Discoveries
+﻿namespace Elders.Cronus.Discoveries
 {
-    public interface IHaveConfiguration
-    {
-        IConfiguration Configuration { get; set; }
-    }
-
-    public abstract class DiscoveryBase<TCronusService> : IDiscovery<TCronusService>, IHaveConfiguration
-    //where TCronusService : ICronusService
+    public abstract class DiscoveryBase<TCronusService> : IDiscovery<TCronusService>    //where TCronusService : ICronusService
     {
         public virtual string Name { get { return this.GetType().Name; } }
 
-        public IConfiguration Configuration { get; set; }
-        public IServiceCollection Services { get; set; }
-
-        public IDiscoveryResult<TCronusService> Discover()
+        public IDiscoveryResult<TCronusService> Discover(DiscoveryContext context)
         {
-            DiscoveryContext context = new DiscoveryContext();
-            context.Configuration = Configuration;
-            context.Assemblies = AssemblyLoader.Assemblies.Values;
-            var discoveryResult = DiscoverFromAssemblies(context);
-            return discoveryResult;
+            return DiscoverFromAssemblies(context);
         }
 
         protected abstract DiscoveryResult<TCronusService> DiscoverFromAssemblies(DiscoveryContext context);
