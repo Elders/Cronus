@@ -1,8 +1,10 @@
 version: 1
 update_configs:
-- package_manager: "dotnet:nuget"
+- package_manager: dotnet:nuget
   directory: /
   update_schedule: live
+  default_reviewers:
+  - Elders/cronus-team
   default_assignees:
   - mynkow
   target_branch: release-6.0.0
@@ -12,27 +14,11 @@ update_configs:
   - match:
       update_type: all
       dependency_type: direct
-  - match:
-      update_type: all
-      dependency_type: indirect
   automerged_updates:
   - match:
-      dependency_type: "development"
-      # Supported dependency types:
-      # - "development"
-      # - "production"
-      # - "all"
-      update_type: "all"
-      # Supported updates to automerge:
-      # - "security:patch"
-      #   SemVer patch update that fixes a known security vulnerability
-      # - "semver:patch"
-      #   SemVer patch update, e.g. > 1.x && 1.0.1 to 1.0.3
-      # - "semver:minor"
-      #   SemVer minor update, e.g. > 1.x && 2.1.4 to 2.3.1
-      # - "in_range"
-      #   matching the version requirement in your package manifest
-      # - "all"
+      dependency_name: Cronus*
+      dependency_type: all
+      update_type: all
   - match:
-      dependency_type: "production"
-      update_type: "semver:minor"
+      dependency_type: production
+      update_type: all
