@@ -1,3 +1,6 @@
+#### 6.0.0-beta0008 - 15.11.2019
+* Adds an extension method to register options in the DI
+
 #### 6.0.0-beta0007 - 14.11.2019
 * Adds an option directly to add services to IServiceCollection
 
