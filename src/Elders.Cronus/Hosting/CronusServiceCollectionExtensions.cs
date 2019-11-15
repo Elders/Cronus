@@ -2,9 +2,11 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Elders.Cronus.Discoveries;
+using Elders.Cronus.Hosting;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus
 {
@@ -83,6 +85,18 @@ namespace Elders.Cronus
 
             return services;
         }
+
+        public static IServiceCollection AddOptions<TOptions, TOptionsProvider>(this IServiceCollection services)
+            where TOptions : class, new()
+            where TOptionsProvider : CronusOptionsProviderBase<TOptions>
+        {
+            services.AddSingleton<IConfigureOptions<TOptions>, TOptionsProvider>();
+            services.AddSingleton<IOptionsChangeTokenSource<TOptions>, TOptionsProvider>();
+            services.AddSingleton<IOptionsFactory<TOptions>, TOptionsProvider>();
+
+            return services;
+        }
+
     }
 
     public static class SubscriberCollectionServiceCollectionExtensions
