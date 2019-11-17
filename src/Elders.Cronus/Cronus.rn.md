@@ -1,3 +1,6 @@
+#### 6.0.0-beta0009 - 17.11.2019
+* Added in ConfigurationExtensions - GetRequired for IConfigurationSection and GetOptional
+
 #### 6.0.0-beta0008 - 15.11.2019
 * Adds an extension method to register options in the DI
 
