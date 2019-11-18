@@ -1,37 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Discoveries
 {
-    public sealed class DiscoveryScanner : DiscoveryBase<DiscoveryScanner>
+    public sealed class DiscoveryScanner
     {
         private readonly static ILog log = LogProvider.GetLogger(typeof(DiscoveryScanner));
 
-        private readonly CronusServicesProvider cronusServicesProvider;
-
-        public DiscoveryScanner(CronusServicesProvider cronusServicesProvider)
-        {
-            this.cronusServicesProvider = cronusServicesProvider;
-        }
-
-        protected override DiscoveryResult<DiscoveryScanner> DiscoverFromAssemblies(DiscoveryContext context)
+        public IEnumerable<IDiscoveryResult<object>> Scan(DiscoveryContext context)
         {
             var discoveries = context.Assemblies
                 .SelectMany(asm => asm
                     .GetLoadableTypes()
-                    .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery<object>).IsAssignableFrom(type) && type != typeof(DiscoveryScanner)))
+                    .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery<object>).IsAssignableFrom(type)))
                 .Select(dt => (IDiscovery<object>)FastActivator.CreateInstance(dt));
 
             foreach (var discovery in discoveries)
             {
                 log.Info($"Discovered {discovery.Name}");
 
-                var discoveryResult = discovery.Discover(context);
-
+                yield return discovery.Discover(context);
             }
-
-            return new DiscoveryResult<DiscoveryScanner>();
         }
     }
 }

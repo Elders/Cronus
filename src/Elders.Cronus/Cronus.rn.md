@@ -1,3 +1,8 @@
+#### 6.0.0-beta0010 - 18.11.2019
+* Changed 'DiscoveryScanner' to not inherit 'DiscoveryBase<>'
+* Renamed 'DiscoverFromAssemblies' to 'Scan' which returns a collection of IDiscoveryResult<>
+* Changed CronusServiceCollectionExtensions to affect the changes above
+
 #### 6.0.0-beta0009 - 17.11.2019
 * Added in ConfigurationExtensions - GetRequired for IConfigurationSection and GetOptional
 
