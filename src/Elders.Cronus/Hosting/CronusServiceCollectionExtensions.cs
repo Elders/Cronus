@@ -29,10 +29,12 @@ namespace Elders.Cronus
             services.AddCronusHostOptions();
             services.AddDefaultSubscribers();
 
-            var discoveryFinder = new DiscoveryScanner(cronusServicesProvider);
+            var discoveryFinder = new DiscoveryScanner();
             var discoveryContext = new DiscoveryContext(AssemblyLoader.Assemblies.Values, cronusServicesProvider.Configuration);
-            var discoveryResult = discoveryFinder.Discover(discoveryContext);
-            cronusServicesProvider.HandleDiscoveredModel(discoveryResult);
+            var discoveryResults = discoveryFinder.Scan(discoveryContext);
+
+            foreach (var result in discoveryResults)
+                cronusServicesProvider.HandleDiscoveredModel(result);
 
             return services;
         }
