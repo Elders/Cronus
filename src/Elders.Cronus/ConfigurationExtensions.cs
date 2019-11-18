@@ -27,7 +27,7 @@ namespace Elders.Cronus
             string value = configuration[key];
 
             if (string.IsNullOrEmpty(value) == false) return value;
-            if (string.IsNullOrEmpty(defaultValue)) throw new ArgumentException($"Missing setting: {key} (for reference see here  https://github.com/Elders/Cronus/blob/master/doc/Configuration.md)");
+            if (string.IsNullOrEmpty(defaultValue)) throw new ArgumentException($"Missing default setting: {key}");
 
             return defaultValue;
         }
