@@ -1,3 +1,7 @@
+#### 6.0.0-beta0012 - 19.11.2019
+* Added InMemory implementation for CronusJobRunner
+* Added discovery for all CronusJobs and RebuildIndex_EventToAggregateRootId_JobFactory( explicitly depended in EventStoreIndexBuilder)
+
 #### 6.0.0-beta0011 - 19.11.2019
 * Updates MS packages
 
