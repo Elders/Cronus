@@ -1,3 +1,6 @@
+#### 6.0.0-beta0011 - 19.11.2019
+* Updates MS packages
+
 #### 6.0.0-beta0010 - 18.11.2019
 * Changed 'DiscoveryScanner' to not inherit 'DiscoveryBase<>'
 * Renamed 'DiscoverFromAssemblies' to 'Scan' which returns a collection of IDiscoveryResult<>
