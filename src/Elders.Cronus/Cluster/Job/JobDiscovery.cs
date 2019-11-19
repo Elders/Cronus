@@ -10,7 +10,7 @@ namespace Elders.Cronus.Cluster.Job.InMemory
     {
         protected override DiscoveryResult<ICronusJob<object>> DiscoverFromAssemblies(DiscoveryContext context)
         {
-            return new DiscoveryResult<ICronusJob<object>>(GetModels(context), AddServices);
+            return new DiscoveryResult<ICronusJob<object>>(GetModels(context));
         }
 
         private IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
@@ -24,12 +24,10 @@ namespace Elders.Cronus.Cluster.Job.InMemory
             }
 
             yield return new DiscoveredModel(typeof(TypeContainer<ICronusJob<object>>), new TypeContainer<ICronusJob<object>>(cronusJobs));
-        }
 
-        private void AddServices(IServiceCollection services)
-        {
-            services.AddTransient<ICronusJobRunner, InMemoryCronusJobRunner>();
-            services.AddTransient<RebuildIndex_EventToAggregateRootId_JobFactory>();
+            yield return new DiscoveredModel(typeof(InMemoryCronusJobRunner), typeof(InMemoryCronusJobRunner), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(ICronusJobRunner), typeof(InMemoryCronusJobRunner), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(RebuildIndex_EventToAggregateRootId_JobFactory), typeof(RebuildIndex_EventToAggregateRootId_JobFactory), ServiceLifetime.Transient);
         }
     }
 }
