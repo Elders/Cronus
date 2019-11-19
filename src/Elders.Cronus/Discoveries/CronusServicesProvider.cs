@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
+using Elders.Cronus.Cluster.Job;
 
 namespace Elders.Cronus.Discoveries
 {
@@ -97,5 +98,7 @@ namespace Elders.Cronus.Discoveries
         protected virtual void Handle(DiscoveryResult<IMultitenancy> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<MigrationDiscovery> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<ICronusJob<object>> discoveryResult) => AddServices(discoveryResult);
     }
 }
