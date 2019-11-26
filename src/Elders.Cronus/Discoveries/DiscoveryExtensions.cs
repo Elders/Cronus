@@ -14,5 +14,14 @@ namespace Elders.Cronus.Discoveries
             try { return assembly.GetTypes(); }
             catch (ReflectionTypeLoadException e) { return e.Types.Where(t => t != null); }
         }
+
+        public static IEnumerable<Type> Find<TService>(this IEnumerable<Assembly> assemblies)
+        {
+            return assemblies
+                .SelectMany(asm => asm.GetLoadableTypes())
+                .Where(type => type.IsAbstract == false)
+                .Where(type => type.IsInterface == false)
+                .Where(type => typeof(TService).IsAssignableFrom(type));
+        }
     }
 }

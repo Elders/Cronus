@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
 {
@@ -15,6 +15,11 @@ namespace Elders.Cronus.Discoveries
         }
 
         public IEnumerable<Assembly> Assemblies { get; }
+
         public IConfiguration Configuration { get; set; }
+
+        public IEnumerable<Type> Types => Assemblies.SelectMany(asm => asm.GetLoadableTypes());
+
+        public IEnumerable<Type> FindService<TService>() => Assemblies.Find<TService>();
     }
 }
