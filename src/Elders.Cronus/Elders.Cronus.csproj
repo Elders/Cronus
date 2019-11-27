@@ -32,7 +32,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Cronus.DomainModeling" Version="6.0.0-beta0002" />
+    <PackageReference Include="Cronus.DomainModeling" Version="6.0.0-beta0003" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.0.1" />
