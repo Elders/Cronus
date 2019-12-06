@@ -163,7 +163,7 @@ namespace Elders.Cronus
         {
             services.AddSingleton(typeof(ISubscriberCollection<IEventStoreIndex>), typeof(SubscriberCollection<IEventStoreIndex>));
             services.AddSingleton(typeof(ISubscriberFinder<IEventStoreIndex>), typeof(SubscriberFinder<IEventStoreIndex>));
-            services.AddSingleton(typeof(ISubscriberWorkflow<IEventStoreIndex>), typeof(ApplicationServiceSubscriberWorkflow));
+            services.AddSingleton(typeof(ISubscriberWorkflow<IEventStoreIndex>), typeof(EventStoreIndexSubscriberWorkflow));
             services.AddSingleton(typeof(ISubscriberFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberFactory));
 
             return services;
