@@ -15,7 +15,7 @@ namespace Elders.Cronus.MessageProcessing
         {
             CreateHandler = createHandler;
             BeginHandle = WorkflowExtensions.Lamda<HandlerContext>();
-            ActualHandle = new DynamicMessageHandle();
+            ActualHandle = WorkflowExtensions.Lamda<HandlerContext>().Use(context => new DynamicMessageHandle().Run(context.Context));
             EndHandle = WorkflowExtensions.Lamda<HandlerContext>();
             Error = WorkflowExtensions.Lamda<ErrorContext>();
             Finalize = WorkflowExtensions.Lamda<HandleContext>();
