@@ -21,9 +21,9 @@ namespace Elders.Cronus.MessageProcessing
 
             this.subscriberFinder = subscriberFinder;
             this.subscriberFactory = subscriberFactory;
-            foreach (var handlerType in subscriberFinder.Find())
+            foreach (var subscriberType in subscriberFinder.Find())
             {
-                ISubscriber subscriber = subscriberFactory.Create(handlerType);
+                ISubscriber subscriber = subscriberFactory.Create(subscriberType);
                 Subscribe(subscriber);
             }
         }

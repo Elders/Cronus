@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using Elders.Cronus.Discoveries;
+using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Hosting;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Configuration;
@@ -122,6 +123,8 @@ namespace Elders.Cronus
             services.AddSubscribers<IPort>();
             services.AddSubscribers<IGateway>();
             services.AddSubscribers<ISaga>();
+            services.AddSubscribers<ISaga>();
+            services.AddEventStoreIndexSubscribers();
 
             return services;
         }
@@ -152,6 +155,16 @@ namespace Elders.Cronus
             services.AddSingleton(typeof(ISubscriberFinder<IProjection>), typeof(SubscriberFinder<IProjection>));
             services.AddSingleton(typeof(ISubscriberWorkflow<IProjection>), typeof(ProjectionSubscriberWorkflow));
             services.AddSingleton(typeof(ISubscriberFactory<IProjection>), typeof(HandlerSubscriberFactory<IProjection>));
+
+            return services;
+        }
+
+        public static IServiceCollection AddEventStoreIndexSubscribers(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(ISubscriberCollection<IEventStoreIndex>), typeof(SubscriberCollection<IEventStoreIndex>));
+            services.AddSingleton(typeof(ISubscriberFinder<IEventStoreIndex>), typeof(SubscriberFinder<IEventStoreIndex>));
+            services.AddSingleton(typeof(ISubscriberWorkflow<IEventStoreIndex>), typeof(ApplicationServiceSubscriberWorkflow));
+            services.AddSingleton(typeof(ISubscriberFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberFactory));
 
             return services;
         }

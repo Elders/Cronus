@@ -1,8 +1,7 @@
-﻿using Elders.Cronus.Logging;
-using Elders.Cronus.Projections.Cassandra.EventSourcing;
-using System;
+﻿using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace Elders.Cronus.EventStore.Index
 {
@@ -27,6 +26,16 @@ namespace Elders.Cronus.EventStore.Index
             }
 
             indexStore.Apend(indexRecordsBatch);
+        }
+
+        public void Index(CronusMessage message)
+        {
+            var @event = message.Payload as IEvent;
+            string eventTypeId = @event.Unwrap().GetType().GetContractId();
+
+            var indexRecord = new List<IndexRecord>();
+            indexRecord.Add(new IndexRecord(eventTypeId, Encoding.UTF8.GetBytes(message.GetRootId())));
+            indexStore.Apend(indexRecord);
         }
 
         public IEnumerable<IndexRecord> EnumerateRecords(string dataId)

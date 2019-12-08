@@ -4,10 +4,6 @@ using Elders.Cronus.MessageProcessing;
 
 namespace Elders.Cronus.Projections
 {
-    //public interface IProjectionWriterProvider
-    //{
-    //    public IProjectionWriter GetInstance(HandleContext ctx);
-    //}
     public class ProjectionsWorkflow : Workflow<HandleContext>
     {
         readonly Func<HandleContext, IProjectionWriter> projectionWriterProvider;
