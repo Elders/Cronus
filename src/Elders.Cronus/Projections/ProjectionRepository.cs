@@ -186,7 +186,9 @@ namespace Elders.Cronus.Projections
             var elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - LastRefreshTimestamp)));
 
             ProjectionVersions versions = inMemoryVersionStore.Get(projectionName);
-            if (elapsed.TotalMinutes > 5 || versions is null || versions.Count == 0)
+
+            //TODO: This optimization caused some problems
+            //if (elapsed.TotalMinutes > 5 || versions is null || versions.Count == 0)
             {
                 var queryResult = GetProjectionVersionsFromStore(projectionName);
                 if (queryResult.IsSuccess)

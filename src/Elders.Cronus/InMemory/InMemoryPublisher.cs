@@ -1,4 +1,5 @@
-﻿using Elders.Cronus.Logging;
+﻿using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Multitenancy;
 using System;
@@ -14,6 +15,7 @@ namespace Elders.Cronus.InMemory
         private readonly ISubscriberCollection<IPort> portSubscribers;
         private readonly ISubscriberCollection<IGateway> gatewaySubscribers;
         private readonly ISubscriberCollection<ISaga> sagaSubscribers;
+        private readonly ISubscriberCollection<IEventStoreIndex> esIndexSubscribers;
         private readonly ScopedQueues queues = new ScopedQueues();
 
         public InMemoryPublisher(
@@ -21,7 +23,8 @@ namespace Elders.Cronus.InMemory
             ISubscriberCollection<IProjection> projectionSubscribers,
             ISubscriberCollection<IPort> portSubscribers,
             ISubscriberCollection<IGateway> gatewaySubscribers,
-            ISubscriberCollection<ISaga> sagaSubscribers)
+            ISubscriberCollection<ISaga> sagaSubscribers,
+            ISubscriberCollection<IEventStoreIndex> esIndexSubscribers)
             : base(new DefaultTenantResolver())
         {
             this.appServiceSubscribers = appServiceSubscribers;
@@ -29,6 +32,7 @@ namespace Elders.Cronus.InMemory
             this.portSubscribers = portSubscribers;
             this.gatewaySubscribers = gatewaySubscribers;
             this.sagaSubscribers = sagaSubscribers;
+            this.esIndexSubscribers = esIndexSubscribers;
         }
 
         protected override bool PublishInternal(CronusMessage message)
@@ -40,6 +44,7 @@ namespace Elders.Cronus.InMemory
                 {
                     var msg = queue.Dequeue();
                     NotifySubscribers(msg, appServiceSubscribers);
+                    NotifySubscribers(msg, esIndexSubscribers);
                     NotifySubscribers(msg, projectionSubscribers);
                     NotifySubscribers(msg, portSubscribers);
                     NotifySubscribers(msg, gatewaySubscribers);
