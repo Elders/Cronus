@@ -1,3 +1,6 @@
+#### 6.0.0-beta0013 - 09.12.2019
+* Fixes event indices by properly plugging in a workflow
+
 #### 6.0.0-beta0012 - 19.11.2019
 * Added InMemory implementation for CronusJobRunner
 * Added discovery for all CronusJobs and RebuildIndex_EventToAggregateRootId_JobFactory( explicitly depended in EventStoreIndexBuilder)
