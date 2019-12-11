@@ -1,3 +1,7 @@
+#### 6.0.0-beta0014 - 09.12.2019
+* Bumps to dotnet core 3.1
+* Code cleanup
+
 #### 6.0.0-beta0013 - 09.12.2019
 * Fixes event indices by properly plugging in a workflow
 
