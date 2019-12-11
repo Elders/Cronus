@@ -1,3 +1,6 @@
+#### 6.0.0-beta0015 - 11.12.2019
+* Change the way AssemblyLoader resolves the working directory
+
 #### 6.0.0-beta0014 - 09.12.2019
 * Bumps to dotnet core 3.1
 * Code cleanup

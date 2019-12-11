@@ -71,7 +71,7 @@ namespace Elders.Cronus
         {
             if (1 == Interlocked.Exchange(ref shouldLoadAssembliesFromDir, 0))
             {
-                string codeBase = Assembly.GetEntryAssembly().CodeBase;
+                string codeBase = AppDomain.CurrentDomain.BaseDirectory;
                 UriBuilder uri = new UriBuilder(codeBase);
                 string path = Uri.UnescapeDataString(uri.Path);
                 var dir = Path.GetDirectoryName(path);
