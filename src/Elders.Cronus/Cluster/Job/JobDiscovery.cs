@@ -2,7 +2,6 @@
 using Elders.Cronus.EventStore.Index;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Elders.Cronus.Cluster.Job.InMemory
 {
@@ -15,8 +14,7 @@ namespace Elders.Cronus.Cluster.Job.InMemory
 
         private IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
         {
-            var allTypes = context.Assemblies.SelectMany(ass => ass.GetExportedTypes());
-            var cronusJobs = allTypes.Where(x => typeof(ICronusJob<object>).IsAssignableFrom(x) && x.IsAbstract == false && x.IsInterface == false);
+            IEnumerable<System.Type> cronusJobs = context.FindService<ICronusJob<object>>();
 
             foreach (var job in cronusJobs)
             {
