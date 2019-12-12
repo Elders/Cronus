@@ -71,7 +71,17 @@ namespace Elders.Cronus
         {
             if (1 == Interlocked.Exchange(ref shouldLoadAssembliesFromDir, 0))
             {
+                // https://github.com/Elders/Cronus/issues/187
+                // Discoveries not working when tests are using TestHost on .net core 3.0 and up
+                // From.net core 3.0 the VS Test Platform(the one which is used from the Test Explorer of the VS) whenever uses a TestHost for
+                // making unit testing of an asp.net core project, instead of initiating the testing from a 'testhost.dll' which is in the root
+                // directory, it starts from a 'testhostx86.dll' which is located in the 'packages' folder.This breakes the discoveries as they
+                // depend the initial Assembly to always be situated in the root directory of the project.This prevents Cronus from working in
+                // such a situations.
+                // If you use MSTest(run dotnet test instead of 'dotnet vstest') everything works because it actually runs as previous
+                // (testhost.dll situated inside the correct directory)
                 string codeBase = AppDomain.CurrentDomain.BaseDirectory;
+                //string codeBase = Assembly.GetEntryAssembly().CodeBase;
                 UriBuilder uri = new UriBuilder(codeBase);
                 string path = Uri.UnescapeDataString(uri.Path);
                 var dir = Path.GetDirectoryName(path);
