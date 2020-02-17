@@ -23,8 +23,12 @@ namespace Elders.Cronus
             try
             {
                 messageHeaders = messageHeaders ?? new Dictionary<string, string>();
-                string messageId = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
-                messageHeaders.Add(MessageHeader.MessageId, messageId);
+
+                string messageId = string.Empty;
+                if (messageHeaders.ContainsKey(MessageHeader.MessageId) == false)
+                    messageHeaders.Add(MessageHeader.MessageId, messageId);
+                else
+                    messageId = messageHeaders[MessageHeader.MessageId];
 
                 if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
                     messageHeaders.Add(MessageHeader.CorelationId, messageId);
