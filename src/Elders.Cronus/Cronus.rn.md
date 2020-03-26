@@ -1,6 +1,12 @@
+#### 6.0.0-beta0017 - 26.03.2020
+* Adds bounded context meta to every published message
+
 #### 6.0.0-beta0016 - 17.02.2020
 * Respects if a messageId has been explicitly specified when publishing a message
-* 
+
+#### 6.0.0-beta0016 - 17.02.2020
+* Respects if a messageId has been explicitly specified when publishing a message
+
 #### 6.0.0-beta0015 - 11.12.2019
 * Change the way AssemblyLoader resolves the working directory
 
