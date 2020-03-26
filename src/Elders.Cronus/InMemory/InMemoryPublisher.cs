@@ -24,8 +24,9 @@ namespace Elders.Cronus.InMemory
             ISubscriberCollection<IPort> portSubscribers,
             ISubscriberCollection<IGateway> gatewaySubscribers,
             ISubscriberCollection<ISaga> sagaSubscribers,
-            ISubscriberCollection<IEventStoreIndex> esIndexSubscribers)
-            : base(new DefaultTenantResolver())
+            ISubscriberCollection<IEventStoreIndex> esIndexSubscribers,
+            BoundedContext boundedContext)
+            : base(new DefaultTenantResolver(), boundedContext)
         {
             this.appServiceSubscribers = appServiceSubscribers;
             this.projectionSubscribers = projectionSubscribers;

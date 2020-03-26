@@ -16,6 +16,8 @@
 
         public const string Tenant = "tenant";
 
+        public const string BoundedContext = "bounded_context";
+
         public const string PublishTimestamp = "publish_timestamp";
     }
 }

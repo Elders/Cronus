@@ -10,10 +10,12 @@ namespace Elders.Cronus
     {
         static readonly ILog log = LogProvider.GetLogger(typeof(Publisher<TMessage>));
         private readonly ITenantResolver<IMessage> tenantResolver;
+        private readonly BoundedContext boundedContext;
 
-        public Publisher(ITenantResolver<IMessage> tenantResolver)
+        public Publisher(ITenantResolver<IMessage> tenantResolver, BoundedContext boundedContext)
         {
             this.tenantResolver = tenantResolver;
+            this.boundedContext = boundedContext;
         }
 
         protected abstract bool PublishInternal(CronusMessage message);
@@ -38,6 +40,9 @@ namespace Elders.Cronus
 
                 if (messageHeaders.ContainsKey(MessageHeader.Tenant) == false)
                     messageHeaders.Add(MessageHeader.Tenant, tenantResolver.Resolve(message));
+
+                if (messageHeaders.ContainsKey(MessageHeader.BoundedContext) == false)
+                    messageHeaders.Add(MessageHeader.BoundedContext, boundedContext.Name);
 
                 var cronusMessage = new CronusMessage(message, messageHeaders);
                 var published = PublishInternal(cronusMessage);
