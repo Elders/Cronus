@@ -41,8 +41,16 @@ namespace Elders.Cronus
                 if (messageHeaders.ContainsKey(MessageHeader.Tenant) == false)
                     messageHeaders.Add(MessageHeader.Tenant, tenantResolver.Resolve(message));
 
-                if (messageHeaders.ContainsKey(MessageHeader.BoundedContext) == false)
-                    messageHeaders.Add(MessageHeader.BoundedContext, boundedContext.Name);
+                if (messageHeaders.ContainsKey(MessageHeader.BoundedContext))
+                {
+                    if (messageHeaders[MessageHeader.BoundedContext] == "implicit")
+                        messageHeaders[MessageHeader.BoundedContext] = boundedContext.Name;
+                }
+                else
+                {
+                    var bc = message.GetType().GetBoundedContext(boundedContext.Name);
+                    messageHeaders.Add(MessageHeader.BoundedContext, bc);
+                }
 
                 var cronusMessage = new CronusMessage(message, messageHeaders);
                 var published = PublishInternal(cronusMessage);
