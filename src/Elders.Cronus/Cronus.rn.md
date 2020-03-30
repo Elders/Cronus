@@ -1,3 +1,6 @@
+#### 6.0.0-beta0018 - 30.03.2020
+* Adds bounded context header when publishing a message
+  
 #### 6.0.0-beta0017 - 26.03.2020
 * Adds bounded context meta to every published message
 
