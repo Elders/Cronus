@@ -24,8 +24,11 @@ namespace Elders.Cronus.Discoveries
 
             yield return new DiscoveredModel(typeof(BoundedContext), typeof(BoundedContext), ServiceLifetime.Transient);
 
-            var loadedTypes = context.Assemblies.Find<IEvent>().Where(type => type != typeof(EntityEvent));
-            yield return new DiscoveredModel(typeof(TypeContainer<IEvent>), new TypeContainer<IEvent>(loadedTypes));
+            var loadedCommands = context.Assemblies.Find<ICommand>();
+            yield return new DiscoveredModel(typeof(TypeContainer<ICommand>), new TypeContainer<ICommand>(loadedCommands));
+
+            var loadedEvents = context.Assemblies.Find<IEvent>().Where(type => type != typeof(EntityEvent));
+            yield return new DiscoveredModel(typeof(TypeContainer<IEvent>), new TypeContainer<IEvent>(loadedEvents));
         }
     }
 }
