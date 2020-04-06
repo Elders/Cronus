@@ -1,3 +1,6 @@
+#### 6.0.0-beta0019 - 06.04.2020
+* Register a type container with discovered commands
+
 #### 6.0.0-beta0018 - 30.03.2020
 * Adds bounded context header when publishing a message
   
