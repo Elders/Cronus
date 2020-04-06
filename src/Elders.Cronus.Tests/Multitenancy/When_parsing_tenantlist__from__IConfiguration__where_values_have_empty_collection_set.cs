@@ -1,4 +1,5 @@
 ﻿using Machine.Specifications;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace Elders.Cronus.Multitenancy
@@ -8,11 +9,10 @@ namespace Elders.Cronus.Multitenancy
     {
         Establish context = () =>
         {
-            configuration = new ConfigurationMock();
-            configuration[Tenants.SettingKey] = @"[]";
+            options = new TenantsOptionsMonitorMock(null);
         };
 
-        Because of = () => exception = Catch.Exception(() => new Tenants(configuration));
+        Because of = () => exception = Catch.Exception(() => new Tenants(options));
 
         It should_throw_exception = () => exception.ShouldNotBeNull();
 
@@ -21,6 +21,6 @@ namespace Elders.Cronus.Multitenancy
         It should_have_doc_in_exception_message = () => exception.Message.ShouldContain("Configuration.md");
 
         static Exception exception;
-        static ConfigurationMock configuration;
+        static IOptionsMonitor<TenantsOptions> options;
     }
 }

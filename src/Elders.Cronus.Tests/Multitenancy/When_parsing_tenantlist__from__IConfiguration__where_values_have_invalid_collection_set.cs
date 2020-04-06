@@ -1,19 +1,18 @@
 ﻿using Machine.Specifications;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace Elders.Cronus.Multitenancy
 {
-
     [Subject("Tenants")]
     public class When_parsing_tenantlist__from__IConfiguration__where_values_have_invalid_collection_set
     {
         Establish context = () =>
         {
-            configuration = new ConfigurationMock();
-            configuration[Tenants.SettingKey] = @"Market@_!Vision";
+            options = new TenantsOptionsMonitorMock("Market@_!Vision");
         };
 
-        Because of = () => exception = Catch.Exception(() => new Tenants(configuration));
+        Because of = () => exception = Catch.Exception(() => new Tenants(options));
 
         It should_throw_exception = () => exception.ShouldNotBeNull();
 
@@ -22,6 +21,6 @@ namespace Elders.Cronus.Multitenancy
         It should_have_doc_in_exception_message = () => exception.Message.ShouldContain("Configuration.md");
 
         static Exception exception;
-        static ConfigurationMock configuration;
+        static IOptionsMonitor<TenantsOptions> options;
     }
 }

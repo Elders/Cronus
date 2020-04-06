@@ -1,4 +1,5 @@
 ﻿using Machine.Specifications;
+using Microsoft.Extensions.Options;
 using System.Linq;
 
 namespace Elders.Cronus.Multitenancy
@@ -8,11 +9,10 @@ namespace Elders.Cronus.Multitenancy
     {
         Establish context = () =>
         {
-            configuration = new ConfigurationMock();
-            configuration[Tenants.SettingKey] = @"["" tEnant1 "", ""tEnant2""]";
+            options = new TenantsOptionsMonitorMock(" tEnant1 ", "tEnant2");
         };
 
-        Because of = () => tenants = new Tenants(configuration);
+        Because of = () => tenants = new Tenants(options);
 
         It should_be_able_to_get_all_tenants = () => tenants.GetTenants().Count().ShouldEqual(2);
 
@@ -20,7 +20,7 @@ namespace Elders.Cronus.Multitenancy
 
         It should_be_able_to_get_second_tenant = () => tenants.GetTenants().Last().ShouldEqual("tenant2");
 
-        static ConfigurationMock configuration;
+        static IOptionsMonitor<TenantsOptions> options;
         static Tenants tenants;
     }
 }
