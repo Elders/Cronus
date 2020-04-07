@@ -16,16 +16,16 @@ namespace Elders.Cronus.Projections
             var id = new ProjectionVersionManagerId(projectionName, "elders");
 
             ar = Aggregate<ProjectionVersionManager>
-                .FromHistory()
-                .Event(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 1, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T11:07:47.9657464Z"), DateTime.Parse("2018-11-29T11:07:47.9657464Z"))))
-                .Event(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 2, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T11:28:47.8453615Z"), DateTime.Parse("2018-11-29T11:28:47.8453615Z"))))
-                .Event(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 3, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T11:31:01.0982545Z"), DateTime.Parse("2018-11-29T11:31:01.0982545Z"))))
-                .Event(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 4, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:41:44.5082787Z"), DateTime.Parse("2018-11-29T14:41:44.5082787Z"))))
-                .Event(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 5, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:43:35.834907Z"), DateTime.Parse("2018-11-29T14:43:35.834907Z"))))
-                .Event(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 1, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T10:58:41.4293469Z"), DateTime.Parse("2018-11-29T10:58:41.4293469Z"))))
-                .Event(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 4, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:41:44.5082787Z"), DateTime.Parse("2018-11-29T14:41:44.5082787Z"))))
-                .Event(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 5, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:43:35.834907Z"), DateTime.Parse("2018-11-29T14:43:35.834907Z"))))
-                .Build();
+                .FromHistory(stream => stream
+                    .AddEvent(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 1, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T11:07:47.9657464Z"), DateTime.Parse("2018-11-29T11:07:47.9657464Z"))))
+                    .AddEvent(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 2, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T11:28:47.8453615Z"), DateTime.Parse("2018-11-29T11:28:47.8453615Z"))))
+                    .AddEvent(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 3, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T11:31:01.0982545Z"), DateTime.Parse("2018-11-29T11:31:01.0982545Z"))))
+                    .AddEvent(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 4, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:41:44.5082787Z"), DateTime.Parse("2018-11-29T14:41:44.5082787Z"))))
+                    .AddEvent(new ProjectionVersionRequested(id, new ProjectionVersion(projectionName, ProjectionStatus.Building, 5, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:43:35.834907Z"), DateTime.Parse("2018-11-29T14:43:35.834907Z"))))
+                    .AddEvent(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 1, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T10:58:41.4293469Z"), DateTime.Parse("2018-11-29T10:58:41.4293469Z"))))
+                    .AddEvent(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 4, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:41:44.5082787Z"), DateTime.Parse("2018-11-29T14:41:44.5082787Z"))))
+                    .AddEvent(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 5, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:43:35.834907Z"), DateTime.Parse("2018-11-29T14:43:35.834907Z"))))
+                );
         };
 
         Because of = () => ar.Replay(hash);
