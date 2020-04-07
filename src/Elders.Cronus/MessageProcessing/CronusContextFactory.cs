@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Linq;
 using Elders.Cronus.Multitenancy;
+using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.MessageProcessing
 {
     public class CronusContextFactory
     {
         private readonly CronusContext context;
-        private readonly ITenantList tenants;
+        private TenantsOptions tenants;
         private readonly ITenantResolver tenantResolver;
 
-        public CronusContextFactory(CronusContext context, ITenantList tenants, ITenantResolver tenantResolver)
+        public CronusContextFactory(CronusContext context, IOptionsMonitor<TenantsOptions> tenantsOptions, ITenantResolver tenantResolver)
         {
             this.context = context;
-            this.tenants = tenants;
             this.tenantResolver = tenantResolver;
+
+            this.tenants = tenantsOptions.CurrentValue;
         }
 
         public CronusContext GetContext(object obj, IServiceProvider serviceProvider)
@@ -34,7 +36,7 @@ namespace Elders.Cronus.MessageProcessing
         {
             if (string.IsNullOrEmpty(tenant)) throw new ArgumentNullException(nameof(tenant));
 
-            if (tenants.GetTenants().Where(t => t.Equals(tenant, StringComparison.OrdinalIgnoreCase)).Any() == false)
+            if (tenants.Tenants.Where(t => t.Equals(tenant, StringComparison.OrdinalIgnoreCase)).Any() == false)
                 throw new ArgumentException($"The tenant `{tenant}` is not registered. Make sure that the tenant `{tenant}` is properly configured using `cronus_tenants`. More info at https://github.com/Elders/Cronus/blob/master/doc/Configuration.md", nameof(tenant));
         }
     }

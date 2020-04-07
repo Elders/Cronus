@@ -10,12 +10,11 @@ namespace Elders.Cronus.Multitenancy
     {
         protected override DiscoveryResult<IMultitenancy> DiscoverFromAssemblies(DiscoveryContext context)
         {
-            return new DiscoveryResult<IMultitenancy>(GetModels(context));
+            return new DiscoveryResult<IMultitenancy>(GetModels(context), services => services.AddOptions<TenantsOptions, TenantsOptionsProvider>());
         }
 
         IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
         {
-            yield return new DiscoveredModel(typeof(ITenantList), typeof(Tenants), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(ITenantResolver), typeof(TenantResolver), ServiceLifetime.Singleton);
 
             var resolverTypes = GetAllTypesImplementingOpenGenericType(context, typeof(ITenantResolver<>));

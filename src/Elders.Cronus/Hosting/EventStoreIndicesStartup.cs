@@ -1,18 +1,19 @@
 ﻿using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Multitenancy;
+using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus
 {
     [CronusStartup(Bootstraps.EventStoreIndices)]
     public class EventStoreIndicesStartup : ICronusStartup
     {
-        private readonly ITenantList tenants;
+        private readonly TenantsOptions tenants;
         private readonly IPublisher<ICommand> publisher;
         private readonly TypeContainer<IEventStoreIndex> indexTypeContainer;
 
-        public EventStoreIndicesStartup(TypeContainer<IEventStoreIndex> indexTypeContainer, ITenantList tenants, IPublisher<ICommand> publisher)
+        public EventStoreIndicesStartup(TypeContainer<IEventStoreIndex> indexTypeContainer, IOptionsMonitor<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher)
         {
-            this.tenants = tenants;
+            this.tenants = tenantsOptions.CurrentValue;
             this.publisher = publisher;
             this.indexTypeContainer = indexTypeContainer;
         }
@@ -21,7 +22,7 @@ namespace Elders.Cronus
         {
             foreach (var index in indexTypeContainer.Items)
             {
-                foreach (var tenant in tenants.GetTenants())
+                foreach (var tenant in tenants.Tenants)
                 {
                     var id = new EventStoreIndexManagerId(index.GetContractId(), tenant);
                     var command = new RegisterIndex(id);

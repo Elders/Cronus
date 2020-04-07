@@ -6,7 +6,7 @@ namespace Elders.Cronus
 {
     public sealed class BoundedContext
     {
-        public const string SettingKey = "cronus_boundedcontext";
+        public const string SettingKey = "cronus:boundedcontext";
         public const string ValidBoundedContextRegex = @"^\b([\w\d_]+$)";
 
         private readonly IConfiguration configuration;
