@@ -35,8 +35,8 @@ namespace Elders.Cronus.Projections
 
         public ProjectionRepositoryWithFallback(IConfiguration configuration, TPrimary primary, TFallback fallback)
         {
-            isFallbackEnabled = configuration.GetValue<bool>("cronus_projections_fallback_enabled", false) && fallback is null == false;
-            useOnlyFallback = configuration.GetValue<bool>("cronus_projections_useonlyfallback_enabled", false) && isFallbackEnabled;
+            isFallbackEnabled = configuration.GetValue<bool>("cronus:projections:fallbackenabled", false) && fallback is null == false;
+            useOnlyFallback = configuration.GetValue<bool>("cronus:projections:useonlyfallbackenabled", false) && isFallbackEnabled;
             this.primary = primary;
             this.fallback = fallback;
 

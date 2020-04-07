@@ -1,8 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
-namespace Elders.Cronus.Hosting
+namespace Elders.Cronus
 {
     public abstract class CronusOptionsProviderBase<TOptions> :
         IConfigureOptions<TOptions>,
@@ -31,11 +35,23 @@ namespace Elders.Cronus.Hosting
         {
             var newOptions = new TOptions();
             Configure(newOptions);
+            ValidateByDataAnnotation(newOptions);
             return newOptions;
         }
 
         public IChangeToken GetChangeToken() => configuration.GetReloadToken();
 
         public virtual void PostConfigure(string name, TOptions options) { }
+
+        private void ValidateByDataAnnotation(object instance)
+        {
+            var validationResults = new List<ValidationResult>();
+            var context = new ValidationContext(instance);
+            var valid = Validator.TryValidateObject(instance, context, validationResults, true);
+            if (valid) return;
+
+            var msg = string.Join("\n", validationResults.Select(r => r.ErrorMessage));
+            throw new Exception($"Invalid configuration!':\n{msg}");
+        }
     }
 }

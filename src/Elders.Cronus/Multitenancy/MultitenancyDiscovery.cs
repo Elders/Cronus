@@ -10,7 +10,7 @@ namespace Elders.Cronus.Multitenancy
     {
         protected override DiscoveryResult<IMultitenancy> DiscoverFromAssemblies(DiscoveryContext context)
         {
-            return new DiscoveryResult<IMultitenancy>(GetModels(context), services => services.AddOptions<TenantsOptions, TenantsOptionsProvider>());
+            return new DiscoveryResult<IMultitenancy>(GetModels(context));
         }
 
         IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)

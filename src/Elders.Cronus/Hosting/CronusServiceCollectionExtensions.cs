@@ -3,8 +3,8 @@ using System.Collections.Concurrent;
 using System.Linq;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.EventStore.Index;
-using Elders.Cronus.Hosting;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -42,6 +42,7 @@ namespace Elders.Cronus
 
         internal static IServiceCollection AddTenantSupport(this IServiceCollection services)
         {
+            services.AddOptions<TenantsOptions, TenantsOptionsProvider>();
             services.AddTransient(typeof(SingletonPerTenant<>));
             services.AddSingleton(typeof(SingletonPerTenantContainer<>));
             services.AddScoped<CronusContext>();
@@ -52,7 +53,8 @@ namespace Elders.Cronus
 
         internal static IServiceCollection AddCronusHostOptions(this IServiceCollection services)
         {
-            services.AddTransient<CronusHostOptions>();
+            services.AddOptions<CronusHostOptions, CronusHostOptionsProvider>();
+            services.AddOptions<BoundedContext, BoundedContextProvider>();
 
             return services;
         }

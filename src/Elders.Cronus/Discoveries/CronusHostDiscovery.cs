@@ -22,8 +22,6 @@ namespace Elders.Cronus.Discoveries
 
             yield return new DiscoveredModel(typeof(Cronus.ProjectionsStartup), typeof(Cronus.ProjectionsStartup), ServiceLifetime.Transient);
 
-            yield return new DiscoveredModel(typeof(BoundedContext), typeof(BoundedContext), ServiceLifetime.Transient);
-
             var loadedCommands = context.Assemblies.Find<ICommand>();
             yield return new DiscoveredModel(typeof(TypeContainer<ICommand>), new TypeContainer<ICommand>(loadedCommands));
 
