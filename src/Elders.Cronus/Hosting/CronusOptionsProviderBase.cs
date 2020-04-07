@@ -7,7 +7,8 @@ namespace Elders.Cronus.Hosting
     public abstract class CronusOptionsProviderBase<TOptions> :
         IConfigureOptions<TOptions>,
         IOptionsChangeTokenSource<TOptions>,
-        IOptionsFactory<TOptions>
+        IOptionsFactory<TOptions>,
+        IPostConfigureOptions<TOptions>
         where TOptions : class, new()
     {
         protected IConfiguration configuration;
@@ -34,5 +35,7 @@ namespace Elders.Cronus.Hosting
         }
 
         public IChangeToken GetChangeToken() => configuration.GetReloadToken();
+
+        public virtual void PostConfigure(string name, TOptions options) { }
     }
 }
