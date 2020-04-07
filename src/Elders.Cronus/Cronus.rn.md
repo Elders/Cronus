@@ -1,3 +1,6 @@
+#### 6.0.0-beta0021 - 07.04.2020
+* Removes test code. oops
+
 #### 6.0.0-beta0020 - 07.04.2020
 * Introduces options pattern for all configurations.
 
