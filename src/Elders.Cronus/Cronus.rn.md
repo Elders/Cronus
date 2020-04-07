@@ -1,3 +1,6 @@
+#### 6.0.0-beta0020 - 07.04.2020
+* Introduces options pattern for all configurations
+
 #### 6.0.0-beta0019 - 06.04.2020
 * Register a type container with discovered commands
 
