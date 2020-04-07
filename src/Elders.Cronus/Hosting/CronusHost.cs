@@ -5,7 +5,6 @@ namespace Elders.Cronus
 {
     public sealed class CronusHost : ICronusHost
     {
-        private readonly BoundedContext vc;
         private readonly IConsumer<IApplicationService> appServices;
         private readonly IConsumer<IProjection> projections;
         private readonly IConsumer<IPort> ports;
@@ -13,9 +12,8 @@ namespace Elders.Cronus
         private readonly IConsumer<IGateway> gateways;
         private CronusHostOptions hostOptions;
 
-        public CronusHost(IOptionsMonitor<BoundedContext> vc, IConsumer<IApplicationService> appServices, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, IOptionsMonitor<CronusHostOptions> cronusHostOptions)
+        public CronusHost(IConsumer<IApplicationService> appServices, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, IOptionsMonitor<CronusHostOptions> cronusHostOptions)
         {
-            this.vc = vc.CurrentValue;
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
             this.projections = projections ?? throw new ArgumentNullException(nameof(projections));
             this.ports = ports ?? throw new ArgumentNullException(nameof(ports));
