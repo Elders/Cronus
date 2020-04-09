@@ -14,7 +14,4 @@
   <ItemGroup>
     <ProjectReference Include="..\Elders.Cronus\Elders.Cronus.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Multitenancy\" />
-  </ItemGroup>
 </Project>
