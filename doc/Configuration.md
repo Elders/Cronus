@@ -191,12 +191,22 @@ RabbitMQ admin port used to create, delete rabbitmq resources
 
 
 # Cronus.AtomicAction.Redis
+An implementation of `Cronus.AtomicAction` using distributed locks with Redis
 
-#### `Cronus:AtomicAction_redis_connectionstring` >> *string | Required: Yes *
+(*Source:* https://redis.io/topics/distlock)
+
+#### `Cronus:AtomicAction:Redis:ConnectionString` >> *string | Required: Yes*
 Configures the connection string where Redis is located
 
-#### `Cronus:AtomicAction:Redis:TtlLockMS` >> *double | Required: No | Default: 1000 ms *
+#### `Cronus:AtomicAction:Redis:LockTtl` >> *TimeSpan | Required: No | Default: 00:00:01.000*
 
-#### `Cronus:AtomicAction:Redis:TtlShortMS` >> *double | Required: No | Default: 1000 ms *
+#### `Cronus:AtomicAction:Redis:ShorTtl` >> *TimeSpan | Required: No | Default: 00:00:01.000*
 
-#### `Cronus:AtomicAction:Redis:TtlLongMS` >> *double | Required: No | Default: 300000 ms *
+#### `Cronus:AtomicAction:Redis:LongTtl` >> *TimeSpan | Required: No | Default: 00:00:05.000*
+
+#### `Cronus:AtomicAction:Redis:LockRetryCount` >> *int | Required: No | Default: 3*
+
+#### `Cronus:AtomicAction:Redis:LockRetryDelay` >> *TimeSpan | Required: No | Default: 00:00:00.100*
+
+#### `Cronus:AtomicAction:Redis:ClockDriveFactor` >> *double | Required: No | Default: 0.01*
+
