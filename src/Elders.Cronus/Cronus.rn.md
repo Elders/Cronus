@@ -1,3 +1,6 @@
+#### 6.0.0-beta0022 - 10.04.2020
+* Extending the IEventStorePlayer interface with async methods
+
 #### 6.0.0-beta0021 - 07.04.2020
 * Removes test code. oops
 
