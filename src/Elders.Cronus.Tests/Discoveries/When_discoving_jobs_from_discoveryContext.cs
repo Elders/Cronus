@@ -27,6 +27,8 @@ namespace Elders.Cronus.Discoveries
 
         It should_have_correct_job_discovered = () => result.Models.ShouldContain(x => x.ServiceType == typeof(TestJob) && x.ImplementationType == typeof(TestJob) && x.Lifetime.Equals(Microsoft.Extensions.DependencyInjection.ServiceLifetime.Transient));
 
+        It should_have_job_type_container = () => result.Models.ShouldContain(x => x.ServiceType == typeof(TypeContainer<ICronusJob<object>>) && x.ImplementationInstance.GetType().Equals(typeof(TypeContainer<ICronusJob<object>>)) && x.Lifetime.Equals(Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton));
+
         static IDiscoveryResult<ICronusJob<object>> result;
         static DiscoveryContext discoveryContext;
     }
