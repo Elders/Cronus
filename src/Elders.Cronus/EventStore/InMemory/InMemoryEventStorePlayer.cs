@@ -38,7 +38,7 @@ namespace Elders.Cronus.EventStore.InMemory
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync(int batchSize = 5000)
+        public IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync()
         {
             throw new NotImplementedException();
         }
@@ -48,7 +48,7 @@ namespace Elders.Cronus.EventStore.InMemory
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync(int batchSize = 5000)
+        public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync()
         {
             throw new NotImplementedException();
         }
