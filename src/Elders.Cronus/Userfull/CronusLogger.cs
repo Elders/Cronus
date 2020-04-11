@@ -7,11 +7,9 @@ namespace Elders.Cronus
     {
         private static ILoggerFactory factory = new LoggerFactory();
 
-        public static void SetLoggerFactory(ILoggerFactory factory)
+        public static void Bootstrap(IServiceProvider serviceProvider)
         {
-            if (factory is null) throw new ArgumentNullException(nameof(factory));
-
-            CronusLogger.factory = factory;
+            factory = (serviceProvider.GetService(typeof(ILoggerFactory)) as ILoggerFactory) ?? factory;
         }
 
         public static ILogger<T> CreateLogger<T>() => factory.CreateLogger<T>();
