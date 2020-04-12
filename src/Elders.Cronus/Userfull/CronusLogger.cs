@@ -16,22 +16,74 @@ namespace Elders.Cronus
         public static ILogger CreateLogger(Type type) => factory.CreateLogger(type);
         public static ILogger CreateLogger(string categoryName) => factory.CreateLogger(categoryName);
 
+        public static bool IsTraceEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Trace);
         public static bool IsDebugEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Debug);
         public static bool IsInfoEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Information);
+        public static bool IsWarningEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Warning);
+        public static bool IsErrorEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Error);
 
-        public static void Debug(this ILogger logger, Func<string> func) => logger.LogDebug(func());
-        public static void Debug(this ILogger logger, string message) => logger.LogDebug(message);
+        public static void Trace(this ILogger logger, Func<string> func)
+        {
+            if (logger.IsTraceEnabled())
+                logger.LogTrace(func());
+        }
 
-        public static void Info(this ILogger logger, Func<string> func) => logger.LogInformation(func());
-        public static void Info(this ILogger logger, string message) => logger.LogInformation(message);
+        public static void Debug(this ILogger logger, Func<string> func)
+        {
+            if (logger.IsDebugEnabled())
+                logger.LogDebug(func());
+        }
 
-        public static void Error(this ILogger logger, Func<string> func) => logger.LogError(func());
-        public static void Error(this ILogger logger, string message) => logger.LogError(message);
-        public static void ErrorException(this ILogger logger, string message, Exception ex) => logger.LogError(ex, message);
+        public static void Debug(this ILogger logger, string message)
+        {
+            if (logger.IsDebugEnabled())
+                logger.LogDebug(message);
+        }
 
-        public static void Warn(this ILogger logger, Func<string> func) => logger.LogWarning(func());
-        public static void Warn(this ILogger logger, string message) => logger.LogWarning(message);
-        public static void WarnException(this ILogger logger, string message, Exception ex) => logger.LogWarning(ex, message);
+        public static void Info(this ILogger logger, Func<string> func)
+        {
+            if (logger.IsInfoEnabled())
+                logger.LogInformation(func());
+        }
+        public static void Info(this ILogger logger, string message)
+        {
+            if (logger.IsInfoEnabled())
+                logger.LogInformation(message);
+        }
+
+        public static void Error(this ILogger logger, Func<string> func)
+        {
+            if (logger.IsErrorEnabled())
+                logger.LogError(func());
+        }
+        public static void Error(this ILogger logger, string message)
+        {
+            if (logger.IsErrorEnabled())
+                logger.LogError(message);
+        }
+        public static void ErrorException(this ILogger logger, string message, Exception ex)
+        {
+            if (logger.IsErrorEnabled())
+                logger.LogError(ex, message);
+        }
+
+        public static void Warn(this ILogger logger, Func<string> func)
+        {
+            if (logger.IsWarningEnabled())
+                logger.LogWarning(func());
+        }
+
+        public static void Warn(this ILogger logger, string message)
+        {
+            if (logger.IsWarningEnabled())
+                logger.LogWarning(message);
+        }
+
+        public static void WarnException(this ILogger logger, string message, Exception ex)
+        {
+            if (logger.IsWarningEnabled())
+                logger.LogWarning(ex, message);
+        }
 
         class FallbackLoggerProvider : ILoggerProvider
         {
