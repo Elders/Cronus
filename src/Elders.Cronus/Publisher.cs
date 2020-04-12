@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.Logging;
 using Elders.Cronus.Multitenancy;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus
 {
     public abstract class Publisher<TMessage> : IPublisher<TMessage> where TMessage : IMessage
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(Publisher<TMessage>));
+        readonly ILogger logger = CronusLogger.CreateLogger(typeof(Publisher<TMessage>));
         private readonly ITenantResolver<IMessage> tenantResolver;
         private readonly BoundedContext boundedContext;
 
@@ -56,18 +56,18 @@ namespace Elders.Cronus
                 var published = PublishInternal(cronusMessage);
                 if (published == false)
                 {
-                    log.Error(() => "Failed to publish => " + BuildDebugLog(message, messageHeaders));
+                    logger.Error(() => "Failed to publish => " + BuildDebugLog(message, messageHeaders));
                     return false;
                 }
 
-                log.Info(() => message.ToString());
-                log.Debug(() => "PUBLISH => " + BuildDebugLog(message, messageHeaders));
+                logger.Info(() => message.ToString());
+                logger.Debug(() => "PUBLISH => " + BuildDebugLog(message, messageHeaders));
 
                 return true;
             }
             catch (Exception ex)
             {
-                log.ErrorException(ex.Message, ex);
+                logger.ErrorException(ex.Message, ex);
                 return false;
             }
         }

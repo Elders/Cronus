@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.IntegrityValidation;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore
 {
@@ -61,7 +61,7 @@ namespace Elders.Cronus.EventStore
 
         class EventStreamValidatorLogger : IResolver<EventStream>
         {
-            static readonly ILog log = LogProvider.GetLogger(typeof(EventStreamValidatorLogger));
+            readonly ILogger logger = CronusLogger.CreateLogger(typeof(EventStreamValidatorLogger));
 
             public uint PriorityLevel { get { return uint.MinValue; } }
 
@@ -73,15 +73,16 @@ namespace Elders.Cronus.EventStore
             public IntegrityResult<EventStream> Resolve(EventStream eventStream, IValidatorResult validatorResult)
             {
                 if (validatorResult.IsValid == false)
-                    log.Error(() => "EventStream integrity violation occured.");
+                    logger.Error(() => "EventStream integrity violation occured.");
 
-                if (log.IsDebugEnabled())
+                if (logger.IsDebugEnabled())
                 {
                     foreach (var errorMessage in validatorResult.Errors)
                     {
-                        log.Debug($"[INTEGRITY-ERROR: {validatorResult.ErrorType}] {errorMessage}");
+                        logger.Debug($"[INTEGRITY-ERROR: {validatorResult.ErrorType}] {errorMessage}");
                     }
-                    log.Debug(eventStream.ToString());
+
+                    logger.Debug(eventStream.ToString());
                 }
 
                 return new IntegrityResult<EventStream>(eventStream, true);

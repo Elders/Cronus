@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.IntegrityValidation;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore
 {
     public class DuplicateRevisionsValidator : IValidator<EventStream>
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(OrderedRevisionsValidator));
+        readonly ILogger logger = CronusLogger.CreateLogger(typeof(OrderedRevisionsValidator));
 
         public uint PriorityLevel { get { return 100; } }
 
@@ -29,9 +29,9 @@ namespace Elders.Cronus.EventStore
         {
             foreach (var error in errors)
             {
-                if (log.IsDebugEnabled())
+                if (logger.IsDebugEnabled())
                 {
-                    yield return $"Found {error.Count().ToString()} duplicates of {nameof(AggregateCommit)} for revision {error.Key.ToString()}.";
+                    yield return $"Found {error.Count()} duplicates of {nameof(AggregateCommit)} for revision {error.Key}.";
                 }
                 else
                 {

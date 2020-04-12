@@ -5,16 +5,16 @@ using System.Text;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.EventStore.Index.Handlers;
-using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using Elders.Cronus.Projections.Versioning;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections
 {
     public class ProjectionPlayer : IProjectionPlayer
     {
-        private readonly static ILog log = LogProvider.GetLogger(typeof(ProjectionPlayer));
+        private readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionPlayer));
 
         private readonly CronusContext context;
         private readonly IEventStore eventStore;
@@ -52,7 +52,7 @@ namespace Elders.Cronus.Projections
 
                 DateTime startRebuildTimestamp = DateTime.UtcNow;
                 int progressCounter = 0;
-                log.Info(() => $"Start rebuilding projection `{version.ProjectionName}` for version {version}. Deadline is {rebuildUntil}");
+                logger.Info(() => $"Start rebuilding projection `{version.ProjectionName}` for version {version}. Deadline is {rebuildUntil}");
                 Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
 
                 projectionStoreInitializer.Initialize(version);
@@ -60,7 +60,7 @@ namespace Elders.Cronus.Projections
                 var projectionHandledEventTypes = GetInvolvedEvents(projectionType);
                 foreach (var eventType in projectionHandledEventTypes)
                 {
-                    log.Info(() => $"Rebuilding projection `{version.ProjectionName}` for version {version} using eventType `{eventType}`. Deadline is {rebuildUntil}");
+                    logger.Info(() => $"Rebuilding projection `{version.ProjectionName}` for version {version} using eventType `{eventType}`. Deadline is {rebuildUntil}");
 
                     IEnumerable<IndexRecord> indexRecords = index.EnumerateRecords(eventType);
                     foreach (IndexRecord indexRecord in indexRecords)
@@ -69,7 +69,7 @@ namespace Elders.Cronus.Projections
                         progressCounter++;
                         if (progressCounter % 1000 == 0)
                         {
-                            log.Info(() => $"Rebuilding projection {version.ProjectionName} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{rebuildUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()} ProcessedAggregatesSize:{processedAggregates.Count}");
+                            logger.Info(() => $"Rebuilding projection {version.ProjectionName} => PROGRESS:{progressCounter} Version:{version} EventType:{eventType} Deadline:{rebuildUntil} Total minutes working:{(DateTime.UtcNow - startRebuildTimestamp).TotalMinutes}. logId:{Guid.NewGuid().ToString()} ProcessedAggregatesSize:{processedAggregates.Count}");
                         }
 
                         int aggreagteRootIdHash = indexRecord.AggregateRootId.GetHashCode();
@@ -97,13 +97,13 @@ namespace Elders.Cronus.Projections
                     }
                 }
 
-                log.Info(() => $"Finish rebuilding projection `{projectionType.Name}` for version {version}. Deadline was {rebuildUntil}");
+                logger.Info(() => $"Finish rebuilding projection `{projectionType.Name}` for version {version}. Deadline was {rebuildUntil}");
                 return new ReplayResult();
             }
             catch (Exception ex)
             {
                 string message = $"Unable to replay projection. Version:{version} ProjectionType:{projectionType.FullName}";
-                log.ErrorException(message, ex);
+                logger.ErrorException(message, ex);
                 return new ReplayResult(message + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
             }
         }

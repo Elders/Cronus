@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Discoveries
 {
     public sealed class DiscoveryScanner
     {
-        private readonly static ILog log = LogProvider.GetLogger(typeof(DiscoveryScanner));
+        private readonly ILogger logger = CronusLogger.CreateLogger<DiscoveryScanner>();
 
         public IEnumerable<IDiscoveryResult<object>> Scan(DiscoveryContext context)
         {
@@ -18,7 +18,7 @@ namespace Elders.Cronus.Discoveries
 
             foreach (var discovery in discoveries)
             {
-                log.Info($"Discovered {discovery.Name}");
+                logger.Info($"Discovered {discovery.Name}");
 
                 yield return discovery.Discover(context);
             }
