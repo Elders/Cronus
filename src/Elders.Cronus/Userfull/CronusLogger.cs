@@ -52,7 +52,7 @@ namespace Elders.Cronus
 
                 public void Dispose() { }
 
-                public bool IsEnabled(LogLevel logLevel) => true;
+                public bool IsEnabled(LogLevel logLevel) => logLevel > LogLevel.Debug;
 
                 public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
                 {
