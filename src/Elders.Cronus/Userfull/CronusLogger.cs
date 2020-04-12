@@ -21,6 +21,7 @@ namespace Elders.Cronus
         public static bool IsInfoEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Information);
         public static bool IsWarningEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Warning);
         public static bool IsErrorEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Error);
+        public static bool IsCriticalEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Critical);
 
         public static void Trace(this ILogger logger, Func<string> func)
         {
@@ -51,22 +52,6 @@ namespace Elders.Cronus
                 logger.LogInformation(message);
         }
 
-        public static void Error(this ILogger logger, Func<string> func)
-        {
-            if (logger.IsErrorEnabled())
-                logger.LogError(func());
-        }
-        public static void Error(this ILogger logger, string message)
-        {
-            if (logger.IsErrorEnabled())
-                logger.LogError(message);
-        }
-        public static void ErrorException(this ILogger logger, string message, Exception ex)
-        {
-            if (logger.IsErrorEnabled())
-                logger.LogError(ex, message);
-        }
-
         public static void Warn(this ILogger logger, Func<string> func)
         {
             if (logger.IsWarningEnabled())
@@ -83,6 +68,36 @@ namespace Elders.Cronus
         {
             if (logger.IsWarningEnabled())
                 logger.LogWarning(ex, message);
+        }
+
+        public static void Error(this ILogger logger, Func<string> func)
+        {
+            if (logger.IsErrorEnabled())
+                logger.LogError(func());
+        }
+
+        public static void Error(this ILogger logger, string message)
+        {
+            if (logger.IsErrorEnabled())
+                logger.LogError(message);
+        }
+
+        public static void ErrorException(this ILogger logger, string message, Exception ex)
+        {
+            if (logger.IsErrorEnabled())
+                logger.LogError(ex, message);
+        }
+
+        public static void Critical(this ILogger logger, string message)
+        {
+            if (logger.IsCriticalEnabled())
+                logger.LogCritical(message);
+        }
+
+        public static void CriticalException(this ILogger logger, string message, Exception ex)
+        {
+            if (logger.IsCriticalEnabled())
+                logger.LogCritical(ex, message);
         }
 
         class FallbackLoggerProvider : ILoggerProvider
