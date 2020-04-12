@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.IntegrityValidation;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore
 {
     public class MissingRevisionsValidator : IValidator<EventStream>
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(OrderedRevisionsValidator));
+        readonly ILogger logger = CronusLogger.CreateLogger(typeof(OrderedRevisionsValidator));
 
         public uint PriorityLevel { get { return 300; } }
 
@@ -29,7 +29,7 @@ namespace Elders.Cronus.EventStore
             {
                 if (eventStream.Commits.Any(x => x.Revision == expectedRevision) == false)
                 {
-                    if (log.IsDebugEnabled())
+                    if (logger.IsDebugEnabled())
                     {
                         yield return $"Missing {nameof(AggregateCommit)} revision '{expectedRevision}'.";
                     }

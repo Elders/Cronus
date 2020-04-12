@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections
 {
     public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
     {
         private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
-        private static readonly ILog log = LogProvider.GetLogger(typeof(ProjectionRepository));
         private static long LastRefreshTimestamp = 0;
 
+        private readonly ILogger log = CronusLogger.CreateLogger(typeof(ProjectionRepository));
         private readonly CronusContext context;
         readonly IProjectionStore projectionStore;
         readonly ISnapshotStore snapshotStore;

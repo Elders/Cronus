@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Elders.Cronus.Logging;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections
 {
@@ -24,8 +24,6 @@ namespace Elders.Cronus.Projections
         where TPrimary : class, IProjectionReader, IProjectionWriter
         where TFallback : class, IProjectionReader, IProjectionWriter
     {
-        private static readonly ILog log = LogProvider.GetLogger(typeof(ProjectionRepositoryWithFallback<,>));
-
         private readonly bool isFallbackEnabled;
         private readonly bool useOnlyFallback;
         private readonly TPrimary primary;
@@ -194,6 +192,7 @@ namespace Elders.Cronus.Projections
 
         public class FallbackReporter
         {
+            private readonly ILogger logger = CronusLogger.CreateLogger(typeof(FallbackReporter));
             private readonly StringBuilder report;
             private readonly ProjectionRepositoryWithFallback<TPrimary, TFallback> repository;
 
@@ -269,11 +268,11 @@ namespace Elders.Cronus.Projections
                 if (exceptions.Any())
                 {
                     var exception = new AggregateException(exceptions);
-                    log.WarnException(report.ToString(), exception);
+                    logger.WarnException(report.ToString(), exception);
                 }
                 else
                 {
-                    log.Info(() => report.ToString());
+                    logger.Info(() => report.ToString());
                 }
             }
 
@@ -282,12 +281,12 @@ namespace Elders.Cronus.Projections
                 if (exceptions.Any())
                 {
                     var exception = new AggregateException(exceptions);
-                    log.WarnException(report.ToString(), exception);
+                    logger.WarnException(report.ToString(), exception);
                     throw exception;
                 }
                 else
                 {
-                    log.Info(() => report.ToString());
+                    logger.Info(() => report.ToString());
                 }
             }
         }

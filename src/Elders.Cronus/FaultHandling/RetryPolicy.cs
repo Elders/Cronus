@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using Elders.Cronus.FaultHandling.Strategies;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.FaultHandling
 {
@@ -10,7 +10,7 @@ namespace Elders.Cronus.FaultHandling
     /// </summary>
     public class RetryPolicy
     {
-        static ILog log = LogProvider.GetLogger(typeof(RetryPolicy));
+        private ILogger logger = CronusLogger.CreateLogger(typeof(RetryPolicy));
         /// <summary>
         /// Returns a default policy that does no retries, it just invokes action exactly once.
         /// </summary>
@@ -142,7 +142,7 @@ namespace Elders.Cronus.FaultHandling
 
             var shouldRetry = this.RetryStrategy.GetShouldRetry();
 
-            for (;;)
+            for (; ; )
             {
                 lastError = null;
 
@@ -200,7 +200,7 @@ namespace Elders.Cronus.FaultHandling
         {
             if (this.Retrying != null)
             {
-                log.Info(() => string.Format("Retrying - Count: {0}, Delay: {1}, Exception: {2}",
+                logger.Info(() => string.Format("Retrying - Count: {0}, Delay: {1}, Exception: {2}",
                                                           retryCount, delay.TotalMilliseconds, lastError.Message));
 
                 this.Retrying(this, new RetryingEventArgs(retryCount, delay, lastError));

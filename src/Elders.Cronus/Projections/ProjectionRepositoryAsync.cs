@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Elders.Cronus.Logging;
 using Elders.Cronus.Projections.Snapshotting;
 
 namespace Elders.Cronus.Projections

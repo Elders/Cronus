@@ -6,13 +6,13 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
 using System.Threading;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus
 {
     internal class AssemblyLoader
     {
-        static readonly ILog log = LogProvider.GetLogger(nameof(AssemblyLoader));
+        static readonly ILogger logger = CronusLogger.CreateLogger(nameof(AssemblyLoader));
 
         static int shouldLoadAssembliesFromDir = 1;
         static string[] excludedAssemblies = new string[] { "sni.dll", "apphost.exe", "clrcompression.dll", "clretwrc.dll", "clrjit.dll", "coreclr.dll", "dbgshim.dll", "hostfxr.dll", "hostpolicy.dll", "sos.dll", "ucrtbase.dll" };
@@ -64,7 +64,7 @@ namespace Elders.Cronus
                     Assemblies.Add(assembly.FullName, assembly);
             }
 
-            log.Info(loadAssembliesLog.ToString());
+            logger.Info(loadAssembliesLog.ToString());
         }
 
         static void InitAssemblies()

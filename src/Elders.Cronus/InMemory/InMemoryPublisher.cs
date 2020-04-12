@@ -1,14 +1,14 @@
 ﻿using Elders.Cronus.EventStore.Index;
-using Elders.Cronus.Logging;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Multitenancy;
+using Microsoft.Extensions.Logging;
 using System;
 
 namespace Elders.Cronus.InMemory
 {
     public class InMemoryPublisher<T> : Publisher<IMessage> where T : IMessage
     {
-        private readonly static ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<>));
+        private readonly ILogger logger = CronusLogger.CreateLogger(typeof(InMemoryPublisher<>));
 
         private readonly ISubscriberCollection<IApplicationService> appServiceSubscribers;
         private readonly ISubscriberCollection<IProjection> projectionSubscribers;
@@ -67,7 +67,7 @@ namespace Elders.Cronus.InMemory
             }
             catch (Exception ex)
             {
-                log.Error("Unable to process message", ex);
+                logger.ErrorException("Unable to process message", ex);
             }
         }
     }
