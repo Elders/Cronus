@@ -1,6 +1,6 @@
 using System;
 using System.Threading;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus
 {
@@ -10,7 +10,7 @@ namespace Elders.Cronus
 
     public static class RetryableOperation
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(RetryableOperation));
+        static readonly ILogger logger = CronusLogger.CreateLogger(typeof(RetryableOperation));
 
         static RetryPolicy defaultExponentialRetryPolicy = RetryPolicyFactory.CreateExponentialRetryPolicy(5, new TimeSpan(0, 0, 3), new TimeSpan(0, 0, 90), new TimeSpan(0, 0, 6));
         static RetryPolicy defaultLinearRetryPolicy = RetryPolicyFactory.CreateLinearRetryPolicy(5, new TimeSpan(0, 0, 1));
@@ -43,12 +43,12 @@ namespace Elders.Cronus
                 {
                     if (retry(i, exception, out delay))
                     {
-                        log.DebugFormat("Retry {0} after {1} ms. Operation Info: {2}", i, delay.TotalMilliseconds, operationInfo ?? operation.ToString());
+                        logger.LogDebug("Retry {0} after {1} ms. Operation Info: {2}", i, delay.TotalMilliseconds, operationInfo ?? operation.ToString());
                         Thread.Sleep(delay);
                     }
                     else
                     {
-                        log.Debug("Maximum number of retries has been reached.");
+                        logger.LogDebug("Maximum number of retries has been reached.");
                         throw exception;
                     }
                 }

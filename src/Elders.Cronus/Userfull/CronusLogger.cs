@@ -13,5 +13,7 @@ namespace Elders.Cronus
         }
 
         public static ILogger<T> CreateLogger<T>() => factory.CreateLogger<T>();
+
+        public static ILogger CreateLogger(Type type) => factory.CreateLogger(type);
     }
 }
