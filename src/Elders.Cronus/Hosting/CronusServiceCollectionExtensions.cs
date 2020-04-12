@@ -53,6 +53,7 @@ namespace Elders.Cronus
 
         internal static IServiceCollection AddCronusHostOptions(this IServiceCollection services)
         {
+            services.AddOptions();
             services.AddOptions<CronusHostOptions, CronusHostOptionsProvider>();
             services.AddOptions<BoundedContext, BoundedContextProvider>();
 
