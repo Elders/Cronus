@@ -1,3 +1,6 @@
+#### 6.0.0-beta0023 - 12.04.2020
+* Registers an EmptyConsumer by default for the IConsumer<>. Other components such as RabbitMQ will have the responsibility to override this. [#216]
+
 #### 6.0.0-beta0022 - 10.04.2020
 * Extending the IEventStorePlayer interface with async methods
 
