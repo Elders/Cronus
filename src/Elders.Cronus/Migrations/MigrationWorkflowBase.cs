@@ -6,7 +6,7 @@ namespace Elders.Cronus.Migrations
 {
     public class MigrationWorkflowBase<TInput, TResult> : Workflow<TInput, TResult> where TInput : class
     {
-        readonly ILogger logger = CronusLogger.CreateLogger(typeof(MigrationWorkflowBase<TInput, TResult>));
+        static readonly ILogger logger = CronusLogger.CreateLogger(typeof(MigrationWorkflowBase<TInput, TResult>));
 
         protected readonly IMigration<TInput, TResult> migration;
 

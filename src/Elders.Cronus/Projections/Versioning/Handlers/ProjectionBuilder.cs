@@ -10,7 +10,7 @@ namespace Elders.Cronus.Projections.Versioning
         ISagaTimeoutHandler<RebuildProjectionVersion>,
         ISagaTimeoutHandler<ProjectionVersionRebuildTimedout>
     {
-        private ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionBuilder));
+        private static ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionBuilder));
 
         private readonly ProjectionPlayer projectionPlayer;
 

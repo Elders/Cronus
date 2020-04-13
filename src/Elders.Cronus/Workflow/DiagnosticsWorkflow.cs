@@ -6,7 +6,7 @@ namespace Elders.Cronus.Workflow
 {
     public class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext : class
     {
-        private readonly ILogger logger = CronusLogger.CreateLogger(typeof(DiagnosticsWorkflow<>));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DiagnosticsWorkflow<>));
         private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
 
         readonly Workflow<TContext> workflow;

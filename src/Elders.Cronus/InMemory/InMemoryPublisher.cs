@@ -8,7 +8,7 @@ namespace Elders.Cronus.InMemory
 {
     public class InMemoryPublisher<T> : Publisher<IMessage> where T : IMessage
     {
-        private readonly ILogger logger = CronusLogger.CreateLogger(typeof(InMemoryPublisher<>));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(InMemoryPublisher<>));
 
         private readonly ISubscriberCollection<IApplicationService> appServiceSubscribers;
         private readonly ISubscriberCollection<IProjection> projectionSubscribers;

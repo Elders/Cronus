@@ -7,7 +7,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
 {
     public class InMemoryLock : ILock
     {
-        private readonly ILogger logger = CronusLogger.CreateLogger<InMemoryLock>();
+        private static readonly ILogger logger = CronusLogger.CreateLogger<InMemoryLock>();
 
         private static readonly ConcurrentDictionary<string, Mutex> lockedResources = new ConcurrentDictionary<string, Mutex>();
 

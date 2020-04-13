@@ -11,10 +11,10 @@ namespace Elders.Cronus.Projections
 {
     public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
     {
+        private static readonly ILogger log = CronusLogger.CreateLogger(typeof(ProjectionRepository));
         private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
         private static long LastRefreshTimestamp = 0;
 
-        private readonly ILogger log = CronusLogger.CreateLogger(typeof(ProjectionRepository));
         private readonly CronusContext context;
         readonly IProjectionStore projectionStore;
         readonly ISnapshotStore snapshotStore;

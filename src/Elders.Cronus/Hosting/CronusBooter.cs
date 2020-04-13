@@ -8,7 +8,6 @@ namespace Elders.Cronus
     {
         public static void BootstrapCronus(IServiceProvider serviceProvider)
         {
-            CronusLogger.Bootstrap(serviceProvider);
             var scanner = new CronusStartupScanner(new DefaulAssemblyScanner());
             IEnumerable<Type> startups = scanner.Scan();
             foreach (var startupType in startups)

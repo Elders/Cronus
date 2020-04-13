@@ -6,7 +6,7 @@ namespace Elders.Cronus.Discoveries
 {
     public sealed class DiscoveryScanner
     {
-        private readonly ILogger logger = CronusLogger.CreateLogger<DiscoveryScanner>();
+        private static readonly ILogger logger = CronusLogger.CreateLogger<DiscoveryScanner>();
 
         public IEnumerable<IDiscoveryResult<object>> Scan(DiscoveryContext context)
         {
