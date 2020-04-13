@@ -153,6 +153,13 @@ Valid values:
 
 #### `Cronus:Projections:Cassandra:Datacenters` >> *string[] | Required: No*
 
+---
+
+## `Cronus:Projections:Cassandra:TableRetention:DeleteOldProjectionTables` >> *boolean | Required: No | Default: true*
+
+---
+
+## `Cronus:Projections:Cassandra:TableRetention:NumberOfOldProjectionTablesToRetain` >> *unsigned integer | Required: No | Default: 2*
 
 # Cronus.Transport.RabbitMq
 
