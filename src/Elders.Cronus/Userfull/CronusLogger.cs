@@ -1,15 +1,16 @@
 ﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus
 {
-    internal static class CronusLogger
+    public static class CronusLogger
     {
         private static ILoggerFactory factory = new LoggerFactory(new ILoggerProvider[] { new FallbackLoggerProvider() });
 
         public static void Bootstrap(IServiceProvider serviceProvider)
         {
-            factory = (serviceProvider.GetService(typeof(ILoggerFactory)) as ILoggerFactory) ?? factory;
+            factory = serviceProvider.GetService<ILoggerFactory>() ?? factory;
         }
 
         public static ILogger CreateLogger<T>() => factory.CreateLogger<T>();
