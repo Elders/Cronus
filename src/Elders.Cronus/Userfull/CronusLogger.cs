@@ -46,10 +46,17 @@ namespace Elders.Cronus
             if (logger.IsInfoEnabled())
                 logger.LogInformation(func());
         }
+
         public static void Info(this ILogger logger, string message)
         {
             if (logger.IsInfoEnabled())
                 logger.LogInformation(message);
+        }
+
+        public static void Info(this ILogger logger, string message, params object[] args)
+        {
+            if (logger.IsInfoEnabled())
+                logger.LogInformation(message, args);
         }
 
         public static void Warn(this ILogger logger, Func<string> func)
