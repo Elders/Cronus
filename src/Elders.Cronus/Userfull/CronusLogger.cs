@@ -9,7 +9,7 @@ namespace Elders.Cronus
 
         public static void Configure(ILoggerFactory loggerFactory)
         {
-            factory = loggerFactory;
+            factory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
         public static ILogger CreateLogger<T>() => factory.CreateLogger<T>();
