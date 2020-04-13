@@ -1,14 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.IntegrityValidation;
-using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore
 {
     public class DuplicateRevisionsValidator : IValidator<EventStream>
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DuplicateRevisionsValidator));
-
         public uint PriorityLevel { get { return 100; } }
 
         public int CompareTo(IValidator<EventStream> other)
@@ -29,15 +26,7 @@ namespace Elders.Cronus.EventStore
         {
             foreach (var error in errors)
             {
-                if (logger.IsDebugEnabled())
-                {
-                    yield return $"Found {error.Count()} duplicates of {nameof(AggregateCommit)} for revision {error.Key}.";
-                }
-                else
-                {
-                    yield return "DEBUG logging is turned off. In order to see detailed messages please enable DEBUG log level.";
-                    break;
-                }
+                yield return $"Found {error.Count()} duplicates of {nameof(AggregateCommit)} for revision {error.Key}.";
             }
         }
     }
