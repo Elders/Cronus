@@ -16,8 +16,8 @@ namespace Elders.Cronus.Tests.ValidatorsAndResolvers
                 AggregateCommit commit1 = new AggregateCommit(aggregateId, 1, new List<IEvent>());
                 AggregateCommit commit3 = new AggregateCommit(aggregateId, 3, new List<IEvent>());
                 AggregateCommit commit4 = new AggregateCommit(aggregateId, 4, new List<IEvent>());
-                AggregateCommit commit6 = new AggregateCommit(aggregateId, 10, new List<IEvent>());
-                eventStream = new EventStream(new[] { commit1, commit3, commit4, commit6 });
+                AggregateCommit commit10 = new AggregateCommit(aggregateId, 10, new List<IEvent>());
+                eventStream = new EventStream(new[] { commit1, commit3, commit4, commit10 });
                 validator = new MissingRevisionsValidator();
             };
 
@@ -25,7 +25,7 @@ namespace Elders.Cronus.Tests.ValidatorsAndResolvers
 
         It should_report_about_the_invalid__EventStream__ = () => validationResult.IsValid.ShouldBeFalse();
 
-        It should_report_all_missing_revisions = () => validationResult.Errors.Count().ShouldEqual(1);
+        It should_report_all_missing_revisions = () => validationResult.Errors.Count().ShouldEqual(6);
 
         It should_have__OrderedRevisionsValidator_as_error_type = () => validationResult.ErrorType.ShouldEqual(nameof(OrderedRevisionsValidator));
 
