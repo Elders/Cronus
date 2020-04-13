@@ -61,7 +61,7 @@ namespace Elders.Cronus.EventStore
 
         class EventStreamValidatorLogger : IResolver<EventStream>
         {
-            readonly ILogger logger = CronusLogger.CreateLogger(typeof(EventStreamValidatorLogger));
+            private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(EventStreamValidatorLogger));
 
             public uint PriorityLevel { get { return uint.MinValue; } }
 

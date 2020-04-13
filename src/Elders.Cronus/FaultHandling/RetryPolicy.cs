@@ -10,7 +10,7 @@ namespace Elders.Cronus.FaultHandling
     /// </summary>
     public class RetryPolicy
     {
-        private ILogger logger = CronusLogger.CreateLogger(typeof(RetryPolicy));
+        private static ILogger logger = CronusLogger.CreateLogger(typeof(RetryPolicy));
         /// <summary>
         /// Returns a default policy that does no retries, it just invokes action exactly once.
         /// </summary>

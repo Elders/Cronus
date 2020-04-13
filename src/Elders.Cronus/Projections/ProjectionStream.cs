@@ -9,7 +9,7 @@ namespace Elders.Cronus.Projections
 {
     internal sealed class ProjectionStream
     {
-        private readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionStream));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionStream));
 
         private static readonly List<ProjectionCommit> _empty = new List<ProjectionCommit>();
 

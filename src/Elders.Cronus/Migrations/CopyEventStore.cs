@@ -8,7 +8,7 @@ namespace Elders.Cronus.Migrations
         where TSourceEventStorePlayer : IEventStorePlayer
         where TTargetEventStore : IEventStore
     {
-        private readonly ILogger logger = CronusLogger.CreateLogger(typeof(MigrationRunnerBase<,,>));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CopyEventStore<,>));
 
         public CopyEventStore(TSourceEventStorePlayer source, TTargetEventStore target) : base(source, target) { }
 

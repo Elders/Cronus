@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus
@@ -8,9 +7,9 @@ namespace Elders.Cronus
     {
         private static ILoggerFactory factory = new LoggerFactory(new ILoggerProvider[] { new FallbackLoggerProvider() });
 
-        public static void Bootstrap(IServiceProvider serviceProvider)
+        public static void Configure(ILoggerFactory loggerFactory)
         {
-            factory = serviceProvider.GetService<ILoggerFactory>() ?? factory;
+            factory = loggerFactory;
         }
 
         public static ILogger CreateLogger<T>() => factory.CreateLogger<T>();
@@ -131,7 +130,8 @@ namespace Elders.Cronus
 ";
                     var message = @$"
 !!! WARNING !!!
-You are using internal Cronus logger '{nameof(FallbackLogger)}' because there are no other loggers registered for '{categoryName}';
+You are using internal Cronus logger '{nameof(FallbackLogger)}' because there are no other loggers registered for '{categoryName}'.
+Call '{nameof(CronusLogger)}.{nameof(Configure)}({nameof(ILoggerFactory)})'.;
 
     Level: {logLevel}
     {exceptionMessage}Message: {formatter(state, exception)}

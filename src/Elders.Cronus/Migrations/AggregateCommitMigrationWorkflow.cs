@@ -9,7 +9,7 @@ namespace Elders.Cronus.Migrations
 {
     public class AggregateCommitMigrationWorkflow : MigrationWorkflowBase<AggregateCommit, IEnumerable<AggregateCommit>>
     {
-        readonly ILogger logger = CronusLogger.CreateLogger(typeof(AggregateCommitMigrationWorkflow));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(AggregateCommitMigrationWorkflow));
 
         public AggregateCommitMigrationWorkflow(IMigration<AggregateCommit, IEnumerable<AggregateCommit>> migration)
             : base(migration) { }

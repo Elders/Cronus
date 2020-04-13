@@ -8,7 +8,7 @@ namespace Elders.Cronus
 {
     public abstract class Publisher<TMessage> : IPublisher<TMessage> where TMessage : IMessage
     {
-        readonly ILogger logger = CronusLogger.CreateLogger(typeof(Publisher<TMessage>));
+        static readonly ILogger logger = CronusLogger.CreateLogger(typeof(Publisher<TMessage>));
         private readonly ITenantResolver<IMessage> tenantResolver;
         private readonly BoundedContext boundedContext;
 

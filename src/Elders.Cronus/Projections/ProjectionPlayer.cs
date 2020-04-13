@@ -14,7 +14,7 @@ namespace Elders.Cronus.Projections
 {
     public class ProjectionPlayer : IProjectionPlayer
     {
-        private readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionPlayer));
+        static readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionPlayer));
 
         private readonly CronusContext context;
         private readonly IEventStore eventStore;

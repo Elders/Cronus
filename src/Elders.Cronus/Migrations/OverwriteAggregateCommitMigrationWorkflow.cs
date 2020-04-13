@@ -7,7 +7,7 @@ namespace Elders.Cronus.Migrations
 {
     public class OverwriteAggregateCommitMigrationWorkflow : MigrationWorkflowBase<AggregateCommit, AggregateCommit>
     {
-        readonly ILogger logger = CronusLogger.CreateLogger(typeof(OverwriteAggregateCommitMigrationWorkflow));
+        static readonly ILogger logger = CronusLogger.CreateLogger(typeof(OverwriteAggregateCommitMigrationWorkflow));
 
         public OverwriteAggregateCommitMigrationWorkflow(IMigration<AggregateCommit, AggregateCommit> migration)
             : base(migration)
@@ -34,7 +34,7 @@ namespace Elders.Cronus.Migrations
 
     public class CopyAggregateCommitMigrationWorkflow : MigrationWorkflowBase<AggregateCommitRaw, AggregateCommitRaw>
     {
-        readonly ILogger logger = CronusLogger.CreateLogger(typeof(OverwriteAggregateCommitMigrationWorkflow));
+        static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CopyAggregateCommitMigrationWorkflow));
 
         public CopyAggregateCommitMigrationWorkflow(IMigration<AggregateCommitRaw, AggregateCommitRaw> migration)
             : base(migration)

@@ -7,7 +7,7 @@ namespace Elders.Cronus.EventStore
 {
     public class MissingRevisionsValidator : IValidator<EventStream>
     {
-        readonly ILogger logger = CronusLogger.CreateLogger(typeof(OrderedRevisionsValidator));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(MissingRevisionsValidator));
 
         public uint PriorityLevel { get { return 300; } }
 

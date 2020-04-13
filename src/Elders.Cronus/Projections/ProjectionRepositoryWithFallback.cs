@@ -192,7 +192,7 @@ namespace Elders.Cronus.Projections
 
         public class FallbackReporter
         {
-            private readonly ILogger logger = CronusLogger.CreateLogger(typeof(FallbackReporter));
+            private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(FallbackReporter));
             private readonly StringBuilder report;
             private readonly ProjectionRepositoryWithFallback<TPrimary, TFallback> repository;
 
