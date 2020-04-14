@@ -1,20 +1,34 @@
 ﻿using System;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus
 {
     public static class CronusLogger
     {
-        private static ILoggerFactory factory = new LoggerFactory(new ILoggerProvider[] { new FallbackLoggerProvider() });
+        private static ILoggerFactory factory = new LoggerFactory();
+        private static ILogger startupLogger;
 
-        public static void Configure(ILoggerFactory loggerFactory)
+        public static IHostBuilder UseCronusStartupLogger(this IHostBuilder hostBuilder, ILogger startupLogger)
         {
-            factory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
+            SetStartupLogger(startupLogger);
+            return hostBuilder;
         }
 
-        public static ILogger CreateLogger<T>() => factory.CreateLogger<T>();
-        public static ILogger CreateLogger(Type type) => factory.CreateLogger(type);
-        public static ILogger CreateLogger(string categoryName) => factory.CreateLogger(categoryName);
+        public static void SetStartupLogger(ILogger startupLogger) => CronusLogger.startupLogger = startupLogger;
+
+        internal static void Configure(ILoggerFactory loggerFactory)
+        {
+            if (loggerFactory is null && startupLogger is null == false)
+                startupLogger.LogWarning($"An instance of {nameof(ILoggerFactory)} is nowhere to be found. Casting blinding spell... To break the spell, you must configure your application logging.");
+
+            factory = loggerFactory ?? factory;
+            startupLogger = null;
+        }
+
+        public static ILogger CreateLogger<T>() => startupLogger ?? factory.CreateLogger<T>();
+        public static ILogger CreateLogger(Type type) => startupLogger ?? factory.CreateLogger(type);
+        public static ILogger CreateLogger(string categoryName) => startupLogger ?? factory.CreateLogger(categoryName);
 
         public static bool IsTraceEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Trace);
         public static bool IsDebugEnabled(this ILogger logger) => logger.IsEnabled(LogLevel.Debug);
