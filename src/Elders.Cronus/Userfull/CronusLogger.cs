@@ -120,51 +120,5 @@ namespace Elders.Cronus
             if (logger.IsCriticalEnabled())
                 logger.LogCritical(ex, message);
         }
-
-        class FallbackLoggerProvider : ILoggerProvider
-        {
-            public ILogger CreateLogger(string categoryName) => new FallbackLogger(categoryName);
-
-            public void Dispose() { }
-
-            class FallbackLogger : ILogger, IDisposable
-            {
-                private readonly string categoryName;
-
-                public FallbackLogger(string categoryName)
-                {
-                    this.categoryName = categoryName;
-                }
-
-                public IDisposable BeginScope<TState>(TState state) => this;
-
-                public void Dispose() { }
-
-                public bool IsEnabled(LogLevel logLevel) => logLevel > LogLevel.Debug;
-
-                public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-                {
-                    var exceptionMessage = exception is null ? string.Empty : @$"
-    Exception: {exception.GetType().Name} {exception.Message}
-    {exception.StackTrace}
-
-";
-                    var message = @$"
-!!! WARNING !!!
-You are using internal Cronus logger '{nameof(FallbackLogger)}' because there are no other loggers registered for '{categoryName}'.
-Call '{nameof(CronusLogger)}.{nameof(Configure)}({nameof(ILoggerFactory)})'.;
-
-    Level: {logLevel}
-    {exceptionMessage}Message: {formatter(state, exception)}
-!!! WARNING !!!";
-                    System.Diagnostics.Debug.WriteLine(message);
-
-                    var color = Console.ForegroundColor;
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine(message);
-                    Console.ForegroundColor = color;
-                }
-            }
-        }
     }
 }
