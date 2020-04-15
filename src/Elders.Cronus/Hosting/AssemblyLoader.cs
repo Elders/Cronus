@@ -80,8 +80,10 @@ namespace Elders.Cronus
                 // such a situations.
                 // If you use MSTest(run dotnet test instead of 'dotnet vstest') everything works because it actually runs as previous
                 // (testhost.dll situated inside the correct directory)
-                string codeBase = AppDomain.CurrentDomain.BaseDirectory;
-                //string codeBase = Assembly.GetEntryAssembly().CodeBase;
+                //string codeBase = AppDomain.CurrentDomain.BaseDirectory;
+                // We need to figure out another way for the testhostx86.dll problem
+
+                string codeBase = Assembly.GetEntryAssembly().CodeBase;
                 UriBuilder uri = new UriBuilder(codeBase);
                 string path = Uri.UnescapeDataString(uri.Path);
                 var dir = Path.GetDirectoryName(path);
