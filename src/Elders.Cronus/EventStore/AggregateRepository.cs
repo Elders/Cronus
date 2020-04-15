@@ -60,11 +60,11 @@ namespace Elders.Cronus.EventStore
             EventStream eventStream = eventStore.Load(id);
             var integrityResult = integrityPolicy.Apply(eventStream);
             if (integrityResult.IsIntegrityViolated)
-                throw new EventStreamIntegrityViolationException($"AR integrity is violated for ID={id.Urn.Value}");
+                throw new EventStreamIntegrityViolationException($"AR integrity is violated for ID={id.Value}");
             eventStream = integrityResult.Output;
             AR aggregateRoot;
             if (eventStream.TryRestoreFromHistory<AR>(out aggregateRoot) == false)
-                return ReadResult<AR>.WithNotFoundHint($"Unable to load AR with ID={id.Urn.Value}");
+                return ReadResult<AR>.WithNotFoundHint($"Unable to load AR with ID={id.Value}");
 
             return new ReadResult<AR>(aggregateRoot);
         }

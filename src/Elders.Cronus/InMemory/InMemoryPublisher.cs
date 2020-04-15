@@ -2,6 +2,7 @@
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace Elders.Cronus.InMemory
@@ -25,8 +26,8 @@ namespace Elders.Cronus.InMemory
             ISubscriberCollection<IGateway> gatewaySubscribers,
             ISubscriberCollection<ISaga> sagaSubscribers,
             ISubscriberCollection<IEventStoreIndex> esIndexSubscribers,
-            BoundedContext boundedContext)
-            : base(new DefaultTenantResolver(), boundedContext)
+            IOptionsMonitor<BoundedContext> boundedContext)
+            : base(new DefaultTenantResolver(), boundedContext.CurrentValue)
         {
             this.appServiceSubscribers = appServiceSubscribers;
             this.projectionSubscribers = projectionSubscribers;

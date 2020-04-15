@@ -3,7 +3,7 @@ using System;
 namespace Elders.Cronus.Tests.TestModel
 {
 
-    public class TestEntityId : EntityStringId<TestAggregateId>
+    public class TestEntityId : EntityId<TestAggregateId>
     {
         public TestEntityId(Guid id, TestAggregateId rootId)
             : base(id.ToString(), rootId, "TestEntityId")

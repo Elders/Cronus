@@ -40,8 +40,8 @@ namespace Elders.Cronus.Multitenancy
         {
             if (ReferenceEquals(null, id) == true) throw new ArgumentNullException(nameof(id));
 
-            if (id is StringTenantId)
-                return ((StringTenantId)id).Tenant;
+            if (id is AggregateRootId)
+                return ((AggregateRootId)id).Tenant;
 
             throw new NotSupportedException($"Unable to resolve tenant for id {id}");
         }
@@ -95,11 +95,11 @@ namespace Elders.Cronus.Multitenancy
         {
             tenant = string.Empty;
             var urn = System.Text.Encoding.UTF8.GetString(id);
-            StringTenantUrn stringTenantUrn;
+            AggregateUrn aggregateUrn;
 
-            if (StringTenantUrn.TryParse(urn, out stringTenantUrn))
+            if (AggregateUrn.TryParse(urn, out aggregateUrn))
             {
-                tenant = stringTenantUrn.Tenant;
+                tenant = aggregateUrn.Tenant;
                 return true;
             }
 

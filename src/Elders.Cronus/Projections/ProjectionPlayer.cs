@@ -129,18 +129,18 @@ namespace Elders.Cronus.Projections
             var parts = mess.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var part in parts)
             {
-                StringTenantUrn urn;
-                if (StringTenantUrn.TryParse(part, out urn))
+                AggregateUrn urn;
+                if (AggregateUrn.TryParse(part, out urn))
                 {
-                    return new StringTenantId(urn, urn.ArName);
+                    return new AggregateRootId(urn.AggregateRootName, urn);
                 }
                 else
                 {
                     byte[] raw = Convert.FromBase64String(part);
                     string urnString = Encoding.UTF8.GetString(raw);
-                    if (StringTenantUrn.TryParse(urnString, out urn))
+                    if (AggregateUrn.TryParse(urnString, out urn))
                     {
-                        return new StringTenantId(urn, urn.ArName);
+                        return new AggregateRootId(urn.AggregateRootName, urn);
                     }
                 }
             }

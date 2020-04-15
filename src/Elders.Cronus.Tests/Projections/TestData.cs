@@ -53,7 +53,7 @@ namespace Elders.Cronus.Tests.Projections
 
     }
 
-    public class TestProjectionId : StringTenantId
+    public class TestProjectionId : AggregateRootId
     {
 
     }
