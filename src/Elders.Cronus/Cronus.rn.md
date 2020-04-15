@@ -1,3 +1,6 @@
+#### 6.0.0-beta0026 - 15.04.2020
+* Updates Domain Modeling
+
 #### 6.0.0-beta0025 - 15.04.2020
 * Updates Domain Modeling
 
