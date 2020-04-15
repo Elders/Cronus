@@ -1,3 +1,6 @@
+#### 6.0.0-beta0025 - 15.04.2020
+* Updates Domain Modeling
+
 #### 6.0.0-beta0024 - 14.04.2020
 * Replaces LibLog [#188]
 * Using CronusLogger for static logging
