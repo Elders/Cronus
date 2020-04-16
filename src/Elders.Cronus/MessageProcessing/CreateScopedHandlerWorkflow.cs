@@ -7,7 +7,7 @@ namespace Elders.Cronus.MessageProcessing
     {
         protected override IHandlerInstance Run(Execution<HandleContext, IHandlerInstance> execution)
         {
-            var scope = ScopedMessageWorkflow.GetScope(execution.Context);
+            IServiceScope scope = ScopedMessageWorkflow.GetScope(execution.Context);
             return new DefaultHandlerInstance(scope.ServiceProvider.GetRequiredService(execution.Context.HandlerType));
         }
     }

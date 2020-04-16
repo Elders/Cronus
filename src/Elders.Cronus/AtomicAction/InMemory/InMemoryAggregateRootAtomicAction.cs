@@ -45,10 +45,10 @@ namespace Elders.Cronus.AtomicAction.InMemory
 
             try
             {
-                acquired = aggregateLock.Get(aggregateRootId.Urn.Value) as AtomicBoolean;
+                acquired = aggregateLock.Get(aggregateRootId.Value) as AtomicBoolean;
                 if (ReferenceEquals(null, acquired))
                 {
-                    acquired = aggregateLock.Set(aggregateRootId.Urn.Value, new AtomicBoolean(false), cacheEntryOptions);
+                    acquired = aggregateLock.Set(aggregateRootId.Value, new AtomicBoolean(false), cacheEntryOptions);
                     if (ReferenceEquals(null, acquired))
                         return result;
                 }
@@ -57,11 +57,11 @@ namespace Elders.Cronus.AtomicAction.InMemory
                 {
                     try
                     {
-                        AtomicInteger revision = aggregateRevisions.Get(aggregateRootId.Urn.Value) as AtomicInteger;
+                        AtomicInteger revision = aggregateRevisions.Get(aggregateRootId.Value) as AtomicInteger;
                         if (ReferenceEquals(null, revision))
                         {
                             var newRevision = new AtomicInteger(aggregateRootRevision - 1);
-                            revision = aggregateRevisions.Set(aggregateRootId.Urn.Value, newRevision, cacheEntryOptions);
+                            revision = aggregateRevisions.Set(aggregateRootId.Value, newRevision, cacheEntryOptions);
                             if (ReferenceEquals(null, revision))
                                 return result;
                         }

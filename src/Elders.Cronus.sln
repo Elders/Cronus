@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29318.209
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elders.Cronus", "Elders.Cronus\Elders.Cronus.csproj", "{32EA2250-01B3-4171-9AE7-214037A0D524}"
 EndProject
@@ -11,6 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{8A014C
 	ProjectSection(SolutionItems) = preProject
 		..\appveyor.yml = ..\appveyor.yml
 		..\build-configuration.cmd = ..\build-configuration.cmd
+		Elders.Cronus\Cronus.rn.md = Elders.Cronus\Cronus.rn.md
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject

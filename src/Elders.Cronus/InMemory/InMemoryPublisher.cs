@@ -1,19 +1,22 @@
-﻿using Elders.Cronus.Logging;
+﻿using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Multitenancy;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace Elders.Cronus.InMemory
 {
     public class InMemoryPublisher<T> : Publisher<IMessage> where T : IMessage
     {
-        private readonly static ILog log = LogProvider.GetLogger(typeof(InMemoryPublisher<>));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(InMemoryPublisher<>));
 
         private readonly ISubscriberCollection<IApplicationService> appServiceSubscribers;
         private readonly ISubscriberCollection<IProjection> projectionSubscribers;
         private readonly ISubscriberCollection<IPort> portSubscribers;
         private readonly ISubscriberCollection<IGateway> gatewaySubscribers;
         private readonly ISubscriberCollection<ISaga> sagaSubscribers;
+        private readonly ISubscriberCollection<IEventStoreIndex> esIndexSubscribers;
         private readonly ScopedQueues queues = new ScopedQueues();
 
         public InMemoryPublisher(
@@ -21,14 +24,17 @@ namespace Elders.Cronus.InMemory
             ISubscriberCollection<IProjection> projectionSubscribers,
             ISubscriberCollection<IPort> portSubscribers,
             ISubscriberCollection<IGateway> gatewaySubscribers,
-            ISubscriberCollection<ISaga> sagaSubscribers)
-            : base(new DefaultTenantResolver())
+            ISubscriberCollection<ISaga> sagaSubscribers,
+            ISubscriberCollection<IEventStoreIndex> esIndexSubscribers,
+            IOptionsMonitor<BoundedContext> boundedContext)
+            : base(new DefaultTenantResolver(), boundedContext.CurrentValue)
         {
             this.appServiceSubscribers = appServiceSubscribers;
             this.projectionSubscribers = projectionSubscribers;
             this.portSubscribers = portSubscribers;
             this.gatewaySubscribers = gatewaySubscribers;
             this.sagaSubscribers = sagaSubscribers;
+            this.esIndexSubscribers = esIndexSubscribers;
         }
 
         protected override bool PublishInternal(CronusMessage message)
@@ -40,6 +46,7 @@ namespace Elders.Cronus.InMemory
                 {
                     var msg = queue.Dequeue();
                     NotifySubscribers(msg, appServiceSubscribers);
+                    NotifySubscribers(msg, esIndexSubscribers);
                     NotifySubscribers(msg, projectionSubscribers);
                     NotifySubscribers(msg, portSubscribers);
                     NotifySubscribers(msg, gatewaySubscribers);
@@ -61,7 +68,7 @@ namespace Elders.Cronus.InMemory
             }
             catch (Exception ex)
             {
-                log.Error("Unable to process message", ex);
+                logger.ErrorException("Unable to process message", ex);
             }
         }
     }

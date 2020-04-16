@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.EventStore;
-using Elders.Cronus.Logging;
 using Elders.Cronus.Workflow;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {
     public class AggregateCommitMigrationWorkflow : MigrationWorkflowBase<AggregateCommit, IEnumerable<AggregateCommit>>
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(AggregateCommitMigrationWorkflow));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(AggregateCommitMigrationWorkflow));
 
         public AggregateCommitMigrationWorkflow(IMigration<AggregateCommit, IEnumerable<AggregateCommit>> migration)
             : base(migration) { }
@@ -25,7 +25,7 @@ namespace Elders.Cronus.Migrations
             }
             catch (Exception ex)
             {
-                log.ErrorException("Error while applying migration", ex);
+                logger.ErrorException("Error while applying migration", ex);
             }
 
             foreach (var newCommit in newCommits)

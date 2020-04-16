@@ -1,9 +1,6 @@
-﻿using Elders.Cronus.Migration.Middleware.Tests.TestModel.Foo;
-using Elders.Cronus.EventStore;
-using Machine.Specifications;
+﻿using Machine.Specifications;
 using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.Migrations.TestMigration;
 using System;
 
 namespace Elders.Cronus.Migrations

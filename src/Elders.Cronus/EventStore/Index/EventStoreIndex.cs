@@ -1,74 +1,41 @@
-﻿using Elders.Cronus.Logging;
-using System;
+﻿using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using System.Text;
 
 namespace Elders.Cronus.EventStore.Index
 {
-    public class EventStoreIndex
+    [DataContract(Name = "55f9e248-7bb3-4288-8db8-ba9620c67228")]
+    public class EventToAggregateRootId : IEventStoreIndex
     {
-        static ILog log = LogProvider.GetLogger(typeof(EventStoreIndex));
-
-        public const string StateId = "55f9e248-7bb3-4288-8db8-ba9620c67228";
-
-        private object rebuildSync = new object();
-        private bool isBuilding = false;
-
-        private readonly IIndexStatusStore indexStatus;
         private readonly IIndexStore indexStore;
 
-        public EventStoreIndex(IIndexStatusStore indexStatus, IIndexStore indexStore)
+        public EventToAggregateRootId(IIndexStore indexStore)
         {
-            this.indexStatus = indexStatus;
             this.indexStore = indexStore;
         }
 
-        public bool Rebuild(Func<IEnumerable<IndexRecord>> indexRecords)
+        public void Index(AggregateCommit aggregateCommit)
         {
-            if (Prepare())
+            List<IndexRecord> indexRecordsBatch = new List<IndexRecord>();
+            foreach (var @event in aggregateCommit.Events)
             {
-                indexStore.Apend(indexRecords());
-                Complete();
+                string eventTypeId = @event.Unwrap().GetType().GetContractId();
+                var record = new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId);
+                indexRecordsBatch.Add(record);
             }
 
-            return false;
+            indexStore.Apend(indexRecordsBatch);
         }
 
-        bool Prepare()
+        public void Index(CronusMessage message)
         {
-            if (CanBuild())
-            {
-                lock (rebuildSync)
-                {
-                    if (CanBuild())
-                    {
-                        indexStatus.Save(StateId, IndexStatus.Building);
-                        isBuilding = true;
-                    }
-                    else
-                    {
-                        log.Debug(() => "Index is currently built by someone else");
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                log.Debug(() => "Index is currently built by someone");
-                return false;
-            }
+            var @event = message.Payload as IEvent;
+            string eventTypeId = @event.Unwrap().GetType().GetContractId();
 
-            return true;
-        }
-
-        bool CanBuild()
-        {
-            return isBuilding == false || indexStatus.Get(StateId).IsNotBuilding();
-        }
-
-        void Complete()
-        {
-            indexStatus.Save(StateId, IndexStatus.Present);
-            isBuilding = false;
+            var indexRecord = new List<IndexRecord>();
+            indexRecord.Add(new IndexRecord(eventTypeId, Encoding.UTF8.GetBytes(message.GetRootId())));
+            indexStore.Apend(indexRecord);
         }
 
         public IEnumerable<IndexRecord> EnumerateRecords(string dataId)
@@ -76,7 +43,5 @@ namespace Elders.Cronus.EventStore.Index
             // TODO: index exists?
             return indexStore.Get(dataId);
         }
-
-        public IndexStatus Status { get { return indexStatus.Get(StateId); } }
     }
 }

@@ -14,15 +14,13 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
         {
-            var loadedTypes = context.Assemblies.SelectMany(asm => asm.GetLoadableTypes())
-                .Where(type => type.IsAbstract == false && type.IsInterface == false && typeof(T).IsAssignableFrom(type));
-
-            foreach (var type in loadedTypes)
+            var foundTypes = context.FindService<T>();
+            foreach (var type in foundTypes)
             {
                 yield return new DiscoveredModel(type, type, ServiceLifetime.Transient);
             }
 
-            yield return new DiscoveredModel(typeof(TypeContainer<T>), new TypeContainer<T>(loadedTypes));
+            yield return new DiscoveredModel(typeof(TypeContainer<T>), new TypeContainer<T>(foundTypes));
             yield return new DiscoveredModel(typeof(IHandlerFactory), provider => new DefaultHandlerFactory(type => provider.GetRequiredService(type)), ServiceLifetime.Transient);
         }
     }

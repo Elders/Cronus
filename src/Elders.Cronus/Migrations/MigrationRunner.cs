@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Elders.Cronus.EventStore;
-using Elders.Cronus.Logging;
 
 namespace Elders.Cronus.Migrations
 {

@@ -26,5 +26,7 @@ namespace Elders.Cronus.Projections.Snapshotting
         public int Revision { get; private set; }
 
         public string ProjectionName { get; private set; }
+
+        public static SnapshotMeta From(ISnapshot snapshot) => new SnapshotMeta(snapshot.Revision, snapshot.ProjectionName);
     }
 }

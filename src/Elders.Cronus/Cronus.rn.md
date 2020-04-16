@@ -1,3 +1,32 @@
+#### 6.0.0 - 16.04.2020
+* Replaces LibLog [#188]
+* Using CronusLogger for static logging
+* Registers an EmptyConsumer by default for the IConsumer<>. Other components such as RabbitMQ will have the responsibility to override this. [#216]
+* Extending the IEventStorePlayer interface with async methods
+* Introduces options pattern for all configurations.
+* Register a type container with discovered commands
+* Adds bounded context header when publishing a message
+* Respects if a messageId has been explicitly specified when publishing a message
+* Bumps to dotnet core 3.1
+* Fixes event indices by properly plugging in a workflow
+* Added InMemory implementation for CronusJobRunner
+* Added discovery for all CronusJobs and RebuildIndex_EventToAggregateRootId_JobFactory( explicitly depended in EventStoreIndexBuilder)
+* Changed 'DiscoveryScanner' to not inherit 'DiscoveryBase<>'
+* Renamed 'DiscoverFromAssemblies' to 'Scan' which returns a collection of IDiscoveryResult<>
+* Changed CronusServiceCollectionExtensions to affect the changes above
+* Adds an option directly to add services to IServiceCollection
+* Initializes the commits collection
+* Bypasses the event store index check when ISystemProjection is rebuilt
+* Allows manual overriding of a Cronus Job data
+* Handles the EventStoreIndexIsNowPresent event in the AR
+* Adds tenant resolver which gets the tenant from a string source
+* Adds EventStoreDiscoveryBase which registers event store indices
+* Reworks the MultitenancyDiscovery
+* Refactors tenant resolver dependencies
+* Introduces Cronus jobs which are intended to run in a cluster
+* Improves the EventStore interfaces so when you do page the store the reult contains a pagination token
+* Rewrites the event store index with ARs and projections
+
 #### 5.3.1 - 21.03.2019
 * Fixes a concurrency issue when working with versions => https://github.com/dotnet/corefx/pull/28225
 * Added ordering in projections registrations

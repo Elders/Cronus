@@ -12,18 +12,14 @@ namespace Elders.Cronus.MessageProcessing
     public sealed class SubscriberCollection<T> : ISubscriberCollection<T>
     {
         ConcurrentBag<ISubscriber> subscribers;
-        private readonly ISubscriberFinder<T> subscriberFinder;
-        private readonly ISubscriberFactory<T> subscriberFactory;
 
         public SubscriberCollection(ISubscriberFinder<T> subscriberFinder, ISubscriberFactory<T> subscriberFactory)
         {
             subscribers = new ConcurrentBag<ISubscriber>();
 
-            this.subscriberFinder = subscriberFinder;
-            this.subscriberFactory = subscriberFactory;
-            foreach (var handlerType in subscriberFinder.Find())
+            foreach (var subscriberType in subscriberFinder.Find())
             {
-                ISubscriber subscriber = subscriberFactory.Create(handlerType);
+                ISubscriber subscriber = subscriberFactory.Create(subscriberType);
                 Subscribe(subscriber);
             }
         }

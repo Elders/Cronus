@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Elders.Cronus.Logging;
 using Elders.Cronus.Projections.Snapshotting;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections
 {
     internal sealed class ProjectionStream
     {
-        private static readonly ILog log = LogProvider.GetLogger(typeof(ProjectionStream));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionStream));
 
         private static readonly List<ProjectionCommit> _empty = new List<ProjectionCommit>();
 
@@ -65,7 +65,7 @@ namespace Elders.Cronus.Projections
             ISnapshot localSnapshot = GetSnapshot();
             projection.InitializeState(projectionId, localSnapshot.State);
 
-            log.Debug(() =>
+            logger.Debug(() =>
             {
                 var markers = Commits.Select(x => x.SnapshotMarker).DefaultIfEmpty(localSnapshot.Revision).ToList();
                 var message =

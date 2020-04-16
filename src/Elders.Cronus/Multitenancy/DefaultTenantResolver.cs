@@ -5,13 +5,20 @@ using Elders.Cronus.Projections;
 
 namespace Elders.Cronus.Multitenancy
 {
-    public class DefaultTenantResolver : ITenantResolver
+    public class DefaultTenantResolver :
+        ITenantResolver<string>,
+        ITenantResolver<IAggregateRootId>,
+        ITenantResolver<AggregateCommit>,
+        ITenantResolver<ProjectionCommit>,
+        ITenantResolver<IMessage>,
+        ITenantResolver<IBlobId>,
+        ITenantResolver<CronusMessage>
     {
         public string Resolve(ProjectionCommit projectionCommit)
         {
             if (ReferenceEquals(null, projectionCommit) == true) throw new ArgumentNullException(nameof(projectionCommit));
 
-            var tenant = string.Empty;
+            string tenant;
             if (TryResolve(projectionCommit.ProjectionId.RawId, out tenant))
                 return tenant;
 
@@ -22,7 +29,7 @@ namespace Elders.Cronus.Multitenancy
         {
             if (ReferenceEquals(null, id) == true) throw new ArgumentNullException(nameof(id));
 
-            var tenant = string.Empty;
+            string tenant;
             if (TryResolve(id.RawId, out tenant))
                 return tenant;
 
@@ -33,8 +40,8 @@ namespace Elders.Cronus.Multitenancy
         {
             if (ReferenceEquals(null, id) == true) throw new ArgumentNullException(nameof(id));
 
-            if (id is StringTenantId)
-                return ((StringTenantId)id).Tenant;
+            if (id is AggregateRootId)
+                return ((AggregateRootId)id).Tenant;
 
             throw new NotSupportedException($"Unable to resolve tenant for id {id}");
         }
@@ -43,7 +50,7 @@ namespace Elders.Cronus.Multitenancy
         {
             if (ReferenceEquals(null, aggregateCommit) == true) throw new ArgumentNullException(nameof(aggregateCommit));
 
-            var tenant = string.Empty;
+            string tenant;
             if (TryResolve(aggregateCommit.AggregateRootId, out tenant))
                 return tenant;
 
@@ -79,16 +86,20 @@ namespace Elders.Cronus.Multitenancy
             return tenant;
         }
 
+        public string Resolve(string source)
+        {
+            return source;
+        }
 
         bool TryResolve(byte[] id, out string tenant)
         {
             tenant = string.Empty;
             var urn = System.Text.Encoding.UTF8.GetString(id);
-            StringTenantUrn stringTenantUrn;
+            AggregateUrn aggregateUrn;
 
-            if (StringTenantUrn.TryParse(urn, out stringTenantUrn))
+            if (AggregateUrn.TryParse(urn, out aggregateUrn))
             {
-                tenant = stringTenantUrn.Tenant;
+                tenant = aggregateUrn.Tenant;
                 return true;
             }
 

@@ -1,13 +1,13 @@
 ﻿using System;
 using Elders.Cronus.EventStore;
-using Elders.Cronus.Logging;
 using Elders.Cronus.Workflow;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {
     public class OverwriteAggregateCommitMigrationWorkflow : MigrationWorkflowBase<AggregateCommit, AggregateCommit>
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(OverwriteAggregateCommitMigrationWorkflow));
+        static readonly ILogger logger = CronusLogger.CreateLogger(typeof(OverwriteAggregateCommitMigrationWorkflow));
 
         public OverwriteAggregateCommitMigrationWorkflow(IMigration<AggregateCommit, AggregateCommit> migration)
             : base(migration)
@@ -25,7 +25,7 @@ namespace Elders.Cronus.Migrations
             }
             catch (Exception ex)
             {
-                log.ErrorException("Error while applying migration", ex);
+                logger.ErrorException("Error while applying migration", ex);
             }
 
             return result;
@@ -34,7 +34,7 @@ namespace Elders.Cronus.Migrations
 
     public class CopyAggregateCommitMigrationWorkflow : MigrationWorkflowBase<AggregateCommitRaw, AggregateCommitRaw>
     {
-        static readonly ILog log = LogProvider.GetLogger(typeof(OverwriteAggregateCommitMigrationWorkflow));
+        static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CopyAggregateCommitMigrationWorkflow));
 
         public CopyAggregateCommitMigrationWorkflow(IMigration<AggregateCommitRaw, AggregateCommitRaw> migration)
             : base(migration)
@@ -52,7 +52,7 @@ namespace Elders.Cronus.Migrations
             }
             catch (Exception ex)
             {
-                log.ErrorException("Error while applying migration", ex);
+                logger.ErrorException("Error while applying migration", ex);
             }
 
             return result;

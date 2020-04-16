@@ -1,42 +1,27 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Discoveries
 {
-    public class DiscoveryScanner : DiscoveryBase<DiscoveryScanner>
+    public sealed class DiscoveryScanner
     {
-        private readonly static ILog log = LogProvider.GetLogger(typeof(DiscoveryScanner));
+        private static readonly ILogger logger = CronusLogger.CreateLogger<DiscoveryScanner>();
 
-        private readonly CronusServicesProvider cronusServicesProvider;
-
-        public DiscoveryScanner(CronusServicesProvider cronusServicesProvider)
-        {
-            if (cronusServicesProvider is null) throw new ArgumentNullException(nameof(cronusServicesProvider));
-
-            this.cronusServicesProvider = cronusServicesProvider;
-            Configuration = cronusServicesProvider.Configuration;
-        }
-
-        protected override DiscoveryResult<DiscoveryScanner> DiscoverFromAssemblies(DiscoveryContext context)
+        public IEnumerable<IDiscoveryResult<object>> Scan(DiscoveryContext context)
         {
             var discoveries = context.Assemblies
                 .SelectMany(asm => asm
                     .GetLoadableTypes()
-                    .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery<object>).IsAssignableFrom(type) && type != typeof(DiscoveryScanner)))
+                    .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery<object>).IsAssignableFrom(type)))
                 .Select(dt => (IDiscovery<object>)FastActivator.CreateInstance(dt));
 
             foreach (var discovery in discoveries)
             {
-                log.Info($"Discovered {discovery.Name}");
+                logger.Info($"Discovered {discovery.Name}");
 
-                discovery.AssignPropertySafely<IHaveConfiguration>(x => x.Configuration = context.Configuration);
-
-                var discoveryResult = discovery.Discover();
-                cronusServicesProvider.HandleDiscoveredModel(discoveryResult);
+                yield return discovery.Discover(context);
             }
-
-            return new DiscoveryResult<DiscoveryScanner>();
         }
     }
 }

@@ -33,7 +33,22 @@ namespace Elders.Cronus.EventStore.InMemory
             throw new NotImplementedException();
         }
 
+        public LoadAggregateCommitsResult LoadAggregateCommits(string paginationToken, int batchSize = 5000)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<AggregateCommitRaw> LoadAggregateCommitsRaw(int batchSize = 5000)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync()
         {
             throw new NotImplementedException();
         }

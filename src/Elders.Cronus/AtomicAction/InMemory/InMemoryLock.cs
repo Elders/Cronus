@@ -1,4 +1,4 @@
-﻿using Elders.Cronus.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
 {
     public class InMemoryLock : ILock
     {
-        private static readonly ILog log = LogProvider.GetLogger(typeof(InMemoryLock));
+        private static readonly ILogger logger = CronusLogger.CreateLogger<InMemoryLock>();
 
         private static readonly ConcurrentDictionary<string, Mutex> lockedResources = new ConcurrentDictionary<string, Mutex>();
 
@@ -49,7 +49,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
             }
             catch (Exception ex)
             {
-                log.ErrorException($"Failed to accure lock for resource {resource}!", ex);
+                logger.ErrorException($"Failed to accure lock for resource {resource}!", ex);
 
                 return false;
             }
@@ -77,12 +77,12 @@ namespace Elders.Cronus.AtomicAction.InMemory
                 Mutex m;
 
                 if (lockedResources.TryRemove(resource, out m) == false)
-                    log.Error($"Failed to unlock mutex: {resource}!");
+                    logger.Error($"Failed to unlock mutex: {resource}!");
 
             }
             catch (Exception ex)
             {
-                log.ErrorException($"Failed to unlock mutex: {resource}!", ex);
+                logger.ErrorException($"Failed to unlock mutex: {resource}!", ex);
             }
         }
 

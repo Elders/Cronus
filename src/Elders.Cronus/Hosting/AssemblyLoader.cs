@@ -6,13 +6,13 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
 using System.Threading;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus
 {
     internal class AssemblyLoader
     {
-        static readonly ILog log = LogProvider.GetLogger(nameof(AssemblyLoader));
+        static readonly ILogger logger = CronusLogger.CreateLogger(nameof(AssemblyLoader));
 
         static int shouldLoadAssembliesFromDir = 1;
         static string[] excludedAssemblies = new string[] { "sni.dll", "apphost.exe", "clrcompression.dll", "clretwrc.dll", "clrjit.dll", "coreclr.dll", "dbgshim.dll", "hostfxr.dll", "hostpolicy.dll", "sos.dll", "ucrtbase.dll" };
@@ -64,13 +64,25 @@ namespace Elders.Cronus
                     Assemblies.Add(assembly.FullName, assembly);
             }
 
-            log.Info(loadAssembliesLog.ToString());
+            logger.Info(loadAssembliesLog.ToString());
         }
 
         static void InitAssemblies()
         {
             if (1 == Interlocked.Exchange(ref shouldLoadAssembliesFromDir, 0))
             {
+                // https://github.com/Elders/Cronus/issues/187
+                // Discoveries not working when tests are using TestHost on .net core 3.0 and up
+                // From.net core 3.0 the VS Test Platform(the one which is used from the Test Explorer of the VS) whenever uses a TestHost for
+                // making unit testing of an asp.net core project, instead of initiating the testing from a 'testhost.dll' which is in the root
+                // directory, it starts from a 'testhostx86.dll' which is located in the 'packages' folder.This breakes the discoveries as they
+                // depend the initial Assembly to always be situated in the root directory of the project.This prevents Cronus from working in
+                // such a situations.
+                // If you use MSTest(run dotnet test instead of 'dotnet vstest') everything works because it actually runs as previous
+                // (testhost.dll situated inside the correct directory)
+                //string codeBase = AppDomain.CurrentDomain.BaseDirectory;
+                // We need to figure out another way for the testhostx86.dll problem
+
                 string codeBase = Assembly.GetEntryAssembly().CodeBase;
                 UriBuilder uri = new UriBuilder(codeBase);
                 string path = Uri.UnescapeDataString(uri.Path);

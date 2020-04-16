@@ -39,7 +39,7 @@ namespace Elders.Cronus.MessageProcessing
         {
             Dictionary<string, string> messageHeaders = new Dictionary<string, string>();
 
-            messageHeaders.Add(MessageHeader.AggregateRootId, aggregateRoot.State.Id.Urn.Value);
+            messageHeaders.Add(MessageHeader.AggregateRootId, aggregateRoot.State.Id.Value);
             messageHeaders.Add(MessageHeader.AggregateRootRevision, aggregateRoot.Revision.ToString());
             messageHeaders.Add(MessageHeader.AggregateRootEventPosition, eventPosition.ToString());
 

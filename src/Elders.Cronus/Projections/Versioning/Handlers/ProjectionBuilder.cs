@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -10,7 +10,7 @@ namespace Elders.Cronus.Projections.Versioning
         ISagaTimeoutHandler<RebuildProjectionVersion>,
         ISagaTimeoutHandler<ProjectionVersionRebuildTimedout>
     {
-        static ILog log = LogProvider.GetLogger(typeof(ProjectionBuilder));
+        private static ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionBuilder));
 
         private readonly ProjectionPlayer projectionPlayer;
 
@@ -50,7 +50,7 @@ namespace Elders.Cronus.Projections.Versioning
             }
             else
             {
-                log.Error(() => result.Error);
+                logger.Error(() => result.Error);
                 if (result.IsTimeout)
                 {
                     var timedout = new TimeoutProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox);

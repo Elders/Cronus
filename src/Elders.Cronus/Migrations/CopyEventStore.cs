@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Elders.Cronus.EventStore;
-using Elders.Cronus.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {
@@ -8,7 +8,7 @@ namespace Elders.Cronus.Migrations
         where TSourceEventStorePlayer : IEventStorePlayer
         where TTargetEventStore : IEventStore
     {
-        private static readonly ILog log = LogProvider.GetLogger(typeof(MigrationRunnerBase<,,>));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CopyEventStore<,>));
 
         public CopyEventStore(TSourceEventStorePlayer source, TTargetEventStore target) : base(source, target) { }
 
@@ -17,7 +17,7 @@ namespace Elders.Cronus.Migrations
             int counter = 0;
             foreach (var sourceCommit in source.LoadAggregateCommitsRaw(5000))
             {
-                if (counter % 10000 == 0) log.Info($"[Migrations] Migrated records: {counter}");
+                if (counter % 10000 == 0) logger.Info($"[Migrations] Migrated records: {counter}");
 
                 target.Append(sourceCommit);
 

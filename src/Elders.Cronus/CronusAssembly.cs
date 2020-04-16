@@ -5,4 +5,6 @@ namespace Elders.Cronus
     public interface ISystemService { }
 
     public interface ISystemProjection { }
+
+    public interface ISystemEventStoreIndex { }
 }
