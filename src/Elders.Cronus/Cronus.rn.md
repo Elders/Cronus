@@ -1,95 +1,31 @@
-#### 6.0.0-beta0026 - 15.04.2020
-* Updates Domain Modeling
-
-#### 6.0.0-beta0025 - 15.04.2020
-* Updates Domain Modeling
-
-#### 6.0.0-beta0024 - 14.04.2020
+#### 6.0.0 - 16.04.2020
 * Replaces LibLog [#188]
 * Using CronusLogger for static logging
-
-#### 6.0.0-beta0023 - 12.04.2020
 * Registers an EmptyConsumer by default for the IConsumer<>. Other components such as RabbitMQ will have the responsibility to override this. [#216]
-
-#### 6.0.0-beta0022 - 10.04.2020
 * Extending the IEventStorePlayer interface with async methods
-
-#### 6.0.0-beta0021 - 07.04.2020
-* Removes test code. oops
-
-#### 6.0.0-beta0020 - 07.04.2020
 * Introduces options pattern for all configurations.
-
-#### 6.0.0-beta0019 - 06.04.2020
 * Register a type container with discovered commands
-
-#### 6.0.0-beta0018 - 30.03.2020
 * Adds bounded context header when publishing a message
-  
-#### 6.0.0-beta0017 - 26.03.2020
-* Adds bounded context meta to every published message
-
-#### 6.0.0-beta0016 - 17.02.2020
 * Respects if a messageId has been explicitly specified when publishing a message
-
-#### 6.0.0-beta0016 - 17.02.2020
-* Respects if a messageId has been explicitly specified when publishing a message
-
-#### 6.0.0-beta0015 - 11.12.2019
-* Change the way AssemblyLoader resolves the working directory
-
-#### 6.0.0-beta0014 - 09.12.2019
 * Bumps to dotnet core 3.1
-* Code cleanup
-
-#### 6.0.0-beta0013 - 09.12.2019
 * Fixes event indices by properly plugging in a workflow
-
-#### 6.0.0-beta0012 - 19.11.2019
 * Added InMemory implementation for CronusJobRunner
 * Added discovery for all CronusJobs and RebuildIndex_EventToAggregateRootId_JobFactory( explicitly depended in EventStoreIndexBuilder)
-
-#### 6.0.0-beta0011 - 19.11.2019
-* Updates MS packages
-
-#### 6.0.0-beta0010 - 18.11.2019
 * Changed 'DiscoveryScanner' to not inherit 'DiscoveryBase<>'
 * Renamed 'DiscoverFromAssemblies' to 'Scan' which returns a collection of IDiscoveryResult<>
 * Changed CronusServiceCollectionExtensions to affect the changes above
-
-#### 6.0.0-beta0009 - 17.11.2019
-* Added in ConfigurationExtensions - GetRequired for IConfigurationSection and GetOptional
-
-#### 6.0.0-beta0008 - 15.11.2019
-* Adds an extension method to register options in the DI
-
-#### 6.0.0-beta0007 - 14.11.2019
 * Adds an option directly to add services to IServiceCollection
-
-#### 6.0.0-beta0006 - 13.11.2019
 * Initializes the commits collection
 * Bypasses the event store index check when ISystemProjection is rebuilt
 * Allows manual overriding of a Cronus Job data
 * Handles the EventStoreIndexIsNowPresent event in the AR
-
-#### 6.0.0-beta0005 - 11.11.2019
 * Adds tenant resolver which gets the tenant from a string source
 * Adds EventStoreDiscoveryBase which registers event store indices
-
-#### 6.0.0-beta0004 - 30.10.2019
-* Sets assembly version to 6.0.0
 * Reworks the MultitenancyDiscovery
-
-#### 6.0.0-beta0003 - 28.10.2019
 * Refactors tenant resolver dependencies
-
-#### 6.0.0-beta0002 - 25.10.2019
 * Introduces Cronus jobs which are intended to run in a cluster
 * Improves the EventStore interfaces so when you do page the store the reult contains a pagination token
 * Rewrites the event store index with ARs and projections
-
-#### 6.0.0-beta0001 - 01.06.2019
-* Targets netcoreapp3.0
 
 #### 5.3.1 - 21.03.2019
 * Fixes a concurrency issue when working with versions => https://github.com/dotnet/corefx/pull/28225
