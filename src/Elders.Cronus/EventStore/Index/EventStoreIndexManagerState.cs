@@ -23,6 +23,7 @@ namespace Elders.Cronus.EventStore.Index
         {
             Id = e.Id;
             IsBuilding = false;
+            IndexExists = true;
         }
     }
 }

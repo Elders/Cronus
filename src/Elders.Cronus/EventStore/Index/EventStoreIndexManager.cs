@@ -19,6 +19,15 @@ namespace Elders.Cronus.EventStore.Index
             {
                 Rebuild();
             }
+
+            if (state.IsBuilding)
+            {
+                if (state.LastVersionRequestTimebox.HasExpired)
+                {
+                    // TOOD: May be we need to signal a cancel for the prev run
+                    BuildIndex(state.Id, new VersionRequestTimebox(DateTime.UtcNow));
+                }
+            }
         }
 
         public void Rebuild()
