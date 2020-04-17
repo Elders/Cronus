@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,17 +25,6 @@ namespace Elders.Cronus.Discoveries
     }
 
     public class ApplicationServicesDiscovery : HandlersDiscovery<IApplicationService> { }
-
-    public class ProjectionsDiscovery : HandlersDiscovery<IProjection>
-    {
-        protected override IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
-        {
-            var models = base.GetModels(context).ToList();
-            models.Add(new DiscoveredModel(typeof(Projections.Versioning.ProjectionHasher), typeof(Projections.Versioning.ProjectionHasher), ServiceLifetime.Singleton));
-
-            return models;
-        }
-    }
 
     public class PortsDiscovery : HandlersDiscovery<IPort> { }
 
