@@ -9,7 +9,7 @@
     <PackageReference Include="Machine.Specifications" Version="1.0.0" />
     <PackageReference Include="Machine.Specifications.Runner.VisualStudio" Version="2.10.0" />
     <PackageReference Include="Machine.Specifications.Should" Version="1.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Elders.Cronus\Elders.Cronus.csproj" />
