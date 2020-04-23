@@ -1,3 +1,8 @@
+#### 6.0.1 - 23.04.2020
+* Fixes event store manager state when the rebuild finishes successfully
+* Automatically start the IEventStoreIndex handlers
+* Updates Cronus.DomainModeling to v6.0.1
+
 #### 6.0.0 - 16.04.2020
 * Replaces LibLog [#188]
 * Using CronusLogger for static logging
