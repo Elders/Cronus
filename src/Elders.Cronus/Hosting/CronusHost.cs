@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Elders.Cronus.EventStore.Index;
+using Microsoft.Extensions.Options;
 using System;
 
 namespace Elders.Cronus
@@ -6,15 +7,17 @@ namespace Elders.Cronus
     public sealed class CronusHost : ICronusHost
     {
         private readonly IConsumer<IApplicationService> appServices;
+        private readonly IConsumer<IEventStoreIndex> indexes;
         private readonly IConsumer<IProjection> projections;
         private readonly IConsumer<IPort> ports;
         private readonly IConsumer<ISaga> sagas;
         private readonly IConsumer<IGateway> gateways;
         private CronusHostOptions hostOptions;
 
-        public CronusHost(IConsumer<IApplicationService> appServices, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, IOptionsMonitor<CronusHostOptions> cronusHostOptions)
+        public CronusHost(IConsumer<IApplicationService> appServices, IConsumer<IEventStoreIndex> indexes, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, IOptionsMonitor<CronusHostOptions> cronusHostOptions)
         {
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
+            this.indexes = indexes;
             this.projections = projections ?? throw new ArgumentNullException(nameof(projections));
             this.ports = ports ?? throw new ArgumentNullException(nameof(ports));
             this.sagas = sagas ?? throw new ArgumentNullException(nameof(sagas));
@@ -26,6 +29,7 @@ namespace Elders.Cronus
 
         public void Start()
         {
+            indexes.Start();
             if (hostOptions.ApplicationServicesEnabled) appServices.Start();
             if (hostOptions.SagasEnabled) sagas.Start();
             if (hostOptions.ProjectionsEnabled) projections.Start();
@@ -40,6 +44,7 @@ namespace Elders.Cronus
             if (hostOptions.ProjectionsEnabled) projections.Stop();
             if (hostOptions.PortsEnabled) ports.Stop();
             if (hostOptions.GatewaysEnabled) gateways.Stop();
+            indexes.Stop();
         }
 
         public void Dispose() => Stop();
