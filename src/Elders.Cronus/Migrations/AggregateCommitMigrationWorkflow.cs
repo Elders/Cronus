@@ -25,7 +25,7 @@ namespace Elders.Cronus.Migrations
             }
             catch (Exception ex)
             {
-                logger.ErrorException("Error while applying migration", ex);
+                logger.ErrorException(ex, () => "Error while applying migration");
             }
 
             foreach (var newCommit in newCommits)

@@ -18,7 +18,7 @@ namespace Elders.Cronus.Discoveries
 
             foreach (var discovery in discoveries)
             {
-                logger.Info($"Discovered {discovery.Name}");
+                logger.Info(() => $"Discovered {discovery.Name}");
 
                 yield return discovery.Discover(context);
             }

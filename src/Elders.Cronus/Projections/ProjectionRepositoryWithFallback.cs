@@ -268,7 +268,7 @@ namespace Elders.Cronus.Projections
                 if (exceptions.Any())
                 {
                     var exception = new AggregateException(exceptions);
-                    logger.WarnException(report.ToString(), exception);
+                    logger.WarnException(exception, () => report.ToString());
                 }
                 else
                 {
@@ -281,7 +281,7 @@ namespace Elders.Cronus.Projections
                 if (exceptions.Any())
                 {
                     var exception = new AggregateException(exceptions);
-                    logger.WarnException(report.ToString(), exception);
+                    logger.WarnException(exception, () => report.ToString());
                     throw exception;
                 }
                 else

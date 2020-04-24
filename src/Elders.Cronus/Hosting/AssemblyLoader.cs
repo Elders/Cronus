@@ -64,7 +64,7 @@ namespace Elders.Cronus
                     Assemblies.Add(assembly.FullName, assembly);
             }
 
-            logger.Info(loadAssembliesLog.ToString());
+            logger.Info(() => loadAssembliesLog.ToString());
         }
 
         static void InitAssemblies()

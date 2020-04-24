@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.EventStore.Index;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 
@@ -6,6 +7,8 @@ namespace Elders.Cronus
 {
     public sealed class CronusHost : ICronusHost
     {
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CronusHost));
+
         private readonly IConsumer<IApplicationService> appServices;
         private readonly IConsumer<IEventStoreIndex> indexes;
         private readonly IConsumer<IProjection> projections;
@@ -29,22 +32,38 @@ namespace Elders.Cronus
 
         public void Start()
         {
-            indexes.Start();
-            if (hostOptions.ApplicationServicesEnabled) appServices.Start();
-            if (hostOptions.SagasEnabled) sagas.Start();
-            if (hostOptions.ProjectionsEnabled) projections.Start();
-            if (hostOptions.PortsEnabled) ports.Start();
-            if (hostOptions.GatewaysEnabled) gateways.Start();
+            try
+            {
+                indexes.Start();
+                if (hostOptions.ApplicationServicesEnabled) appServices.Start();
+                if (hostOptions.SagasEnabled) sagas.Start();
+                if (hostOptions.ProjectionsEnabled) projections.Start();
+                if (hostOptions.PortsEnabled) ports.Start();
+                if (hostOptions.GatewaysEnabled) gateways.Start();
+            }
+            catch (Exception ex)
+            {
+                logger.CriticalException(ex, () => $"Start: {ex.Message}");
+                throw;
+            }
         }
 
         public void Stop()
         {
-            if (hostOptions.ApplicationServicesEnabled) appServices.Stop();
-            if (hostOptions.SagasEnabled) sagas.Stop();
-            if (hostOptions.ProjectionsEnabled) projections.Stop();
-            if (hostOptions.PortsEnabled) ports.Stop();
-            if (hostOptions.GatewaysEnabled) gateways.Stop();
-            indexes.Stop();
+            try
+            {
+                if (hostOptions.ApplicationServicesEnabled) appServices.Stop();
+                if (hostOptions.SagasEnabled) sagas.Stop();
+                if (hostOptions.ProjectionsEnabled) projections.Stop();
+                if (hostOptions.PortsEnabled) ports.Stop();
+                if (hostOptions.GatewaysEnabled) gateways.Stop();
+                indexes.Stop();
+            }
+            catch (Exception ex)
+            {
+                logger.CriticalException(ex, () => $"Stop: {ex.Message}");
+                throw;
+            }
         }
 
         public void Dispose() => Stop();
@@ -53,6 +72,8 @@ namespace Elders.Cronus
         {
             if (hostOptions != newOptions)
             {
+                logger.Debug(() => "Cronus host options re-loaded with {@options}", newOptions);
+
                 Start(hostOptions, newOptions);
                 Stop(hostOptions, newOptions);
 
@@ -62,20 +83,36 @@ namespace Elders.Cronus
 
         private void Start(CronusHostOptions oldOptions, CronusHostOptions newOptions)
         {
-            if (oldOptions.ApplicationServicesEnabled == false && newOptions.ApplicationServicesEnabled == true) appServices.Start();
-            if (oldOptions.SagasEnabled == false && newOptions.SagasEnabled == true) sagas.Start();
-            if (oldOptions.ProjectionsEnabled == false && newOptions.ProjectionsEnabled == true) projections.Start();
-            if (oldOptions.PortsEnabled == false && newOptions.PortsEnabled == true) ports.Start();
-            if (oldOptions.GatewaysEnabled == false && newOptions.GatewaysEnabled == true) gateways.Start();
+            try
+            {
+                if (oldOptions.ApplicationServicesEnabled == false && newOptions.ApplicationServicesEnabled == true) appServices.Start();
+                if (oldOptions.SagasEnabled == false && newOptions.SagasEnabled == true) sagas.Start();
+                if (oldOptions.ProjectionsEnabled == false && newOptions.ProjectionsEnabled == true) projections.Start();
+                if (oldOptions.PortsEnabled == false && newOptions.PortsEnabled == true) ports.Start();
+                if (oldOptions.GatewaysEnabled == false && newOptions.GatewaysEnabled == true) gateways.Start();
+            }
+            catch (Exception ex)
+            {
+                logger.CriticalException(ex, () => $"Restart: {ex.Message}");
+                throw;
+            }
         }
 
         private void Stop(CronusHostOptions oldOptions, CronusHostOptions newOptions)
         {
-            if (oldOptions.ApplicationServicesEnabled == true && newOptions.ApplicationServicesEnabled == false) appServices.Stop();
-            if (oldOptions.SagasEnabled == true && newOptions.SagasEnabled == false) sagas.Stop();
-            if (oldOptions.ProjectionsEnabled == true && newOptions.ProjectionsEnabled == false) projections.Stop();
-            if (oldOptions.PortsEnabled == true && newOptions.PortsEnabled == false) ports.Stop();
-            if (oldOptions.GatewaysEnabled == true && newOptions.GatewaysEnabled == false) gateways.Stop();
+            try
+            {
+                if (oldOptions.ApplicationServicesEnabled == true && newOptions.ApplicationServicesEnabled == false) appServices.Stop();
+                if (oldOptions.SagasEnabled == true && newOptions.SagasEnabled == false) sagas.Stop();
+                if (oldOptions.ProjectionsEnabled == true && newOptions.ProjectionsEnabled == false) projections.Stop();
+                if (oldOptions.PortsEnabled == true && newOptions.PortsEnabled == false) ports.Stop();
+                if (oldOptions.GatewaysEnabled == true && newOptions.GatewaysEnabled == false) gateways.Stop();
+            }
+            catch (Exception ex)
+            {
+                logger.CriticalException(ex, () => $"Restop: {ex.Message}");
+                throw;
+            }
         }
     }
 }

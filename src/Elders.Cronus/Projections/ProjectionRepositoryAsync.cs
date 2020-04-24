@@ -21,7 +21,7 @@ namespace Elders.Cronus.Projections
             }
             catch (Exception ex)
             {
-                log.ErrorException($"Unable to load projection. {typeof(T).Name}({projectionId})", ex);
+                log.ErrorException(ex, () => $"Unable to load projection. {typeof(T).Name}({projectionId})");
                 return ReadResult<T>.WithError(ex);
             }
         }
@@ -37,7 +37,7 @@ namespace Elders.Cronus.Projections
             }
             catch (Exception ex)
             {
-                log.ErrorException($"Unable to load projection. {projectionType.Name}({projectionId})", ex);
+                log.ErrorException(ex, () => $"Unable to load projection. {projectionType.Name}({projectionId})");
                 return ReadResult<IProjectionDefinition>.WithError(ex);
             }
         }

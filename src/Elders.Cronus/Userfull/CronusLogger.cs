@@ -43,16 +43,22 @@ namespace Elders.Cronus
                 logger.LogTrace(func());
         }
 
+        public static void Trace(this ILogger logger, Func<string> func, params object[] args)
+        {
+            if (logger.IsTraceEnabled())
+                logger.LogTrace(func(), args);
+        }
+
         public static void Debug(this ILogger logger, Func<string> func)
         {
             if (logger.IsDebugEnabled())
                 logger.LogDebug(func());
         }
 
-        public static void Debug(this ILogger logger, string message)
+        public static void Debug(this ILogger logger, Func<string> func, params object[] args)
         {
             if (logger.IsDebugEnabled())
-                logger.LogDebug(message);
+                logger.LogDebug(func(), args);
         }
 
         public static void Info(this ILogger logger, Func<string> func)
@@ -61,16 +67,10 @@ namespace Elders.Cronus
                 logger.LogInformation(func());
         }
 
-        public static void Info(this ILogger logger, string message)
+        public static void Info(this ILogger logger, Func<string> func, params object[] args)
         {
             if (logger.IsInfoEnabled())
-                logger.LogInformation(message);
-        }
-
-        public static void Info(this ILogger logger, string message, params object[] args)
-        {
-            if (logger.IsInfoEnabled())
-                logger.LogInformation(message, args);
+                logger.LogInformation(func(), args);
         }
 
         public static void Warn(this ILogger logger, Func<string> func)
@@ -79,16 +79,22 @@ namespace Elders.Cronus
                 logger.LogWarning(func());
         }
 
-        public static void Warn(this ILogger logger, string message)
+        public static void Warn(this ILogger logger, Func<string> func, params object[] args)
         {
             if (logger.IsWarningEnabled())
-                logger.LogWarning(message);
+                logger.LogWarning(func(), args);
         }
 
-        public static void WarnException(this ILogger logger, string message, Exception ex)
+        public static void WarnException(this ILogger logger, Exception ex, Func<string> func)
         {
             if (logger.IsWarningEnabled())
-                logger.LogWarning(ex, message);
+                logger.LogWarning(ex, func());
+        }
+
+        public static void WarnException(this ILogger logger, Exception ex, Func<string> func, params object[] args)
+        {
+            if (logger.IsWarningEnabled())
+                logger.LogWarning(ex, func(), args);
         }
 
         public static void Error(this ILogger logger, Func<string> func)
@@ -97,24 +103,106 @@ namespace Elders.Cronus
                 logger.LogError(func());
         }
 
+        public static void Error(this ILogger logger, Func<string> func, params object[] args)
+        {
+            if (logger.IsErrorEnabled())
+                logger.LogError(func(), args);
+        }
+
+        public static void ErrorException(this ILogger logger, Exception ex, Func<string> func)
+        {
+            if (logger.IsErrorEnabled())
+                logger.LogError(ex, func());
+        }
+
+        public static void ErrorException(this ILogger logger, Exception ex, Func<string> func, params object[] args)
+        {
+            if (logger.IsErrorEnabled())
+                logger.LogError(ex, func(), args);
+        }
+
+        public static void Critical(this ILogger logger, Func<string> func)
+        {
+            if (logger.IsCriticalEnabled())
+                logger.LogCritical(func());
+        }
+
+        public static void Critical(this ILogger logger, Func<string> func, params object[] args)
+        {
+            if (logger.IsCriticalEnabled())
+                logger.LogCritical(func(), args);
+        }
+
+        public static void CriticalException(this ILogger logger, Exception ex, Func<string> func)
+        {
+            if (logger.IsCriticalEnabled())
+                logger.LogCritical(ex, func());
+        }
+
+        public static void CriticalException(this ILogger logger, Exception ex, Func<string> func, params object[] args)
+        {
+            if (logger.IsCriticalEnabled())
+                logger.LogCritical(ex, func(), args);
+        }
+
+
+        [Obsolete("Will be removed in 7.0.0")]
+        public static void Debug(this ILogger logger, string message)
+        {
+            if (logger.IsDebugEnabled())
+                logger.LogDebug(message);
+        }
+
+        [Obsolete("Will be removed in 7.0.0")]
+        public static void Info(this ILogger logger, string message)
+        {
+            if (logger.IsInfoEnabled())
+                logger.LogInformation(message);
+        }
+
+        [Obsolete("Will be removed in 7.0.0")]
+        public static void Info(this ILogger logger, string message, params object[] args)
+        {
+            if (logger.IsInfoEnabled())
+                logger.LogInformation(message, args);
+        }
+
+        [Obsolete("Will be removed in 7.0.0")]
+        public static void Warn(this ILogger logger, string message)
+        {
+            if (logger.IsWarningEnabled())
+                logger.LogWarning(message);
+        }
+
+        [Obsolete("Will be removed in 7.0.0")]
+        public static void WarnException(this ILogger logger, string message, Exception ex)
+        {
+            if (logger.IsWarningEnabled())
+                logger.LogWarning(ex, message);
+        }
+
+        [Obsolete("Will be removed in 7.0.0")]
         public static void Error(this ILogger logger, string message)
         {
             if (logger.IsErrorEnabled())
                 logger.LogError(message);
         }
 
+        [Obsolete("Will be removed in 7.0.0")]
         public static void ErrorException(this ILogger logger, string message, Exception ex)
         {
             if (logger.IsErrorEnabled())
                 logger.LogError(ex, message);
         }
 
+        [Obsolete("Will be removed in 7.0.0")]
         public static void Critical(this ILogger logger, string message)
         {
             if (logger.IsCriticalEnabled())
                 logger.LogCritical(message);
         }
 
+        [Obsolete("Will be removed in 7.0.0")]
         public static void CriticalException(this ILogger logger, string message, Exception ex)
         {
             if (logger.IsCriticalEnabled())

@@ -67,7 +67,7 @@ namespace Elders.Cronus
             }
             catch (Exception ex)
             {
-                logger.ErrorException(ex.Message, ex);
+                logger.ErrorException(ex, () => ex.Message);
                 return false;
             }
         }

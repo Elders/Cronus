@@ -68,7 +68,7 @@ namespace Elders.Cronus.InMemory
             }
             catch (Exception ex)
             {
-                logger.ErrorException("Unable to process message", ex);
+                logger.ErrorException(ex, () => "Unable to process message");
             }
         }
     }

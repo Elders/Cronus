@@ -88,7 +88,7 @@ namespace Elders.Cronus.Projections
                                 }
                                 catch (Exception ex)
                                 {
-                                    log.ErrorException("Failed to update projection. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}", ex);
+                                    log.ErrorException(ex, () => "Failed to update projection. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}");
                                 }
                             }
                         }
@@ -96,7 +96,7 @@ namespace Elders.Cronus.Projections
 
                     if (result.HasError)
                     {
-                        log.Error("Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + result.Error + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
+                        log.Error(() => "Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + result.Error + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
                     }
                 }
             }
@@ -139,7 +139,7 @@ namespace Elders.Cronus.Projections
                     }
                     catch (Exception ex)
                     {
-                        log.ErrorException("Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}", ex);
+                        log.ErrorException(ex, () => "Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}");
                     }
                 }
             }
@@ -158,7 +158,7 @@ namespace Elders.Cronus.Projections
             }
             catch (Exception ex)
             {
-                log.ErrorException($"Unable to load projection. {typeof(T).Name}({projectionId})", ex);
+                log.ErrorException(ex, () => $"Unable to load projection. {typeof(T).Name}({projectionId})");
                 return ReadResult<T>.WithError(ex);
             }
         }
@@ -174,7 +174,7 @@ namespace Elders.Cronus.Projections
             }
             catch (Exception ex)
             {
-                log.ErrorException($"Unable to load projection. {projectionType.Name}({projectionId})", ex);
+                log.ErrorException(ex, () => $"Unable to load projection. {projectionType.Name}({projectionId})");
                 return ReadResult<IProjectionDefinition>.WithError(ex);
             }
         }
@@ -226,7 +226,7 @@ namespace Elders.Cronus.Projections
             }
             catch (Exception ex)
             {
-                log.WarnException($"Failed to load projection versions. ProjectionName: {projectionName}", ex);
+                log.WarnException(ex, () => $"Failed to load projection versions. ProjectionName: {projectionName}");
                 return ReadResult<ProjectionVersionsHandler>.WithError(ex.Message);
             }
         }

@@ -79,10 +79,10 @@ namespace Elders.Cronus.EventStore
                 {
                     foreach (var errorMessage in validatorResult.Errors)
                     {
-                        logger.Debug($"[INTEGRITY-ERROR: {validatorResult.ErrorType}] {errorMessage}");
+                        logger.Debug(() => $"[INTEGRITY-ERROR: {validatorResult.ErrorType}] {errorMessage}");
                     }
 
-                    logger.Debug(eventStream.ToString());
+                    logger.Debug(() => eventStream.ToString());
                 }
 
                 return new IntegrityResult<EventStream>(eventStream, true);

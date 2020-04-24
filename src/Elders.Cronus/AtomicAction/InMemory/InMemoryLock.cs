@@ -49,7 +49,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
             }
             catch (Exception ex)
             {
-                logger.ErrorException($"Failed to accure lock for resource {resource}!", ex);
+                logger.ErrorException(ex, () => $"Failed to accure lock for resource {resource}!");
 
                 return false;
             }
@@ -77,12 +77,12 @@ namespace Elders.Cronus.AtomicAction.InMemory
                 Mutex m;
 
                 if (lockedResources.TryRemove(resource, out m) == false)
-                    logger.Error($"Failed to unlock mutex: {resource}!");
+                    logger.Error(() => $"Failed to unlock mutex: {resource}!");
 
             }
             catch (Exception ex)
             {
-                logger.ErrorException($"Failed to unlock mutex: {resource}!", ex);
+                logger.ErrorException(ex, () => $"Failed to unlock mutex: {resource}!");
             }
         }
 

@@ -200,7 +200,7 @@ namespace Elders.Cronus.FaultHandling
         {
             if (this.Retrying != null)
             {
-                logger.Info("Retrying - Count: {0}, Delay: {1}, Exception: {2}", retryCount, delay.TotalMilliseconds, lastError.Message);
+                logger.Info(() => "Retrying - Count: {0}, Delay: {1}, Exception: {2}", retryCount, delay.TotalMilliseconds, lastError.Message);
 
                 this.Retrying(this, new RetryingEventArgs(retryCount, delay, lastError));
             }

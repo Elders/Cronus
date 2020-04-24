@@ -103,7 +103,7 @@ namespace Elders.Cronus.Projections
             catch (Exception ex)
             {
                 string message = $"Unable to replay projection. Version:{version} ProjectionType:{projectionType.FullName}";
-                logger.ErrorException(message, ex);
+                logger.ErrorException(ex, () => message);
                 return new ReplayResult(message + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
             }
         }

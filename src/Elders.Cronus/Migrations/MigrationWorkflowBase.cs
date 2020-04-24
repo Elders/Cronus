@@ -28,7 +28,7 @@ namespace Elders.Cronus.Migrations
             }
             catch (Exception ex)
             {
-                logger.ErrorException("Error while applying migration", ex);
+                logger.ErrorException(ex, () => "Error while applying migration");
             }
 
             return result;

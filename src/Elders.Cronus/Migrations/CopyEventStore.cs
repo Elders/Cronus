@@ -17,7 +17,7 @@ namespace Elders.Cronus.Migrations
             int counter = 0;
             foreach (var sourceCommit in source.LoadAggregateCommitsRaw(5000))
             {
-                if (counter % 10000 == 0) logger.Info($"[Migrations] Migrated records: {counter}");
+                if (counter % 10000 == 0) logger.Info(() => $"[Migrations] Migrated records: {counter}");
 
                 target.Append(sourceCommit);
 

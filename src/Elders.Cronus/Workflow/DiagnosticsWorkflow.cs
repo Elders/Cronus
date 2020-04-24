@@ -29,7 +29,7 @@ namespace Elders.Cronus.Workflow
             if (logger.IsInfoEnabled())
             {
                 var elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
-                logger.Info($"{workflow.GetType().Name}: Executed handler {execution.Context.ToString()} in {elapsed.TotalMilliseconds}ms");
+                logger.Info(() => $"{workflow.GetType().Name}: Executed handler {execution.Context.ToString()} in {elapsed.TotalMilliseconds}ms");
             }
         }
     }
