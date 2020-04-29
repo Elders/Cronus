@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -22,11 +23,14 @@ namespace Elders.Cronus.Discoveries
 
             yield return new DiscoveredModel(typeof(Cronus.ProjectionsStartup), typeof(Cronus.ProjectionsStartup), ServiceLifetime.Transient);
 
-            var loadedCommands = context.Assemblies.Find<ICommand>();
+            IEnumerable<Type> loadedCommands = context.Assemblies.Find<ICommand>();
             yield return new DiscoveredModel(typeof(TypeContainer<ICommand>), new TypeContainer<ICommand>(loadedCommands));
 
-            var loadedEvents = context.Assemblies.Find<IEvent>().Where(type => type != typeof(EntityEvent));
+            IEnumerable<Type> loadedEvents = context.Assemblies.Find<IEvent>().Where(type => type != typeof(EntityEvent));
             yield return new DiscoveredModel(typeof(TypeContainer<IEvent>), new TypeContainer<IEvent>(loadedEvents));
+
+            IEnumerable<Type> loadedPublicEvents = context.Assemblies.Find<IPublicEvent>();
+            yield return new DiscoveredModel(typeof(TypeContainer<IPublicEvent>), new TypeContainer<IPublicEvent>(loadedPublicEvents));
         }
     }
 }

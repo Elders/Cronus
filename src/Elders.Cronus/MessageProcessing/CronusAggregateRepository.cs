@@ -7,11 +7,13 @@ namespace Elders.Cronus.MessageProcessing
     {
         readonly IAggregateRepository aggregateRepository;
         readonly IPublisher<IEvent> eventPublisher;
+        private readonly IPublisher<IPublicEvent> publicEventPublisher;
 
-        public CronusAggregateRepository(IAggregateRepository repository, IPublisher<IEvent> eventPublisher)
+        public CronusAggregateRepository(IAggregateRepository repository, IPublisher<IEvent> eventPublisher, IPublisher<IPublicEvent> publicEventPublisher)
         {
             this.aggregateRepository = repository;
             this.eventPublisher = eventPublisher;
+            this.publicEventPublisher = publicEventPublisher;
         }
 
         public ReadResult<AR> Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
@@ -32,6 +34,12 @@ namespace Elders.Cronus.MessageProcessing
                     theEvent = entityEvent.Event;
 
                 eventPublisher.Publish(theEvent, BuildHeaders(aggregateRoot, i));
+            }
+
+            var publicEvents = aggregateRoot.UncommittedPublicEvents.ToList();
+            for (int i = 0; i < publicEvents.Count; i++)
+            {
+                publicEventPublisher.Publish(publicEvents[i], BuildHeaders(aggregateRoot, i));
             }
         }
 

@@ -34,7 +34,7 @@ namespace Elders.Cronus.EventStore
             if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Any() == false)
                 return;
 
-            var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList());
+            var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList());
             var result = atomicAction.Execute(aggregateRoot.State.Id, aggregateRoot.Revision, () => eventStore.Append(arCommit));
 
             if (result.IsSuccessful)

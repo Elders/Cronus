@@ -11,17 +11,21 @@ namespace Elders.Cronus.EventStore
         AggregateCommit()
         {
             Events = new List<IEvent>();
+            PublicEvents = new List<IPublicEvent>();
         }
 
-        public AggregateCommit(IBlobId aggregateId, int revision, List<IEvent> events) : this(aggregateId.RawId, revision, events) { }
+        public AggregateCommit(IBlobId aggregateId, int revision, List<IEvent> events) : this(aggregateId.RawId, revision, events, new List<IPublicEvent>()) { }
+        public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events) : this(aggregateRootId, revision, events, new List<IPublicEvent>(), DateTime.UtcNow.ToFileTimeUtc()) { }
 
-        public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events) : this(aggregateRootId, revision, events, DateTime.UtcNow.ToFileTimeUtc()) { }
+        public AggregateCommit(IBlobId aggregateId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents) : this(aggregateId.RawId, revision, events, publicEvents) { }
+        public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents) : this(aggregateRootId, revision, events, publicEvents, DateTime.UtcNow.ToFileTimeUtc()) { }
 
-        public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events, long timestamp)
+        public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents, long timestamp)
         {
             AggregateRootId = aggregateRootId;
             Revision = revision;
             Events = events;
+            PublicEvents = publicEvents;
             Timestamp = timestamp;
         }
 
@@ -38,6 +42,9 @@ namespace Elders.Cronus.EventStore
         [DataMember(Order = 4)]
         public List<IEvent> Events { get; set; }
 
+        [DataMember(Order = 6)]
+        public List<IPublicEvent> PublicEvents { get; set; }
+
         [DataMember(Order = 5)]
         public long Timestamp { get; private set; }
 
@@ -47,7 +54,8 @@ namespace Elders.Cronus.EventStore
                 "AggregateCommit details" + Environment.NewLine +
                 "RootId:" + AggregateRootId.ToString() + Environment.NewLine +
                 "Revision:" + Revision + Environment.NewLine +
-                "Events:" + string.Join(Environment.NewLine, Events.Select(e => "\t" + e.ToString()));
+                "Events:" + string.Join(Environment.NewLine, Events.Select(e => "\t" + e.ToString())) +
+                "PublicEvents:" + string.Join(Environment.NewLine, PublicEvents.Select(e => "\t" + e.ToString()));
 
             return commitInfo;
         }
