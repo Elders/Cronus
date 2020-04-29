@@ -1,3 +1,6 @@
+#### 6.1.0-beta0002 - 29.04.2020
+* Adds a retry strategy when message publishing fails
+
 #### 6.1.0-beta0001 - 29.04.2020
 * Adds support for PublicEvents generate by an Aggregate. The events are stored in AggregateCommit [#203]
 * Imporoves logging extension methods
