@@ -1,5 +1,5 @@
 #### 6.1.0-beta0001 - 29.04.2020
-* Adds support for PublicEvents generate by an Aggregate. The events are stored in AggregateCommit
+* Adds support for PublicEvents generate by an Aggregate. The events are stored in AggregateCommit [#203]
 * Imporoves logging extension methods
 
 #### 6.0.1 - 23.04.2020
