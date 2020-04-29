@@ -126,7 +126,6 @@ namespace Elders.Cronus
             services.AddSubscribers<IPort>();
             services.AddSubscribers<IGateway>();
             services.AddSubscribers<ISaga>();
-            services.AddSubscribers<ISaga>();
             services.AddEventStoreIndexSubscribers();
 
             return services;
