@@ -1,3 +1,7 @@
+#### 6.1.0-beta0001 - 29.04.2020
+* Adds support for PublicEvents generate by an Aggregate. The events are stored in AggregateCommit
+* Imporoves logging extension methods
+
 #### 6.0.1 - 23.04.2020
 * Fixes event store manager state when the rebuild finishes successfully
 * Automatically start the IEventStoreIndex handlers
