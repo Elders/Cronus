@@ -1,3 +1,6 @@
+#### 6.1.0-beta0003 - 03.05.2020
+* Adds support for trigger handlers
+
 #### 6.1.0-beta0002 - 29.04.2020
 * Adds a retry strategy when message publishing fails
 
