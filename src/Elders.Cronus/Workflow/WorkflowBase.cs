@@ -9,8 +9,11 @@ namespace Elders.Cronus.Workflow
 
         public WorkflowBase()
         {
+            Name = GetType().Name;
             ExecutionChain = new ExecutionChain<TContext>();
         }
+
+        public string Name { get; protected set; }
 
         protected abstract object AbstractRun(Execution<TContext> execution);
 

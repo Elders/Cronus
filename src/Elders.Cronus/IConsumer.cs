@@ -1,15 +1,13 @@
-using Microsoft.Extensions.Logging;
-
 namespace Elders.Cronus
 {
-    public interface IConsumer<T>
+    public interface IConsumer<out T> where T : IMessageHandler
     {
         void Start();
 
         void Stop();
     }
 
-    public class EmptyConsumer<T> : IConsumer<T>
+    public class EmptyConsumer<T> : IConsumer<T> where T : IMessageHandler
     {
         // Adds tracing once we have the logger in the IOC
         //private readonly ILogger<EmptyConsumer<T>> log;

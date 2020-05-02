@@ -43,4 +43,6 @@ namespace Elders.Cronus.Discoveries
     public class SagasDiscovery : HandlersDiscovery<ISaga> { }
 
     public class GatewaysDiscovery : HandlersDiscovery<IGateway> { }
+
+    public class TriggersDiscovery : HandlersDiscovery<ITrigger> { }
 }

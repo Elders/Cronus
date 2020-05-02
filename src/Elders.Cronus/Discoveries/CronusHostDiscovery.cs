@@ -31,6 +31,9 @@ namespace Elders.Cronus.Discoveries
 
             IEnumerable<Type> loadedPublicEvents = context.Assemblies.Find<IPublicEvent>();
             yield return new DiscoveredModel(typeof(TypeContainer<IPublicEvent>), new TypeContainer<IPublicEvent>(loadedPublicEvents));
+
+            IEnumerable<Type> loadedSignals = context.Assemblies.Find<ISignal>();
+            yield return new DiscoveredModel(typeof(TypeContainer<ISignal>), new TypeContainer<ISignal>(loadedSignals));
         }
     }
 }

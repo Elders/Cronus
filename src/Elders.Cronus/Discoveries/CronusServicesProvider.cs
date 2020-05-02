@@ -67,7 +67,7 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual void Handle(DiscoveryResult<ISerializer> discoveryResult) => AddServices(discoveryResult);
 
-        protected virtual void Handle(DiscoveryResult<IConsumer<object>> discoveryResult) => AddServices(discoveryResult);
+        protected virtual void Handle(DiscoveryResult<IConsumer<IMessageHandler>> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<IPublisher<IMessage>> discoveryResult) => AddServices(discoveryResult);
 
@@ -86,6 +86,8 @@ namespace Elders.Cronus.Discoveries
         protected virtual void Handle(DiscoveryResult<ISaga> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<IGateway> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<ITrigger> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<IWorkflow> discoveryResult) => AddServices(discoveryResult);
 
