@@ -1,3 +1,6 @@
+#### 6.1.0-beta0004 - 08.05.2020
+* Improves publish/handle logs with structured logging
+
 #### 6.1.0-beta0003 - 03.05.2020
 * Adds support for trigger handlers
 
