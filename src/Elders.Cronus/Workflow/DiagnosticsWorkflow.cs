@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
+using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Workflow
 {
-    public class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext : class
+    public class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext : HandlerContext
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DiagnosticsWorkflow<>));
         private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
@@ -29,7 +30,7 @@ namespace Elders.Cronus.Workflow
             if (logger.IsInfoEnabled())
             {
                 var elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
-                logger.Info(() => "{Workflow}: Executed handler ({Handler}) in {Elapsed}ms", workflow.GetType().Name, execution.Context, elapsed.TotalMilliseconds);
+                logger.Info(() => "{cronus_MessageHandler} handled {cronus_MessageName} in {cronus_Elapsed}ms. => {cronus_MessageHeaders}", execution.Context.HandlerInstance.GetType().Name, execution.Context.Message.GetType().Name, elapsed.TotalMilliseconds, execution.Context.CronusMessage.Headers);
             }
         }
     }

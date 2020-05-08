@@ -30,15 +30,6 @@ namespace Elders.Cronus
             {
                 messageHeaders = messageHeaders ?? new Dictionary<string, string>();
 
-                string messageId = string.Empty;
-                if (messageHeaders.ContainsKey(MessageHeader.MessageId) == false)
-                    messageHeaders.Add(MessageHeader.MessageId, messageId);
-                else
-                    messageId = messageHeaders[MessageHeader.MessageId];
-
-                if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
-                    messageHeaders.Add(MessageHeader.CorelationId, messageId);
-
                 if (messageHeaders.ContainsKey(MessageHeader.PublishTimestamp) == false)
                     messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
 
@@ -56,17 +47,28 @@ namespace Elders.Cronus
                     messageHeaders.Add(MessageHeader.BoundedContext, bc);
                 }
 
+                string messageId = string.Empty;
+                if (messageHeaders.ContainsKey(MessageHeader.MessageId) == false)
+                {
+                    messageId = $"urn:cronus:{messageHeaders[MessageHeader.BoundedContext]}:{messageHeaders[MessageHeader.Tenant]}:{Guid.NewGuid()}";
+                    messageHeaders.Add(MessageHeader.MessageId, messageId);
+                }
+                else
+                    messageId = messageHeaders[MessageHeader.MessageId];
+
+                if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
+                    messageHeaders.Add(MessageHeader.CorelationId, messageId);
+
                 var cronusMessage = new CronusMessage(message, messageHeaders);
 
                 bool isPublished = RetryableOperation.TryExecute(() => PublishInternal(cronusMessage), retryPolicy);
                 if (isPublished)
                 {
-                    logger.Info(() => message.ToString());
-                    logger.Debug(() => "PUBLISH => " + BuildDebugLog(message, messageHeaders));
+                    logger.Info(() => "Published => {cronus_MessageType} => {cronus_MessageName} => {cronus_MessageHeaders}", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
                 }
                 else
                 {
-                    logger.Error(() => "Failed to publish => " + BuildDebugLog(message, messageHeaders));
+                    logger.Error(() => "Failed to publish => {cronus_MessageType} => {cronus_MessageName} => {cronus_MessageHeaders}", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
                 }
 
                 return isPublished;
@@ -89,12 +91,6 @@ namespace Elders.Cronus
         {
             DateTime publishAt = DateTime.UtcNow.Add(publishAfter);
             return Publish(message, publishAt, messageHeaders);
-        }
-
-        string BuildDebugLog(TMessage message, IDictionary<string, string> headers)
-        {
-            string headersInfo = string.Join(";", headers.Select(x => x.Key + "=" + x.Value).ToArray());
-            return message + Environment.NewLine + headersInfo;
         }
     }
 }
