@@ -122,7 +122,6 @@ namespace Elders.Cronus
             services.AddSubscribersWithOpenGenerics();
 
             services.AddApplicationServiceSubscribers();
-            services.AddProjectionSubscribers();
             services.AddSubscribers<IPort>();
             services.AddSubscribers<IGateway>();
             services.AddSubscribers<ISaga>();
@@ -148,16 +147,6 @@ namespace Elders.Cronus
             services.AddSingleton(typeof(ISubscriberFinder<IApplicationService>), typeof(SubscriberFinder<IApplicationService>));
             services.AddSingleton(typeof(ISubscriberWorkflow<IApplicationService>), typeof(ApplicationServiceSubscriberWorkflow));
             services.AddSingleton(typeof(ISubscriberFactory<IApplicationService>), typeof(HandlerSubscriberFactory<IApplicationService>));
-
-            return services;
-        }
-
-        public static IServiceCollection AddProjectionSubscribers(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(ISubscriberCollection<IProjection>), typeof(SubscriberCollection<IProjection>));
-            services.AddSingleton(typeof(ISubscriberFinder<IProjection>), typeof(SubscriberFinder<IProjection>));
-            services.AddSingleton(typeof(ISubscriberWorkflow<IProjection>), typeof(ProjectionSubscriberWorkflow));
-            services.AddSingleton(typeof(ISubscriberFactory<IProjection>), typeof(HandlerSubscriberFactory<IProjection>));
 
             return services;
         }

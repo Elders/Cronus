@@ -33,12 +33,6 @@ namespace Elders.Cronus.EventStore.Index
 
         public void Index(CronusMessage message)
         {
-            if (message.Headers.ContainsKey(MessageHeader.AggregateRootId) == false)
-            {
-                logger.Warn(() => "Unable to index {Message}. AggregateRootId header is missing.", message);
-                return;
-            }
-
             var @event = message.Payload as IEvent;
             string eventTypeId = @event.Unwrap().GetType().GetContractId();
 
