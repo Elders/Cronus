@@ -1,3 +1,6 @@
+#### 6.1.0-beta0006 - 20.05.2020
+* Rolls back the Microsoft packages
+
 #### 6.1.0-beta0005 - 20.05.2020
 * Migrates the projection persistence from Workflows to Indices
 
