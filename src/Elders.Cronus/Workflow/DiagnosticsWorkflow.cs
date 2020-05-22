@@ -21,16 +21,22 @@ namespace Elders.Cronus.Workflow
         {
             if (execution is null) throw new ArgumentNullException(nameof(execution));
 
-            long startTimestamp = 0;
-            if (logger.IsInfoEnabled())
-                startTimestamp = Stopwatch.GetTimestamp();
-
-            workflow.Run(execution.Context);
-
             if (logger.IsInfoEnabled())
             {
-                var elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
-                logger.Info(() => "{cronus_MessageHandler} handled {cronus_MessageName} in {cronus_Elapsed}ms. => {cronus_MessageHeaders}", execution.Context.HandlerInstance.GetType().Name, execution.Context.Message.GetType().Name, elapsed.TotalMilliseconds, execution.Context.CronusMessage.Headers);
+                using (logger.BeginScope(execution.Context.CronusMessage.Headers[MessageHeader.CorelationId]))
+                {
+                    long startTimestamp = 0;
+                    startTimestamp = Stopwatch.GetTimestamp();
+
+                    workflow.Run(execution.Context);
+
+                    TimeSpan elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
+                    logger.Info(() => "{cronus_MessageHandler} handled {cronus_MessageName} in {Elapsed:0.0000} ms", execution.Context.HandlerInstance.GetType().Name, execution.Context.Message.GetType().Name, elapsed.TotalMilliseconds, execution.Context.CronusMessage.Headers);
+                }
+            }
+            else
+            {
+                workflow.Run(execution.Context);
             }
         }
     }
