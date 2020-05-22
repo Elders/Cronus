@@ -1,3 +1,6 @@
+#### 6.1.0-beta0007 - 22.05.2020
+* Improves logging
+
 #### 6.1.0-beta0006 - 20.05.2020
 * Rolls back the Microsoft packages
 
