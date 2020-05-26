@@ -1,3 +1,6 @@
+#### 6.1.0-beta0008 - 26.05.2020
+* Improves logging
+
 #### 6.1.0-beta0007 - 22.05.2020
 * Improves logging
 
