@@ -3,11 +3,14 @@ using Elders.Cronus.AtomicAction;
 using Elders.Cronus.Userfull;
 using Elders.Cronus.IntegrityValidation;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore
 {
     public sealed class AggregateRepository : IAggregateRepository
     {
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(AggregateRepository));
+
         readonly IAggregateRootAtomicAction atomicAction;
         readonly IEventStore eventStore;
         readonly IIntegrityPolicy<EventStream> integrityPolicy;
@@ -39,6 +42,7 @@ namespace Elders.Cronus.EventStore
 
             if (result.IsSuccessful)
             {
+                logger.Info(() => "{cronus_arname} {cronus_arid} has been saved.", typeof(AR).Name, aggregateRoot.State.Id);
                 // #prodalzavameNapred
                 // #bravoKobra
                 // https://www.youtube.com/watch?v=2wWusHu_3w8

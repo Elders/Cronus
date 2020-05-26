@@ -59,21 +59,26 @@ namespace Elders.Cronus
                 if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
                     messageHeaders.Add(MessageHeader.CorelationId, messageId);
 
+                messageHeaders.Remove("contract_name");
                 messageHeaders.Add("contract_name", message.GetType().GetContractId());
+
 
                 var cronusMessage = new CronusMessage(message, messageHeaders);
 
-                bool isPublished = RetryableOperation.TryExecute(() => PublishInternal(cronusMessage), retryPolicy);
-                if (isPublished)
+                using (logger.BeginScope(cronusMessage.CorelationId))
                 {
-                    logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
-                }
-                else
-                {
-                    logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
-                }
+                    bool isPublished = RetryableOperation.TryExecute(() => PublishInternal(cronusMessage), retryPolicy);
+                    if (isPublished)
+                    {
+                        logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
+                    }
+                    else
+                    {
+                        logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
+                    }
 
-                return isPublished;
+                    return isPublished;
+                }
             }
             catch (Exception ex)
             {

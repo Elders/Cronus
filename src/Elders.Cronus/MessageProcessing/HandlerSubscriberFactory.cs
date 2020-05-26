@@ -7,7 +7,7 @@ namespace Elders.Cronus.MessageProcessing
     {
         private readonly Workflow<HandleContext> workflow;
 
-        public HandlerSubscriberFactory(ISubscriberWorkflow<T> subscriberWorkflow)
+        public HandlerSubscriberFactory(ISubscriberWorkflowFactory<T> subscriberWorkflow)
         {
             workflow = subscriberWorkflow.GetWorkflow() as Workflow<HandleContext>;
         }

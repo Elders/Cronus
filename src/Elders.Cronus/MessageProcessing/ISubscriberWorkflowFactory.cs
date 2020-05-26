@@ -2,7 +2,7 @@
 
 namespace Elders.Cronus.MessageProcessing
 {
-    public interface ISubscriberWorkflow<T>
+    public interface ISubscriberWorkflowFactory<T>
     {
         IWorkflow GetWorkflow();
     }

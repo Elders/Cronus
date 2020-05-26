@@ -10,7 +10,7 @@ namespace Elders.Cronus.MessageProcessing
         private readonly Workflow<HandleContext> workflow;
         private readonly TypeContainer<IEvent> allEventTypesInTheSystem;
 
-        public EventStoreIndexSubscriberFactory(ISubscriberWorkflow<IEventStoreIndex> subscriberWorkflow, TypeContainer<IEvent> allEventTypesInTheSystem)
+        public EventStoreIndexSubscriberFactory(ISubscriberWorkflowFactory<IEventStoreIndex> subscriberWorkflow, TypeContainer<IEvent> allEventTypesInTheSystem)
         {
             workflow = subscriberWorkflow.GetWorkflow() as Workflow<HandleContext>;
             this.allEventTypesInTheSystem = allEventTypesInTheSystem;

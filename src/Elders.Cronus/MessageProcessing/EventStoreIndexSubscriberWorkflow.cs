@@ -8,7 +8,7 @@ namespace Elders.Cronus.MessageProcessing
     /// <summary>
     /// Work-flow which handles all events and writes them into the index
     /// </summary>
-    public class EventStoreIndexSubscriberWorkflow : ISubscriberWorkflow<IEventStoreIndex>
+    public class EventStoreIndexSubscriberWorkflow : ISubscriberWorkflowFactory<IEventStoreIndex>
     {
         private readonly IServiceProvider serviceProvider;
 
@@ -19,12 +19,13 @@ namespace Elders.Cronus.MessageProcessing
 
         public IWorkflow GetWorkflow()
         {
-            var messageHandleWorkflow = new MessageHandleWorkflow(new CreateScopedHandlerWorkflow());
+            MessageHandleWorkflow messageHandleWorkflow = new MessageHandleWorkflow(new CreateScopedHandlerWorkflow());
             messageHandleWorkflow.ActualHandle.Override(new DynamicMessageIndex());
-            var scopedWorkflow = new ScopedMessageWorkflow(serviceProvider, messageHandleWorkflow);
-            var customWorkflow = new InMemoryRetryWorkflow<HandleContext>(scopedWorkflow);
+            ScopedMessageWorkflow scopedWorkflow = new ScopedMessageWorkflow(serviceProvider, messageHandleWorkflow);
+            InMemoryRetryWorkflow<HandleContext> retryableWorkflow = new InMemoryRetryWorkflow<HandleContext>(scopedWorkflow);
+            DiagnosticsWorkflow<HandleContext> diagnosticsWorkflow = new DiagnosticsWorkflow<HandleContext>(retryableWorkflow);
 
-            return customWorkflow;
+            return diagnosticsWorkflow;
         }
     }
 }

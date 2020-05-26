@@ -1,10 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Elders.Cronus.MessageProcessing
 {
     public sealed class CronusContext
     {
         private string tenant;
+
+        public CronusContext()
+        {
+            Trace = new Dictionary<string, object>();
+        }
 
         public string Tenant
         {
@@ -18,6 +24,8 @@ namespace Elders.Cronus.MessageProcessing
                 tenant = value;
             }
         }
+
+        public Dictionary<string, object> Trace { get; }
 
         public bool IsNotInitialized => string.IsNullOrEmpty(tenant) || ServiceProvider is null;
 

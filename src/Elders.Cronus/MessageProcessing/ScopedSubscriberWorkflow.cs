@@ -3,7 +3,7 @@ using System;
 
 namespace Elders.Cronus.MessageProcessing
 {
-    public class ScopedSubscriberWorkflow<T> : ISubscriberWorkflow<T>
+    public class ScopedSubscriberWorkflow<T> : ISubscriberWorkflowFactory<T>
     {
         private readonly IServiceProvider serviceProvider;
 
@@ -14,10 +14,11 @@ namespace Elders.Cronus.MessageProcessing
 
         public IWorkflow GetWorkflow()
         {
-            var messageHandleWorkflow = new MessageHandleWorkflow(new CreateScopedHandlerWorkflow());
-            var scopedWorkflow = new ScopedMessageWorkflow(serviceProvider, messageHandleWorkflow);
+            MessageHandleWorkflow messageHandleWorkflow = new MessageHandleWorkflow(new CreateScopedHandlerWorkflow());
+            ScopedMessageWorkflow scopedWorkflow = new ScopedMessageWorkflow(serviceProvider, messageHandleWorkflow);
+            DiagnosticsWorkflow<HandleContext> diagnosticsWorkflow = new DiagnosticsWorkflow<HandleContext>(scopedWorkflow);
 
-            return scopedWorkflow;
+            return diagnosticsWorkflow;
         }
     }
 }
