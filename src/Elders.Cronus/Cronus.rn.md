@@ -1,3 +1,6 @@
+#### 6.1.0-beta0009 - 26.05.2020
+* Updates packages
+
 #### 6.1.0-beta0008 - 26.05.2020
 * Improves logging
 
