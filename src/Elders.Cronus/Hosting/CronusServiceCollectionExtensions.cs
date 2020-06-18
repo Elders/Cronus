@@ -28,10 +28,7 @@ namespace Elders.Cronus
         /// </summary>
         public static IServiceCollection AddCronus(this IServiceCollection services, CronusServicesProvider cronusServicesProvider)
         {
-            var listener = new DiagnosticListener(CronusDiagnostics.Name);
-            services.AddSingleton<DiagnosticListener>(listener);
-            services.AddSingleton<DiagnosticSource>(listener);
-
+            services.AddOpenTelemetry();
             services.AddTenantSupport();
             services.AddCronusHostOptions();
             services.AddDefaultSubscribers();
@@ -42,6 +39,22 @@ namespace Elders.Cronus
 
             foreach (var result in discoveryResults)
                 cronusServicesProvider.HandleDiscoveredModel(result);
+
+            return services;
+        }
+
+        internal static IServiceCollection AddOpenTelemetry(this IServiceCollection services)
+        {
+            // https://github.com/dotnet/aspnetcore/blob/f3f9a1cdbcd06b298035b523732b9f45b1408461/src/Hosting/Hosting/src/WebHostBuilder.cs#L334
+            // By default aspnet core registers a DiagnosticListener and if we add our own you will loose the http insights
+            // However, for worker services we need to register our own Listener.
+            // I am sure there is a better way for doing the setup so please if you end up here and you have problems please fix it.
+            if (services.Any(x => x.ServiceType == typeof(DiagnosticListener)) == false)
+            {
+                var listener = new DiagnosticListener(CronusDiagnostics.Name);
+                services.AddSingleton<DiagnosticListener>(listener);
+                services.AddSingleton<DiagnosticSource>(listener);
+            }
 
             return services;
         }
