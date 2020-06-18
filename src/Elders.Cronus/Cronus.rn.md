@@ -1,3 +1,6 @@
+#### 6.1.0-beta0010 - 18.06.2020
+* Start experimenting with Activity
+
 #### 6.1.0-beta0009 - 26.05.2020
 * Updates packages
 
