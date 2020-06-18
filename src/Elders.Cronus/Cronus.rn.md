@@ -1,3 +1,6 @@
+#### 6.1.0-beta0011 - 18.06.2020
+* Fixes registration for aspnet core applications
+
 #### 6.1.0-beta0010 - 18.06.2020
 * Start experimenting with Activity
 
