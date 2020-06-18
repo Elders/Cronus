@@ -57,7 +57,7 @@ namespace Elders.Cronus.Workflow
 
                 stupidityFactor++;
                 if (stupidityFactor > 1000)
-                    throw new InvalidOperationException("Stupidty factor over 9000");
+                    throw new InvalidOperationException("Stupidity factor over 1000");
 
             }
             return control.PreviousResult;

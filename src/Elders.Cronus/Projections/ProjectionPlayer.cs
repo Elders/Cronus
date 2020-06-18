@@ -87,7 +87,7 @@ namespace Elders.Cronus.Projections
                             {
                                 IEvent theEvent = arCommit.Events[i].Unwrap();
 
-                                if (projectionHandledEventTypes.Contains(theEvent.GetType().GetContractId())) // filter out the events which are not part of the projection
+                                if (projectionHandledEventTypes.Contains(theEvent.GetType().GetContractId())) // filters out the events which are not part of the projection
                                 {
                                     var origin = new EventOrigin(mess, arCommit.Revision, i, arCommit.Timestamp);
                                     projectionWriter.Save(projectionType, theEvent, origin, version);

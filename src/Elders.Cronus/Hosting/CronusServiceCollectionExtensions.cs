@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
+using Elders.Cronus.Diagnostics;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
@@ -26,6 +28,10 @@ namespace Elders.Cronus
         /// </summary>
         public static IServiceCollection AddCronus(this IServiceCollection services, CronusServicesProvider cronusServicesProvider)
         {
+            var listener = new DiagnosticListener(CronusDiagnostics.Name);
+            services.AddSingleton<DiagnosticListener>(listener);
+            services.AddSingleton<DiagnosticSource>(listener);
+
             services.AddTenantSupport();
             services.AddCronusHostOptions();
             services.AddDefaultSubscribers();

@@ -1,6 +1,7 @@
 ﻿using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Options;
+using System;
 
 namespace Elders.Cronus
 {
