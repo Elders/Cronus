@@ -15,9 +15,10 @@ namespace Elders.Cronus
         private readonly IConsumer<IPort> ports;
         private readonly IConsumer<ISaga> sagas;
         private readonly IConsumer<IGateway> gateways;
+        private readonly IConsumer<ITrigger> triggers;
         private CronusHostOptions hostOptions;
 
-        public CronusHost(IConsumer<IApplicationService> appServices, IConsumer<IEventStoreIndex> indexes, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, IOptionsMonitor<CronusHostOptions> cronusHostOptions)
+        public CronusHost(IConsumer<IApplicationService> appServices, IConsumer<IEventStoreIndex> indexes, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, IConsumer<ITrigger> triggers, IOptionsMonitor<CronusHostOptions> cronusHostOptions)
         {
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
             this.indexes = indexes;
@@ -25,7 +26,7 @@ namespace Elders.Cronus
             this.ports = ports ?? throw new ArgumentNullException(nameof(ports));
             this.sagas = sagas ?? throw new ArgumentNullException(nameof(sagas));
             this.gateways = gateways ?? throw new ArgumentNullException(nameof(gateways));
-
+            this.triggers = triggers;
             this.hostOptions = cronusHostOptions.CurrentValue;
             cronusHostOptions.OnChange(Changed);
         }
@@ -40,6 +41,7 @@ namespace Elders.Cronus
                 if (hostOptions.ProjectionsEnabled) projections.Start();
                 if (hostOptions.PortsEnabled) ports.Start();
                 if (hostOptions.GatewaysEnabled) gateways.Start();
+                if (hostOptions.TriggersEnabled) triggers.Start();
             }
             catch (Exception ex)
             {
@@ -57,6 +59,7 @@ namespace Elders.Cronus
                 if (hostOptions.ProjectionsEnabled) projections.Stop();
                 if (hostOptions.PortsEnabled) ports.Stop();
                 if (hostOptions.GatewaysEnabled) gateways.Stop();
+                if (hostOptions.TriggersEnabled) triggers.Stop();
                 indexes.Stop();
             }
             catch (Exception ex)
@@ -90,6 +93,7 @@ namespace Elders.Cronus
                 if (oldOptions.ProjectionsEnabled == false && newOptions.ProjectionsEnabled == true) projections.Start();
                 if (oldOptions.PortsEnabled == false && newOptions.PortsEnabled == true) ports.Start();
                 if (oldOptions.GatewaysEnabled == false && newOptions.GatewaysEnabled == true) gateways.Start();
+                if (oldOptions.TriggersEnabled == false && newOptions.TriggersEnabled == true) gateways.Start();
             }
             catch (Exception ex)
             {
@@ -107,6 +111,7 @@ namespace Elders.Cronus
                 if (oldOptions.ProjectionsEnabled == true && newOptions.ProjectionsEnabled == false) projections.Stop();
                 if (oldOptions.PortsEnabled == true && newOptions.PortsEnabled == false) ports.Stop();
                 if (oldOptions.GatewaysEnabled == true && newOptions.GatewaysEnabled == false) gateways.Stop();
+                if (oldOptions.TriggersEnabled == true && newOptions.TriggersEnabled == false) gateways.Stop();
             }
             catch (Exception ex)
             {

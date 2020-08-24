@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.Projections.Cassandra.EventSourcing;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
@@ -8,6 +9,8 @@ namespace Elders.Cronus.EventStore.Index
     [DataContract(Name = "55f9e248-7bb3-4288-8db8-ba9620c67228")]
     public class EventToAggregateRootId : IEventStoreIndex
     {
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(EventToAggregateRootId));
+
         private readonly IIndexStore indexStore;
 
         public EventToAggregateRootId(IIndexStore indexStore)

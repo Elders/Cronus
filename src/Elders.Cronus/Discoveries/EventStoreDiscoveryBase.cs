@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
+using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 
 namespace Elders.Cronus.Discoveries
@@ -15,6 +16,11 @@ namespace Elders.Cronus.Discoveries
         {
             var loadedTypes = context.Assemblies.Find<IEventStoreIndex>();
             yield return new DiscoveredModel(typeof(TypeContainer<IEventStoreIndex>), new TypeContainer<IEventStoreIndex>(loadedTypes));
+
+            foreach (var indexDef in loadedTypes)
+            {
+                yield return new DiscoveredModel(indexDef, indexDef, ServiceLifetime.Scoped);
+            }
         }
     }
 }

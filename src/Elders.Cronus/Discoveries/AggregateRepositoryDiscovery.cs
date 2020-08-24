@@ -17,7 +17,7 @@ namespace Elders.Cronus.Discoveries
         {
             yield return new DiscoveredModel(typeof(IIntegrityPolicy<EventStream>), typeof(EventStreamIntegrityPolicy), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(AggregateRepository), typeof(AggregateRepository), ServiceLifetime.Transient);
-            yield return new DiscoveredModel(typeof(IAggregateRepository), provider => new CronusAggregateRepository(provider.GetRequiredService<AggregateRepository>(), provider.GetRequiredService<IPublisher<IEvent>>()), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(IAggregateRepository), provider => new CronusAggregateRepository(provider.GetRequiredService<AggregateRepository>(), provider.GetRequiredService<IPublisher<IEvent>>(), provider.GetRequiredService<IPublisher<IPublicEvent>>(), provider.GetRequiredService<CronusContext>()), ServiceLifetime.Transient);
         }
     }
 }

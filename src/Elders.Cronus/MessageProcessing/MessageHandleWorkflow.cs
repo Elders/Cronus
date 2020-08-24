@@ -66,7 +66,7 @@ namespace Elders.Cronus.MessageProcessing
                 {
                     var handleContext = new HandlerContext(execution.Context.Message.Payload, handler.Current, execution.Context.Message);
                     BeginHandle.Run(handleContext);
-                    new DiagnosticsWorkflow<HandlerContext>(ActualHandle).Run(handleContext);
+                    ActualHandle.Run(handleContext);
                     EndHandle.Run(handleContext);
                 }
             }

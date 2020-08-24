@@ -27,7 +27,7 @@ namespace Elders.Cronus.MessageProcessing
         /// <summary>
         /// Adds a new subscriber to the Cronus infrastructure with intent to notify all interested parties when a new subscriber comes in (e.g. for creating queues etc.)
         /// </summary>
-        /// <param name="subscriber"></param>
+        /// <param name="subscriber">The subscriber.</param>
         public void Subscribe(ISubscriber subscriber)
         {
             if (ReferenceEquals(null, subscriber)) throw new ArgumentNullException(nameof(subscriber));
@@ -40,7 +40,8 @@ namespace Elders.Cronus.MessageProcessing
 
         public IEnumerable<ISubscriber> GetInterestedSubscribers(CronusMessage message)
         {
-            return Subscribers.Where(subscriber => subscriber.GetInvolvedMessageTypes().Contains(message.Payload.GetType()));
+            Type payloadType = message.Payload.GetType();
+            return Subscribers.Where(subscriber => subscriber.GetInvolvedMessageTypes().Contains(payloadType));
         }
 
         /// <summary>

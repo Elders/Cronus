@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -145,6 +146,23 @@ namespace Elders.Cronus
                 logger.LogCritical(ex, func(), args);
         }
 
+        public static IDisposable BeginScope(this ILogger logger, string key, object value)
+        {
+            return logger.BeginScope(new Dictionary<string, object> { { key, value } });
+        }
+
+        public static IDisposable BeginScope(this ILogger logger, Action<Dictionary<string, object>> scope)
+        {
+            var loggerScope = new Dictionary<string, object>();
+            scope(loggerScope);
+            return logger.BeginScope(loggerScope);
+        }
+
+        public static Dictionary<string, object> AddScope(this Dictionary<string, object> scope, string key, object value)
+        {
+            scope.Add(key, value);
+            return scope;
+        }
 
         [Obsolete("Will be removed in 7.0.0")]
         public static void Debug(this ILogger logger, string message)

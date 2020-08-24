@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Elders.Cronus.Multitenancy;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.MessageProcessing
@@ -8,7 +9,7 @@ namespace Elders.Cronus.MessageProcessing
     public class CronusContextFactory
     {
         private readonly CronusContext context;
-        private TenantsOptions tenants;
+        private readonly TenantsOptions tenants;
         private readonly ITenantResolver tenantResolver;
 
         public CronusContextFactory(CronusContext context, IOptionsMonitor<TenantsOptions> tenantsOptions, ITenantResolver tenantResolver)

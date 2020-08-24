@@ -31,9 +31,11 @@ namespace Elders.Cronus.MessageProcessing
 
         public virtual IEnumerable<Type> GetInvolvedMessageTypes()
         {
+            Type baseMessageType = typeof(IMessage);
+
             return handlerType.GetInterfaces()
-                .Where(x => x.IsGenericType && x.GetGenericArguments().Length == 1 && (typeof(IMessage).IsAssignableFrom(x.GetGenericArguments().Single())))
-                .Select(@interface => @interface.GetGenericArguments().Single())
+                .Where(x => x.IsGenericType && x.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(x.GetGenericArguments()[0])))
+                .Select(@interface => @interface.GetGenericArguments()[0])
                 .Distinct();
         }
     }

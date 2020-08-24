@@ -43,6 +43,11 @@ namespace Elders.Cronus.MessageProcessing
             var cronusContextFactory = scope.ServiceProvider.GetRequiredService<CronusContextFactory>();
             var context = cronusContextFactory.GetContext(message, scope.ServiceProvider);
 
+            foreach (var header in message.Headers)
+            {
+                context.Trace.Add(header.Key, header.Value);
+            }
+
             return context.IsInitialized;
         }
     }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
+using Elders.Cronus.Diagnostics;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
@@ -26,6 +28,7 @@ namespace Elders.Cronus
         /// </summary>
         public static IServiceCollection AddCronus(this IServiceCollection services, CronusServicesProvider cronusServicesProvider)
         {
+            services.AddOpenTelemetry();
             services.AddTenantSupport();
             services.AddCronusHostOptions();
             services.AddDefaultSubscribers();
@@ -36,6 +39,22 @@ namespace Elders.Cronus
 
             foreach (var result in discoveryResults)
                 cronusServicesProvider.HandleDiscoveredModel(result);
+
+            return services;
+        }
+
+        internal static IServiceCollection AddOpenTelemetry(this IServiceCollection services)
+        {
+            // https://github.com/dotnet/aspnetcore/blob/f3f9a1cdbcd06b298035b523732b9f45b1408461/src/Hosting/Hosting/src/WebHostBuilder.cs#L334
+            // By default aspnet core registers a DiagnosticListener and if we add our own you will loose the http insights
+            // However, for worker services we need to register our own Listener.
+            // I am sure there is a better way for doing the setup so please if you end up here and you have problems please fix it.
+            if (services.Any(x => x.ServiceType == typeof(DiagnosticListener)) == false)
+            {
+                var listener = new DiagnosticListener(CronusDiagnostics.Name);
+                services.AddSingleton<DiagnosticListener>(listener);
+                services.AddSingleton<DiagnosticSource>(listener);
+            }
 
             return services;
         }
@@ -111,7 +130,7 @@ namespace Elders.Cronus
         {
             services.AddSingleton(typeof(ISubscriberCollection<T>), typeof(SubscriberCollection<T>));
             services.AddSingleton(typeof(ISubscriberFinder<T>), typeof(SubscriberFinder<T>));
-            services.AddSingleton(typeof(ISubscriberWorkflow<T>), typeof(ScopedSubscriberWorkflow<T>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<T>), typeof(ScopedSubscriberWorkflow<T>));
             services.AddSingleton(typeof(ISubscriberFactory<T>), typeof(HandlerSubscriberFactory<T>));
 
             return services;
@@ -122,11 +141,10 @@ namespace Elders.Cronus
             services.AddSubscribersWithOpenGenerics();
 
             services.AddApplicationServiceSubscribers();
-            services.AddProjectionSubscribers();
             services.AddSubscribers<IPort>();
             services.AddSubscribers<IGateway>();
             services.AddSubscribers<ISaga>();
-            services.AddSubscribers<ISaga>();
+            services.AddSubscribers<ITrigger>();
             services.AddEventStoreIndexSubscribers();
 
             return services;
@@ -136,7 +154,7 @@ namespace Elders.Cronus
         {
             services.AddSingleton(typeof(ISubscriberCollection<>), typeof(SubscriberCollection<>));
             services.AddSingleton(typeof(ISubscriberFinder<>), typeof(SubscriberFinder<>));
-            services.AddSingleton(typeof(ISubscriberWorkflow<>), typeof(ScopedSubscriberWorkflow<>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<>), typeof(ScopedSubscriberWorkflow<>));
             services.AddSingleton(typeof(ISubscriberFactory<>), typeof(HandlerSubscriberFactory<>));
 
             return services;
@@ -146,18 +164,8 @@ namespace Elders.Cronus
         {
             services.AddSingleton(typeof(ISubscriberCollection<IApplicationService>), typeof(SubscriberCollection<IApplicationService>));
             services.AddSingleton(typeof(ISubscriberFinder<IApplicationService>), typeof(SubscriberFinder<IApplicationService>));
-            services.AddSingleton(typeof(ISubscriberWorkflow<IApplicationService>), typeof(ApplicationServiceSubscriberWorkflow));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<IApplicationService>), typeof(ApplicationServiceSubscriberWorkflow));
             services.AddSingleton(typeof(ISubscriberFactory<IApplicationService>), typeof(HandlerSubscriberFactory<IApplicationService>));
-
-            return services;
-        }
-
-        public static IServiceCollection AddProjectionSubscribers(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(ISubscriberCollection<IProjection>), typeof(SubscriberCollection<IProjection>));
-            services.AddSingleton(typeof(ISubscriberFinder<IProjection>), typeof(SubscriberFinder<IProjection>));
-            services.AddSingleton(typeof(ISubscriberWorkflow<IProjection>), typeof(ProjectionSubscriberWorkflow));
-            services.AddSingleton(typeof(ISubscriberFactory<IProjection>), typeof(HandlerSubscriberFactory<IProjection>));
 
             return services;
         }
@@ -166,7 +174,7 @@ namespace Elders.Cronus
         {
             services.AddSingleton(typeof(ISubscriberCollection<IEventStoreIndex>), typeof(SubscriberCollection<IEventStoreIndex>));
             services.AddSingleton(typeof(ISubscriberFinder<IEventStoreIndex>), typeof(SubscriberFinder<IEventStoreIndex>));
-            services.AddSingleton(typeof(ISubscriberWorkflow<IEventStoreIndex>), typeof(EventStoreIndexSubscriberWorkflow));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberWorkflow));
             services.AddSingleton(typeof(ISubscriberFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberFactory));
 
             return services;

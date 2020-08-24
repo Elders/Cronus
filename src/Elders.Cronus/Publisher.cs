@@ -9,6 +9,8 @@ namespace Elders.Cronus
     public abstract class Publisher<TMessage> : IPublisher<TMessage> where TMessage : IMessage
     {
         static readonly ILogger logger = CronusLogger.CreateLogger(typeof(Publisher<TMessage>));
+
+        private RetryPolicy retryPolicy;
         private readonly ITenantResolver<IMessage> tenantResolver;
         private readonly BoundedContext boundedContext;
 
@@ -16,6 +18,8 @@ namespace Elders.Cronus
         {
             this.tenantResolver = tenantResolver;
             this.boundedContext = boundedContext;
+
+            retryPolicy = new RetryPolicy(RetryableOperation.RetryPolicyFactory.CreateLinearRetryPolicy(5, TimeSpan.FromMilliseconds(300)));
         }
 
         protected abstract bool PublishInternal(CronusMessage message);
@@ -25,15 +29,6 @@ namespace Elders.Cronus
             try
             {
                 messageHeaders = messageHeaders ?? new Dictionary<string, string>();
-
-                string messageId = string.Empty;
-                if (messageHeaders.ContainsKey(MessageHeader.MessageId) == false)
-                    messageHeaders.Add(MessageHeader.MessageId, messageId);
-                else
-                    messageId = messageHeaders[MessageHeader.MessageId];
-
-                if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
-                    messageHeaders.Add(MessageHeader.CorelationId, messageId);
 
                 if (messageHeaders.ContainsKey(MessageHeader.PublishTimestamp) == false)
                     messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
@@ -52,18 +47,38 @@ namespace Elders.Cronus
                     messageHeaders.Add(MessageHeader.BoundedContext, bc);
                 }
 
-                var cronusMessage = new CronusMessage(message, messageHeaders);
-                var published = PublishInternal(cronusMessage);
-                if (published == false)
+                string messageId = string.Empty;
+                if (messageHeaders.ContainsKey(MessageHeader.MessageId) == false)
                 {
-                    logger.Error(() => "Failed to publish => " + BuildDebugLog(message, messageHeaders));
-                    return false;
+                    messageId = $"urn:cronus:{messageHeaders[MessageHeader.BoundedContext]}:{messageHeaders[MessageHeader.Tenant]}:{Guid.NewGuid()}";
+                    messageHeaders.Add(MessageHeader.MessageId, messageId);
                 }
+                else
+                    messageId = messageHeaders[MessageHeader.MessageId];
 
-                logger.Info(() => message.ToString());
-                logger.Debug(() => "PUBLISH => " + BuildDebugLog(message, messageHeaders));
+                if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
+                    messageHeaders.Add(MessageHeader.CorelationId, messageId);
 
-                return true;
+                messageHeaders.Remove("contract_name");
+                messageHeaders.Add("contract_name", message.GetType().GetContractId());
+
+
+                var cronusMessage = new CronusMessage(message, messageHeaders);
+
+                using (logger.BeginScope(cronusMessage.CorelationId))
+                {
+                    bool isPublished = RetryableOperation.TryExecute(() => PublishInternal(cronusMessage), retryPolicy);
+                    if (isPublished)
+                    {
+                        logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
+                    }
+                    else
+                    {
+                        logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
+                    }
+
+                    return isPublished;
+                }
             }
             catch (Exception ex)
             {
@@ -83,12 +98,6 @@ namespace Elders.Cronus
         {
             DateTime publishAt = DateTime.UtcNow.Add(publishAfter);
             return Publish(message, publishAt, messageHeaders);
-        }
-
-        string BuildDebugLog(TMessage message, IDictionary<string, string> headers)
-        {
-            string headersInfo = string.Join(";", headers.Select(x => x.Key + "=" + x.Value).ToArray());
-            return message + Environment.NewLine + headersInfo;
         }
     }
 }

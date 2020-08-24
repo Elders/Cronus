@@ -1,3 +1,13 @@
+#### 6.1.0 - 24.08.2020
+* Fixes registration for aspnet core applications
+* Start experimenting with Activity
+* Improves logging
+* Improves publish/handle logs with structured logging
+* Adds support for trigger handlers
+* Adds a retry strategy when message publishing fails
+* Adds support for PublicEvents generate by an Aggregate. The events are stored in AggregateCommit [#203]
+* Imporoves logging extension methods
+
 #### 6.0.1 - 23.04.2020
 * Fixes event store manager state when the rebuild finishes successfully
 * Automatically start the IEventStoreIndex handlers
