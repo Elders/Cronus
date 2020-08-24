@@ -1,34 +1,10 @@
-#### 6.1.0-beta0011 - 18.06.2020
+#### 6.1.0 - 24.08.2020
 * Fixes registration for aspnet core applications
-
-#### 6.1.0-beta0010 - 18.06.2020
 * Start experimenting with Activity
-
-#### 6.1.0-beta0009 - 26.05.2020
-* Updates packages
-
-#### 6.1.0-beta0008 - 26.05.2020
 * Improves logging
-
-#### 6.1.0-beta0007 - 22.05.2020
-* Improves logging
-
-#### 6.1.0-beta0006 - 20.05.2020
-* Rolls back the Microsoft packages
-
-#### 6.1.0-beta0005 - 20.05.2020
-* Migrates the projection persistence from Workflows to Indices
-
-#### 6.1.0-beta0004 - 08.05.2020
 * Improves publish/handle logs with structured logging
-
-#### 6.1.0-beta0003 - 03.05.2020
 * Adds support for trigger handlers
-
-#### 6.1.0-beta0002 - 29.04.2020
 * Adds a retry strategy when message publishing fails
-
-#### 6.1.0-beta0001 - 29.04.2020
 * Adds support for PublicEvents generate by an Aggregate. The events are stored in AggregateCommit [#203]
 * Imporoves logging extension methods
 
