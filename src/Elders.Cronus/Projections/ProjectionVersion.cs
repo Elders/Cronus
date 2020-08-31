@@ -6,6 +6,8 @@ namespace Elders.Cronus.Projections
     [DataContract(Name = "bb4883b9-c3a5-48e5-8ba1-28fb94d061ac")]
     public class ProjectionVersion : ValueObject<ProjectionVersion>
     {
+        ProjectionVersion() { }
+
         public ProjectionVersion(string projectionName, ProjectionStatus status, int revision, string hash)
         {
             ProjectionName = projectionName;
@@ -90,8 +92,10 @@ namespace Elders.Cronus.Projections
 
         public static bool operator >(ProjectionVersion left, ProjectionVersion right)
         {
-            if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
-            if (ReferenceEquals(null, right)) throw new ArgumentNullException(nameof(right));
+            if (left is null && right is null == false) return false;
+            if (left is null && right is null) return false;
+            if (left is null == false && right is null) return true;
+
             if (left.ProjectionName.Equals(right.ProjectionName) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionNames do not match. {left.ProjectionName} != {right.ProjectionName}");
 
             return left.Revision > right.Revision;
@@ -99,8 +103,10 @@ namespace Elders.Cronus.Projections
 
         public static bool operator >=(ProjectionVersion left, ProjectionVersion right)
         {
-            if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
-            if (ReferenceEquals(null, right)) throw new ArgumentNullException(nameof(right));
+            if (left is null && right is null == false) return false;
+            if (left is null && right is null) return true;
+            if (left is null == false && right is null) return true;
+
             if (left.ProjectionName.Equals(right.ProjectionName) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionNames do not match. {left.ProjectionName} != {right.ProjectionName}");
 
             return left.Revision >= right.Revision;
@@ -108,8 +114,10 @@ namespace Elders.Cronus.Projections
 
         public static bool operator <(ProjectionVersion left, ProjectionVersion right)
         {
-            if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
-            if (ReferenceEquals(null, right)) throw new ArgumentNullException(nameof(right));
+            if (left is null && right is null == false) return true;
+            if (left is null && right is null) return false;
+            if (left is null == false && right is null) return false;
+
             if (left.ProjectionName.Equals(right.ProjectionName) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionNames do not match. {left.ProjectionName} != {right.ProjectionName}");
 
             return left.Revision < right.Revision;
@@ -117,8 +125,10 @@ namespace Elders.Cronus.Projections
 
         public static bool operator <=(ProjectionVersion left, ProjectionVersion right)
         {
-            if (ReferenceEquals(null, left)) throw new ArgumentNullException(nameof(left));
-            if (ReferenceEquals(null, right)) throw new ArgumentNullException(nameof(right));
+            if (left is null && right is null == false) return true;
+            if (left is null && right is null) return true;
+            if (left is null == false && right is null) return false;
+
             if (left.ProjectionName.Equals(right.ProjectionName) == false) throw new ArgumentException($"Unable to compare projection versions. ProjectionNames do not match. {left.ProjectionName} != {right.ProjectionName}");
 
             return left.Revision <= right.Revision;
