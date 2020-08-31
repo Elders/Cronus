@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.Discoveries;
 using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.Projections;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 
@@ -26,6 +27,7 @@ namespace Elders.Cronus.Cluster.Job.InMemory
             yield return new DiscoveredModel(typeof(InMemoryCronusJobRunner), typeof(InMemoryCronusJobRunner), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(ICronusJobRunner), typeof(InMemoryCronusJobRunner), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(RebuildIndex_EventToAggregateRootId_JobFactory), typeof(RebuildIndex_EventToAggregateRootId_JobFactory), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(RebuildIndex_ProjectionIndex_JobFactory), typeof(RebuildIndex_ProjectionIndex_JobFactory), ServiceLifetime.Transient);
         }
     }
 }
