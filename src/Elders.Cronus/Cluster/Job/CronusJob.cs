@@ -49,7 +49,7 @@ namespace Elders.Cronus.Cluster.Job
 
         public TData Data { get; protected set; }
 
-        public Func<TData, TData> DataOverride = fromCluster => fromCluster;
+        Func<TData, TData> DataOverride = fromCluster => fromCluster;
 
         public void OverrideData(Func<TData, TData> dataOverride)
         {
