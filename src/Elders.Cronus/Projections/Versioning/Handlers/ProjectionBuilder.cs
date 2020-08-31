@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using Elders.Cronus.Cluster.Job;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections.Versioning
@@ -12,12 +13,14 @@ namespace Elders.Cronus.Projections.Versioning
     {
         private static ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionBuilder));
 
-        private readonly ProjectionPlayer projectionPlayer;
+        private readonly ICronusJobRunner jobRunner;
+        private readonly RebuildIndex_ProjectionIndex_JobFactory jobFactory;
 
-        public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ProjectionPlayer projectionPlayer)
+        public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, RebuildIndex_ProjectionIndex_JobFactory jobFactory)
             : base(commandPublisher, timeoutRequestPublisher)
         {
-            this.projectionPlayer = projectionPlayer;
+            this.jobRunner = jobRunner;
+            this.jobFactory = jobFactory;
         }
 
         public void Handle(ProjectionVersionRequested @event)
@@ -30,37 +33,24 @@ namespace Elders.Cronus.Projections.Versioning
             }
         }
 
-        public void Handle(RebuildProjectionVersion @event)
+        public void Handle(RebuildProjectionVersion sagaTimeout)
         {
-            ReplayResult result = projectionPlayer.Rebuild(@event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil);
+            RebuildIndex_ProjectionIndex_Job job = jobFactory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
+            JobExecutionStatus result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
 
-            HandleRebuildResult(result, @event);
-        }
-
-        void HandleRebuildResult(ReplayResult result, RebuildProjectionVersion @event)
-        {
-            if (result.IsSuccess)
+            if (result == JobExecutionStatus.Running)
             {
-                var finalize = new FinalizeProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version);
+                RequestTimeout(new RebuildProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
+            }
+            else if (result == JobExecutionStatus.Failed)
+            {
+                var cancel = new CancelProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, "Failed");
+                commandPublisher.Publish(cancel);
+            }
+            else if (result == JobExecutionStatus.Completed)
+            {
+                var finalize = new FinalizeProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version);
                 commandPublisher.Publish(finalize);
-            }
-            else if (result.ShouldRetry)
-            {
-                RequestTimeout(new RebuildProjectionVersion(@event.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
-            }
-            else
-            {
-                logger.Error(() => result.Error);
-                if (result.IsTimeout)
-                {
-                    var timedout = new TimeoutProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox);
-                    commandPublisher.Publish(timedout);
-                }
-                else
-                {
-                    var cancel = new CancelProjectionVersionRequest(@event.ProjectionVersionRequest.Id, @event.ProjectionVersionRequest.Version, result.Error);
-                    commandPublisher.Publish(cancel);
-                }
             }
         }
 
