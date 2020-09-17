@@ -34,6 +34,8 @@ namespace Elders.Cronus.Projections.Versioning
         {
             ReplayResult result = projectionPlayer.Rebuild(@event.ProjectionVersionRequest.Version, @event.ProjectionVersionRequest.Timebox.RebuildFinishUntil);
 
+            logger.Debug(() => "Rebuild projection version {@cronus_projection_rebuild}", result);
+
             HandleRebuildResult(result, @event);
         }
 
