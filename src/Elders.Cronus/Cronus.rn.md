@@ -1,3 +1,6 @@
+#### 6.1.1 - 17.09.2020
+* Adds debug logging when rebuilding a projection
+
 #### 6.1.0 - 24.08.2020
 * Fixes registration for aspnet core applications
 * Start experimenting with Activity
