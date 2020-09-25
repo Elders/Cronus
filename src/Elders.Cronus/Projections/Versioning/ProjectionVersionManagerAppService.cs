@@ -7,7 +7,12 @@
         ICommandHandler<CancelProjectionVersionRequest>,
         ICommandHandler<TimeoutProjectionVersionRequest>
     {
-        public ProjectionVersionManagerAppService(IAggregateRepository repository) : base(repository) { }
+        private readonly IProjectionVersioningPolicy projectionVersioningPolicy;
+
+        public ProjectionVersionManagerAppService(IAggregateRepository repository, IProjectionVersioningPolicy projectionVersioningPolicy) : base(repository)
+        {
+            this.projectionVersioningPolicy = projectionVersioningPolicy;
+        }
 
         public void Handle(RegisterProjection command)
         {
@@ -16,7 +21,7 @@
             if (result.IsSuccess)
             {
                 ar = result.Data;
-                ar.NotifyHash(command.Hash);
+                ar.NotifyHash(command.Hash, projectionVersioningPolicy);
             }
 
             if (result.NotFound)
@@ -27,7 +32,7 @@
 
         public void Handle(RebuildProjection command)
         {
-            Update(command.Id, ar => ar.Replay(command.Hash));
+            Update(command.Id, ar => ar.Rebuild(command.Hash, projectionVersioningPolicy));
         }
 
         public void Handle(FinalizeProjectionVersionRequest command)

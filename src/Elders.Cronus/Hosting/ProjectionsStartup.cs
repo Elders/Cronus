@@ -17,7 +17,7 @@ namespace Elders.Cronus
         {
             this.tenants = tenantsOptions.CurrentValue;
             this.hasher = hasher;
-            this.publisher = publisher;
+            this.publisher =  publisher;
             this.handlerTypeContainer = handlerTypeContainer;
         }
 

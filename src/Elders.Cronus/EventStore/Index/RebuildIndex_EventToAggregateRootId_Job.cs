@@ -1,5 +1,7 @@
 ﻿using Elders.Cronus.Cluster.Job;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Versioning;
+using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
 using System.Threading;
@@ -18,7 +20,7 @@ namespace Elders.Cronus.EventStore.Index
             this.index = index;
         }
 
-        public override string Name => typeof(EventToAggregateRootId).GetContractId();
+        public override string Name { get; set; } = typeof(EventToAggregateRootId).GetContractId();
 
         protected override RebuildIndex_JobData BuildInitialData() => new RebuildIndex_JobData();
 
@@ -65,14 +67,19 @@ namespace Elders.Cronus.EventStore.Index
     public class RebuildIndex_EventToAggregateRootId_JobFactory
     {
         private readonly RebuildIndex_EventToAggregateRootId_Job job;
+        private readonly CronusContext context;
+        private readonly BoundedContext boundedContext;
 
-        public RebuildIndex_EventToAggregateRootId_JobFactory(RebuildIndex_EventToAggregateRootId_Job job)
+        public RebuildIndex_EventToAggregateRootId_JobFactory(RebuildIndex_EventToAggregateRootId_Job job, IOptions<BoundedContext> boundedContext, CronusContext context)
         {
             this.job = job;
+            this.context = context;
+            this.boundedContext = boundedContext.Value;
         }
 
         public RebuildIndex_EventToAggregateRootId_Job CreateJob(VersionRequestTimebox timebox)
         {
+            job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}";
             job.SetTimeBox(timebox);
 
             return job;

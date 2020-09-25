@@ -6,7 +6,7 @@ namespace Elders.Cronus.Projections
     [DataContract(Name = "bb4883b9-c3a5-48e5-8ba1-28fb94d061ac")]
     public class ProjectionVersion : ValueObject<ProjectionVersion>
     {
-        ProjectionVersion() { }
+        private ProjectionVersion() { }
 
         public ProjectionVersion(string projectionName, ProjectionStatus status, int revision, string hash)
         {
@@ -40,6 +40,11 @@ namespace Elders.Cronus.Projections
         public ProjectionVersion NextRevision()
         {
             return new ProjectionVersion(ProjectionName, ProjectionStatus.Building, Revision + 1, Hash);
+        }
+
+        public ProjectionVersion NonVersionableRevision()
+        {
+            return new ProjectionVersion(ProjectionName, ProjectionStatus.Building, Revision, Hash);
         }
 
         public override bool Equals(ProjectionVersion other)
