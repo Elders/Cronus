@@ -10,8 +10,7 @@ namespace Elders.Cronus.Tests.Projections
         {
             var building = new ProjectionVersion("buildingId", ProjectionStatus.Building, 1, "buildingHash");
 
-            versions = new ProjectionVersions();
-            versions.Add(building);
+            versions = new ProjectionVersions(building);
 
             another = new ProjectionVersion("buildingId", ProjectionStatus.Canceled, 1, "buildingHash");
         };

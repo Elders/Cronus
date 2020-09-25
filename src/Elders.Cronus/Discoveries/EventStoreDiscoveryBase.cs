@@ -17,7 +17,7 @@ namespace Elders.Cronus.Discoveries
         IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
         {
             var loadedTypes = context.Assemblies.Find<IEventStoreIndex>();
-            yield return new DiscoveredModel(typeof(EventToAggregateRootId), typeof(EventToAggregateRootId), ServiceLifetime.Transient);
+            //yield return new DiscoveredModel(typeof(EventToAggregateRootId), typeof(EventToAggregateRootId), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(TypeContainer<IEventStoreIndex>), new TypeContainer<IEventStoreIndex>(loadedTypes));
 
             foreach (var indexDef in loadedTypes)

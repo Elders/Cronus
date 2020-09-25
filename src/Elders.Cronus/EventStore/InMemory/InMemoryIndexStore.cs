@@ -27,5 +27,17 @@ namespace Elders.Cronus.EventStore.InMemory
 
             return Enumerable.Empty<IndexRecord>();
         }
+
+        public LoadIndexRecordsResult Get(string indexRecordId, string paginationToken, int pageSize)
+        {
+            if (indexRecords.ContainsKey(indexRecordId))
+                return new LoadIndexRecordsResult()
+                {
+                    PaginationToken = paginationToken,
+                    Records = indexRecords[indexRecordId]
+                };
+
+            return LoadIndexRecordsResult.Empty(paginationToken);
+        }
     }
 }

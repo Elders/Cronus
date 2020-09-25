@@ -1,4 +1,5 @@
-﻿using Machine.Specifications;
+﻿using Elders.Cronus.Projections.Versioning;
+using Machine.Specifications;
 
 namespace Elders.Cronus.Projections
 {
@@ -9,12 +10,11 @@ namespace Elders.Cronus.Projections
         {
             version = new ProjectionVersion("projectionName", ProjectionStatus.Live, 1, "hash");
             nextVersion = new ProjectionVersion("projectionName", ProjectionStatus.Building, 2, "hash");
-            versions = new ProjectionVersions();
         };
 
-        Because of = () => versions.Add(version);
+        Because of = () => versions = new ProjectionVersions(version);
 
-        It should_have_next_version = () => versions.GetNext().ShouldEqual(nextVersion);
+        It should_have_next_version = () => versions.GetNext(new MarkupInterfaceProjectionVersioningPolicy()).ShouldEqual(nextVersion);
         It should_have_correct_live_version = () => versions.GetLive().ShouldEqual(version);
         It should_have_live_version = () => versions.GetLive().ShouldNotBeNull();
 

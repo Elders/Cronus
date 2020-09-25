@@ -46,5 +46,11 @@ namespace Elders.Cronus.EventStore.Index
             // TODO: index exists?
             return indexStore.Get(dataId);
         }
+
+        public LoadIndexRecordsResult EnumerateRecords(string dataId, string paginationToken, int pageSize = 5000)
+        {
+            // TODO: index exists?
+            return indexStore.Get(dataId, paginationToken, pageSize);
+        }
     }
 }

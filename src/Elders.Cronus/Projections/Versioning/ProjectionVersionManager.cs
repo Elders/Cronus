@@ -26,13 +26,13 @@ namespace Elders.Cronus.Projections.Versioning
             EnsureThereIsNoOutdatedBuildingVersions();
         }
 
-        public void Replay(string hash) // maybe rename to Rebuild
+        public void Rebuild(string hash, IProjectionVersioningPolicy policy)
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
             if (CanReplayHash(hash))
             {
-                var projectionVersion = state.Versions.GetNext();
+                var projectionVersion = state.Versions.GetNext(policy);
                 var timebox = GetVersionRequestTimebox(hash);
                 RequestVersion(state.Id, projectionVersion, timebox);
             }
@@ -54,13 +54,13 @@ namespace Elders.Cronus.Projections.Versioning
             EnsureThereIsNoOutdatedBuildingVersions();
         }
 
-        public void NotifyHash(string hash)
+        public void NotifyHash(string hash, IProjectionVersioningPolicy policy)
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
             if (state.Versions.HasLiveVersion == false || state.Versions.IsHashTheLiveOne(hash) == false)
             {
-                Replay(hash);
+                Rebuild(hash, policy);
             }
         }
 

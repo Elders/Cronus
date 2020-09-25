@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elders.Cronus.Projections.Versioning;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -11,6 +12,8 @@ namespace Elders.Cronus.Projections
     {
         public ProjectionVersions(IEnumerable<ProjectionVersion> seed)
         {
+            if (seed.Any() == false) throw new ArgumentException("ProjectionVersions seed cannot be empty.", nameof(seed));
+
             versions = new HashSet<ProjectionVersion>();
             foreach (var item in seed)
             {
@@ -18,7 +21,13 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        public ProjectionVersions() : this(new HashSet<ProjectionVersion>()) { }
+        public ProjectionVersions(ProjectionVersion seed) : this(new[] { seed }) { }
+
+        /// <summary>
+        /// This constructor is special. It is used only internally so we could get an instance of this object via reflection.
+        /// Should be used with special care. You have to add at least one version if you use it.
+        /// </summary>
+        internal ProjectionVersions() { versions = new HashSet<ProjectionVersion>(); }
 
         [DataMember(Order = 1)]
         HashSet<ProjectionVersion> versions;
@@ -88,11 +97,6 @@ namespace Elders.Cronus.Projections
             return GetBuildingVersions().Any();
         }
 
-        public void Clear()
-        {
-            versions.Clear();
-        }
-
         public bool Contains(ProjectionVersion item)
         {
             if (item is null) throw new ArgumentNullException(nameof(item));
@@ -104,16 +108,46 @@ namespace Elders.Cronus.Projections
         {
             if (item is null) throw new ArgumentNullException(nameof(item));
 
+            if (versions.Count == 1)
+                return false;
+
             return versions.Remove(item);
         }
 
-        public ProjectionVersion GetNext()
+        public ProjectionVersion GetNext(IProjectionVersioningPolicy policy)
         {
-            if (versions.Count == 0) return default(ProjectionVersion);
+            if (IsVersionable(policy))
+            {
+                var maxRevision = versions.Max(ver => ver.Revision);
+                var candidate = versions.Where(x => x.Revision == maxRevision).FirstOrDefault(); // TODO: This will crash with null ref
+                return candidate.NextRevision();
+            }
+            else
+            {
+                if (HasLiveVersion)
+                {
+                    return GetLive().NonVersionableRevision();
+                }
+                else
+                {
+                    var maxRevision = versions.Max(ver => ver.Revision);
+                    var candidate = versions.Where(x => x.Revision == maxRevision).FirstOrDefault(); // TODO: This will crash with null ref
+                    return candidate.NonVersionableRevision();
+                }
+            }
+        }
 
-            var maxRevision = versions.Max(ver => ver.Revision);
-            var candidate = versions.Where(x => x.Revision == maxRevision).FirstOrDefault();
-            return candidate.NextRevision();
+        private bool IsVersionable(IProjectionVersioningPolicy policy)
+        {
+            try
+            {
+                string projectionName = versions.First().ProjectionName;
+                return policy.IsVersionable(projectionName);
+            }
+            catch (Exception)
+            {
+                return true;
+            }
         }
 
         public bool IsHashTheLiveOne(string hash)
@@ -127,7 +161,11 @@ namespace Elders.Cronus.Projections
 
         public bool HasLiveVersion => GetLive() is null == false;
 
-        public ProjectionVersion GetLive() => versions.Where(x => x.Status == ProjectionStatus.Live).SingleOrDefault();
+        public ProjectionVersion GetLive()
+        {
+            var liveVersions = versions.Where(x => x.Status == ProjectionStatus.Live);
+            return liveVersions.FirstOrDefault();
+        }
 
         public bool IsCanceled(ProjectionVersion version)
         {

@@ -1,4 +1,5 @@
-﻿using Machine.Specifications;
+﻿using Elders.Cronus.Projections.Versioning;
+using Machine.Specifications;
 
 namespace Elders.Cronus.Projections
 {
@@ -7,8 +8,6 @@ namespace Elders.Cronus.Projections
     {
         Establish context = () =>
         {
-            versions = new ProjectionVersions();
-
             var notPresentVersion = new ProjectionVersion("projectionName", ProjectionStatus.NotPresent, 1, "hash");
             var buldingVersion = new ProjectionVersion("projectionName", ProjectionStatus.Building, 1, "hash");
             var canceledVersion = new ProjectionVersion("projectionName", ProjectionStatus.Canceled, 1, "hash");
@@ -16,7 +15,8 @@ namespace Elders.Cronus.Projections
             var timedoutVersion = new ProjectionVersion("projectionName", ProjectionStatus.Timedout, 1, "hash");
             liveVersion = new ProjectionVersion("projectionName", ProjectionStatus.Live, 1, "hash");
 
-            versions.Add(notPresentVersion);
+            versions = new ProjectionVersions(notPresentVersion);
+
             versions.Add(buldingVersion);
             versions.Add(canceledVersion);
             versions.Add(canceledVersion2);
@@ -27,7 +27,7 @@ namespace Elders.Cronus.Projections
 
         Because of = () => versions.Add(liveVersion);
 
-        It should_have_next_version = () => versions.GetNext().ShouldEqual(nextVersion);
+        It should_have_next_version = () => versions.GetNext(new MarkupInterfaceProjectionVersioningPolicy()).ShouldEqual(nextVersion);
         It should_have_live_version = () => versions.GetLive().ShouldNotBeNull();
         It should_have_correct_live_version = () => versions.GetLive().ShouldEqual(liveVersion);
 

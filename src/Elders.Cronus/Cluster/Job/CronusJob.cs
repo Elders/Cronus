@@ -12,7 +12,7 @@ namespace Elders.Cronus.Cluster.Job
             Data = BuildInitialData();
         }
 
-        public abstract string Name { get; }
+        public abstract string Name { get; set; }
 
         /// <summary>
         /// Initializes a default state for the job
@@ -46,6 +46,8 @@ namespace Elders.Cronus.Cluster.Job
         }
 
         protected abstract Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default);
+
+
 
         public TData Data { get; protected set; }
 

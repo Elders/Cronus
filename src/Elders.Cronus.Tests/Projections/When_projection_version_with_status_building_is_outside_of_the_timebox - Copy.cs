@@ -28,7 +28,7 @@ namespace Elders.Cronus.Projections
                 );
         };
 
-        Because of = () => ar.Replay(hash);
+        Because of = () => ar.Rebuild(hash, new MarkupInterfaceProjectionVersioningPolicy());
 
         It should_timeout_the_obsolete_building_versions = () => ar.PublishedEvents<ProjectionVersionRequestTimedout>().Count().ShouldEqual(2);
 

@@ -37,7 +37,7 @@ namespace Elders.Cronus.Discoveries
 
     public class TestJob : CronusJob<TestJobData>
     {
-        public override string Name => "Test";
+        public override string Name { get; set; } = "Test";
 
         protected override TestJobData BuildInitialData()
         {
