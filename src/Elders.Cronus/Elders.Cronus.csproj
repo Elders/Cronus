@@ -50,4 +50,8 @@
     <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Queries\" />
+  </ItemGroup>
+
 </Project>

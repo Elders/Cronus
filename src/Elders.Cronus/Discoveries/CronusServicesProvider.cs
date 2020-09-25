@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 using Elders.Cronus.Cluster.Job;
+using Elders.Cronus.Queries;
 
 namespace Elders.Cronus.Discoveries
 {
@@ -88,6 +89,8 @@ namespace Elders.Cronus.Discoveries
         protected virtual void Handle(DiscoveryResult<IGateway> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<ITrigger> discoveryResult) => AddServices(discoveryResult);
+
+        protected virtual void Handle(DiscoveryResult<QueryProvider> discoveryResult) => AddServices(discoveryResult);
 
         protected virtual void Handle(DiscoveryResult<IWorkflow> discoveryResult) => AddServices(discoveryResult);
 
