@@ -1,3 +1,6 @@
+#### 6.2.0-beta0002 - 25.09.2020
+* Move the projection rebuild operation to the cluster
+
 #### 6.2.0-beta0001 - 31.08.2020
 * Changes the visibility if the ClusterJob DataOverride to private
 * Fixes ProjectionVersion comparison
