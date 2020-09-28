@@ -184,11 +184,6 @@ namespace Elders.Cronus.Projections
             return GetLive() > version;
         }
 
-        public bool IsNotPresent()
-        {
-            return versions.Any() == false;
-        }
-
         public IEnumerator<ProjectionVersion> GetEnumerator()
         {
             return new HashSet<ProjectionVersion>(versions).GetEnumerator();

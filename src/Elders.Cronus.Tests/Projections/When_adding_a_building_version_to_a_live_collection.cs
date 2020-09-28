@@ -21,7 +21,6 @@ namespace Elders.Cronus.Projections
 
         It should_not_be__canceled__ = () => versions.IsCanceled(version).ShouldBeFalse();
         It should_not_be__outdated__ = () => versions.IsOutdatad(version).ShouldBeFalse();
-        It should_be__not_present__ = () => versions.IsNotPresent().ShouldBeFalse();
 
         static ProjectionVersion initialLiveVersion;
         static ProjectionVersion version;

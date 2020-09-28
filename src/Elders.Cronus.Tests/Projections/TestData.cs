@@ -66,4 +66,7 @@ namespace Elders.Cronus.Tests.Projections
 
     [DataContract(Name = "7898a318-c8e5-4be5-b1e3-13c4f5da28d5")]
     public class TestEvent3 : IEvent { }
+
+    [DataContract(Name = "NonVersionableProjection")]
+    public class NonVersionableProjection : IProjection, INonVersionableProjection { }
 }
