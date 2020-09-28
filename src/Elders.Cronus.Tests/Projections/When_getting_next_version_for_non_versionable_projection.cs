@@ -1,15 +1,18 @@
 ﻿using Elders.Cronus.Projections.Versioning;
+using Elders.Cronus.Tests.Projections;
 using Machine.Specifications;
 
 namespace Elders.Cronus.Projections
 {
     [Subject("ProjectionVersions")]
-    public class When_adding_a_pending_version
+    public class When_getting_next_version_for_non_versionable_projection
     {
         Establish context = () =>
         {
-            version = new ProjectionVersion("projectionName", ProjectionStatus.Pending, 1, "hash");
-            nextVersion = new ProjectionVersion("projectionName", ProjectionStatus.Building, 2, "hash");
+            MessageInfo.GetContractId(typeof(NonVersionableProjection));
+
+            version = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 1, "hash");
+            nextVersion = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 1, "hash");
         };
 
         Because of = () => versions = new ProjectionVersions(version);

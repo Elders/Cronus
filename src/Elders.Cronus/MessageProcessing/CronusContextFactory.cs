@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Elders.Cronus.Multitenancy;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.MessageProcessing
