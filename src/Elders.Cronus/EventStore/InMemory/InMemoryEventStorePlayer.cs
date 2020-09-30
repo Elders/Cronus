@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Elders.Cronus.EventStore.InMemory
 {
@@ -12,35 +13,24 @@ namespace Elders.Cronus.EventStore.InMemory
             this.eventStoreStorage = eventStoreStorage;
         }
 
-
-        /// <summary>
-        /// Gets the events from start.
-        /// </summary>
-        /// <param name="batchPerQuery">The batch per query.</param>
-        /// <returns></returns>
-        public IEnumerable<AggregateCommit> GetFromStart(int batchPerQuery = 1)
+        public IEnumerable<AggregateCommit> LoadAggregateCommits(int batchSize = 5000)
         {
-            return this.eventStoreStorage.GetOrderedEvents();
-        }
-
-        public IEnumerable<AggregateCommit> GetFromStart(DateTime start, DateTime end, int batchPerQuery = 1)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<AggregateCommit> LoadAggregateCommits(int batchSize = 100)
-        {
-            throw new NotImplementedException();
+            return eventStoreStorage.GetOrderedEvents();
         }
 
         public LoadAggregateCommitsResult LoadAggregateCommits(string paginationToken, int batchSize = 5000)
         {
-            throw new NotImplementedException();
+            return new LoadAggregateCommitsResult
+            {
+                Commits = eventStoreStorage.GetOrderedEvents().ToList(),
+                PaginationToken = paginationToken
+            };
         }
 
-        public IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync()
+        public async IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync()
         {
-            throw new NotImplementedException();
+            foreach (var @event in LoadAggregateCommits())
+                yield return @event;
         }
 
         public IEnumerable<AggregateCommitRaw> LoadAggregateCommitsRaw(int batchSize = 5000)

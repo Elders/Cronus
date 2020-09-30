@@ -68,11 +68,11 @@ namespace Elders.Cronus.Projections
         }
     }
 
-    public static class AggregateRootExtensions
-    {
-        public static T State<T>(this IProjectionDefinition projection) where T : class, new()
-        {
-            return (T)(projection.State);
-        }
-    }
+    //public static class AggregateRootExtensions
+    //{
+    //    public static T State<T>(this IProjectionDefinition projection) where T : class, new()
+    //    {
+    //        return (T)(projection.State);
+    //    }
+    //}
 }

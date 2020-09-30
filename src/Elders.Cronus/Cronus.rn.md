@@ -1,5 +1,13 @@
+#### 6.2.0 - 30.09.2020
+* Move the projection rebuild operation to the cluster
+* Changes the visibility if the ClusterJob DataOverride to private
+* Fixes ProjectionVersion comparison
+
 #### 6.1.1 - 17.09.2020
 * Adds debug logging when rebuilding a projection
+
+* Replaces the standard projection ProjectionBuilder with a cluster job
+* Basic in-memory implementations
 
 #### 6.1.0 - 24.08.2020
 * Fixes registration for aspnet core applications

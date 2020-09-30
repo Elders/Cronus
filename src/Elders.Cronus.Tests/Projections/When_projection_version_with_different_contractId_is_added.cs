@@ -9,9 +9,8 @@ namespace Elders.Cronus.Tests.Projections
     {
         Establish context = () =>
         {
-            versions = new ProjectionVersions();
             var building = new ProjectionVersion("buildingId", ProjectionStatus.Building, 1, "buildingHash");
-            versions.Add(building);
+            versions = new ProjectionVersions(building);
 
             differentId = new ProjectionVersion("differentId", ProjectionStatus.Building, 1, "buildingHash");
         };

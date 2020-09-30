@@ -6,5 +6,7 @@ namespace Elders.Cronus
 
     public interface ISystemProjection { }
 
+    public interface INonVersionableProjection { }
+
     public interface ISystemEventStoreIndex { }
 }

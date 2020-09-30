@@ -18,4 +18,9 @@ namespace Elders.Cronus.Projections
     {
         void Initialize(ProjectionVersion version);
     }
+
+    public class NotInitializableProjectionStore : IInitializableProjectionStore
+    {
+        public void Initialize(ProjectionVersion version) { }
+    }
 }
