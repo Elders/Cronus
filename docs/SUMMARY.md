@@ -8,6 +8,8 @@
   * [DDD](cronus-framework/concepts/ddd.md)
   * [CQRS](cronus-framework/concepts/cqrs.md)
 * [Domain Modeling](cronus-framework/domain-modeling/README.md)
+  * [Bounded Context](cronus-framework/domain-modeling/bounded-context.md)
+  * [Multitenancy](cronus-framework/domain-modeling/multitenancy.md)
   * [Aggregate](cronus-framework/domain-modeling/aggregate.md)
   * [Entity](cronus-framework/domain-modeling/entity.md)
   * [Value Object](cronus-framework/domain-modeling/value-object.md)
