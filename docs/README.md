@@ -1,6 +1,10 @@
-# Initial page
+# Introduction
+
+Welcome to the Cronus Manual!
+
+Cronus provides the Cronus Framework to help build applications centered on three core concepts - CQRS \(Command Query Responsibility Segregation\) / Event Sourcing and DDD \(Domain Driven Design\).
+
+While many types of applications can be built using Cronus, it has proven to be very popular for microservices architectures. Cronus provides an innovative and powerful way of sensibly evolving to event-driven microservices within a microservices architecture.
 
 
-
-Usually you do not need a CQRS framework to develop greate apps. However, we noticed a common infrastructure code written with every applicaiton. We started to abstract and move that code to github. The key aspect was that even with a framework you still have full control and flexibility over the application code.
 
