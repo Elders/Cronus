@@ -5,8 +5,12 @@
 ## Cronus Framework
 
 * [Domain Modeling](cronus-framework/domain-modeling.md)
-* [Workflows](cronus-framework/workflows.md)
 * [Event Store](cronus-framework/event-store.md)
+* [Workflows](cronus-framework/workflows.md)
+* [Indices](cronus-framework/indices.md)
+* [Jobs](cronus-framework/jobs.md)
+* [Serialization](cronus-framework/serialization.md)
+* [Cluster](cronus-framework/cluster.md)
 * [Messaging](cronus-framework/messaging.md)
 * [Configuration](cronus-framework/configuration.md)
 
