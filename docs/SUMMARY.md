@@ -4,7 +4,11 @@
 
 ## Cronus Framework
 
-* [Domain Modeling](cronus-framework/domain-modeling.md)
+* [Domain Modeling](cronus-framework/domain-modeling/README.md)
+  * [Aggregate](cronus-framework/domain-modeling/aggregate.md)
+  * [Entity](cronus-framework/domain-modeling/entity.md)
+  * [Value Object](cronus-framework/domain-modeling/value-object.md)
+  * [Published Language](cronus-framework/domain-modeling/published-language.md)
 * [Event Store](cronus-framework/event-store.md)
 * [Workflows](cronus-framework/workflows.md)
 * [Indices](cronus-framework/indices.md)

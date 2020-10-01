@@ -2,6 +2,8 @@
 
 Projection tracks events and project their data for specific purposes.
 
+## Communication Guide Table
+
 | Triggered by | Description |
 | :--- | :--- |
 | Event | Domain events represent business changes which have already happened |
