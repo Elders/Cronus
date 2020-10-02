@@ -1,3 +1,6 @@
+#### 6.2.1 - 02.10.2020
+* Fixes a discovery load issue
+
 #### 6.2.0 - 30.09.2020
 * Move the projection rebuild operation to the cluster
 * Changes the visibility if the ClusterJob DataOverride to private
