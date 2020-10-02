@@ -43,8 +43,8 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverEvents(DiscoveryContext context)
         {
-            IEnumerable<Type> loadedCommands = context.Assemblies.Find<ICommand>();
-            yield return new DiscoveredModel(typeof(TypeContainer<ICommand>), new TypeContainer<ICommand>(loadedCommands));
+            IEnumerable<Type> loadedEvents = context.Assemblies.Find<IEvent>();
+            yield return new DiscoveredModel(typeof(TypeContainer<IEvent>), new TypeContainer<IEvent>(loadedEvents));
         }
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverPublicEvents(DiscoveryContext context)
