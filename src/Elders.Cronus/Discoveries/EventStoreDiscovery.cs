@@ -33,7 +33,7 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverEventStorePlayer<TEventStorePlayer>(DiscoveryContext context) where TEventStorePlayer : IEventStorePlayer
         {
-            return DiscoverModel<TEventStorePlayer, TEventStorePlayer>(ServiceLifetime.Singleton);
+            return DiscoverModel<IEventStorePlayer, TEventStorePlayer>(ServiceLifetime.Singleton);
         }
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverIndices(DiscoveryContext context)
