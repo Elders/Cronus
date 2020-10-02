@@ -14,6 +14,8 @@
   * [Entity](cronus-framework/domain-modeling/entity.md)
   * [Value Object](cronus-framework/domain-modeling/value-object.md)
   * [Published Language](cronus-framework/domain-modeling/published-language.md)
+* [Migrations](cronus-framework/migrations/README.md)
+  * [Copy EventStore](cronus-framework/migrations/copy-eventstore.md)
 * [Event Store](cronus-framework/event-store.md)
 * [Workflows](cronus-framework/workflows.md)
 * [Indices](cronus-framework/indices.md)
