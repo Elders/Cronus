@@ -1,3 +1,6 @@
+#### 6.2.2 - 02.10.2020
+* Fixes a discovery load issue
+
 #### 6.2.1 - 02.10.2020
 * Fixes a discovery load issue
 
