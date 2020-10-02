@@ -9,12 +9,12 @@ namespace Elders.Cronus.Discoveries
     {
         protected override DiscoveryResult<IWorkflow> DiscoverFromAssemblies(DiscoveryContext context)
         {
-            return new DiscoveryResult<IWorkflow>(GetModels());
+            return new DiscoveryResult<IWorkflow>(DiscoverWorkflows(context));
         }
 
-        IEnumerable<DiscoveredModel> GetModels()
+        protected virtual IEnumerable<DiscoveredModel> DiscoverWorkflows(DiscoveryContext context)
         {
-            yield return new DiscoveredModel(typeof(Workflow<HandleContext>), typeof(MessageHandleWorkflow), ServiceLifetime.Transient);
+            return DiscoverModel<Workflow<HandleContext>, MessageHandleWorkflow>(ServiceLifetime.Transient);
         }
     }
 }

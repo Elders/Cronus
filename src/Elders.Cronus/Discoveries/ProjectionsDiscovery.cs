@@ -10,9 +10,9 @@ namespace Elders.Cronus.Discoveries
 {
     public class ProjectionsDiscovery : HandlersDiscovery<IProjection>
     {
-        protected override IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
+        protected override IEnumerable<DiscoveredModel> DiscoverHandlers(DiscoveryContext context)
         {
-            var models = base.GetModels(context).Concat(GetModels()).ToList();
+            var models = base.DiscoverHandlers(context).Concat(GetModels()).ToList();
             models.Add(new DiscoveredModel(typeof(ProjectionHasher), typeof(ProjectionHasher), ServiceLifetime.Singleton));
 
             return models;

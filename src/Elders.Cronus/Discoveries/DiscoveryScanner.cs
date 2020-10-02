@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
@@ -10,10 +11,14 @@ namespace Elders.Cronus.Discoveries
 
         public IEnumerable<IDiscoveryResult<object>> Scan(DiscoveryContext context)
         {
-            var discoveries = context.Assemblies
-                .SelectMany(asm => asm
-                    .GetLoadableTypes()
-                    .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery<object>).IsAssignableFrom(type)))
+            List<Type> allTypes = context.Assemblies
+                   .SelectMany(asm => asm
+                       .GetLoadableTypes()
+                       .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery<object>).IsAssignableFrom(type)))
+                   .ToList();
+
+            IEnumerable<IDiscovery<object>> discoveries = allTypes
+                .Where(candidate => allTypes.Where(t => t.BaseType == candidate).Any() == false) // filter out discoveries which inherit from each other. We remove the base discoveries
                 .Select(dt => (IDiscovery<object>)FastActivator.CreateInstance(dt));
 
             foreach (var discovery in discoveries)

@@ -8,10 +8,10 @@ namespace Elders.Cronus.Discoveries
     {
         protected override DiscoveryResult<T> DiscoverFromAssemblies(DiscoveryContext context)
         {
-            return new DiscoveryResult<T>(GetModels(context));
+            return new DiscoveryResult<T>(DiscoverHandlers(context));
         }
 
-        protected virtual IEnumerable<DiscoveredModel> GetModels(DiscoveryContext context)
+        protected virtual IEnumerable<DiscoveredModel> DiscoverHandlers(DiscoveryContext context)
         {
             var foundTypes = context.FindService<T>();
             foreach (var type in foundTypes)

@@ -25,8 +25,6 @@ namespace Elders.Cronus.MessageProcessing
         }
 
         private static DefaultHandlerFactory factory = new DefaultHandlerFactory(x => FastActivator.CreateInstance(x));
-
-
     }
 
     public interface IHandlerInstance : IDisposable
