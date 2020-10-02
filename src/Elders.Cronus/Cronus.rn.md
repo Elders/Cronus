@@ -1,3 +1,6 @@
+#### 6.2.3 - 02.10.2020
+* Fixes InMemoryEventStore dependency issue
+
 #### 6.2.2 - 02.10.2020
 * Fixes a discovery load issue
 
