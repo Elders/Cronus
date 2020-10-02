@@ -1,3 +1,6 @@
+#### 6.2.4 - 02.10.2020
+* Fixes IEventStorePlayer discovery registration
+
 #### 6.2.3 - 02.10.2020
 * Fixes InMemoryEventStore dependency issue
 
