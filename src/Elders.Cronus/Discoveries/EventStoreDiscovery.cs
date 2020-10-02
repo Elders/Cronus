@@ -22,7 +22,8 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverEventStore<TEventStore>(DiscoveryContext context) where TEventStore : IEventStore
         {
-            return DiscoverModel<IEventStore, TEventStore>(ServiceLifetime.Singleton);
+            return DiscoverModel<IEventStore, TEventStore>(ServiceLifetime.Singleton)
+                .Concat(new[] { new DiscoveredModel(typeof(InMemoryEventStoreStorage), typeof(InMemoryEventStoreStorage), ServiceLifetime.Singleton) });
         }
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverIndexStore<TIndexStore>(DiscoveryContext context) where TIndexStore : IIndexStore
