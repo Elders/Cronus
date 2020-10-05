@@ -29,7 +29,7 @@ public class Concert : AggregateRoot<ConcertState>
 
 Use the abstract helper class `AggregateRootState<TAggregateRoot, TAggregateRootId>`. Also, you can implement the `IAggregateRootState` by yourself in case inheritance is not a viable option.
 
-To change the state of an aggregate root, define event handlers for each event with the method signature `public void When(Event e) { ... }`.
+To change the state of an aggregate root, create method event handlers for each event with method signature `public void When(Event e) { ... }`.
 
 ```csharp
 public class ConcertState : AggregateRootState<Concert, ConcertId>
@@ -51,7 +51,7 @@ public class ConcertState : AggregateRootState<Concert, ConcertId>
 
     public List<Performer> Performers { get; set; }
     
-    public When(ConcertAnnounced @event)
+    public void When(ConcertAnnounced @event)
     {
         // ...
     }
