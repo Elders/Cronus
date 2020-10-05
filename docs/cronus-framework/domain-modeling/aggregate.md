@@ -60,7 +60,7 @@ public class ConcertState : AggregateRootState<Concert, ConcertId>
 
 ### Aggregate root id
 
-All aggregate root ids must implement the `IAggregateRootId` interface. Since Cronus uses URNs for ids that will require implementing the URN specification as well. If you don't want to do that, you can use the provided helper base classes `AggregateRootId`, `AggregateUrn` or `Urn`. The example above uses `AggregateRootId` because it inherits the other two and it is the easiest to implement.
+All aggregate root ids must implement the `IAggregateRootId` interface. Since Cronus uses URNs for ids that will require implementing the URN specification as well. If you don't want to do that, you can use the provided helper base classes `AggregateRootId`, `AggregateUrn` or `Urn`. The example uses `AggregateRootId` because it inherits the other two and it is the easiest to implement.
 
 ```csharp
 public class ConcertId : AggregateRootId
