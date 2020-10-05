@@ -27,7 +27,7 @@ public class Concert : AggregateRoot<ConcertState>
 
 ### Aggregate root state
 
-Use the abstract helper class `AggregateRootState<TAggregateRoot, TAggregateRootId>`. Also, you can implement the `IAggregateRootState` by yourself in case inheriting is not a viable option.
+Use the abstract helper class `AggregateRootState<TAggregateRoot, TAggregateRootId>`. Also, you can implement the `IAggregateRootState` by yourself in case inheritance is not a viable option.
 
 To change the state of an aggregate root, define event handlers for each event with the method signature `public void When(Event e) { ... }`.
 
