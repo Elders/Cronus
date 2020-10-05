@@ -49,8 +49,8 @@ namespace Elders.Cronus.Projections
         {
             if (cancellationToken.IsCancellationRequested)
             {
-                logger.Debug(() => $"The job {Name} was cancelled before it got started.");
-                return JobExecutionStatus.Failed;
+                logger.Info(() => $"The job {Name} was cancelled before it got started.");
+                return JobExecutionStatus.Running;
             }
 
             ProjectionVersion version = Data.Version;
@@ -79,7 +79,7 @@ namespace Elders.Cronus.Projections
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
-                        logger.Debug(() => $"The job {Name} was cancelled.");
+                        logger.Info(() => $"The job {Name} was cancelled.");
                         return JobExecutionStatus.Running;
                     }
 

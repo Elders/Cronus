@@ -1,6 +1,7 @@
 ﻿using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Versioning;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
@@ -13,11 +14,13 @@ namespace Elders.Cronus.EventStore.Index
     {
         private readonly IEventStorePlayer eventStorePlayer;
         private readonly EventToAggregateRootId index;
+        private readonly ILogger<RebuildIndex_EventToAggregateRootId_Job> logger;
 
-        public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, EventToAggregateRootId index)
+        public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, EventToAggregateRootId index, ILogger<RebuildIndex_EventToAggregateRootId_Job> logger)
         {
             this.eventStorePlayer = eventStorePlayer;
             this.index = index;
+            this.logger = logger;
         }
 
         public override string Name { get; set; } = typeof(EventToAggregateRootId).GetContractId();
@@ -26,23 +29,36 @@ namespace Elders.Cronus.EventStore.Index
 
         protected override async Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                logger.Info(() => $"The job {Name} was cancelled before it got started.");
+                return JobExecutionStatus.Running;
+            }
+
             bool hasMoreRecords = true;
             while (hasMoreRecords && Data.IsCompleted == false)
             {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    logger.Info(() => $"The job {Name} was cancelled.");
+                    return JobExecutionStatus.Running;
+                }
+
                 var result = eventStorePlayer.LoadAggregateCommits(Data.PaginationToken);
+                logger.Info(() => $"Loaded aggregate commits count ${result.Commits.Count} using pagination token {result.PaginationToken}");
                 foreach (var aggregateCommit in result.Commits)
                 {
                     index.Index(aggregateCommit);
                 }
 
                 Data.PaginationToken = result.PaginationToken;
-                Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
                 hasMoreRecords = result.Commits.Any();
             }
 
             Data.IsCompleted = true;
-            Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+            Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
             return JobExecutionStatus.Completed;
         }
@@ -90,7 +106,7 @@ namespace Elders.Cronus.EventStore.Index
     {
         public bool IsCompleted { get; set; } = false;
 
-        public string PaginationToken { get; set; } = string.Empty;
+        public string PaginationToken { get; set; }
 
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
     }
