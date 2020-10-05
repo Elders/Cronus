@@ -2,7 +2,7 @@
 
 ## Overview
 
-By default, Cronus and its sub-components have good default settings. However not everything can be auto-configured, such as connection strings to databases or endpoints to various services.
+By default, Cronus and its sub-components have good default settings. However, not everything can be auto-configured, such as connection strings to databases or endpoints to various services.
 
 ## Cronus
 
@@ -14,7 +14,7 @@ Cronus uses this setting to personalize your application. This setting is used f
 * Cassandra EventStore names
 * Cassandra Projection store names
 
-Allowed Characters: `Cronus:BoundedContext` must be alphanumeric character or underscore only: `^\b([\w\d_]+$)`'
+Allowed Characters: `Cronus:BoundedContext` must be an alphanumeric character or underscore only: `^\b([\w\d_]+$)`'
 
 #### `Cronus:Tenants` &gt;&gt; _string\[\] \| Required: yes_
 
