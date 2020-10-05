@@ -47,8 +47,6 @@ namespace Elders.Cronus.Cluster.Job
 
         protected abstract Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default);
 
-
-
         public TData Data { get; protected set; }
 
         Func<TData, TData> DataOverride = fromCluster => fromCluster;
