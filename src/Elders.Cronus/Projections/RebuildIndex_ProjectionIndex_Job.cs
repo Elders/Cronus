@@ -5,6 +5,7 @@ using Elders.Cronus.EventStore.Index.Handlers;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using Elders.Cronus.Projections.Versioning;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -25,8 +26,9 @@ namespace Elders.Cronus.Projections
         private readonly EventToAggregateRootId eventToAggregateIndex;
         private readonly IProjectionReader projectionReader;
         private readonly CronusContext context;
+        private readonly ILogger<RebuildIndex_ProjectionIndex_Job> logger;
 
-        public RebuildIndex_ProjectionIndex_Job(IInitializableProjectionStore projectionStoreInitializer, IEventStore eventStore, IEventStorePlayer eventStorePlayer, ProjectionIndex index, IProjectionWriter projectionWriter, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context)
+        public RebuildIndex_ProjectionIndex_Job(IInitializableProjectionStore projectionStoreInitializer, IEventStore eventStore, IEventStorePlayer eventStorePlayer, ProjectionIndex index, IProjectionWriter projectionWriter, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, ILogger<RebuildIndex_ProjectionIndex_Job> logger)
         {
             this.projectionStoreInitializer = projectionStoreInitializer;
             this.eventStore = eventStore;
@@ -36,6 +38,7 @@ namespace Elders.Cronus.Projections
             this.eventToAggregateIndex = eventToAggregateIndex;
             this.projectionReader = projectionReader;
             this.context = context;
+            this.logger = logger;
         }
 
         public override string Name { get; set; } = typeof(ProjectionIndex).GetContractId();
@@ -44,6 +47,12 @@ namespace Elders.Cronus.Projections
 
         protected override async Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
+            if (cancellationToken.IsCancellationRequested)
+            {
+                logger.Debug(() => $"The job {Name} was cancelled before it got started.");
+                return JobExecutionStatus.Failed;
+            }
+
             ProjectionVersion version = Data.Version;
             Type projectionType = version.ProjectionName.GetTypeByContract();
 
@@ -68,6 +77,12 @@ namespace Elders.Cronus.Projections
                 bool hasMoreRecords = true;
                 while (hasMoreRecords && Data.IsCompleted == false)
                 {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        logger.Debug(() => $"The job {Name} was cancelled.");
+                        return JobExecutionStatus.Running;
+                    }
+
                     RebuildProjectionIndex_JobData.EventTypeRebuildPaging paging = Data.EventTypePaging.Where(et => et.Type.Equals(eventType, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
                     string paginationToken = paging?.PaginationToken;
@@ -103,7 +118,7 @@ namespace Elders.Cronus.Projections
                     }
 
                     Data.MarkPaginationTokenAsProcessed(eventType, indexRecordsResult.PaginationToken);
-                    Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                    Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
                     hasMoreRecords = indexRecordsResult.Records.Any();
                 }
