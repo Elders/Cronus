@@ -1,3 +1,6 @@
+#### 6.2.5 - 05.10.2020
+* Respect the cancellation token when rebuilding a projection
+
 #### 6.2.4 - 02.10.2020
 * Fixes IEventStorePlayer discovery registration
 
