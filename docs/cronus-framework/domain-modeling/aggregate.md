@@ -60,6 +60,10 @@ public class ConcertState : AggregateRootState<Concert, ConcertId>
 }
 ```
 
+{% hint style="info" %}
+You could read more about the state pattern [here](https://refactoring.guru/design-patterns/state/csharp/example) and [here](https://www.dofactory.com/net/state-design-pattern).
+{% endhint %}
+
 ### Aggregate root id
 
 All aggregate root ids must implement the `IAggregateRootId` interface. Since Cronus uses [URNs](https://en.wikipedia.org/wiki/Uniform_Resource_Name) for ids that will require implementing the [URN specification](https://tools.ietf.org/html/rfc8141) as well. If you don't want to do that, you can use the provided helper base class `AggregateRootId`.
