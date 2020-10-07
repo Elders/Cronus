@@ -9,8 +9,9 @@ A command is used to dispatch domain model changes. It can be accepted or reject
 | UI | It is NOT common practice to send commands directly from the UI. Usually the UI communicates with web APIs |
 | API | APIs sit in the middle between UI and Server translating web requests into commands |
 | External System | It is NOT common practice to send commands directly from the External System. Usually the External System communicates with web APIs. |
-| Port | Ports are a simple way for an aggregate root to communicate with another aggregate root. |
+| Port | Ports are a simple way for an aggregate to communicate with other aggregates. |
 | Saga | Sagas are a simple way for an aggregate root to do complex communication with other aggregate roots. |
+|  |  |
 
 ## Best Practices
 
