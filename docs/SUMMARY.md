@@ -13,6 +13,9 @@
   * [Aggregate](cronus-framework/domain-modeling/aggregate.md)
   * [Entity](cronus-framework/domain-modeling/entity.md)
   * [Value Object](cronus-framework/domain-modeling/value-object.md)
+  * [Commands](cronus-framework/domain-modeling/commands.md)
+  * [Events](cronus-framework/domain-modeling/events.md)
+  * [Signals](cronus-framework/domain-modeling/signals.md)
   * [Published Language](cronus-framework/domain-modeling/published-language.md)
 * [Migrations](cronus-framework/migrations/README.md)
   * [Copy EventStore](cronus-framework/migrations/copy-eventstore.md)
@@ -24,12 +27,6 @@
 * [Cluster](cronus-framework/cluster.md)
 * [Messaging](cronus-framework/messaging.md)
 * [Configuration](cronus-framework/configuration.md)
-
-## Message Types
-
-* [Commands](message-types/commands.md)
-* [Events](message-types/events.md)
-* [Signals](message-types/signals.md)
 
 ## Message Handlers
 
