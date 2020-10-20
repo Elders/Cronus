@@ -1,6 +1,6 @@
 # Application Services
 
-This is a handler where commands are received and delivered to the addressed Aggregate. Such handler is called an _ApplicationService_. This is the _write side_ in CQRS.
+This is a handler where commands are received and delivered to the addressed Aggregate. Such handler is called an [_ApplicationService_](application-services.md). This is the _write side_ in CQRS.
 
 An application service is a command handler for a specific aggregate. One aggregate has one application service whose purpose is to handle commands and invoke the aggregate root's correct methods passing the command's payload. It mediates between Domain and infrastructure and it shields any domain model from the "outside". Only the Application Service interacts with the domain model.
 
