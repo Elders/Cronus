@@ -2,7 +2,7 @@
 
 This is a handler where commands are received and delivered to the addressed Aggregate. Such handler is called an [_ApplicationService_](application-services.md). This is the _write side_ in [CQRS](../../concepts/cqrs.md).
 
-An application service is a command handler for a specific aggregate. One aggregate has one application service whose purpose is to handle commands and invoke the aggregate root's correct methods passing the command's payload. It mediates between Domain and infrastructure and it shields any domain model from the "outside". Only the Application Service interacts with the domain model.
+An [_ApplicationService_](application-services.md) is a command handler for a specific [Aggregate](../aggregate.md). One aggregate has one [_ApplicationService_ ](application-services.md)whose purpose is to orchestrate how a command will be fulfilled. Its the ApplicationService responsibility to invoke the appropriate Aggregate methods and pass the command's payload. It mediates between Domain and infrastructure and it shields any domain model from the "outside". Only the Application Service interacts with the domain model.
 
 You can create an application service with Cronus by using the `AggregateRootApplicationService` base class. Specifying which commands the application service can handle is done using the `ICommandHandler<T>` interface.
 
