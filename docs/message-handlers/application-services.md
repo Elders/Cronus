@@ -1,6 +1,6 @@
 # Application Services
 
- This is a handler where commands are received and delivered to the addressed AggregateRoot. We call these handlers _ApplicationService_. This is the _write side_ in CQRS.
+This is a handler where commands are received and delivered to the addressed Aggregate. We call these handlers _ApplicationService_. This is the _write side_ in CQRS.
 
 ## Communication Guide Table
 
