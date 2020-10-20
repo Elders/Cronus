@@ -4,7 +4,7 @@ Aggregates represent the business models explicitly. They are designed to fully 
 
 ### Aggregate root
 
-Creating an aggregate root with Cronus is as simple as writing a class that inherits`AggregateRoot<TState>` and a class for the state of the aggregate root.
+Creating an aggregate root with Cronus is as simple as writing a class that inherits`AggregateRoot<TState>` and a class for the state of the aggregate root. To publish an event from an aggregate root use the `Apply(IEvent @event)` method provided by the base class.
 
 ```csharp
 public class Concert : AggregateRoot<ConcertState>
@@ -14,11 +14,13 @@ public class Concert : AggregateRoot<ConcertState>
     public Concert(string name, Venue venue, DateTimeOffset startTime, TimeSpan duration)
     {
         // business logic for creating a concert
+        Apply(new ConcertAnnounced(...));
     }
 
     public void RegisterPerformer(Performer performer)
     {
         // business logic for registering a performer
+        Apply(new PerformerRegistered(...));
     }
     
     // ...
@@ -57,6 +59,11 @@ public class ConcertState : AggregateRootState<Concert, ConcertId>
     {
         // change the state here ...
     }
+    
+    public void When(PerformerRegistered @event)
+    {
+        // change the state here ...
+    }
 }
 ```
 
@@ -69,6 +76,7 @@ You could read more about the state pattern [here](https://refactoring.guru/desi
 All aggregate root ids must implement the `IAggregateRootId` interface. Since Cronus uses [URNs](https://en.wikipedia.org/wiki/Uniform_Resource_Name) for ids that will require implementing the [URN specification](https://tools.ietf.org/html/rfc8141) as well. If you don't want to do that, you can use the provided helper base class `AggregateRootId`.
 
 ```csharp
+[DataContract(Name = "e96d90d0-4943-43f4-8a84-cd90b1217d06")]
 public class ConcertId : AggregateRootId
 {
     const string RootName = "concert";
@@ -82,6 +90,7 @@ public class ConcertId : AggregateRootId
 Another option is to use the `AggregateRootId<T>` class. This will give you more flexibility in constructing instances of the id. Also, parsing URNs will return the specified type `T` instead of `AggregateUrn`.
 
 ```csharp
+[DataContract(Name = "e96d90d0-4943-43f4-8a84-cd90b1217d06")]
 public class ConcertId : AggregateRootId<ConcertId>
 {
     const string RootName = "concert";
