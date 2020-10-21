@@ -14,7 +14,13 @@ By default all messages are handled in an isolated fashion via [`ScopedMessageWo
 
 #### ScopedMessageWorkflow
 
-TODO: Explain scope purpose, IServiceProviderScope, Tenant, Context
+The primary focus of the workflow is to prepare an isolated scope and context within which a message is being processed.
+
+The workflow creates an instance of [`IServiceScope`](https://docs.microsoft.com/en-us/dotnet/api/microsoft.extensions.dependencyinjection.iservicescope?view=dotnet-plat-ext-3.1) which allows to use Dependency Injection in a familiar to a dotnet developer way. In addition, the workflow initializes an instance of [`CronusContext`](https://github.com/Elders/Cronus/blob/master/src/Elders.Cronus/MessageProcessing/CronusContext.cs) which holds information about the current [tenant ](domain-modeling/multitenancy.md)handling the message.
+
+{% hint style="info" %}
+Read more about the [Dependency Injection](https://docs.microsoft.com/en-us/archive/msdn-magazine/2016/june/essential-net-dependency-injection-with-net-core) and [service lifetimes](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-3.1#service-lifetimes) if this is a new concept for you.
+{% endhint %}
 
 #### MessageHandleWorkflow
 
