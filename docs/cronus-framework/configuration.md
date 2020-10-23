@@ -148,9 +148,9 @@ Valid values:
 
 #### `Cronus:Projections:Cassandra:Datacenters` &gt;&gt; _string\[\] \| Required: No_
 
-### `Cronus:Projections:Cassandra:TableRetention:DeleteOldProjectionTables` &gt;&gt; _boolean \| Required: No \| Default: true_
+#### `Cronus:Projections:Cassandra:TableRetention:DeleteOldProjectionTables` &gt;&gt; _boolean \| Required: No \| Default: true_
 
-### `Cronus:Projections:Cassandra:TableRetention:NumberOfOldProjectionTablesToRetain` &gt;&gt; _unsigned integer \| Required: No \| Default: 2_
+#### `Cronus:Projections:Cassandra:TableRetention:NumberOfOldProjectionTablesToRetain` &gt;&gt; _unsigned integer \| Required: No \| Default: 2_
 
 ## Cronus.Transport.RabbitMq
 
