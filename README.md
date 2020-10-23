@@ -6,7 +6,7 @@
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Elders/Cronus.svg)](https://github.com/Elders/Cronus/pulls)
 
 # Important
-We are in a process of opening the framework to a wider circle of developers. Untill now only internal developers were able to use it properly. We have several successfull production stories and we want to share this success. The main goal at the moment is to write a good documentation and samples. This process is in progress which you could follow on our [project board](https://github.com/orgs/Elders/projects/1) or the [milestone](https://github.com/Elders/Cronus/issues?q=is%3Aissue+milestone%3A%22Docs+and+Samples%22) where we track the tasks.
+We are in a process of opening the framework to a wider circle of developers. We have several successfull production stories and we want to share this success. The main goal at the moment is to write a good documentation and samples. This process is in progress which you could follow on our [project board](https://github.com/orgs/Elders/projects/1) or the [milestone](https://github.com/Elders/Cronus/issues?q=is%3Aissue+milestone%3A%22Docs+and+Samples%22) where we track the tasks.
 
 Keep in mind that this process is in progress!
 
