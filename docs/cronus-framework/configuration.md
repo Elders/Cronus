@@ -6,87 +6,16 @@ By default, Cronus and its sub-components have good default settings. However, n
 
 ## Cronus
 
-<table>
-  <thead>
-    <tr>
-      <th style="text-align:center">Name</th>
-      <th style="text-align:left">Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td style="text-align:center">
-        <p><b>Cronus:BoundedContext</b>
-        </p>
-        <p></p>
-        <p><code>string</code>
-        </p>
-        <p>required</p>
-      </td>
-      <td style="text-align:left">
-        <p>Cronus uses this setting to personalize your application. This setting
-          is used for naming the following components:</p>
-        <ul>
-          <li>RabbiMQ exchange and queue names</li>
-          <li>Cassandra EventStore names</li>
-          <li>Cassandra Projection store names</li>
-        </ul>
-        <p>Allowed Characters: <code>Cronus:BoundedContext</code> must be an alphanumeric
-          character or underscore only: <code>^\b([\w\d_]+$)</code>
-        </p>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align:center">
-        <p><b>Cronus:Tenants</b>
-        </p>
-        <p></p>
-        <p><code>string[]</code>
-        </p>
-        <p>required</p>
-      </td>
-      <td style="text-align:left">
-        <p>List of tenants allowed to use the system. Cronus is designed with multitenancy
-          in mind from the beginning and requires at least one tenant to be configured
-          in order to work properly. The multitenancy aspects are applied to many
-          components and to give you a feel about this here is an incomplete list
-          of different parts of the system using this setting:</p>
-        <ul>
-          <li>Message - every message which is sent through Cronus is bound to a specific <em>tenant</em>
-          </li>
-          <li>RabbitMQ exchanges and queues are tenant aware</li>
-          <li>Event Store - every tenant has a separate storage</li>
-          <li>Projection Store - every tenant has a separate storage</li>
-        </ul>
-        <p>Each value you provide in the array is converted and used further to lower.</p>
-        <p>Allowed Characters: <code>Cronus:Tenants</code> must be alphanumeric character
-          or underscore only: <code>^\b([\w\d_]+$)</code>&apos;</p>
-        <p>Example value: <code>[&quot;tenant1&quot;,&quot;tenant2&quot;,&quot;tenant3&quot;]</code>
-        </p>
-        <p>Once set you could use <a href="https://github.com/Elders/Cronus/tree/f14b4918aa5862a73a0789cc868b5f08258410ea/src/Elders.Cronus/Multitenancy/TenantsOptions.cs"><code>TenantsOptions</code></a> object
-          via Dependency Injection for other purposes.</p>
-      </td>
-    </tr>
-    <tr>
-      <td style="text-align:center"></td>
-      <td style="text-align:left"></td>
-    </tr>
-    <tr>
-      <td style="text-align:center"></td>
-      <td style="text-align:left"></td>
-    </tr>
-    <tr>
-      <td style="text-align:center"></td>
-      <td style="text-align:left"></td>
-    </tr>
-    <tr>
-      <td style="text-align:center"></td>
-      <td style="text-align:left"></td>
-    </tr>
-  </tbody>
-</table>
+| Name | Type | Required |
+| :--- | :--- | :--- |
+| [Cronus:BoundedContext](configuration.md#cronus-boundedcontext) | string | yes |
+| [Cronus:Tenants](configuration.md#cronus-tenants-greater-than-greater-than-string-or-required-yes) | string\[\] | yes |
+|  |  |  |
+|  |  |  |
+|  |  |  |
+|  |  |  |
 
-#### `Cronus:BoundedContext` &gt;&gt; _string \| Required: Yes_
+#### Cronus:BoundedContext
 
 Cronus uses this setting to personalize your application. This setting is used for naming the following components:
 
@@ -96,7 +25,7 @@ Cronus uses this setting to personalize your application. This setting is used f
 
 Allowed Characters: `Cronus:BoundedContext` must be an alphanumeric character or underscore only: `^\b([\w\d_]+$)`'
 
-#### `Cronus:Tenants` &gt;&gt; _string\[\] \| Required: yes_
+#### Cronus:Tenants
 
 List of tenants allowed to use the system. Cronus is designed with multitenancy in mind from the beginning and requires at least one tenant to be configured in order to work properly. The multitenancy aspects are applied to many components and to give you a feel about this here is an incomplete list of different parts of the system using this setting:
 
