@@ -14,6 +14,7 @@ By default, Cronus and its sub-components have good default settings. However, n
 | [Cronus:ProjectionsEnabled](configuration.md#cronus-projectionsenabled) | bool | no | true |
 | [Cronus:PortsEnabled](configuration.md#cronus-portsenabled) | bool | no | true |
 | [Cronus:SagasEnabled](configuration.md#cronus-sagasenabled) | bool | no | true |
+| [Cronus:GatewaysEnabled](configuration.md#cronus-gatewaysenabled) | bool | no | true |
 
 #### Cronus:BoundedContext
 
@@ -58,11 +59,16 @@ Specifies whether to start a consumer for the Ports
 
 Specifies whether to start a consumer for the Sagas
 
-#### `Cronus:GatewaysEnabled` &gt;&gt; _boolean \| Required: No \| Default: True_
+#### Cronus:GatewaysEnabled
 
 Specifies whether to start a consumer for the Gateways
 
 ## Cronus.Api
+
+| Name | Type | Required | Default Value |
+| :--- | :--- | :--- | :--- |
+| [Cronus:Api:Kestrel](configuration.md#hosting) | configurationSection | no |  |
+| [Cronus:Api:JwtAuthentication](configuration.md#authentication) | configurationSection | no |  |
 
 ### Hosting
 
@@ -72,7 +78,7 @@ By default, the API is hosted on port `7477`.
 
 A configuration could be provided by [KestrelOptions](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel?view=aspnetcore-3.0#kestrel-options). You can supply them directly in the DI or through a configuration file.
 
-#### `Cronus:Api:Kestrel` &gt;&gt; _configurationSection \| Required: no_
+#### Cronus:Api:Kestrel
 
 ```text
 {
@@ -102,7 +108,7 @@ The API could be protected using a JWT bearer authentication.
 
 The configuration is provided by [JwtBearerOptions](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.builder.jwtbeareroptions?view=aspnetcore-1.1&viewFallbackFrom=aspnetcore-2.2). You can supply them directly in the DI or through a configuration file.
 
-#### `Cronus:Api:JwtAuthentication` &gt;&gt; _configurationSection \| Required: no_
+#### Cronus:Api:JwtAuthentication
 
 ```text
 {
@@ -121,11 +127,18 @@ Remarks: [https://stackoverflow.com/a/58736850/224667](https://stackoverflow.com
 
 ## Cronus.Persistence.Cassandra
 
-#### `Cronus:Persistence:Cassandra:ConnectionString` &gt;&gt; _string \| Required: Yes_
+| Name | Type | Required | Default Value |
+| :--- | :--- | :--- | :--- |
+| [Cronus:Persistence:Cassandra:ConnectionString](configuration.md#cronus-persistence-cassandra-connectionstring) | string | yes |  |
+| [Cronus:Persistence:Cassandra:ReplicationStrategy](configuration.md#cronus-persistence-cassandra-replicationstrategy) | string | no | simple |
+| [Cronus:Persistence:Cassandra:ReplicationFactor](configuration.md#cronus-persistence-cassandra-replicationstrategy) | int | no | 1 |
+| [Cronus:Persistence:Cassandra:Datacenters](configuration.md#cronus-persistence-cassandra-replicationstrategy) | string\[\] | no |  |
+
+#### Cronus:Persistence:Cassandra:ConnectionString
 
 The connection to the Cassandra database server
 
-#### `Cronus:Persistence:Cassandra:ReplicationStrategy` &gt;&gt; _string \| Required: No \| Default: simple_
+#### Cronus:Persistence:Cassandra:ReplicationStrategy
 
 Configures Cassandra replication strategy. This setting has effect only in the first run when creating the database.
 
@@ -133,10 +146,6 @@ Valid values:
 
 * simple
 * network\_topology - when using this setting you need to specify `Cronus:Persistence:Cassandra:ReplicationFactor` and  `Cronus:Persistence:Cassandra:Datacenters` as well
-
-#### `Cronus:Persistence:Cassandra:ReplicationFactor` &gt;&gt; _integer \| Required: No \| Default: 1_
-
-#### `Cronus:Persistence:Cassandra:Datacenters` &gt;&gt; _string\[\] \| Required: No_
 
 ## Cronus.Projections.Cassandra
 
