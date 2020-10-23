@@ -88,7 +88,7 @@ public class ExampleByIdProjection : ProjectionDefinition<ExampleByIdProjectionS
 
 ## Querying a projection
 
-To query a projection, you need to inject an instance of IProjectionReader to your code and invoke the Get\(\) or GetAsync\(\) method. The returned object will be of type ReadResult or Task&lt;ReadResult&gt; containing the projection and a few properties indicating if the loading was successful.
+To query a projection, you need to inject an instance of `IProjectionReader` in your code and invoke the `Get()` or `GetAsync()` method. The returned object will be of type `ReadResult` or `Task<ReadResult>` containing the projection and a few properties indicating if the loading was successful.
 
 ```csharp
 public class GetExampleController : ControllerBase
