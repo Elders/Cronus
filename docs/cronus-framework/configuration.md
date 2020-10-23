@@ -6,14 +6,14 @@ By default, Cronus and its sub-components have good default settings. However, n
 
 ## Cronus
 
-| Name | Type | Required |
-| :--- | :--- | :--- |
-| [Cronus:BoundedContext](configuration.md#cronus-boundedcontext) | string | yes |
-| [Cronus:Tenants](configuration.md#cronus-tenants-greater-than-greater-than-string-or-required-yes) | string\[\] | yes |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-|  |  |  |
+| Name | Type | Required | Default Value |
+| :--- | :--- | :--- | :--- |
+| [Cronus:BoundedContext](configuration.md#cronus-boundedcontext) | string | yes |  |
+| [Cronus:Tenants](configuration.md#cronus-tenants-greater-than-greater-than-string-or-required-yes) | string\[\] | yes |  |
+| [Cronus:ApplicationServicesEnabled](configuration.md#cronus-applicationservicesenabled) | bool | no | true |
+| [Cronus:ProjectionsEnabled](configuration.md#cronus-projectionsenabled) | bool | no | true |
+| [Cronus:PortsEnabled](configuration.md#cronus-portsenabled) | bool | no | true |
+| [Cronus:SagasEnabled](configuration.md#cronus-sagasenabled) | bool | no | true |
 
 #### Cronus:BoundedContext
 
@@ -42,19 +42,19 @@ Example value: `["tenant1","tenant2","tenant3"]`
 
 Once set you could use [`TenantsOptions`](https://github.com/Elders/Cronus/tree/f14b4918aa5862a73a0789cc868b5f08258410ea/src/Elders.Cronus/Multitenancy/TenantsOptions.cs) object via Dependency Injection for other purposes.
 
-#### `Cronus:ApplicationServicesEnabled` &gt;&gt; _boolean \| Required: No \| Default: True_
+#### Cronus:ApplicationServicesEnabled
 
 Specifies whether to start a consumer for the Application Services
 
-#### `Cronus:ProjectionsEnabled` &gt;&gt; _boolean \| Required: No \| Default: True_
+#### Cronus:ProjectionsEnabled
 
 Specifies whether to start a consumer for the Projections
 
-#### `Cronus:PortsEnabled` &gt;&gt; _boolean \| Required: No \| Default: True_
+#### Cronus:PortsEnabled
 
 Specifies whether to start a consumer for the Ports
 
-#### `Cronus:SagasEnabled` &gt;&gt; _boolean \| Required: No \| Default: True_
+#### Cronus:SagasEnabled
 
 Specifies whether to start a consumer for the Sagas
 
