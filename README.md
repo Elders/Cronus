@@ -9,7 +9,7 @@
 
 Building software is not an easy task. It involves specific domain knowledge and a lot of software infrastructure. The goal of Cronus is to keep software engineers focused on the domain problems because this is important at the end of the day. Cronus aims to keep you away from the software infrastructure.
 
-Usually you do not need a CQRS framework to develop great apps. However, we noticed a common infrastructure code written with every application. We started to abstract and move it to Github. The key aspect being that even with a framework you must still have full control and flexibility over the application code.
+Usually you do not need a CQRS framework to develop great apps. However, we noticed a common infrastructure code written with every application. We started to abstract and move it to GitHub. The key aspect being that even with a framework you must still have full control and flexibility over the application code.
 
 # Domain Modeling
 
@@ -19,7 +19,7 @@ To get out the maximum of Cronus you need to mark certain parts of your code to 
 
 [ISerializer](https://github.com/Elders/Cronus/blob/master/src/Elders.Cronus/Serializer/ISerializer.cs#L5-L9) interface is simple. You can plug your own implementation in but should not do this once you are in production.
 
-The samples on this page work with Json and Proteus-protobuf serializers. Every ICommand, IEvent, ValueObject or anything which is persisted is marked with a DataContractAttribute and the properties are marked with a DataMemberAttribute. [Here is a quick sample how this works (just ignore the WCF or replace it with Cronus while reading)](https://msdn.microsoft.com/en-us/library/bb943471%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396). We use `Guid` for the name of the DataContract because it is unique.
+The samples on this page work with JSON and Proteus-protobuf serializers. Every `ICommand`, `IEvent`, `ValueObject` or anything which is persisted is marked with a `DataContractAttribute` and the properties are marked with a `DataMemberAttribute`. [Here is a quick sample how this works (just ignore the WCF or replace it with Cronus while reading)](https://msdn.microsoft.com/en-us/library/bb943471%28v=vs.110%29.aspx?f=255&MSPPError=-2147217396). We use `Guid` for the name of the DataContract because it is unique.
 
 #### You can/should/must...
 
