@@ -5,12 +5,12 @@
 [![GitHub issues](https://img.shields.io/github/issues/Elders/Cronus/shields.svg)](https://github.com/Elders/Cronus/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Elders/Cronus.svg)](https://github.com/Elders/Cronus/pulls)
 
-# Important
-We are in a process of opening the framework to a wider circle of developers. We have several successfull production stories and we want to share this success. The main goal at the moment is to write a good documentation and samples. This process is in progress which you could follow on our [project board](https://github.com/orgs/Elders/projects/1) or the [milestone](https://github.com/Elders/Cronus/issues?q=is%3Aissue+milestone%3A%22Docs+and+Samples%22) where we track the tasks.
+## **Important**
 
-Keep in mind that this process is in progress!
+We have several success stories using the Cronus framework in production and we want to share this success with a wider audience. Hence, the main goal we are working on now is documenting the framework and providing samples. We hope this will attract contributors and allow more developers to build application with it. You can keep an eye on the process on our [project board](https://github.com/orgs/Elders/projects/1) or the [milestone](https://github.com/Elders/Cronus/issues?q=is%3Aissue+milestone%3A%22Docs+and+Samples%22) where we track the progress.
 
-# Resources
-[Documentation](https://elders-oss.gitbook.io/cronus/)
+## Resources
 
-You could join our [Discord](https://discord.gg/2wbN8kt) where you can ask any question.
+For project documentation, please visit [Cronus docs](https://elders-oss.gitbook.io/cronus/)
+
+Feel free to join our [Discord](https://discord.gg/2wbN8kt) if you have any question, ideas or suggestions.
