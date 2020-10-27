@@ -11,7 +11,7 @@ With Domain Driven Design the focus on the core complexity of the domain!
 {% endhint %}
 
 {% hint style="info" %}
-Write software that expresses those models explicitly!
+Write software that expresses models explicitly!
 {% endhint %}
 
 ## Why we need Domain Driven Design?
