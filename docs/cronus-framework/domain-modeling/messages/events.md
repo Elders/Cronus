@@ -1,6 +1,6 @@
 # Events
 
-An event is something that has happened in the past. A domain event indicates that something happened in the domain that you want other parts of the same domain to be aware of. The domain event encapsulates all relevant data with the action that happened. It is responsible for validating its own state.
+An event is something significant that has happened in the domain.  It encapsulates all relevant data of the action that happened.
 
 {% hint style="success" %}
 **You can/should/must...**
