@@ -2,49 +2,46 @@
 
 ## What is Domain Driven Design?
 
-It is our job, as software engineers, to effectively transfer real world business problems and solutions into the software world. It is not an easy task. You have to understand how the business operates and what are the key advantages over the competitors.  Exploring models in a collaboration of _domain experts_ and software experts is essential. To be successful you need to uncover how a specific business makes money and concentrate on that. Usually we call it _Core Domain_.
+It is our job, as software engineers, to effectively transfer real-world business problems and solutions into the digital world. This is not an easy task. You have to understand how the business operates and what are its key advantages over the competitors. Exploring models in collaboration with _domain experts_ and software experts is essential. To be successful you need to uncover and concentrate on how the business generates profit. We call that the _Core Domain_.
 
-However there are different supporting pieces to the overall puzzle which enable the _Core Domain_ to operate smoothly. That is what we call a Supporting Domain. You need to pay attention to the details because sometimes a so called _very important part of the business_ could be something generic which everybody uses a.k.a _Generic Domain_. In that situation it is easier to buy a ready to use solution from the shelf and concentrate on the Core and Supporting domains. Otherwise software engineers will build something which does not bring value and competitive advantage.
+There are different supporting pieces part of the overall puzzle which enhance the _Core Domain_. We call those _Supporting Domains_. You need to pay special attention to the details because sometimes a so-called "_very important part of the business"_ could be something generic and commonly used in other applications - a.k.a _Generic Domain_. For such cases, it is recommended to use an off-the-shelf product or leverage an open-source project and concentrate on the _Core_ and _Supporting domains_. Otherwise, the software engineers will build something which does not bring value nor a competitive advantage to the client.
 
 {% hint style="info" %}
-With Domain Driven Design the focus on the core complexity of the domain!
+With Domain Driven Design the focus is on the core complexity of the domain!
 {% endhint %}
 
 {% hint style="info" %}
-Write software that expresses models explicitly!
+Write software that models business processes explicitly!
 {% endhint %}
 
 ## Why we need Domain Driven Design?
 
-Domain Driven Design is a concept which helps reducing the overall complexity of business problem. Software solutions built with Domain Driven Design approach tend to reflect the reality closer and enables the business to grow and develop itself faster in a reliable and predictable way.
+Domain Driven Design is a concept which helps to reduce the overall complexity of a domain. Software solutions built using the Domain Driven Design approach, tend to reflect the reality closer and enable the business to grow and develop faster in a reliable and predictable way.
 
 {% hint style="success" %}
 With Domain Driven Design you are delivering business value, not just an ordinary software.
 {% endhint %}
 
-## Where to use Domain Driven Design?
+## When to use Domain Driven Design?
 
-There are different opinions about where a DDD is suitable and when you should use it.
+There are different opinions about the situations a DDD is appropriate and when you should use it.
 
-There are several factors which make Domain Driven Design to shine. If you have everything in place you should expect good, if not great, results:
+There are several factors which make Domain Driven Design shine. If you have everything in place you should expect good, if not great, results:
 
 {% hint style="success" %}
-* you are building an established and operating real world business
+* you are building software for an established and already operating business
 * you have access to _domain experts_ 
 * you are passionate about what you are doing
 {% endhint %}
 
 It is recommended to use other techniques, different from Domain Driven Design if:
 
-* you are building a software solution for a totally new business. The argument behind this is that Domain Driven Design relies on the experience and the know how of the domain experts. It is very likely that you will be investing a ton of time to design models which does not exist in reality which is a quick road to failure.
-* you are building a concept/MVP solution for a new business idea. Better do it very quickly and dirty so you could discover if it is first successful from business point of view and second it will give you deeper understanding of the problem you are trying to solve.
+* you are building a software solution for a totally new business. The argument behind this is that Domain Driven Design relies on the experience and the know-how of the _domain experts_. It is very likely that you will invest a ton of time designing models which are not useful. This is a sure road to failure.
+* you are building a concept/MVP solution for a new business. It is better to do it the "quick-and-dirty" way so you could discover if the business concept will be successful or not. This will give you a deeper understanding of the problems you are trying to solve.
 
 {% hint style="danger" %}
-you are building a software solution for a totally new business
-{% endhint %}
-
-{% hint style="danger" %}
-you are building a concept/MVP solution
+* you are building a software solution for a totally new business
+* you are building a concept/MVP solution
 {% endhint %}
 
 ## How to apply Domain Driven Design?
@@ -57,5 +54,5 @@ Tactical design
 
 Fail fast
 
-steep learning curve 
+Anticipate the steep learning curve
 
