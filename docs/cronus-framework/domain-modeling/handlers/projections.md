@@ -31,7 +31,7 @@ public class ExampleByIdProjection : ProjectionDefinition<ExampleByIdProjectionS
 
 Create a class for the projection state. The state of the projection gets serialized and deserialized when persisting or restoring a snapshot. That's why it must have a parameterless constructor, a data contract and data members.
 
-{% page-ref page="../../serialization.md" %}
+{% page-ref page="../../messaging/serialization.md" %}
 
 ```csharp
 // TODO: give a relevant example

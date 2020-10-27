@@ -33,8 +33,8 @@
 * [Workflows](cronus-framework/workflows.md)
 * [Indices](cronus-framework/indices.md)
 * [Jobs](cronus-framework/jobs.md)
-* [Serialization](cronus-framework/serialization.md)
 * [Cluster](cronus-framework/cluster.md)
-* [Messaging](cronus-framework/messaging.md)
+* [Messaging](cronus-framework/messaging/README.md)
+  * [Serialization](cronus-framework/messaging/serialization.md)
 * [Configuration](cronus-framework/configuration.md)
 
