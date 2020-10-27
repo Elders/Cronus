@@ -1,6 +1,6 @@
 # Projections
 
-A projection is a representation of an object using a different perspective. In the context of CQRS, projections are queriable models on the "_read_" side that never manipulate the original data \(events in event-sourced systems\) in any way. Projections should be designed in a way that is useful and convenient for the reader \(API, UI, etc.\).
+A projection is a representation of an object using a different perspective. In the context of CQRS, projections are queryable models on the "_read_" side that never manipulate the original data \(events in event-sourced systems\) in any way. Projections should be designed in a way that is useful and convenient for the reader \(API, UI, etc.\).
 
 Cronus supports non-event-sourced and event-sourced projections with snapshots.
 
