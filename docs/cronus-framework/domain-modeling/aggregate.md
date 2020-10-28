@@ -2,7 +2,7 @@
 
 Aggregates represent the business models explicitly. They are designed to fully match any needed requirements. Any change done to an instance of an aggregate goes through the aggregate root.
 
-### Aggregate root
+## Aggregate root
 
 Creating an aggregate root with Cronus is as simple as writing a class that inherits`AggregateRoot<TState>` and a class for the state of the aggregate root. To publish an event from an aggregate root use the `Apply(IEvent @event)` method provided by the base class.
 
@@ -27,7 +27,7 @@ public class Concert : AggregateRoot<ConcertState>
 }
 ```
 
-### Aggregate root state
+## Aggregate root state
 
 The aggregate root state keeps current data of the aggregate root and is responsible for changing it based on events raised only by the root.
 
@@ -71,7 +71,7 @@ public class ConcertState : AggregateRootState<Concert, ConcertId>
 You could read more about the state pattern [here](https://refactoring.guru/design-patterns/state/csharp/example) and [here](https://www.dofactory.com/net/state-design-pattern).
 {% endhint %}
 
-### Aggregate root id
+## Aggregate root id
 
 All aggregate root ids must implement the `IAggregateRootId` interface. Since Cronus uses [URNs](https://en.wikipedia.org/wiki/Uniform_Resource_Name) for ids that will require implementing the [URN specification](https://tools.ietf.org/html/rfc8141) as well. If you don't want to do that, you can use the provided helper base class `AggregateRootId`.
 
