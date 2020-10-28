@@ -31,13 +31,13 @@ Allowed Characters: `Cronus:BoundedContext` must be an alphanumeric character or
 List of tenants allowed to use the system. Cronus is designed with multitenancy in mind from the beginning and requires at least one tenant to be configured in order to work properly. The multitenancy aspects are applied to many components and to give you a feel about this here is an incomplete list of different parts of the system using this setting:
 
 * Message - every message which is sent through Cronus is bound to a specific _tenant_
-* RabbitMQ exchanges and queues are tenant aware
+* RabbitMQ exchanges and queues are tenant-aware
 * Event Store - every tenant has a separate storage
 * Projection Store - every tenant has a separate storage
 
 Each value you provide in the array is converted and used further to lower.
 
-Allowed Characters: `Cronus:Tenants` must be alphanumeric character or underscore only: `^\b([\w\d_]+$)`'
+Allowed Characters: `Cronus:Tenants` must be an alphanumeric character or underscore only: `^\b([\w\d_]+$)`'
 
 Example value: `["tenant1","tenant2","tenant3"]`
 
