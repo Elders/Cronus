@@ -13,7 +13,7 @@
   * [Aggregate](cronus-framework/domain-modeling/aggregate.md)
   * [Entity](cronus-framework/domain-modeling/entity.md)
   * [Value Object](cronus-framework/domain-modeling/value-object.md)
-  * [Ids](cronus-framework/domain-modeling/ids.md)
+  * [IDs](cronus-framework/domain-modeling/ids.md)
   * [Published Language](cronus-framework/domain-modeling/published-language.md)
   * [Messages](cronus-framework/domain-modeling/messages/README.md)
     * [Commands](cronus-framework/domain-modeling/messages/commands.md)
