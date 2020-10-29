@@ -7,6 +7,8 @@ A command is a simple immutable object that is sent to the domain to trigger a s
 It is possible for a command to get rejected if the data it holds is incorrect or inconsistent with the current state of the aggregate.
 
 {% hint style="success" %}
+**You can/should/must...**
+
 * a command **must** be immutable
 * a command **should** clearly state a business intent with a name in the imperative form
 * a command **can** be rejected due to domain validation, error or other reason
