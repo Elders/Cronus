@@ -2,7 +2,7 @@
 
 ## What is Domain Driven Design?
 
-It is our job, as software engineers, to effectively transfer real-world business problems and solutions into the digital world. This is not an easy task. You have to understand how the business operates and what are its key advantages over the competitors. Exploring models in collaboration with _domain experts_ and software experts is essential. To be successful you need to uncover and concentrate on how the business generates profit. We call that the _Core Domain_.
+It is our job, as software engineers, to effectively transfer real-world business problems and solutions into the digital world. This is not an easy task. You have to understand how the business operates and what are its key advantages over the competitors. Exploring models in collaboration with _domain experts_ and software experts is essential. To be successful you need to uncover and concentrate on how the business generates profit. We call this area the _Core Domain_.
 
 There are different supporting pieces part of the overall puzzle which enhance the _Core Domain_. We call those _Supporting Domains_. You need to pay special attention to the details because sometimes a so-called "_very important part of the business"_ could be something generic and commonly used in other applications - a.k.a _Generic Domain_. For such cases, it is recommended to use an off-the-shelf product or leverage an open-source project and concentrate on the _Core_ and _Supporting domains_. Otherwise, the software engineers will build something which does not bring value nor a competitive advantage to the client.
 
@@ -37,7 +37,7 @@ There are several factors which make Domain Driven Design shine. If you have eve
 It is recommended to use other techniques, different from Domain Driven Design if:
 
 * you are building a software solution for a totally new business. The argument behind this is that Domain Driven Design relies on the experience and the know-how of the _domain experts_. It is very likely that you will invest a ton of time designing models which are not useful. This is a sure road to failure.
-* you are building a concept/MVP solution for a new business. It is better to do it the "quick-and-dirty" way so you could discover if the business concept will be successful or not. This will give you a deeper understanding of the problems you are trying to solve.
+* you are building a concept/MVP solution for a new feature. It is better to do it the "quick-and-dirty" way so you could discover if the business concept will be successful or not. This will give you a deeper understanding of the problems you are trying to solve.
 
 {% hint style="danger" %}
 * you are building a software solution for a totally new business
