@@ -14,6 +14,8 @@ With a workflow you can:
 
 By default all messages are handled in an isolated fashion via [`ScopedMessageWorkflow`](https://github.com/Elders/Cronus/blob/master/src/Elders.Cronus/MessageProcessing/ScopedMessageWorkflow.cs) using scopes. Once the scope is created then the next workflow \([`MessageHandleWorkflow`](https://github.com/Elders/Cronus/blob/master/src/Elders.Cronus/MessageProcessing/MessageHandleWorkflow.cs)\) is invoked with the current message and scope. In addition, [`DiagnosticsWorkflow`](https://github.com/Elders/Cronus/blob/master/src/Elders.Cronus/Workflow/DiagnosticsWorkflow.cs) wraps the entire pipeline bringing insights about the performance of the message handling pipeline.
 
+![](../.gitbook/assets/cronus-workflows.png)
+
 #### ScopedMessageWorkflow
 
 The primary focus of the workflow is to prepare an isolated scope and context within which a message is being processed. Usually you should not interact with this workflow directly.
