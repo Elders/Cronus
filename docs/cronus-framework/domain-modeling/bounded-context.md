@@ -1,6 +1,6 @@
 # Bounded Context
 
-### 
+[https://github.com/Elders/Cronus/issues/275](https://github.com/Elders/Cronus/issues/275)
 
 Imaginary example:
 
