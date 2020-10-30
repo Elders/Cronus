@@ -4,6 +4,8 @@ description: Sometimes called a Process Manager
 
 # Sagas
 
+[https://github.com/Elders/Cronus/issues/259](https://github.com/Elders/Cronus/issues/259)
+
 When we have a workflow, which involves several aggregates it is recommended to have the whole process described in a single place such as а Saga/ProcessManager.
 
 ## Communication Guide Table
