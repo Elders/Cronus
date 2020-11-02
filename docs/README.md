@@ -1,8 +1,10 @@
 # Introduction
 
-[https://github.com/Elders/Cronus/issues/281](https://github.com/Elders/Cronus/issues/281)
+{% embed url="https://github.com/Elders/Cronus/issues/281" %}
 
 Welcome to the Cronus Manual!
+
+{% embed url="https://docs.google.com/presentation/d/1illYm0Mok2ADVb8KRMPwiB-rh2n5ZPu2r5pOLkyFpTc/edit?usp=sharing" %}
 
 Cronus provides the Cronus Framework to help build applications centred on three core concepts - CQRS \(Command Query Responsibility Segregation\) / Event Sourcing and DDD \(Domain Driven Design\).
 
