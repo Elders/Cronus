@@ -1,3 +1,6 @@
+#### 6.2.7 - 05.11.2020
+* Fixes projection rebuild rules
+
 #### 6.2.6 - 05.10.2020
 * RebuildIndex_EventToAggregateRootId_Job now respectes the cancellation token
 
