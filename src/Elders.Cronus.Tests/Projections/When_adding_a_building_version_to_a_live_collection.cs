@@ -15,7 +15,7 @@ namespace Elders.Cronus.Projections
 
         Because of = () => versions.Add(version);
 
-        It should_have_next_version = () => versions.GetNext(new MarkupInterfaceProjectionVersioningPolicy()).ShouldNotEqual(version);
+        It should_have_next_version = () => versions.GetNext(new MarkupInterfaceProjectionVersioningPolicy(), "hash").ShouldNotEqual(version);
         It should_have_live_version = () => versions.GetLive().ShouldNotBeNull();
         It should_have_correct_live_version = () => versions.GetLive().ShouldEqual(initialLiveVersion);
 

@@ -30,9 +30,9 @@ namespace Elders.Cronus.Projections.Versioning
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
-            if (CanReplayHash(hash))
+            if (CanRebuild())
             {
-                var projectionVersion = state.Versions.GetNext(policy);
+                var projectionVersion = state.Versions.GetNext(policy, hash);
                 var timebox = GetVersionRequestTimebox(hash);
                 RequestVersion(state.Id, projectionVersion, timebox);
             }
@@ -58,7 +58,7 @@ namespace Elders.Cronus.Projections.Versioning
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
-            if (state.Versions.HasLiveVersion == false || state.Versions.IsHashTheLiveOne(hash) == false)
+            if (ShouldRebuild(hash))
             {
                 Rebuild(hash, policy);
             }
@@ -76,11 +76,17 @@ namespace Elders.Cronus.Projections.Versioning
             EnsureThereIsNoOutdatedBuildingVersions();
         }
 
-        private bool CanReplayHash(string hash)
+        private bool ShouldRebuild(string hash)
         {
-            bool isHashTheLiveOne = state.Versions.IsHashTheLiveOne(hash);
+            bool isNewHashTheLiveOne = state.Versions.IsHashTheLiveOne(hash);
 
-            return state.Versions.HasBuildingVersion() == false && (state.Versions.HasLiveVersion == false || isHashTheLiveOne);
+            return state.Versions.HasLiveVersion == false || isNewHashTheLiveOne == false;
+        }
+
+        private bool CanRebuild()
+        {
+            bool doesntHaveBuildingVersion = state.Versions.HasBuildingVersion() == false;
+            return doesntHaveBuildingVersion;
         }
 
         private void EnsureThereIsNoOutdatedBuildingVersions()

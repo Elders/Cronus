@@ -14,7 +14,7 @@ namespace Elders.Cronus.Projections
             version = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Live, 1, "hash");
             versions = new ProjectionVersions(version);
 
-            var rebuildVersion = versions.GetNext(new MarkupInterfaceProjectionVersioningPolicy());
+            var rebuildVersion = versions.GetNext(new MarkupInterfaceProjectionVersioningPolicy(), "hash");
             versions.Add(rebuildVersion);
 
             nextVersion = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Live, 1, "hash");

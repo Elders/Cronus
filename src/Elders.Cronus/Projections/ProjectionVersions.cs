@@ -114,13 +114,13 @@ namespace Elders.Cronus.Projections
             return versions.Remove(item);
         }
 
-        public ProjectionVersion GetNext(IProjectionVersioningPolicy policy)
+        public ProjectionVersion GetNext(IProjectionVersioningPolicy policy, string hash)
         {
             if (IsVersionable(policy))
             {
                 var maxRevision = versions.Max(ver => ver.Revision);
                 var candidate = versions.Where(x => x.Revision == maxRevision).FirstOrDefault(); // TODO: This will crash with null ref
-                return candidate.NextRevision();
+                return candidate.NextRevision(hash);
             }
             else
             {

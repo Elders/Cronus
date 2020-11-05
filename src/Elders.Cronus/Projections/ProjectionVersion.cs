@@ -37,9 +37,9 @@ namespace Elders.Cronus.Projections
         /// Gets the next <see cref="ProjectionVersion"/> which is always with <see cref="ProjectionStatus"/> <see cref="ProjectionStatus.Building"/> and increased Revision.
         /// </summary>
         /// <returns>Returns a <see cref="ProjectionVersion"/></returns>
-        public ProjectionVersion NextRevision()
+        public ProjectionVersion NextRevision(string hash)
         {
-            return new ProjectionVersion(ProjectionName, ProjectionStatus.Building, Revision + 1, Hash);
+            return new ProjectionVersion(ProjectionName, ProjectionStatus.Building, Revision + 1, hash);
         }
 
         public ProjectionVersion NonVersionableRevision()
