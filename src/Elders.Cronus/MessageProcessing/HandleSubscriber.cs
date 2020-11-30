@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.MessageProcessing
@@ -18,7 +19,8 @@ namespace Elders.Cronus.MessageProcessing
 
             this.handlerType = handlerType;
             this.handlerWorkflow = handlerWorkflow;
-            Id = subscriberId ?? handlerType.FullName;
+            bool hasDataContract = handlerType.HasAttribute<DataContractAttribute>();
+            Id = subscriberId ?? (hasDataContract ? handlerType.GetContractId() : handlerType.FullName);
         }
 
         public string Id { get; private set; }

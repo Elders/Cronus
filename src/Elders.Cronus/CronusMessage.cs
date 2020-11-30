@@ -34,6 +34,18 @@ namespace Elders.Cronus
 
         public string CorelationId { get { return GetHeader(MessageHeader.CorelationId); } }
 
+        public string[] RecipientHandlers
+        {
+            get
+            {
+                if (HasHeader(MessageHeader.RecipientHandlers))
+                {
+                    return GetHeader(MessageHeader.RecipientHandlers).Split(',');
+                }
+                return Array.Empty<string>();
+            }
+        }
+
         string GetHeader(string key)
         {
             string value;
@@ -41,6 +53,11 @@ namespace Elders.Cronus
                 value = $"Missing {key} for {GetHeader(MessageHeader.MessageId)}";
 
             return value;
+        }
+
+        bool HasHeader(string key)
+        {
+            return Headers.ContainsKey(key);
         }
 
         public override bool Equals(System.Object obj)

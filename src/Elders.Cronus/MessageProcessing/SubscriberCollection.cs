@@ -40,8 +40,18 @@ namespace Elders.Cronus.MessageProcessing
 
         public IEnumerable<ISubscriber> GetInterestedSubscribers(CronusMessage message)
         {
+            IEnumerable<ISubscriber> result = Subscribers;
+
             Type payloadType = message.Payload.GetType();
-            return Subscribers.Where(subscriber => subscriber.GetInvolvedMessageTypes().Contains(payloadType));
+
+            if (message.RecipientHandlers.Length > 0)
+            {
+                result = result.Where(subscriber => message.RecipientHandlers.Contains(subscriber.Id));
+            }
+
+            result = result.Where(subscriber => subscriber.GetInvolvedMessageTypes().Contains(payloadType));
+
+            return result;
         }
 
         /// <summary>

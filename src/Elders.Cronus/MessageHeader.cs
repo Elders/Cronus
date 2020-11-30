@@ -19,5 +19,7 @@
         public const string BoundedContext = "bounded_context";
 
         public const string PublishTimestamp = "publish_timestamp";
+
+        public const string RecipientHandlers = "recipient_handlers";
     }
 }
