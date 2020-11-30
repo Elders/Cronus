@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.EventStore.Index.Handlers
 {
+    [DataContract(Name = "055f2407-6b5a-4f77-92b0-fcae4c8d86a7")]
     public class EventStoreIndexBuilder : Saga,
         IEventHandler<EventStoreIndexRequested>,
         ISagaTimeoutHandler<RebuildIndexInternal>,
