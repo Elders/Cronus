@@ -1,3 +1,6 @@
+#### 6.2.8 - 30.11.2020
+* Allows publishers to target specific handlers via the recipient_handlers message header
+
 #### 6.2.7 - 05.11.2020
 * Fixes projection rebuild rules
 
