@@ -1,3 +1,6 @@
+#### 6.2.9 - 10.12.2020
+* Properly handles Event Sourced projections
+
 #### 6.2.8 - 30.11.2020
 * Allows publishers to target specific handlers via the recipient_handlers message header
 
