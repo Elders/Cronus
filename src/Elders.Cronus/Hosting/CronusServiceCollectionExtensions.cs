@@ -146,6 +146,7 @@ namespace Elders.Cronus
             services.AddSubscribers<ISaga>();
             services.AddSubscribers<ITrigger>();
             services.AddEventStoreIndexSubscribers();
+            services.AddProjections();
 
             return services;
         }
@@ -176,6 +177,14 @@ namespace Elders.Cronus
             services.AddSingleton(typeof(ISubscriberFinder<IEventStoreIndex>), typeof(SubscriberFinder<IEventStoreIndex>));
             services.AddSingleton(typeof(ISubscriberWorkflowFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberWorkflow));
             services.AddSingleton(typeof(ISubscriberFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberFactory));
+
+            return services;
+        }
+
+        public static IServiceCollection AddProjections(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(ProjectionSubscriberFinder));
+            services.AddSingleton(typeof(ISubscriberFinder<IProjection>), typeof(ProjectionSubscriberFinder));
 
             return services;
         }
