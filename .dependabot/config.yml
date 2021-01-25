@@ -7,7 +7,7 @@ update_configs:
   - Elders/cronus-team
   default_assignees:
   - mynkow
-  target_branch: release-6.0.0
+  target_branch: next
   default_labels:
   - dependencies
   allowed_updates:
