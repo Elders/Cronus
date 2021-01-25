@@ -1,0 +1,18 @@
+version: 2
+updates:
+- package-ecosystem: nuget
+  directory: "/"
+  schedule:
+    interval: daily
+  pull-request-branch-name:
+    separator: "-"
+  open-pull-requests-limit: 10
+  target-branch: release-6.0.0
+  reviewers:
+  - Elders/cronus-team
+  assignees:
+  - mynkow
+  labels:
+  - dependencies
+  allow:
+  - dependency-type: direct
