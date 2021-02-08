@@ -16,7 +16,7 @@ namespace Elders.Cronus.MessageProcessing
 
         public IEnumerable<Type> Find()
         {
-            return typeContainer.Items.Where(x => typeof(IAmEventSourcedProjection).IsAssignableFrom(x) == false);
+            return typeContainer.Items.Where(x => typeof(IProjectionDefinition).IsAssignableFrom(x) == false);
         }
     }
 }
