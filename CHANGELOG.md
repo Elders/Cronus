@@ -1,4 +1,4 @@
-# [6.3.0](https://github.com/Elders/Cronus/compare/v6.2.9...v6.3.0) (2021-02-08)
+# [6.3.0-next.1](https://github.com/Elders/Cronus/compare/v6.2.10-next.1...v6.3.0-next.1) (2021-02-08)
 
 
 ### Bug Fixes
