@@ -81,17 +81,11 @@ namespace Elders.Cronus.Projections
             var groupedBySnapshotMarker = Commits.GroupBy(x => x.SnapshotMarker).OrderBy(x => x.Key);
             foreach (var snapshotGroup in groupedBySnapshotMarker)
             {
-                var eventsByAggregate = snapshotGroup.GroupBy(x => x.EventOrigin.AggregateRootId);
+                var events = snapshotGroup
+                    .OrderBy(x => x.EventOrigin.Timestamp)
+                    .Select(x => x.Event);
 
-                foreach (var aggregateGroup in eventsByAggregate)
-                {
-                    var events = aggregateGroup
-                        .OrderBy(x => x.EventOrigin.AggregateRevision)
-                        .ThenBy(x => x.EventOrigin.AggregateEventPosition)
-                        .Select(x => x.Event);
-
-                    projection.ReplayEvents(events);
-                }
+                projection.ReplayEvents(events);
             }
 
             return projection;

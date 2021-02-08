@@ -143,6 +143,20 @@ namespace Elders.Cronus.Projections
                     }
                 }
             }
+            else if (handlerInstance.Current is IAmEventSourcedProjection eventSourcedProjection)
+            {
+                try
+                {
+                    var projectionId = Urn.Parse($"urn:cronus:{projectionName}");
+
+                    var commit = new ProjectionCommit(projectionId, version, @event, 1, eventOrigin, DateTime.UtcNow);
+                    projectionStore.Save(commit);
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorException(ex, () => "Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}");
+                }
+            }
         }
 
         public ReadResult<T> Get<T>(IBlobId projectionId) where T : IProjectionDefinition
