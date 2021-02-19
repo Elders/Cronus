@@ -16,7 +16,7 @@ namespace Elders.Cronus.MessageProcessing
         {
             get
             {
-                if (string.IsNullOrEmpty(tenant)) throw new ArgumentException($"Unknown tenant. CronusContext is not properly built. Please call `Initialize(...)` and make sure that you properly configured `cronus:tenants`. More info at https://github.com/Elders/Cronus/blob/master/doc/Configuration.md");
+                if (string.IsNullOrEmpty(tenant)) throw new ArgumentException($"Unknown tenant. CronusContext is not properly built. Please call `Initialize(...)` and make sure that you have properly configured `cronus:tenants`. More info at https://github.com/Elders/Cronus/blob/master/doc/Configuration.md. Also, CronustContext does not like singletons due to multitenancy support.");
                 return tenant;
             }
             set
