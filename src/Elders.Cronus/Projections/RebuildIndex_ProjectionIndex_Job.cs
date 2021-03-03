@@ -20,21 +20,17 @@ namespace Elders.Cronus.Projections
     {
         private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly IEventStore eventStore;
-        private readonly IEventStorePlayer eventStorePlayer;
         private readonly ProjectionIndex index;
-        private readonly IProjectionWriter projectionWriter;
         private readonly EventToAggregateRootId eventToAggregateIndex;
         private readonly IProjectionReader projectionReader;
         private readonly CronusContext context;
         private readonly ILogger<RebuildIndex_ProjectionIndex_Job> logger;
 
-        public RebuildIndex_ProjectionIndex_Job(IInitializableProjectionStore projectionStoreInitializer, IEventStore eventStore, IEventStorePlayer eventStorePlayer, ProjectionIndex index, IProjectionWriter projectionWriter, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, ILogger<RebuildIndex_ProjectionIndex_Job> logger)
+        public RebuildIndex_ProjectionIndex_Job(IInitializableProjectionStore projectionStoreInitializer, IEventStore eventStore, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, ILogger<RebuildIndex_ProjectionIndex_Job> logger)
         {
             this.projectionStoreInitializer = projectionStoreInitializer;
             this.eventStore = eventStore;
-            this.eventStorePlayer = eventStorePlayer;
             this.index = index;
-            this.projectionWriter = projectionWriter;
             this.eventToAggregateIndex = eventToAggregateIndex;
             this.projectionReader = projectionReader;
             this.context = context;
