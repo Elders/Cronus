@@ -44,13 +44,16 @@ namespace Elders.Cronus.EventStore.Index
         {
             Type baseMessageType = typeof(IMessage);
 
-            var asd = GetEventData(aggregateCommit);
+            IEnumerable<(IEvent, EventOrigin)> eventDataList = GetEventData(aggregateCommit);
 
-            foreach (var eventData in asd)
+            foreach (var eventData in eventDataList)
             {
                 Type messagePayloadType = eventData.Item1.GetType();
                 foreach (var projectionType in projectionsContainer.Items)
                 {
+                    if (projectionType.GetContractId().Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
+                        continue;
+
                     bool isInterested = projectionType.GetInterfaces()
                         .Where(x => x.IsGenericType && x.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(x.GetGenericArguments()[0])))
                         .Where(@interface => @interface.GetGenericArguments()[0].IsAssignableFrom(messagePayloadType))

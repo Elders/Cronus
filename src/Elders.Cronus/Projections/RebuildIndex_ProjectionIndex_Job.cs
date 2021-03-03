@@ -104,16 +104,7 @@ namespace Elders.Cronus.Projections
 
                         foreach (AggregateCommit arCommit in stream.Commits)
                         {
-                            for (int i = 0; i < arCommit.Events.Count; i++)
-                            {
-                                IEvent theEvent = arCommit.Events[i].Unwrap();
-
-                                if (projectionHandledEventTypes.Contains(theEvent.GetType().GetContractId())) // filters out the events which are not part of the projection
-                                {
-                                    var origin = new EventOrigin(mess, arCommit.Revision, i, arCommit.Timestamp);
-                                    projectionWriter.Save(projectionType, theEvent, origin, version);
-                                }
-                            }
+                            index.Index(arCommit, version);
                         }
                     }
 
