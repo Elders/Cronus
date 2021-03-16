@@ -1,3 +1,15 @@
+# [6.4.0-next.1](https://github.com/Elders/Cronus/compare/v6.3.0...v6.4.0-next.1) (2021-03-16)
+
+
+### Bug Fixes
+
+* Reuses the projection index code ([65175da](https://github.com/Elders/Cronus/commit/65175da0daead61160ff3cc392e796a7d370b7da))
+
+
+### Features
+
+* removes snapshots ([5648518](https://github.com/Elders/Cronus/commit/564851800d2959ac71beb225946b75b6ad240059))
+
 # [6.3.0-next.1](https://github.com/Elders/Cronus/compare/v6.2.10-next.1...v6.3.0-next.1) (2021-02-08)
 
 
