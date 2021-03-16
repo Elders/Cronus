@@ -3,7 +3,19 @@ using System.Threading.Tasks;
 
 namespace Elders.Cronus.Cluster.Job
 {
-    public interface ICronusJob<out TData> where TData : class
+    public interface ICronusJobb
+    {
+        /// <summary>
+        /// The name of the job
+        /// </summary>
+        string Name { get; }
+
+        //Task BeforeRunAsync();
+        //Task AfterRunAsync();
+    }
+
+    public interface ICronusJob<out TData> : ICronusJobb
+        where TData : class
     {
         /// <summary>
         /// The name of the job

@@ -2,6 +2,11 @@
 
 namespace Elders.Cronus.Projections.Snapshotting
 {
+    public class SnapshotMarkerPlaced : IEvent
+    {
+        public ProjectionVersion Version { get; set; }
+    }
+
     public interface ISnapshot
     {
         IBlobId Id { get; }
@@ -16,7 +21,7 @@ namespace Elders.Cronus.Projections.Snapshotting
 
         public SnapshotMeta(int revision, string projectionName)
         {
-            if (revision < 0) throw new ArgumentException($"{revision} must be >= 0", nameof(revision));
+            if (revision < -1) throw new ArgumentException($"{revision} must be >= -1", nameof(revision));
             if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
 
             Revision = revision;

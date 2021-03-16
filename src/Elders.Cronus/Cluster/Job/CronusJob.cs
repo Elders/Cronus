@@ -55,5 +55,9 @@ namespace Elders.Cronus.Cluster.Job
         {
             DataOverride = dataOverride;
         }
+
+        public virtual Task BeforeRunAsync() { return Task.CompletedTask; }
+
+        public virtual Task AfterRunAsync() { return Task.CompletedTask; }
     }
 }

@@ -83,24 +83,50 @@ namespace Elders.Cronus.EventStore.Index
     public class RebuildIndex_EventToAggregateRootId_JobFactory
     {
         private readonly RebuildIndex_EventToAggregateRootId_Job job;
-        private readonly CronusContext context;
-        private readonly BoundedContext boundedContext;
+        private readonly IJobNameBuilder jobNameBuilder;
 
-        public RebuildIndex_EventToAggregateRootId_JobFactory(RebuildIndex_EventToAggregateRootId_Job job, IOptions<BoundedContext> boundedContext, CronusContext context)
+        public RebuildIndex_EventToAggregateRootId_JobFactory(RebuildIndex_EventToAggregateRootId_Job job, IJobNameBuilder jobNameBuilder)
         {
             this.job = job;
-            this.context = context;
-            this.boundedContext = boundedContext.Value;
+            this.jobNameBuilder = jobNameBuilder;
         }
 
         public RebuildIndex_EventToAggregateRootId_Job CreateJob(VersionRequestTimebox timebox)
         {
-            job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}";
+            job.Name = jobNameBuilder.GetJobName(job.Name);
             job.SetTimeBox(timebox);
 
             return job;
         }
+
+        public string GetJobName()
+        {
+            return jobNameBuilder.GetJobName(job.Name);
+        }
     }
+
+    public interface IJobNameBuilder
+    {
+        string GetJobName(string defaultName);
+    }
+
+    public class DefaultJobNameBuilder : IJobNameBuilder
+    {
+        private readonly BoundedContext boundedContext;
+        private readonly CronusContext context;
+
+        public DefaultJobNameBuilder(IOptions<BoundedContext> boundedContext, CronusContext context)
+        {
+            this.boundedContext = boundedContext.Value;
+            this.context = context;
+        }
+
+        public string GetJobName(string defaultName)
+        {
+            return $"urn:{boundedContext.Name}:{context.Tenant}:{defaultName}";
+        }
+    }
+
 
     public class RebuildIndex_JobData
     {

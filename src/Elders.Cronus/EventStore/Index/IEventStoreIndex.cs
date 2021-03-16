@@ -2,5 +2,6 @@
 {
     public interface IEventStoreIndex : IMessageHandler
     {
+        void Index(CronusMessage message);
     }
 }

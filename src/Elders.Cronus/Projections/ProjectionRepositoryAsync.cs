@@ -80,18 +80,18 @@ namespace Elders.Cronus.Projections
                 List<ProjectionCommit> loadedCommits = loadedProjectionCommits.ToList();
                 projectionCommits.AddRange(loadedCommits);
 
-                if (projectionType.IsSnapshotable() && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshot.Revision))
-                {
-                    ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
-                    var projectionState = checkpointStream.RestoreFromHistory(projectionType).State;
-                    ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshot.Revision + 1);
-                    snapshotStore.Save(newSnapshot, version);
-                    loadSnapshot = () => newSnapshot;
+                //if (projectionType.IsSnapshotable() && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshot.Revision))
+                //{
+                //    ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
+                //    var projectionState = checkpointStream.RestoreFromHistory(projectionType).State;
+                //    ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshot.Revision + 1);
+                //    snapshotStore.Save(newSnapshot, version);
+                //    loadSnapshot = () => newSnapshot;
 
-                    projectionCommits.Clear();
+                //    projectionCommits.Clear();
 
-                    log.Debug(() => $"Snapshot created for projection `{version.ProjectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{snapshot.GetType().Name}`");
-                }
+                //    log.Debug(() => $"Snapshot created for projection `{version.ProjectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{snapshot.GetType().Name}`");
+                //}
 
                 if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
                     break;
