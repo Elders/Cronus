@@ -1,3 +1,10 @@
+# [6.4.0-next.2](https://github.com/Elders/Cronus/compare/v6.4.0-next.1...v6.4.0-next.2) (2021-03-16)
+
+
+### Bug Fixes
+
+* Fixes projection snapshot revisions ([5d5e74a](https://github.com/Elders/Cronus/commit/5d5e74a5a05cfdd289a97355046358fc39b85c82))
+
 # [6.4.0-next.1](https://github.com/Elders/Cronus/compare/v6.3.0...v6.4.0-next.1) (2021-03-16)
 
 
