@@ -20,6 +20,11 @@ namespace Elders.Cronus.Projections.InMemory
             return projectionCommits[version][projectionId];
         }
 
+        public bool HasSnapshotMarker(ProjectionVersion version, IBlobId projectionId, int snapshotMarker)
+        {
+            throw new System.NotImplementedException();
+        }
+
         public IEnumerable<ProjectionCommit> Load(ProjectionVersion version, IBlobId projectionId, int snapshotMarker)
         {
             if (projectionCommits.ContainsKey(version) == false)

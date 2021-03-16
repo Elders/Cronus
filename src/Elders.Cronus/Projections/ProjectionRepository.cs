@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Elders.Cronus.MessageProcessing;
+﻿using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Elders.Cronus.Projections
 {
@@ -80,8 +80,8 @@ namespace Elders.Cronus.Projections
                                         snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
                                     else
                                         snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
-                                    ProjectionStream projectionStream = LoadProjectionStream(projectionType, version, projectionId, snapshotMeta);
-                                    int snapshotMarker = snapshotStrategy.GetSnapshotMarker(projectionStream.Commits, snapshotMeta.Revision);
+
+                                    int snapshotMarker = snapshotMeta.Revision + 2;
 
                                     var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
                                     projectionStore.Save(commit);
@@ -126,13 +126,8 @@ namespace Elders.Cronus.Projections
                 {
                     try
                     {
-                        SnapshotMeta snapshotMeta = null;
-                        if (projectionType.IsSnapshotable())
-                            snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
-                        else
-                            snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
-                        ProjectionStream projectionStream = LoadProjectionStream(projectionType, version, projectionId, snapshotMeta);
-                        int snapshotMarker = snapshotStrategy.GetSnapshotMarker(projectionStream.Commits, snapshotMeta.Revision);
+                        SnapshotMeta snapshotMeta = GetSnapshotMeta(projectionType, projectionName, projectionId, version);
+                        int snapshotMarker = snapshotMeta.Revision == 0 ? 1 : snapshotMeta.Revision + 2;
 
                         var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
                         projectionStore.Save(commit);
@@ -157,6 +152,17 @@ namespace Elders.Cronus.Projections
                     log.ErrorException(ex, () => "Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}");
                 }
             }
+        }
+
+        private SnapshotMeta GetSnapshotMeta(Type projectionType, string projectionName, IBlobId projectionId, ProjectionVersion version)
+        {
+            SnapshotMeta snapshotMeta;
+            if (projectionType.IsSnapshotable())
+                snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
+            else
+                snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
+
+            return snapshotMeta;
         }
 
         public ReadResult<T> Get<T>(IBlobId projectionId) where T : IProjectionDefinition
@@ -288,18 +294,18 @@ namespace Elders.Cronus.Projections
                 var loadedCommits = projectionStore.Load(version, projectionId, snapshotMarker).ToList();
                 projectionCommits.AddRange(loadedCommits);
 
-                if (projectionType.IsSnapshotable() && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshotMeta.Revision))
-                {
-                    ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
-                    var projectionState = checkpointStream.RestoreFromHistory(projectionType).State;
-                    ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshotMeta.Revision + 1);
-                    snapshotStore.Save(newSnapshot, version);
-                    loadSnapshot = () => newSnapshot;
+                //if (projectionType.IsSnapshotable() && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshotMeta.Revision))
+                //{
+                //    ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
+                //    var projectionState = checkpointStream.RestoreFromHistory(projectionType).State;
+                //    ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshotMeta.Revision + 1);
+                //    snapshotStore.Save(newSnapshot, version);
+                //    loadSnapshot = () => newSnapshot;
 
-                    projectionCommits.Clear();
+                //    projectionCommits.Clear();
 
-                    log.Debug(() => $"Snapshot created for projection `{version.ProjectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{newSnapshot.GetType().Name}`");
-                }
+                //    log.Debug(() => $"Snapshot created for projection `{version.ProjectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{newSnapshot.GetType().Name}`");
+                //}
 
                 if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
                     break;

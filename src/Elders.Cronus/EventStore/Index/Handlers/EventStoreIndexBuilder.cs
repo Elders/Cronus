@@ -10,14 +10,18 @@ namespace Elders.Cronus.EventStore.Index.Handlers
         ISagaTimeoutHandler<RebuildIndexInternal>,
         ISagaTimeoutHandler<EventStoreIndexRebuildTimedout>
     {
+        private readonly TypeContainer<IEventStoreIndex> indicesTypes;
         private readonly ICronusJobRunner jobRunner;
         private readonly RebuildIndex_EventToAggregateRootId_JobFactory jobFactory;
+        private readonly RebuildIndex_MessageCounter_JobFactory messageCounterJobFactory;
 
-        public EventStoreIndexBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, RebuildIndex_EventToAggregateRootId_JobFactory jobFactory)
+        public EventStoreIndexBuilder(TypeContainer<IEventStoreIndex> indicesTypes, IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, RebuildIndex_EventToAggregateRootId_JobFactory jobFactory, RebuildIndex_MessageCounter_JobFactory messageCounterJobFactory)
             : base(commandPublisher, timeoutRequestPublisher)
         {
+            this.indicesTypes = indicesTypes;
             this.jobRunner = jobRunner;
             this.jobFactory = jobFactory;
+            this.messageCounterJobFactory = messageCounterJobFactory;
         }
 
         public void Handle(EventStoreIndexRequested @event)
@@ -32,7 +36,22 @@ namespace Elders.Cronus.EventStore.Index.Handlers
 
         public void Handle(RebuildIndexInternal sagaTimeout)
         {
-            var job = jobFactory.CreateJob(sagaTimeout.EventStoreIndexRequest.Timebox);
+            ICronusJob<object> job = null;
+            // we need to redesign the job factories
+            var theId = sagaTimeout.EventStoreIndexRequest.Id.Id;
+            if (theId.Equals(typeof(EventToAggregateRootId).GetContractId(), StringComparison.OrdinalIgnoreCase))
+            {
+                job = jobFactory.CreateJob(sagaTimeout.EventStoreIndexRequest.Timebox);
+            }
+            else if (theId.Equals(typeof(MessageCounterIndex).GetContractId(), StringComparison.OrdinalIgnoreCase))
+            {
+                job = messageCounterJobFactory.CreateJob(sagaTimeout.EventStoreIndexRequest.Timebox);
+            }
+            else
+            {
+                return;
+            }
+
             var result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
 
             if (result == JobExecutionStatus.Running)
