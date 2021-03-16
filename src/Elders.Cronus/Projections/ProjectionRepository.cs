@@ -288,6 +288,7 @@ namespace Elders.Cronus.Projections
         {
             List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
             int snapshotMarker = snapshotMeta.Revision;
+            bool almostDone = false;
             while (true)
             {
                 snapshotMarker++;
@@ -307,8 +308,10 @@ namespace Elders.Cronus.Projections
                 //    log.Debug(() => $"Snapshot created for projection `{version.ProjectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{newSnapshot.GetType().Name}`");
                 //}
 
-                if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
-                    break;
+                if (almostDone == false)
+                    almostDone = loadedCommits.Any() == false;
+                else
+                    if (loadedCommits.Any() == false) break;
 
                 if (loadedCommits.Count > snapshotStrategy.EventsInSnapshot * 1.5)
                     log.Warn(() => $"Potential memory leak. The system will be down fairly soon. The projection `{version.ProjectionName}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
