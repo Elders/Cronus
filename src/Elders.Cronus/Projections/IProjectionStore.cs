@@ -11,6 +11,8 @@ namespace Elders.Cronus.Projections
 
         bool HasSnapshotMarker(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
 
+        Task<bool> HasSnapshotMarkerAsync(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
+
         IEnumerable<ProjectionCommit> EnumerateProjection(ProjectionVersion version, IBlobId projectionId);
 
         void Save(ProjectionCommit commit);

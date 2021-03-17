@@ -68,39 +68,22 @@ namespace Elders.Cronus.Projections
 
         async Task<ProjectionStream> LoadProjectionStreamAsync(Type projectionType, ProjectionVersion version, IBlobId projectionId, ISnapshot snapshot)
         {
-            bool almostDone = false;
+            bool shouldLoadMore = true;
             Func<ISnapshot> loadSnapshot = () => snapshot;
 
             List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
             int snapshotMarker = snapshot.Revision;
-            while (true)
+            while (shouldLoadMore)
             {
                 snapshotMarker++;
 
-                IEnumerable<ProjectionCommit> loadedProjectionCommits = await projectionStore.LoadAsync(version, projectionId, snapshotMarker);
-                List<ProjectionCommit> loadedCommits = loadedProjectionCommits.ToList();
-                projectionCommits.AddRange(loadedCommits);
+                var loadProjectionCommitsTask = projectionStore.LoadAsync(version, projectionId, snapshotMarker).ConfigureAwait(false);
+                var checkNextSnapshotMarkerTask = projectionStore.HasSnapshotMarkerAsync(version, projectionId, snapshotMarker + 1).ConfigureAwait(false);
 
-                //if (projectionType.IsSnapshotable() && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshot.Revision))
-                //{
-                //    ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
-                //    var projectionState = checkpointStream.RestoreFromHistory(projectionType).State;
-                //    ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshot.Revision + 1);
-                //    snapshotStore.Save(newSnapshot, version);
-                //    loadSnapshot = () => newSnapshot;
+                IEnumerable<ProjectionCommit> loadedProjectionCommits = await loadProjectionCommitsTask;
+                shouldLoadMore = await checkNextSnapshotMarkerTask;
 
-                //    projectionCommits.Clear();
-
-                //    log.Debug(() => $"Snapshot created for projection `{version.ProjectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{snapshot.GetType().Name}`");
-                //}
-
-                if (almostDone == false)
-                    almostDone = loadedCommits.Any() == false;
-                else
-                    if (loadedCommits.Any() == false) break;
-
-                if (loadedCommits.Count > snapshotStrategy.EventsInSnapshot * 1.5)
-                    log.Warn(() => $"Potential memory leak. The system will be down fairly soon. The projection `{version.ProjectionName}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) and snapshot `{snapshot.GetType().Name}` which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
+                projectionCommits.AddRange(loadedProjectionCommits);
             }
 
             ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
