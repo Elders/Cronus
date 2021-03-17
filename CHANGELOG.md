@@ -1,3 +1,10 @@
+# [6.4.0-next.4](https://github.com/Elders/Cronus/compare/v6.4.0-next.3...v6.4.0-next.4) (2021-03-17)
+
+
+### Bug Fixes
+
+* Removes unused contract. sorry ([e1e9ba7](https://github.com/Elders/Cronus/commit/e1e9ba7def331912ed9c9b5937300ae961580186))
+
 # [6.4.0-next.3](https://github.com/Elders/Cronus/compare/v6.4.0-next.2...v6.4.0-next.3) (2021-03-17)
 
 
