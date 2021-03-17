@@ -22,7 +22,12 @@ namespace Elders.Cronus.Projections.InMemory
 
         public bool HasSnapshotMarker(ProjectionVersion version, IBlobId projectionId, int snapshotMarker)
         {
-            throw new System.NotImplementedException();
+            return false; // We assume there are no snapshots in the InMemory implementation
+        }
+
+        public Task<bool> HasSnapshotMarkerAsync(ProjectionVersion version, IBlobId projectionId, int snapshotMarker)
+        {
+            return Task.FromResult(false); // We assume there are no snapshots in the InMemory implementation
         }
 
         public IEnumerable<ProjectionCommit> Load(ProjectionVersion version, IBlobId projectionId, int snapshotMarker)
