@@ -2,11 +2,6 @@
 
 namespace Elders.Cronus.Projections.Snapshotting
 {
-    public class SnapshotMarkerPlaced : IEvent
-    {
-        public ProjectionVersion Version { get; set; }
-    }
-
     public interface ISnapshot
     {
         IBlobId Id { get; }
