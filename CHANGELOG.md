@@ -1,3 +1,10 @@
+# [6.4.0-next.3](https://github.com/Elders/Cronus/compare/v6.4.0-next.2...v6.4.0-next.3) (2021-03-17)
+
+
+### Bug Fixes
+
+* Adds an async version of the HasSnapshotMarkerAsync ([ff41017](https://github.com/Elders/Cronus/commit/ff410173e85ba0c171e315ef938be56f98c550b5))
+
 # [6.4.0-next.2](https://github.com/Elders/Cronus/compare/v6.4.0-next.1...v6.4.0-next.2) (2021-03-16)
 
 
