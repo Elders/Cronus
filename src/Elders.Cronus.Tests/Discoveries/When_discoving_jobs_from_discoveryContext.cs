@@ -39,6 +39,11 @@ namespace Elders.Cronus.Discoveries
     {
         public override string Name { get; set; } = "Test";
 
+        public TestJob() : base(null)
+        {
+
+        }
+
         protected override TestJobData BuildInitialData()
         {
             throw new NotImplementedException();

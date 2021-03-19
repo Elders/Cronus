@@ -22,9 +22,8 @@ namespace Elders.Cronus.EventStore.Index
         private readonly IMessageCounter messageCounter;
         private readonly EventToAggregateRootId eventToAggregateIndex;
         private readonly IProjectionReader projectionReader;
-        private readonly ILogger<RebuildIndex_MessageCounter_Job> logger;
 
-        public RebuildIndex_MessageCounter_Job(CronusContext context, TypeContainer<IEvent> eventTypes, IEventStore eventStore, IMessageCounter eventCounter, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, ILogger<RebuildIndex_MessageCounter_Job> logger)
+        public RebuildIndex_MessageCounter_Job(CronusContext context, TypeContainer<IEvent> eventTypes, IEventStore eventStore, IMessageCounter eventCounter, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, ILogger<RebuildIndex_MessageCounter_Job> logger) : base(logger)
         {
             this.context = context;
             this.eventTypes = eventTypes;
@@ -32,7 +31,6 @@ namespace Elders.Cronus.EventStore.Index
             this.messageCounter = eventCounter;
             this.eventToAggregateIndex = eventToAggregateIndex;
             this.projectionReader = projectionReader;
-            this.logger = logger;
         }
 
         public override string Name { get; set; } = typeof(MessageCounterIndex).GetContractId();
@@ -41,12 +39,6 @@ namespace Elders.Cronus.EventStore.Index
 
         protected override async Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                logger.Info(() => $"The job {Name} was cancelled before it got started.");
-                return JobExecutionStatus.Running;
-            }
-
             // mynkow. this one fails
             IndexStatus indexStatus = GetIndexStatus<EventToAggregateRootId>();
             if (indexStatus.IsNotPresent()) return JobExecutionStatus.Running;
@@ -56,7 +48,9 @@ namespace Elders.Cronus.EventStore.Index
             foreach (Type eventType in eventTypes.Items)
             {
                 string eventTypeId = eventType.GetContractId();
+
                 bool hasMoreRecords = true;
+
                 while (hasMoreRecords && Data.IsCompleted == false)
                 {
                     if (cancellationToken.IsCancellationRequested)
@@ -70,6 +64,7 @@ namespace Elders.Cronus.EventStore.Index
                     string paginationToken = paging?.PaginationToken;
                     if (string.IsNullOrEmpty(paginationToken))
                     {
+                        logger.Info(() => $"Message counter for {eventTypeId} has been reset");
                         // Maybe we should move this to a BeforeRun method.
                         messageCounter.Reset(eventType);
                     }
@@ -89,14 +84,17 @@ namespace Elders.Cronus.EventStore.Index
                         {
                             foreach (var @event in arCommit.Events)
                             {
+                                if (cancellationToken.IsCancellationRequested)
+                                {
+                                    logger.Info(() => $"Job has been cancelled.");
+                                    return JobExecutionStatus.Running;
+                                }
+
                                 if (eventTypeId.Equals(@event.GetType().GetContractId(), StringComparison.OrdinalIgnoreCase))
                                     messageCounter.Increment(eventType);
                             }
                         }
                     }
-
-                    //long indexRecords = indexRecordsResult.Records.LongCount();
-                    //messageCounter.Increment(eventType, indexRecords);
 
                     Data.MarkPaginationTokenAsProcessed(eventTypeId, indexRecordsResult.PaginationToken);
                     Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
@@ -107,6 +105,8 @@ namespace Elders.Cronus.EventStore.Index
 
             Data.IsCompleted = true;
             Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+
+            logger.Info(() => $"The job {Name} is completed.");
 
             return JobExecutionStatus.Completed;
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,9 +8,14 @@ namespace Elders.Cronus.Cluster.Job
     public abstract class CronusJob<TData> : ICronusJob<TData>
         where TData : class, new()
     {
-        public CronusJob()
+        Func<TData, TData> DataOverride = fromCluster => fromCluster;
+
+        protected readonly ILogger<CronusJob<TData>> logger;
+
+        public CronusJob(ILogger<CronusJob<TData>> logger)
         {
             Data = BuildInitialData();
+            this.logger = logger;
         }
 
         public abstract string Name { get; set; }
@@ -24,13 +30,28 @@ namespace Elders.Cronus.Cluster.Job
         {
             try
             {
-                return Task.Factory
-                    .ContinueWhenAll(new Task[] { SyncInitialStateAsync(cluster) }, _ => Task.CompletedTask)
-                    .ContinueWith(x => RunJob(cluster, cancellationToken))
-                    .Result;
+                using (logger.BeginScope(s => s
+                    .AddScope("cronus_job_name", Name)))
+                {
+                    return Task.Factory
+                        .ContinueWhenAll(new Task[] { SyncInitialStateAsync(cluster) }, _ => Task.CompletedTask)
+                        .ContinueWith(x =>
+                        {
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                logger.Info(() => $"The job has been cancelled before it got started.");
+                                return Task.FromResult(JobExecutionStatus.Running);
+                            }
+
+                            return RunJob(cluster, cancellationToken);
+                        })
+                        .Result;
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.ErrorException(ex, () => "Job run failed");
+
                 return Task.FromResult(JobExecutionStatus.Failed);
             }
         }
@@ -48,8 +69,6 @@ namespace Elders.Cronus.Cluster.Job
         protected abstract Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default);
 
         public TData Data { get; protected set; }
-
-        Func<TData, TData> DataOverride = fromCluster => fromCluster;
 
         public void OverrideData(Func<TData, TData> dataOverride)
         {
