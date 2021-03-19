@@ -14,13 +14,11 @@ namespace Elders.Cronus.EventStore.Index
     {
         private readonly IEventStorePlayer eventStorePlayer;
         private readonly EventToAggregateRootId index;
-        private readonly ILogger<RebuildIndex_EventToAggregateRootId_Job> logger;
 
-        public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, EventToAggregateRootId index, ILogger<RebuildIndex_EventToAggregateRootId_Job> logger)
+        public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, EventToAggregateRootId index, ILogger<RebuildIndex_EventToAggregateRootId_Job> logger) : base(logger)
         {
             this.eventStorePlayer = eventStorePlayer;
             this.index = index;
-            this.logger = logger;
         }
 
         public override string Name { get; set; } = typeof(EventToAggregateRootId).GetContractId();
@@ -29,22 +27,17 @@ namespace Elders.Cronus.EventStore.Index
 
         protected override async Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                logger.Info(() => $"The job {Name} was cancelled before it got started.");
-                return JobExecutionStatus.Running;
-            }
-
             bool hasMoreRecords = true;
             while (hasMoreRecords && Data.IsCompleted == false)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    logger.Info(() => $"The job {Name} was cancelled.");
+                    logger.Info(() => $"The job has been cancelled.");
                     return JobExecutionStatus.Running;
                 }
 
                 var result = eventStorePlayer.LoadAggregateCommits(Data.PaginationToken);
+
                 logger.Info(() => $"Loaded aggregate commits count ${result.Commits.Count} using pagination token {result.PaginationToken}");
                 foreach (var aggregateCommit in result.Commits)
                 {
@@ -59,6 +52,8 @@ namespace Elders.Cronus.EventStore.Index
 
             Data.IsCompleted = true;
             Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
+
+            logger.Info(() => $"The job has been completed.");
 
             return JobExecutionStatus.Completed;
         }
