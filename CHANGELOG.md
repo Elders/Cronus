@@ -1,3 +1,10 @@
+# [6.4.0-next.6](https://github.com/Elders/Cronus/compare/v6.4.0-next.5...v6.4.0-next.6) (2021-03-19)
+
+
+### Bug Fixes
+
+* Improves jobs logging ([ebd071e](https://github.com/Elders/Cronus/commit/ebd071e1a7aee86860b4d5b7aa1ff0cb5a40e32b))
+
 # [6.4.0-next.5](https://github.com/Elders/Cronus/compare/v6.4.0-next.4...v6.4.0-next.5) (2021-03-17)
 
 
