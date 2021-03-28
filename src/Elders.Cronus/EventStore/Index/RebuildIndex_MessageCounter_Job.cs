@@ -37,7 +37,7 @@ namespace Elders.Cronus.EventStore.Index
 
         protected override RebuildEventCounterIndex_JobData BuildInitialData() => new RebuildEventCounterIndex_JobData();
 
-        protected override async Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default)
+        protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             // mynkow. this one fails
             IndexStatus indexStatus = GetIndexStatus<EventToAggregateRootId>();
@@ -53,12 +53,6 @@ namespace Elders.Cronus.EventStore.Index
 
                 while (hasMoreRecords && Data.IsCompleted == false)
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        logger.Info(() => $"The job {Name} was cancelled.");
-                        return JobExecutionStatus.Running;
-                    }
-
                     RebuildEventCounterIndex_JobData.EventTypeRebuildPaging paging = Data.EventTypePaging.Where(et => et.Type.Equals(eventTypeId, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
                     string paginationToken = paging?.PaginationToken;
@@ -106,7 +100,7 @@ namespace Elders.Cronus.EventStore.Index
             Data.IsCompleted = true;
             Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-            logger.Info(() => $"The job {Name} is completed.");
+            logger.Info(() => $"The job has been completed.");
 
             return JobExecutionStatus.Completed;
         }
@@ -184,7 +178,7 @@ namespace Elders.Cronus.EventStore.Index
         }
     }
 
-    public class RebuildEventCounterIndex_JobData
+    public class RebuildEventCounterIndex_JobData : IJobData
     {
         public RebuildEventCounterIndex_JobData()
         {

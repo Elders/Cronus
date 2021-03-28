@@ -25,7 +25,7 @@ namespace Elders.Cronus.EventStore.Index
 
         protected override RebuildIndex_JobData BuildInitialData() => new RebuildIndex_JobData();
 
-        protected override async Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default)
+        protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             bool hasMoreRecords = true;
             while (hasMoreRecords && Data.IsCompleted == false)
@@ -123,12 +123,19 @@ namespace Elders.Cronus.EventStore.Index
     }
 
 
-    public class RebuildIndex_JobData
+    public class RebuildIndex_JobData : IJobData
     {
         public bool IsCompleted { get; set; } = false;
 
         public string PaginationToken { get; set; }
 
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+    }
+
+    public interface IJobData
+    {
+        bool IsCompleted { get; set; }
+
+        DateTimeOffset Timestamp { get; set; }
     }
 }
