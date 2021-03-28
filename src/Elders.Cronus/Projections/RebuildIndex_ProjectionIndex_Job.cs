@@ -43,7 +43,7 @@ namespace Elders.Cronus.Projections
 
         protected override RebuildProjectionIndex_JobData BuildInitialData() => new RebuildProjectionIndex_JobData();
 
-        protected override async Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default)
+        protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             ProjectionVersion version = Data.Version;
             Type projectionType = version.ProjectionName.GetTypeByContract();
@@ -252,7 +252,7 @@ namespace Elders.Cronus.Projections
         }
     }
 
-    public class RebuildProjectionIndex_JobData
+    public class RebuildProjectionIndex_JobData : IJobData
     {
         public RebuildProjectionIndex_JobData()
         {

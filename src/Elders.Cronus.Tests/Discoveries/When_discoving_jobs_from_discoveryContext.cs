@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.Cluster.Job.InMemory;
+using Elders.Cronus.EventStore.Index;
 using Machine.Specifications;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -33,7 +34,11 @@ namespace Elders.Cronus.Discoveries
         static DiscoveryContext discoveryContext;
     }
 
-    public class TestJobData { }
+    public class TestJobData : IJobData
+    {
+        public bool IsCompleted { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public DateTimeOffset Timestamp { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    }
 
     public class TestJob : CronusJob<TestJobData>
     {
@@ -49,7 +54,7 @@ namespace Elders.Cronus.Discoveries
             throw new NotImplementedException();
         }
 
-        protected override Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default)
+        protected override Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
