@@ -17,7 +17,7 @@ namespace Elders.Cronus.Projections.Snapshotting
         {
             return
                 base.ShouldCreateSnapshot(commits, lastSnapshotRevision) ||
-                commits.Select(x => x.TimeStamp).DefaultIfEmpty(DateTime.MaxValue).Min() <= DateTime.UtcNow - snapshotOffset;
+                commits.Select(x => DateTime.FromFileTimeUtc(x.EventOrigin.Timestamp)).DefaultIfEmpty(DateTime.MaxValue).Min() <= DateTime.UtcNow - snapshotOffset;
         }
     }
 }
