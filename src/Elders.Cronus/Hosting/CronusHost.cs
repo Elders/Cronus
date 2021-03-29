@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.Migrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -16,9 +17,10 @@ namespace Elders.Cronus
         private readonly IConsumer<ISaga> sagas;
         private readonly IConsumer<IGateway> gateways;
         private readonly IConsumer<ITrigger> triggers;
+        private readonly IConsumer<IMigrationHandler> migrations;
         private CronusHostOptions hostOptions;
 
-        public CronusHost(IConsumer<IApplicationService> appServices, IConsumer<IEventStoreIndex> indexes, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, IConsumer<ITrigger> triggers, IOptionsMonitor<CronusHostOptions> cronusHostOptions)
+        public CronusHost(IConsumer<IApplicationService> appServices, IConsumer<IEventStoreIndex> indexes, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, IConsumer<ITrigger> triggers, IConsumer<IMigrationHandler> migrations, IOptionsMonitor<CronusHostOptions> cronusHostOptions)
         {
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
             this.indexes = indexes;
@@ -27,6 +29,7 @@ namespace Elders.Cronus
             this.sagas = sagas ?? throw new ArgumentNullException(nameof(sagas));
             this.gateways = gateways ?? throw new ArgumentNullException(nameof(gateways));
             this.triggers = triggers;
+            this.migrations = migrations;
             this.hostOptions = cronusHostOptions.CurrentValue;
             cronusHostOptions.OnChange(Changed);
         }
@@ -42,6 +45,7 @@ namespace Elders.Cronus
                 if (hostOptions.PortsEnabled) ports.Start();
                 if (hostOptions.GatewaysEnabled) gateways.Start();
                 if (hostOptions.TriggersEnabled) triggers.Start();
+                if (hostOptions.MigrationsEnabled) migrations.Start();
             }
             catch (Exception ex)
             {

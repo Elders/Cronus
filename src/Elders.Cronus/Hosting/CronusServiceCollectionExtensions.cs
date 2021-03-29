@@ -6,6 +6,7 @@ using Elders.Cronus.Diagnostics;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Migrations;
 using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -145,6 +146,7 @@ namespace Elders.Cronus
             services.AddSubscribers<IGateway>();
             services.AddSubscribers<ISaga>();
             services.AddSubscribers<ITrigger>();
+            services.AddSubscribers<IMigrationHandler>();
             services.AddEventStoreIndexSubscribers();
             services.AddProjections();
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
@@ -33,4 +34,6 @@ namespace Elders.Cronus.Discoveries
     public class GatewaysDiscovery : HandlersDiscovery<IGateway> { }
 
     public class TriggersDiscovery : HandlersDiscovery<ITrigger> { }
+
+    public class MigrationsDiscovery : HandlersDiscovery<IMigrationHandler> { }
 }
