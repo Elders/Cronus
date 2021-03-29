@@ -1,3 +1,10 @@
+# [6.4.0-next.8](https://github.com/Elders/Cronus/compare/v6.4.0-next.7...v6.4.0-next.8) (2021-03-29)
+
+
+### Features
+
+* Adds aggregate commit publishing support ([2d7cda4](https://github.com/Elders/Cronus/commit/2d7cda4e507f5cfbb619dbf7354131802f55dfc5))
+
 # [6.4.0-next.7](https://github.com/Elders/Cronus/compare/v6.4.0-next.6...v6.4.0-next.7) (2021-03-28)
 
 
