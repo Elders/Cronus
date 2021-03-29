@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Elders.Cronus.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries
@@ -15,7 +16,8 @@ namespace Elders.Cronus.Discoveries
                 .Concat(DiscoverCommands(context))
                 .Concat(DiscoverEvents(context))
                 .Concat(DiscoverPublicEvents(context))
-                .Concat(DiscoverSignals(context));
+                .Concat(DiscoverSignals(context))
+                .Concat(DiscoverMigrations(context));
 
             return new DiscoveryResult<ICronusHost>(models);
         }
@@ -57,6 +59,45 @@ namespace Elders.Cronus.Discoveries
         {
             IEnumerable<Type> loadedSignals = context.Assemblies.Find<ISignal>();
             yield return new DiscoveredModel(typeof(TypeContainer<ISignal>), new TypeContainer<ISignal>(loadedSignals));
+        }
+
+        protected virtual IEnumerable<DiscoveredModel> DiscoverMigrations(DiscoveryContext context)
+        {
+            IEnumerable<Type> loadedMigrations = context.Assemblies.Find<IMigration>();
+
+            foreach (var migrationType in loadedMigrations)
+            {
+                var directInterfaces = GetDirectInterfaces(migrationType);
+
+                foreach (var interfaceBase in directInterfaces)
+                {
+                    var generics = interfaceBase.GetGenericArguments();
+                    if (generics.Length == 1 && typeof(IMigration).IsAssignableFrom(interfaceBase))
+                    {
+                        var tenantResolverType = typeof(IMigration<>);
+                        var tenantResolverTypeGeneric = tenantResolverType.MakeGenericType(generics.Single());
+                        yield return new DiscoveredModel(tenantResolverTypeGeneric, migrationType, ServiceLifetime.Transient)
+                        {
+                            CanAddMultiple = true
+                        };
+                    }
+                }
+            }
+
+            static IEnumerable<Type> GetDirectInterfaces(Type type)
+            {
+                var allInterfaces = new List<Type>();
+                var childInterfaces = new List<Type>();
+                foreach (var i in type.GetInterfaces())
+                {
+                    allInterfaces.Add(i);
+                    foreach (var ii in i.GetInterfaces())
+                        childInterfaces.Add(ii);
+                }
+                var directInterfaces = allInterfaces.Except(childInterfaces);
+
+                return directInterfaces;
+            }
         }
     }
 }

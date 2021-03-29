@@ -1,26 +1,44 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Elders.Cronus.EventStore;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {
-    public abstract class MigrationRunnerBase<TDataFormat, TSourceEventStorePlayer, TTargetEventStore>
-        where TSourceEventStorePlayer : IEventStorePlayer
-        where TTargetEventStore : IEventStore
+    public class MigrationRunner<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateCommit, IMigrationEventStorePlayer, IEventStore>
     {
-        protected readonly IEventStorePlayer source;
-        protected readonly IEventStore target;
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(MigrationRunner<,>));
 
-        public MigrationRunnerBase(TSourceEventStorePlayer source, TTargetEventStore target)
+        public MigrationRunner(IMigrationEventStorePlayer source, IEventStore target) : base(source, target) { }
+
+        public override void Run(IEnumerable<IMigration<AggregateCommit>> migrations)
         {
-            this.source = source;
-            this.target = target;
+            LoadAggregateCommitsResult result = source.LoadAggregateCommits("", 5000);
+
+            try
+            {
+                while (result.Commits.Any())
+                {
+                    for (int i = 0; i < result.Commits.Count; i++)
+                    {
+                        AggregateCommit sourceCommit = result.Commits[i];
+
+                        foreach (var migration in migrations)
+                        {
+                            if (migration.ShouldApply(sourceCommit))
+                            {
+                                sourceCommit = migration.Apply(sourceCommit);
+                            }
+                        }
+                        target.Append(sourceCommit);
+                    }
+                    result = source.LoadAggregateCommits(result.PaginationToken, 5000); // think of paging
+                }
+            }
+            catch (System.Exception ex)
+            {
+                logger.ErrorException(ex, () => $"Something boom bam while runnning migration. Here is paginator: {result.PaginationToken}");
+            }
         }
-
-        /// <summary>
-        /// Applies the specified migrations to every <see cref="TDataFormat"/>
-        /// </summary>
-        /// <param name="migrations"></param>
-        public abstract void Run(IEnumerable<IMigration<TDataFormat>> migrations);
-
     }
 }

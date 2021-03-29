@@ -5,6 +5,12 @@ using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus
 {
+    public static class Log
+    {
+        public const string AggregateId = "cronus_arid";
+        public const string AggregateName = "cronus_arname";
+    }
+
     public static class CronusLogger
     {
         private static ILoggerFactory factory = new LoggerFactory();
