@@ -38,7 +38,8 @@ namespace Elders.Cronus
         {
             try
             {
-                indexes.Start();
+                if (hostOptions.MigrationsEnabled == false) indexes.Start();
+
                 if (hostOptions.ApplicationServicesEnabled) appServices.Start();
                 if (hostOptions.SagasEnabled) sagas.Start();
                 if (hostOptions.ProjectionsEnabled) projections.Start();
@@ -64,7 +65,7 @@ namespace Elders.Cronus
                 if (hostOptions.PortsEnabled) ports.Stop();
                 if (hostOptions.GatewaysEnabled) gateways.Stop();
                 if (hostOptions.TriggersEnabled) triggers.Stop();
-                indexes.Stop();
+                if (hostOptions.MigrationsEnabled == false) indexes.Stop();
             }
             catch (Exception ex)
             {
