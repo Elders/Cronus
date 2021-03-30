@@ -1,3 +1,10 @@
+# [6.4.0-next.9](https://github.com/Elders/Cronus/compare/v6.4.0-next.8...v6.4.0-next.9) (2021-03-30)
+
+
+### Bug Fixes
+
+* Stops starting indexes if migrations are enabled ([8df11fb](https://github.com/Elders/Cronus/commit/8df11fb0243d757e450388d48db0ef25fcd9d859))
+
 # [6.4.0-next.8](https://github.com/Elders/Cronus/compare/v6.4.0-next.7...v6.4.0-next.8) (2021-03-29)
 
 
