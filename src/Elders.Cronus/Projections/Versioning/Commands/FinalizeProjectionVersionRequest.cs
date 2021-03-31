@@ -3,7 +3,7 @@
 namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = "c0ea19c2-3630-41de-a3e7-54811a5b5a30")]
-    public class FinalizeProjectionVersionRequest : ICommand
+    public class FinalizeProjectionVersionRequest : ISystemCommand
     {
         FinalizeProjectionVersionRequest() { }
 

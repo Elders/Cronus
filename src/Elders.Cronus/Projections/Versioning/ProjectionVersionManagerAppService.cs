@@ -1,6 +1,6 @@
 ﻿namespace Elders.Cronus.Projections.Versioning
 {
-    public class ProjectionVersionManagerAppService : ApplicationService<ProjectionVersionManager>, ISystemService,
+    public class ProjectionVersionManagerAppService : ApplicationService<ProjectionVersionManager>, ISystemAppService,
         ICommandHandler<RegisterProjection>,
         ICommandHandler<RebuildProjection>,
         ICommandHandler<FinalizeProjectionVersionRequest>,

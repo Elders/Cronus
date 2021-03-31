@@ -18,7 +18,7 @@ namespace Elders.Cronus.Projections
 {
     public class RebuildIndex_ProjectionIndex_Job : CronusJob<RebuildProjectionIndex_JobData>
     {
-        private readonly IPublisher<ISignal> signalPublisher;
+        private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly IEventStore eventStore;
         private readonly ProjectionIndex index;
@@ -27,7 +27,7 @@ namespace Elders.Cronus.Projections
         private readonly CronusContext context;
         private readonly IMessageCounter messageCounter;
 
-        public RebuildIndex_ProjectionIndex_Job(IPublisher<ISignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, IEventStore eventStore, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
+        public RebuildIndex_ProjectionIndex_Job(IPublisher<ISystemSignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, IEventStore eventStore, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
         {
             this.signalPublisher = signalPublisher;
             this.projectionStoreInitializer = projectionStoreInitializer;
@@ -332,7 +332,7 @@ namespace Elders.Cronus.Projections
     }
 
     [DataContract(Name = "373f4ff0-cb6f-499e-9fa5-1666ccc00689")]
-    public class RebuildProjectionProgress : ISignal
+    public class RebuildProjectionProgress : ISystemSignal
     {
         public RebuildProjectionProgress() { }
 
@@ -358,7 +358,7 @@ namespace Elders.Cronus.Projections
     }
 
     [DataContract(Name = "b03199e7-2752-48b7-93de-c45ad18b55bf")]
-    public class RebuildProjectionStarted : ISignal
+    public class RebuildProjectionStarted : ISystemSignal
     {
         public RebuildProjectionStarted() { }
 
@@ -376,7 +376,7 @@ namespace Elders.Cronus.Projections
     }
 
     [DataContract(Name = "b248432b-451c-4894-84f2-c5ac5bc35139")]
-    public class RebuildProjectionFinished : ISignal
+    public class RebuildProjectionFinished : ISystemSignal
     {
         public RebuildProjectionFinished() { }
 

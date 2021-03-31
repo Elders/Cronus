@@ -17,10 +17,29 @@ namespace Elders.Cronus
         private readonly IConsumer<ISaga> sagas;
         private readonly IConsumer<IGateway> gateways;
         private readonly IConsumer<ITrigger> triggers;
+        private readonly IConsumer<ISystemAppService> systemAppServices;
+        private readonly IConsumer<ISystemSaga> systemSagas;
+        private readonly IConsumer<ISystemPort> systemPorts;
+        private readonly IConsumer<ISystemTrigger> systemTriggers;
+        private readonly IConsumer<ISystemProjection> systemProjections;
         private readonly IConsumer<IMigrationHandler> migrations;
         private CronusHostOptions hostOptions;
 
-        public CronusHost(IConsumer<IApplicationService> appServices, IConsumer<IEventStoreIndex> indexes, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, IConsumer<ITrigger> triggers, IConsumer<IMigrationHandler> migrations, IOptionsMonitor<CronusHostOptions> cronusHostOptions)
+        public CronusHost(
+            IConsumer<IApplicationService> appServices,
+            IConsumer<IEventStoreIndex> indexes,
+            IConsumer<IProjection> projections,
+            IConsumer<IPort> ports,
+            IConsumer<ISaga> sagas,
+            IConsumer<IGateway> gateways,
+            IConsumer<ITrigger> triggers,
+            IConsumer<ISystemAppService> systemAppServices,
+            IConsumer<ISystemSaga> systemSagas,
+            IConsumer<ISystemPort> systemPorts,
+            IConsumer<ISystemTrigger> systemTriggers,
+            IConsumer<ISystemProjection> systemProjections,
+            IConsumer<IMigrationHandler> migrations,
+            IOptionsMonitor<CronusHostOptions> cronusHostOptions)
         {
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
             this.indexes = indexes;
@@ -29,6 +48,11 @@ namespace Elders.Cronus
             this.sagas = sagas ?? throw new ArgumentNullException(nameof(sagas));
             this.gateways = gateways ?? throw new ArgumentNullException(nameof(gateways));
             this.triggers = triggers;
+            this.systemAppServices = systemAppServices;
+            this.systemSagas = systemSagas;
+            this.systemPorts = systemPorts;
+            this.systemTriggers = systemTriggers;
+            this.systemProjections = systemProjections;
             this.migrations = migrations;
             this.hostOptions = cronusHostOptions.CurrentValue;
             cronusHostOptions.OnChange(Changed);
@@ -47,6 +71,12 @@ namespace Elders.Cronus
                 if (hostOptions.GatewaysEnabled) gateways.Start();
                 if (hostOptions.TriggersEnabled) triggers.Start();
                 if (hostOptions.MigrationsEnabled) migrations.Start();
+
+                systemAppServices.Start();
+                systemPorts.Start();
+                systemProjections.Start();
+                systemSagas.Start();
+                systemTriggers.Start();
             }
             catch (Exception ex)
             {
@@ -66,6 +96,12 @@ namespace Elders.Cronus
                 if (hostOptions.GatewaysEnabled) gateways.Stop();
                 if (hostOptions.TriggersEnabled) triggers.Stop();
                 if (hostOptions.MigrationsEnabled == false) indexes.Stop();
+
+                systemAppServices.Stop();
+                systemPorts.Stop();
+                systemProjections.Stop();
+                systemSagas.Stop();
+                systemTriggers.Stop();
             }
             catch (Exception ex)
             {

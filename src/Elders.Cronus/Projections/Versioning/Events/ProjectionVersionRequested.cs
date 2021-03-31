@@ -4,7 +4,7 @@ using System;
 namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = "5788a757-5dd6-4680-8f24-add1dfa7539b")]
-    public class ProjectionVersionRequested : IEvent
+    public class ProjectionVersionRequested : ISystemEvent
     {
         ProjectionVersionRequested() { }
 

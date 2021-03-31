@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = "9b309ab7-3fac-4cf8-97e2-d2e74fbaa623")]
-    public class RebuildProjection : ICommand
+    public class RebuildProjection : ISystemCommand
     {
         RebuildProjection() { }
 
