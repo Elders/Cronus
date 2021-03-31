@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = "d0dc548e-cbb1-4cb8-861b-e5f6bef68116")]
-    public class ProjectionBuilder : Saga,
+    public class ProjectionBuilder : Saga, ISystemSaga,
         IEventHandler<ProjectionVersionRequested>,
         ISagaTimeoutHandler<RebuildProjectionVersion>,
         ISagaTimeoutHandler<ProjectionVersionRebuildTimedout>
@@ -64,7 +64,7 @@ namespace Elders.Cronus.Projections.Versioning
     }
 
     [DataContract(Name = "029602fa-db90-47a4-9c8b-c304d5ee177a")]
-    public class RebuildProjectionVersion : IScheduledMessage
+    public class RebuildProjectionVersion : ISystemScheduledMessage
     {
         RebuildProjectionVersion() { }
 
@@ -84,7 +84,7 @@ namespace Elders.Cronus.Projections.Versioning
     }
 
     [DataContract(Name = "11c1ae7d-04f4-4266-a21e-78ddc440d68b")]
-    public class ProjectionVersionRebuildTimedout : IScheduledMessage
+    public class ProjectionVersionRebuildTimedout : ISystemScheduledMessage
     {
         ProjectionVersionRebuildTimedout() { }
 

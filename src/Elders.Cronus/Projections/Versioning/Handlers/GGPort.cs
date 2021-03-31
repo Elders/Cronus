@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Elders.Cronus.Projections.Versioning.Handlers
 {
-    public class GGPort : IPort,
+    public class GGPort : ISystemPort,
         IEventHandler<NewProjectionVersionIsNowLive>
     {
         private readonly IProjectionStore projectionStore;

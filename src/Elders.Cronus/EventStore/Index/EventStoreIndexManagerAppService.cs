@@ -1,6 +1,6 @@
 ﻿namespace Elders.Cronus.EventStore.Index
 {
-    public class EventStoreIndexManagerAppService : ApplicationService<EventStoreIndexManager>, ISystemService,
+    public class EventStoreIndexManagerAppService : ApplicationService<EventStoreIndexManager>, ISystemAppService,
         ICommandHandler<RegisterIndex>,
         ICommandHandler<RebuildIndex>,
         ICommandHandler<FinalizeEventStoreIndexRequest>

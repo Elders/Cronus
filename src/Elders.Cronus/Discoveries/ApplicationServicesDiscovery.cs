@@ -27,13 +27,21 @@ namespace Elders.Cronus.Discoveries
 
     public class ApplicationServicesDiscovery : HandlersDiscovery<IApplicationService> { }
 
+    public class SystemApplicationServicesDiscovery : HandlersDiscovery<ISystemAppService> { }
+
     public class PortsDiscovery : HandlersDiscovery<IPort> { }
 
+    public class SystemPortsDiscovery : HandlersDiscovery<ISystemPort> { }
+
     public class SagasDiscovery : HandlersDiscovery<ISaga> { }
+
+    public class SystemSagasDiscovery : HandlersDiscovery<ISystemSaga> { }
 
     public class GatewaysDiscovery : HandlersDiscovery<IGateway> { }
 
     public class TriggersDiscovery : HandlersDiscovery<ITrigger> { }
+
+    public class SystemTriggersDiscovery : HandlersDiscovery<ISystemTrigger> { }
 
     public class MigrationsDiscovery : HandlersDiscovery<IMigrationHandler> { }
 }

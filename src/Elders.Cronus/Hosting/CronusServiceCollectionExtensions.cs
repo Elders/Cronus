@@ -146,6 +146,11 @@ namespace Elders.Cronus
             services.AddSubscribers<IGateway>();
             services.AddSubscribers<ISaga>();
             services.AddSubscribers<ITrigger>();
+            services.AddSubscribers<ISystemAppService>();
+            services.AddSubscribers<ISystemPort>();
+            services.AddSubscribers<ISystemSaga>();
+            services.AddSubscribers<ISystemTrigger>();
+            services.AddSubscribers<ISystemProjection>();
             services.AddSubscribers<IMigrationHandler>();
             services.AddEventStoreIndexSubscribers();
             services.AddProjections();

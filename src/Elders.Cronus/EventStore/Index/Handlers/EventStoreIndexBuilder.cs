@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.EventStore.Index.Handlers
 {
     [DataContract(Name = "055f2407-6b5a-4f77-92b0-fcae4c8d86a7")]
-    public class EventStoreIndexBuilder : Saga,
+    public class EventStoreIndexBuilder : Saga, ISystemSaga,
         IEventHandler<EventStoreIndexRequested>,
         ISagaTimeoutHandler<RebuildIndexInternal>,
         ISagaTimeoutHandler<EventStoreIndexRebuildTimedout>
@@ -78,7 +78,7 @@ namespace Elders.Cronus.EventStore.Index.Handlers
     }
 
     [DataContract(Name = "09d3f870-66f5-4f00-aedd-659b719791fe")]
-    public class RebuildIndexInternal : IScheduledMessage
+    public class RebuildIndexInternal : ISystemScheduledMessage
     {
         RebuildIndexInternal() { }
 
@@ -98,7 +98,7 @@ namespace Elders.Cronus.EventStore.Index.Handlers
     }
 
     [DataContract(Name = "4f6c585f-31c7-4bcb-867c-2c38071c29f3")]
-    public class EventStoreIndexRebuildTimedout : IScheduledMessage
+    public class EventStoreIndexRebuildTimedout : ISystemScheduledMessage
     {
         EventStoreIndexRebuildTimedout() { }
 

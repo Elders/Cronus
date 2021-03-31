@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.EventStore.Index.Handlers
 {
     [DataContract(Name = ContractId)]
-    public class EventStoreIndexStatus : ProjectionDefinition<EventStoreIndexStatusState, EventStoreIndexManagerId>, IAmNotSnapshotable, ISystemProjection, ISystemEventStoreIndex,
+    public class EventStoreIndexStatus : ProjectionDefinition<EventStoreIndexStatusState, EventStoreIndexManagerId>, IAmNotSnapshotable, ISystemProjection, ISystemEventStoreIndexHandler,
         IEventHandler<EventStoreIndexRequested>,
         IEventHandler<EventStoreIndexIsNowPresent>
     //IEventHandler<ProjectionVersionRequestCanceled>,
