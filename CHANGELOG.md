@@ -1,3 +1,10 @@
+# [6.4.0-next.10](https://github.com/Elders/Cronus/compare/v6.4.0-next.9...v6.4.0-next.10) (2021-03-31)
+
+
+### Bug Fixes
+
+* Separates system messages and handlers ([cafd92a](https://github.com/Elders/Cronus/commit/cafd92a0e508e403669073f41b76d84a84cc04fc))
+
 # [6.4.0-next.9](https://github.com/Elders/Cronus/compare/v6.4.0-next.8...v6.4.0-next.9) (2021-03-30)
 
 
