@@ -72,11 +72,14 @@ namespace Elders.Cronus
                 if (hostOptions.TriggersEnabled) triggers.Start();
                 if (hostOptions.MigrationsEnabled) migrations.Start();
 
-                systemAppServices.Start();
-                systemPorts.Start();
-                systemProjections.Start();
-                systemSagas.Start();
-                systemTriggers.Start();
+                if (hostOptions.SystemServicesEnabled)
+                {
+                    systemAppServices.Start();
+                    systemPorts.Start();
+                    systemProjections.Start();
+                    systemSagas.Start();
+                    systemTriggers.Start();
+                }
             }
             catch (Exception ex)
             {
