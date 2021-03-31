@@ -1,3 +1,10 @@
+# [6.4.0-next.11](https://github.com/Elders/Cronus/compare/v6.4.0-next.10...v6.4.0-next.11) (2021-03-31)
+
+
+### Bug Fixes
+
+* Adds system services options ([9f9bc49](https://github.com/Elders/Cronus/commit/9f9bc49ed9851ccfeeba1e9336dd1d72a49e4e74))
+
 # [6.4.0-next.10](https://github.com/Elders/Cronus/compare/v6.4.0-next.9...v6.4.0-next.10) (2021-03-31)
 
 
