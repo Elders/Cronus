@@ -37,8 +37,8 @@ namespace Elders.Cronus
 
                 if (messageHeaders.ContainsKey(MessageHeader.BoundedContext))
                 {
-                    if (messageHeaders[MessageHeader.BoundedContext] == "implicit")
-                        messageHeaders[MessageHeader.BoundedContext] = boundedContext.Name;
+                    var bc = message.GetType().GetBoundedContext(boundedContext.Name);
+                    messageHeaders[MessageHeader.BoundedContext] = bc;
                 }
                 else
                 {

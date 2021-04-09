@@ -35,6 +35,8 @@ namespace Elders.Cronus.Cluster.Job
                 using (logger.BeginScope(s => s
                     .AddScope("cronus_job_name", Name)))
                 {
+                    logger.Info(() => "Initializing job...");
+
                     return Task.Factory
                         .ContinueWhenAll(new Task[] { SyncInitialStateAsync(cluster, cancellationToken) }, _ => Task.CompletedTask)
                         .ContinueWith(x => RunJobWithLoggerAsync(cluster, cancellationToken))
@@ -57,6 +59,12 @@ namespace Elders.Cronus.Cluster.Job
                 Data = BuildInitialData();
 
             Data = DataOverride(Data);
+
+            using (logger.BeginScope(s => s
+                       .AddScope("cronus_job_data", System.Text.Json.JsonSerializer.Serialize<TData>(Data))))
+            {
+                logger.Info(() => "Job state synced.");
+            }
         }
 
         private Task<JobExecutionStatus> RunJobWithLoggerAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)

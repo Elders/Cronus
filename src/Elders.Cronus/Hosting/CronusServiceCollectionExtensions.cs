@@ -97,7 +97,6 @@ namespace Elders.Cronus
         /// Replaces a service with a new one
         /// </summary>
         public static IServiceCollection Replace<TService, TImplementation>(this IServiceCollection services)
-            where TService : class
             where TImplementation : class, TService
         {
             var descriptorToRemove = services.FirstOrDefault(d => d.ServiceType == typeof(TService));
