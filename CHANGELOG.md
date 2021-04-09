@@ -1,3 +1,10 @@
+# [6.4.0-next.12](https://github.com/Elders/Cronus/compare/v6.4.0-next.11...v6.4.0-next.12) (2021-04-09)
+
+
+### Bug Fixes
+
+* Allows custom logic to be injected on aggregate commit during a migration ([063a036](https://github.com/Elders/Cronus/commit/063a036520df8124bd910ef392b49d72c586a1e9))
+
 # [6.4.0-next.11](https://github.com/Elders/Cronus/compare/v6.4.0-next.10...v6.4.0-next.11) (2021-03-31)
 
 
