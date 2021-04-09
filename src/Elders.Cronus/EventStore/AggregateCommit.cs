@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.EventStore
 {
-    [DataContract(Name = "f69daa12-171c-43a1-b049-be8a93ff137f")]
+    [DataContract(Namespace = "cronus", Name = "f69daa12-171c-43a1-b049-be8a93ff137f")]
     public class AggregateCommit : IMessage
     {
         AggregateCommit()
