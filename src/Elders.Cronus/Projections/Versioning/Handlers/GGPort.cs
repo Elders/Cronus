@@ -25,7 +25,6 @@ namespace Elders.Cronus.Projections.Versioning.Handlers
             if (projectionType.IsRebuildableProjection())
             {
                 var id = Urn.Parse($"urn:cronus:{@event.ProjectionVersion.ProjectionName}");
-                ;
 
                 IAmEventSourcedProjection projection = cronusContext.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
                 var @events = projectionStore.EnumerateProjection(@event.ProjectionVersion, id);

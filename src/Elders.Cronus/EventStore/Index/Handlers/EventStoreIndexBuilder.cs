@@ -10,15 +10,13 @@ namespace Elders.Cronus.EventStore.Index.Handlers
         ISagaTimeoutHandler<RebuildIndexInternal>,
         ISagaTimeoutHandler<EventStoreIndexRebuildTimedout>
     {
-        private readonly TypeContainer<IEventStoreIndex> indicesTypes;
         private readonly ICronusJobRunner jobRunner;
         private readonly RebuildIndex_EventToAggregateRootId_JobFactory jobFactory;
         private readonly RebuildIndex_MessageCounter_JobFactory messageCounterJobFactory;
 
-        public EventStoreIndexBuilder(TypeContainer<IEventStoreIndex> indicesTypes, IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, RebuildIndex_EventToAggregateRootId_JobFactory jobFactory, RebuildIndex_MessageCounter_JobFactory messageCounterJobFactory)
+        public EventStoreIndexBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, RebuildIndex_EventToAggregateRootId_JobFactory jobFactory, RebuildIndex_MessageCounter_JobFactory messageCounterJobFactory)
             : base(commandPublisher, timeoutRequestPublisher)
         {
-            this.indicesTypes = indicesTypes;
             this.jobRunner = jobRunner;
             this.jobFactory = jobFactory;
             this.messageCounterJobFactory = messageCounterJobFactory;

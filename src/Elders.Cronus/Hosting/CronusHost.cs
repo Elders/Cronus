@@ -11,7 +11,8 @@ namespace Elders.Cronus
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CronusHost));
 
         private readonly IConsumer<IApplicationService> appServices;
-        private readonly IConsumer<IEventStoreIndex> indexes;
+        private readonly IConsumer<ICronusEventStoreIndex> systemIndices;
+        private readonly IConsumer<IEventStoreIndex> indices;
         private readonly IConsumer<IProjection> projections;
         private readonly IConsumer<IPort> ports;
         private readonly IConsumer<ISaga> sagas;
@@ -27,7 +28,8 @@ namespace Elders.Cronus
 
         public CronusHost(
             IConsumer<IApplicationService> appServices,
-            IConsumer<IEventStoreIndex> indexes,
+            IConsumer<ICronusEventStoreIndex> systemIndices,
+            IConsumer<IEventStoreIndex> indices,
             IConsumer<IProjection> projections,
             IConsumer<IPort> ports,
             IConsumer<ISaga> sagas,
@@ -42,7 +44,8 @@ namespace Elders.Cronus
             IOptionsMonitor<CronusHostOptions> cronusHostOptions)
         {
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
-            this.indexes = indexes;
+            this.systemIndices = systemIndices;
+            this.indices = indices;
             this.projections = projections ?? throw new ArgumentNullException(nameof(projections));
             this.ports = ports ?? throw new ArgumentNullException(nameof(ports));
             this.sagas = sagas ?? throw new ArgumentNullException(nameof(sagas));
@@ -62,8 +65,6 @@ namespace Elders.Cronus
         {
             try
             {
-
-
                 if (hostOptions.ApplicationServicesEnabled) appServices.Start();
                 if (hostOptions.SagasEnabled) sagas.Start();
                 if (hostOptions.ProjectionsEnabled) projections.Start();
@@ -74,7 +75,9 @@ namespace Elders.Cronus
 
                 if (hostOptions.SystemServicesEnabled)
                 {
-                    indexes.Start();
+                    indices.Start();
+
+                    systemIndices.Start();
                     systemAppServices.Start();
                     systemPorts.Start();
                     systemProjections.Start();
@@ -108,7 +111,8 @@ namespace Elders.Cronus
                     systemProjections.Stop();
                     systemSagas.Stop();
                     systemTriggers.Stop();
-                    indexes.Stop();
+                    systemIndices.Stop();
+                    indices.Stop();
                 }
             }
             catch (Exception ex)
