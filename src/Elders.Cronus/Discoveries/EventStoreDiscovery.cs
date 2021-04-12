@@ -38,10 +38,18 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverIndices(DiscoveryContext context)
         {
-            var loadedTypes = context.Assemblies.Find<IEventStoreIndex>();
-            yield return new DiscoveredModel(typeof(TypeContainer<IEventStoreIndex>), new TypeContainer<IEventStoreIndex>(loadedTypes));
+            var appIndices = context.Assemblies.Find<IEventStoreIndex>();
+            yield return new DiscoveredModel(typeof(TypeContainer<IEventStoreIndex>), new TypeContainer<IEventStoreIndex>(appIndices));
 
-            foreach (var indexDef in loadedTypes)
+            foreach (var indexDef in appIndices)
+            {
+                yield return new DiscoveredModel(indexDef, indexDef, ServiceLifetime.Scoped);
+            }
+
+            var systemIndices = context.Assemblies.Find<ICronusEventStoreIndex>();
+            yield return new DiscoveredModel(typeof(TypeContainer<ICronusEventStoreIndex>), new TypeContainer<ICronusEventStoreIndex>(systemIndices));
+
+            foreach (var indexDef in systemIndices)
             {
                 yield return new DiscoveredModel(indexDef, indexDef, ServiceLifetime.Scoped);
             }

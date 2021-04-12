@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.EventStore.Index
 {
     [DataContract(Name = "f8c532eb-57ad-469f-9002-6c286bdd88f2")]
-    public class MessageCounterIndex : IEventStoreIndex
+    public class MessageCounterIndex : ICronusEventStoreIndex
     {
         private readonly IMessageCounter eventCounter;
 

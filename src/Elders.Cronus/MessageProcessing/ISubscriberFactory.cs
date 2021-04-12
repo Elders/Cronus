@@ -2,7 +2,7 @@
 
 namespace Elders.Cronus.MessageProcessing
 {
-    public interface ISubscriberFactory<T>
+    public interface ISubscriberFactory<out T>
     {
         ISubscriber Create(Type handlerType);
     }

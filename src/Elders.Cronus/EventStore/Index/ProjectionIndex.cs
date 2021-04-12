@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.EventStore.Index
 {
     [DataContract(Name = "37336a18-573a-4e9e-b4a2-085033b74353")]
-    public class ProjectionIndex : IEventStoreIndex
+    public class ProjectionIndex : IEventStoreIndex, ICronusEventStoreIndex
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionIndex));
 

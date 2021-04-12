@@ -152,6 +152,7 @@ namespace Elders.Cronus
             services.AddSubscribers<ISystemProjection>();
             services.AddSubscribers<IMigrationHandler>();
             services.AddEventStoreIndexSubscribers();
+            services.AddSystemEventStoreIndexSubscribers();
             services.AddProjections();
 
             return services;
@@ -181,8 +182,18 @@ namespace Elders.Cronus
         {
             services.AddSingleton(typeof(ISubscriberCollection<IEventStoreIndex>), typeof(SubscriberCollection<IEventStoreIndex>));
             services.AddSingleton(typeof(ISubscriberFinder<IEventStoreIndex>), typeof(SubscriberFinder<IEventStoreIndex>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberWorkflow));
-            services.AddSingleton(typeof(ISubscriberFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberFactory));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberWorkflow<IEventStoreIndex>));
+            services.AddSingleton(typeof(ISubscriberFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberFactory<IEventStoreIndex>));
+
+            return services;
+        }
+
+        public static IServiceCollection AddSystemEventStoreIndexSubscribers(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(ISubscriberCollection<ICronusEventStoreIndex>), typeof(SubscriberCollection<ICronusEventStoreIndex>));
+            services.AddSingleton(typeof(ISubscriberFinder<ICronusEventStoreIndex>), typeof(SubscriberFinder<ICronusEventStoreIndex>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<ICronusEventStoreIndex>), typeof(EventStoreIndexSubscriberWorkflow<ICronusEventStoreIndex>));
+            services.AddSingleton(typeof(ISubscriberFactory<ICronusEventStoreIndex>), typeof(EventStoreIndexSubscriberFactory<ICronusEventStoreIndex>));
 
             return services;
         }
