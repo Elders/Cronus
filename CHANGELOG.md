@@ -1,3 +1,10 @@
+# [6.4.0-next.13](https://github.com/Elders/Cronus/compare/v6.4.0-next.12...v6.4.0-next.13) (2021-04-12)
+
+
+### Bug Fixes
+
+* Code cleanup ([871e806](https://github.com/Elders/Cronus/commit/871e8066ccaa98ffe0f68c965a027c30fb733c07))
+
 # [6.4.0-next.12](https://github.com/Elders/Cronus/compare/v6.4.0-next.11...v6.4.0-next.12) (2021-04-09)
 
 
