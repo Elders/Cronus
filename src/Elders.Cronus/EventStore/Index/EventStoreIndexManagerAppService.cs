@@ -25,12 +25,42 @@
 
         public void Handle(RebuildIndex command)
         {
-            Update(command.Id, ar => ar.Rebuild());
+            EventStoreIndexManager ar = null;
+            ReadResult<EventStoreIndexManager> result = repository.Load<EventStoreIndexManager>(command.Id);
+
+            if (result.NotFound)
+            {
+                ar = new EventStoreIndexManager(command.Id);
+            }
+
+            if (result.IsSuccess)
+            {
+                ar = result.Data;
+            }
+
+            ar.Rebuild();
+
+            repository.Save(ar);
         }
 
         public void Handle(FinalizeEventStoreIndexRequest command)
         {
-            Update(command.Id, ar => ar.FinalizeRequest());
+            EventStoreIndexManager ar = null;
+            ReadResult<EventStoreIndexManager> result = repository.Load<EventStoreIndexManager>(command.Id);
+
+            if (result.NotFound)
+            {
+                ar = new EventStoreIndexManager(command.Id);
+            }
+
+            if (result.IsSuccess)
+            {
+                ar = result.Data;
+            }
+
+            ar.FinalizeRequest();
+
+            repository.Save(ar);
         }
     }
 }
