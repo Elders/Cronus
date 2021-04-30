@@ -1,3 +1,11 @@
+# [6.4.0-next.14](https://github.com/Elders/Cronus/compare/v6.4.0-next.13...v6.4.0-next.14) (2021-04-30)
+
+
+### Bug Fixes
+
+* Properly creates AR for index ([89f29d7](https://github.com/Elders/Cronus/commit/89f29d7abf084bf4f6076abb24a9339065f7ed4f))
+* Updates DomainModeling ([16bf88b](https://github.com/Elders/Cronus/commit/16bf88bee60f9db76b98e6b8aaa17e83d1949d88))
+
 # [6.4.0-next.13](https://github.com/Elders/Cronus/compare/v6.4.0-next.12...v6.4.0-next.13) (2021-04-12)
 
 
