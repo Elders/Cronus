@@ -13,6 +13,7 @@
     <Title>Cronus</Title>
     <Authors>Elders OSS</Authors>
     <Copyright>Copyright © Elders OSS 2013-2020</Copyright>
+    <Copyright>Copyright © Elders OSS 2013-2021</Copyright>
     <Description>Cronus is a lightweight framework for building event driven systems with DDD/CQRS in mind</Description>
     <PackageTags>CQRS DDD ES Event store sourcing</PackageTags>
     <PackageLicenseUrl>https://github.com/Elders/Cronus/blob/master/LICENSE</PackageLicenseUrl>
