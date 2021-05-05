@@ -10,6 +10,18 @@
 * Properly creates AR for index ([89f29d7](https://github.com/Elders/Cronus/commit/89f29d7abf084bf4f6076abb24a9339065f7ed4f))
 * Updates DomainModeling ([16bf88b](https://github.com/Elders/Cronus/commit/16bf88bee60f9db76b98e6b8aaa17e83d1949d88))
 
+# [6.4.0-next.14](https://github.com/Elders/Cronus/compare/v6.4.0-next.13...v6.4.0-next.14) (2021-05-05)
+
+
+### Bug Fixes
+
+* Adds beta branch to the azure-pipelines ([fc0e227](https://github.com/Elders/Cronus/commit/fc0e2277d2cd8684e9dd4191b50a766a3113e179))
+* Fixes copyright ([f56c5c5](https://github.com/Elders/Cronus/commit/f56c5c575a197f02f121bba763acb7faf9863c35))
+* Fixes copyright date ([2a78e58](https://github.com/Elders/Cronus/commit/2a78e589c9833e6b8621b5b7c169e5a3312999a8))
+* Fixes release.config branch ([3224128](https://github.com/Elders/Cronus/commit/32241289f04a571f45fdb9e7d605d6e8f23ffd54))
+* Properly creates AR for index ([89f29d7](https://github.com/Elders/Cronus/commit/89f29d7abf084bf4f6076abb24a9339065f7ed4f))
+* Updates DomainModeling ([16bf88b](https://github.com/Elders/Cronus/commit/16bf88bee60f9db76b98e6b8aaa17e83d1949d88))
+
 # [6.4.0-next.13](https://github.com/Elders/Cronus/compare/v6.4.0-next.12...v6.4.0-next.13) (2021-04-12)
 
 
