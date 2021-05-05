@@ -1,3 +1,10 @@
+# [6.4.0-preview.2](https://github.com/Elders/Cronus/compare/v6.4.0-preview.1...v6.4.0-preview.2) (2021-05-05)
+
+
+### Bug Fixes
+
+* Updates DomainModeling ([6b14b18](https://github.com/Elders/Cronus/commit/6b14b186a42747c8c6deaea110dab3695bb3cad7))
+
 # [6.4.0-preview.1](https://github.com/Elders/Cronus/compare/v6.4.0-next.13...v6.4.0-preview.1) (2021-05-05)
 
 
