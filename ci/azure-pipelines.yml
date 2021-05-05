@@ -7,8 +7,6 @@ trigger:
       include:
       - master
       - beta
-      - next
-      - next-major
     paths:
       exclude:
       - docs/CHANGELOG.md
