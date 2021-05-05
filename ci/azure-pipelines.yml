@@ -61,6 +61,7 @@ jobs:
   - checkout: self
     clean: true
     persistCredentials: true
+
   - task: DotNetCoreCLI@2
     name: Pack
     inputs:
