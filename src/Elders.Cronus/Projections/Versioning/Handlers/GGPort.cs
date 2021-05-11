@@ -3,10 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace Elders.Cronus.Projections.Versioning.Handlers
 {
+    [DataContract(Name = "49ff4195-0a8b-43f2-a55e-6e76a91d7bf0")]
     public class GGPort : ISystemPort,
         IEventHandler<NewProjectionVersionIsNowLive>
     {
