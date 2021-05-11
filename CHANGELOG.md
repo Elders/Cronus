@@ -1,3 +1,12 @@
+# [6.4.0-preview.4](https://github.com/Elders/Cronus/compare/v6.4.0-preview.3...v6.4.0-preview.4) (2021-05-11)
+
+
+### Bug Fixes
+
+* Adds a new method to load aggregate commits ([800d819](https://github.com/Elders/Cronus/commit/800d819d3d96b44b53b02517f58c72e85273fb2b))
+* Adds DataContract attribute to GGPort handler ([8774b7d](https://github.com/Elders/Cronus/commit/8774b7d6aadbfd6b2b4826ce9c9d2096d3b00cc4))
+* Adds public events replay functionality. This is a POC so it will be changed in future ([4636716](https://github.com/Elders/Cronus/commit/4636716c2b6acffb476012e54bc43b603c7042cd))
+
 # [6.4.0-preview.3](https://github.com/Elders/Cronus/compare/v6.4.0-preview.2...v6.4.0-preview.3) (2021-05-05)
 
 
