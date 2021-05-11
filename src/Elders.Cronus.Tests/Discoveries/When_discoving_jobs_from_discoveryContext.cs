@@ -49,11 +49,6 @@ namespace Elders.Cronus.Discoveries
 
         }
 
-        protected override TestJobData BuildInitialData()
-        {
-            throw new NotImplementedException();
-        }
-
         protected override Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();

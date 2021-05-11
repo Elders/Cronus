@@ -23,6 +23,11 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
             throw new NotImplementedException();
         }
 
+        public LoadAggregateCommitsResult LoadAggregateCommits(ReplayOptions replayOptions)
+        {
+            throw new NotImplementedException();
+        }
+
         public IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync()
         {
             throw new NotImplementedException();
