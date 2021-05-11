@@ -2,6 +2,8 @@ using System.Collections.Generic;
 
 namespace Elders.Cronus.EventStore
 {
+    public interface IEventStorePlayer<TSettings> : IEventStorePlayer where TSettings : class { }
+
     public interface IEventStorePlayer
     {
         /// <summary>
@@ -34,21 +36,7 @@ namespace Elders.Cronus.EventStore
         /// <param name="batchSize">Size of the batch.</param>
         /// <returns></returns>
         LoadAggregateCommitsResult LoadAggregateCommits(string paginationToken, int batchSize = 5000);
-    }
 
-    public interface IEventStorePlayer<TSettings> : IEventStorePlayer
-        where TSettings : class
-    { }
-
-    public class LoadAggregateCommitsResult
-    {
-        public LoadAggregateCommitsResult()
-        {
-            Commits = new List<AggregateCommit>();
-        }
-
-        public string PaginationToken { get; set; }
-
-        public List<AggregateCommit> Commits { get; set; }
+        LoadAggregateCommitsResult LoadAggregateCommits(ReplayOptions replayOptions);
     }
 }
