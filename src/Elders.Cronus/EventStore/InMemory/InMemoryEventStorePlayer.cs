@@ -27,6 +27,11 @@ namespace Elders.Cronus.EventStore.InMemory
             };
         }
 
+        public LoadAggregateCommitsResult LoadAggregateCommits(ReplayOptions replayOptions)
+        {
+            throw new NotImplementedException();
+        }
+
         public async IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync()
         {
             foreach (var @event in LoadAggregateCommits())

@@ -46,6 +46,20 @@ namespace Elders.Cronus
             }
         }
 
+        public string BoundedContext => GetHeader(MessageHeader.BoundedContext);
+
+        public string RecipientBoundedContext
+        {
+            get
+            {
+                if (HasHeader(MessageHeader.RecipientBoundedContext))
+                {
+                    return GetHeader(MessageHeader.RecipientBoundedContext);
+                }
+                return BoundedContext;
+            }
+        }
+
         string GetHeader(string key)
         {
             string value;

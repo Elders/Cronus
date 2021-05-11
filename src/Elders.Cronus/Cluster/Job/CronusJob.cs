@@ -10,14 +10,13 @@ namespace Elders.Cronus.Cluster.Job
         where TData : class, IJobData, new()
     {
         Func<TData, TData> DataOverride = fromCluster => fromCluster;
+        Func<TData> InitialDataFactory = () => new TData();
 
         protected readonly ILogger<CronusJob<TData>> logger;
 
         public CronusJob(ILogger<CronusJob<TData>> logger)
         {
             this.logger = logger;
-
-            Data = BuildInitialData();
         }
 
         public abstract string Name { get; set; }
@@ -26,7 +25,20 @@ namespace Elders.Cronus.Cluster.Job
         /// Initializes a default state for the job
         /// </summary>
         /// <returns>Returns the state data</returns>
-        protected abstract TData BuildInitialData();
+        private TData BuildInitialData()
+        {
+            var initialData = InitialDataFactory();
+            OverrideData(cluster => Override(cluster, initialData));
+
+            return initialData;
+        }
+
+        public TData BuildInitialData(Func<TData> factory)
+        {
+            InitialDataFactory = factory;
+
+            return BuildInitialData();
+        }
 
         public Task<JobExecutionStatus> RunAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {

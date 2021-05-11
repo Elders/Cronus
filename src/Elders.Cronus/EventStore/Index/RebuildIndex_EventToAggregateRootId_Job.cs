@@ -23,8 +23,6 @@ namespace Elders.Cronus.EventStore.Index
 
         public override string Name { get; set; } = typeof(EventToAggregateRootId).GetContractId();
 
-        protected override RebuildIndex_JobData BuildInitialData() => new RebuildIndex_JobData();
-
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             bool hasMoreRecords = true;
@@ -57,22 +55,6 @@ namespace Elders.Cronus.EventStore.Index
 
             return JobExecutionStatus.Completed;
         }
-
-        public void SetTimeBox(VersionRequestTimebox timebox)
-        {
-            var dataOverride = BuildInitialData();
-            dataOverride.Timestamp = timebox.RebuildStartAt;
-
-            OverrideData(fromCluster => Override(fromCluster, dataOverride));
-        }
-
-        private RebuildIndex_JobData Override(RebuildIndex_JobData fromCluster, RebuildIndex_JobData dataOverride)
-        {
-            if (fromCluster.IsCompleted && fromCluster.Timestamp < dataOverride.Timestamp)
-                return dataOverride;
-            else
-                return fromCluster;
-        }
     }
 
     public class RebuildIndex_EventToAggregateRootId_JobFactory
@@ -89,7 +71,10 @@ namespace Elders.Cronus.EventStore.Index
         public RebuildIndex_EventToAggregateRootId_Job CreateJob(VersionRequestTimebox timebox)
         {
             job.Name = jobNameBuilder.GetJobName(job.Name);
-            job.SetTimeBox(timebox);
+            job.BuildInitialData(() => new RebuildIndex_JobData()
+            {
+                Timestamp = timebox.RebuildStartAt
+            });
 
             return job;
         }
@@ -135,6 +120,11 @@ namespace Elders.Cronus.EventStore.Index
     public interface IJobData
     {
         bool IsCompleted { get; set; }
+
+        ///// <summary>
+        ///// Indicates if the job data has been created locally. If the job data has been downloaded from the cluster the value will be false.
+        ///// </summary>
+        //bool IsLocal { get; set; }
 
         DateTimeOffset Timestamp { get; set; }
     }

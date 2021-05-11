@@ -35,8 +35,6 @@ namespace Elders.Cronus.EventStore.Index
 
         public override string Name { get; set; } = typeof(MessageCounterIndex).GetContractId();
 
-        protected override RebuildEventCounterIndex_JobData BuildInitialData() => new RebuildEventCounterIndex_JobData();
-
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             // mynkow. this one fails
@@ -138,22 +136,6 @@ namespace Elders.Cronus.EventStore.Index
 
             return IndexStatus.NotPresent;
         }
-
-        public void SetTimeBox(VersionRequestTimebox timebox)
-        {
-            var dataOverride = BuildInitialData();
-            dataOverride.Timestamp = timebox.RebuildStartAt;
-
-            OverrideData(fromCluster => Override(fromCluster, dataOverride));
-        }
-
-        private RebuildEventCounterIndex_JobData Override(RebuildEventCounterIndex_JobData fromCluster, RebuildEventCounterIndex_JobData dataOverride)
-        {
-            if (fromCluster.IsCompleted && fromCluster.Timestamp < dataOverride.Timestamp)
-                return dataOverride;
-            else
-                return fromCluster;
-        }
     }
 
     public class RebuildIndex_MessageCounter_JobFactory
@@ -172,7 +154,10 @@ namespace Elders.Cronus.EventStore.Index
         public RebuildIndex_MessageCounter_Job CreateJob(VersionRequestTimebox timebox)
         {
             job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}";
-            job.SetTimeBox(timebox);
+            job.BuildInitialData(() => new RebuildEventCounterIndex_JobData()
+            {
+                Timestamp = timebox.RebuildStartAt
+            });
 
             return job;
         }
