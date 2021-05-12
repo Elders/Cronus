@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Elders.Cronus.Projections.Snapshotting;
 
@@ -30,7 +29,7 @@ namespace Elders.Cronus.Projections
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorException(ex, () => $"Unable to load projection. {typeof(T).Name}({projectionId})");
+                    log.ErrorException(ex, () => "Unable to load projection.");
                     return ReadResult<T>.WithError(ex);
                 }
             }
@@ -56,7 +55,7 @@ namespace Elders.Cronus.Projections
                 }
                 catch (Exception ex)
                 {
-                    log.ErrorException(ex, () => $"Unable to load projection. {projectionType.Name}({projectionId})");
+                    log.ErrorException(ex, () => "Unable to load projection.");
                     return ReadResult<IProjectionDefinition>.WithError(ex);
                 }
             }
@@ -72,7 +71,7 @@ namespace Elders.Cronus.Projections
                 ProjectionVersion liveVersion = result.Data.GetLive();
                 if (liveVersion is null)
                 {
-                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}{Environment.NewLine}AvailableVersions:{Environment.NewLine}{result.Data.ToString()}");
+                    log.Warn(() => $"Unable to find projection `live` version. {Environment.NewLine}AvailableVersions:{Environment.NewLine}{result.Data.ToString()}");
                     return ProjectionStream.Empty();
                 }
 
