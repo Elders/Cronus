@@ -1,3 +1,10 @@
+# [6.4.0-preview.6](https://github.com/Elders/Cronus/compare/v6.4.0-preview.5...v6.4.0-preview.6) (2021-05-12)
+
+
+### Bug Fixes
+
+* Improves logging when a projection instance fails to load ([b0efe61](https://github.com/Elders/Cronus/commit/b0efe61d18fa9a1dd87e0ae16c9f12d952f3c311))
+
 # [6.4.0-preview.5](https://github.com/Elders/Cronus/compare/v6.4.0-preview.4...v6.4.0-preview.5) (2021-05-12)
 
 
