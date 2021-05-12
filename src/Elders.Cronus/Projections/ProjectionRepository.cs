@@ -167,35 +167,55 @@ namespace Elders.Cronus.Projections
 
         public ReadResult<T> Get<T>(IBlobId projectionId) where T : IProjectionDefinition
         {
-            try
-            {
-                if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+            Type projectionType = typeof(T);
 
-                Type projectionType = typeof(T);
-
-                ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
-                return new ReadResult<T>(stream.RestoreFromHistory<T>());
-            }
-            catch (Exception ex)
+            using (log.BeginScope(s => s
+                       .AddScope(Log.ProjectionName, projectionType.GetContractId())
+                       .AddScope(Log.ProjectionType, projectionType.Name)
+                       .AddScope(Log.ProjectionInstanceId, projectionId.RawId)))
             {
-                log.ErrorException(ex, () => $"Unable to load projection. {typeof(T).Name}({projectionId})");
-                return ReadResult<T>.WithError(ex);
+                try
+                {
+                    if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+
+                    ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
+                    var readResult = new ReadResult<T>(stream.RestoreFromHistory<T>());
+                    if (readResult.NotFound)
+                        log.Warn(() => "Projection instance not found.");
+
+                    return readResult;
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorException(ex, () => $"Unable to load projection. {typeof(T).Name}({projectionId})");
+                    return ReadResult<T>.WithError(ex);
+                }
             }
         }
 
         public ReadResult<IProjectionDefinition> Get(IBlobId projectionId, Type projectionType)
         {
-            if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+            using (log.BeginScope(s => s
+                       .AddScope(Log.ProjectionName, projectionType.GetContractId())
+                       .AddScope(Log.ProjectionType, projectionType.Name)
+                       .AddScope(Log.ProjectionInstanceId, projectionId.RawId)))
+            {
+                if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
 
-            try
-            {
-                ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
-                return new ReadResult<IProjectionDefinition>(stream.RestoreFromHistory(projectionType));
-            }
-            catch (Exception ex)
-            {
-                log.ErrorException(ex, () => $"Unable to load projection. {projectionType.Name}({projectionId})");
-                return ReadResult<IProjectionDefinition>.WithError(ex);
+                try
+                {
+                    ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
+                    var readResult = new ReadResult<IProjectionDefinition>(stream.RestoreFromHistory(projectionType));
+                    if (readResult.NotFound)
+                        log.Warn(() => "Projection instance not found.");
+
+                    return readResult;
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorException(ex, () => $"Unable to load projection. {projectionType.Name}({projectionId})");
+                    return ReadResult<IProjectionDefinition>.WithError(ex);
+                }
             }
         }
 

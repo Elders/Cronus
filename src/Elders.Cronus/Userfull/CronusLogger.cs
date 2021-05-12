@@ -9,6 +9,13 @@ namespace Elders.Cronus
     {
         public const string AggregateId = "cronus_arid";
         public const string AggregateName = "cronus_arname";
+
+        public const string JobName = "cronus_job_name";
+        public const string JobData = "cronus_job_data";
+
+        public const string ProjectionName = "cronus_projection_name";
+        public const string ProjectionType = "cronus_projection_type";
+        public const string ProjectionInstanceId = "cronus_projection_id";
     }
 
     public static class CronusLogger
