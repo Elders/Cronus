@@ -149,11 +149,20 @@ Valid values:
 
 ## Cronus.Projections.Cassandra
 
-#### `Cronus:Projections:Cassandra:ConnectionString` &gt;&gt; _string \| Required: Yes_
+| Name | Type | Required | Default Value |
+| :--- | :--- | :--- | :--- |
+| [Cronus:Projections:Cassandra:ConnectionString](configuration.md#cronus-projections-cassandra-connectionstring) | string | yes |  |
+| [Cronus:Pojections:Cassandra:ReplicationStrategy](configuration.md#cronus-projections-cassandra-replicationstrategy) | string | no | simple |
+| [Cronus:Pojections:Cassandra:ReplicationFactor](configuration.md#cronus-projections-cassandra-replicationfactor) | int | no | 1 |
+| [Cronus:Pojections:Cassandra:Datacenters](configuration.md#cronus-projections-cassandra-datacenters) | string\[\] | no |  |
+| [Cronus:Pojections:Cassandra:TableRetention:DeleteOldProjectionTables](configuration.md#cronus-projections-cassandra-tableretention-deleteoldprojectiontables) | boolean | no | true |
+| [Cronus:Projections:Cassandra:TableRetention:NumberOfOldProjectionTablesToRetain](configuration.md#cronus-projections-cassandra-tableretention-numberofoldprojectiontablestoretain) | uint | no | 2 |
+
+#### `Cronus:Projections:Cassandra:ConnectionString`
 
 The connection to the Cassandra database server
 
-#### `Cronus:Projections:Cassandra:ReplicationStrategy` &gt;&gt; _string \| Required: No \| Default: simple_
+#### `Cronus:Projections:Cassandra:ReplicationStrategy`
 
 Configures Cassandra replication strategy. This setting has effect only in the first run when creating the database.
 
@@ -162,13 +171,17 @@ Valid values:
 * simple
 * network\_topology - when using this setting you need to specify `Cronus:Projections:Cassandra:ReplicationFactor` and  `Cronus:Projections:Cassandra:Datacenters` as well
 
-#### `Cronus:Projections:Cassandra:ReplicationFactor` &gt;&gt; _integer \| Required: No \| Default: 1_
+#### `Cronus:Projections:Cassandra:ReplicationFactor`
 
-#### `Cronus:Projections:Cassandra:Datacenters` &gt;&gt; _string\[\] \| Required: No_
+#### `Cronus:Projections:Cassandra:Datacenters`
 
-#### `Cronus:Projections:Cassandra:TableRetention:DeleteOldProjectionTables` &gt;&gt; _boolean \| Required: No \| Default: true_
+#### `Cronus:Projections:Cassandra:TableRetention:DeleteOldProjectionTables` 
 
-#### `Cronus:Projections:Cassandra:TableRetention:NumberOfOldProjectionTablesToRetain` &gt;&gt; _unsigned integer \| Required: No \| Default: 2_
+Enables deletion of old projection tables
+
+#### `Cronus:Projections:Cassandra:TableRetention:NumberOfOldProjectionTablesToRetain` 
+
+Configures Cassandra number of old projection tables -&gt; default: live table and 2 old tables
 
 ## Cronus.Transport.RabbitMq
 
