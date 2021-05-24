@@ -1,3 +1,10 @@
+# [6.4.0-preview.7](https://github.com/Elders/Cronus/compare/v6.4.0-preview.6...v6.4.0-preview.7) (2021-05-24)
+
+
+### Bug Fixes
+
+* Properly logs projectionid via structured logging ([a582fdf](https://github.com/Elders/Cronus/commit/a582fdf3a4b0fbb269298a500608485cbb0975ba))
+
 # [6.4.0-preview.6](https://github.com/Elders/Cronus/compare/v6.4.0-preview.5...v6.4.0-preview.6) (2021-05-12)
 
 
