@@ -171,7 +171,7 @@ namespace Elders.Cronus.Projections
             using (log.BeginScope(s => s
                        .AddScope(Log.ProjectionName, projectionType.GetContractId())
                        .AddScope(Log.ProjectionType, projectionType.Name)
-                       .AddScope(Log.ProjectionInstanceId, projectionId.RawId)))
+                       .AddScope(Log.ProjectionInstanceId, Convert.ToBase64String(projectionId.RawId))))
             {
                 try
                 {
