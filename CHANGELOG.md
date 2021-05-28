@@ -1,3 +1,10 @@
+# [6.4.0-preview.8](https://github.com/Elders/Cronus/compare/v6.4.0-preview.7...v6.4.0-preview.8) (2021-05-28)
+
+
+### Bug Fixes
+
+* Index public events ([4dc5a33](https://github.com/Elders/Cronus/commit/4dc5a33e88b87a4ce204369427ea061f0bde5ab7))
+
 # [6.4.0-preview.7](https://github.com/Elders/Cronus/compare/v6.4.0-preview.6...v6.4.0-preview.7) (2021-05-24)
 
 
