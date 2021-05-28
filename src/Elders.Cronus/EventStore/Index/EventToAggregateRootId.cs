@@ -28,6 +28,13 @@ namespace Elders.Cronus.EventStore.Index
                 indexRecordsBatch.Add(record);
             }
 
+            foreach (var publicEvent in aggregateCommit.PublicEvents)
+            {
+                string eventTypeId = publicEvent.GetType().GetContractId();
+                var record = new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId);
+                indexRecordsBatch.Add(record);
+            }
+
             indexStore.Apend(indexRecordsBatch);
         }
 
