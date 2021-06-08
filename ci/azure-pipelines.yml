@@ -28,6 +28,12 @@ jobs:
   - checkout: self
     clean: true
     persistCredentials: true
+    
+  - task: DotNetCoreCLI@2
+    name: Test
+    inputs:
+      command: 'test'
+      projects: 'src/**/*.Tests.csproj'
 
   - task: Bash@3
     name: GetNextVersion
