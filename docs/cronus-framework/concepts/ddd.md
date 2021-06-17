@@ -1,4 +1,8 @@
-# DDD
+---
+description: DDD
+---
+
+# Domain Driven Design
 
 ## What is Domain Driven Design?
 
