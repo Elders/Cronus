@@ -8,7 +8,7 @@ description: >-
 
 ## Welcome to the Cronus documentation
 
-Cronus is an open-source framework which helps you solve business problems with less time spent on infrastructure concerns. Applications built with Cronus are centered around three core concepts:
+Cronus is an open-source framework which helps you to solve business problems with less time spent on infrastructure concerns. Applications built with Cronus are centered around three core concepts:
 
 * [Domain Driven Design](cronus-framework/concepts/ddd.md)
 * [Event Sourcing](cronus-framework/concepts/es.md)
@@ -18,7 +18,7 @@ While many types of applications can be built using Cronus, it has proven to be 
 
 ## What is Cronus?
 
-Cronus has its roots way back in 2012 when couple of passionate software engineers started building the infrastructure for a software project using DDD/CQRS/ES. The results were quite impressive and the team started growing. Everybody was sharing the same vision and passion for going beyond the boundaries of our skills. The amazing part of this story is that this hasn't changed. Cronus is a reflection of our philosophy for building great software solutions. 
+Cronus has its roots way back in 2012 when couple of passionate software engineers started building the infrastructure for a software project using DDD/CQRS/ES. The results were quite impressive and the team started growing. Everybody was sharing the same vision and passion for going beyond the boundaries of their skills. The amazing part of this story is that this hasn't changed. Cronus is a reflection of our philosophy for building great software solutions. 
 
 
 
