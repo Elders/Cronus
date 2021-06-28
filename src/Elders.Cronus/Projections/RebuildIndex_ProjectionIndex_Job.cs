@@ -16,8 +16,24 @@ using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections
 {
+    public class SystemProjectionHelper
+    {
+        private readonly ProjectionHasher projectionHasher;
+
+        public SystemProjectionHelper(ProjectionHasher projectionHasher)
+        {
+            this.projectionHasher = projectionHasher;
+        }
+
+        public ProjectionVersion GetProjectionVersionsVersion()
+        {
+            return new ProjectionVersion(ProjectionVersionsHandler.ContractId, ProjectionStatus.Live, 1, projectionHasher.CalculateHash(typeof(ProjectionVersionsHandler)));
+        }
+    }
+
     public class RebuildIndex_ProjectionIndex_Job : CronusJob<RebuildProjectionIndex_JobData>
     {
+        private readonly SystemProjectionHelper systemProjectionHelper;
         private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly IEventStore eventStore;
@@ -27,8 +43,9 @@ namespace Elders.Cronus.Projections
         private readonly CronusContext context;
         private readonly IMessageCounter messageCounter;
 
-        public RebuildIndex_ProjectionIndex_Job(IPublisher<ISystemSignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, IEventStore eventStore, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
+        public RebuildIndex_ProjectionIndex_Job(SystemProjectionHelper systemProjectionHelper, IPublisher<ISystemSignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, IEventStore eventStore, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
         {
+            this.systemProjectionHelper = systemProjectionHelper;
             this.signalPublisher = signalPublisher;
             this.projectionStoreInitializer = projectionStoreInitializer;
             this.eventStore = eventStore;
@@ -44,15 +61,24 @@ namespace Elders.Cronus.Projections
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             ProjectionVersion version = Data.Version;
+
+            if (IsVersionTrackerMissing())
+            {
+                if (version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase))
+                {
+                    ProjectionVersion persistentVersion = systemProjectionHelper.GetProjectionVersionsVersion();
+                    projectionStoreInitializer.Initialize(persistentVersion);
+                }
+                else
+                {
+                    return JobExecutionStatus.Running;
+                }
+            }
+
             Type projectionType = version.ProjectionName.GetTypeByContract();
-
-            var startSignal = Data.GetProgressStartedSignal(context.Tenant);
-            signalPublisher.Publish(startSignal);
-
-            // mynkow. this one fails
             IndexStatus indexStatus = GetIndexStatus<EventToAggregateRootId>();
-            if (indexStatus.IsNotPresent() && IsNotSystemProjection(projectionType)) return JobExecutionStatus.Running;// ReplayResult.RetryLater($"The index is not present");
 
+            if (indexStatus.IsNotPresent() && IsNotSystemProjection(projectionType)) return JobExecutionStatus.Running;// ReplayResult.RetryLater($"The index is not present");
             if (IsVersionTrackerMissing() && IsNotSystemProjection(projectionType)) return JobExecutionStatus.Running;// ReplayResult.RetryLater($"Projection `{version}` still don't have present index."); //WHEN TO RETRY AGAIN
             if (HasReplayTimeout(Data.DueDate)) return JobExecutionStatus.Failed;// ReplayResult.Timeout($"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{Data.DueDate}.");
 
@@ -63,6 +89,9 @@ namespace Elders.Cronus.Projections
             Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
 
             projectionStoreInitializer.Initialize(version);
+
+            var startSignal = Data.GetProgressStartedSignal(context.Tenant);
+            signalPublisher.Publish(startSignal);
 
             IEnumerable<Type> projectionHandledEventTypes = GetInvolvedEventTypes(projectionType);
             foreach (Type eventType in projectionHandledEventTypes)
