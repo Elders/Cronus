@@ -1,3 +1,11 @@
+# [6.4.0-preview.9](https://github.com/Elders/Cronus/compare/v6.4.0-preview.8...v6.4.0-preview.9) (2021-06-28)
+
+
+### Bug Fixes
+
+* Adds a parameter check when resolving a tenant ([665d064](https://github.com/Elders/Cronus/commit/665d064327f206d0aa9143949d7faaab7d80c198))
+* Improves how the projections are rebuilt ([7d5cd8c](https://github.com/Elders/Cronus/commit/7d5cd8c4d6897159e03ea618002f0914f0db005a))
+
 # [6.4.0-preview.8](https://github.com/Elders/Cronus/compare/v6.4.0-preview.7...v6.4.0-preview.8) (2021-05-28)
 
 
