@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -28,6 +29,8 @@ namespace Elders.Cronus.Multitenancy
 
         public string Resolve(object source)
         {
+            if (source is null) throw new ArgumentNullException(nameof(source));
+
             ResolverCache resolverCache;
             if (resolvers.TryGetValue(source.GetType(), out resolverCache) == false)
             {
