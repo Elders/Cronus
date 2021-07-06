@@ -1,3 +1,10 @@
+# [6.4.0-preview.10](https://github.com/Elders/Cronus/compare/v6.4.0-preview.9...v6.4.0-preview.10) (2021-07-06)
+
+
+### Bug Fixes
+
+* Fix republish for IEventSourced projections ([48b7e8d](https://github.com/Elders/Cronus/commit/48b7e8d2bd6a589a3191cfae1b4e5b94921ff257))
+
 # [6.4.0-preview.9](https://github.com/Elders/Cronus/compare/v6.4.0-preview.8...v6.4.0-preview.9) (2021-06-28)
 
 
