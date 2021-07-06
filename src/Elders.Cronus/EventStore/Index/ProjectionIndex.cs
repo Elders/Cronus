@@ -24,9 +24,13 @@ namespace Elders.Cronus.EventStore.Index
 
         public void Index(CronusMessage message)
         {
+            IEnumerable<Type> projectionTypes = projectionsContainer.Items;
+            if (message.IsRepublished)
+                projectionTypes = message.RecipientHandlers.Intersect(projectionsContainer.Items.Select(t => t.GetContractId())).Select(dc => dc.GetTypeByContract());
+
             Type baseMessageType = typeof(IMessage);
             Type messagePayloadType = message.Payload.GetType();
-            foreach (var projectionType in projectionsContainer.Items)
+            foreach (var projectionType in projectionTypes)
             {
                 bool isInterested = projectionType.GetInterfaces()
                     .Where(x => x.IsGenericType && x.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(x.GetGenericArguments()[0])))

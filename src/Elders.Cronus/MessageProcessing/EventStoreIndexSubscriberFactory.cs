@@ -19,7 +19,7 @@ namespace Elders.Cronus.MessageProcessing
 
         public ISubscriber Create(Type indexType)
         {
-            return new EventStoreIndexSubscriber(indexType, allEventTypesInTheSystem, workflow);
+            return new EventStoreIndexSubscriber(indexType, workflow, allEventTypesInTheSystem);
         }
     }
 }
