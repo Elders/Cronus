@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 
 namespace Elders.Cronus
@@ -45,6 +46,8 @@ namespace Elders.Cronus
                 return Array.Empty<string>();
             }
         }
+
+        public bool IsRepublished => RecipientHandlers.Any();
 
         public string BoundedContext => GetHeader(MessageHeader.BoundedContext);
 
