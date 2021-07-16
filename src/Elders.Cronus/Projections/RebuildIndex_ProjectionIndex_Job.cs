@@ -62,6 +62,11 @@ namespace Elders.Cronus.Projections
         {
             ProjectionVersion version = Data.Version;
 
+            if (version.ProjectionName.Equals("e8f5fd6f-8d2e-4984-8188-fe3b67345f9d"))
+            {
+                int asd = 5;
+            }
+
             if (IsVersionTrackerMissing())
             {
                 if (version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase))

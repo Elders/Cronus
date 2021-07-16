@@ -33,4 +33,35 @@ namespace Elders.Cronus.Projections.Versioning
             return $"Timeout projection version requested for `{Version}` with timebox `{Timebox}`";
         }
     }
+
+    [DataContract(Name = "bc8767fd-79cf-43fd-b689-e7dee6dd080e")]
+    public class ProjectionVersionRebuildHasTimedout : ISystemEvent
+    {
+        ProjectionVersionRebuildHasTimedout() { }
+
+        public ProjectionVersionRebuildHasTimedout(ProjectionVersionManagerId id, ProjectionVersion version, VersionRequestTimebox timebox)
+        {
+            Id = id;
+            Version = version;
+            RequestTimestamp = DateTime.UtcNow.ToFileTimeUtc();
+            Timebox = timebox;
+        }
+
+        [DataMember(Order = 1)]
+        public ProjectionVersionManagerId Id { get; private set; }
+
+        [DataMember(Order = 2)]
+        public ProjectionVersion Version { get; private set; }
+
+        [DataMember(Order = 3)]
+        public long RequestTimestamp { get; private set; }
+
+        [DataMember(Order = 4)]
+        public VersionRequestTimebox Timebox { get; private set; }
+
+        public override string ToString()
+        {
+            return $"Timeout projection version requested for `{Version}` with timebox `{Timebox}`";
+        }
+    }
 }

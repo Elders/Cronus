@@ -8,7 +8,14 @@ namespace Elders.Cronus
 
     public interface ISystemProjection : IProjection, ISystemHandler { }
 
-    public interface INonVersionableProjection { }
+    public interface INonVersionableProjection
+    {
+        string GetHash() => "ver";
+
+        int GetRevision() => 1;
+    }
+
+    public interface INonRebuildableProjection { }
 
     public interface ISystemHandler : IMessageHandler { }
 

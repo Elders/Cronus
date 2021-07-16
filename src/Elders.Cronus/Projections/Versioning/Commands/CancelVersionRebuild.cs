@@ -2,12 +2,12 @@
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Name = "633bc496-7efb-4bfb-9eb2-cccceea09a21")]
-    public class CancelProjectionVersionRequest : ISystemCommand
+    [DataContract(Name = "8b40c32d-c62e-4ae7-bb65-dfe385b66509")]
+    public class CancelVersionRebuild : ISystemCommand
     {
-        CancelProjectionVersionRequest() { }
+        CancelVersionRebuild() { }
 
-        public CancelProjectionVersionRequest(ProjectionVersionManagerId id, ProjectionVersion version, string reason)
+        public CancelVersionRebuild(ProjectionVersionManagerId id, ProjectionVersion version, string reason)
         {
             Id = id;
             Version = version;
@@ -25,7 +25,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public override string ToString()
         {
-            return $"Cancel projection replaying for version `{Version}`. {nameof(ProjectionVersionManagerId)}: `{Id}`. Reason: `{Reason}`.";
+            return $"Cancel projection rebuilding for version `{Version}`. {nameof(ProjectionVersionManagerId)}: `{Id}`. Reason: `{Reason}`.";
         }
     }
 }
