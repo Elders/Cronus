@@ -11,7 +11,7 @@ namespace Elders.Cronus.Projections.Versioning
         public RegisterProjection(ProjectionVersionManagerId id, string hash)
         {
             if (id is null) throw new ArgumentNullException(nameof(id));
-            if (string.IsNullOrEmpty(hash)) throw new ArgumentNullException(nameof(hash));
+            // if (string.IsNullOrEmpty(hash)) throw new ArgumentNullException(nameof(hash));
 
             Id = id;
             Hash = hash;

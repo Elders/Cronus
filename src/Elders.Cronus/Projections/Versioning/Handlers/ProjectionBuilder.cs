@@ -7,7 +7,10 @@ namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = "d0dc548e-cbb1-4cb8-861b-e5f6bef68116")]
     public class ProjectionBuilder : Saga, ISystemSaga,
-        IEventHandler<ProjectionVersionRequested>,
+        IEventHandler<ProjectionVersionRequestedForReplay>,
+        IEventHandler<ProjectionVersionRequestedForRebuild>,
+        ISagaTimeoutHandler<ReplayProjectionVersion>,
+        ISagaTimeoutHandler<ProjectionVersionReplayTimedout>,
         ISagaTimeoutHandler<RebuildProjectionVersion>,
         ISagaTimeoutHandler<ProjectionVersionRebuildTimedout>
     {
@@ -23,7 +26,17 @@ namespace Elders.Cronus.Projections.Versioning
             this.jobFactory = jobFactory;
         }
 
-        public void Handle(ProjectionVersionRequested @event)
+        public void Handle(ProjectionVersionRequestedForReplay @event)
+        {
+            var startRebuildAt = @event.Timebox.RebuildStartAt;
+            if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
+            {
+                RequestTimeout(new ReplayProjectionVersion(@event, @event.Timebox.RebuildStartAt));
+                RequestTimeout(new ProjectionVersionReplayTimedout(@event, @event.Timebox.RebuildFinishUntil));
+            }
+        }
+
+        public void Handle(ProjectionVersionRequestedForRebuild @event)
         {
             var startRebuildAt = @event.Timebox.RebuildStartAt;
             if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
@@ -33,16 +46,16 @@ namespace Elders.Cronus.Projections.Versioning
             }
         }
 
-        public void Handle(RebuildProjectionVersion sagaTimeout)
+        public void Handle(ReplayProjectionVersion sagaTimeout)
         {
             RebuildIndex_ProjectionIndex_Job job = jobFactory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             JobExecutionStatus result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
-            logger.Debug(() => "Rebuild projection version {@cronus_projection_rebuild}", result);
+            logger.Debug(() => "Replay projection version {@cronus_projection_rebuild}", result);
 
 
             if (result == JobExecutionStatus.Running)
             {
-                RequestTimeout(new RebuildProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
+                RequestTimeout(new ReplayProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
             }
             else if (result == JobExecutionStatus.Failed)
             {
@@ -56,26 +69,76 @@ namespace Elders.Cronus.Projections.Versioning
             }
         }
 
-        public void Handle(ProjectionVersionRebuildTimedout sagaTimeout)
+        public void Handle(ProjectionVersionReplayTimedout sagaTimeout)
         {
             var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
+            commandPublisher.Publish(timedout);
+        }
+
+        public void Handle(RebuildProjectionVersion sagaTimeout)
+        {
+            RebuildIndex_ProjectionIndex_Job job = jobFactory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
+            JobExecutionStatus result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
+            logger.Debug(() => "Rebuild projection version {@cronus_projection_rebuild}", result);
+
+            if (result == JobExecutionStatus.Running)
+            {
+                RequestTimeout(new RebuildProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
+            }
+            else if (result == JobExecutionStatus.Failed)
+            {
+                ProjectionVersion version = sagaTimeout.ProjectionVersionRequest.Version.WithRebuildingStatus(ProjectionRebuildStatus.Failed);
+                var cancel = new CancelVersionRebuild(sagaTimeout.ProjectionVersionRequest.Id, version, "Failed");
+                commandPublisher.Publish(cancel);
+            }
+            else if (result == JobExecutionStatus.Completed)
+            {
+                ProjectionVersion versionWithStatusDone = sagaTimeout.ProjectionVersionRequest.Version.WithRebuildingStatus(ProjectionRebuildStatus.Done);
+                var finalize = new FinalizeProjectionVersionRebuild(sagaTimeout.ProjectionVersionRequest.Id, versionWithStatusDone);
+                commandPublisher.Publish(finalize);
+            }
+        }
+
+        public void Handle(ProjectionVersionRebuildTimedout sagaTimeout)
+        {
+            var timedout = new TimeoutProjectionRebuildRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             commandPublisher.Publish(timedout);
         }
     }
 
     [DataContract(Name = "029602fa-db90-47a4-9c8b-c304d5ee177a")]
-    public class RebuildProjectionVersion : ISystemScheduledMessage
+    public class ReplayProjectionVersion : ISystemScheduledMessage
     {
-        RebuildProjectionVersion() { }
+        ReplayProjectionVersion() { }
 
-        public RebuildProjectionVersion(ProjectionVersionRequested projectionVersionRequest, DateTime publishAt)
+        public ReplayProjectionVersion(ProjectionVersionRequestedForReplay projectionVersionRequest, DateTime publishAt)
         {
             ProjectionVersionRequest = projectionVersionRequest;
             PublishAt = publishAt;
         }
 
         [DataMember(Order = 1)]
-        public ProjectionVersionRequested ProjectionVersionRequest { get; private set; }
+        public ProjectionVersionRequestedForReplay ProjectionVersionRequest { get; private set; }
+
+        [DataMember(Order = 2)]
+        public DateTime PublishAt { get; set; }
+
+        public string Tenant { get { return ProjectionVersionRequest.Id.Tenant; } }
+    }
+
+    [DataContract(Name = "1bd9337c-a506-4754-b206-da36d1478c56")]
+    public class RebuildProjectionVersion : ISystemScheduledMessage
+    {
+        RebuildProjectionVersion() { }
+
+        public RebuildProjectionVersion(ProjectionVersionRequestedForRebuild projectionVersionRequest, DateTime publishAt)
+        {
+            ProjectionVersionRequest = projectionVersionRequest;
+            PublishAt = publishAt;
+        }
+
+        [DataMember(Order = 1)]
+        public ProjectionVersionRequestedForRebuild ProjectionVersionRequest { get; private set; }
 
         [DataMember(Order = 2)]
         public DateTime PublishAt { get; set; }
@@ -84,18 +147,38 @@ namespace Elders.Cronus.Projections.Versioning
     }
 
     [DataContract(Name = "11c1ae7d-04f4-4266-a21e-78ddc440d68b")]
-    public class ProjectionVersionRebuildTimedout : ISystemScheduledMessage
+    public class ProjectionVersionReplayTimedout : ISystemScheduledMessage
     {
-        ProjectionVersionRebuildTimedout() { }
+        ProjectionVersionReplayTimedout() { }
 
-        public ProjectionVersionRebuildTimedout(ProjectionVersionRequested projectionVersionRequest, DateTime publishAt)
+        public ProjectionVersionReplayTimedout(ProjectionVersionRequestedForReplay projectionVersionRequest, DateTime publishAt)
         {
             ProjectionVersionRequest = projectionVersionRequest;
             PublishAt = publishAt;
         }
 
         [DataMember(Order = 1)]
-        public ProjectionVersionRequested ProjectionVersionRequest { get; private set; }
+        public ProjectionVersionRequestedForReplay ProjectionVersionRequest { get; private set; }
+
+        [DataMember(Order = 2)]
+        public DateTime PublishAt { get; set; }
+
+        public string Tenant { get { return ProjectionVersionRequest.Id.Tenant; } }
+    }
+
+    [DataContract(Name = "79760276-cd68-43f7-9538-d428bf0c690f")]
+    public class ProjectionVersionRebuildTimedout : ISystemScheduledMessage
+    {
+        ProjectionVersionRebuildTimedout() { }
+
+        public ProjectionVersionRebuildTimedout(ProjectionVersionRequestedForRebuild projectionVersionRequest, DateTime publishAt)
+        {
+            ProjectionVersionRequest = projectionVersionRequest;
+            PublishAt = publishAt;
+        }
+
+        [DataMember(Order = 1)]
+        public ProjectionVersionRequestedForRebuild ProjectionVersionRequest { get; private set; }
 
         [DataMember(Order = 2)]
         public DateTime PublishAt { get; set; }

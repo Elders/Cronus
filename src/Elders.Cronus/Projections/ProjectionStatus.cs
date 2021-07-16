@@ -79,4 +79,66 @@ namespace Elders.Cronus.Projections
             return status;
         }
     }
+
+    [DataContract(Name = "81f173e5-9479-4716-a1f0-e46f29de7e2c")]
+    public class ProjectionRebuildStatus : ValueObject<ProjectionRebuildStatus>
+    {
+        ProjectionRebuildStatus() { }
+
+        ProjectionRebuildStatus(string status)
+        {
+            this.status = status;
+        }
+
+        [DataMember(Order = 1)]
+        string status;
+
+        /// <summary>
+        /// The projection rebuild has not been started yet.
+        /// </summary>
+        public static ProjectionRebuildStatus Idle = new ProjectionRebuildStatus("idle");
+
+        /// <summary>
+        /// The projection is currently rebuilding
+        /// </summary>
+        public static ProjectionRebuildStatus Rebuilding = new ProjectionRebuildStatus("rebuilding");
+
+        /// <summary>
+        /// The projection rebuild has failed.
+        /// </summary>
+        public static ProjectionRebuildStatus Failed = new ProjectionRebuildStatus("failed");
+
+        /// <summary>
+        /// The projection rebuild is done.
+        /// </summary>
+        public static ProjectionRebuildStatus Done = new ProjectionRebuildStatus("done");
+
+        public static ProjectionRebuildStatus Create(string status)
+        {
+            switch (status?.ToLower())
+            {
+                case "idle":
+                    return Idle;
+                case "rebuilding":
+                    return Rebuilding;
+                case "failed":
+                    return Failed;
+                case "done":
+                    return Done;
+                default:
+                    return new ProjectionRebuildStatus("unknown");
+            }
+        }
+
+        public static implicit operator string(ProjectionRebuildStatus status)
+        {
+            if (ReferenceEquals(null, status) == true) throw new ArgumentNullException(nameof(status));
+            return status.status;
+        }
+
+        public override string ToString()
+        {
+            return status;
+        }
+    }
 }

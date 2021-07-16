@@ -126,18 +126,18 @@ namespace Elders.Cronus.Projections
             {
                 if (HasLiveVersion)
                 {
-                    return GetLive().NonVersionableRevision();
+                    return GetLive().NonVersionableRevision(hash); // here comes the problem 
                 }
                 else
                 {
                     var maxRevision = versions.Max(ver => ver.Revision);
                     var candidate = versions.Where(x => x.Revision == maxRevision).FirstOrDefault(); // TODO: This will crash with null ref
-                    return candidate.NonVersionableRevision();
+                    return candidate.NonVersionableRevision(hash);
                 }
             }
         }
 
-        private bool IsVersionable(IProjectionVersioningPolicy policy)
+        public bool IsVersionable(IProjectionVersioningPolicy policy)
         {
             try
             {
@@ -148,6 +148,11 @@ namespace Elders.Cronus.Projections
             {
                 return true;
             }
+        }
+
+        public bool HasRebuildingVersion()
+        {
+            return versions.Any(ver => ver.RebuildStatus == ProjectionRebuildStatus.Rebuilding);
         }
 
         public bool IsHashTheLiveOne(string hash)

@@ -16,6 +16,11 @@ namespace Elders.Cronus.Projections.Versioning
 
         public string CalculateHash(Type projectionType)
         {
+            if (typeof(INonVersionableProjection).IsAssignableFrom(projectionType))
+            {
+                return ((INonVersionableProjection)Activator.CreateInstance(projectionType)).GetHash();
+            }
+
             var ieventHandler = typeof(IEventHandler<>).GetGenericTypeDefinition();
             var allEvents = projectionType
                 .GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler)
@@ -25,7 +30,7 @@ namespace Elders.Cronus.Projections.Versioning
             return CalculateHash(allEvents);
         }
 
-        public string CalculateHash(List<string> contractIds)
+        string CalculateHash(List<string> contractIds)
         {
             int hashCode = HashCodeUtility.GetPersistentHashCode(contractIds);
             byte[] b = BitConverter.GetBytes(hashCode);

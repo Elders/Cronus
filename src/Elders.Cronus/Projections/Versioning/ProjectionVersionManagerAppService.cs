@@ -2,10 +2,14 @@
 {
     public class ProjectionVersionManagerAppService : ApplicationService<ProjectionVersionManager>, ISystemAppService,
         ICommandHandler<RegisterProjection>,
-        ICommandHandler<RebuildProjection>,
+        ICommandHandler<ReplayProjection>,
         ICommandHandler<FinalizeProjectionVersionRequest>,
         ICommandHandler<CancelProjectionVersionRequest>,
-        ICommandHandler<TimeoutProjectionVersionRequest>
+        ICommandHandler<TimeoutProjectionVersionRequest>,
+        ICommandHandler<RebuildProjection>,
+        ICommandHandler<CancelVersionRebuild>,
+        ICommandHandler<FinalizeProjectionVersionRebuild>,
+        ICommandHandler<TimeoutProjectionRebuildRequest>
     {
         private readonly IProjectionVersioningPolicy projectionVersioningPolicy;
 
@@ -30,9 +34,14 @@
             repository.Save(ar);
         }
 
+        public void Handle(ReplayProjection command)
+        {
+            Update(command.Id, ar => ar.Replay(command.Hash, projectionVersioningPolicy));
+        }
+
         public void Handle(RebuildProjection command)
         {
-            Update(command.Id, ar => ar.Rebuild(command.Hash, projectionVersioningPolicy));
+            Update(command.Id, ar => ar.Rebuild(command.Hash));
         }
 
         public void Handle(FinalizeProjectionVersionRequest command)
@@ -48,6 +57,21 @@
         public void Handle(TimeoutProjectionVersionRequest command)
         {
             Update(command.Id, ar => ar.VersionRequestTimedout(command.Version, command.Timebox));
+        }
+
+        public void Handle(CancelVersionRebuild command)
+        {
+            Update(command.Id, ar => ar.CancelVersionRebuild(command.Version));
+        }
+
+        public void Handle(FinalizeProjectionVersionRebuild command)
+        {
+            Update(command.Id, ar => ar.FinalizeVersionRebuild(command.Version));
+        }
+
+        public void Handle(TimeoutProjectionRebuildRequest command)
+        {
+            Update(command.Id, ar => ar.VersionRebuildTimedout(command.Version, command.Timebox));
         }
     }
 }

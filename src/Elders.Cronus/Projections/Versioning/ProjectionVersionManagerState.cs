@@ -18,7 +18,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public VersionRequestTimebox LastVersionRequestTimebox { get; set; }
 
-        public void When(ProjectionVersionRequested e)
+        public void When(ProjectionVersionRequestedForReplay e)
         {
             Id = e.Id;
             Versions.Add(e.Version);
@@ -45,6 +45,29 @@ namespace Elders.Cronus.Projections.Versioning
             Id = e.Id;
             Versions.Add(e.Version);
             LastVersionRequestTimebox = LastVersionRequestTimebox.Reset();
+        }
+
+        public void When(ProjectionVersionRequestedForRebuild e)
+        {
+            Id = e.Id;
+        }
+
+        public void When(ProjectionVersionRebuildCanceled e)
+        {
+            Id = e.Id;
+            Versions.Add(e.ProjectionVersion);
+        }
+
+        public void When(ProjectionFinishedRebuilding e)
+        {
+            Id = e.Id;
+            Versions.Add(e.ProjectionVersion);
+        }
+
+        public void When(ProjectionVersionRebuildHasTimedout e)
+        {
+            Id = e.Id;
+            Versions.Add(e.Version);
         }
     }
 }
