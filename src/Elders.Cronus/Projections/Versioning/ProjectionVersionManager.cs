@@ -102,7 +102,7 @@ namespace Elders.Cronus.Projections.Versioning
         private bool CanReplay(string hash, IProjectionVersioningPolicy policy)
         {
             bool isNewHashTheLiveOne = state.Versions.IsHashTheLiveOne(hash);
-            //bool hasLiveVersion = state.Versions.HasLiveVersion;
+
             bool isVersionable = state.Versions.IsVersionable(policy);
             bool doesntHaveBuildingVersion = state.Versions.HasBuildingVersion() == false;
 
