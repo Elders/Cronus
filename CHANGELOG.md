@@ -1,3 +1,10 @@
+# [6.4.0-preview.11](https://github.com/Elders/Cronus/compare/v6.4.0-preview.10...v6.4.0-preview.11) (2021-07-21)
+
+
+### Bug Fixes
+
+* Code cleanup ([fd1ceb4](https://github.com/Elders/Cronus/commit/fd1ceb4c2dcbf1e7727671427a3cacfb95141edc))
+
 # [6.4.0-preview.10](https://github.com/Elders/Cronus/compare/v6.4.0-preview.9...v6.4.0-preview.10) (2021-07-06)
 
 
