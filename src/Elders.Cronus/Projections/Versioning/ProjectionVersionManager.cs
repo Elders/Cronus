@@ -10,7 +10,7 @@ namespace Elders.Cronus.Projections.Versioning
         public ProjectionVersionManager(ProjectionVersionManagerId id, string hash)
         {
             string projectionName = id.Id;
-            var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Building, 1, hash);
+            var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Replaying, 1, hash);
             var timebox = new VersionRequestTimebox(DateTime.UtcNow);
             RequestVersion(id, initialVersion, timebox);
         }
@@ -50,7 +50,7 @@ namespace Elders.Cronus.Projections.Versioning
             if (CanRebuild(currentLiveVersion))
             {
                 var timebox = GetVersionRequestTimebox(hash);
-                RequestVersionForRebuild(state.Id, currentLiveVersion.WithRebuildingStatus(ProjectionRebuildStatus.Rebuilding), timebox);
+                RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Rebuilding), timebox);
             }
         }
 
@@ -61,19 +61,13 @@ namespace Elders.Cronus.Projections.Versioning
             bool foundVersion = state.Versions.Contains(version);
             if (foundVersion == false) return;
 
-            if (version.Status == ProjectionStatus.Building)
+            if (version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Replaying)
             {
                 var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
                 Apply(@event);
             }
 
             EnsureThereIsNoOutdatedBuildingVersions();
-        }
-
-        public void VersionRebuildTimedout(ProjectionVersion version, VersionRequestTimebox timebox)
-        {
-            var @event = new ProjectionVersionRebuildHasTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout).WithRebuildingStatus(ProjectionRebuildStatus.Failed), timebox);
-            Apply(@event);
         }
 
         public void NotifyHash(string hash, IProjectionVersioningPolicy policy)
@@ -96,26 +90,6 @@ namespace Elders.Cronus.Projections.Versioning
             }
 
             EnsureThereIsNoOutdatedBuildingVersions();
-        }
-
-        public void FinalizeVersionRebuild(ProjectionVersion version)
-        {
-            var isVersionFound = state.Versions.Contains(version);
-            if (isVersionFound)
-            {
-                var @event = new ProjectionFinishedRebuilding(state.Id, version.WithRebuildingStatus(ProjectionRebuildStatus.Done));
-                Apply(@event);
-            }
-        }
-
-        public void CancelVersionRebuild(ProjectionVersion version)
-        {
-            var isVersionFound = state.Versions.Contains(version);
-            if (isVersionFound)
-            {
-                var @event = new ProjectionVersionRebuildCanceled(state.Id, version.WithRebuildingStatus(ProjectionRebuildStatus.Failed));
-                Apply(@event);
-            }
         }
 
         private bool ShouldReplay(string hash)
@@ -153,14 +127,14 @@ namespace Elders.Cronus.Projections.Versioning
                 if (state.LastVersionRequestTimebox.HasExpired)
                     VersionRequestTimedout(buildingVersion, state.LastVersionRequestTimebox);
 
-                if (state.Versions.HasLiveVersion && buildingVersion < state.Versions.GetLive())
+                if (state.Versions.HasLiveVersion && buildingVersion < state.Versions.GetLive() && buildingVersion.Status != ProjectionStatus.Rebuilding)
                     CancelVersionRequest(buildingVersion, "Outdated version. There is already a live version.");
             }
         }
 
         private bool CanCancel(ProjectionVersion version)
         {
-            if (version.Status != ProjectionStatus.Building)
+            if (version.Status != ProjectionStatus.Replaying)
                 return false;
 
             return state.Versions.Contains(version);
@@ -186,13 +160,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         private void RequestVersion(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
         {
-            var @event = new ProjectionVersionRequestedForReplay(id, projectionVersion, timebox);
-            Apply(@event);
-        }
-
-        private void RequestVersionForRebuild(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
-        {
-            var @event = new ProjectionVersionRequestedForRebuild(id, projectionVersion, timebox);
+            var @event = new ProjectionVersionRequested(id, projectionVersion, timebox);
             Apply(@event);
         }
     }

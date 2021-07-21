@@ -266,8 +266,8 @@ namespace Elders.Cronus.Projections
             job.BuildInitialData(() =>
             {
                 var data = new RebuildProjectionIndex_JobData();
-                data.Timestamp = timebox.RebuildStartAt;
-                data.DueDate = timebox.RebuildFinishUntil;
+                data.Timestamp = timebox.RequestStartAt;
+                data.DueDate = timebox.FinishRequestUntil;
                 data.Version = version;
 
                 Type projectionType = version.ProjectionName.GetTypeByContract();

@@ -9,15 +9,11 @@ namespace Elders.Cronus.Projections
         private ProjectionVersion() { }
 
         public ProjectionVersion(string projectionName, ProjectionStatus status, int revision, string hash)
-            : this(projectionName, status, revision, hash, ProjectionRebuildStatus.Idle) { }
-
-        public ProjectionVersion(string projectionName, ProjectionStatus status, int revision, string hash, ProjectionRebuildStatus rebuildStatus)
         {
             ProjectionName = projectionName;
             Status = status;
             Revision = revision;
             Hash = hash;
-            RebuildStatus = rebuildStatus;
         }
 
         [DataMember(Order = 1)]
@@ -32,31 +28,28 @@ namespace Elders.Cronus.Projections
         [DataMember(Order = 4)]
         public string Hash { get; private set; }
 
-        [DataMember(Order = 5)]
-        public ProjectionRebuildStatus RebuildStatus { get; private set; }
-
         public ProjectionVersion WithStatus(ProjectionStatus status)
         {
             return new ProjectionVersion(ProjectionName, status, Revision, Hash);
         }
 
-        public ProjectionVersion WithRebuildingStatus(ProjectionRebuildStatus rebuildStatus)
-        {
-            return new ProjectionVersion(ProjectionName, Status, Revision, Hash, rebuildStatus);
-        }
+        //public ProjectionVersion WithRebuildingStatus(ProjectionRebuildStatus rebuildStatus)
+        //{
+        //    return new ProjectionVersion(ProjectionName, Status, Revision, Hash, rebuildStatus);
+        //}
 
         /// <summary>
-        /// Gets the next <see cref="ProjectionVersion"/> which is always with <see cref="ProjectionStatus"/> <see cref="ProjectionStatus.Building"/> and increased Revision.
+        /// Gets the next <see cref="ProjectionVersion"/> which is always with <see cref="ProjectionStatus"/> <see cref="ProjectionStatus.Replaying"/> and increased Revision.
         /// </summary>
         /// <returns>Returns a <see cref="ProjectionVersion"/></returns>
         public ProjectionVersion NextRevision(string hash)
         {
-            return new ProjectionVersion(ProjectionName, ProjectionStatus.Building, Revision + 1, hash);
+            return new ProjectionVersion(ProjectionName, ProjectionStatus.Replaying, Revision + 1, hash);
         }
 
         public ProjectionVersion NonVersionableRevision(string hash)
         {
-            return new ProjectionVersion(ProjectionName, ProjectionStatus.Building, Revision, hash);
+            return new ProjectionVersion(ProjectionName, ProjectionStatus.Replaying, Revision, hash);
         }
 
 

@@ -73,7 +73,7 @@ namespace Elders.Cronus.EventStore.Index
             job.Name = jobNameBuilder.GetJobName(job.Name);
             job.BuildInitialData(() => new RebuildIndex_JobData()
             {
-                Timestamp = timebox.RebuildStartAt
+                Timestamp = timebox.RequestStartAt
             });
 
             return job;

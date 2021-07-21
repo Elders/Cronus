@@ -156,7 +156,7 @@ namespace Elders.Cronus.EventStore.Index
             job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}";
             job.BuildInitialData(() => new RebuildEventCounterIndex_JobData()
             {
-                Timestamp = timebox.RebuildStartAt
+                Timestamp = timebox.RequestStartAt
             });
 
             return job;

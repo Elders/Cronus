@@ -57,16 +57,16 @@ namespace Elders.Cronus.Projections
             if (version.Status == ProjectionStatus.NotPresent)
                 return;
 
-            if (version.Status != ProjectionStatus.Building)
+            if (version.Status != ProjectionStatus.Replaying)
             {
-                var versionInBuild = versions.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault(); // searches for building version for the version hash
+                var versionInBuild = versions.Where(x => x == version.WithStatus(ProjectionStatus.Replaying)).SingleOrDefault(); // searches for building version for the version hash
                 versions.Remove(versionInBuild);
 
                 if (version.Status != ProjectionStatus.Live)
                     versions.Add(version);
             }
 
-            if (version.Status == ProjectionStatus.Building)
+            if (version.Status == ProjectionStatus.Replaying)
                 versions.Add(version);
 
             if (version.Status == ProjectionStatus.Live)
@@ -88,7 +88,7 @@ namespace Elders.Cronus.Projections
         public IEnumerable<ProjectionVersion> GetBuildingVersions()
         {
             return versions
-                .Where(ver => ver.Status == ProjectionStatus.Building)
+                .Where(ver => ver.Status == ProjectionStatus.Replaying)
                 .OrderByDescending(x => x.Revision);
         }
 
@@ -152,7 +152,7 @@ namespace Elders.Cronus.Projections
 
         public bool HasRebuildingVersion()
         {
-            return versions.Any(ver => ver.RebuildStatus == ProjectionRebuildStatus.Rebuilding);
+            return versions.Any(ver => ver.Status == ProjectionStatus.Rebuilding);
         }
 
         public bool IsHashTheLiveOne(string hash)

@@ -42,7 +42,6 @@ namespace Elders.Cronus.EventStore.Players
                 Type publicEventType = typeof(IPublicEvent);
                 ReplayOptions opt = new ReplayOptions()
                 {
-                    PaginationToken = paginationToken,
                     AggregateIds = indexRecordsResult.Records.Select(indexRecord => AggregateUrn.Parse(Convert.ToBase64String(indexRecord.AggregateRootId), Urn.Base64)),
                     ShouldSelect = commit =>
                     {
