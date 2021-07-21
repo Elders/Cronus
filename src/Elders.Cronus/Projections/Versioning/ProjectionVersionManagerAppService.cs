@@ -6,10 +6,7 @@
         ICommandHandler<FinalizeProjectionVersionRequest>,
         ICommandHandler<CancelProjectionVersionRequest>,
         ICommandHandler<TimeoutProjectionVersionRequest>,
-        ICommandHandler<RebuildProjection>,
-        ICommandHandler<CancelVersionRebuild>,
-        ICommandHandler<FinalizeProjectionVersionRebuild>,
-        ICommandHandler<TimeoutProjectionRebuildRequest>
+        ICommandHandler<RebuildProjection>
     {
         private readonly IProjectionVersioningPolicy projectionVersioningPolicy;
 
@@ -57,21 +54,6 @@
         public void Handle(TimeoutProjectionVersionRequest command)
         {
             Update(command.Id, ar => ar.VersionRequestTimedout(command.Version, command.Timebox));
-        }
-
-        public void Handle(CancelVersionRebuild command)
-        {
-            Update(command.Id, ar => ar.CancelVersionRebuild(command.Version));
-        }
-
-        public void Handle(FinalizeProjectionVersionRebuild command)
-        {
-            Update(command.Id, ar => ar.FinalizeVersionRebuild(command.Version));
-        }
-
-        public void Handle(TimeoutProjectionRebuildRequest command)
-        {
-            Update(command.Id, ar => ar.VersionRebuildTimedout(command.Version, command.Timebox));
         }
     }
 }

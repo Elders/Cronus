@@ -11,8 +11,8 @@ namespace Elders.Cronus.Projections
         {
             MessageInfo.GetContractId(typeof(NonVersionableProjection));
 
-            version = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 1, "hash");
-            nextVersion = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 1, "hash");
+            version = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Replaying, 1, "hash");
+            nextVersion = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Replaying, 1, "hash");
         };
 
         Because of = () => versions = new ProjectionVersions(version);

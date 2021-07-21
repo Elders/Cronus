@@ -12,7 +12,7 @@ namespace Elders.Cronus.Projections
             versions = new ProjectionVersions(initialLiveVersion);
 
             version = new ProjectionVersion("projectionName", ProjectionStatus.Live, 2, "hash");
-            nextVersion = new ProjectionVersion("projectionName", ProjectionStatus.Building, 3, "hash");
+            nextVersion = new ProjectionVersion("projectionName", ProjectionStatus.Replaying, 3, "hash");
         };
 
         Because of = () => versions.Add(version);

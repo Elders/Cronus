@@ -4,11 +4,11 @@ using System;
 namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = "5788a757-5dd6-4680-8f24-add1dfa7539b")]
-    public class ProjectionVersionRequestedForReplay : ISystemEvent
+    public class ProjectionVersionRequested : ISystemEvent
     {
-        ProjectionVersionRequestedForReplay() { }
+        ProjectionVersionRequested() { }
 
-        public ProjectionVersionRequestedForReplay(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
+        public ProjectionVersionRequested(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
         {
             Id = id;
             Version = projectionVersion;

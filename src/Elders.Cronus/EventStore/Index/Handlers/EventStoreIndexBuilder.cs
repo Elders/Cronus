@@ -24,11 +24,11 @@ namespace Elders.Cronus.EventStore.Index.Handlers
 
         public void Handle(EventStoreIndexRequested @event)
         {
-            var startRebuildAt = @event.Timebox.RebuildStartAt;
+            var startRebuildAt = @event.Timebox.RequestStartAt;
             if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
             {
-                RequestTimeout(new RebuildIndexInternal(@event, @event.Timebox.RebuildStartAt));
-                RequestTimeout(new EventStoreIndexRebuildTimedout(@event, @event.Timebox.RebuildFinishUntil));
+                RequestTimeout(new RebuildIndexInternal(@event, @event.Timebox.RequestStartAt));
+                RequestTimeout(new EventStoreIndexRebuildTimedout(@event, @event.Timebox.FinishRequestUntil));
             }
         }
 

@@ -11,15 +11,15 @@ namespace Elders.Cronus.Projections
         {
             MessageInfo.GetContractId(typeof(NonVersionableProjection));
 
-            var build1 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 1, "hash");
+            var build1 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Replaying, 1, "hash");
             var live1 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Live, 1, "hash");
-            var build2 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 2, "hash");
+            var build2 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Replaying, 2, "hash");
             var live2 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Live, 2, "hash");
-            var build3 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 3, "hash");
+            var build3 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Replaying, 3, "hash");
             liveVersion = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Live, 3, "hash");
             versions = new ProjectionVersions(new[] { build1, live1, build2, live2, build3, liveVersion });
 
-            nextVersion = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 3, "hash");
+            nextVersion = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Replaying, 3, "hash");
         };
 
         Because of = () => version = versions.GetNext(new MarkupInterfaceProjectionVersioningPolicy(), "hash");
@@ -43,15 +43,15 @@ namespace Elders.Cronus.Projections
         {
             MessageInfo.GetContractId(typeof(NonVersionableProjection));
 
-            var build1 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 1, "hash");
+            var build1 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Replaying, 1, "hash");
             var live1 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Live, 1, "hash");
-            var build2 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 2, "hash");
+            var build2 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Replaying, 2, "hash");
             var live2 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Live, 2, "hash");
-            var build3 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 3, "hash");
+            var build3 = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Replaying, 3, "hash");
             liveVersion = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Live, 3, "hash");
             versions = new ProjectionVersions(new[] { build1, live1, build2, live2, build3, liveVersion });
 
-            nextVersion = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Building, 3, "hash");
+            nextVersion = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Replaying, 3, "hash");
             versions.Add(nextVersion);
 
             version = new ProjectionVersion("NonVersionableProjection", ProjectionStatus.Live, 3, "hash");

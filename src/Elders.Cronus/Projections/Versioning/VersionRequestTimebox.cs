@@ -18,33 +18,33 @@ namespace Elders.Cronus.Projections.Versioning
 
         VersionRequestTimebox() { }
 
-        public VersionRequestTimebox(DateTime rebuildStartAt) : this(rebuildStartAt, rebuildStartAt.AddMilliseconds(Forever)) { }
+        public VersionRequestTimebox(DateTime requestStartAt) : this(requestStartAt, requestStartAt.AddMilliseconds(Forever)) { }
 
-        public VersionRequestTimebox(DateTime rebuildStartAt, DateTime rebuildFinishUntil)
+        public VersionRequestTimebox(DateTime rebuildStartAt, DateTime finishRequestUntil)
         {
-            if (rebuildStartAt.AddMinutes(1) >= rebuildFinishUntil) throw new ArgumentException("Projection rebuild timebox is not realistic.");
+            if (rebuildStartAt.AddMinutes(1) >= finishRequestUntil) throw new ArgumentException("Projection rebuild timebox is not realistic.");
 
-            RebuildStartAt = rebuildStartAt;
-            RebuildFinishUntil = rebuildFinishUntil;
+            RequestStartAt = rebuildStartAt;
+            FinishRequestUntil = finishRequestUntil;
         }
 
         /// <summary>
         /// The time when a <see cref="VersionRequestTimebox"/> starts
         /// </summary>
         [DataMember(Order = 1)]
-        public DateTime RebuildStartAt { get; private set; }
+        public DateTime RequestStartAt { get; private set; }
 
         /// <summary>
         /// The time when a <see cref="VersionRequestTimebox"/> expires
         /// </summary>
         [DataMember(Order = 2)]
-        public DateTime RebuildFinishUntil { get; private set; }
+        public DateTime FinishRequestUntil { get; private set; }
 
         public VersionRequestTimebox GetNext()
         {
             var newStartAt = DateTime.UtcNow;
-            if (newStartAt < RebuildFinishUntil)
-                newStartAt = RebuildFinishUntil;
+            if (newStartAt < FinishRequestUntil)
+                newStartAt = FinishRequestUntil;
 
             return new VersionRequestTimebox(newStartAt);
         }
@@ -53,16 +53,16 @@ namespace Elders.Cronus.Projections.Versioning
         {
             return new VersionRequestTimebox()
             {
-                RebuildStartAt = RebuildStartAt,
-                RebuildFinishUntil = DateTime.UtcNow
+                RequestStartAt = RequestStartAt,
+                FinishRequestUntil = DateTime.UtcNow
             };
         }
 
-        public bool HasExpired => RebuildFinishUntil < DateTime.UtcNow;
+        public bool HasExpired => FinishRequestUntil < DateTime.UtcNow;
 
         public override string ToString()
         {
-            return $"Version request timebox: Starts at `{RebuildStartAt}`. Expires at `{RebuildFinishUntil}`";
+            return $"Version request timebox: Starts at `{RequestStartAt}`. Expires at `{FinishRequestUntil}`";
         }
     }
 }
