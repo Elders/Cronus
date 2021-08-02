@@ -11,7 +11,7 @@ namespace Elders.Cronus.Projections.Versioning
         IEventHandler<ProjectionVersionRequestTimedout>
 
     {
-        public const string ContractId = "f1469a8e-9fc8-47f5-b057-d5394ed33b4c";
+        public const string ContractId = "ac8e4ba0-b351-4a91-8943-dee9465002a8";
 
         public ProjectionVersionsHandler()
         {
