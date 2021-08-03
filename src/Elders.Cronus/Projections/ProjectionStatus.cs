@@ -17,7 +17,17 @@ namespace Elders.Cronus.Projections
         string status;
 
         /// <summary>
-        /// The projection is currently rebuilding
+        /// The projection does not exist
+        /// </summary>
+        public static ProjectionStatus NotPresent = new ProjectionStatus("not_present");
+
+        /// <summary>
+        /// This is for backwards compat.
+        /// </summary>
+        internal static ProjectionStatus Building = new ProjectionStatus("building");
+
+        /// <summary>
+        /// The projection is currently replaying
         /// </summary>
         public static ProjectionStatus Replaying = new ProjectionStatus("replaying");
 
@@ -27,19 +37,9 @@ namespace Elders.Cronus.Projections
         public static ProjectionStatus Rebuilding = new ProjectionStatus("rebuilding");
 
         /// <summary>
-        /// The projection is scheduled for rebuild but it is not started yet
-        /// </summary>
-        public static ProjectionStatus Pending = new ProjectionStatus("pending");
-
-        /// <summary>
         /// The projection is rebuilt and ready for use
         /// </summary>
         public static ProjectionStatus Live = new ProjectionStatus("live");
-
-        /// <summary>
-        /// The projection does not exist
-        /// </summary>
-        public static ProjectionStatus NotPresent = new ProjectionStatus("not_present");
 
         /// <summary>
         /// The projection rebuild is canceled by a user or an error happened during rebuild. Check the reason for more details
@@ -50,6 +50,8 @@ namespace Elders.Cronus.Projections
         /// The projection rebuild has timed out because the rebuild process went beyond the allowed <see cref="Elders.Cronus.Projections.Versioning.VersionRequestTimebox"/>
         /// </summary>
         public static ProjectionStatus Timedout = new ProjectionStatus("timedout");
+
+
 
         public static ProjectionStatus Create(string status)
         {

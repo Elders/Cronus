@@ -70,7 +70,7 @@ namespace Elders.Cronus.Projections
                     {
                         foreach (ProjectionVersion version in result.Data)
                         {
-                            if (version.Status == ProjectionStatus.Replaying || version.Status == ProjectionStatus.Live)
+                            if (ShouldSaveEventForVersion(version))
                             {
                                 try
                                 {
@@ -101,6 +101,11 @@ namespace Elders.Cronus.Projections
             }
         }
 
+        private bool ShouldSaveEventForVersion(ProjectionVersion version)
+        {
+            return version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Replaying || version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Live;
+        }
+
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
         {
             if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
@@ -108,7 +113,7 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, eventOrigin)) throw new ArgumentNullException(nameof(eventOrigin));
             if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
 
-            if ((version.Status == ProjectionStatus.Replaying || version.Status == ProjectionStatus.Live) == false)
+            if (ShouldSaveEventForVersion(version) == false)
                 throw new ArgumentException("Invalid version. Only versions in `Building` and `Live` status are eligable for persistence.", nameof(version));
 
             string projectionName = projectionType.GetContractId();

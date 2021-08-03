@@ -57,16 +57,22 @@ namespace Elders.Cronus.Projections
             if (version.Status == ProjectionStatus.NotPresent)
                 return;
 
-            if (version.Status != ProjectionStatus.Replaying)
+            if (version.Status == ProjectionStatus.Live || version.Status == ProjectionStatus.Canceled || version.Status == ProjectionStatus.Timedout)
             {
-                var versionInBuild = versions.Where(x => x == version.WithStatus(ProjectionStatus.Replaying)).SingleOrDefault(); // searches for building version for the version hash
+                var versionInBuild = versions.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault(); // searches for building version for the version hash
                 versions.Remove(versionInBuild);
 
-                if (version.Status != ProjectionStatus.Live)
+                var versionInRebuild = versions.Where(x => x == version.WithStatus(ProjectionStatus.Rebuilding)).SingleOrDefault(); // searches for building version for the version hash
+                versions.Remove(versionInRebuild);
+
+                var versionInReplay = versions.Where(x => x == version.WithStatus(ProjectionStatus.Replaying)).SingleOrDefault(); // searches for building version for the version hash
+                versions.Remove(versionInReplay);
+
+                if (version.Status == ProjectionStatus.Canceled || version.Status == ProjectionStatus.Timedout)
                     versions.Add(version);
             }
 
-            if (version.Status == ProjectionStatus.Replaying)
+            if (version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Replaying)
                 versions.Add(version);
 
             if (version.Status == ProjectionStatus.Live)
