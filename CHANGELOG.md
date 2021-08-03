@@ -1,3 +1,10 @@
+# [6.4.0-preview.13](https://github.com/Elders/Cronus/compare/v6.4.0-preview.12...v6.4.0-preview.13) (2021-08-03)
+
+
+### Bug Fixes
+
+* Fix bug where stale versions were not removed ([e872fca](https://github.com/Elders/Cronus/commit/e872fcacd151162abe83b23f97485f9ede2095d5))
+
 # [6.4.0-preview.12](https://github.com/Elders/Cronus/compare/v6.4.0-preview.11...v6.4.0-preview.12) (2021-08-02)
 
 
