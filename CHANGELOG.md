@@ -1,3 +1,10 @@
+# [6.4.0-preview.14](https://github.com/Elders/Cronus/compare/v6.4.0-preview.13...v6.4.0-preview.14) (2021-08-04)
+
+
+### Bug Fixes
+
+* Revert change contract id on projection version handler ([31a41a9](https://github.com/Elders/Cronus/commit/31a41a9603e5fa671a9385a149cd7e43d1b58cb9))
+
 # [6.4.0-preview.13](https://github.com/Elders/Cronus/compare/v6.4.0-preview.12...v6.4.0-preview.13) (2021-08-03)
 
 
