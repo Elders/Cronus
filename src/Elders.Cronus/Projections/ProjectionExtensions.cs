@@ -8,13 +8,5 @@ namespace Elders.Cronus.Projections
         {
             return typeof(Snapshotting.IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
         }
-
-        public static bool IsRebuildable(this ProjectionVersion version)
-        {
-            Type projectionType = version.ProjectionName.GetTypeByContract();
-            bool isRebuildable = typeof(INonRebuildableProjection).IsAssignableFrom(projectionType) == false;
-
-            return isRebuildable;
-        }
     }
 }
