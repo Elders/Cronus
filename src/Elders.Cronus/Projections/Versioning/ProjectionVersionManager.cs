@@ -111,11 +111,10 @@ namespace Elders.Cronus.Projections.Versioning
 
         private bool CanRebuild(ProjectionVersion currentLiveVersion)
         {
-            bool projectionIsRebuildable = currentLiveVersion.IsRebuildable(); //TODO: Should be remove the non rebuildable interface
             bool hashMatchesCurrentLiveVersion = currentLiveVersion.Hash.Equals(currentLiveVersion.Hash);
             bool hasRebuildingVersion = state.Versions.HasRebuildingVersion();
 
-            return projectionIsRebuildable && hashMatchesCurrentLiveVersion && hasRebuildingVersion == false;
+            return hashMatchesCurrentLiveVersion && hasRebuildingVersion == false;
         }
 
         private void EnsureThereIsNoOutdatedBuildingVersions()
@@ -127,7 +126,7 @@ namespace Elders.Cronus.Projections.Versioning
                 if (state.LastVersionRequestTimebox.HasExpired)
                     VersionRequestTimedout(buildingVersion, state.LastVersionRequestTimebox);
 
-                if (state.Versions.HasLiveVersion && buildingVersion < state.Versions.GetLive() && buildingVersion.Status != ProjectionStatus.Rebuilding)
+                if (state.Versions.HasLiveVersion && buildingVersion < state.Versions.GetLive())
                     CancelVersionRequest(buildingVersion, "Outdated version. There is already a live version.");
             }
         }

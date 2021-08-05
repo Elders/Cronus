@@ -94,7 +94,7 @@ namespace Elders.Cronus.Projections
         public IEnumerable<ProjectionVersion> GetBuildingVersions()
         {
             return versions
-                .Where(ver => ver.Status == ProjectionStatus.Replaying)
+                .Where(ver => ver.Status == ProjectionStatus.Replaying || ver.Status == ProjectionStatus.Building)
                 .OrderByDescending(x => x.Revision);
         }
 
