@@ -59,7 +59,7 @@ namespace Elders.Cronus.Projections.Versioning
             bool foundVersion = state.Versions.Contains(version);
             if (foundVersion == false) return;
 
-            if (version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Replaying)
+            if (version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Replaying || version.Status == ProjectionStatus.Building)
             {
                 var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
                 Apply(@event);
@@ -129,7 +129,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         private bool CanCancel(ProjectionVersion version)
         {
-            if (version.Status != ProjectionStatus.Replaying)
+            if (version.Status != ProjectionStatus.Replaying && version.Status != ProjectionStatus.Building)
                 return false;
 
             return state.Versions.Contains(version);
