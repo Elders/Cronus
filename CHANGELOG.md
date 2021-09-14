@@ -1,3 +1,10 @@
+# [6.4.0-preview.17](https://github.com/Elders/Cronus/compare/v6.4.0-preview.16...v6.4.0-preview.17) (2021-09-14)
+
+
+### Bug Fixes
+
+* Fix version not being able to be canceled or timedout ([ae227b0](https://github.com/Elders/Cronus/commit/ae227b097f78439d82d55a6cbea615e3ece17289))
+
 # [6.4.0-preview.16](https://github.com/Elders/Cronus/compare/v6.4.0-preview.15...v6.4.0-preview.16) (2021-09-14)
 
 
