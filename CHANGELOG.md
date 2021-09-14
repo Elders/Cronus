@@ -1,3 +1,10 @@
+# [6.4.0-preview.18](https://github.com/Elders/Cronus/compare/v6.4.0-preview.17...v6.4.0-preview.18) (2021-09-14)
+
+
+### Bug Fixes
+
+* fix issue where stale Rebuilding version are not timedout ([5e9cb7b](https://github.com/Elders/Cronus/commit/5e9cb7bb4b3c7710b514b5a6469181454e6a1a4e))
+
 # [6.4.0-preview.17](https://github.com/Elders/Cronus/compare/v6.4.0-preview.16...v6.4.0-preview.17) (2021-09-14)
 
 
