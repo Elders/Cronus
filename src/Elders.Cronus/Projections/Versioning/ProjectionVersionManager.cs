@@ -22,8 +22,6 @@ namespace Elders.Cronus.Projections.Versioning
                 var @event = new ProjectionVersionRequestCanceled(state.Id, version.WithStatus(ProjectionStatus.Canceled), reason);
                 Apply(@event);
             }
-
-            EnsureThereIsNoOutdatedBuildingVersions();
         }
 
         /// <summary>
@@ -66,8 +64,6 @@ namespace Elders.Cronus.Projections.Versioning
                 var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
                 Apply(@event);
             }
-
-            EnsureThereIsNoOutdatedBuildingVersions();
         }
 
         public void NotifyHash(string hash, IProjectionVersioningPolicy policy)
