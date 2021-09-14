@@ -1,3 +1,10 @@
+# [6.4.0-preview.16](https://github.com/Elders/Cronus/compare/v6.4.0-preview.15...v6.4.0-preview.16) (2021-09-14)
+
+
+### Bug Fixes
+
+* Remove recursive behavior ( Stack Overflow ) ([3f1de2d](https://github.com/Elders/Cronus/commit/3f1de2d10bc9045a4282492c476e8b4dc672c10c))
+
 # [6.4.0-preview.15](https://github.com/Elders/Cronus/compare/v6.4.0-preview.14...v6.4.0-preview.15) (2021-08-05)
 
 
