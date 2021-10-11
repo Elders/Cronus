@@ -1,7 +1,5 @@
-﻿using Elders.Cronus;
-using Elders.Cronus.EventStore;
+﻿using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
-using Elders.Cronus.Migrations;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -13,12 +11,12 @@ namespace Elders.Cronus.Migrations
     public class MigrationHandler : IMigrationHandler,
         IAggregateCommitHandle<AggregateCommit>
     {
-        private readonly IEventStore eventStore;
+        private readonly CronusEventStore eventStore;
         private readonly IEnumerable<IMigration<AggregateCommit>> migrations;
         private readonly IMigrationCustomLogic theLogic;
         private readonly ILogger<MigrationHandler> logger;
 
-        public MigrationHandler(IEventStore eventStore, IEnumerable<IMigration<AggregateCommit>> migrations, IMigrationCustomLogic theLogic, ILogger<MigrationHandler> logger)
+        public MigrationHandler(CronusEventStore eventStore, IEnumerable<IMigration<AggregateCommit>> migrations, IMigrationCustomLogic theLogic, ILogger<MigrationHandler> logger)
         {
             this.eventStore = eventStore;
             this.migrations = migrations;
