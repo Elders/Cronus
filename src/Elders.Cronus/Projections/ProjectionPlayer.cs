@@ -17,13 +17,13 @@ namespace Elders.Cronus.Projections
         static readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionPlayer));
 
         private readonly CronusContext context;
-        private readonly IEventStore eventStore;
+        private readonly CronusEventStore eventStore;
         private readonly IProjectionWriter projectionWriter;
         private readonly IProjectionReader projectionReader;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly EventToAggregateRootId index;
 
-        public ProjectionPlayer(CronusContext context, IEventStore eventStore, IProjectionWriter projectionRepository, IProjectionReader projectionReader, IInitializableProjectionStore projectionStoreInitializer, EventToAggregateRootId index)
+        public ProjectionPlayer(CronusContext context, CronusEventStore eventStore, IProjectionWriter projectionRepository, IProjectionReader projectionReader, IInitializableProjectionStore projectionStoreInitializer, EventToAggregateRootId index)
         {
             this.context = context;
             this.eventStore = eventStore;

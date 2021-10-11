@@ -2,6 +2,7 @@
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.EventStore.InMemory;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,7 +24,10 @@ namespace Elders.Cronus.Discoveries
         protected virtual IEnumerable<DiscoveredModel> DiscoverEventStore<TEventStore>(DiscoveryContext context) where TEventStore : IEventStore
         {
             return DiscoverModel<IEventStore, TEventStore>(ServiceLifetime.Singleton)
-                .Concat(new[] { new DiscoveredModel(typeof(InMemoryEventStoreStorage), typeof(InMemoryEventStoreStorage), ServiceLifetime.Singleton) });
+                .Concat(new[] {
+                    new DiscoveredModel(typeof(InMemoryEventStoreStorage), typeof(InMemoryEventStoreStorage), ServiceLifetime.Singleton),
+                    new DiscoveredModel(typeof(CronusEventStore), provider => new CronusEventStore(provider.GetRequiredService<IEventStore>(), provider.GetRequiredService<ILogger<CronusEventStore>>()), ServiceLifetime.Transient)
+                });
         }
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverIndexStore<TIndexStore>(DiscoveryContext context) where TIndexStore : IIndexStore

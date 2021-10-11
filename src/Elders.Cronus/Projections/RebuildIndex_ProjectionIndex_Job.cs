@@ -36,14 +36,14 @@ namespace Elders.Cronus.Projections
         private readonly SystemProjectionHelper systemProjectionHelper;
         private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
-        private readonly IEventStore eventStore;
+        private readonly CronusEventStore eventStore;
         private readonly ProjectionIndex index;
         private readonly EventToAggregateRootId eventToAggregateIndex;
         private readonly IProjectionReader projectionReader;
         private readonly CronusContext context;
         private readonly IMessageCounter messageCounter;
 
-        public RebuildIndex_ProjectionIndex_Job(SystemProjectionHelper systemProjectionHelper, IPublisher<ISystemSignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, IEventStore eventStore, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
+        public RebuildIndex_ProjectionIndex_Job(SystemProjectionHelper systemProjectionHelper, IPublisher<ISystemSignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, CronusEventStore eventStore, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
         {
             this.systemProjectionHelper = systemProjectionHelper;
             this.signalPublisher = signalPublisher;
@@ -61,11 +61,6 @@ namespace Elders.Cronus.Projections
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             ProjectionVersion version = Data.Version;
-
-            if (version.ProjectionName.Equals("e8f5fd6f-8d2e-4984-8188-fe3b67345f9d"))
-            {
-                int asd = 5;
-            }
 
             if (IsVersionTrackerMissing())
             {
@@ -114,28 +109,35 @@ namespace Elders.Cronus.Projections
                     long currentSessionProcessedCount = 0;
                     foreach (IndexRecord indexRecord in indexRecords)
                     {
-                        currentSessionProcessedCount++;
-
-                        #region TrackAggregate
-                        int aggreagteRootIdHash = indexRecord.AggregateRootId.GetHashCode();
-                        if (processedAggregates.ContainsKey(aggreagteRootIdHash))
-                            continue;
-                        processedAggregates.Add(aggreagteRootIdHash, null);
-                        #endregion
-
-                        string mess = Encoding.UTF8.GetString(indexRecord.AggregateRootId);
-                        IAggregateRootId arId = GetAggregateRootId(mess);
-                        EventStream stream = eventStore.Load(arId);
-
-                        foreach (AggregateCommit arCommit in stream.Commits)
+                        try
                         {
-                            if (cancellationToken.IsCancellationRequested)
-                            {
-                                logger.Info(() => $"Job has been cancelled.");
-                                return JobExecutionStatus.Running;
-                            }
+                            currentSessionProcessedCount++;
 
-                            index.Index(arCommit, version);
+                            #region TrackAggregate
+                            int aggreagteRootIdHash = indexRecord.AggregateRootId.GetHashCode();
+                            if (processedAggregates.ContainsKey(aggreagteRootIdHash))
+                                continue;
+                            processedAggregates.Add(aggreagteRootIdHash, null);
+                            #endregion
+
+                            string mess = Encoding.UTF8.GetString(indexRecord.AggregateRootId);
+                            IAggregateRootId arId = GetAggregateRootId(mess);
+                            EventStream stream = eventStore.Load(arId);
+
+                            foreach (AggregateCommit arCommit in stream.Commits)
+                            {
+                                if (cancellationToken.IsCancellationRequested)
+                                {
+                                    logger.Info(() => $"Job has been cancelled.");
+                                    return JobExecutionStatus.Running;
+                                }
+
+                                index.Index(arCommit, version);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            logger.WarnException(ex, () => $"{indexRecord.AggregateRootId} was skipped when rebuilding {version.ProjectionName}.");
                         }
                     }
                     long totalEvents = messageCounter.GetCount(eventType);
