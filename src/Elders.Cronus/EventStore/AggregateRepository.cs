@@ -12,16 +12,16 @@ namespace Elders.Cronus.EventStore
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(AggregateRepository));
 
         readonly IAggregateRootAtomicAction atomicAction;
-        readonly CronusEventStore eventStore;
+        readonly IEventStore eventStore;
         readonly IIntegrityPolicy<EventStream> integrityPolicy;
 
-        public AggregateRepository(CronusEventStore eventStore, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
+        public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
         {
-            if (eventStore is null) throw new ArgumentNullException(nameof(eventStore));
+            if (eventStoreFactory is null) throw new ArgumentNullException(nameof(eventStoreFactory));
             if (atomicAction is null) throw new ArgumentNullException(nameof(atomicAction));
             if (integrityPolicy is null) throw new ArgumentNullException(nameof(integrityPolicy));
 
-            this.eventStore = eventStore;
+            this.eventStore = eventStoreFactory.GetEventStore();
             this.atomicAction = atomicAction;
             this.integrityPolicy = integrityPolicy;
         }

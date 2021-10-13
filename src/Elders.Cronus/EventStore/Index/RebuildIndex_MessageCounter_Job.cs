@@ -18,16 +18,16 @@ namespace Elders.Cronus.EventStore.Index
     {
         private readonly CronusContext context;
         private readonly TypeContainer<IEvent> eventTypes;
-        private readonly CronusEventStore eventStore;
+        private readonly IEventStore eventStore;
         private readonly IMessageCounter messageCounter;
         private readonly EventToAggregateRootId eventToAggregateIndex;
         private readonly IProjectionReader projectionReader;
 
-        public RebuildIndex_MessageCounter_Job(CronusContext context, TypeContainer<IEvent> eventTypes, CronusEventStore eventStore, IMessageCounter eventCounter, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, ILogger<RebuildIndex_MessageCounter_Job> logger) : base(logger)
+        public RebuildIndex_MessageCounter_Job(CronusContext context, TypeContainer<IEvent> eventTypes, EventStoreFactory eventStoreFactory, IMessageCounter eventCounter, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, ILogger<RebuildIndex_MessageCounter_Job> logger) : base(logger)
         {
             this.context = context;
             this.eventTypes = eventTypes;
-            this.eventStore = eventStore;
+            this.eventStore = eventStoreFactory.GetEventStore();
             this.messageCounter = eventCounter;
             this.eventToAggregateIndex = eventToAggregateIndex;
             this.projectionReader = projectionReader;
