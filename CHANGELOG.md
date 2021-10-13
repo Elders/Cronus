@@ -1,3 +1,11 @@
+# [6.4.0-preview.19](https://github.com/Elders/Cronus/compare/v6.4.0-preview.18...v6.4.0-preview.19) (2021-10-13)
+
+
+### Bug Fixes
+
+* fix registration of event store and tests ([dd6a632](https://github.com/Elders/Cronus/commit/dd6a632192d97a53bf6e248e207d4e8d90649616))
+* Handles better projection building when aggregate commit cant be deserialized ([7733ca6](https://github.com/Elders/Cronus/commit/7733ca64e073cc593d968c1682b638f1a2a2b4d5))
+
 # [6.4.0-preview.18](https://github.com/Elders/Cronus/compare/v6.4.0-preview.17...v6.4.0-preview.18) (2021-09-14)
 
 
