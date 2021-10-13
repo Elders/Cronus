@@ -36,19 +36,19 @@ namespace Elders.Cronus.Projections
         private readonly SystemProjectionHelper systemProjectionHelper;
         private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
-        private readonly CronusEventStore eventStore;
+        private readonly IEventStore eventStore;
         private readonly ProjectionIndex index;
         private readonly EventToAggregateRootId eventToAggregateIndex;
         private readonly IProjectionReader projectionReader;
         private readonly CronusContext context;
         private readonly IMessageCounter messageCounter;
 
-        public RebuildIndex_ProjectionIndex_Job(SystemProjectionHelper systemProjectionHelper, IPublisher<ISystemSignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, CronusEventStore eventStore, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
+        public RebuildIndex_ProjectionIndex_Job(SystemProjectionHelper systemProjectionHelper, IPublisher<ISystemSignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, EventStoreFactory eventStoreFactory, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
         {
             this.systemProjectionHelper = systemProjectionHelper;
             this.signalPublisher = signalPublisher;
             this.projectionStoreInitializer = projectionStoreInitializer;
-            this.eventStore = eventStore;
+            this.eventStore = eventStoreFactory.GetEventStore();
             this.index = index;
             this.eventToAggregateIndex = eventToAggregateIndex;
             this.projectionReader = projectionReader;

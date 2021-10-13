@@ -26,7 +26,7 @@ namespace Elders.Cronus.Discoveries
             return DiscoverModel<IEventStore, TEventStore>(ServiceLifetime.Singleton)
                 .Concat(new[] {
                     new DiscoveredModel(typeof(InMemoryEventStoreStorage), typeof(InMemoryEventStoreStorage), ServiceLifetime.Singleton),
-                    new DiscoveredModel(typeof(CronusEventStore), provider => new CronusEventStore(provider.GetRequiredService<IEventStore>(), provider.GetRequiredService<ILogger<CronusEventStore>>()), ServiceLifetime.Transient)
+                    new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Scoped)
                 });
         }
 

@@ -11,14 +11,14 @@ namespace Elders.Cronus.Migrations
     public class MigrationHandler : IMigrationHandler,
         IAggregateCommitHandle<AggregateCommit>
     {
-        private readonly CronusEventStore eventStore;
+        private readonly IEventStore eventStore;
         private readonly IEnumerable<IMigration<AggregateCommit>> migrations;
         private readonly IMigrationCustomLogic theLogic;
         private readonly ILogger<MigrationHandler> logger;
 
-        public MigrationHandler(CronusEventStore eventStore, IEnumerable<IMigration<AggregateCommit>> migrations, IMigrationCustomLogic theLogic, ILogger<MigrationHandler> logger)
+        public MigrationHandler(EventStoreFactory eventStoreFactory, IEnumerable<IMigration<AggregateCommit>> migrations, IMigrationCustomLogic theLogic, ILogger<MigrationHandler> logger)
         {
-            this.eventStore = eventStore;
+            eventStore = eventStoreFactory.GetEventStore();
             this.migrations = migrations;
             this.theLogic = theLogic;
             this.logger = logger;

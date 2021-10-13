@@ -9,7 +9,7 @@ namespace Elders.Cronus.Migrations
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(MigrationRunner<,>));
 
-        public MigrationRunner(IMigrationEventStorePlayer source, CronusEventStore target) : base(source, target) { }
+        public MigrationRunner(IMigrationEventStorePlayer source, EventStoreFactory factory) : base(source, factory.GetEventStore()) { }
 
         public override void Run(IEnumerable<IMigration<AggregateCommit>> migrations)
         {
