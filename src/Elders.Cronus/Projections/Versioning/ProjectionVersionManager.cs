@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -19,6 +20,15 @@ namespace Elders.Cronus.Projections.Versioning
         {
             if (CanCancel(version))
             {
+                if (version.MaybeIsBroken())
+                {
+                    foreach (ProjectionVersion buildingVersion in state.Versions.GetBuildingVersions())
+                    {
+                        ProjectionVersionRequestCanceled reset = new ProjectionVersionRequestCanceled(state.Id, buildingVersion.WithStatus(ProjectionStatus.Canceled), reason + " Something wrong has happened. We are trying to reset the state so you could try rebuild/replay the state.");
+                        Apply(reset);
+                    }
+                }
+
                 var @event = new ProjectionVersionRequestCanceled(state.Id, version.WithStatus(ProjectionStatus.Canceled), reason);
                 Apply(@event);
             }
@@ -129,6 +139,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         private bool CanCancel(ProjectionVersion version)
         {
+            if (version.MaybeIsBroken())
+                return true;
+
             if (version.Status != ProjectionStatus.Replaying && version.Status != ProjectionStatus.Building)
                 return false;
 

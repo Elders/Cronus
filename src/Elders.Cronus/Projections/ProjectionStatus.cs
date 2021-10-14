@@ -51,7 +51,7 @@ namespace Elders.Cronus.Projections
         /// </summary>
         public static ProjectionStatus Timedout = new ProjectionStatus("timedout");
 
-
+        public static ProjectionStatus Unknown = new ProjectionStatus("unknown");
 
         public static ProjectionStatus Create(string status)
         {
@@ -68,6 +68,8 @@ namespace Elders.Cronus.Projections
                     return Canceled;
                 case "timedout":
                     return Timedout;
+                case "not_present":
+                    return NotPresent;
                 default:
                     return new ProjectionStatus("unknown");
             }
