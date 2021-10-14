@@ -1,3 +1,10 @@
+# [6.4.0-preview.20](https://github.com/Elders/Cronus/compare/v6.4.0-preview.19...v6.4.0-preview.20) (2021-10-14)
+
+
+### Bug Fixes
+
+* Fix versions not being able to be Canceled ([8dbd5a6](https://github.com/Elders/Cronus/commit/8dbd5a6143751f1145bb556b0afbfb4bcea580cc))
+
 # [6.4.0-preview.19](https://github.com/Elders/Cronus/compare/v6.4.0-preview.18...v6.4.0-preview.19) (2021-10-13)
 
 
