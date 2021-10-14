@@ -121,7 +121,6 @@ namespace Elders.Cronus
 
             return services;
         }
-
     }
 
     public static class SubscriberCollectionServiceCollectionExtensions

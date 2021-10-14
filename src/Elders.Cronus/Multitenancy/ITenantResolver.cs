@@ -18,7 +18,7 @@ namespace Elders.Cronus.Multitenancy
 
     public class TenantResolver : ITenantResolver
     {
-        Dictionary<Type, ResolverCache> resolvers = new Dictionary<Type, ResolverCache>();
+        ConcurrentDictionary<Type, ResolverCache> resolvers = new ConcurrentDictionary<Type, ResolverCache>();
 
         private readonly IServiceProvider serviceProvider;
 
