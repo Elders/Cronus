@@ -52,6 +52,10 @@ namespace Elders.Cronus.Projections
             return new ProjectionVersion(ProjectionName, ProjectionStatus.Replaying, Revision, hash);
         }
 
+        internal bool MaybeIsBroken()
+        {
+            return Status == ProjectionStatus.Unknown || Status == ProjectionStatus.NotPresent;
+        }
 
         public override bool Equals(ProjectionVersion other)
         {
