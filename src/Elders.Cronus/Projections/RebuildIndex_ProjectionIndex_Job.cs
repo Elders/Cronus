@@ -93,7 +93,7 @@ namespace Elders.Cronus.Projections
                 logger.Error(() => $"Version `{version}` is outdated. There is a newer one which is already live.");
                 return JobExecutionStatus.Failed;// new ReplayResult($"Version `{version}` is outdated. There is a newer one which is already live.");
             }
-            if (allVersions.IsCanceled(version))
+            if (allVersions.IsCanceled(version) && version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase) == false)
             {
                 logger.Error(() => $"Version `{version}` was canceled.");
                 return JobExecutionStatus.Failed;// new ReplayResult($"Version `{version}` was canceled.");
