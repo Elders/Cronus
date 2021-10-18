@@ -1,3 +1,10 @@
+# [6.4.0-preview.21](https://github.com/Elders/Cronus/compare/v6.4.0-preview.20...v6.4.0-preview.21) (2021-10-18)
+
+
+### Bug Fixes
+
+* Enrich logs on projection rebuild ([5d93a8c](https://github.com/Elders/Cronus/commit/5d93a8c4e109cebf728c9e3bcd7295118c36150a))
+
 # [6.4.0-preview.20](https://github.com/Elders/Cronus/compare/v6.4.0-preview.19...v6.4.0-preview.20) (2021-10-14)
 
 
