@@ -80,11 +80,24 @@ namespace Elders.Cronus.Projections
 
             if (indexStatus.IsNotPresent() && IsNotSystemProjection(projectionType)) return JobExecutionStatus.Running;// ReplayResult.RetryLater($"The index is not present");
             if (IsVersionTrackerMissing() && IsNotSystemProjection(projectionType)) return JobExecutionStatus.Running;// ReplayResult.RetryLater($"Projection `{version}` still don't have present index."); //WHEN TO RETRY AGAIN
-            if (HasReplayTimeout(Data.DueDate)) return JobExecutionStatus.Failed;// ReplayResult.Timeout($"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{Data.DueDate}.");
+            if (HasReplayTimeout(Data.DueDate))
+            {
+                logger.Error(() => $"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{Data.DueDate}.");
+                return JobExecutionStatus.Failed;// ReplayResult.Timeout($"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{Data.DueDate}.");
+            }
+
 
             var allVersions = GetAllVersions(version);
-            if (allVersions.IsOutdatad(version)) return JobExecutionStatus.Failed;// new ReplayResult($"Version `{version}` is outdated. There is a newer one which is already live.");
-            if (allVersions.IsCanceled(version)) return JobExecutionStatus.Failed;// new ReplayResult($"Version `{version}` was canceled.");
+            if (allVersions.IsOutdatad(version))
+            {
+                logger.Error(() => $"Version `{version}` is outdated. There is a newer one which is already live.");
+                return JobExecutionStatus.Failed;// new ReplayResult($"Version `{version}` is outdated. There is a newer one which is already live.");
+            }
+            if (allVersions.IsCanceled(version))
+            {
+                logger.Error(() => $"Version `{version}` was canceled.");
+                return JobExecutionStatus.Failed;// new ReplayResult($"Version `{version}` was canceled.");
+            }
 
             Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
 

@@ -142,7 +142,7 @@ namespace Elders.Cronus.Projections.Versioning
             if (version.MaybeIsBroken())
                 return true;
 
-            if (version.Status != ProjectionStatus.Replaying && version.Status != ProjectionStatus.Building)
+            if (version.Status != ProjectionStatus.Replaying && version.Status != ProjectionStatus.Rebuilding)
                 return false;
 
             return state.Versions.Contains(version);
