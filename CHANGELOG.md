@@ -1,3 +1,10 @@
+# [6.4.0-preview.22](https://github.com/Elders/Cronus/compare/v6.4.0-preview.21...v6.4.0-preview.22) (2021-10-18)
+
+
+### Bug Fixes
+
+* Fix bug where projectionversionhandler could not be rebuilt ([144e73d](https://github.com/Elders/Cronus/commit/144e73d16a60e0fece62bf172a1c6df42ef41748))
+
 # [6.4.0-preview.21](https://github.com/Elders/Cronus/compare/v6.4.0-preview.20...v6.4.0-preview.21) (2021-10-18)
 
 
