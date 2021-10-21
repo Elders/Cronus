@@ -1,5 +1,8 @@
-﻿namespace Elders.Cronus.Projections.Versioning
+﻿using System.Runtime.Serialization;
+
+namespace Elders.Cronus.Projections.Versioning
 {
+    [DataContract(Name = "28345d27-0ccf-48dc-88dc-2d10bed829cf")]
     public class ProjectionVersionManagerAppService : ApplicationService<ProjectionVersionManager>, ISystemAppService,
         ICommandHandler<RegisterProjection>,
         ICommandHandler<ReplayProjection>,
