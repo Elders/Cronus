@@ -1,17 +1,7 @@
 ﻿using System;
-using System.Linq;
-using Elders.Cronus.AtomicAction;
-using Elders.Cronus.EventStore;
-using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Workflow;
-using Elders.Cronus.Multitenancy;
-using Elders.Cronus.Projections;
-using Microsoft.CSharp.RuntimeBinder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Configuration;
-using System.Reflection;
-using Elders.Cronus.Cluster.Job;
 
 namespace Elders.Cronus.Discoveries
 {

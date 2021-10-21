@@ -1,7 +1,5 @@
 ﻿using Elders.Cronus.Projections;
 using Machine.Specifications;
-using System;
-using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Tests.Projections
 {

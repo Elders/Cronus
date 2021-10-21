@@ -1,5 +1,3 @@
-using Elders.Cronus.EventStore.Index;
-
 namespace Elders.Cronus
 {
     public class CronusAssembly { }
