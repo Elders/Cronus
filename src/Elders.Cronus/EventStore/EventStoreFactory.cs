@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.EventStore.InMemory;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore
 {
