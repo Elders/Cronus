@@ -1,5 +1,4 @@
 ﻿using Elders.Cronus.Cluster.Job;
-using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
@@ -31,7 +30,6 @@ namespace Elders.Cronus.EventStore.Players
         {
             Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
 
-
             string eventTypeId = Data.SourceEventTypeId;
             bool hasMoreRecords = true;
             while (hasMoreRecords && Data.IsCompleted == false)
@@ -57,9 +55,9 @@ namespace Elders.Cronus.EventStore.Players
                     After = Data.After,
                     Before = Data.Before
                 };
-                var hala = eventStorePlayer.LoadAggregateCommits(opt);
+                var foundAggregateCommits = eventStorePlayer.LoadAggregateCommits(opt);
 
-                foreach (AggregateCommit arCommit in hala.Commits)
+                foreach (AggregateCommit arCommit in foundAggregateCommits.Commits)
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
@@ -69,15 +67,17 @@ namespace Elders.Cronus.EventStore.Players
 
                     foreach (IPublicEvent publicEvent in arCommit.PublicEvents)
                     {
-                        var headers = new Dictionary<string, string>()
+                        if (publicEvent.GetType().GetContractId().Equals(eventTypeId))
                         {
-                            {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
-                            {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
-                        };
-                        publicEventPublisher.Publish(publicEvent, headers);
+                            var headers = new Dictionary<string, string>()
+                            {
+                                {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
+                                {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
+                            };
+                            publicEventPublisher.Publish(publicEvent, headers);
+                        }
                     }
                 }
-
 
                 var progress = new ReplayPublicEvents_JobData.EventTypePagingProgress(eventTypeId, indexRecordsResult.PaginationToken, 0, 0);
                 Data.MarkEventTypeProgress(progress);
