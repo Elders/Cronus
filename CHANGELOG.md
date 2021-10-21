@@ -1,3 +1,10 @@
+# [6.4.0-preview.23](https://github.com/Elders/Cronus/compare/v6.4.0-preview.22...v6.4.0-preview.23) (2021-10-21)
+
+
+### Bug Fixes
+
+* Properly re-publishes public events ([47cf7eb](https://github.com/Elders/Cronus/commit/47cf7eb29133f118f59be430e0932087390d686d))
+
 # [6.4.0-preview.22](https://github.com/Elders/Cronus/compare/v6.4.0-preview.21...v6.4.0-preview.22) (2021-10-18)
 
 
