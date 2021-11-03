@@ -1,3 +1,10 @@
+# [6.4.0-preview.24](https://github.com/Elders/Cronus/compare/v6.4.0-preview.23...v6.4.0-preview.24) (2021-11-03)
+
+
+### Bug Fixes
+
+* Adds more detailed logging information in Publisher ([194eea3](https://github.com/Elders/Cronus/commit/194eea38e8d6e031a8b6213e5edf0f53900e3520))
+
 # [6.4.0-preview.23](https://github.com/Elders/Cronus/compare/v6.4.0-preview.22...v6.4.0-preview.23) (2021-10-21)
 
 
