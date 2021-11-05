@@ -1,3 +1,10 @@
+## [6.4.2](https://github.com/Elders/Cronus/compare/v6.4.1...v6.4.2) (2021-11-05)
+
+
+### Bug Fixes
+
+* Change dependabot configuration ([1a3537f](https://github.com/Elders/Cronus/commit/1a3537f2df8f28ae482050125de42e9a8a1d0d40))
+
 ## [6.4.1](https://github.com/Elders/Cronus/compare/v6.4.0...v6.4.1) (2021-11-05)
 
 
