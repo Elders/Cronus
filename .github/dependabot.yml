@@ -14,6 +14,6 @@ updates:
     reviewers:
       - "Elders/cronus-team"
     assignees: 
-    - "mynkow"
+    -"mynkow"
     labels:
       - "dependencies"
