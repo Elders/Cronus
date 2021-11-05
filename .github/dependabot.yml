@@ -3,15 +3,14 @@
 # Please see the documentation for all configuration options:
 # https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
+# Specify assignees for pull requests
+
 version: 2
 updates:
-  - package-ecosystem: "nuget" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "nuget"
+    directory: "/"
     schedule:
       interval: "daily"
-    reviewers:
-      - "Elders/cronus-team"
+    # Add assignees
     assignees:
       - "mynkow"
-    labels:
-      - "dependencies"
