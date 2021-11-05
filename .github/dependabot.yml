@@ -11,8 +11,5 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    # Add assignees
-    - assignees:
-      - mynkow
-  - assignees:
-      - "mynkow"
+    assignees: 
+    - "mynkow"
