@@ -6,10 +6,10 @@ using Microsoft.Extensions.Logging;
 namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = "d0dc548e-cbb1-4cb8-861b-e5f6bef68116")]
-    public class ProjectionBuilder : Saga,
+    public class ProjectionBuilder : Saga, ISystemSaga,
         IEventHandler<ProjectionVersionRequested>,
-        ISagaTimeoutHandler<RebuildProjectionVersion>,
-        ISagaTimeoutHandler<ProjectionVersionRebuildTimedout>
+        ISagaTimeoutHandler<CreateNewProjectionVersion>,
+        ISagaTimeoutHandler<ProjectionVersionRequestHeartbeat>
     {
         private static ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionBuilder));
 
@@ -25,24 +25,24 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(ProjectionVersionRequested @event)
         {
-            var startRebuildAt = @event.Timebox.RebuildStartAt;
+            var startRebuildAt = @event.Timebox.RequestStartAt;
             if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
             {
-                RequestTimeout(new RebuildProjectionVersion(@event, @event.Timebox.RebuildStartAt));
-                RequestTimeout(new ProjectionVersionRebuildTimedout(@event, @event.Timebox.RebuildFinishUntil));
+                RequestTimeout(new CreateNewProjectionVersion(@event, @event.Timebox.RequestStartAt));
+                RequestTimeout(new ProjectionVersionRequestHeartbeat(@event, @event.Timebox.FinishRequestUntil));
             }
         }
 
-        public void Handle(RebuildProjectionVersion sagaTimeout)
+        public void Handle(CreateNewProjectionVersion sagaTimeout)
         {
             RebuildIndex_ProjectionIndex_Job job = jobFactory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             JobExecutionStatus result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
-            logger.Debug(() => "Rebuild projection version {@cronus_projection_rebuild}", result);
+            logger.Debug(() => "Replay projection version {@cronus_projection_rebuild}", result);
 
 
             if (result == JobExecutionStatus.Running)
             {
-                RequestTimeout(new RebuildProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
+                RequestTimeout(new CreateNewProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
             }
             else if (result == JobExecutionStatus.Failed)
             {
@@ -56,7 +56,7 @@ namespace Elders.Cronus.Projections.Versioning
             }
         }
 
-        public void Handle(ProjectionVersionRebuildTimedout sagaTimeout)
+        public void Handle(ProjectionVersionRequestHeartbeat sagaTimeout)
         {
             var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             commandPublisher.Publish(timedout);
@@ -64,11 +64,11 @@ namespace Elders.Cronus.Projections.Versioning
     }
 
     [DataContract(Name = "029602fa-db90-47a4-9c8b-c304d5ee177a")]
-    public class RebuildProjectionVersion : IScheduledMessage
+    public class CreateNewProjectionVersion : ISystemScheduledMessage
     {
-        RebuildProjectionVersion() { }
+        CreateNewProjectionVersion() { }
 
-        public RebuildProjectionVersion(ProjectionVersionRequested projectionVersionRequest, DateTime publishAt)
+        public CreateNewProjectionVersion(ProjectionVersionRequested projectionVersionRequest, DateTime publishAt)
         {
             ProjectionVersionRequest = projectionVersionRequest;
             PublishAt = publishAt;
@@ -84,11 +84,11 @@ namespace Elders.Cronus.Projections.Versioning
     }
 
     [DataContract(Name = "11c1ae7d-04f4-4266-a21e-78ddc440d68b")]
-    public class ProjectionVersionRebuildTimedout : IScheduledMessage
+    public class ProjectionVersionRequestHeartbeat : ISystemScheduledMessage
     {
-        ProjectionVersionRebuildTimedout() { }
+        ProjectionVersionRequestHeartbeat() { }
 
-        public ProjectionVersionRebuildTimedout(ProjectionVersionRequested projectionVersionRequest, DateTime publishAt)
+        public ProjectionVersionRequestHeartbeat(ProjectionVersionRequested projectionVersionRequest, DateTime publishAt)
         {
             ProjectionVersionRequest = projectionVersionRequest;
             PublishAt = publishAt;

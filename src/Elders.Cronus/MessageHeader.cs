@@ -21,5 +21,7 @@
         public const string PublishTimestamp = "publish_timestamp";
 
         public const string RecipientHandlers = "recipient_handlers";
+
+        public const string RecipientBoundedContext = "recipient_bounded_context";
     }
 }

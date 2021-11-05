@@ -3,141 +3,190 @@ using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.EventStore.Index.Handlers;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections
 {
+    public class SystemProjectionHelper
+    {
+        private readonly ProjectionHasher projectionHasher;
+
+        public SystemProjectionHelper(ProjectionHasher projectionHasher)
+        {
+            this.projectionHasher = projectionHasher;
+        }
+
+        public ProjectionVersion GetProjectionVersionsVersion()
+        {
+            return new ProjectionVersion(ProjectionVersionsHandler.ContractId, ProjectionStatus.Live, 1, projectionHasher.CalculateHash(typeof(ProjectionVersionsHandler)));
+        }
+    }
+
     public class RebuildIndex_ProjectionIndex_Job : CronusJob<RebuildProjectionIndex_JobData>
     {
+        private readonly SystemProjectionHelper systemProjectionHelper;
+        private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly IEventStore eventStore;
-        private readonly IEventStorePlayer eventStorePlayer;
         private readonly ProjectionIndex index;
-        private readonly IProjectionWriter projectionWriter;
         private readonly EventToAggregateRootId eventToAggregateIndex;
         private readonly IProjectionReader projectionReader;
         private readonly CronusContext context;
-        private readonly ILogger<RebuildIndex_ProjectionIndex_Job> logger;
+        private readonly IMessageCounter messageCounter;
 
-        public RebuildIndex_ProjectionIndex_Job(IInitializableProjectionStore projectionStoreInitializer, IEventStore eventStore, IEventStorePlayer eventStorePlayer, ProjectionIndex index, IProjectionWriter projectionWriter, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, ILogger<RebuildIndex_ProjectionIndex_Job> logger)
+        public RebuildIndex_ProjectionIndex_Job(SystemProjectionHelper systemProjectionHelper, IPublisher<ISystemSignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, EventStoreFactory eventStoreFactory, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
         {
+            this.systemProjectionHelper = systemProjectionHelper;
+            this.signalPublisher = signalPublisher;
             this.projectionStoreInitializer = projectionStoreInitializer;
-            this.eventStore = eventStore;
-            this.eventStorePlayer = eventStorePlayer;
+            this.eventStore = eventStoreFactory.GetEventStore();
             this.index = index;
-            this.projectionWriter = projectionWriter;
             this.eventToAggregateIndex = eventToAggregateIndex;
             this.projectionReader = projectionReader;
             this.context = context;
-            this.logger = logger;
+            this.messageCounter = messageCounter;
         }
 
         public override string Name { get; set; } = typeof(ProjectionIndex).GetContractId();
 
-        protected override RebuildProjectionIndex_JobData BuildInitialData() => new RebuildProjectionIndex_JobData();
-
-        protected override async Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default)
+        protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            if (cancellationToken.IsCancellationRequested)
+            ProjectionVersion version = Data.Version;
+
+            if (IsVersionTrackerMissing())
             {
-                logger.Info(() => $"The job {Name} was cancelled before it got started.");
-                return JobExecutionStatus.Running;
+                if (version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase))
+                {
+                    ProjectionVersion persistentVersion = systemProjectionHelper.GetProjectionVersionsVersion();
+                    projectionStoreInitializer.Initialize(persistentVersion);
+                }
+                else
+                {
+                    return JobExecutionStatus.Running;
+                }
             }
 
-            ProjectionVersion version = Data.Version;
             Type projectionType = version.ProjectionName.GetTypeByContract();
-
-            // mynkow. this one fails
             IndexStatus indexStatus = GetIndexStatus<EventToAggregateRootId>();
-            if (indexStatus.IsNotPresent() && IsNotSystemProjection(projectionType)) return JobExecutionStatus.Running;// ReplayResult.RetryLater($"The index is not present");
 
+            if (indexStatus.IsNotPresent() && IsNotSystemProjection(projectionType)) return JobExecutionStatus.Running;// ReplayResult.RetryLater($"The index is not present");
             if (IsVersionTrackerMissing() && IsNotSystemProjection(projectionType)) return JobExecutionStatus.Running;// ReplayResult.RetryLater($"Projection `{version}` still don't have present index."); //WHEN TO RETRY AGAIN
-            if (HasReplayTimeout(Data.DueDate)) return JobExecutionStatus.Failed;// ReplayResult.Timeout($"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{Data.DueDate}.");
+            if (HasReplayTimeout(Data.DueDate))
+            {
+                logger.Error(() => $"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{Data.DueDate}.");
+                return JobExecutionStatus.Failed;// ReplayResult.Timeout($"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{Data.DueDate}.");
+            }
+
 
             var allVersions = GetAllVersions(version);
-            if (allVersions.IsOutdatad(version)) return JobExecutionStatus.Failed;// new ReplayResult($"Version `{version}` is outdated. There is a newer one which is already live.");
-            if (allVersions.IsCanceled(version)) return JobExecutionStatus.Failed;// new ReplayResult($"Version `{version}` was canceled.");
+            if (allVersions.IsOutdatad(version))
+            {
+                logger.Error(() => $"Version `{version}` is outdated. There is a newer one which is already live.");
+                return JobExecutionStatus.Failed;// new ReplayResult($"Version `{version}` is outdated. There is a newer one which is already live.");
+            }
+            if (allVersions.IsCanceled(version) && version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase) == false)
+            {
+                logger.Error(() => $"Version `{version}` was canceled.");
+                return JobExecutionStatus.Failed;// new ReplayResult($"Version `{version}` was canceled.");
+            }
 
             Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
 
             projectionStoreInitializer.Initialize(version);
 
-            IEnumerable<string> projectionHandledEventTypes = GetInvolvedEvents(projectionType);
-            foreach (var eventType in projectionHandledEventTypes)
+            var startSignal = Data.GetProgressStartedSignal(context.Tenant);
+            signalPublisher.Publish(startSignal);
+
+            IEnumerable<Type> projectionHandledEventTypes = GetInvolvedEventTypes(projectionType);
+            foreach (Type eventType in projectionHandledEventTypes)
             {
+                string eventTypeId = eventType.GetContractId();
                 bool hasMoreRecords = true;
                 while (hasMoreRecords && Data.IsCompleted == false)
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        logger.Info(() => $"The job {Name} was cancelled.");
-                        return JobExecutionStatus.Running;
-                    }
-
-                    RebuildProjectionIndex_JobData.EventTypeRebuildPaging paging = Data.EventTypePaging.Where(et => et.Type.Equals(eventType, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                    RebuildProjectionIndex_JobData.EventTypePagingProgress paging = Data.EventTypePaging.Where(et => et.Type.Equals(eventTypeId, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
                     string paginationToken = paging?.PaginationToken;
-                    LoadIndexRecordsResult indexRecordsResult = eventToAggregateIndex.EnumerateRecords(eventType, paginationToken);
+                    LoadIndexRecordsResult indexRecordsResult = eventToAggregateIndex.EnumerateRecords(eventTypeId, paginationToken);
 
                     IEnumerable<IndexRecord> indexRecords = indexRecordsResult.Records;
+                    long currentSessionProcessedCount = 0;
                     foreach (IndexRecord indexRecord in indexRecords)
                     {
-                        #region TrackAggregate
-                        int aggreagteRootIdHash = indexRecord.AggregateRootId.GetHashCode();
-                        if (processedAggregates.ContainsKey(aggreagteRootIdHash))
-                            continue;
-                        processedAggregates.Add(aggreagteRootIdHash, null);
-                        #endregion
-
-                        string mess = Encoding.UTF8.GetString(indexRecord.AggregateRootId);
-                        IAggregateRootId arId = GetAggregateRootId(mess);
-                        EventStream stream = eventStore.Load(arId);
-
-                        foreach (AggregateCommit arCommit in stream.Commits)
+                        try
                         {
-                            for (int i = 0; i < arCommit.Events.Count; i++)
-                            {
-                                IEvent theEvent = arCommit.Events[i].Unwrap();
+                            currentSessionProcessedCount++;
 
-                                if (projectionHandledEventTypes.Contains(theEvent.GetType().GetContractId())) // filters out the events which are not part of the projection
+                            #region TrackAggregate
+                            int aggreagteRootIdHash = indexRecord.AggregateRootId.GetHashCode();
+                            if (processedAggregates.ContainsKey(aggreagteRootIdHash))
+                                continue;
+                            processedAggregates.Add(aggreagteRootIdHash, null);
+                            #endregion
+
+                            string mess = Encoding.UTF8.GetString(indexRecord.AggregateRootId);
+                            IAggregateRootId arId = GetAggregateRootId(mess);
+                            EventStream stream = eventStore.Load(arId);
+
+                            foreach (AggregateCommit arCommit in stream.Commits)
+                            {
+                                if (cancellationToken.IsCancellationRequested)
                                 {
-                                    var origin = new EventOrigin(mess, arCommit.Revision, i, arCommit.Timestamp);
-                                    projectionWriter.Save(projectionType, theEvent, origin, version);
+                                    logger.Info(() => $"Job has been cancelled.");
+                                    return JobExecutionStatus.Running;
                                 }
+
+                                index.Index(arCommit, version);
                             }
                         }
+                        catch (Exception ex)
+                        {
+                            logger.WarnException(ex, () => $"{indexRecord.AggregateRootId} was skipped when rebuilding {version.ProjectionName}.");
+                        }
                     }
+                    long totalEvents = messageCounter.GetCount(eventType);
+                    var progress = new RebuildProjectionIndex_JobData.EventTypePagingProgress(eventTypeId, indexRecordsResult.PaginationToken, currentSessionProcessedCount, totalEvents);
 
-                    Data.MarkPaginationTokenAsProcessed(eventType, indexRecordsResult.PaginationToken);
+                    Data.MarkEventTypeProgress(progress);
+                    Data.Timestamp = DateTimeOffset.UtcNow;
                     Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
                     hasMoreRecords = indexRecordsResult.Records.Any();
+
+                    var progressSignal = Data.GetProgressSignal(context.Tenant);
+                    signalPublisher.Publish(progressSignal);
                 }
             }
 
             Data.IsCompleted = true;
+            Data.Timestamp = DateTimeOffset.UtcNow;
             Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+
+            var finishSignal = Data.GetProgressFinishedSignal(context.Tenant);
+            signalPublisher.Publish(finishSignal);
+
+            logger.Info(() => $"The job has been completed.");
 
             return JobExecutionStatus.Completed;
         }
 
-        IEnumerable<string> GetInvolvedEvents(Type projectionType)
+        IEnumerable<Type> GetInvolvedEventTypes(Type projectionType)
         {
             var ieventHandler = typeof(IEventHandler<>);
             var interfaces = projectionType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler);
             foreach (var @interface in interfaces)
             {
                 Type eventType = @interface.GetGenericArguments().First();
-                yield return eventType.GetContractId();
+                yield return eventType;
             }
         }
 
@@ -203,20 +252,10 @@ namespace Elders.Cronus.Projections
             return new ProjectionVersions();
         }
 
-        public void SetProjection(ProjectionVersion version, VersionRequestTimebox timebox)
+        protected override RebuildProjectionIndex_JobData Override(RebuildProjectionIndex_JobData fromCluster, RebuildProjectionIndex_JobData fromLocal)
         {
-            var dataOverride = BuildInitialData();
-            dataOverride.Timestamp = timebox.RebuildStartAt;
-            dataOverride.DueDate = timebox.RebuildFinishUntil;
-            dataOverride.Version = version;
-
-            OverrideData(fromCluster => Override(fromCluster, dataOverride));
-        }
-
-        private RebuildProjectionIndex_JobData Override(RebuildProjectionIndex_JobData fromCluster, RebuildProjectionIndex_JobData dataOverride)
-        {
-            if ((fromCluster.IsCompleted && fromCluster.Timestamp < dataOverride.Timestamp) || fromCluster.Version < dataOverride.Version)
-                return dataOverride;
+            if ((fromCluster.IsCompleted && fromCluster.Timestamp < fromLocal.Timestamp) || fromCluster.Version < fromLocal.Version)
+                return fromLocal;
             else
                 return fromCluster;
         }
@@ -238,28 +277,54 @@ namespace Elders.Cronus.Projections
         public RebuildIndex_ProjectionIndex_Job CreateJob(ProjectionVersion version, VersionRequestTimebox timebox)
         {
             job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}:{version.ProjectionName}_{version.Hash}_{version.Revision}";
-            job.SetProjection(version, timebox);
+
+            job.BuildInitialData(() =>
+            {
+                var data = new RebuildProjectionIndex_JobData();
+                data.Timestamp = timebox.RequestStartAt;
+                data.DueDate = timebox.FinishRequestUntil;
+                data.Version = version;
+
+                Type projectionType = version.ProjectionName.GetTypeByContract();
+                IEnumerable<Type> projectionHandledEventTypes = GetInvolvedEventTypes(projectionType);
+                //foreach (Type eventType in projectionHandledEventTypes)
+                //{
+                //    long totalEvents = messageCounter.GetCount(eventType);
+                //    var progress = new RebuildProjectionIndex_JobData.EventTypePagingProgress(eventType.GetContractId(), string.Empty, 0, totalEvents);
+                //    dataOverride.Init(progress);
+                //}
+
+                return data;
+            });
 
             return job;
         }
+
+        IEnumerable<Type> GetInvolvedEventTypes(Type projectionType)
+        {
+            var ieventHandler = typeof(IEventHandler<>);
+            var interfaces = projectionType.GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler);
+            foreach (var @interface in interfaces)
+            {
+                Type eventType = @interface.GetGenericArguments().First();
+                yield return eventType;
+            }
+        }
     }
 
-    public class RebuildProjectionIndex_JobData
+    public class RebuildProjectionIndex_JobData : IJobData
     {
-        public RebuildProjectionIndex_JobData() : this(null) { }
-
-        public RebuildProjectionIndex_JobData(ProjectionVersion version)
+        public RebuildProjectionIndex_JobData()
         {
             IsCompleted = false;
-            EventTypePaging = new List<EventTypeRebuildPaging>();
-            Version = version;
+            EventTypePaging = new List<EventTypePagingProgress>();
             Timestamp = DateTimeOffset.UtcNow;
             DueDate = DateTimeOffset.MaxValue;
         }
 
         public bool IsCompleted { get; set; }
 
-        public List<EventTypeRebuildPaging> EventTypePaging { get; set; }
+        public List<EventTypePagingProgress> EventTypePaging { get; set; }
 
         public ProjectionVersion Version { get; set; }
 
@@ -267,30 +332,124 @@ namespace Elders.Cronus.Projections
 
         public DateTimeOffset DueDate { get; set; }
 
-        public class EventTypeRebuildPaging
+        public class EventTypePagingProgress
         {
+            public EventTypePagingProgress(string eventTypeId, string paginationToken, long processedCount, long totalCount)
+            {
+                Type = eventTypeId;
+                PaginationToken = paginationToken;
+                ProcessedCount = processedCount;
+                TotalCount = totalCount;
+            }
+
             public string Type { get; set; }
 
             public string PaginationToken { get; set; }
+
+            public long ProcessedCount { get; set; }
+
+            public long TotalCount { get; set; }
         }
 
-        public void MarkPaginationTokenAsProcessed(string eventTypeId, string paginationToken)
+        public void MarkEventTypeProgress(EventTypePagingProgress progress)
         {
-            EventTypeRebuildPaging existing = EventTypePaging.Where(et => et.Type.Equals(eventTypeId, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            EventTypePagingProgress existing = EventTypePaging.Where(et => et.Type.Equals(progress.Type, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             if (existing is null)
             {
-                existing = new EventTypeRebuildPaging()
-                {
-                    Type = eventTypeId,
-                    PaginationToken = paginationToken
-                };
-
-                EventTypePaging.Add(existing);
+                EventTypePaging.Add(progress);
             }
             else
             {
-                existing.PaginationToken = paginationToken;
+                existing.PaginationToken = progress.PaginationToken;
+                existing.ProcessedCount += progress.ProcessedCount;
+                existing.TotalCount = progress.TotalCount;
             }
         }
+
+        public void Init(EventTypePagingProgress progress)
+        {
+            EventTypePagingProgress existing = EventTypePaging.Where(et => et.Type.Equals(progress.Type, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+            if (existing is null)
+            {
+                EventTypePaging.Add(progress);
+            }
+        }
+
+        public RebuildProjectionProgress GetProgressSignal(string tenant)
+        {
+            return new RebuildProjectionProgress(tenant, Version.ProjectionName, EventTypePaging.Sum(x => x.ProcessedCount), EventTypePaging.Sum(x => x.TotalCount));
+        }
+
+        public RebuildProjectionFinished GetProgressFinishedSignal(string tenant)
+        {
+            return new RebuildProjectionFinished(tenant, Version.ProjectionName);
+        }
+
+        public RebuildProjectionStarted GetProgressStartedSignal(string tenant)
+        {
+            return new RebuildProjectionStarted(tenant, Version.ProjectionName);
+        }
+    }
+
+    [DataContract(Name = "373f4ff0-cb6f-499e-9fa5-1666ccc00689")]
+    public class RebuildProjectionProgress : ISystemSignal
+    {
+        public RebuildProjectionProgress() { }
+
+        public RebuildProjectionProgress(string tenant, string projectionTypeId, long processedCount, long totalCount)
+        {
+            Tenant = tenant;
+            ProjectionTypeId = projectionTypeId;
+            ProcessedCount = processedCount;
+            TotalCount = totalCount;
+        }
+
+        [DataMember(Order = 0)]
+        public string Tenant { get; set; }
+
+        [DataMember(Order = 1)]
+        public string ProjectionTypeId { get; set; }
+
+        [DataMember(Order = 2)]
+        public long ProcessedCount { get; set; }
+
+        [DataMember(Order = 3)]
+        public long TotalCount { get; set; }
+    }
+
+    [DataContract(Name = "b03199e7-2752-48b7-93de-c45ad18b55bf")]
+    public class RebuildProjectionStarted : ISystemSignal
+    {
+        public RebuildProjectionStarted() { }
+
+        public RebuildProjectionStarted(string tenant, string projectionTypeId)
+        {
+            Tenant = tenant;
+            ProjectionTypeId = projectionTypeId;
+        }
+
+        [DataMember(Order = 0)]
+        public string Tenant { get; set; }
+
+        [DataMember(Order = 1)]
+        public string ProjectionTypeId { get; set; }
+    }
+
+    [DataContract(Name = "b248432b-451c-4894-84f2-c5ac5bc35139")]
+    public class RebuildProjectionFinished : ISystemSignal
+    {
+        public RebuildProjectionFinished() { }
+
+        public RebuildProjectionFinished(string tenant, string projectionTypeId)
+        {
+            Tenant = tenant;
+            ProjectionTypeId = projectionTypeId;
+        }
+
+        [DataMember(Order = 0)]
+        public string Tenant { get; set; }
+
+        [DataMember(Order = 1)]
+        public string ProjectionTypeId { get; set; }
     }
 }

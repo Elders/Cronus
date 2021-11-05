@@ -1,15 +1,22 @@
-﻿using System;
+﻿using Elders.Cronus.EventStore.Index;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Cluster.Job
 {
     public abstract class CronusJob<TData> : ICronusJob<TData>
-        where TData : class, new()
+        where TData : class, IJobData, new()
     {
-        public CronusJob()
+        Func<TData, TData> DataOverride = fromCluster => fromCluster;
+        Func<TData> InitialDataFactory = () => new TData();
+
+        protected readonly ILogger<CronusJob<TData>> logger;
+
+        public CronusJob(ILogger<CronusJob<TData>> logger)
         {
-            Data = BuildInitialData();
+            this.logger = logger;
         }
 
         public abstract string Name { get; set; }
@@ -18,42 +25,89 @@ namespace Elders.Cronus.Cluster.Job
         /// Initializes a default state for the job
         /// </summary>
         /// <returns>Returns the state data</returns>
-        protected abstract TData BuildInitialData();
+        private TData BuildInitialData()
+        {
+            var initialData = InitialDataFactory();
+            OverrideData(cluster => Override(cluster, initialData));
+
+            return initialData;
+        }
+
+        public TData BuildInitialData(Func<TData> factory)
+        {
+            InitialDataFactory = factory;
+
+            return BuildInitialData();
+        }
 
         public Task<JobExecutionStatus> RunAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             try
             {
-                return Task.Factory
-                    .ContinueWhenAll(new Task[] { SyncInitialStateAsync(cluster) }, _ => Task.CompletedTask)
-                    .ContinueWith(x => RunJob(cluster, cancellationToken))
-                    .Result;
+                using (logger.BeginScope(s => s
+                    .AddScope("cronus_job_name", Name)))
+                {
+                    logger.Info(() => "Initializing job...");
+
+                    return Task.Factory
+                        .ContinueWhenAll(new Task[] { SyncInitialStateAsync(cluster, cancellationToken) }, _ => Task.CompletedTask)
+                        .ContinueWith(x => RunJobWithLoggerAsync(cluster, cancellationToken))
+                        .Result;
+                }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                logger.ErrorException(ex, () => "Job run has failed.");
+
                 return Task.FromResult(JobExecutionStatus.Failed);
             }
         }
 
         public async Task SyncInitialStateAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            Data = await cluster.PingAsync<TData>(cancellationToken);
+            Data = await cluster.PingAsync<TData>(cancellationToken).ConfigureAwait(false);
 
             if (Data is null)
                 Data = BuildInitialData();
 
             Data = DataOverride(Data);
+
+            using (logger.BeginScope(s => s
+                       .AddScope(Log.JobData, System.Text.Json.JsonSerializer.Serialize<TData>(Data))))
+            {
+                logger.Info(() => "Job state synced.");
+            }
         }
 
-        protected abstract Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default);
+        private Task<JobExecutionStatus> RunJobWithLoggerAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
+        {
+            using (logger.BeginScope(s => s
+                       .AddScope("cronus_job_data", System.Text.Json.JsonSerializer.Serialize<TData>(Data))))
+            {
+                logger.Info(() => "Job started...");
+                return RunJobAsync(cluster, cancellationToken);
+            }
+        }
+
+        protected abstract Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default);
 
         public TData Data { get; protected set; }
-
-        Func<TData, TData> DataOverride = fromCluster => fromCluster;
 
         public void OverrideData(Func<TData, TData> dataOverride)
         {
             DataOverride = dataOverride;
         }
+
+        protected virtual TData Override(TData fromCluster, TData fromLocal)
+        {
+            if (fromCluster.IsCompleted && fromCluster.Timestamp < fromLocal.Timestamp)
+                return fromLocal;
+            else
+                return fromCluster;
+        }
+
+        public virtual Task BeforeRunAsync() { return Task.CompletedTask; }
+
+        public virtual Task AfterRunAsync() { return Task.CompletedTask; }
     }
 }

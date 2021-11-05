@@ -33,18 +33,28 @@ namespace Elders.Cronus.Projections
             return new ProjectionVersion(ProjectionName, status, Revision, Hash);
         }
 
+        //public ProjectionVersion WithRebuildingStatus(ProjectionRebuildStatus rebuildStatus)
+        //{
+        //    return new ProjectionVersion(ProjectionName, Status, Revision, Hash, rebuildStatus);
+        //}
+
         /// <summary>
-        /// Gets the next <see cref="ProjectionVersion"/> which is always with <see cref="ProjectionStatus"/> <see cref="ProjectionStatus.Building"/> and increased Revision.
+        /// Gets the next <see cref="ProjectionVersion"/> which is always with <see cref="ProjectionStatus"/> <see cref="ProjectionStatus.Replaying"/> and increased Revision.
         /// </summary>
         /// <returns>Returns a <see cref="ProjectionVersion"/></returns>
         public ProjectionVersion NextRevision(string hash)
         {
-            return new ProjectionVersion(ProjectionName, ProjectionStatus.Building, Revision + 1, hash);
+            return new ProjectionVersion(ProjectionName, ProjectionStatus.Replaying, Revision + 1, hash);
         }
 
-        public ProjectionVersion NonVersionableRevision()
+        public ProjectionVersion NonVersionableRevision(string hash)
         {
-            return new ProjectionVersion(ProjectionName, ProjectionStatus.Building, Revision, Hash);
+            return new ProjectionVersion(ProjectionName, ProjectionStatus.Replaying, Revision, hash);
+        }
+
+        internal bool MaybeIsBroken()
+        {
+            return Status == ProjectionStatus.Unknown || Status == ProjectionStatus.NotPresent;
         }
 
         public override bool Equals(ProjectionVersion other)

@@ -6,8 +6,8 @@ trigger:
     branches:
       include:
       - master
-      - next
-      - next-major
+      - beta
+      - preview
     paths:
       exclude:
       - docs/CHANGELOG.md
@@ -20,10 +20,20 @@ pool:
 variables:
   buildConfiguration: 'Release'
 
-steps:
+jobs:
+- job: Build
+  condition: true
+
+  steps:
   - checkout: self
     clean: true
     persistCredentials: true
+    
+  - task: DotNetCoreCLI@2
+    name: Test
+    inputs:
+      command: 'test'
+      projects: 'src/**/*.Tests.csproj'
 
   - task: Bash@3
     name: GetNextVersion
@@ -36,7 +46,26 @@ steps:
         npm install
         npx semantic-release -d
         export SEMVER=$(cat semver.txt)
-        echo "##vso[task.setvariable variable=SEMVER]$SEMVER"
+        echo "##vso[task.setvariable variable=SEMVER;isOutput=true;]$SEMVER"
+        if [ "$SEMVER" != "" ]; then export semverDefined="true"; fi
+        echo "##vso[task.setvariable variable=semverDefined;isOutput=true;]$semverDefined"
+
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'build'
+      projects: 'src/Elders.Cronus/*.csproj'
+
+- job: Artifact
+  dependsOn: ['Build']
+
+  variables:
+    SEMVER: $[dependencies.Build.outputs['GetNextVersion.SEMVER']]
+  condition: eq(dependencies.Build.outputs['GetNextVersion.semverDefined'], true)
+
+  steps:
+  - checkout: self
+    clean: true
+    persistCredentials: true
 
   - task: DotNetCoreCLI@2
     name: Pack
@@ -51,6 +80,7 @@ steps:
     env:
       STAGING_PATH: $(Build.ArtifactStagingDirectory)
       LOCAL_PATH: $(Build.Repository.LocalPath)
+      GH_TOKEN: $(GITHUB_TOKEN)
     inputs:
       targetType: 'inline'
       script: |

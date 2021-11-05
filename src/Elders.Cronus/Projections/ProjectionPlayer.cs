@@ -23,10 +23,10 @@ namespace Elders.Cronus.Projections
         private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly EventToAggregateRootId index;
 
-        public ProjectionPlayer(CronusContext context, IEventStore eventStore, IProjectionWriter projectionRepository, IProjectionReader projectionReader, IInitializableProjectionStore projectionStoreInitializer, EventToAggregateRootId index)
+        public ProjectionPlayer(CronusContext context, EventStoreFactory eventStoreFactory, IProjectionWriter projectionRepository, IProjectionReader projectionReader, IInitializableProjectionStore projectionStoreInitializer, EventToAggregateRootId index)
         {
             this.context = context;
-            this.eventStore = eventStore;
+            this.eventStore = eventStoreFactory.GetEventStore();
             this.projectionWriter = projectionRepository;
             this.projectionReader = projectionReader;
             this.projectionStoreInitializer = projectionStoreInitializer;

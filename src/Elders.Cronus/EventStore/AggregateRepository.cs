@@ -15,13 +15,13 @@ namespace Elders.Cronus.EventStore
         readonly IEventStore eventStore;
         readonly IIntegrityPolicy<EventStream> integrityPolicy;
 
-        public AggregateRepository(IEventStore eventStore, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
+        public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
         {
-            if (eventStore is null) throw new ArgumentNullException(nameof(eventStore));
+            if (eventStoreFactory is null) throw new ArgumentNullException(nameof(eventStoreFactory));
             if (atomicAction is null) throw new ArgumentNullException(nameof(atomicAction));
             if (integrityPolicy is null) throw new ArgumentNullException(nameof(integrityPolicy));
 
-            this.eventStore = eventStore;
+            this.eventStore = eventStoreFactory.GetEventStore();
             this.atomicAction = atomicAction;
             this.integrityPolicy = integrityPolicy;
         }
@@ -34,23 +34,7 @@ namespace Elders.Cronus.EventStore
         /// <exception cref="Elders.Cronus.DomainModeling.AggregateRootException"></exception>
         public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
-            if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Any() == false)
-                return;
-
-            var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList());
-            var result = atomicAction.Execute(aggregateRoot.State.Id, aggregateRoot.Revision, () => eventStore.Append(arCommit));
-
-            if (result.IsSuccessful)
-            {
-                logger.Info(() => "{cronus_arname} {cronus_arid} has been saved.", typeof(AR).Name, aggregateRoot.State.Id);
-                // #prodalzavameNapred
-                // #bravoKobra
-                // https://www.youtube.com/watch?v=2wWusHu_3w8
-            }
-            else
-            {
-                throw new AggregateStateFirstLevelConcurrencyException($"Unable to save AR {Environment.NewLine}{arCommit.ToString()}", result.Errors.MakeJustOneException());
-            }
+            SaveInternal(aggregateRoot);
         }
 
         /// <summary>
@@ -71,6 +55,28 @@ namespace Elders.Cronus.EventStore
                 return ReadResult<AR>.WithNotFoundHint($"Unable to load AR with ID={id.Value}");
 
             return new ReadResult<AR>(aggregateRoot);
+        }
+
+        internal AggregateCommit SaveInternal<AR>(AR aggregateRoot) where AR : IAggregateRoot
+        {
+            if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Any() == false)
+                return default;
+
+            var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList());
+            var result = atomicAction.Execute(aggregateRoot.State.Id, aggregateRoot.Revision, () => eventStore.Append(arCommit));
+
+            if (result.IsSuccessful)
+            {
+                // #prodalzavameNapred
+                // #bravoKobra
+                // https://www.youtube.com/watch?v=2wWusHu_3w8
+
+                return arCommit;
+            }
+            else
+            {
+                throw new AggregateStateFirstLevelConcurrencyException($"Unable to save AR {Environment.NewLine}{arCommit.ToString()}", result.Errors.MakeJustOneException());
+            }
         }
     }
 }

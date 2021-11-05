@@ -1,11 +1,15 @@
-﻿namespace Elders.Cronus.Projections.Versioning
+﻿using System.Runtime.Serialization;
+
+namespace Elders.Cronus.Projections.Versioning
 {
-    public class ProjectionVersionManagerAppService : ApplicationService<ProjectionVersionManager>, ISystemService,
+    [DataContract(Name = "28345d27-0ccf-48dc-88dc-2d10bed829cf")]
+    public class ProjectionVersionManagerAppService : ApplicationService<ProjectionVersionManager>, ISystemAppService,
         ICommandHandler<RegisterProjection>,
-        ICommandHandler<RebuildProjection>,
+        ICommandHandler<ReplayProjection>,
         ICommandHandler<FinalizeProjectionVersionRequest>,
         ICommandHandler<CancelProjectionVersionRequest>,
-        ICommandHandler<TimeoutProjectionVersionRequest>
+        ICommandHandler<TimeoutProjectionVersionRequest>,
+        ICommandHandler<RebuildProjection>
     {
         private readonly IProjectionVersioningPolicy projectionVersioningPolicy;
 
@@ -30,9 +34,14 @@
             repository.Save(ar);
         }
 
+        public void Handle(ReplayProjection command)
+        {
+            Update(command.Id, ar => ar.Replay(command.Hash, projectionVersioningPolicy));
+        }
+
         public void Handle(RebuildProjection command)
         {
-            Update(command.Id, ar => ar.Rebuild(command.Hash, projectionVersioningPolicy));
+            Update(command.Id, ar => ar.Rebuild(command.Hash));
         }
 
         public void Handle(FinalizeProjectionVersionRequest command)

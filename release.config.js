@@ -62,7 +62,7 @@ module.exports = {
     ],
     branches: [
       {name: 'master'},
-      {name: 'next', channel: 'beta', prerelease: true}, // Only after the `next` is created in the repo
-      {name: 'next-major', channel: 'beta', prerelease: 'beta'}
+      {name: 'beta', channel: 'beta', prerelease: true},
+      {name: 'preview', channel: 'beta', prerelease: true}
     ]
 }

@@ -57,16 +57,22 @@ namespace Elders.Cronus.Projections
             if (version.Status == ProjectionStatus.NotPresent)
                 return;
 
-            if (version.Status != ProjectionStatus.Building)
+            if (version.Status == ProjectionStatus.Live || version.Status == ProjectionStatus.Canceled || version.Status == ProjectionStatus.Timedout)
             {
                 var versionInBuild = versions.Where(x => x == version.WithStatus(ProjectionStatus.Building)).SingleOrDefault(); // searches for building version for the version hash
                 versions.Remove(versionInBuild);
 
-                if (version.Status != ProjectionStatus.Live)
+                var versionInRebuild = versions.Where(x => x == version.WithStatus(ProjectionStatus.Rebuilding)).SingleOrDefault(); // searches for building version for the version hash
+                versions.Remove(versionInRebuild);
+
+                var versionInReplay = versions.Where(x => x == version.WithStatus(ProjectionStatus.Replaying)).SingleOrDefault(); // searches for building version for the version hash
+                versions.Remove(versionInReplay);
+
+                if (version.Status == ProjectionStatus.Canceled || version.Status == ProjectionStatus.Timedout)
                     versions.Add(version);
             }
 
-            if (version.Status == ProjectionStatus.Building)
+            if (version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Replaying)
                 versions.Add(version);
 
             if (version.Status == ProjectionStatus.Live)
@@ -88,7 +94,7 @@ namespace Elders.Cronus.Projections
         public IEnumerable<ProjectionVersion> GetBuildingVersions()
         {
             return versions
-                .Where(ver => ver.Status == ProjectionStatus.Building)
+                .Where(ver => ver.Status == ProjectionStatus.Replaying || ver.Status == ProjectionStatus.Building || ver.Status == ProjectionStatus.Rebuilding)
                 .OrderByDescending(x => x.Revision);
         }
 
@@ -126,18 +132,18 @@ namespace Elders.Cronus.Projections
             {
                 if (HasLiveVersion)
                 {
-                    return GetLive().NonVersionableRevision();
+                    return GetLive().NonVersionableRevision(hash); // here comes the problem 
                 }
                 else
                 {
                     var maxRevision = versions.Max(ver => ver.Revision);
                     var candidate = versions.Where(x => x.Revision == maxRevision).FirstOrDefault(); // TODO: This will crash with null ref
-                    return candidate.NonVersionableRevision();
+                    return candidate.NonVersionableRevision(hash);
                 }
             }
         }
 
-        private bool IsVersionable(IProjectionVersioningPolicy policy)
+        public bool IsVersionable(IProjectionVersioningPolicy policy)
         {
             try
             {
@@ -148,6 +154,11 @@ namespace Elders.Cronus.Projections
             {
                 return true;
             }
+        }
+
+        public bool HasRebuildingVersion()
+        {
+            return versions.Any(ver => ver.Status == ProjectionStatus.Rebuilding);
         }
 
         public bool IsHashTheLiveOne(string hash)

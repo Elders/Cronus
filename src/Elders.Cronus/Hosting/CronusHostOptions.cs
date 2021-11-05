@@ -10,6 +10,8 @@ namespace Elders.Cronus
         public bool SagasEnabled { get; set; } = true;
         public bool GatewaysEnabled { get; set; } = true;
         public bool TriggersEnabled { get; set; } = true;
+        public bool MigrationsEnabled { get; set; } = false;
+        public bool SystemServicesEnabled { get; set; } = true;
     }
 
     public class CronusHostOptionsProvider : CronusOptionsProviderBase<CronusHostOptions>

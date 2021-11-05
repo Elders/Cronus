@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace Elders.Cronus.Multitenancy
@@ -17,7 +17,7 @@ namespace Elders.Cronus.Multitenancy
 
     public class TenantResolver : ITenantResolver
     {
-        Dictionary<Type, ResolverCache> resolvers = new Dictionary<Type, ResolverCache>();
+        ConcurrentDictionary<Type, ResolverCache> resolvers = new ConcurrentDictionary<Type, ResolverCache>();
 
         private readonly IServiceProvider serviceProvider;
 
@@ -28,6 +28,8 @@ namespace Elders.Cronus.Multitenancy
 
         public string Resolve(object source)
         {
+            if (source is null) throw new ArgumentNullException(nameof(source));
+
             ResolverCache resolverCache;
             if (resolvers.TryGetValue(source.GetType(), out resolverCache) == false)
             {

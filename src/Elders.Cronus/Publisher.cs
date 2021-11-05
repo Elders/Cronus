@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
+using System.Text.Json;
 using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Logging;
 
@@ -37,8 +39,8 @@ namespace Elders.Cronus
 
                 if (messageHeaders.ContainsKey(MessageHeader.BoundedContext))
                 {
-                    if (messageHeaders[MessageHeader.BoundedContext] == "implicit")
-                        messageHeaders[MessageHeader.BoundedContext] = boundedContext.Name;
+                    var bc = message.GetType().GetBoundedContext(boundedContext.Name);
+                    messageHeaders[MessageHeader.BoundedContext] = bc;
                 }
                 else
                 {
@@ -81,7 +83,19 @@ namespace Elders.Cronus
             }
             catch (Exception ex)
             {
-                logger.ErrorException(ex, () => ex.Message);
+                StringBuilder errorMessage = new StringBuilder();
+                errorMessage.AppendLine("Failed to publish message!");
+
+                errorMessage.AppendLine("Headers:");
+                foreach (var header in messageHeaders)
+                {
+                    errorMessage.AppendLine($"{header.Key}:{header.Value}");
+                }
+
+                string messageString = JsonSerializer.Serialize<object>(message);
+                errorMessage.AppendLine(messageString);
+
+                logger.ErrorException(ex, () => errorMessage.ToString());
                 return false;
             }
         }

@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.Migrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -10,23 +11,52 @@ namespace Elders.Cronus
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CronusHost));
 
         private readonly IConsumer<IApplicationService> appServices;
-        private readonly IConsumer<IEventStoreIndex> indexes;
+        private readonly IConsumer<ICronusEventStoreIndex> systemIndices;
+        private readonly IConsumer<IEventStoreIndex> indices;
         private readonly IConsumer<IProjection> projections;
         private readonly IConsumer<IPort> ports;
         private readonly IConsumer<ISaga> sagas;
         private readonly IConsumer<IGateway> gateways;
         private readonly IConsumer<ITrigger> triggers;
+        private readonly IConsumer<ISystemAppService> systemAppServices;
+        private readonly IConsumer<ISystemSaga> systemSagas;
+        private readonly IConsumer<ISystemPort> systemPorts;
+        private readonly IConsumer<ISystemTrigger> systemTriggers;
+        private readonly IConsumer<ISystemProjection> systemProjections;
+        private readonly IConsumer<IMigrationHandler> migrations;
         private CronusHostOptions hostOptions;
 
-        public CronusHost(IConsumer<IApplicationService> appServices, IConsumer<IEventStoreIndex> indexes, IConsumer<IProjection> projections, IConsumer<IPort> ports, IConsumer<ISaga> sagas, IConsumer<IGateway> gateways, IConsumer<ITrigger> triggers, IOptionsMonitor<CronusHostOptions> cronusHostOptions)
+        public CronusHost(
+            IConsumer<IApplicationService> appServices,
+            IConsumer<ICronusEventStoreIndex> systemIndices,
+            IConsumer<IEventStoreIndex> indices,
+            IConsumer<IProjection> projections,
+            IConsumer<IPort> ports,
+            IConsumer<ISaga> sagas,
+            IConsumer<IGateway> gateways,
+            IConsumer<ITrigger> triggers,
+            IConsumer<ISystemAppService> systemAppServices,
+            IConsumer<ISystemSaga> systemSagas,
+            IConsumer<ISystemPort> systemPorts,
+            IConsumer<ISystemTrigger> systemTriggers,
+            IConsumer<ISystemProjection> systemProjections,
+            IConsumer<IMigrationHandler> migrations,
+            IOptionsMonitor<CronusHostOptions> cronusHostOptions)
         {
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
-            this.indexes = indexes;
+            this.systemIndices = systemIndices;
+            this.indices = indices;
             this.projections = projections ?? throw new ArgumentNullException(nameof(projections));
             this.ports = ports ?? throw new ArgumentNullException(nameof(ports));
             this.sagas = sagas ?? throw new ArgumentNullException(nameof(sagas));
             this.gateways = gateways ?? throw new ArgumentNullException(nameof(gateways));
             this.triggers = triggers;
+            this.systemAppServices = systemAppServices;
+            this.systemSagas = systemSagas;
+            this.systemPorts = systemPorts;
+            this.systemTriggers = systemTriggers;
+            this.systemProjections = systemProjections;
+            this.migrations = migrations;
             this.hostOptions = cronusHostOptions.CurrentValue;
             cronusHostOptions.OnChange(Changed);
         }
@@ -35,13 +65,25 @@ namespace Elders.Cronus
         {
             try
             {
-                indexes.Start();
                 if (hostOptions.ApplicationServicesEnabled) appServices.Start();
                 if (hostOptions.SagasEnabled) sagas.Start();
                 if (hostOptions.ProjectionsEnabled) projections.Start();
                 if (hostOptions.PortsEnabled) ports.Start();
                 if (hostOptions.GatewaysEnabled) gateways.Start();
                 if (hostOptions.TriggersEnabled) triggers.Start();
+                if (hostOptions.MigrationsEnabled) migrations.Start();
+
+                if (hostOptions.SystemServicesEnabled)
+                {
+                    indices.Start();
+
+                    systemIndices.Start();
+                    systemAppServices.Start();
+                    systemPorts.Start();
+                    systemProjections.Start();
+                    systemSagas.Start();
+                    systemTriggers.Start();
+                }
             }
             catch (Exception ex)
             {
@@ -60,7 +102,18 @@ namespace Elders.Cronus
                 if (hostOptions.PortsEnabled) ports.Stop();
                 if (hostOptions.GatewaysEnabled) gateways.Stop();
                 if (hostOptions.TriggersEnabled) triggers.Stop();
-                indexes.Stop();
+                if (hostOptions.MigrationsEnabled) migrations.Stop();
+
+                if (hostOptions.SystemServicesEnabled)
+                {
+                    systemAppServices.Stop();
+                    systemPorts.Stop();
+                    systemProjections.Stop();
+                    systemSagas.Stop();
+                    systemTriggers.Stop();
+                    systemIndices.Stop();
+                    indices.Stop();
+                }
             }
             catch (Exception ex)
             {

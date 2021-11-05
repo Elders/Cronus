@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using Elders.Cronus.MessageProcessing;
+﻿using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Elders.Cronus.Projections
 {
@@ -71,7 +70,7 @@ namespace Elders.Cronus.Projections
                     {
                         foreach (ProjectionVersion version in result.Data)
                         {
-                            if (version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Live)
+                            if (ShouldSaveEventForVersion(version))
                             {
                                 try
                                 {
@@ -80,8 +79,8 @@ namespace Elders.Cronus.Projections
                                         snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
                                     else
                                         snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
-                                    ProjectionStream projectionStream = LoadProjectionStream(projectionType, version, projectionId, snapshotMeta);
-                                    int snapshotMarker = snapshotStrategy.GetSnapshotMarker(projectionStream.Commits, snapshotMeta.Revision);
+
+                                    int snapshotMarker = snapshotMeta.Revision + 2;
 
                                     var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
                                     projectionStore.Save(commit);
@@ -102,6 +101,11 @@ namespace Elders.Cronus.Projections
             }
         }
 
+        private bool ShouldSaveEventForVersion(ProjectionVersion version)
+        {
+            return version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Replaying || version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Live;
+        }
+
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
         {
             if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
@@ -109,7 +113,7 @@ namespace Elders.Cronus.Projections
             if (ReferenceEquals(null, eventOrigin)) throw new ArgumentNullException(nameof(eventOrigin));
             if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
 
-            if ((version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Live) == false)
+            if (ShouldSaveEventForVersion(version) == false)
                 throw new ArgumentException("Invalid version. Only versions in `Building` and `Live` status are eligable for persistence.", nameof(version));
 
             string projectionName = projectionType.GetContractId();
@@ -126,13 +130,8 @@ namespace Elders.Cronus.Projections
                 {
                     try
                     {
-                        SnapshotMeta snapshotMeta = null;
-                        if (projectionType.IsSnapshotable())
-                            snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
-                        else
-                            snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
-                        ProjectionStream projectionStream = LoadProjectionStream(projectionType, version, projectionId, snapshotMeta);
-                        int snapshotMarker = snapshotStrategy.GetSnapshotMarker(projectionStream.Commits, snapshotMeta.Revision);
+                        SnapshotMeta snapshotMeta = GetSnapshotMeta(projectionType, projectionName, projectionId, version);
+                        int snapshotMarker = snapshotMeta.Revision == 0 ? 1 : snapshotMeta.Revision + 2;
 
                         var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
                         projectionStore.Save(commit);
@@ -159,37 +158,68 @@ namespace Elders.Cronus.Projections
             }
         }
 
+        private SnapshotMeta GetSnapshotMeta(Type projectionType, string projectionName, IBlobId projectionId, ProjectionVersion version)
+        {
+            SnapshotMeta snapshotMeta;
+            if (projectionType.IsSnapshotable())
+                snapshotMeta = snapshotStore.LoadMeta(projectionName, projectionId, version);
+            else
+                snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
+
+            return snapshotMeta;
+        }
+
         public ReadResult<T> Get<T>(IBlobId projectionId) where T : IProjectionDefinition
         {
-            try
-            {
-                if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+            Type projectionType = typeof(T);
 
-                Type projectionType = typeof(T);
-
-                ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
-                return new ReadResult<T>(stream.RestoreFromHistory<T>());
-            }
-            catch (Exception ex)
+            using (log.BeginScope(s => s
+                       .AddScope(Log.ProjectionName, projectionType.GetContractId())
+                       .AddScope(Log.ProjectionType, projectionType.Name)
+                       .AddScope(Log.ProjectionInstanceId, Convert.ToBase64String(projectionId.RawId))))
             {
-                log.ErrorException(ex, () => $"Unable to load projection. {typeof(T).Name}({projectionId})");
-                return ReadResult<T>.WithError(ex);
+                try
+                {
+                    if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+
+                    ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
+                    var readResult = new ReadResult<T>(stream.RestoreFromHistory<T>());
+                    if (readResult.NotFound)
+                        log.Warn(() => "Projection instance not found.");
+
+                    return readResult;
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorException(ex, () => "Unable to load projection.");
+                    return ReadResult<T>.WithError(ex);
+                }
             }
         }
 
         public ReadResult<IProjectionDefinition> Get(IBlobId projectionId, Type projectionType)
         {
-            if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+            using (log.BeginScope(s => s
+                       .AddScope(Log.ProjectionName, projectionType.GetContractId())
+                       .AddScope(Log.ProjectionType, projectionType.Name)
+                       .AddScope(Log.ProjectionInstanceId, projectionId.RawId)))
+            {
+                if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
 
-            try
-            {
-                ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
-                return new ReadResult<IProjectionDefinition>(stream.RestoreFromHistory(projectionType));
-            }
-            catch (Exception ex)
-            {
-                log.ErrorException(ex, () => $"Unable to load projection. {projectionType.Name}({projectionId})");
-                return ReadResult<IProjectionDefinition>.WithError(ex);
+                try
+                {
+                    ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
+                    var readResult = new ReadResult<IProjectionDefinition>(stream.RestoreFromHistory(projectionType));
+                    if (readResult.NotFound)
+                        log.Warn(() => "Projection instance not found.");
+
+                    return readResult;
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorException(ex, () => "Unable to load projection.");
+                    return ReadResult<IProjectionDefinition>.WithError(ex);
+                }
             }
         }
 
@@ -255,7 +285,7 @@ namespace Elders.Cronus.Projections
                 ProjectionVersion liveVersion = result.Data.GetLive();
                 if (liveVersion is null)
                 {
-                    log.Warn(() => $"Unable to find projection `live` version. ProjectionId:{projectionId} ProjectionName:{projectionName} ProjectionType:{projectionType.Name}{Environment.NewLine}AvailableVersions:{Environment.NewLine}{result.Data.ToString()}");
+                    log.Warn(() => $"Unable to find projection `live` version.{Environment.NewLine}AvailableVersions:{Environment.NewLine}{result.Data.ToString()}");
                     return ProjectionStream.Empty();
                 }
 
@@ -282,30 +312,15 @@ namespace Elders.Cronus.Projections
         {
             List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
             int snapshotMarker = snapshotMeta.Revision;
-            while (true)
+
+            bool shouldLoadMore = true;
+            while (shouldLoadMore)
             {
                 snapshotMarker++;
-                var loadedCommits = projectionStore.Load(version, projectionId, snapshotMarker).ToList();
+                var loadedCommits = projectionStore.Load(version, projectionId, snapshotMarker);
                 projectionCommits.AddRange(loadedCommits);
 
-                if (projectionType.IsSnapshotable() && snapshotStrategy.ShouldCreateSnapshot(projectionCommits, snapshotMeta.Revision))
-                {
-                    ProjectionStream checkpointStream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
-                    var projectionState = checkpointStream.RestoreFromHistory(projectionType).State;
-                    ISnapshot newSnapshot = new Snapshot(projectionId, version.ProjectionName, projectionState, snapshotMeta.Revision + 1);
-                    snapshotStore.Save(newSnapshot, version);
-                    loadSnapshot = () => newSnapshot;
-
-                    projectionCommits.Clear();
-
-                    log.Debug(() => $"Snapshot created for projection `{version.ProjectionName}` with id={projectionId} where ({loadedCommits.Count}) were zipped. Snapshot: `{newSnapshot.GetType().Name}`");
-                }
-
-                if (loadedCommits.Count < snapshotStrategy.EventsInSnapshot)
-                    break;
-
-                if (loadedCommits.Count > snapshotStrategy.EventsInSnapshot * 1.5)
-                    log.Warn(() => $"Potential memory leak. The system will be down fairly soon. The projection `{version.ProjectionName}` with id={projectionId} loads a lot of projection commits ({loadedCommits.Count}) which puts a lot of CPU and RAM pressure. You can resolve this by configuring the snapshot settings`.");
+                shouldLoadMore = projectionStore.HasSnapshotMarker(version, projectionId, snapshotMarker + 1);
             }
 
             ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);

@@ -10,7 +10,8 @@ namespace Elders.Cronus.MessageProcessing
     /// <summary>
     /// Work-flow which handles all events and writes them into the index
     /// </summary>
-    public class EventStoreIndexSubscriberWorkflow : ISubscriberWorkflowFactory<IEventStoreIndex>
+    public class EventStoreIndexSubscriberWorkflow<TIndex> : ISubscriberWorkflowFactory<TIndex>
+        where TIndex : IEventStoreIndex
     {
         private readonly IServiceProvider serviceProvider;
 

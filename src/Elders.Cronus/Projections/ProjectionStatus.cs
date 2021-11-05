@@ -17,24 +17,29 @@ namespace Elders.Cronus.Projections
         string status;
 
         /// <summary>
-        /// The projection is currently rebuilding
+        /// The projection does not exist
         /// </summary>
-        public static ProjectionStatus Building = new ProjectionStatus("building");
+        public static ProjectionStatus NotPresent = new ProjectionStatus("not_present");
 
         /// <summary>
-        /// The projection is scheduled for rebuild but it is not started yet
+        /// This is for backwards compat.
         /// </summary>
-        public static ProjectionStatus Pending = new ProjectionStatus("pending");
+        internal static ProjectionStatus Building = new ProjectionStatus("building");
+
+        /// <summary>
+        /// The projection is currently replaying
+        /// </summary>
+        public static ProjectionStatus Replaying = new ProjectionStatus("replaying");
+
+        /// <summary>
+        /// The projection is currently rebuilding
+        /// </summary>
+        public static ProjectionStatus Rebuilding = new ProjectionStatus("rebuilding");
 
         /// <summary>
         /// The projection is rebuilt and ready for use
         /// </summary>
         public static ProjectionStatus Live = new ProjectionStatus("live");
-
-        /// <summary>
-        /// The projection does not exist
-        /// </summary>
-        public static ProjectionStatus NotPresent = new ProjectionStatus("not_present");
 
         /// <summary>
         /// The projection rebuild is canceled by a user or an error happened during rebuild. Check the reason for more details
@@ -46,18 +51,25 @@ namespace Elders.Cronus.Projections
         /// </summary>
         public static ProjectionStatus Timedout = new ProjectionStatus("timedout");
 
+        public static ProjectionStatus Unknown = new ProjectionStatus("unknown");
+
         public static ProjectionStatus Create(string status)
         {
             switch (status?.ToLower())
             {
                 case "building":
-                    return Building;
+                case "replaying":
+                    return Replaying;
+                case "rebuilding":
+                    return Rebuilding;
                 case "live":
                     return Live;
                 case "canceled":
                     return Canceled;
                 case "timedout":
                     return Timedout;
+                case "not_present":
+                    return NotPresent;
                 default:
                     return new ProjectionStatus("unknown");
             }

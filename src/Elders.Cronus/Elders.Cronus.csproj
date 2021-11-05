@@ -9,17 +9,23 @@
   <!--Nuget-->
   <PropertyGroup>
     <PackageId>Cronus</PackageId>
+
     <Product>Cronus</Product>
     <Title>Cronus</Title>
-    <Authors>Elders OSS</Authors>
-    <Copyright>Copyright © Elders OSS 2013-2020</Copyright>
-    <Description>Cronus is a lightweight framework for building event driven systems with DDD/CQRS in mind</Description>
-    <PackageTags>CQRS DDD ES Event store sourcing</PackageTags>
-    <PackageLicenseUrl>https://github.com/Elders/Cronus/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/Elders/Cronus</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/Elders/Cronus.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
+    <Description>Cronus is a lightweight framework for building event driven systems with DDD/CQRS in mind.</Description>
+    <PackageTags>CQRS DDD ES Event store sourcing cronus</PackageTags>
+
+    <Copyright>Copyright © Elders OSS 2013-2022</Copyright>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
+
+    <ReleaseNotes>https://github.com/Elders/Cronus/blob/preview/CHANGELOG.md</ReleaseNotes>
+
     <PackageIconUrl>https://raw.githubusercontent.com/Elders/logo/master/cronus/frame.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/Elders/Cronus.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/Elders/Cronus</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+
     <AssemblyName>Elders.Cronus</AssemblyName>
     <RootNamespace>Elders.Cronus</RootNamespace>
     <NeutralLanguage>en-US</NeutralLanguage>
@@ -28,7 +34,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cronus.DomainModeling" Version="6.1.0" />
+    <PackageReference Include="Cronus.DomainModeling" Version="6.3.2" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.7" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.7" />
@@ -40,14 +46,8 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.7" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <EmbedSources>true</EmbedSources>
-  </PropertyGroup>
-
   <ItemGroup>
-    <PackageReference Include="SourceLink.Create.CommandLine" Version="2.8.3" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>

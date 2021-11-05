@@ -1,4 +1,315 @@
-# [6.3.0](https://github.com/Elders/Cronus/compare/v6.2.9...v6.3.0) (2021-02-08)
+# [6.4.0-preview.24](https://github.com/Elders/Cronus/compare/v6.4.0-preview.23...v6.4.0-preview.24) (2021-11-03)
+
+
+### Bug Fixes
+
+* Adds more detailed logging information in Publisher ([194eea3](https://github.com/Elders/Cronus/commit/194eea38e8d6e031a8b6213e5edf0f53900e3520))
+
+# [6.4.0-preview.23](https://github.com/Elders/Cronus/compare/v6.4.0-preview.22...v6.4.0-preview.23) (2021-10-21)
+
+
+### Bug Fixes
+
+* Properly re-publishes public events ([47cf7eb](https://github.com/Elders/Cronus/commit/47cf7eb29133f118f59be430e0932087390d686d))
+
+# [6.4.0-preview.22](https://github.com/Elders/Cronus/compare/v6.4.0-preview.21...v6.4.0-preview.22) (2021-10-18)
+
+
+### Bug Fixes
+
+* Fix bug where projectionversionhandler could not be rebuilt ([144e73d](https://github.com/Elders/Cronus/commit/144e73d16a60e0fece62bf172a1c6df42ef41748))
+
+# [6.4.0-preview.21](https://github.com/Elders/Cronus/compare/v6.4.0-preview.20...v6.4.0-preview.21) (2021-10-18)
+
+
+### Bug Fixes
+
+* Enrich logs on projection rebuild ([5d93a8c](https://github.com/Elders/Cronus/commit/5d93a8c4e109cebf728c9e3bcd7295118c36150a))
+
+# [6.4.0-preview.20](https://github.com/Elders/Cronus/compare/v6.4.0-preview.19...v6.4.0-preview.20) (2021-10-14)
+
+
+### Bug Fixes
+
+* Fix versions not being able to be Canceled ([8dbd5a6](https://github.com/Elders/Cronus/commit/8dbd5a6143751f1145bb556b0afbfb4bcea580cc))
+
+# [6.4.0-preview.19](https://github.com/Elders/Cronus/compare/v6.4.0-preview.18...v6.4.0-preview.19) (2021-10-13)
+
+
+### Bug Fixes
+
+* fix registration of event store and tests ([dd6a632](https://github.com/Elders/Cronus/commit/dd6a632192d97a53bf6e248e207d4e8d90649616))
+* Handles better projection building when aggregate commit cant be deserialized ([7733ca6](https://github.com/Elders/Cronus/commit/7733ca64e073cc593d968c1682b638f1a2a2b4d5))
+
+# [6.4.0-preview.18](https://github.com/Elders/Cronus/compare/v6.4.0-preview.17...v6.4.0-preview.18) (2021-09-14)
+
+
+### Bug Fixes
+
+* fix issue where stale Rebuilding version are not timedout ([5e9cb7b](https://github.com/Elders/Cronus/commit/5e9cb7bb4b3c7710b514b5a6469181454e6a1a4e))
+
+# [6.4.0-preview.17](https://github.com/Elders/Cronus/compare/v6.4.0-preview.16...v6.4.0-preview.17) (2021-09-14)
+
+
+### Bug Fixes
+
+* Fix version not being able to be canceled or timedout ([ae227b0](https://github.com/Elders/Cronus/commit/ae227b097f78439d82d55a6cbea615e3ece17289))
+
+# [6.4.0-preview.16](https://github.com/Elders/Cronus/compare/v6.4.0-preview.15...v6.4.0-preview.16) (2021-09-14)
+
+
+### Bug Fixes
+
+* Remove recursive behavior ( Stack Overflow ) ([3f1de2d](https://github.com/Elders/Cronus/commit/3f1de2d10bc9045a4282492c476e8b4dc672c10c))
+
+# [6.4.0-preview.15](https://github.com/Elders/Cronus/compare/v6.4.0-preview.14...v6.4.0-preview.15) (2021-08-05)
+
+
+### Bug Fixes
+
+* Clean up ([b260caf](https://github.com/Elders/Cronus/commit/b260caf37cce8c519c978a97ab96194f9f64167e))
+
+# [6.4.0-preview.14](https://github.com/Elders/Cronus/compare/v6.4.0-preview.13...v6.4.0-preview.14) (2021-08-04)
+
+
+### Bug Fixes
+
+* Revert change contract id on projection version handler ([31a41a9](https://github.com/Elders/Cronus/commit/31a41a9603e5fa671a9385a149cd7e43d1b58cb9))
+
+# [6.4.0-preview.13](https://github.com/Elders/Cronus/compare/v6.4.0-preview.12...v6.4.0-preview.13) (2021-08-03)
+
+
+### Bug Fixes
+
+* Fix bug where stale versions were not removed ([e872fca](https://github.com/Elders/Cronus/commit/e872fcacd151162abe83b23f97485f9ede2095d5))
+
+# [6.4.0-preview.12](https://github.com/Elders/Cronus/compare/v6.4.0-preview.11...v6.4.0-preview.12) (2021-08-02)
+
+
+### Bug Fixes
+
+* change contract id on projection version handler ([4c50aa9](https://github.com/Elders/Cronus/commit/4c50aa9e659b7e68db556c4bd4e688f3caa37266))
+
+# [6.4.0-preview.11](https://github.com/Elders/Cronus/compare/v6.4.0-preview.10...v6.4.0-preview.11) (2021-07-21)
+
+
+### Bug Fixes
+
+* Code cleanup ([fd1ceb4](https://github.com/Elders/Cronus/commit/fd1ceb4c2dcbf1e7727671427a3cacfb95141edc))
+
+# [6.4.0-preview.10](https://github.com/Elders/Cronus/compare/v6.4.0-preview.9...v6.4.0-preview.10) (2021-07-06)
+
+
+### Bug Fixes
+
+* Fix republish for IEventSourced projections ([48b7e8d](https://github.com/Elders/Cronus/commit/48b7e8d2bd6a589a3191cfae1b4e5b94921ff257))
+
+# [6.4.0-preview.9](https://github.com/Elders/Cronus/compare/v6.4.0-preview.8...v6.4.0-preview.9) (2021-06-28)
+
+
+### Bug Fixes
+
+* Adds a parameter check when resolving a tenant ([665d064](https://github.com/Elders/Cronus/commit/665d064327f206d0aa9143949d7faaab7d80c198))
+* Improves how the projections are rebuilt ([7d5cd8c](https://github.com/Elders/Cronus/commit/7d5cd8c4d6897159e03ea618002f0914f0db005a))
+
+# [6.4.0-preview.8](https://github.com/Elders/Cronus/compare/v6.4.0-preview.7...v6.4.0-preview.8) (2021-05-28)
+
+
+### Bug Fixes
+
+* Index public events ([4dc5a33](https://github.com/Elders/Cronus/commit/4dc5a33e88b87a4ce204369427ea061f0bde5ab7))
+
+# [6.4.0-preview.7](https://github.com/Elders/Cronus/compare/v6.4.0-preview.6...v6.4.0-preview.7) (2021-05-24)
+
+
+### Bug Fixes
+
+* Properly logs projectionid via structured logging ([a582fdf](https://github.com/Elders/Cronus/commit/a582fdf3a4b0fbb269298a500608485cbb0975ba))
+
+# [6.4.0-preview.6](https://github.com/Elders/Cronus/compare/v6.4.0-preview.5...v6.4.0-preview.6) (2021-05-12)
+
+
+### Bug Fixes
+
+* Improves logging when a projection instance fails to load ([b0efe61](https://github.com/Elders/Cronus/commit/b0efe61d18fa9a1dd87e0ae16c9f12d952f3c311))
+
+# [6.4.0-preview.5](https://github.com/Elders/Cronus/compare/v6.4.0-preview.4...v6.4.0-preview.5) (2021-05-12)
+
+
+### Bug Fixes
+
+* Improves logging when a projection instance is not found ([7f2177a](https://github.com/Elders/Cronus/commit/7f2177a6d9fabb8d79d5c91f7bd925caeef2ec8d))
+
+# [6.4.0-preview.4](https://github.com/Elders/Cronus/compare/v6.4.0-preview.3...v6.4.0-preview.4) (2021-05-11)
+
+
+### Bug Fixes
+
+* Adds a new method to load aggregate commits ([800d819](https://github.com/Elders/Cronus/commit/800d819d3d96b44b53b02517f58c72e85273fb2b))
+* Adds DataContract attribute to GGPort handler ([8774b7d](https://github.com/Elders/Cronus/commit/8774b7d6aadbfd6b2b4826ce9c9d2096d3b00cc4))
+* Adds public events replay functionality. This is a POC so it will be changed in future ([4636716](https://github.com/Elders/Cronus/commit/4636716c2b6acffb476012e54bc43b603c7042cd))
+
+# [6.4.0-preview.3](https://github.com/Elders/Cronus/compare/v6.4.0-preview.2...v6.4.0-preview.3) (2021-05-05)
+
+
+### Bug Fixes
+
+* Updates DomainModeling ([33b9895](https://github.com/Elders/Cronus/commit/33b98953a53a588603ae733ab7841c907b2211c9))
+
+# [6.4.0-preview.2](https://github.com/Elders/Cronus/compare/v6.4.0-preview.1...v6.4.0-preview.2) (2021-05-05)
+
+
+### Bug Fixes
+
+* Updates DomainModeling ([6b14b18](https://github.com/Elders/Cronus/commit/6b14b186a42747c8c6deaea110dab3695bb3cad7))
+
+# [6.4.0-preview.1](https://github.com/Elders/Cronus/compare/v6.4.0-next.13...v6.4.0-preview.1) (2021-05-05)
+
+
+### Bug Fixes
+
+* Adds beta branch to the azure-pipelines ([fc0e227](https://github.com/Elders/Cronus/commit/fc0e2277d2cd8684e9dd4191b50a766a3113e179))
+* Fixes copyright ([f56c5c5](https://github.com/Elders/Cronus/commit/f56c5c575a197f02f121bba763acb7faf9863c35))
+* Fixes copyright date ([2a78e58](https://github.com/Elders/Cronus/commit/2a78e589c9833e6b8621b5b7c169e5a3312999a8))
+* Fixes release.config branch ([3224128](https://github.com/Elders/Cronus/commit/32241289f04a571f45fdb9e7d605d6e8f23ffd54))
+* fixes release.config for preview branch ([59fc4ca](https://github.com/Elders/Cronus/commit/59fc4caf8d60f8557bf1f22435dc65a80cead6e3))
+* Properly creates AR for index ([89f29d7](https://github.com/Elders/Cronus/commit/89f29d7abf084bf4f6076abb24a9339065f7ed4f))
+* Removes old release notes file ([6c37880](https://github.com/Elders/Cronus/commit/6c3788002d876ecaba5617b7eedee8e16ce54099))
+* Updates DomainModeling ([16bf88b](https://github.com/Elders/Cronus/commit/16bf88bee60f9db76b98e6b8aaa17e83d1949d88))
+
+# [6.4.0-next.14](https://github.com/Elders/Cronus/compare/v6.4.0-next.13...v6.4.0-next.14) (2021-05-05)
+
+
+### Bug Fixes
+
+* Adds beta branch to the azure-pipelines ([fc0e227](https://github.com/Elders/Cronus/commit/fc0e2277d2cd8684e9dd4191b50a766a3113e179))
+* Fixes copyright ([f56c5c5](https://github.com/Elders/Cronus/commit/f56c5c575a197f02f121bba763acb7faf9863c35))
+* Fixes copyright date ([2a78e58](https://github.com/Elders/Cronus/commit/2a78e589c9833e6b8621b5b7c169e5a3312999a8))
+* Fixes release.config branch ([3224128](https://github.com/Elders/Cronus/commit/32241289f04a571f45fdb9e7d605d6e8f23ffd54))
+* Properly creates AR for index ([89f29d7](https://github.com/Elders/Cronus/commit/89f29d7abf084bf4f6076abb24a9339065f7ed4f))
+* Updates DomainModeling ([16bf88b](https://github.com/Elders/Cronus/commit/16bf88bee60f9db76b98e6b8aaa17e83d1949d88))
+
+# [6.4.0-next.14](https://github.com/Elders/Cronus/compare/v6.4.0-next.13...v6.4.0-next.14) (2021-05-05)
+
+
+### Bug Fixes
+
+* Adds beta branch to the azure-pipelines ([fc0e227](https://github.com/Elders/Cronus/commit/fc0e2277d2cd8684e9dd4191b50a766a3113e179))
+* Fixes copyright ([f56c5c5](https://github.com/Elders/Cronus/commit/f56c5c575a197f02f121bba763acb7faf9863c35))
+* Fixes copyright date ([2a78e58](https://github.com/Elders/Cronus/commit/2a78e589c9833e6b8621b5b7c169e5a3312999a8))
+* Fixes release.config branch ([3224128](https://github.com/Elders/Cronus/commit/32241289f04a571f45fdb9e7d605d6e8f23ffd54))
+* Properly creates AR for index ([89f29d7](https://github.com/Elders/Cronus/commit/89f29d7abf084bf4f6076abb24a9339065f7ed4f))
+* Updates DomainModeling ([16bf88b](https://github.com/Elders/Cronus/commit/16bf88bee60f9db76b98e6b8aaa17e83d1949d88))
+
+# [6.4.0-next.14](https://github.com/Elders/Cronus/compare/v6.4.0-next.13...v6.4.0-next.14) (2021-05-05)
+
+
+### Bug Fixes
+
+* Adds beta branch to the azure-pipelines ([fc0e227](https://github.com/Elders/Cronus/commit/fc0e2277d2cd8684e9dd4191b50a766a3113e179))
+* Fixes copyright ([f56c5c5](https://github.com/Elders/Cronus/commit/f56c5c575a197f02f121bba763acb7faf9863c35))
+* Fixes copyright date ([2a78e58](https://github.com/Elders/Cronus/commit/2a78e589c9833e6b8621b5b7c169e5a3312999a8))
+* Fixes release.config branch ([3224128](https://github.com/Elders/Cronus/commit/32241289f04a571f45fdb9e7d605d6e8f23ffd54))
+* Properly creates AR for index ([89f29d7](https://github.com/Elders/Cronus/commit/89f29d7abf084bf4f6076abb24a9339065f7ed4f))
+* Updates DomainModeling ([16bf88b](https://github.com/Elders/Cronus/commit/16bf88bee60f9db76b98e6b8aaa17e83d1949d88))
+
+# [6.4.0-next.13](https://github.com/Elders/Cronus/compare/v6.4.0-next.12...v6.4.0-next.13) (2021-04-12)
+
+
+### Bug Fixes
+
+* Code cleanup ([871e806](https://github.com/Elders/Cronus/commit/871e8066ccaa98ffe0f68c965a027c30fb733c07))
+
+# [6.4.0-next.12](https://github.com/Elders/Cronus/compare/v6.4.0-next.11...v6.4.0-next.12) (2021-04-09)
+
+
+### Bug Fixes
+
+* Allows custom logic to be injected on aggregate commit during a migration ([063a036](https://github.com/Elders/Cronus/commit/063a036520df8124bd910ef392b49d72c586a1e9))
+
+# [6.4.0-next.11](https://github.com/Elders/Cronus/compare/v6.4.0-next.10...v6.4.0-next.11) (2021-03-31)
+
+
+### Bug Fixes
+
+* Adds system services options ([9f9bc49](https://github.com/Elders/Cronus/commit/9f9bc49ed9851ccfeeba1e9336dd1d72a49e4e74))
+
+# [6.4.0-next.10](https://github.com/Elders/Cronus/compare/v6.4.0-next.9...v6.4.0-next.10) (2021-03-31)
+
+
+### Bug Fixes
+
+* Separates system messages and handlers ([cafd92a](https://github.com/Elders/Cronus/commit/cafd92a0e508e403669073f41b76d84a84cc04fc))
+
+# [6.4.0-next.9](https://github.com/Elders/Cronus/compare/v6.4.0-next.8...v6.4.0-next.9) (2021-03-30)
+
+
+### Bug Fixes
+
+* Stops starting indexes if migrations are enabled ([8df11fb](https://github.com/Elders/Cronus/commit/8df11fb0243d757e450388d48db0ef25fcd9d859))
+
+# [6.4.0-next.8](https://github.com/Elders/Cronus/compare/v6.4.0-next.7...v6.4.0-next.8) (2021-03-29)
+
+
+### Features
+
+* Adds aggregate commit publishing support ([2d7cda4](https://github.com/Elders/Cronus/commit/2d7cda4e507f5cfbb619dbf7354131802f55dfc5))
+
+# [6.4.0-next.7](https://github.com/Elders/Cronus/compare/v6.4.0-next.6...v6.4.0-next.7) (2021-03-28)
+
+
+### Bug Fixes
+
+* Adds additional logs to the job ([cbf1e64](https://github.com/Elders/Cronus/commit/cbf1e642d88e56679dea16c783584cf3d430e19a))
+
+# [6.4.0-next.6](https://github.com/Elders/Cronus/compare/v6.4.0-next.5...v6.4.0-next.6) (2021-03-19)
+
+
+### Bug Fixes
+
+* Improves jobs logging ([ebd071e](https://github.com/Elders/Cronus/commit/ebd071e1a7aee86860b4d5b7aa1ff0cb5a40e32b))
+
+# [6.4.0-next.5](https://github.com/Elders/Cronus/compare/v6.4.0-next.4...v6.4.0-next.5) (2021-03-17)
+
+
+### Bug Fixes
+
+* Code cleanup ([142bf41](https://github.com/Elders/Cronus/commit/142bf417bbf7d55ca0ee0f4b58a0c02049bcf33f))
+
+# [6.4.0-next.4](https://github.com/Elders/Cronus/compare/v6.4.0-next.3...v6.4.0-next.4) (2021-03-17)
+
+
+### Bug Fixes
+
+* Removes unused contract. sorry ([e1e9ba7](https://github.com/Elders/Cronus/commit/e1e9ba7def331912ed9c9b5937300ae961580186))
+
+# [6.4.0-next.3](https://github.com/Elders/Cronus/compare/v6.4.0-next.2...v6.4.0-next.3) (2021-03-17)
+
+
+### Bug Fixes
+
+* Adds an async version of the HasSnapshotMarkerAsync ([ff41017](https://github.com/Elders/Cronus/commit/ff410173e85ba0c171e315ef938be56f98c550b5))
+
+# [6.4.0-next.2](https://github.com/Elders/Cronus/compare/v6.4.0-next.1...v6.4.0-next.2) (2021-03-16)
+
+
+### Bug Fixes
+
+* Fixes projection snapshot revisions ([5d5e74a](https://github.com/Elders/Cronus/commit/5d5e74a5a05cfdd289a97355046358fc39b85c82))
+
+# [6.4.0-next.1](https://github.com/Elders/Cronus/compare/v6.3.0...v6.4.0-next.1) (2021-03-16)
+
+
+### Bug Fixes
+
+* Reuses the projection index code ([65175da](https://github.com/Elders/Cronus/commit/65175da0daead61160ff3cc392e796a7d370b7da))
+
+
+### Features
+
+* removes snapshots ([5648518](https://github.com/Elders/Cronus/commit/564851800d2959ac71beb225946b75b6ad240059))
+
+# [6.3.0-next.1](https://github.com/Elders/Cronus/compare/v6.2.10-next.1...v6.3.0-next.1) (2021-02-08)
 
 
 ### Bug Fixes

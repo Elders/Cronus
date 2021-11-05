@@ -3,13 +3,20 @@ using System.Threading.Tasks;
 
 namespace Elders.Cronus.Cluster.Job
 {
-    public interface ICronusJob<out TData> where TData : class
+    public interface ICronusJobb
     {
         /// <summary>
         /// The name of the job
         /// </summary>
         string Name { get; }
 
+        //Task BeforeRunAsync();
+        //Task AfterRunAsync();
+    }
+
+    public interface ICronusJob<out TData> : ICronusJobb
+        where TData : class
+    {
         public TData Data { get; }
 
         Task SyncInitialStateAsync(IClusterOperations cluster, CancellationToken cancellationToken = default);

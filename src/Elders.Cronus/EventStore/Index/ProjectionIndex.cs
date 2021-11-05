@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.EventStore.Index
 {
     [DataContract(Name = "37336a18-573a-4e9e-b4a2-085033b74353")]
-    public class ProjectionIndex : IEventStoreIndex
+    public class ProjectionIndex : IEventStoreIndex, ICronusEventStoreIndex
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionIndex));
 
@@ -24,9 +24,13 @@ namespace Elders.Cronus.EventStore.Index
 
         public void Index(CronusMessage message)
         {
+            IEnumerable<Type> projectionTypes = projectionsContainer.Items;
+            if (message.IsRepublished)
+                projectionTypes = message.RecipientHandlers.Intersect(projectionsContainer.Items.Select(t => t.GetContractId())).Select(dc => dc.GetTypeByContract());
+
             Type baseMessageType = typeof(IMessage);
             Type messagePayloadType = message.Payload.GetType();
-            foreach (var projectionType in projectionsContainer.Items)
+            foreach (var projectionType in projectionTypes)
             {
                 bool isInterested = projectionType.GetInterfaces()
                     .Where(x => x.IsGenericType && x.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(x.GetGenericArguments()[0])))
@@ -44,13 +48,16 @@ namespace Elders.Cronus.EventStore.Index
         {
             Type baseMessageType = typeof(IMessage);
 
-            var asd = GetEventData(aggregateCommit);
+            IEnumerable<(IEvent, EventOrigin)> eventDataList = GetEventData(aggregateCommit);
 
-            foreach (var eventData in asd)
+            foreach (var eventData in eventDataList)
             {
                 Type messagePayloadType = eventData.Item1.GetType();
                 foreach (var projectionType in projectionsContainer.Items)
                 {
+                    if (projectionType.GetContractId().Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
+                        continue;
+
                     bool isInterested = projectionType.GetInterfaces()
                         .Where(x => x.IsGenericType && x.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(x.GetGenericArguments()[0])))
                         .Where(@interface => @interface.GetGenericArguments()[0].IsAssignableFrom(messagePayloadType))
@@ -74,6 +81,5 @@ namespace Elders.Cronus.EventStore.Index
                 yield return (currentEvent, new EventOrigin(aggregateId, commit.Revision, pos, commit.Timestamp));
             }
         }
-
     }
 }

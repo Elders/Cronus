@@ -27,6 +27,9 @@ namespace Elders.Cronus.MessageProcessing
         {
             aggregateRepository.Save<AR>(aggregateRoot);
 
+            if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Any() == false)
+                return;
+
             var events = aggregateRoot.UncommittedEvents.ToList();
             for (int i = 0; i < events.Count; i++)
             {

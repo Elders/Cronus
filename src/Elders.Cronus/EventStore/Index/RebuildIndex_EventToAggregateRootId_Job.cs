@@ -14,37 +14,28 @@ namespace Elders.Cronus.EventStore.Index
     {
         private readonly IEventStorePlayer eventStorePlayer;
         private readonly EventToAggregateRootId index;
-        private readonly ILogger<RebuildIndex_EventToAggregateRootId_Job> logger;
 
-        public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, EventToAggregateRootId index, ILogger<RebuildIndex_EventToAggregateRootId_Job> logger)
+        public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, EventToAggregateRootId index, ILogger<RebuildIndex_EventToAggregateRootId_Job> logger) : base(logger)
         {
             this.eventStorePlayer = eventStorePlayer;
             this.index = index;
-            this.logger = logger;
         }
 
         public override string Name { get; set; } = typeof(EventToAggregateRootId).GetContractId();
 
-        protected override RebuildIndex_JobData BuildInitialData() => new RebuildIndex_JobData();
-
-        protected override async Task<JobExecutionStatus> RunJob(IClusterOperations cluster, CancellationToken cancellationToken = default)
+        protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            if (cancellationToken.IsCancellationRequested)
-            {
-                logger.Info(() => $"The job {Name} was cancelled before it got started.");
-                return JobExecutionStatus.Running;
-            }
-
             bool hasMoreRecords = true;
             while (hasMoreRecords && Data.IsCompleted == false)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
-                    logger.Info(() => $"The job {Name} was cancelled.");
+                    logger.Info(() => $"The job has been cancelled.");
                     return JobExecutionStatus.Running;
                 }
 
                 var result = eventStorePlayer.LoadAggregateCommits(Data.PaginationToken);
+
                 logger.Info(() => $"Loaded aggregate commits count ${result.Commits.Count} using pagination token {result.PaginationToken}");
                 foreach (var aggregateCommit in result.Commits)
                 {
@@ -60,54 +51,81 @@ namespace Elders.Cronus.EventStore.Index
             Data.IsCompleted = true;
             Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
+            logger.Info(() => $"The job has been completed.");
+
             return JobExecutionStatus.Completed;
-        }
-
-        public void SetTimeBox(VersionRequestTimebox timebox)
-        {
-            var dataOverride = BuildInitialData();
-            dataOverride.Timestamp = timebox.RebuildStartAt;
-
-            OverrideData(fromCluster => Override(fromCluster, dataOverride));
-        }
-
-        private RebuildIndex_JobData Override(RebuildIndex_JobData fromCluster, RebuildIndex_JobData dataOverride)
-        {
-            if (fromCluster.IsCompleted && fromCluster.Timestamp < dataOverride.Timestamp)
-                return dataOverride;
-            else
-                return fromCluster;
         }
     }
 
     public class RebuildIndex_EventToAggregateRootId_JobFactory
     {
         private readonly RebuildIndex_EventToAggregateRootId_Job job;
-        private readonly CronusContext context;
-        private readonly BoundedContext boundedContext;
+        private readonly IJobNameBuilder jobNameBuilder;
 
-        public RebuildIndex_EventToAggregateRootId_JobFactory(RebuildIndex_EventToAggregateRootId_Job job, IOptions<BoundedContext> boundedContext, CronusContext context)
+        public RebuildIndex_EventToAggregateRootId_JobFactory(RebuildIndex_EventToAggregateRootId_Job job, IJobNameBuilder jobNameBuilder)
         {
             this.job = job;
-            this.context = context;
-            this.boundedContext = boundedContext.Value;
+            this.jobNameBuilder = jobNameBuilder;
         }
 
         public RebuildIndex_EventToAggregateRootId_Job CreateJob(VersionRequestTimebox timebox)
         {
-            job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}";
-            job.SetTimeBox(timebox);
+            job.Name = jobNameBuilder.GetJobName(job.Name);
+            job.BuildInitialData(() => new RebuildIndex_JobData()
+            {
+                Timestamp = timebox.RequestStartAt
+            });
 
             return job;
         }
+
+        public string GetJobName()
+        {
+            return jobNameBuilder.GetJobName(job.Name);
+        }
     }
 
-    public class RebuildIndex_JobData
+    public interface IJobNameBuilder
+    {
+        string GetJobName(string defaultName);
+    }
+
+    public class DefaultJobNameBuilder : IJobNameBuilder
+    {
+        private readonly BoundedContext boundedContext;
+        private readonly CronusContext context;
+
+        public DefaultJobNameBuilder(IOptions<BoundedContext> boundedContext, CronusContext context)
+        {
+            this.boundedContext = boundedContext.Value;
+            this.context = context;
+        }
+
+        public string GetJobName(string defaultName)
+        {
+            return $"urn:{boundedContext.Name}:{context.Tenant}:{defaultName}";
+        }
+    }
+
+
+    public class RebuildIndex_JobData : IJobData
     {
         public bool IsCompleted { get; set; } = false;
 
         public string PaginationToken { get; set; }
 
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+    }
+
+    public interface IJobData
+    {
+        bool IsCompleted { get; set; }
+
+        ///// <summary>
+        ///// Indicates if the job data has been created locally. If the job data has been downloaded from the cluster the value will be false.
+        ///// </summary>
+        //bool IsLocal { get; set; }
+
+        DateTimeOffset Timestamp { get; set; }
     }
 }

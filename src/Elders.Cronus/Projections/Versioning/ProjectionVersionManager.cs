@@ -10,7 +10,7 @@ namespace Elders.Cronus.Projections.Versioning
         public ProjectionVersionManager(ProjectionVersionManagerId id, string hash)
         {
             string projectionName = id.Id;
-            var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Building, 1, hash);
+            var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Replaying, 1, hash);
             var timebox = new VersionRequestTimebox(DateTime.UtcNow);
             RequestVersion(id, initialVersion, timebox);
         }
@@ -19,22 +19,45 @@ namespace Elders.Cronus.Projections.Versioning
         {
             if (CanCancel(version))
             {
+                if (version.MaybeIsBroken())
+                {
+                    foreach (ProjectionVersion buildingVersion in state.Versions.GetBuildingVersions())
+                    {
+                        ProjectionVersionRequestCanceled reset = new ProjectionVersionRequestCanceled(state.Id, buildingVersion.WithStatus(ProjectionStatus.Canceled), reason + " Something wrong has happened. We are trying to reset the state so you could try rebuild/replay the state.");
+                        Apply(reset);
+                    }
+                }
+
                 var @event = new ProjectionVersionRequestCanceled(state.Id, version.WithStatus(ProjectionStatus.Canceled), reason);
                 Apply(@event);
             }
-
-            EnsureThereIsNoOutdatedBuildingVersions();
         }
 
-        public void Rebuild(string hash, IProjectionVersioningPolicy policy)
+        /// <summary>
+        /// Replay all events into a new version of the projection.
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <param name="policy"></param>
+        public void Replay(string hash, IProjectionVersioningPolicy policy)
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
-            if (CanRebuild())
+            if (CanReplay(hash, policy))
             {
-                var projectionVersion = state.Versions.GetNext(policy, hash);
-                var timebox = GetVersionRequestTimebox(hash);
+                ProjectionVersion projectionVersion = state.Versions.GetNext(policy, hash);
+                VersionRequestTimebox timebox = GetVersionRequestTimebox(hash);
                 RequestVersion(state.Id, projectionVersion, timebox);
+            }
+        }
+
+        public void Rebuild(string hash)
+        {
+            ProjectionVersion currentLiveVersion = state.Versions.GetLive();
+
+            if (CanRebuild(currentLiveVersion))
+            {
+                var timebox = GetVersionRequestTimebox(hash);
+                RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Rebuilding), timebox);
             }
         }
 
@@ -45,22 +68,20 @@ namespace Elders.Cronus.Projections.Versioning
             bool foundVersion = state.Versions.Contains(version);
             if (foundVersion == false) return;
 
-            if (version.Status == ProjectionStatus.Building)
+            if (version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Replaying || version.Status == ProjectionStatus.Building)
             {
                 var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
                 Apply(@event);
             }
-
-            EnsureThereIsNoOutdatedBuildingVersions();
         }
 
         public void NotifyHash(string hash, IProjectionVersioningPolicy policy)
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
-            if (ShouldRebuild(hash))
+            if (ShouldReplay(hash))
             {
-                Rebuild(hash, policy);
+                Replay(hash, policy);
             }
         }
 
@@ -76,17 +97,29 @@ namespace Elders.Cronus.Projections.Versioning
             EnsureThereIsNoOutdatedBuildingVersions();
         }
 
-        private bool ShouldRebuild(string hash)
+        private bool ShouldReplay(string hash)
         {
             bool isNewHashTheLiveOne = state.Versions.IsHashTheLiveOne(hash);
 
             return state.Versions.HasLiveVersion == false || isNewHashTheLiveOne == false;
         }
 
-        private bool CanRebuild()
+        private bool CanReplay(string hash, IProjectionVersioningPolicy policy)
         {
+            bool isNewHashTheLiveOne = state.Versions.IsHashTheLiveOne(hash);
+
+            bool isVersionable = state.Versions.IsVersionable(policy);
             bool doesntHaveBuildingVersion = state.Versions.HasBuildingVersion() == false;
-            return doesntHaveBuildingVersion;
+
+            return (doesntHaveBuildingVersion && isVersionable) || (doesntHaveBuildingVersion && isVersionable == false && isNewHashTheLiveOne == false);
+        }
+
+        private bool CanRebuild(ProjectionVersion currentLiveVersion)
+        {
+            bool hashMatchesCurrentLiveVersion = currentLiveVersion.Hash.Equals(currentLiveVersion.Hash);
+            bool hasRebuildingVersion = state.Versions.HasRebuildingVersion();
+
+            return hashMatchesCurrentLiveVersion && hasRebuildingVersion == false;
         }
 
         private void EnsureThereIsNoOutdatedBuildingVersions()
@@ -105,7 +138,10 @@ namespace Elders.Cronus.Projections.Versioning
 
         private bool CanCancel(ProjectionVersion version)
         {
-            if (version.Status != ProjectionStatus.Building)
+            if (version.MaybeIsBroken())
+                return true;
+
+            if (version.Status != ProjectionStatus.Replaying && version.Status != ProjectionStatus.Rebuilding)
                 return false;
 
             return state.Versions.Contains(version);

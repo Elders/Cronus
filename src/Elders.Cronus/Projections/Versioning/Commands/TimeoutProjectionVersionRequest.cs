@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = "d661a3e9-f6d0-4ea7-9bd9-435d3c3b8712")]
-    public class TimeoutProjectionVersionRequest : ICommand
+    public class TimeoutProjectionVersionRequest : ISystemCommand
     {
         TimeoutProjectionVersionRequest() { }
 

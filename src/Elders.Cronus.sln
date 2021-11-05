@@ -9,15 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Elders.Cronus.Tests", "Elde
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{8A014CF9-CD4A-4A32-94B2-4F21B2CB3A8C}"
 	ProjectSection(SolutionItems) = preProject
-		..\appveyor.yml = ..\appveyor.yml
-		..\build-configuration.cmd = ..\build-configuration.cmd
-		Elders.Cronus\Cronus.rn.md = Elders.Cronus\Cronus.rn.md
 		..\README.md = ..\README.md
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "doc", "doc", "{3E4FD560-9AA1-46FF-9FC0-EEBD5B3C8D39}"
-	ProjectSection(SolutionItems) = preProject
-		..\doc\Configuration.md = ..\doc\Configuration.md
 	EndProjectSection
 EndProject
 Global

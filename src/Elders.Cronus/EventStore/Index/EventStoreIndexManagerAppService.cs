@@ -1,6 +1,9 @@
-﻿namespace Elders.Cronus.EventStore.Index
+﻿using System.Runtime.Serialization;
+
+namespace Elders.Cronus.EventStore.Index
 {
-    public class EventStoreIndexManagerAppService : ApplicationService<EventStoreIndexManager>, ISystemService,
+    [DataContract(Name ="7c414ffd-f5c6-48ba-9ae8-c0907f006560")]
+    public class EventStoreIndexManagerAppService : ApplicationService<EventStoreIndexManager>, ISystemAppService,
         ICommandHandler<RegisterIndex>,
         ICommandHandler<RebuildIndex>,
         ICommandHandler<FinalizeEventStoreIndexRequest>
@@ -25,12 +28,42 @@
 
         public void Handle(RebuildIndex command)
         {
-            Update(command.Id, ar => ar.Rebuild());
+            EventStoreIndexManager ar = null;
+            ReadResult<EventStoreIndexManager> result = repository.Load<EventStoreIndexManager>(command.Id);
+
+            if (result.NotFound)
+            {
+                ar = new EventStoreIndexManager(command.Id);
+            }
+
+            if (result.IsSuccess)
+            {
+                ar = result.Data;
+            }
+
+            ar.Rebuild();
+
+            repository.Save(ar);
         }
 
         public void Handle(FinalizeEventStoreIndexRequest command)
         {
-            Update(command.Id, ar => ar.FinalizeRequest());
+            EventStoreIndexManager ar = null;
+            ReadResult<EventStoreIndexManager> result = repository.Load<EventStoreIndexManager>(command.Id);
+
+            if (result.NotFound)
+            {
+                ar = new EventStoreIndexManager(command.Id);
+            }
+
+            if (result.IsSuccess)
+            {
+                ar = result.Data;
+            }
+
+            ar.FinalizeRequest();
+
+            repository.Save(ar);
         }
     }
 }

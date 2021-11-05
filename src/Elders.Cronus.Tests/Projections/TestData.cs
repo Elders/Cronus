@@ -69,4 +69,10 @@ namespace Elders.Cronus.Tests.Projections
 
     [DataContract(Name = "NonVersionableProjection")]
     public class NonVersionableProjection : IProjection, INonVersionableProjection { }
+
+    [DataContract(Name = "INonReplayableProjection")]
+    public class NonReplayableProjection : IProjection, INonVersionableProjection { }
+
+    [DataContract(Name = "INonRebuildableProjection")]
+    public class NonRebuildableProjection : IProjection, INonRebuildableProjection { }
 }
