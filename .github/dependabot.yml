@@ -3,8 +3,6 @@
 # Please see the documentation for all configuration options:
 # https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
-# Specify assignees for pull requests
-
 version: 2
 updates:
   - package-ecosystem: "nuget"
@@ -15,5 +13,5 @@ updates:
       - "Elders/cronus-team"
     assignees: 
       - "mynkow"
-    labels:
-      - "dependencies"
+    commit-message:
+      prefix: "fix: "
