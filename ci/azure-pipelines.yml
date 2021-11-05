@@ -80,6 +80,7 @@ jobs:
     env:
       STAGING_PATH: $(Build.ArtifactStagingDirectory)
       LOCAL_PATH: $(Build.Repository.LocalPath)
+      GH_TOKEN: $(GITHUB_TOKEN)
     inputs:
       targetType: 'inline'
       script: |

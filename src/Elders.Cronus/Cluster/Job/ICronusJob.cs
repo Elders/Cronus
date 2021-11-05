@@ -17,11 +17,6 @@ namespace Elders.Cronus.Cluster.Job
     public interface ICronusJob<out TData> : ICronusJobb
         where TData : class
     {
-        /// <summary>
-        /// The name of the job
-        /// </summary>
-        string Name { get; }
-
         public TData Data { get; }
 
         Task SyncInitialStateAsync(IClusterOperations cluster, CancellationToken cancellationToken = default);
