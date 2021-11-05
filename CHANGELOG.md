@@ -1,3 +1,10 @@
+## [6.4.1](https://github.com/Elders/Cronus/compare/v6.4.0...v6.4.1) (2021-11-05)
+
+
+### Bug Fixes
+
+* When line position matters ([28f8f87](https://github.com/Elders/Cronus/commit/28f8f8718f2c64cd229919090826fd7538d2dd6e))
+
 # [6.4.0](https://github.com/Elders/Cronus/compare/v6.3.0...v6.4.0) (2021-11-05)
 
 
