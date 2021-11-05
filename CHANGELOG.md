@@ -1,3 +1,10 @@
+## [6.4.3](https://github.com/Elders/Cronus/compare/v6.4.2...v6.4.3) (2021-11-05)
+
+
+### Bug Fixes
+
+* bump Cronus.DomainModeling from 6.3.3 to 6.3.4 ([0b11c66](https://github.com/Elders/Cronus/commit/0b11c66f05e150bdc7669057bd397e506b5362d1))
+
 ## [6.4.2](https://github.com/Elders/Cronus/compare/v6.4.1...v6.4.2) (2021-11-05)
 
 
