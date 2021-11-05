@@ -12,6 +12,8 @@ updates:
     schedule:
       interval: "daily"
     reviewers:
-    - "Elders/cronus-team"
+      - "Elders/cronus-team"
     assignees: 
     - "mynkow"
+    labels:
+      - "dependencies"
