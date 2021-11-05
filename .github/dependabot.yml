@@ -11,5 +11,7 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    reviewers:
+    - "Elders/cronus-team"
     assignees: 
     - "mynkow"
