@@ -12,5 +12,7 @@ updates:
     schedule:
       interval: "daily"
     # Add assignees
-    assignees:
+    - assignees:
       - mynkow
+  - assignees:
+      - "mynkow"
