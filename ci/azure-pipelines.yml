@@ -74,7 +74,7 @@ jobs:
     clean: true
     persistCredentials: true
 
- - task: UseDotNet@2
+  - task: UseDotNet@2
     displayName: 'Use .NET 6 Core sdk'
     inputs:
       packageType: sdk
