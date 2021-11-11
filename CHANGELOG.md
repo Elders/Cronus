@@ -1,3 +1,5 @@
+# [7.0.0-preview.1](https://github.com/Elders/Cronus/compare/v6.4.3...v7.0.0-preview.1) (2021-11-11)
+
 ## [6.4.3](https://github.com/Elders/Cronus/compare/v6.4.2...v6.4.3) (2021-11-05)
 
 
