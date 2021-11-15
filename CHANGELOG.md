@@ -1,3 +1,11 @@
+# [7.0.0-preview.2](https://github.com/Elders/Cronus/compare/v7.0.0-preview.1...v7.0.0-preview.2) (2021-11-15)
+
+
+### Bug Fixes
+
+* Removes obsolete log extensions ([5449e27](https://github.com/Elders/Cronus/commit/5449e27f88775efd74ddb45ff83cb2a9a3d3e166))
+* Transitions to Assembly.Location from Assembly.CodeBase ([b6b4a94](https://github.com/Elders/Cronus/commit/b6b4a948c7a10ee6ccb997b8bfa2ed184d93045d))
+
 # [7.0.0-preview.1](https://github.com/Elders/Cronus/compare/v6.4.3...v7.0.0-preview.1) (2021-11-11)
 
 ## [6.4.3](https://github.com/Elders/Cronus/compare/v6.4.2...v6.4.3) (2021-11-05)
