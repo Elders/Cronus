@@ -17,7 +17,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             versionService = new InMemoryAggregateRootAtomicAction();
             eventStoreStorage = new InMemoryEventStoreStorage();
             eventStore = new InMemoryEventStore(eventStoreStorage);
-            eventStoreFactory = new EventStoreFactory(eventStore, null);
+            eventStoreFactory = new EventStoreFactory(eventStore, new NoAggregateCommitTransformer(), null);
             eventStoreManager = new InMemoryEventStoreStorageManager();
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
             integrityPpolicy = new EventStreamIntegrityPolicy();
