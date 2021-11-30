@@ -10,10 +10,10 @@ namespace Elders.Cronus.EventStore
     public sealed class EventStoreFactory
     {
         private readonly IEventStore eventStore;
-        private readonly IAggregateCommitTransformer aggregateCommitTransformer;
+        private readonly IEventStoreInterceptor aggregateCommitTransformer;
         private readonly ILogger<CronusEventStore> logger;
 
-        public EventStoreFactory(IEventStore eventStore, IAggregateCommitTransformer aggregateCommitTransformer, ILogger<CronusEventStore> logger)
+        public EventStoreFactory(IEventStore eventStore, IEventStoreInterceptor aggregateCommitTransformer, ILogger<CronusEventStore> logger)
         {
             this.eventStore = eventStore;
             this.aggregateCommitTransformer = aggregateCommitTransformer;
