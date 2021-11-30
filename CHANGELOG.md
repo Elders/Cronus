@@ -1,3 +1,11 @@
+# [7.0.0-preview.3](https://github.com/Elders/Cronus/compare/v7.0.0-preview.2...v7.0.0-preview.3) (2021-11-30)
+
+
+### Bug Fixes
+
+* Add Aggregate Commit transformation interface ([045c617](https://github.com/Elders/Cronus/commit/045c617ccc11e4239c156b06c6929a6fda75029c))
+* Add interceptor for modifying upcomming aggregate commits ([55ba3f9](https://github.com/Elders/Cronus/commit/55ba3f9abd8b12639d09fee012d815234080f780))
+
 # [7.0.0-preview.2](https://github.com/Elders/Cronus/compare/v7.0.0-preview.1...v7.0.0-preview.2) (2021-11-15)
 
 
