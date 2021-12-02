@@ -40,7 +40,7 @@ namespace Elders.Cronus
 
                 var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies()
                     .Where(x => x.IsDynamic == false)
-                    .Where(x => x.Location.Equals(lowerAssemblyFile, StringComparison.OrdinalIgnoreCase) || x.Location.Equals(lowerAssemblyFile, StringComparison.OrdinalIgnoreCase))
+                    .Where(x => x.Location.Equals(lowerAssemblyFile, StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
                 var assembly = loadedAssemblies.FirstOrDefault();
@@ -84,8 +84,7 @@ namespace Elders.Cronus
                 // We need to figure out another way for the testhostx86.dll problem
 
                 string codeBase = Assembly.GetEntryAssembly().Location;
-                UriBuilder uri = new UriBuilder(codeBase);
-                string path = Uri.UnescapeDataString(uri.Path);
+                string path = Uri.UnescapeDataString(codeBase);
                 var dir = Path.GetDirectoryName(path);
                 LoadAssembliesFromDirecotry(dir);
             }
