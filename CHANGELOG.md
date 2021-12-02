@@ -1,3 +1,10 @@
+# [7.0.0-preview.4](https://github.com/Elders/Cronus/compare/v7.0.0-preview.3...v7.0.0-preview.4) (2021-12-02)
+
+
+### Bug Fixes
+
+* Fixes Linux paths. _!_0x M$ ([e76ea49](https://github.com/Elders/Cronus/commit/e76ea490262243b5f15d7c9faba0f0c643548f5f))
+
 # [7.0.0-preview.3](https://github.com/Elders/Cronus/compare/v7.0.0-preview.2...v7.0.0-preview.3) (2021-11-30)
 
 
