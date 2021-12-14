@@ -5,11 +5,11 @@ using System.Diagnostics;
 
 namespace Elders.Cronus.MessageProcessing
 {
-    public class ScopedSubscriberWorkflow<T> : ISubscriberWorkflowFactory<T>
+    public class DefaultSubscriberWorkflow<T> : ISubscriberWorkflowFactory<T>
     {
         private readonly IServiceProvider serviceProvider;
 
-        public ScopedSubscriberWorkflow(IServiceProvider serviceProvider)
+        public DefaultSubscriberWorkflow(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
         }
@@ -19,8 +19,9 @@ namespace Elders.Cronus.MessageProcessing
             MessageHandleWorkflow messageHandleWorkflow = new MessageHandleWorkflow(new CreateScopedHandlerWorkflow());
             ScopedMessageWorkflow scopedWorkflow = new ScopedMessageWorkflow(serviceProvider, messageHandleWorkflow);
             DiagnosticsWorkflow<HandleContext> diagnosticsWorkflow = new DiagnosticsWorkflow<HandleContext>(scopedWorkflow, serviceProvider.GetRequiredService<DiagnosticListener>());
+            ExceptionEaterWorkflow<HandleContext> exceptionEater = new ExceptionEaterWorkflow<HandleContext>(diagnosticsWorkflow);
 
-            return diagnosticsWorkflow;
+            return exceptionEater;
         }
     }
 }

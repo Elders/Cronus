@@ -129,7 +129,7 @@ namespace Elders.Cronus
         {
             services.AddSingleton(typeof(ISubscriberCollection<T>), typeof(SubscriberCollection<T>));
             services.AddSingleton(typeof(ISubscriberFinder<T>), typeof(SubscriberFinder<T>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<T>), typeof(ScopedSubscriberWorkflow<T>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<T>), typeof(DefaultSubscriberWorkflow<T>));
             services.AddSingleton(typeof(ISubscriberFactory<T>), typeof(HandlerSubscriberFactory<T>));
 
             return services;
@@ -161,7 +161,7 @@ namespace Elders.Cronus
         {
             services.AddSingleton(typeof(ISubscriberCollection<>), typeof(SubscriberCollection<>));
             services.AddSingleton(typeof(ISubscriberFinder<>), typeof(SubscriberFinder<>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<>), typeof(ScopedSubscriberWorkflow<>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<>), typeof(DefaultSubscriberWorkflow<>));
             services.AddSingleton(typeof(ISubscriberFactory<>), typeof(HandlerSubscriberFactory<>));
 
             return services;

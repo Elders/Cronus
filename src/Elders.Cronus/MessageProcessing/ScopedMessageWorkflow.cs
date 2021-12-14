@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -23,16 +24,21 @@ namespace Elders.Cronus.MessageProcessing
         {
             using (IServiceScope scope = ioc.CreateScope())
             {
+                ILogger<ScopedMessageWorkflow> logger = scope.ServiceProvider.GetRequiredService<ILogger<ScopedMessageWorkflow>>();
                 if (EnsureTenantIsSet(scope, execution.Context.Message))
                 {
-                    scopes.AddOrUpdate(execution.Context, scope, (c, s) => scope);
-                    try
+                    using (logger.BeginScope(scope => scope
+                        .AddScope("cronus_tenant", execution.Context.Message.GetTenant())))
                     {
-                        workflow.Run(execution.Context);
-                    }
-                    finally
-                    {
-                        scopes.TryRemove(execution.Context, out IServiceScope s);
+                        scopes.AddOrUpdate(execution.Context, scope, (c, s) => scope);
+                        try
+                        {
+                            workflow.Run(execution.Context);
+                        }
+                        finally
+                        {
+                            scopes.TryRemove(execution.Context, out IServiceScope s);
+                        }
                     }
                 }
             }

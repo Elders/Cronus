@@ -79,4 +79,22 @@ namespace Elders.Cronus.Workflow
             activity.Stop();    // Resets Activity.Current (we want this after the Write)
         }
     }
+
+    public sealed class ExceptionEaterWorkflow<TContext> : Workflow<TContext> where TContext : HandleContext
+    {
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DiagnosticsWorkflow<>));
+
+        readonly Workflow<TContext> workflow;
+
+        public ExceptionEaterWorkflow(Workflow<TContext> workflow)
+        {
+            this.workflow = workflow;
+        }
+
+        protected override void Run(Execution<TContext> execution)
+        {
+            try { workflow.Run(execution.Context); }
+            catch (Exception ex) when (logger.ErrorException(ex, () => "Somewhere along the way an exception was thrown and it was eaten. See inner exception")) { }
+        }
+    }
 }
