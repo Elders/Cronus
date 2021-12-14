@@ -1,3 +1,10 @@
+# [7.0.0-preview.5](https://github.com/Elders/Cronus/compare/v7.0.0-preview.4...v7.0.0-preview.5) (2021-12-14)
+
+
+### Features
+
+* Add snapshot skipping optimization for not snapshotable projections ([5d2771b](https://github.com/Elders/Cronus/commit/5d2771b8fc45d7bc375bde3672dba67faaa05f7e))
+
 # [7.0.0-preview.4](https://github.com/Elders/Cronus/compare/v7.0.0-preview.3...v7.0.0-preview.4) (2021-12-02)
 
 
