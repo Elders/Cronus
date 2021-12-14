@@ -1,3 +1,10 @@
+# [7.0.0-preview.6](https://github.com/Elders/Cronus/compare/v7.0.0-preview.5...v7.0.0-preview.6) (2021-12-14)
+
+
+### Bug Fixes
+
+* Add timered logger for every Rebuild index operation [INT] ([fccd98c](https://github.com/Elders/Cronus/commit/fccd98c6628b08454d8864c22f60a8d0618e1e28))
+
 # [7.0.0-preview.5](https://github.com/Elders/Cronus/compare/v7.0.0-preview.4...v7.0.0-preview.5) (2021-12-14)
 
 
