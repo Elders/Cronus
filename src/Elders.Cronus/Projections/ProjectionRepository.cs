@@ -320,7 +320,7 @@ namespace Elders.Cronus.Projections
                 var loadedCommits = projectionStore.Load(version, projectionId, snapshotMarker);
                 projectionCommits.AddRange(loadedCommits);
 
-                shouldLoadMore = projectionStore.HasSnapshotMarker(version, projectionId, snapshotMarker + 1);
+                shouldLoadMore = snapshotMeta.IsSnapshotable && projectionStore.HasSnapshotMarker(version, projectionId, snapshotMarker + 1);
             }
 
             ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
