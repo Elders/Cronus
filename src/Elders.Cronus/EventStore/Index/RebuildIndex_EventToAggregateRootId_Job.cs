@@ -4,6 +4,7 @@ using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,17 +35,11 @@ namespace Elders.Cronus.EventStore.Index
                     return JobExecutionStatus.Running;
                 }
 
-                var result = eventStorePlayer.LoadAggregateCommits(Data.PaginationToken);
-
-                logger.Info(() => $"Loaded aggregate commits count ${result.Commits.Count} using pagination token {result.PaginationToken}");
-                foreach (var aggregateCommit in result.Commits)
-                {
-                    index.Index(aggregateCommit);
-                }
+                var result = LoadAggregateCommits();
+                IndexAggregateCommits(result);
+                PingCluster(cluster, cancellationToken);
 
                 Data.PaginationToken = result.PaginationToken;
-                Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
-
                 hasMoreRecords = result.Commits.Any();
             }
 
@@ -52,8 +47,60 @@ namespace Elders.Cronus.EventStore.Index
             Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
             logger.Info(() => $"The job has been completed.");
-
             return JobExecutionStatus.Completed;
+        }
+
+        private LoadAggregateCommitsResult LoadAggregateCommits()
+        {
+            var loadCommitsAction = ()
+                    => eventStorePlayer.LoadAggregateCommits(Data.PaginationToken);
+
+            LoadAggregateCommitsResult result = LogElapsedTimeWrapper(loadCommitsAction, "Loading aggregate commits");
+
+            logger.Info(() => $"Loaded aggregate commits count ${result.Commits.Count} using pagination token {result.PaginationToken}");
+            return result;
+        }
+
+        private void IndexAggregateCommits(LoadAggregateCommitsResult result)
+        {
+            var indexCommitsAction = () =>
+            {
+                foreach (var aggregateCommit in result.Commits)
+                    index.Index(aggregateCommit);
+                return true;
+            };
+
+            _ = LogElapsedTimeWrapper(indexCommitsAction, "Indexing aggregate commits");
+        }
+
+        private void PingCluster(IClusterOperations cluster, CancellationToken cancellationToken = default)
+        {
+            var pingClusterAction = ()
+                 => cluster.PingAsync(Data, cancellationToken).GetAwaiter().GetResult();
+
+            Data = LogElapsedTimeWrapper(pingClusterAction, "Pinging cluster");
+        }
+
+        private TResult LogElapsedTimeWrapper<TResult>(Func<TResult> operation, string operationName) where TResult : new()
+        {
+            TResult result;
+            long startTimestamp = 0;
+            double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
+            startTimestamp = Stopwatch.GetTimestamp();
+
+            try
+            {
+                result = operation();
+            }
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when executing {operationName} after {GetElapsedTimeString()}. See inner exception"))
+            {
+                return new TResult();
+            }
+
+            logger.Info(() => $"{operationName} completed after {GetElapsedTimeString()}");
+            return result;
+
+            string GetElapsedTimeString() => new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp))).ToString("c");
         }
     }
 
@@ -107,7 +154,6 @@ namespace Elders.Cronus.EventStore.Index
         }
     }
 
-
     public class RebuildIndex_JobData : IJobData
     {
         public bool IsCompleted { get; set; } = false;
@@ -125,7 +171,6 @@ namespace Elders.Cronus.EventStore.Index
         ///// Indicates if the job data has been created locally. If the job data has been downloaded from the cluster the value will be false.
         ///// </summary>
         //bool IsLocal { get; set; }
-
         DateTimeOffset Timestamp { get; set; }
     }
 }
