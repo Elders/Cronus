@@ -1,3 +1,10 @@
+# [7.0.0-preview.7](https://github.com/Elders/Cronus/compare/v7.0.0-preview.6...v7.0.0-preview.7) (2021-12-16)
+
+
+### Bug Fixes
+
+* log elapsed time for indexing AR commits ([5c630c5](https://github.com/Elders/Cronus/commit/5c630c5b4846371ccec5c427eca23ce3d02f3f65))
+
 # [7.0.0-preview.6](https://github.com/Elders/Cronus/compare/v7.0.0-preview.5...v7.0.0-preview.6) (2021-12-14)
 
 
