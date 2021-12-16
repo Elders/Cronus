@@ -4,8 +4,7 @@
     {
         public static IEvent Unwrap(this IEvent @event)
         {
-            var entityEvent = @event as EntityEvent;
-            if (ReferenceEquals(null, entityEvent) == false)
+            if (@event is EntityEvent entityEvent)
                 return entityEvent.Event;
 
             return @event;

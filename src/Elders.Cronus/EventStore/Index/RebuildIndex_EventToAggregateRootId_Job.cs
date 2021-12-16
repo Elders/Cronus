@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.Cluster.Job;
+using Elders.Cronus.Diagnostics;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.Logging;
@@ -55,7 +56,7 @@ namespace Elders.Cronus.EventStore.Index
             var loadCommitsAction = ()
                     => eventStorePlayer.LoadAggregateCommits(Data.PaginationToken);
 
-            LoadAggregateCommitsResult result = LogElapsedTimeWrapper(loadCommitsAction, "Loading aggregate commits");
+            LoadAggregateCommitsResult result = CronusDiagnostics.LogElapsedTime(loadCommitsAction, "Loading aggregate commits");
 
             logger.Info(() => $"Loaded aggregate commits count ${result.Commits.Count} using pagination token {result.PaginationToken}");
             return result;
@@ -63,14 +64,16 @@ namespace Elders.Cronus.EventStore.Index
 
         private void IndexAggregateCommits(LoadAggregateCommitsResult result)
         {
+            var method = new CronusDiagnostics.LogElapsedTimeWrapper<bool>(CronusDiagnostics.LogElapsedTime);
+
             var indexCommitsAction = () =>
             {
                 foreach (var aggregateCommit in result.Commits)
-                    index.Index(aggregateCommit);
+                    index.Index(aggregateCommit, method);
                 return true;
             };
 
-            _ = LogElapsedTimeWrapper(indexCommitsAction, "Indexing aggregate commits");
+            _ = CronusDiagnostics.LogElapsedTime(indexCommitsAction, "Indexing aggregate commits");
         }
 
         private void PingCluster(IClusterOperations cluster, CancellationToken cancellationToken = default)
@@ -78,29 +81,7 @@ namespace Elders.Cronus.EventStore.Index
             var pingClusterAction = ()
                  => cluster.PingAsync(Data, cancellationToken).GetAwaiter().GetResult();
 
-            Data = LogElapsedTimeWrapper(pingClusterAction, "Pinging cluster");
-        }
-
-        private TResult LogElapsedTimeWrapper<TResult>(Func<TResult> operation, string operationName) where TResult : new()
-        {
-            TResult result;
-            long startTimestamp = 0;
-            double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
-            startTimestamp = Stopwatch.GetTimestamp();
-
-            try
-            {
-                result = operation();
-            }
-            catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when executing {operationName} after {GetElapsedTimeString()}. See inner exception"))
-            {
-                return new TResult();
-            }
-
-            logger.Info(() => $"{operationName} completed after {GetElapsedTimeString()}");
-            return result;
-
-            string GetElapsedTimeString() => new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp))).ToString("c");
+            Data = CronusDiagnostics.LogElapsedTime(pingClusterAction, "Pinging cluster");
         }
     }
 
