@@ -1,3 +1,10 @@
+# [7.0.0-preview.8](https://github.com/Elders/Cronus/compare/v7.0.0-preview.7...v7.0.0-preview.8) (2021-12-17)
+
+
+### Bug Fixes
+
+* Fixes projection version handler not loading ([70b975e](https://github.com/Elders/Cronus/commit/70b975ec05ec0a577c909ecbdbce97cf6ca18080))
+
 # [7.0.0-preview.7](https://github.com/Elders/Cronus/compare/v7.0.0-preview.6...v7.0.0-preview.7) (2021-12-16)
 
 
