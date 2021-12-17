@@ -12,7 +12,7 @@ namespace Elders.Cronus.Projections
 
         public static bool IsProjectionVersionHandler(this string projectionName)
         {
-            return projectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase)
+            return projectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase);
         }
     }
 }
