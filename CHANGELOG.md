@@ -1,3 +1,10 @@
+# [7.0.0-preview.9](https://github.com/Elders/Cronus/compare/v7.0.0-preview.8...v7.0.0-preview.9) (2021-12-20)
+
+
+### Bug Fixes
+
+* Fixes projection version building ([17e417e](https://github.com/Elders/Cronus/commit/17e417ecd5eda5426cf04799c43a7eec34c92f29))
+
 # [7.0.0-preview.8](https://github.com/Elders/Cronus/compare/v7.0.0-preview.7...v7.0.0-preview.8) (2021-12-17)
 
 
