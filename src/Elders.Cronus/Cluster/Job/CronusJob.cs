@@ -44,8 +44,7 @@ namespace Elders.Cronus.Cluster.Job
         {
             try
             {
-                using (logger.BeginScope(s => s
-                    .AddScope("cronus_job_name", Name)))
+                using (logger.BeginScope(s => s.AddScope("cronus_job_name", Name)))
                 {
                     logger.Info(() => "Initializing job...");
 
