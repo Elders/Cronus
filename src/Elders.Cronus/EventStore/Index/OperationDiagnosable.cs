@@ -49,40 +49,4 @@ namespace Elders.Cronus.EventStore.Index
             string GetElapsedTimeString() => new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp))).ToString("c");
         }
     }
-
-    //public abstract class DiagnosableOperation<TResult>
-    //{
-    //    public string operationName;
-    //    public abstract TResult Execute();
-    //}
-
-    //public class ObjectToDiagnose<TResult> : DiagnosableOperation<TResult> // Operation to which we want add logs
-    //{
-    //    public Func<TResult> operation;
-
-    //    public ObjectToDiagnose(Func<TResult> operation, string name)
-    //    {
-    //        operationName = name;
-    //        this.operation = operation;
-    //    }
-
-    //    public override TResult Execute()
-    //    {
-    //        return operation.Invoke();
-    //    }
-    //}
-
-    //public abstract class Decorator : DiagnosableOperation
-    //{
-    //    protected DiagnosableOperation diagnosable;
-
-    //    public Decorator(DiagnosableOperation diagnosable)
-    //    {
-    //        this.diagnosable = diagnosable;
-    //    }
-    //    public override void Execute()
-    //    {
-    //        diagnosable.Execute();
-    //    }
-    //} 
 }
