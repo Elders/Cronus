@@ -29,7 +29,7 @@ namespace Elders.Cronus
         /// </summary>
         public static IServiceCollection AddCronus(this IServiceCollection services, CronusServicesProvider cronusServicesProvider)
         {
-            services.AddOpenTelemetry();
+            services.AddOpenTelemetry(cronusServicesProvider.Configuration);
             services.AddTenantSupport();
             services.AddCronusHostOptions();
             services.AddDefaultSubscribers();
@@ -44,7 +44,7 @@ namespace Elders.Cronus
             return services;
         }
 
-        internal static IServiceCollection AddOpenTelemetry(this IServiceCollection services)
+        internal static IServiceCollection AddOpenTelemetry(this IServiceCollection services, IConfiguration configuration)
         {
             // https://github.com/dotnet/aspnetcore/blob/f3f9a1cdbcd06b298035b523732b9f45b1408461/src/Hosting/Hosting/src/WebHostBuilder.cs#L334
             // By default aspnet core registers a DiagnosticListener and if we add our own you will loose the http insights
@@ -53,8 +53,22 @@ namespace Elders.Cronus
             if (services.Any(x => x.ServiceType == typeof(DiagnosticListener)) == false)
             {
                 var listener = new DiagnosticListener(CronusDiagnostics.Name);
-                services.AddSingleton<DiagnosticListener>(listener);
+                services.AddSingleton(listener);
                 services.AddSingleton<DiagnosticSource>(listener);
+
+                services.AddOptions<DiagnosticOptions, DiagnosticOptionsProvider>();
+                bool diagnosticEnabled = configuration.GetValue<bool>("Diagnostic");
+
+                if (diagnosticEnabled == true)
+                {
+                    services.AddSingleton(typeof(ICanBeDiagnosable), typeof(OperationDiagnosable));
+                    services.AddSingleton(typeof(OperationDiagnosable));
+                }
+                else
+                {
+                    services.AddSingleton(typeof(ICanBeDiagnosable), typeof(Operation));
+                    services.AddSingleton(typeof(Operation));
+                }
             }
 
             return services;
