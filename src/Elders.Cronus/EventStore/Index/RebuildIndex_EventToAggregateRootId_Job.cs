@@ -1,11 +1,9 @@
 ﻿using Elders.Cronus.Cluster.Job;
-using Elders.Cronus.Diagnostics;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,11 +14,13 @@ namespace Elders.Cronus.EventStore.Index
     {
         private readonly IEventStorePlayer eventStorePlayer;
         private readonly EventToAggregateRootId index;
+        private readonly ICanBeDiagnosable operation;
 
-        public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, EventToAggregateRootId index, ILogger<RebuildIndex_EventToAggregateRootId_Job> logger) : base(logger)
+        public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, EventToAggregateRootId index, ICanBeDiagnosable operation, ILogger<RebuildIndex_EventToAggregateRootId_Job> logger) : base(logger)
         {
             this.eventStorePlayer = eventStorePlayer;
             this.index = index;
+            this.operation = operation;
         }
 
         public override string Name { get; set; } = typeof(EventToAggregateRootId).GetContractId();
@@ -56,7 +56,7 @@ namespace Elders.Cronus.EventStore.Index
             var loadCommitsAction = ()
                     => eventStorePlayer.LoadAggregateCommits(Data.PaginationToken);
 
-            LoadAggregateCommitsResult result = CronusDiagnostics.LogElapsedTime(loadCommitsAction, "Loading aggregate commits");
+            LoadAggregateCommitsResult result = operation.Execute(loadCommitsAction, "Loading aggregate commits");
 
             logger.Info(() => $"Loaded aggregate commits count ${result.Commits.Count} using pagination token {result.PaginationToken}");
             return result;
@@ -64,16 +64,14 @@ namespace Elders.Cronus.EventStore.Index
 
         private void IndexAggregateCommits(LoadAggregateCommitsResult result)
         {
-            var method = new CronusDiagnostics.LogElapsedTimeWrapper<bool>(CronusDiagnostics.LogElapsedTime);
-
             var indexCommitsAction = () =>
             {
                 foreach (var aggregateCommit in result.Commits)
-                    index.Index(aggregateCommit, method);
+                    index.Index(aggregateCommit);
                 return true;
             };
 
-            _ = CronusDiagnostics.LogElapsedTime(indexCommitsAction, "Indexing aggregate commits");
+            operation.Execute(indexCommitsAction, "Indexing aggregate commits");
         }
 
         private void PingCluster(IClusterOperations cluster, CancellationToken cancellationToken = default)
@@ -81,7 +79,7 @@ namespace Elders.Cronus.EventStore.Index
             var pingClusterAction = ()
                  => cluster.PingAsync(Data, cancellationToken).GetAwaiter().GetResult();
 
-            Data = CronusDiagnostics.LogElapsedTime(pingClusterAction, "Pinging cluster");
+            operation.Execute(pingClusterAction, "Pinging cluster");
         }
     }
 
