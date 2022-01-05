@@ -57,7 +57,7 @@ namespace Elders.Cronus
                 services.AddSingleton<DiagnosticSource>(listener);
 
                 services.AddOptions<DiagnosticOptions, DiagnosticOptionsProvider>();
-                bool diagnosticEnabled = configuration.GetValue<bool>("Diagnostic");
+                bool diagnosticEnabled = configuration.GetValue<bool>("Diagnostic:ActionDiagnosticEnabled");
 
                 if (diagnosticEnabled == true)
                 {
