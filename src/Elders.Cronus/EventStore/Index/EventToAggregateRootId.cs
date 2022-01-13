@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.Diagnostics;
-using Elders.Cronus.Projections.Cassandra.EventSourcing;
+﻿using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
@@ -19,38 +18,24 @@ namespace Elders.Cronus.EventStore.Index
             this.indexStore = indexStore;
         }
 
-        public void Index(AggregateCommit aggregateCommit, CronusDiagnostics.LogElapsedTimeWrapper<bool> methodToInvoke)
+        public void Index(AggregateCommit aggregateCommit)
         {
             List<IndexRecord> indexRecordsBatch = new List<IndexRecord>();
-
-            // Step 1
-            var AddToIndexRecordsBatchAction = ()
-               => AddToIndexRecordsBatch();
-            methodToInvoke.Invoke(AddToIndexRecordsBatchAction, "Adding commits with events to the index records batch (list)");
-
-            // Step 2
-            var IndexStoreAction = () =>
-            { indexStore.Apend(indexRecordsBatch); return true; };
-            methodToInvoke.Invoke(IndexStoreAction, "Appending to index store");
-
-            bool AddToIndexRecordsBatch()
+            foreach (var @event in aggregateCommit.Events)
             {
-                foreach (var @event in aggregateCommit.Events)
-                {
-                    string eventTypeId = @event.Unwrap().GetType().GetContractId();
-                    var record = new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId);
-                    indexRecordsBatch.Add(record);
-                }
-
-                foreach (var publicEvent in aggregateCommit.PublicEvents)
-                {
-                    string eventTypeId = publicEvent.GetType().GetContractId();
-                    var record = new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId);
-                    indexRecordsBatch.Add(record);
-                }
-
-                return true;
+                string eventTypeId = @event.Unwrap().GetType().GetContractId();
+                var record = new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId);
+                indexRecordsBatch.Add(record);
             }
+
+            foreach (var publicEvent in aggregateCommit.PublicEvents)
+            {
+                string eventTypeId = publicEvent.GetType().GetContractId();
+                var record = new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId);
+                indexRecordsBatch.Add(record);
+            }
+
+            indexStore.Apend(indexRecordsBatch);
         }
 
         public void Index(CronusMessage message)
