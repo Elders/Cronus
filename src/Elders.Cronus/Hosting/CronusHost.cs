@@ -3,6 +3,8 @@ using Elders.Cronus.Migrations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus
 {
@@ -83,6 +85,36 @@ namespace Elders.Cronus
                     systemProjections.Start();
                     systemSagas.Start();
                     systemTriggers.Start();
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.CriticalException(ex, () => $"Start: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task StartAsync()
+        {
+            try
+            {
+                if (hostOptions.ApplicationServicesEnabled) await appServices.StartAsync();
+                if (hostOptions.SagasEnabled) await sagas.StartAsync();
+                if (hostOptions.ProjectionsEnabled) await projections.StartAsync();
+                if (hostOptions.PortsEnabled) await ports.StartAsync();
+                if (hostOptions.GatewaysEnabled) await gateways.StartAsync();
+                if (hostOptions.TriggersEnabled) await triggers.StartAsync();
+                if (hostOptions.MigrationsEnabled) await migrations.StartAsync();
+
+                if (hostOptions.SystemServicesEnabled)
+                {
+                    await indices.StartAsync();
+                    await systemIndices.StartAsync();
+                    await systemAppServices.StartAsync();
+                    await systemPorts.StartAsync();
+                    await systemProjections.StartAsync();
+                    await systemSagas.StartAsync();
+                    await systemTriggers.StartAsync();
                 }
             }
             catch (Exception ex)
