@@ -1,3 +1,10 @@
+# [7.0.0-preview.11](https://github.com/Elders/Cronus/compare/v7.0.0-preview.10...v7.0.0-preview.11) (2022-01-13)
+
+
+### Bug Fixes
+
+* Reverts the diagnostic logs because they create a log of noise at the moment ([386c224](https://github.com/Elders/Cronus/commit/386c224be56984917e9aada2f1ac68778df66345))
+
 # [7.0.0-preview.10](https://github.com/Elders/Cronus/compare/v7.0.0-preview.9...v7.0.0-preview.10) (2022-01-13)
 
 
