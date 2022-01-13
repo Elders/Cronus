@@ -1,3 +1,10 @@
+# [7.0.0-preview.10](https://github.com/Elders/Cronus/compare/v7.0.0-preview.9...v7.0.0-preview.10) (2022-01-13)
+
+
+### Bug Fixes
+
+* bump version ([507111c](https://github.com/Elders/Cronus/commit/507111c73c5f7a388ceadca9ec11165f4fd81181))
+
 # [7.0.0-preview.9](https://github.com/Elders/Cronus/compare/v7.0.0-preview.8...v7.0.0-preview.9) (2021-12-20)
 
 
