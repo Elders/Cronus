@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using Microsoft.Toolkit.HighPerformance;
+using System;
+using System.IO;
 
 namespace Elders.Cronus
 {
@@ -7,6 +9,14 @@ namespace Elders.Cronus
         public static object DeserializeFromBytes(this ISerializer self, byte[] bytes)
         {
             using (var stream = new MemoryStream(bytes))
+            {
+                return self.Deserialize(stream);
+            }
+        }
+
+        public static object DeserializeFromBytes(this ISerializer self, ReadOnlyMemory<byte> bytes)
+        {
+            using (var stream = bytes.AsStream())
             {
                 return self.Deserialize(stream);
             }
