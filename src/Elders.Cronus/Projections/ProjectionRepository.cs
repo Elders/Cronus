@@ -199,8 +199,8 @@ namespace Elders.Cronus.Projections
 
                     ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
                     var readResult = new ReadResult<T>(stream.RestoreFromHistory<T>());
-                    if (readResult.NotFound)
-                        log.Warn(() => "Projection instance not found.");
+                    if (readResult.NotFound && log.IsDebugEnabled())
+                        log.Debug(() => "Projection instance not found.");
 
                     return readResult;
                 }
@@ -225,8 +225,8 @@ namespace Elders.Cronus.Projections
                 {
                     ProjectionStream stream = LoadProjectionStream(projectionType, projectionId);
                     var readResult = new ReadResult<IProjectionDefinition>(stream.RestoreFromHistory(projectionType));
-                    if (readResult.NotFound)
-                        log.Warn(() => "Projection instance not found.");
+                    if (readResult.NotFound && log.IsDebugEnabled())
+                        log.Debug(() => "Projection instance not found.");
 
                     return readResult;
                 }
