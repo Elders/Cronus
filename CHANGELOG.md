@@ -1,3 +1,10 @@
+# [7.0.0-preview.14](https://github.com/Elders/Cronus/compare/v7.0.0-preview.13...v7.0.0-preview.14) (2022-01-18)
+
+
+### Bug Fixes
+
+* Add logging om handle error ([634e6ba](https://github.com/Elders/Cronus/commit/634e6ba2e7a0059d67a60e7775d4dd52f83e592d))
+
 # [7.0.0-preview.13](https://github.com/Elders/Cronus/compare/v7.0.0-preview.12...v7.0.0-preview.13) (2022-01-18)
 
 
