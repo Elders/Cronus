@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.Contracts;
 
 namespace Elders.Cronus
 {
@@ -6,13 +7,12 @@ namespace Elders.Cronus
     {
         public static object AssignPropertySafely<TContract>(this object self, Action<TContract> assignProperty)
         {
-            var canProceed = typeof(TContract).IsAssignableFrom(self.GetType());
-            if (canProceed)
+            if (self is TContract casted)
             {
-                var contract = (TContract)self;
-                assignProperty(contract);
-                self = contract;
+                assignProperty(casted);
+                self = casted;
             }
+
             return self;
         }
     }

@@ -1,5 +1,7 @@
 ﻿using Elders.Cronus.Workflow;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.IO;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -21,7 +23,20 @@ namespace Elders.Cronus.MessageProcessing
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(LogExceptionOnHandleError));
         protected override void Run(Execution<ErrorContext> execution)
         {
-            logger.ErrorException(execution.Context.Error, () => $"There was an arror in {execution.Context.HandlerType.Name} while handling message {execution.Context.Message.Payload}");
+            var serializer = execution.Context.ServiceProvider.GetRequiredService<ISerializer>();
+
+            logger.ErrorException(execution.Context.Error, () => $"There was an error in {execution.Context.HandlerType.Name} while handling message {MessageAsString(serializer, execution.Context.Message)}");
+        }
+
+        private string MessageAsString(ISerializer serializer, CronusMessage message)
+        {
+            using (var stream = new MemoryStream())
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                serializer.Serialize(stream, message);
+                stream.Position = 0;
+                return reader.ReadToEnd();
+            }
         }
     }
 }

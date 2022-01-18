@@ -73,7 +73,9 @@ namespace Elders.Cronus.MessageProcessing
 
             catch (Exception ex)
             {
-                Error.Run(new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType));
+                var context = new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType);
+                context.AssignPropertySafely<IWorkflowContextWithServiceProvider>(prop => prop.ServiceProvider = execution.Context.ServiceProvider);
+                Error.Run(context);
                 throw;
             }
             finally

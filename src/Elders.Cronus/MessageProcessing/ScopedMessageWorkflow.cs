@@ -24,6 +24,7 @@ namespace Elders.Cronus.MessageProcessing
         {
             using (IServiceScope scope = ioc.CreateScope())
             {
+                execution.Context.AssignPropertySafely<IWorkflowContextWithServiceProvider>(prop => prop.ServiceProvider = scope.ServiceProvider);
                 ILogger<ScopedMessageWorkflow> logger = scope.ServiceProvider.GetRequiredService<ILogger<ScopedMessageWorkflow>>();
                 if (EnsureTenantIsSet(scope, execution.Context.Message))
                 {
