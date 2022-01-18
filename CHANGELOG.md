@@ -1,3 +1,10 @@
+# [7.0.0-preview.15](https://github.com/Elders/Cronus/compare/v7.0.0-preview.14...v7.0.0-preview.15) (2022-01-18)
+
+
+### Bug Fixes
+
+* Ensure service provider in ErrorContext ([24af784](https://github.com/Elders/Cronus/commit/24af78470a4af3baa515f6fd12412986b93a2661))
+
 # [7.0.0-preview.14](https://github.com/Elders/Cronus/compare/v7.0.0-preview.13...v7.0.0-preview.14) (2022-01-18)
 
 
