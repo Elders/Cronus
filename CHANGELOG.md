@@ -1,3 +1,10 @@
+# [7.0.0-preview.13](https://github.com/Elders/Cronus/compare/v7.0.0-preview.12...v7.0.0-preview.13) (2022-01-18)
+
+
+### Features
+
+* Adds the ability to deserialize from ReadOnlyMemory<byte> ([558d998](https://github.com/Elders/Cronus/commit/558d9988af9134e0f8684885f3480dac389b4618))
+
 # [7.0.0-preview.12](https://github.com/Elders/Cronus/compare/v7.0.0-preview.11...v7.0.0-preview.12) (2022-01-18)
 
 
