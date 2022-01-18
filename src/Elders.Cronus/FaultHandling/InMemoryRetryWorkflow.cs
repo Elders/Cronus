@@ -13,7 +13,7 @@ namespace Elders.Cronus.FaultHandling
         public InMemoryRetryWorkflow(Workflow<TContext> workflow)
         {
             this.workflow = workflow;
-            var retryStrategy = new Incremental(3, TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(100));//Total 3 Retrues
+            var retryStrategy = new Incremental(3, TimeSpan.FromMilliseconds(1000), TimeSpan.FromMilliseconds(1000));//Total 3 Retrues
             retryPolicy = new RetryPolicy(new TransientErrorCatchAllStrategy(), retryStrategy);
         }
 
