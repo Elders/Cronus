@@ -1,3 +1,10 @@
+# [7.0.0-preview.12](https://github.com/Elders/Cronus/compare/v7.0.0-preview.11...v7.0.0-preview.12) (2022-01-18)
+
+
+### Bug Fixes
+
+* Change  NotFound projection message log level to Debug ([5c18665](https://github.com/Elders/Cronus/commit/5c186659c965682eb3c038634476c7443de97196))
+
 # [7.0.0-preview.11](https://github.com/Elders/Cronus/compare/v7.0.0-preview.10...v7.0.0-preview.11) (2022-01-13)
 
 
