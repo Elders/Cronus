@@ -1,3 +1,10 @@
+# [7.0.0-preview.16](https://github.com/Elders/Cronus/compare/v7.0.0-preview.15...v7.0.0-preview.16) (2022-01-21)
+
+
+### Bug Fixes
+
+* Adds try catches on all job runner methods ([41d42e5](https://github.com/Elders/Cronus/commit/41d42e5711926b96b26e0a1e68d72d602638ee24))
+
 # [7.0.0-preview.15](https://github.com/Elders/Cronus/compare/v7.0.0-preview.14...v7.0.0-preview.15) (2022-01-18)
 
 
