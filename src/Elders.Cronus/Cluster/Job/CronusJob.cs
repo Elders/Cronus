@@ -20,7 +20,6 @@ namespace Elders.Cronus.Cluster.Job
         }
 
         public abstract string Name { get; set; }
-
         /// <summary>
         /// Initializes a default state for the job
         /// </summary>
@@ -64,27 +63,38 @@ namespace Elders.Cronus.Cluster.Job
 
         public async Task SyncInitialStateAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            Data = await cluster.PingAsync<TData>(cancellationToken).ConfigureAwait(false);
-
-            if (Data is null)
-                Data = BuildInitialData();
-
-            Data = DataOverride(Data);
-
-            using (logger.BeginScope(s => s
-                       .AddScope(Log.JobData, System.Text.Json.JsonSerializer.Serialize<TData>(Data))))
+            try
             {
-                logger.Info(() => "Job state synced.");
+                Data = await cluster.PingAsync<TData>(cancellationToken).ConfigureAwait(false);
+
+                if (Data is null)
+                    Data = BuildInitialData();
+
+                Data = DataOverride(Data);
+
+                using (logger.BeginScope(s => s
+                           .AddScope(Log.JobData, System.Text.Json.JsonSerializer.Serialize<TData>(Data))))
+                {
+                    logger.Info(() => "Job state synced.");
+                }
             }
+            catch (Exception ex) when (logger.ErrorException(ex, () => "Error when syncing initial state of a job")) { }
         }
 
         private Task<JobExecutionStatus> RunJobWithLoggerAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            using (logger.BeginScope(s => s
-                       .AddScope("cronus_job_data", System.Text.Json.JsonSerializer.Serialize<TData>(Data))))
+            try
             {
-                logger.Info(() => "Job started...");
-                return RunJobAsync(cluster, cancellationToken);
+                using (logger.BeginScope(s => s
+                        .AddScope("cronus_job_data", System.Text.Json.JsonSerializer.Serialize<TData>(Data))))
+                {
+                    logger.Info(() => "Job started...");
+                    return RunJobAsync(cluster, cancellationToken);
+                }
+            }
+            catch (Exception ex) when (logger.ErrorException(ex, () => "Error on RunJobWithLoggerAsync"))
+            {
+                return Task.FromResult(JobExecutionStatus.Failed);
             }
         }
 
