@@ -5,9 +5,16 @@ using System.Collections.Generic;
 
 namespace Elders.Cronus
 {
-    public class CronusBooter
+    public sealed class CronusBooter
     {
-        public static void BootstrapCronus(IServiceProvider serviceProvider)
+        private readonly IServiceProvider serviceProvider;
+
+        public CronusBooter(IServiceProvider serviceProvider)
+        {
+            this.serviceProvider = serviceProvider;
+        }
+
+        public void BootstrapCronus()
         {
             CronusLogger.Configure(serviceProvider.GetService<ILoggerFactory>());
             var scanner = new CronusStartupScanner(new DefaulAssemblyScanner());

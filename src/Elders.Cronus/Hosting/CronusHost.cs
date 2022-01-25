@@ -10,7 +10,7 @@ namespace Elders.Cronus
     public sealed class CronusHost : ICronusHost
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CronusHost));
-
+        private readonly CronusBooter booter;
         private readonly IConsumer<IApplicationService> appServices;
         private readonly IConsumer<ICronusEventStoreIndex> systemIndices;
         private readonly IConsumer<IEventStoreIndex> indices;
@@ -28,6 +28,7 @@ namespace Elders.Cronus
         private CronusHostOptions hostOptions;
 
         public CronusHost(
+            CronusBooter booter,
             IConsumer<IApplicationService> appServices,
             IConsumer<ICronusEventStoreIndex> systemIndices,
             IConsumer<IEventStoreIndex> indices,
@@ -44,6 +45,7 @@ namespace Elders.Cronus
             IConsumer<IMigrationHandler> migrations,
             IOptionsMonitor<CronusHostOptions> cronusHostOptions)
         {
+            this.booter = booter;
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
             this.systemIndices = systemIndices;
             this.indices = indices;
@@ -85,6 +87,8 @@ namespace Elders.Cronus
                     systemSagas.Start();
                     systemTriggers.Start();
                 }
+
+                booter.BootstrapCronus();
             }
             catch (Exception ex)
             {

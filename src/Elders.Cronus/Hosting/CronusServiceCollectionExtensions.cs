@@ -29,6 +29,7 @@ namespace Elders.Cronus
         /// </summary>
         public static IServiceCollection AddCronus(this IServiceCollection services, CronusServicesProvider cronusServicesProvider)
         {
+            services.AddBooter();
             services.AddOpenTelemetry();
             services.AddTenantSupport();
             services.AddCronusHostOptions();
@@ -42,6 +43,11 @@ namespace Elders.Cronus
                 cronusServicesProvider.HandleDiscoveredModel(result);
 
             return services;
+        }
+
+        internal static IServiceCollection AddBooter(this IServiceCollection services)
+        {
+            return services.AddSingleton<CronusBooter>();
         }
 
         internal static IServiceCollection AddOpenTelemetry(this IServiceCollection services)
