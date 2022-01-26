@@ -49,6 +49,8 @@ namespace Elders.Cronus
                     else
                     {
                         logger.LogDebug("Maximum number of retries has been reached.");
+                        if (exception is null)
+                            exception = new Exception($"Maximum number of retries has been reached.{Environment.NewLine}{operationInfo}");
                         throw exception;
                     }
                 }

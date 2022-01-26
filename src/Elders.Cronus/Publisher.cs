@@ -68,7 +68,7 @@ namespace Elders.Cronus
 
                 using (logger.BeginScope(cronusMessage.CorelationId))
                 {
-                    bool isPublished = RetryableOperation.TryExecute(() => PublishInternal(cronusMessage), retryPolicy);
+                    bool isPublished = RetryableOperation.TryExecute(() => PublishInternal(cronusMessage), retryPolicy, BuildTraceData());
                     if (isPublished)
                     {
                         logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
@@ -83,6 +83,14 @@ namespace Elders.Cronus
             }
             catch (Exception ex)
             {
+                string errorMessage = BuildTraceData();
+
+                logger.ErrorException(ex, () => errorMessage);
+                return false;
+            }
+
+            string BuildTraceData()
+            {
                 StringBuilder errorMessage = new StringBuilder();
                 errorMessage.AppendLine("Failed to publish message!");
 
@@ -95,8 +103,7 @@ namespace Elders.Cronus
                 string messageString = JsonSerializer.Serialize<object>(message);
                 errorMessage.AppendLine(messageString);
 
-                logger.ErrorException(ex, () => errorMessage.ToString());
-                return false;
+                return errorMessage.ToString();
             }
         }
 
