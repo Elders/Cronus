@@ -1,3 +1,10 @@
+# [7.0.0-preview.17](https://github.com/Elders/Cronus/compare/v7.0.0-preview.16...v7.0.0-preview.17) (2022-01-26)
+
+
+### Bug Fixes
+
+* Bootstrap Cronus before all services have started ([07d686d](https://github.com/Elders/Cronus/commit/07d686d8edef56ae52aefdc81ab7bf5f94c92691))
+
 # [7.0.0-preview.16](https://github.com/Elders/Cronus/compare/v7.0.0-preview.15...v7.0.0-preview.16) (2022-01-21)
 
 
