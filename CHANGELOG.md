@@ -1,3 +1,10 @@
+# [7.0.0-preview.18](https://github.com/Elders/Cronus/compare/v7.0.0-preview.17...v7.0.0-preview.18) (2022-01-27)
+
+
+### Features
+
+* Adds heartbeat ([60f703e](https://github.com/Elders/Cronus/commit/60f703e4a75fb01cfea8b2193127219dc173b325))
+
 # [7.0.0-preview.17](https://github.com/Elders/Cronus/compare/v7.0.0-preview.16...v7.0.0-preview.17) (2022-01-26)
 
 
