@@ -1,3 +1,10 @@
+# [7.0.0-preview.19](https://github.com/Elders/Cronus/compare/v7.0.0-preview.18...v7.0.0-preview.19) (2022-02-01)
+
+
+### Bug Fixes
+
+* Moved to synchronous Start ([54e80f9](https://github.com/Elders/Cronus/commit/54e80f95698505d5d0ca71b6aacace857e5ea210))
+
 # [7.0.0-preview.18](https://github.com/Elders/Cronus/compare/v7.0.0-preview.17...v7.0.0-preview.18) (2022-01-27)
 
 
