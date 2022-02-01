@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus
@@ -95,44 +94,6 @@ namespace Elders.Cronus
                     systemSagas.Start();
                     systemTriggers.Start();
                 }
-
-
-            }
-            catch (Exception ex)
-            {
-                logger.CriticalException(ex, () => $"Start: {ex.Message}");
-                throw;
-            }
-        }
-
-        public async Task StartAsync()
-        {
-            try
-            {
-                CronusLogger.Configure(serviceProvider.GetService<ILoggerFactory>());
-
-                booter.BootstrapCronus();
-
-                if (hostOptions.ApplicationServicesEnabled) await appServices.StartAsync();
-                if (hostOptions.SagasEnabled) await sagas.StartAsync();
-                if (hostOptions.ProjectionsEnabled) await projections.StartAsync();
-                if (hostOptions.PortsEnabled) await ports.StartAsync();
-                if (hostOptions.GatewaysEnabled) await gateways.StartAsync();
-                if (hostOptions.TriggersEnabled) await triggers.StartAsync();
-                if (hostOptions.MigrationsEnabled) await migrations.StartAsync();
-
-                if (hostOptions.SystemServicesEnabled)
-                {
-                    await indices.StartAsync();
-                    await systemIndices.StartAsync();
-                    await systemAppServices.StartAsync();
-                    await systemPorts.StartAsync();
-                    await systemProjections.StartAsync();
-                    await systemSagas.StartAsync();
-                    await systemTriggers.StartAsync();
-                }
-
-                booter.BootstrapCronus();
             }
             catch (Exception ex)
             {
