@@ -1,3 +1,10 @@
+# [7.0.0-preview.20](https://github.com/Elders/Cronus/compare/v7.0.0-preview.19...v7.0.0-preview.20) (2022-02-01)
+
+
+### Bug Fixes
+
+* Add Machine name to heartbeat ([49ae370](https://github.com/Elders/Cronus/commit/49ae3707acf8f438778b4db38baa3798d17b9602))
+
 # [7.0.0-preview.19](https://github.com/Elders/Cronus/compare/v7.0.0-preview.18...v7.0.0-preview.19) (2022-02-01)
 
 
