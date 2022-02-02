@@ -1,3 +1,10 @@
+# [7.0.0-preview.21](https://github.com/Elders/Cronus/compare/v7.0.0-preview.20...v7.0.0-preview.21) (2022-02-02)
+
+
+### Bug Fixes
+
+* Add heartbeat interval to settigns ([a09cd3f](https://github.com/Elders/Cronus/commit/a09cd3f13733fb3a0a69553774151df375f4db1a))
+
 # [7.0.0-preview.20](https://github.com/Elders/Cronus/compare/v7.0.0-preview.19...v7.0.0-preview.20) (2022-02-01)
 
 
