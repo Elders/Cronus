@@ -13,14 +13,16 @@ namespace Elders.Cronus.Hosting.Heartbeat
     {
         private readonly IPublisher<ISignal> publisher;
         private readonly List<string> tenants;
+        private readonly HeartbeatOptions options;
         private readonly ILogger<CronusHeartbeat> logger;
 
         public string Name { get; set; } = "cronus";
 
-        public CronusHeartbeat(IPublisher<ISignal> publisher, IOptions<TenantsOptions> tenantsOptions, ILogger<CronusHeartbeat> logger)
+        public CronusHeartbeat(IPublisher<ISignal> publisher, IOptions<TenantsOptions> tenantsOptions, IOptionsMonitor<HeartbeatOptions> monitor, ILogger<CronusHeartbeat> logger)
         {
-            this.publisher = publisher;
             tenants = tenantsOptions.Value.Tenants.ToList();
+            options = monitor.CurrentValue;
+            this.publisher = publisher;
             this.logger = logger;
         }
 
@@ -33,9 +35,13 @@ namespace Elders.Cronus.Hosting.Heartbeat
                     var @event = new HeartbeatSignal("cronus", tenants);
                     publisher.Publish(@event);
 
-                    logger.Debug(() => "Heartbeat");
+                    logger.Debug(() => "Heartbeat is sent");
 
-                    await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromSeconds(options.IntervalInSeconds), stoppingToken);
+                }
+                catch (Exception ex) when (ex is TaskCanceledException or ObjectDisposedException)
+                {
+                    // Someone has cancled the task during the delay. In this case we just return without any error.
                 }
                 catch (Exception ex)
                 {

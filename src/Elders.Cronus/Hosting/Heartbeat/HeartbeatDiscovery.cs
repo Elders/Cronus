@@ -18,6 +18,7 @@ namespace Elders.Cronus.Hosting.Heartbeat
         private void AddServices(IServiceCollection services)
         {
             services.AddHostedService<CronusHeartbeatService>();
+            services.AddOptions<HeartbeatOptions, HeartbeaOptionsProvider>();
         }
     }
 }
