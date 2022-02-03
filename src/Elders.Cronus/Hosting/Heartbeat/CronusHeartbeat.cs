@@ -12,14 +12,17 @@ namespace Elders.Cronus.Hosting.Heartbeat
     public class CronusHeartbeat : IHeartbeat
     {
         private readonly IPublisher<ISignal> publisher;
+        private readonly BoundedContext boundedContext;
         private readonly List<string> tenants;
         private readonly HeartbeatOptions options;
         private readonly ILogger<CronusHeartbeat> logger;
 
-        public string Name { get; set; } = "cronus";
+        //public string Name { get; set; } = "cronus";
 
-        public CronusHeartbeat(IPublisher<ISignal> publisher, IOptions<TenantsOptions> tenantsOptions, IOptionsMonitor<HeartbeatOptions> monitor, ILogger<CronusHeartbeat> logger)
+        public CronusHeartbeat(IPublisher<ISignal> publisher, IOptionsMonitor<BoundedContext> boundedContext, IOptions<TenantsOptions> tenantsOptions, ILogger<CronusHeartbeat> logger)
         {
+            this.publisher = publisher;
+            this.boundedContext = boundedContext.CurrentValue;
             tenants = tenantsOptions.Value.Tenants.ToList();
             options = monitor.CurrentValue;
             this.publisher = publisher;
@@ -32,7 +35,7 @@ namespace Elders.Cronus.Hosting.Heartbeat
             {
                 try
                 {
-                    var @event = new HeartbeatSignal("cronus", tenants);
+                    var @event = new HeartbeatSignal(boundedContext.Name, tenants);
                     publisher.Publish(@event);
 
                     logger.Debug(() => "Heartbeat is sent");

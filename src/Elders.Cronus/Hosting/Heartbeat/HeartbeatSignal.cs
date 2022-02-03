@@ -16,9 +16,11 @@ namespace Elders.Cronus.Hosting.Heartbeat
             Timestamp = DateTimeOffset.Now;
             Tenant = "cronus";
             MachineName = Environment.MachineName;
+            EnvironmentConfig = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
         }
 
         [DataMember(Order = 0)]
+
         public string Tenant { get; private set; }
 
         [DataMember(Order = 1)]
@@ -32,6 +34,9 @@ namespace Elders.Cronus.Hosting.Heartbeat
 
         [DataMember(Order = 4)]
         public string MachineName { get; private set; }
+
+        [DataMember(Order = 5)]
+        public string EnvironmentConfig { get; private set; }
     }
 }
 
