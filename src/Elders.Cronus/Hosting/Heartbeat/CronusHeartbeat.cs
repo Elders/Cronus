@@ -19,13 +19,12 @@ namespace Elders.Cronus.Hosting.Heartbeat
 
         //public string Name { get; set; } = "cronus";
 
-        public CronusHeartbeat(IPublisher<ISignal> publisher, IOptionsMonitor<BoundedContext> boundedContext, IOptions<TenantsOptions> tenantsOptions, ILogger<CronusHeartbeat> logger)
+        public CronusHeartbeat(IPublisher<ISignal> publisher, IOptionsMonitor<BoundedContext> boundedContext, IOptionsMonitor<HeartbeatOptions> HeartbeatOptions, IOptions<TenantsOptions> tenantsOptions, ILogger<CronusHeartbeat> logger)
         {
             this.publisher = publisher;
             this.boundedContext = boundedContext.CurrentValue;
             tenants = tenantsOptions.Value.Tenants.ToList();
-            options = monitor.CurrentValue;
-            this.publisher = publisher;
+            options = HeartbeatOptions.CurrentValue;
             this.logger = logger;
         }
 
