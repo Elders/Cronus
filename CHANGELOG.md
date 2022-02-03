@@ -1,3 +1,15 @@
+# [7.0.0-preview.22](https://github.com/Elders/Cronus/compare/v7.0.0-preview.21...v7.0.0-preview.22) (2022-02-03)
+
+
+### Bug Fixes
+
+* Build fix ([175640e](https://github.com/Elders/Cronus/commit/175640ec6d8e7a0d505abf23a063724df214260e))
+
+
+### Features
+
+* add EnvironmentConfig field ([a2357c7](https://github.com/Elders/Cronus/commit/a2357c731357eb095c29492017d816b10d51c7f3))
+
 # [7.0.0-preview.21](https://github.com/Elders/Cronus/compare/v7.0.0-preview.20...v7.0.0-preview.21) (2022-02-02)
 
 
