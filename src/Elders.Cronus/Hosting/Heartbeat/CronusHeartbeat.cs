@@ -16,6 +16,8 @@ namespace Elders.Cronus.Hosting.Heartbeat
         private readonly List<string> tenants;
         private readonly HeartbeatOptions options;
         private readonly ILogger<CronusHeartbeat> logger;
+        private const string TTL = "10000";
+        private static Dictionary<string, string> heartbeatHeaders = new Dictionary<string, string>() { { MessageHeader.TTL, TTL } };
 
         //public string Name { get; set; } = "cronus";
 
@@ -35,7 +37,7 @@ namespace Elders.Cronus.Hosting.Heartbeat
                 try
                 {
                     var @event = new HeartbeatSignal(boundedContext.Name, tenants);
-                    publisher.Publish(@event);
+                    publisher.Publish(@event, heartbeatHeaders);
 
                     logger.Debug(() => "Heartbeat is sent");
 
