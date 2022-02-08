@@ -1,3 +1,10 @@
+# [7.0.0-preview.24](https://github.com/Elders/Cronus/compare/v7.0.0-preview.23...v7.0.0-preview.24) (2022-02-08)
+
+
+### Bug Fixes
+
+* Sending heartbeat twice, since now every service should use AddCronusHeartbeat ([604058f](https://github.com/Elders/Cronus/commit/604058f7bba5c63148072122e9cd67e621ec8f1c))
+
 # [7.0.0-preview.23](https://github.com/Elders/Cronus/compare/v7.0.0-preview.22...v7.0.0-preview.23) (2022-02-07)
 
 
