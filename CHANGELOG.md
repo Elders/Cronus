@@ -1,3 +1,10 @@
+# [7.0.0-preview.25](https://github.com/Elders/Cronus/compare/v7.0.0-preview.24...v7.0.0-preview.25) (2022-02-08)
+
+
+### Bug Fixes
+
+* Log unsuccessful publish ([01fc3a9](https://github.com/Elders/Cronus/commit/01fc3a9eb7dbb4db1a22f4cb1250e2093fc1ea17))
+
 # [7.0.0-preview.24](https://github.com/Elders/Cronus/compare/v7.0.0-preview.23...v7.0.0-preview.24) (2022-02-08)
 
 
