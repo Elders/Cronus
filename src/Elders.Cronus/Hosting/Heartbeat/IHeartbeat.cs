@@ -5,6 +5,6 @@ namespace Elders.Cronus.Hosting.Heartbeat
 {
     public interface IHeartbeat
     {
-        Task StartBeating(CancellationToken stoppingToken);
+        Task StartBeatingAsync(CancellationToken stoppingToken);
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,8 +20,6 @@ namespace Elders.Cronus.Hosting.Heartbeat
         private const string TTL = "10000";
         private static Dictionary<string, string> heartbeatHeaders = new Dictionary<string, string>() { { MessageHeader.TTL, TTL } };
 
-        //public string Name { get; set; } = "cronus";
-
         public CronusHeartbeat(IPublisher<ISignal> publisher, IOptionsMonitor<BoundedContext> boundedContext, IOptionsMonitor<HeartbeatOptions> HeartbeatOptions, IOptions<TenantsOptions> tenantsOptions, ILogger<CronusHeartbeat> logger)
         {
             this.publisher = publisher;
@@ -30,16 +29,14 @@ namespace Elders.Cronus.Hosting.Heartbeat
             this.logger = logger;
         }
 
-        public async Task StartBeating(CancellationToken stoppingToken)
+        public async Task StartBeatingAsync(CancellationToken stoppingToken)
         {
             while (stoppingToken.IsCancellationRequested == false)
             {
                 try
-                {
+                { 
                     var @event = new HeartbeatSignal(boundedContext.Name, tenants);
                     publisher.Publish(@event, heartbeatHeaders);
-
-                    logger.Debug(() => "Heartbeat is sent");
 
                     await Task.Delay(TimeSpan.FromSeconds(options.IntervalInSeconds), stoppingToken);
                 }

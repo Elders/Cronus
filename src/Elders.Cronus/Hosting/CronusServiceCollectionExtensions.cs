@@ -5,6 +5,7 @@ using System.Linq;
 using Elders.Cronus.Diagnostics;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.Hosting.Heartbeat;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Migrations;
 using Elders.Cronus.Multitenancy;
@@ -41,6 +42,15 @@ namespace Elders.Cronus
 
             foreach (var result in discoveryResults)
                 cronusServicesProvider.HandleDiscoveredModel(result);
+
+            return services;
+        }
+
+        public static IServiceCollection AddCronusHeartbeat(this IServiceCollection services)
+        {
+            services.AddOptions<HeartbeatOptions, HeartbeaOptionsProvider>();
+            services.AddSingleton<IHeartbeat, CronusHeartbeat>();
+            services.AddHostedService<CronusHeartbeatService>();
 
             return services;
         }

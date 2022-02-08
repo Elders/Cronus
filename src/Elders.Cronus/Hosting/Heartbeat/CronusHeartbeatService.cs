@@ -33,7 +33,7 @@ namespace Elders.Cronus.Hosting.Heartbeat
                 _logger.LogInformation("Consume Scoped Service Hosted Service is working.");
 
                 var heartbeat = Services.GetRequiredService<IHeartbeat>();
-                return heartbeat.StartBeating(stoppingToken);
+                return heartbeat.StartBeatingAsync(stoppingToken);
             }
             catch (Exception ex)
             {
