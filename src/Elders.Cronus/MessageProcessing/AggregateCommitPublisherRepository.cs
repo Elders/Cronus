@@ -37,7 +37,10 @@ namespace Elders.Cronus.MessageProcessing
 
             try
             {
-                commiter.Publish(commit, BuildHeaders(commit));
+                bool publishResult = commiter.Publish(commit, BuildHeaders(commit));
+
+                if (publishResult == false)
+                    logger.Error(() => "Unable to publish aggregate commit.");
             }
             catch (Exception ex)
             {
