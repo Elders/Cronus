@@ -27,7 +27,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             aggregateRoot = new TestAggregateRoot(id);
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
             aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
-            aggregateRoot.Update("When_build_aggregate_root_from_events");
+            aggregateRoot.DoSomething("When_build_aggregate_root_from_events");
             aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
         };
 

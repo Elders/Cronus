@@ -30,5 +30,16 @@ namespace Elders.Cronus.Tests.TestModel
             var entity = new TestEntity(Root, e.EntityId);
             Entities.Add(entity);
         }
+
+        public void When(TestCreatePublicEvent e)
+        {
+            Id = e.Id;
+        }
+
+        public void When(TestCreateEntityPublicEvent e)
+        {
+            var entity = new TestEntity(Root, e.EntityId);
+            Entities.Add(entity);
+        }
     }
 }

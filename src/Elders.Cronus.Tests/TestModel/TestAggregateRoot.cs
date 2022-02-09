@@ -1,3 +1,5 @@
+using System;
+
 namespace Elders.Cronus.Tests.TestModel
 {
     public class TestAggregateRoot : AggregateRoot<TestAggregateRootState>
@@ -9,13 +11,21 @@ namespace Elders.Cronus.Tests.TestModel
             Apply(@event);
         }
 
-        public void CreateEntity(TestEntityId id)
+        public TestEntity CreateEntity(TestEntityId id)
         {
             var evnt = new TestCreateEntityEvent(id);
             Apply(evnt);
+
+            var entity = new TestEntity(this, id);
+            return entity;
         }
 
-        public void Update(string text)
+        public void MakePublicEvent(TestEntityId id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void DoSomething(string text)
         {
             var @event = new TestUpdateEvent(state.Id, text);
             Apply(@event);
@@ -30,6 +40,22 @@ namespace Elders.Cronus.Tests.TestModel
             : base(root, entityId)
         {
 
+        }
+
+        public void MakeEntityEvent()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void MakeEntityPublicEvent()
+        {
+            var @event = new TestCreateEntityPublicEvent(state.EntityId);
+            Apply(@event);
+        }
+
+        public void MakeEntityEventAndPublicEvent()
+        {
+            throw new NotImplementedException();
         }
     }
 

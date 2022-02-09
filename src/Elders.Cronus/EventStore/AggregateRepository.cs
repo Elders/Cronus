@@ -59,8 +59,15 @@ namespace Elders.Cronus.EventStore
 
         internal AggregateCommit SaveInternal<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
-            if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Any() == false)
+            if (aggregateRoot.UncommittedEvents is null || aggregateRoot.UncommittedEvents.Any() == false)
+            {
+                if (aggregateRoot.UncommittedPublicEvents is not null && aggregateRoot.UncommittedPublicEvents.Any())
+                {
+                    throw new Exception("Public events cannot be applied by themselves. If you wanna publish a public event then you need to have an IEvent in the same revision. It is not ok to update aggregate state with public events!");
+                }
+
                 return default;
+            }
 
             var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList());
             var result = atomicAction.Execute(aggregateRoot.State.Id, aggregateRoot.Revision, () => eventStore.Append(arCommit));
