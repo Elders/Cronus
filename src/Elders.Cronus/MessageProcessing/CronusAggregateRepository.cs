@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Elders.Cronus.MessageProcessing
@@ -53,7 +54,7 @@ namespace Elders.Cronus.MessageProcessing
         {
             Dictionary<string, string> messageHeaders = new Dictionary<string, string>();
 
-            messageHeaders.Add(MessageHeader.AggregateRootId, aggregateRoot.State.Id.Value);
+            messageHeaders.Add(MessageHeader.AggregateRootId, Convert.ToBase64String(aggregateRoot.State.Id.RawId));
             messageHeaders.Add(MessageHeader.AggregateRootRevision, aggregateRoot.Revision.ToString());
             messageHeaders.Add(MessageHeader.AggregateRootEventPosition, eventPosition.ToString());
 
