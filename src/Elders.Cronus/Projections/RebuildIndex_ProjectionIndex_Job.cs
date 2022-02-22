@@ -34,7 +34,7 @@ namespace Elders.Cronus.Projections
     public class RebuildIndex_ProjectionIndex_Job : CronusJob<RebuildProjectionIndex_JobData>
     {
         private readonly SystemProjectionHelper systemProjectionHelper;
-        private readonly IPublisher<ISystemSignal> signalPublisher;
+        private readonly IPublisher<IFastSignal> signalPublisher;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly IEventStore eventStore;
         private readonly ProjectionIndex index;
@@ -43,7 +43,7 @@ namespace Elders.Cronus.Projections
         private readonly CronusContext context;
         private readonly IMessageCounter messageCounter;
 
-        public RebuildIndex_ProjectionIndex_Job(SystemProjectionHelper systemProjectionHelper, IPublisher<ISystemSignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, EventStoreFactory eventStoreFactory, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
+        public RebuildIndex_ProjectionIndex_Job(SystemProjectionHelper systemProjectionHelper, IPublisher<IFastSignal> signalPublisher, IInitializableProjectionStore projectionStoreInitializer, EventStoreFactory eventStoreFactory, ProjectionIndex index, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, CronusContext context, IMessageCounter messageCounter, ILogger<RebuildIndex_ProjectionIndex_Job> logger) : base(logger)
         {
             this.systemProjectionHelper = systemProjectionHelper;
             this.signalPublisher = signalPublisher;
@@ -119,13 +119,13 @@ namespace Elders.Cronus.Projections
                     LoadIndexRecordsResult indexRecordsResult = eventToAggregateIndex.EnumerateRecords(eventTypeId, paginationToken);
 
                     IEnumerable<IndexRecord> indexRecords = indexRecordsResult.Records;
-                    long currentSessionProcessedCount = 0;
                     int currentSessionProcessedCount = 0;
+                    long totalEvents = messageCounter.GetCount(eventType);
+
                     foreach (IndexRecord indexRecord in indexRecords)
                     {
                         try
                         {
-                            currentSessionProcessedCount++;
 
                             #region TrackAggregate
                             int aggreagteRootIdHash = indexRecord.AggregateRootId.GetHashCode();
@@ -148,13 +148,18 @@ namespace Elders.Cronus.Projections
 
                                 index.Index(arCommit, version);
                             }
+
+                            long pagingCount = paging?.ProcessedCount ?? 0;
+                            long processed = pagingCount + ++currentSessionProcessedCount;
+                            var progressSignalche = new RebuildProjectionProgress(context.Tenant, version.ProjectionName, processed, totalEvents);
+                            signalPublisher.Publish(progressSignalche);
                         }
                         catch (Exception ex)
                         {
                             logger.WarnException(ex, () => $"{indexRecord.AggregateRootId} was skipped when rebuilding {version.ProjectionName}.");
                         }
                     }
-                    long totalEvents = messageCounter.GetCount(eventType);
+
                     var progress = new RebuildProjectionIndex_JobData.EventTypePagingProgress(eventTypeId, indexRecordsResult.PaginationToken, currentSessionProcessedCount, totalEvents);
 
                     Data.MarkEventTypeProgress(progress);
@@ -393,7 +398,7 @@ namespace Elders.Cronus.Projections
     }
 
     [DataContract(Name = "373f4ff0-cb6f-499e-9fa5-1666ccc00689")]
-    public class RebuildProjectionProgress : ISystemSignal
+    public class RebuildProjectionProgress : IFastSignal
     {
         public RebuildProjectionProgress() { }
 
@@ -419,7 +424,7 @@ namespace Elders.Cronus.Projections
     }
 
     [DataContract(Name = "b03199e7-2752-48b7-93de-c45ad18b55bf")]
-    public class RebuildProjectionStarted : ISystemSignal
+    public class RebuildProjectionStarted : IFastSignal
     {
         public RebuildProjectionStarted() { }
 
@@ -437,7 +442,7 @@ namespace Elders.Cronus.Projections
     }
 
     [DataContract(Name = "b248432b-451c-4894-84f2-c5ac5bc35139")]
-    public class RebuildProjectionFinished : ISystemSignal
+    public class RebuildProjectionFinished : IFastSignal
     {
         public RebuildProjectionFinished() { }
 
