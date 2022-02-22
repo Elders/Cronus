@@ -21,8 +21,6 @@ namespace Elders.Cronus
 
     public interface ISystemTrigger : ITrigger, ISystemHandler { }
 
-    public interface IFastSystemTrigger : ISystemTrigger { }
-
     public interface ISystemEventStoreIndexHandler : ISystemHandler { }
 
     public interface ISystemSaga : ISaga, ISystemHandler { }
@@ -34,8 +32,6 @@ namespace Elders.Cronus
     public interface ISystemCommand : ICommand, ISystemMessage { }
 
     public interface ISystemSignal : ISignal, ISystemMessage { }
-
-    public interface IFastSignal : ISystemSignal { }
 
     public interface ISystemScheduledMessage : IScheduledMessage, ISystemMessage { }
 }
