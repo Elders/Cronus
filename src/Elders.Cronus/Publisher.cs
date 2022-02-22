@@ -25,7 +25,7 @@ namespace Elders.Cronus
 
         protected abstract bool PublishInternal(CronusMessage message);
 
-        public bool Publish(TMessage message, Dictionary<string, string> messageHeaders)
+        public virtual bool Publish(TMessage message, Dictionary<string, string> messageHeaders)
         {
             try
             {

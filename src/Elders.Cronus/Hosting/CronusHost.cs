@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
-using System.Threading.Tasks;
 
 namespace Elders.Cronus
 {
@@ -24,6 +23,7 @@ namespace Elders.Cronus
         private readonly IConsumer<ISystemSaga> systemSagas;
         private readonly IConsumer<ISystemPort> systemPorts;
         private readonly IConsumer<ISystemTrigger> systemTriggers;
+        private readonly IConsumer<IFastSystemTrigger> fastSystemTriggers;
         private readonly IConsumer<ISystemProjection> systemProjections;
         private readonly IConsumer<IMigrationHandler> migrations;
         private readonly IServiceProvider serviceProvider;
@@ -43,6 +43,7 @@ namespace Elders.Cronus
             IConsumer<ISystemSaga> systemSagas,
             IConsumer<ISystemPort> systemPorts,
             IConsumer<ISystemTrigger> systemTriggers,
+             IConsumer<IFastSystemTrigger> fastTriggers,
             IConsumer<ISystemProjection> systemProjections,
             IConsumer<IMigrationHandler> migrations,
             IOptionsMonitor<CronusHostOptions> cronusHostOptions,
@@ -61,6 +62,7 @@ namespace Elders.Cronus
             this.systemSagas = systemSagas;
             this.systemPorts = systemPorts;
             this.systemTriggers = systemTriggers;
+            this.fastSystemTriggers = fastTriggers;
             this.systemProjections = systemProjections;
             this.migrations = migrations;
             this.serviceProvider = serviceProvider;
@@ -93,6 +95,7 @@ namespace Elders.Cronus
                     systemProjections.Start();
                     systemSagas.Start();
                     systemTriggers.Start();
+                    fastSystemTriggers.Start();
                 }
             }
             catch (Exception ex)
@@ -121,6 +124,7 @@ namespace Elders.Cronus
                     systemProjections.Stop();
                     systemSagas.Stop();
                     systemTriggers.Stop();
+                    fastSystemTriggers.Stop();
                     systemIndices.Stop();
                     indices.Stop();
                 }

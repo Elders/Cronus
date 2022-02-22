@@ -45,6 +45,8 @@ namespace Elders.Cronus.Discoveries
 
     public class SystemTriggersDiscovery : HandlersDiscovery<ISystemTrigger> { }
 
+    public class FastSystemTriggersDiscovery : HandlersDiscovery<IFastSystemTrigger> { }
+
     public class MigrationsDiscovery : HandlersDiscovery<IMigrationHandler>
     {
         protected override DiscoveryResult<IMigrationHandler> DiscoverFromAssemblies(DiscoveryContext context)

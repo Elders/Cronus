@@ -120,6 +120,7 @@ namespace Elders.Cronus.Projections
 
                     IEnumerable<IndexRecord> indexRecords = indexRecordsResult.Records;
                     long currentSessionProcessedCount = 0;
+                    int currentSessionProcessedCount = 0;
                     foreach (IndexRecord indexRecord in indexRecords)
                     {
                         try

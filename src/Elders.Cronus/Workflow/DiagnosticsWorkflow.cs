@@ -33,6 +33,8 @@ namespace Elders.Cronus.Workflow
                 activity.Start();
             }
 
+            Type msgType = execution.Context.Message.Payload.GetType();
+
             if (logger.IsInfoEnabled())
             {
                 string scopeId = GetScopeId(execution.Context.Message);
@@ -45,7 +47,7 @@ namespace Elders.Cronus.Workflow
                     workflow.Run(execution.Context);
 
                     TimeSpan elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
-                    logger.Info(() => "{cronus_MessageHandler} handled {cronus_MessageName} in {Elapsed:0.0000} ms", execution.Context.HandlerType.Name, execution.Context.Message.Payload.GetType().Name, elapsed.TotalMilliseconds, execution.Context.Message.Headers);
+                    logger.Info(() => "{cronus_MessageHandler} handled {cronus_MessageName} in {Elapsed:0.0000} ms", execution.Context.HandlerType.Name, msgType.Name, elapsed.TotalMilliseconds, execution.Context.Message.Headers);
                 }
             }
             else
