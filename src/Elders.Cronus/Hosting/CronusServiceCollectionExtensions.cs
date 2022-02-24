@@ -159,13 +159,12 @@ namespace Elders.Cronus
             services.AddSubscribers<IPort>();
             services.AddSubscribers<IGateway>();
             services.AddSubscribers<ISaga>();
-            services.AddSubscribers<ITrigger>();
             services.AddSubscribers<ISystemAppService>();
             services.AddSubscribers<ISystemPort>();
             services.AddSubscribers<ISystemSaga>();
-            services.AddSubscribers<ISystemTrigger>();
             services.AddSubscribers<ISystemProjection>();
             services.AddSubscribers<IMigrationHandler>();
+            services.AddTriggersSubscribers();
             services.AddEventStoreIndexSubscribers();
             services.AddSystemEventStoreIndexSubscribers();
             services.AddProjections();
@@ -190,6 +189,20 @@ namespace Elders.Cronus
             services.AddSingleton(typeof(ISubscriberWorkflowFactory<IApplicationService>), typeof(ApplicationServiceSubscriberWorkflow));
             services.AddSingleton(typeof(ISubscriberFactory<IApplicationService>), typeof(HandlerSubscriberFactory<IApplicationService>));
 
+            return services;
+        }
+
+        public static IServiceCollection AddTriggersSubscribers(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(ISubscriberCollection<ITrigger>), typeof(SubscriberCollection<ITrigger>));
+            services.AddSingleton(typeof(ISubscriberFinder<ITrigger>), typeof(SubscriberFinder<ITrigger>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<ITrigger>), typeof(TriggersSubscriberWorkflow<ITrigger>));
+            services.AddSingleton(typeof(ISubscriberFactory<ITrigger>), typeof(HandlerSubscriberFactory<ITrigger>));
+
+            services.AddSingleton(typeof(ISubscriberCollection<ISystemTrigger>), typeof(SubscriberCollection<ISystemTrigger>));
+            services.AddSingleton(typeof(ISubscriberFinder<ISystemTrigger>), typeof(SubscriberFinder<ISystemTrigger>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<ISystemTrigger>), typeof(TriggersSubscriberWorkflow<ISystemTrigger>));
+            services.AddSingleton(typeof(ISubscriberFactory<ISystemTrigger>), typeof(HandlerSubscriberFactory<ISystemTrigger>));
             return services;
         }
 
