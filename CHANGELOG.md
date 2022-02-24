@@ -1,3 +1,12 @@
+# [7.0.0-preview.29](https://github.com/Elders/Cronus/compare/v7.0.0-preview.28...v7.0.0-preview.29) (2022-02-24)
+
+
+### Bug Fixes
+
+* Change subscriber workflow for Triggers ([9e92912](https://github.com/Elders/Cronus/commit/9e929121edeb647cef151e247438bd6645b529ca))
+* Introducing live progress with fast signals ([cbf4704](https://github.com/Elders/Cronus/commit/cbf4704fc030a3ab2b98986e4dad5a7cb2318f26))
+* Launch fast signals ([3b8d505](https://github.com/Elders/Cronus/commit/3b8d5052b2e6253081b6d3127813882d1a625d32))
+
 # [7.0.0-preview.28](https://github.com/Elders/Cronus/compare/v7.0.0-preview.27...v7.0.0-preview.28) (2022-02-15)
 
 
