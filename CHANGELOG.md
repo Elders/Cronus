@@ -1,3 +1,10 @@
+# [7.0.0-preview.30](https://github.com/Elders/Cronus/compare/v7.0.0-preview.29...v7.0.0-preview.30) (2022-03-02)
+
+
+### Bug Fixes
+
+* Configures the signal settings ([49cef65](https://github.com/Elders/Cronus/commit/49cef65603aed8840c115b84b0b748a139d43a31))
+
 # [7.0.0-preview.29](https://github.com/Elders/Cronus/compare/v7.0.0-preview.28...v7.0.0-preview.29) (2022-02-24)
 
 
