@@ -1,3 +1,10 @@
+# [7.0.0-preview.31](https://github.com/Elders/Cronus/compare/v7.0.0-preview.30...v7.0.0-preview.31) (2022-03-02)
+
+
+### Bug Fixes
+
+* Adds retries and log when replaying projection ([f5ebdff](https://github.com/Elders/Cronus/commit/f5ebdff614924677b4cb7db2a927aa94a6310667))
+
 # [7.0.0-preview.30](https://github.com/Elders/Cronus/compare/v7.0.0-preview.29...v7.0.0-preview.30) (2022-03-02)
 
 
