@@ -1,3 +1,11 @@
+# [7.0.0-preview.32](https://github.com/Elders/Cronus/compare/v7.0.0-preview.31...v7.0.0-preview.32) (2022-03-02)
+
+
+### Bug Fixes
+
+* And the other eye ([c98b74c](https://github.com/Elders/Cronus/commit/c98b74c4cbfb822079183dea7ede3c00ef746b64))
+* My eyes ([d9eb59d](https://github.com/Elders/Cronus/commit/d9eb59df07e706646170b793b9834a56e0875dfe))
+
 # [7.0.0-preview.31](https://github.com/Elders/Cronus/compare/v7.0.0-preview.30...v7.0.0-preview.31) (2022-03-02)
 
 
