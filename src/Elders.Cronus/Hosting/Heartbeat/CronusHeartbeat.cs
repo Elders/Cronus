@@ -17,7 +17,7 @@ namespace Elders.Cronus.Hosting.Heartbeat
         private readonly List<string> tenants;
         private readonly HeartbeatOptions options;
         private readonly ILogger<CronusHeartbeat> logger;
-        private const string TTL = "10000";
+        private const string TTL = "5000";
         private static Dictionary<string, string> heartbeatHeaders = new Dictionary<string, string>() { { MessageHeader.TTL, TTL } };
 
         public CronusHeartbeat(IPublisher<ISignal> publisher, IOptionsMonitor<BoundedContext> boundedContext, IOptionsMonitor<HeartbeatOptions> HeartbeatOptions, IOptions<TenantsOptions> tenantsOptions, ILogger<CronusHeartbeat> logger)
@@ -34,7 +34,7 @@ namespace Elders.Cronus.Hosting.Heartbeat
             while (stoppingToken.IsCancellationRequested == false)
             {
                 try
-                { 
+                {
                     var @event = new HeartbeatSignal(boundedContext.Name, tenants);
                     publisher.Publish(@event, heartbeatHeaders);
 

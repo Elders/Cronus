@@ -5,7 +5,7 @@ namespace Elders.Cronus.Hosting.Heartbeat
 {
     public class HeartbeatOptions
     {
-        [Range(0, 9999, ErrorMessage = "The configuration `Cronus:Heartbeat:IntervalInSeconds` cannot be negative as it represents a time interval in seconds.")]
+        [Range(5, 3600, ErrorMessage = "The configuration `Cronus:Heartbeat:IntervalInSeconds` cannot be negative as it represents a time interval in seconds.")]
         public uint IntervalInSeconds { get; set; } = 5;
     }
 
