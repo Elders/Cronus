@@ -32,19 +32,14 @@ namespace Elders.Cronus.Projections.Versioning.Handlers
 
                 IAmEventSourcedProjection projection = cronusContext.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
 
-                int retry = 0;
-                while (retry < 3)
+                try
                 {
-                    try
-                    {
-                        IEnumerable<ProjectionCommit> commits = projectionStore.EnumerateProjection(@event.ProjectionVersion, id);
-                        projection.ReplayEvents(commits.Select(x => x.Event));
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.ErrorException(ex, () => "Error while replaying projection.");
-                        retry++;
-                    }
+                    IEnumerable<ProjectionCommit> commits = projectionStore.EnumerateProjection(@event.ProjectionVersion, id);
+                    projection.ReplayEvents(commits.Select(x => x.Event));
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorException(ex, () => "Error while replaying projection.");
                 }
             }
         }

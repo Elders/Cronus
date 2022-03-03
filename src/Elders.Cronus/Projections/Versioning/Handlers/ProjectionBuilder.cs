@@ -35,10 +35,6 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(CreateNewProjectionVersion sagaTimeout)
         {
-            var finalize1 = new FinalizeProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version);
-            commandPublisher.Publish(finalize1);
-            return;
-
             RebuildIndex_ProjectionIndex_Job job = jobFactory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             JobExecutionStatus result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
             logger.Debug(() => "Replay projection version {@cronus_projection_rebuild}", result);
