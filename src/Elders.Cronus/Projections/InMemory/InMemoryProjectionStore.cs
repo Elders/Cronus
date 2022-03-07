@@ -66,5 +66,21 @@ namespace Elders.Cronus.Projections.InMemory
 
             projectionCommits[commit.Version][commit.ProjectionId].Add(commit);
         }
+
+        public async Task SaveAsync(ProjectionCommit commit)
+        {
+            if (projectionCommits.ContainsKey(commit.Version) == false)
+                projectionCommits.TryAdd(commit.Version, new ConcurrentDictionary<IBlobId, List<ProjectionCommit>>());
+
+            if (projectionCommits[commit.Version].ContainsKey(commit.ProjectionId) == false)
+            {
+                projectionCommits[commit.Version] = new ConcurrentDictionary<IBlobId, List<ProjectionCommit>>();
+                projectionCommits[commit.Version].TryAdd(commit.ProjectionId, new List<ProjectionCommit>());
+            }
+
+            projectionCommits[commit.Version][commit.ProjectionId].Add(commit);
+
+            await Task.CompletedTask;
+        }
     }
 }

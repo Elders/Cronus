@@ -58,6 +58,17 @@ namespace Elders.Cronus.Projections
 
         public override string Name { get; set; } = typeof(ProjectionIndex).GetContractId();
 
+        public async Task CompleteActionWithProgressSignalAsync(Func<Task> action, long processed, long totalEvents, ProjectionVersion version)
+        {
+            await action.Invoke().ConfigureAwait(false);
+
+            if (processed % 100 == 0)
+            {
+                var progressSignalche = new RebuildProjectionProgress(context.Tenant, version.ProjectionName, processed, totalEvents);
+                signalPublisher.Publish(progressSignalche);
+            }
+        }
+
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             ProjectionVersion version = Data.Version;
@@ -107,6 +118,9 @@ namespace Elders.Cronus.Projections
             signalPublisher.Publish(startSignal);
 
             IEnumerable<Type> projectionHandledEventTypes = GetInvolvedEventTypes(projectionType);
+
+            long totalEvents = projectionHandledEventTypes.Select(type => messageCounter.GetCount(type)).Sum();
+
             foreach (Type eventType in projectionHandledEventTypes)
             {
                 string eventTypeId = eventType.GetContractId();
@@ -120,13 +134,14 @@ namespace Elders.Cronus.Projections
 
                     IEnumerable<IndexRecord> indexRecords = indexRecordsResult.Records;
                     int currentSessionProcessedCount = 0;
-                    long totalEvents = messageCounter.GetCount(eventType);
+
+
+                    List<Task<EventStream>> streamTasks = new List<Task<EventStream>>();
 
                     foreach (IndexRecord indexRecord in indexRecords)
                     {
                         try
                         {
-
                             #region TrackAggregate
                             int aggreagteRootIdHash = indexRecord.AggregateRootId.GetHashCode();
                             if (processedAggregates.ContainsKey(aggreagteRootIdHash))
@@ -136,8 +151,20 @@ namespace Elders.Cronus.Projections
 
                             string mess = Encoding.UTF8.GetString(indexRecord.AggregateRootId);
                             IAggregateRootId arId = GetAggregateRootId(mess);
-                            EventStream stream = eventStore.Load(arId);
+                            streamTasks.Add(eventStore.LoadAsync(arId));
+                        }
+                        catch (Exception ex) when (logger.WarnException(ex, () => $"{indexRecord.AggregateRootId} was skipped when rebuilding {version.ProjectionName}.")) { }
+                    }
 
+                    await Task.WhenAll(streamTasks.ToArray()).ConfigureAwait(false);
+
+                    List<Task> indexingTasks = new List<Task>();
+
+                    foreach (Task<EventStream> task in streamTasks)
+                    {
+                        EventStream stream = task.Result;
+                        try
+                        {
                             foreach (AggregateCommit arCommit in stream.Commits)
                             {
                                 if (cancellationToken.IsCancellationRequested)
@@ -146,19 +173,19 @@ namespace Elders.Cronus.Projections
                                     return JobExecutionStatus.Running;
                                 }
 
-                                index.Index(arCommit, version);
+                                long pagingCount = paging?.ProcessedCount ?? 0;
+                                long processed = pagingCount + ++currentSessionProcessedCount;
+                                Task indexAction = CompleteActionWithProgressSignalAsync(() => index.IndexAsync(arCommit, version), processed, totalEvents, version);
+                                indexingTasks.Add(indexAction);
                             }
-
-                            long pagingCount = paging?.ProcessedCount ?? 0;
-                            long processed = pagingCount + ++currentSessionProcessedCount;
-                            var progressSignalche = new RebuildProjectionProgress(context.Tenant, version.ProjectionName, processed, totalEvents);
-                            signalPublisher.Publish(progressSignalche);
                         }
                         catch (Exception ex)
                         {
-                            logger.WarnException(ex, () => $"{indexRecord.AggregateRootId} was skipped when rebuilding {version.ProjectionName}.");
+                            logger.WarnException(ex, () => $"{stream.ToString()} was skipped when rebuilding {version.ProjectionName}.");
                         }
                     }
+
+                    await Task.WhenAll(indexingTasks.ToArray()).ConfigureAwait(false);
 
                     var progress = new RebuildProjectionIndex_JobData.EventTypePagingProgress(eventTypeId, indexRecordsResult.PaginationToken, currentSessionProcessedCount, totalEvents);
 
@@ -184,6 +211,8 @@ namespace Elders.Cronus.Projections
 
             return JobExecutionStatus.Completed;
         }
+
+
 
         IEnumerable<Type> GetInvolvedEventTypes(Type projectionType)
         {

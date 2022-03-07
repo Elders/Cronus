@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Elders.Cronus.EventStore
 {
     public interface IEventStore
@@ -5,6 +7,8 @@ namespace Elders.Cronus.EventStore
         void Append(AggregateCommit aggregateCommit);
         void Append(AggregateCommitRaw aggregateCommitRaw);
         EventStream Load(IAggregateRootId aggregateId);
+
+        Task<EventStream> LoadAsync(IAggregateRootId aggregateId);
     }
 
     public interface IEventStore<TSettings> : IEventStore

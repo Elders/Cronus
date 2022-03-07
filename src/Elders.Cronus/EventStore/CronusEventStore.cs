@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore
 {
@@ -49,6 +50,19 @@ namespace Elders.Cronus.EventStore
             try
             {
                 return eventStore.Load(aggregateId);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId}. \n Exception: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<EventStream> LoadAsync(IAggregateRootId aggregateId)
+        {
+            try
+            {
+                return await eventStore.LoadAsync(aggregateId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

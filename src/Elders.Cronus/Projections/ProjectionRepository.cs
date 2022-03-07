@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections
 {
@@ -39,6 +40,16 @@ namespace Elders.Cronus.Projections
             this.projectionHasher = projectionHasher;
         }
 
+        public async Task SaveAsync(Type projectionType, CronusMessage cronusMessage)
+        {
+            if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
+            if (ReferenceEquals(null, cronusMessage)) throw new ArgumentNullException(nameof(cronusMessage));
+
+            EventOrigin eventOrigin = cronusMessage.GetEventOrigin();
+            IEvent @event = cronusMessage.Payload as IEvent;
+
+            await SaveAsync(projectionType, @event, eventOrigin).ConfigureAwait(false); ;
+        }
 
         public void Save(Type projectionType, CronusMessage cronusMessage)
         {
@@ -49,6 +60,60 @@ namespace Elders.Cronus.Projections
             IEvent @event = cronusMessage.Payload as IEvent;
 
             Save(projectionType, @event, eventOrigin);
+        }
+
+        public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin)
+        {
+            if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
+            if (ReferenceEquals(null, @event)) throw new ArgumentNullException(nameof(@event));
+            if (ReferenceEquals(null, eventOrigin)) throw new ArgumentNullException(nameof(eventOrigin));
+
+            string projectionName = projectionType.GetContractId();
+            var handlerInstance = handlerFactory.Create(projectionType);
+            var projection = handlerInstance.Current as IProjectionDefinition;
+            if (projection != null)
+            {
+                var projectionIds = projection.GetProjectionIds(@event);
+
+                foreach (var projectionId in projectionIds)
+                {
+                    using (log.BeginScope(s => s.AddScope("cronus_projection_id", projectionId)))
+                    {
+                        ReadResult<ProjectionVersions> result = GetProjectionVersions(projectionName);
+                        if (result.IsSuccess)
+                        {
+                            foreach (ProjectionVersion version in result.Data)
+                            {
+                                using (log.BeginScope(s => s.AddScope("cronus_projection_version", version)))
+                                {
+                                    if (ShouldSaveEventForVersion(version))
+                                    {
+                                        try
+                                        {
+                                            SnapshotMeta snapshotMeta = null;
+                                            if (projectionType.IsSnapshotable())
+                                                snapshotMeta = await snapshotStore.LoadMetaAsync(projectionName, projectionId, version).ConfigureAwait(false);
+                                            else
+                                                snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
+
+                                            int snapshotMarker = snapshotMeta.Revision + 2;
+
+                                            var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
+                                            await projectionStore.SaveAsync(commit).ConfigureAwait(false);
+                                        }
+                                        catch (Exception ex) when (LogMessageWhenFailToUpdateProjection(ex, version)) { }
+                                    }
+                                }
+                            }
+
+                            if (result.HasError)
+                            {
+                                log.Error(() => "Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + result.Error + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin)
@@ -165,6 +230,59 @@ namespace Elders.Cronus.Projections
 
                     var commit = new ProjectionCommit(projectionId, version, @event, 1, eventOrigin, DateTime.UtcNow); // Snapshotting is disable till we test it => hardcoded 1
                     projectionStore.Save(commit);
+                }
+                catch (Exception ex)
+                {
+                    log.ErrorException(ex, () => "Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}");
+                }
+            }
+        }
+
+        // Used by replay projections only
+        public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
+        {
+            if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
+            if (ReferenceEquals(null, @event)) throw new ArgumentNullException(nameof(@event));
+            if (ReferenceEquals(null, eventOrigin)) throw new ArgumentNullException(nameof(eventOrigin));
+            if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
+
+            if (ShouldSaveEventForVersion(version) == false)
+                throw new ArgumentException("Invalid version. Only versions in `Building` and `Live` status are eligable for persistence.", nameof(version));
+
+            string projectionName = projectionType.GetContractId();
+            if (projectionName.Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
+                throw new ArgumentException($"Invalid version. The version `{version}` does not match projection `{projectionName}`", nameof(version));
+
+            var handlerInstance = handlerFactory.Create(projectionType);
+            var projection = handlerInstance.Current as IProjectionDefinition;
+            if (projection != null)
+            {
+                var projectionIds = projection.GetProjectionIds(@event);
+
+                foreach (var projectionId in projectionIds)
+                {
+                    try
+                    {
+                        SnapshotMeta snapshotMeta = GetSnapshotMeta(projectionType, projectionName, projectionId, version);
+                        int snapshotMarker = snapshotMeta.Revision == 0 ? 1 : snapshotMeta.Revision + 2;
+
+                        var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
+                        await projectionStore.SaveAsync(commit).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        log.ErrorException(ex, () => "Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}");
+                    }
+                }
+            }
+            else if (handlerInstance.Current is IAmEventSourcedProjection eventSourcedProjection)
+            {
+                try
+                {
+                    var projectionId = Urn.Parse($"urn:cronus:{projectionName}");
+
+                    var commit = new ProjectionCommit(projectionId, version, @event, 1, eventOrigin, DateTime.UtcNow); // Snapshotting is disable till we test it => hardcoded 1
+                    await projectionStore.SaveAsync(commit).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

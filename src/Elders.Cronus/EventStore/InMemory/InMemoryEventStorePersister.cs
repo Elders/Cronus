@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Elders.Cronus.EventStore.InMemory
 {
 
@@ -24,6 +26,15 @@ namespace Elders.Cronus.EventStore.InMemory
             return new EventStream(eventStoreStorage.Seek(aggregateId));
         }
 
+        /// <summary>
+        /// Loads all the commits of an aggregate with the specified aggregate identifier.
+        /// </summary>
+        /// <param name="aggregateId">The aggregate identifier.</param>
+        /// <returns></returns>
+        public Task<EventStream> LoadAsync(IAggregateRootId aggregateId)
+        {
+            return Task.FromResult(new EventStream(eventStoreStorage.Seek(aggregateId)));
+        }
 
         /// <summary>
         /// Persists the specified aggregate commit.
