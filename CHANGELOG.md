@@ -1,3 +1,10 @@
+# [7.0.0-preview.34](https://github.com/Elders/Cronus/compare/v7.0.0-preview.33...v7.0.0-preview.34) (2022-03-07)
+
+
+### Bug Fixes
+
+* Accelerate replay/rebuild job ([ae02d19](https://github.com/Elders/Cronus/commit/ae02d19139cc3662172eb66af6360607c438459a))
+
 # [7.0.0-preview.33](https://github.com/Elders/Cronus/compare/v7.0.0-preview.32...v7.0.0-preview.33) (2022-03-03)
 
 
