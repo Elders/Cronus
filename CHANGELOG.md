@@ -1,3 +1,10 @@
+# [7.0.0-preview.35](https://github.com/Elders/Cronus/compare/v7.0.0-preview.34...v7.0.0-preview.35) (2022-03-09)
+
+
+### Bug Fixes
+
+* Revert "fix: Makes the the AR id value format in the message header consistent everywhere" ([2136fbc](https://github.com/Elders/Cronus/commit/2136fbcb9e25c93ec486c8b0aaf8d5ec14af4fb4))
+
 # [7.0.0-preview.34](https://github.com/Elders/Cronus/compare/v7.0.0-preview.33...v7.0.0-preview.34) (2022-03-07)
 
 
