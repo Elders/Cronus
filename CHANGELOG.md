@@ -1,3 +1,10 @@
+# [7.0.0-preview.36](https://github.com/Elders/Cronus/compare/v7.0.0-preview.35...v7.0.0-preview.36) (2022-03-11)
+
+
+### Bug Fixes
+
+* Rolls back how projections are rebuilt ([f02a065](https://github.com/Elders/Cronus/commit/f02a065c611d03e1368f59c36f03135f64c3a2d8))
+
 # [7.0.0-preview.35](https://github.com/Elders/Cronus/compare/v7.0.0-preview.34...v7.0.0-preview.35) (2022-03-09)
 
 
