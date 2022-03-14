@@ -9,7 +9,7 @@ namespace Elders.Cronus.Projections.Versioning
         ICommandHandler<FinalizeProjectionVersionRequest>,
         ICommandHandler<CancelProjectionVersionRequest>,
         ICommandHandler<TimeoutProjectionVersionRequest>,
-        ICommandHandler<RebuildProjection>
+        ICommandHandler<RebuildProjectionCommand>
     {
         private readonly IProjectionVersioningPolicy projectionVersioningPolicy;
 
@@ -39,7 +39,7 @@ namespace Elders.Cronus.Projections.Versioning
             Update(command.Id, ar => ar.Replay(command.Hash, projectionVersioningPolicy));
         }
 
-        public void Handle(RebuildProjection command)
+        public void Handle(RebuildProjectionCommand command)
         {
             Update(command.Id, ar => ar.Rebuild(command.Hash));
         }

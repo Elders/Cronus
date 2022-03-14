@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using Elders.Cronus.Cluster.Job;
+using Elders.Cronus.Projections.Rebuilding;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections.Versioning
@@ -14,9 +15,9 @@ namespace Elders.Cronus.Projections.Versioning
         private static ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionBuilder));
 
         private readonly ICronusJobRunner jobRunner;
-        private readonly RebuildIndex_ProjectionIndex_JobFactory jobFactory;
+        private readonly Projection_JobFactory jobFactory;
 
-        public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, RebuildIndex_ProjectionIndex_JobFactory jobFactory)
+        public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, Projection_JobFactory jobFactory)
             : base(commandPublisher, timeoutRequestPublisher)
         {
             this.jobRunner = jobRunner;
@@ -35,7 +36,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Handle(CreateNewProjectionVersion sagaTimeout)
         {
-            RebuildIndex_ProjectionIndex_Job job = jobFactory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
+            RebuildProjection_Job job = jobFactory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             JobExecutionStatus result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
             logger.Debug(() => "Replay projection version {@cronus_projection_rebuild}", result);
 

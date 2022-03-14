@@ -2,6 +2,7 @@
 using System.Linq;
 using Elders.Cronus.Projections;
 using Elders.Cronus.Projections.InMemory;
+using Elders.Cronus.Projections.Rebuilding;
 using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,7 +60,9 @@ namespace Elders.Cronus.Discoveries
             yield return new DiscoveredModel(typeof(InMemoryProjectionVersionStore), typeof(InMemoryProjectionVersionStore), ServiceLifetime.Singleton);
             yield return new DiscoveredModel(typeof(IProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
             yield return new DiscoveredModel(typeof(MarkupInterfaceProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
-            yield return new DiscoveredModel(typeof(SystemProjectionHelper), typeof(SystemProjectionHelper), ServiceLifetime.Singleton);
+            yield return new DiscoveredModel(typeof(IRebuildingProjectionRepository), typeof(RebuildingProjectionRepository), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(ProjectionVersionHelper), typeof(ProjectionVersionHelper), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(ProgressTracker), typeof(ProgressTracker), ServiceLifetime.Scoped);
         }
     }
 }
