@@ -1,3 +1,10 @@
+# [7.0.0-preview.37](https://github.com/Elders/Cronus/compare/v7.0.0-preview.36...v7.0.0-preview.37) (2022-03-14)
+
+
+### Features
+
+* Rework of rebuild job ([c68a013](https://github.com/Elders/Cronus/commit/c68a01312836794f777c3457186421539ad90fad))
+
 # [7.0.0-preview.36](https://github.com/Elders/Cronus/compare/v7.0.0-preview.35...v7.0.0-preview.36) (2022-03-11)
 
 
