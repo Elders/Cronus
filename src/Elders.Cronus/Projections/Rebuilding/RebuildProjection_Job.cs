@@ -10,7 +10,7 @@ using Elders.Cronus.EventStore.Index;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
-    public class RebuildProjection_Job : CronusJob<RebuildProjection_JobData>
+    public sealed class RebuildProjection_Job : CronusJob<RebuildProjection_JobData>
     {
         private readonly IPublisher<ISignal> signalPublisher;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
@@ -18,7 +18,6 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly EventToAggregateRootId eventToAggregateIndex;
         private readonly ProgressTracker progressTracker;
         private readonly ProjectionVersionHelper projectionVersionHelper;
-        private bool hasMoreRecords = true;
 
         public RebuildProjection_Job(
             IInitializableProjectionStore projectionStoreInitializer,
@@ -36,7 +35,6 @@ namespace Elders.Cronus.Projections.Rebuilding
             this.progressTracker = progressTracker;
             this.projectionVersionHelper = projectionVersionHelper;
             this.rebuildingRepository = rebuildingRepository;
-            hasMoreRecords = true;
         }
 
         public override string Name { get; set; } = typeof(ProjectionIndex).GetContractId();
@@ -63,9 +61,12 @@ namespace Elders.Cronus.Projections.Rebuilding
 
             foreach (Type eventType in projectionHandledEventTypes)
             {
+                string eventTypeId = eventType.GetContractId();
+
+                bool hasMoreRecords = true;
                 while (hasMoreRecords && Data.IsCompleted == false)
                 {
-                    await RebuildEventsAsync(eventType, cluster, cancellationToken).ConfigureAwait(false);
+                    hasMoreRecords = await RebuildEventsAsync(eventTypeId, cluster, cancellationToken).ConfigureAwait(false);
                 }
             }
 
@@ -80,23 +81,24 @@ namespace Elders.Cronus.Projections.Rebuilding
             return JobExecutionStatus.Completed;
         }
 
-        protected async Task RebuildEventsAsync(Type eventType, IClusterOperations cluster, CancellationToken cancellationToken)
+        private async Task<bool> RebuildEventsAsync(string eventTypeId, IClusterOperations cluster, CancellationToken cancellationToken)
         {
-            string eventTypeId = eventType.GetContractId();
             RebuildProjection_JobData.EventPaging paging = Data.EventTypePaging.Where(et => et.Type.Equals(eventTypeId, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
             long pagingProcessedCount = Data.EventTypePaging.Select(p => p.ProcessedCount).DefaultIfEmpty(0).Sum();
             progressTracker.Processed = pagingProcessedCount;
 
             string paginationToken = paging?.PaginationToken;
-            LoadIndexRecordsResult indexRecordsResult = eventToAggregateIndex.EnumerateRecords(eventTypeId, paginationToken);
+            LoadIndexRecordsResult indexRecordsResult = eventToAggregateIndex.EnumerateRecords(eventTypeId, paginationToken); // TODO: Think about cassandra exception here. Such exceptions MUST be handled in the concrete impl of the IndexStore
             IEnumerable<EventStream> eventStreams = await rebuildingRepository.LoadEventsAsync(indexRecordsResult.Records, Data.Version).ConfigureAwait(false);
 
             await rebuildingRepository.SaveAggregateCommitsAsync(eventStreams, Data.Version).ConfigureAwait(false);
 
-            await NotifyClusterAsync(eventTypeId, indexRecordsResult.PaginationToken, cluster, cancellationToken);
+            await NotifyClusterAsync(eventTypeId, indexRecordsResult.PaginationToken, cluster, cancellationToken).ConfigureAwait(false);
 
-            hasMoreRecords = indexRecordsResult.Records.Any();
+            var hasMoreRecords = indexRecordsResult.Records.Any();
+
+            return hasMoreRecords;
         }
 
         private async Task NotifyClusterAsync(string eventTypeId, string paginationToken, IClusterOperations cluster, CancellationToken cancellationToken)

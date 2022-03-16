@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
@@ -13,17 +14,20 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly IMessageCounter messageCounter;
         private readonly IPublisher<ISignal> signalPublisher;
         private readonly ProjectionVersionHelper projectionVersionHelper;
+        private readonly ILogger<ProgressTracker> logger;
+
         public string ProjectionName { get; set; }
         public long Processed { get; set; }
         public long TotalEvents { get; set; }
 
 
-        public ProgressTracker(IMessageCounter messageCounter, CronusContext context, IPublisher<ISignal> signalPublisher, ProjectionVersionHelper projectionVersionHelper)
+        public ProgressTracker(IMessageCounter messageCounter, CronusContext context, IPublisher<ISignal> signalPublisher, ProjectionVersionHelper projectionVersionHelper, ILogger<ProgressTracker> logger)
         {
             tenant = context.Tenant;
             this.messageCounter = messageCounter;
             this.signalPublisher = signalPublisher;
             this.projectionVersionHelper = projectionVersionHelper;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -45,13 +49,17 @@ namespace Elders.Cronus.Projections.Rebuilding
         /// <returns></returns>
         public async Task CompleteActionWithProgressSignalAsync(Func<Task> action)
         {
-            await action.Invoke().ConfigureAwait(false);
-
-            if (++Processed % 100 == 0)
+            try
             {
-                var progressSignalche = new RebuildProjectionProgress(tenant, ProjectionName, Processed, TotalEvents);
-                signalPublisher.Publish(progressSignalche);
+                await action().ConfigureAwait(false);
+
+                if (++Processed % 100 == 0)
+                {
+                    var progressSignalche = new RebuildProjectionProgress(tenant, ProjectionName, Processed, TotalEvents);
+                    signalPublisher.Publish(progressSignalche);
+                }
             }
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }
         }
 
         public RebuildProjectionProgress GetProgressSignal()

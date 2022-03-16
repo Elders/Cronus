@@ -41,10 +41,10 @@ namespace Elders.Cronus.Projections.Rebuilding
         {
             if (IsVersionTrackerMissing())
             {
+                InitializeNewProjectionVersion();
+
                 if (version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase) == false)
                     return true;
-
-                InitializeNewProjectionVersion();
             }
 
             IndexStatus indexStatus = GetIndexStatus<EventToAggregateRootId>();
