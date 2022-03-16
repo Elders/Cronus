@@ -1,3 +1,10 @@
+# [7.0.0-preview.38](https://github.com/Elders/Cronus/compare/v7.0.0-preview.37...v7.0.0-preview.38) (2022-03-16)
+
+
+### Bug Fixes
+
+* Fix error handling in async lamda + fix while loop condition ([e30b468](https://github.com/Elders/Cronus/commit/e30b46830c4c40fe9fb15de383cf0ecc207eec7a))
+
 # [7.0.0-preview.37](https://github.com/Elders/Cronus/compare/v7.0.0-preview.36...v7.0.0-preview.37) (2022-03-14)
 
 
