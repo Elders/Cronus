@@ -53,11 +53,8 @@ namespace Elders.Cronus.Projections.Rebuilding
             {
                 await action().ConfigureAwait(false);
 
-                if (++Processed % 100 == 0)
-                {
-                    var progressSignalche = new RebuildProjectionProgress(tenant, ProjectionName, Processed, TotalEvents);
-                    signalPublisher.Publish(progressSignalche);
-                }
+                var progressSignalche = new RebuildProjectionProgress(tenant, ProjectionName, ++Processed, TotalEvents);
+                signalPublisher.Publish(progressSignalche);
             }
             catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }
         }
