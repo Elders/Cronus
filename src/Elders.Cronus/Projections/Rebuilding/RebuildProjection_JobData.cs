@@ -1,7 +1,7 @@
-﻿using Elders.Cronus.EventStore.Index;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Elders.Cronus.EventStore.Index;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
