@@ -1,3 +1,10 @@
+# [7.0.0-preview.39](https://github.com/Elders/Cronus/compare/v7.0.0-preview.38...v7.0.0-preview.39) (2022-03-18)
+
+
+### Bug Fixes
+
+* Fix build ([a2f325c](https://github.com/Elders/Cronus/commit/a2f325c4e60212afb4714c6eed45257b59a8f08a))
+
 # [7.0.0-preview.38](https://github.com/Elders/Cronus/compare/v7.0.0-preview.37...v7.0.0-preview.38) (2022-03-16)
 
 
