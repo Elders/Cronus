@@ -30,7 +30,6 @@ namespace Elders.Cronus.Diagnostics
                 return new TResult();
             }
 
-
             logger.Info(() => $"{operationName} completed after {GetElapsedTimeString()}");
             return result;
 

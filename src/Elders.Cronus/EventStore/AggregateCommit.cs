@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace Elders.Cronus.EventStore
 {
@@ -50,14 +51,22 @@ namespace Elders.Cronus.EventStore
 
         public override string ToString()
         {
-            string commitInfo =
-                "AggregateCommit details" + Environment.NewLine +
-                "RootId:" + AggregateRootId.ToString() + Environment.NewLine +
-                "Revision:" + Revision + Environment.NewLine +
-                "Events:" + string.Join(Environment.NewLine, Events.Select(e => "\t" + e.ToString())) +
-                "PublicEvents:" + string.Join(Environment.NewLine, PublicEvents.Select(e => "\t" + e.ToString()));
+            StringBuilder commitInfoBuilder = new StringBuilder();
+            commitInfoBuilder.AppendLine("AggregateCommit details:");
 
-            return commitInfo;
+            commitInfoBuilder.Append("RootId:");
+            commitInfoBuilder.AppendLine(Encoding.UTF8.GetString(AggregateRootId));
+
+            commitInfoBuilder.Append("Revision:");
+            commitInfoBuilder.AppendLine(Revision.ToString());
+
+            commitInfoBuilder.Append("Events:");
+            commitInfoBuilder.AppendLine(string.Join(Environment.NewLine, Events.Select(e => "\t" + e.ToString())));
+
+            commitInfoBuilder.Append("PublicEvents:");
+            commitInfoBuilder.AppendLine(string.Join(Environment.NewLine, PublicEvents.Select(e => "\t" + e.ToString())));
+
+            return commitInfoBuilder.ToString();
         }
     }
 }
