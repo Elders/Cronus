@@ -1,3 +1,10 @@
+# [7.0.0-preview.40](https://github.com/Elders/Cronus/compare/v7.0.0-preview.39...v7.0.0-preview.40) (2022-03-31)
+
+
+### Bug Fixes
+
+* update Domain Modeling package ([b994800](https://github.com/Elders/Cronus/commit/b9948006f2db568c894c03f35b17d931a12a3916))
+
 # [7.0.0-preview.39](https://github.com/Elders/Cronus/compare/v7.0.0-preview.38...v7.0.0-preview.39) (2022-03-18)
 
 
