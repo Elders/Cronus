@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace Elders.Cronus
 {
     public interface IConsumer<out T> where T : IMessageHandler
@@ -17,8 +19,7 @@ namespace Elders.Cronus
         //    this.log = log;
         //}
 
-
-        //public void Start() => log.LogTrace("Doing nothing.");
+        //public void Start() => log.LogTrace("Doing nothing."); 
 
         //public void Stop() => log.LogTrace("Doing nothing.");
         public void Start()

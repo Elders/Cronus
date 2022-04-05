@@ -72,6 +72,10 @@ namespace Elders.Cronus.Projections
                     versions.Add(version);
             }
 
+            var testVersionSequenceWithThisLiveVersion = GetLive();
+            if (testVersionSequenceWithThisLiveVersion is not null && version < testVersionSequenceWithThisLiveVersion)
+                return;
+
             if (version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Replaying)
                 versions.Add(version);
 

@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,11 +14,13 @@ namespace Elders.Cronus.Projections.Versioning.Handlers
     {
         private readonly IProjectionStore projectionStore;
         private readonly CronusContext cronusContext;
+        private readonly ILogger<GGPort> logger;
 
-        public GGPort(IProjectionStore projectionStore, CronusContext cronusContext)
+        public GGPort(IProjectionStore projectionStore, CronusContext cronusContext, ILogger<GGPort> logger)
         {
             this.projectionStore = projectionStore;
             this.cronusContext = cronusContext;
+            this.logger = logger;
         }
 
         public void Handle(NewProjectionVersionIsNowLive @event)
@@ -28,8 +31,16 @@ namespace Elders.Cronus.Projections.Versioning.Handlers
                 var id = Urn.Parse($"urn:cronus:{@event.ProjectionVersion.ProjectionName}");
 
                 IAmEventSourcedProjection projection = cronusContext.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
-                var @events = projectionStore.EnumerateProjection(@event.ProjectionVersion, id);
-                projection.ReplayEvents(@events.Select(x => x.Event));
+
+                try
+                {
+                    IEnumerable<ProjectionCommit> commits = projectionStore.EnumerateProjection(@event.ProjectionVersion, id);
+                    projection.ReplayEvents(commits.Select(x => x.Event));
+                }
+                catch (Exception ex)
+                {
+                    logger.ErrorException(ex, () => "Error while replaying projection.");
+                }
             }
         }
     }

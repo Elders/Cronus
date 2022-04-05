@@ -31,13 +31,16 @@ namespace Elders.Cronus.MessageProcessing
 
             if (commit is default(AggregateCommit))
             {
-                logger.Debug(() => "Aggregate commit will not be published because the `source` persistence action did not finish successfully. This usually happens when the AR ignores a command. (It is fine but check your business logic.)");
+                logger.Debug(() => "Aggregate commit has not been persisted and no events have been published because the `source` persistence action did not finish successfully. This usually happens when the AR did not generate any new events such as ignoring a command. (It is fine but check your business logic.)");
                 return;
             }
 
             try
             {
-                commiter.Publish(commit, BuildHeaders(commit));
+                bool publishResult = commiter.Publish(commit, BuildHeaders(commit));
+
+                if (publishResult == false)
+                    logger.Error(() => "Unable to publish aggregate commit.");
             }
             catch (Exception ex)
             {

@@ -29,7 +29,7 @@ namespace Elders.Cronus
         /// </summary>
         public static RetryPolicy DefaultLinearRetryPolicy { get { return defaultLinearRetryPolicy; } }
 
-        public static T TryExecute<T>(Func<T> operation, RetryPolicy retryPolicy, string operationInfo = null)
+        public static T TryExecute<T>(Func<T> operation, RetryPolicy retryPolicy, Func<string> getOperationInfo = null)
         {
             var retry = retryPolicy();
             Exception exception;
@@ -43,12 +43,14 @@ namespace Elders.Cronus
                 {
                     if (retry(i, exception, out delay))
                     {
-                        logger.LogDebug("Retry {0} after {1} ms. Operation Info: {2}", i, delay.TotalMilliseconds, operationInfo ?? operation.ToString());
+                        logger.Debug(() => $"Retry {i} after {delay.TotalMilliseconds} ms. Operation Info: {getOperationInfo()}");
                         Thread.Sleep(delay);
                     }
                     else
                     {
-                        logger.LogDebug("Maximum number of retries has been reached.");
+                        logger.Debug(() => "Maximum number of retries has been reached.");
+                        if (exception is null)
+                            exception = new Exception($"Maximum number of retries has been reached.{Environment.NewLine}{getOperationInfo()}");
                         throw exception;
                     }
                 }
@@ -107,7 +109,6 @@ namespace Elders.Cronus
                     {
                         delay = intervalBetweenRetries;
                         return currentRetryCount < retryCount;
-
                     };
                 };
             }

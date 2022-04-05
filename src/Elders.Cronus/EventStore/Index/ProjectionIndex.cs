@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.Index
 {
@@ -66,6 +67,33 @@ namespace Elders.Cronus.EventStore.Index
                     if (isInterested)
                     {
                         projection.Save(projectionType, eventData.Item1, eventData.Item2, version);
+                    }
+                }
+            }
+        }
+
+        public async Task IndexAsync(AggregateCommit aggregateCommit, ProjectionVersion version)
+        {
+            Type baseMessageType = typeof(IMessage);
+
+            IEnumerable<(IEvent, EventOrigin)> eventDataList = GetEventData(aggregateCommit);
+
+            foreach (var eventData in eventDataList)
+            {
+                Type messagePayloadType = eventData.Item1.GetType();
+                foreach (var projectionType in projectionsContainer.Items)
+                {
+                    if (projectionType.GetContractId().Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
+                        continue;
+
+                    bool isInterested = projectionType.GetInterfaces()
+                        .Where(x => x.IsGenericType && x.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(x.GetGenericArguments()[0])))
+                        .Where(@interface => @interface.GetGenericArguments()[0].IsAssignableFrom(messagePayloadType))
+                        .Any();
+
+                    if (isInterested)
+                    {
+                        await projection.SaveAsync(projectionType, eventData.Item1, eventData.Item2, version).ConfigureAwait(false);
                     }
                 }
             }

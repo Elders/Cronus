@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Migrations;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -9,7 +10,7 @@ namespace Elders.Cronus
     public sealed class CronusHost : ICronusHost
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CronusHost));
-
+        private readonly CronusBooter booter;
         private readonly IConsumer<IApplicationService> appServices;
         private readonly IConsumer<ICronusEventStoreIndex> systemIndices;
         private readonly IConsumer<IEventStoreIndex> indices;
@@ -24,9 +25,11 @@ namespace Elders.Cronus
         private readonly IConsumer<ISystemTrigger> systemTriggers;
         private readonly IConsumer<ISystemProjection> systemProjections;
         private readonly IConsumer<IMigrationHandler> migrations;
+        private readonly IServiceProvider serviceProvider;
         private CronusHostOptions hostOptions;
 
         public CronusHost(
+            CronusBooter booter,
             IConsumer<IApplicationService> appServices,
             IConsumer<ICronusEventStoreIndex> systemIndices,
             IConsumer<IEventStoreIndex> indices,
@@ -41,8 +44,10 @@ namespace Elders.Cronus
             IConsumer<ISystemTrigger> systemTriggers,
             IConsumer<ISystemProjection> systemProjections,
             IConsumer<IMigrationHandler> migrations,
-            IOptionsMonitor<CronusHostOptions> cronusHostOptions)
+            IOptionsMonitor<CronusHostOptions> cronusHostOptions,
+            IServiceProvider serviceProvider)
         {
+            this.booter = booter;
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
             this.systemIndices = systemIndices;
             this.indices = indices;
@@ -57,6 +62,7 @@ namespace Elders.Cronus
             this.systemTriggers = systemTriggers;
             this.systemProjections = systemProjections;
             this.migrations = migrations;
+            this.serviceProvider = serviceProvider;
             this.hostOptions = cronusHostOptions.CurrentValue;
             cronusHostOptions.OnChange(Changed);
         }
@@ -65,6 +71,10 @@ namespace Elders.Cronus
         {
             try
             {
+                CronusLogger.Configure(serviceProvider.GetService<ILoggerFactory>());
+
+                booter.BootstrapCronus();
+
                 if (hostOptions.ApplicationServicesEnabled) appServices.Start();
                 if (hostOptions.SagasEnabled) sagas.Start();
                 if (hostOptions.ProjectionsEnabled) projections.Start();
@@ -76,7 +86,6 @@ namespace Elders.Cronus
                 if (hostOptions.SystemServicesEnabled)
                 {
                     indices.Start();
-
                     systemIndices.Start();
                     systemAppServices.Start();
                     systemPorts.Start();

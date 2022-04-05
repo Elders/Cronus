@@ -19,7 +19,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             eventStoreManager = new InMemoryEventStoreStorageManager();
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
             integrityPpolicy = new EventStreamIntegrityPolicy();
-            eventStoreFactory = new EventStoreFactory(eventStore, null);
+            eventStoreFactory = new EventStoreFactory(eventStore, new NoAggregateCommitTransformer(), null);
             aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy);
             eventStoreManager.CreateStorage();
             id = new TestAggregateId();

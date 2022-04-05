@@ -33,6 +33,8 @@ namespace Elders.Cronus.Workflow
                 activity.Start();
             }
 
+            Type msgType = execution.Context.Message.Payload.GetType();
+
             if (logger.IsInfoEnabled())
             {
                 string scopeId = GetScopeId(execution.Context.Message);
@@ -45,7 +47,7 @@ namespace Elders.Cronus.Workflow
                     workflow.Run(execution.Context);
 
                     TimeSpan elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
-                    logger.Info(() => "{cronus_MessageHandler} handled {cronus_MessageName} in {Elapsed:0.0000} ms", execution.Context.HandlerType.Name, execution.Context.Message.Payload.GetType().Name, elapsed.TotalMilliseconds, execution.Context.Message.Headers);
+                    logger.Info(() => "{cronus_MessageHandler} handled {cronus_MessageName} in {Elapsed:0.0000} ms", execution.Context.HandlerType.Name, msgType.Name, elapsed.TotalMilliseconds, execution.Context.Message.Headers);
                 }
             }
             else
@@ -77,6 +79,24 @@ namespace Elders.Cronus.Workflow
             }
             diagnosticListener.Write(ActivityName, activity);
             activity.Stop();    // Resets Activity.Current (we want this after the Write)
+        }
+    }
+
+    public sealed class ExceptionEaterWorkflow<TContext> : Workflow<TContext> where TContext : HandleContext
+    {
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DiagnosticsWorkflow<>));
+
+        readonly Workflow<TContext> workflow;
+
+        public ExceptionEaterWorkflow(Workflow<TContext> workflow)
+        {
+            this.workflow = workflow;
+        }
+
+        protected override void Run(Execution<TContext> execution)
+        {
+            try { workflow.Run(execution.Context); }
+            catch (Exception ex) when (logger.ErrorException(ex, () => "Somewhere along the way an exception was thrown and it was eaten. See inner exception")) { }
         }
     }
 }

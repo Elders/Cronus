@@ -4,11 +4,11 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.EventStore.Index
 {
     [DataContract(Name = "f9c1c15b-ed60-4fa8-ab5f-251403aa8681")]
-    public class RebuildIndex : ISystemCommand
+    public class RebuildIndexCommand : ISystemCommand
     {
-        RebuildIndex() { }
+        RebuildIndexCommand() { }
 
-        public RebuildIndex(EventStoreIndexManagerId id)
+        public RebuildIndexCommand(EventStoreIndexManagerId id)
         {
             if (ReferenceEquals(null, id)) throw new ArgumentNullException(nameof(id));
 

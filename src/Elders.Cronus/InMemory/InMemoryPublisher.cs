@@ -27,7 +27,7 @@ namespace Elders.Cronus.InMemory
             ISubscriberCollection<ISaga> sagaSubscribers,
             ISubscriberCollection<IEventStoreIndex> esIndexSubscribers,
             IOptionsMonitor<BoundedContext> boundedContext)
-            : base(new DefaultTenantResolver(), boundedContext.CurrentValue)
+            : base(new DefaultTenantResolver(), boundedContext.CurrentValue, logger)
         {
             this.appServiceSubscribers = appServiceSubscribers;
             this.projectionSubscribers = projectionSubscribers;

@@ -1,6 +1,7 @@
 ﻿using Elders.Cronus.EventStore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
 {
@@ -22,6 +23,12 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
         {
             var es = new EventStream(Storage.Where(x => x.AggregateRootId.SequenceEqual(aggregateId.RawId)).ToList());
             return es;
+        }
+
+        public Task<EventStream> LoadAsync(IAggregateRootId aggregateId)
+        {
+            var es = new EventStream(Storage.Where(x => x.AggregateRootId.SequenceEqual(aggregateId.RawId)).ToList());
+            return Task.FromResult(es);
         }
 
         public void Append(AggregateCommitRaw aggregateCommitRaw)

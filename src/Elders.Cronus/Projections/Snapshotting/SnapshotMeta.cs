@@ -13,9 +13,12 @@ namespace Elders.Cronus.Projections.Snapshotting
 
             Revision = revision;
             ProjectionName = projectionName;
+            IsSnapshotable = projectionName.GetTypeByContract().IsSnapshotable();
         }
 
         public int Revision { get; private set; }
+
+        public bool IsSnapshotable { get; private set; }
 
         public string ProjectionName { get; private set; }
 

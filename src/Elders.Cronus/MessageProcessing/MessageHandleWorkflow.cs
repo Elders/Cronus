@@ -17,7 +17,7 @@ namespace Elders.Cronus.MessageProcessing
             BeginHandle = WorkflowExtensions.Lamda<HandlerContext>();
             ActualHandle = WorkflowExtensions.Lamda<HandlerContext>().Use(context => new DynamicMessageHandle().Run(context.Context));
             EndHandle = WorkflowExtensions.Lamda<HandlerContext>();
-            Error = WorkflowExtensions.Lamda<ErrorContext>();
+            Error = WorkflowExtensions.Lamda<ErrorContext>().Use(context => new LogExceptionOnHandleError().Run(context.Context));
             Finalize = WorkflowExtensions.Lamda<HandleContext>();
         }
 
@@ -73,7 +73,9 @@ namespace Elders.Cronus.MessageProcessing
 
             catch (Exception ex)
             {
-                Error.Run(new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType));
+                var context = new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType);
+                context.AssignPropertySafely<IWorkflowContextWithServiceProvider>(prop => prop.ServiceProvider = execution.Context.ServiceProvider);
+                Error.Run(context);
                 throw;
             }
             finally

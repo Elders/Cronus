@@ -1,28 +1,33 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore
 {
     public class CronusEventStore : IEventStore
     {
         private readonly IEventStore eventStore;
+        private readonly IEventStoreInterceptor aggregateCommitTransformer;
         private readonly ILogger<CronusEventStore> logger;
 
-        public CronusEventStore(IEventStore eventStore, ILogger<CronusEventStore> logger)
+        public CronusEventStore(IEventStore eventStore, IEventStoreInterceptor aggregateCommitTransformer, ILogger<CronusEventStore> logger)
         {
             this.eventStore = eventStore;
+            this.aggregateCommitTransformer = aggregateCommitTransformer;
             this.logger = logger;
         }
 
         public void Append(AggregateCommit aggregateCommit)
         {
+            AggregateCommit transformedAggregateCommit = aggregateCommit;
             try
             {
-                eventStore.Append(aggregateCommit);
+                transformedAggregateCommit = aggregateCommitTransformer.Transform(aggregateCommit);
+                eventStore.Append(transformedAggregateCommit);
             }
             catch (Exception ex)
             {
-                logger.ErrorException(ex, () => $"Failed to append aggregate with id = {aggregateCommit.AggregateRootId}. \n Exception: {ex.Message}");
+                logger.ErrorException(ex, () => $"Failed to append aggregate with id = {transformedAggregateCommit.AggregateRootId}. \n Exception: {ex.Message}");
                 throw;
             }
         }
@@ -45,6 +50,19 @@ namespace Elders.Cronus.EventStore
             try
             {
                 return eventStore.Load(aggregateId);
+            }
+            catch (Exception ex)
+            {
+                logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId}. \n Exception: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<EventStream> LoadAsync(IAggregateRootId aggregateId)
+        {
+            try
+            {
+                return await eventStore.LoadAsync(aggregateId).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

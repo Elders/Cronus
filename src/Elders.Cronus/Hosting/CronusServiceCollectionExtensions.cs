@@ -5,6 +5,7 @@ using System.Linq;
 using Elders.Cronus.Diagnostics;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.Hosting.Heartbeat;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Migrations;
 using Elders.Cronus.Multitenancy;
@@ -29,6 +30,7 @@ namespace Elders.Cronus
         /// </summary>
         public static IServiceCollection AddCronus(this IServiceCollection services, CronusServicesProvider cronusServicesProvider)
         {
+            services.AddBooter();
             services.AddOpenTelemetry();
             services.AddTenantSupport();
             services.AddCronusHostOptions();
@@ -42,6 +44,20 @@ namespace Elders.Cronus
                 cronusServicesProvider.HandleDiscoveredModel(result);
 
             return services;
+        }
+
+        public static IServiceCollection AddCronusHeartbeat(this IServiceCollection services)
+        {
+            services.AddOptions<HeartbeatOptions, HeartbeaOptionsProvider>();
+            services.AddSingleton<IHeartbeat, CronusHeartbeat>();
+            services.AddHostedService<CronusHeartbeatService>();
+
+            return services;
+        }
+
+        internal static IServiceCollection AddBooter(this IServiceCollection services)
+        {
+            return services.AddSingleton<CronusBooter>();
         }
 
         internal static IServiceCollection AddOpenTelemetry(this IServiceCollection services)
@@ -129,7 +145,7 @@ namespace Elders.Cronus
         {
             services.AddSingleton(typeof(ISubscriberCollection<T>), typeof(SubscriberCollection<T>));
             services.AddSingleton(typeof(ISubscriberFinder<T>), typeof(SubscriberFinder<T>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<T>), typeof(ScopedSubscriberWorkflow<T>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<T>), typeof(DefaultSubscriberWorkflow<T>));
             services.AddSingleton(typeof(ISubscriberFactory<T>), typeof(HandlerSubscriberFactory<T>));
 
             return services;
@@ -143,13 +159,12 @@ namespace Elders.Cronus
             services.AddSubscribers<IPort>();
             services.AddSubscribers<IGateway>();
             services.AddSubscribers<ISaga>();
-            services.AddSubscribers<ITrigger>();
             services.AddSubscribers<ISystemAppService>();
             services.AddSubscribers<ISystemPort>();
             services.AddSubscribers<ISystemSaga>();
-            services.AddSubscribers<ISystemTrigger>();
             services.AddSubscribers<ISystemProjection>();
             services.AddSubscribers<IMigrationHandler>();
+            services.AddTriggersSubscribers();
             services.AddEventStoreIndexSubscribers();
             services.AddSystemEventStoreIndexSubscribers();
             services.AddProjections();
@@ -161,7 +176,7 @@ namespace Elders.Cronus
         {
             services.AddSingleton(typeof(ISubscriberCollection<>), typeof(SubscriberCollection<>));
             services.AddSingleton(typeof(ISubscriberFinder<>), typeof(SubscriberFinder<>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<>), typeof(ScopedSubscriberWorkflow<>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<>), typeof(DefaultSubscriberWorkflow<>));
             services.AddSingleton(typeof(ISubscriberFactory<>), typeof(HandlerSubscriberFactory<>));
 
             return services;
@@ -174,6 +189,20 @@ namespace Elders.Cronus
             services.AddSingleton(typeof(ISubscriberWorkflowFactory<IApplicationService>), typeof(ApplicationServiceSubscriberWorkflow));
             services.AddSingleton(typeof(ISubscriberFactory<IApplicationService>), typeof(HandlerSubscriberFactory<IApplicationService>));
 
+            return services;
+        }
+
+        public static IServiceCollection AddTriggersSubscribers(this IServiceCollection services)
+        {
+            services.AddSingleton(typeof(ISubscriberCollection<ITrigger>), typeof(SubscriberCollection<ITrigger>));
+            services.AddSingleton(typeof(ISubscriberFinder<ITrigger>), typeof(SubscriberFinder<ITrigger>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<ITrigger>), typeof(TriggersSubscriberWorkflow<ITrigger>));
+            services.AddSingleton(typeof(ISubscriberFactory<ITrigger>), typeof(HandlerSubscriberFactory<ITrigger>));
+
+            services.AddSingleton(typeof(ISubscriberCollection<ISystemTrigger>), typeof(SubscriberCollection<ISystemTrigger>));
+            services.AddSingleton(typeof(ISubscriberFinder<ISystemTrigger>), typeof(SubscriberFinder<ISystemTrigger>));
+            services.AddSingleton(typeof(ISubscriberWorkflowFactory<ISystemTrigger>), typeof(TriggersSubscriberWorkflow<ISystemTrigger>));
+            services.AddSingleton(typeof(ISubscriberFactory<ISystemTrigger>), typeof(HandlerSubscriberFactory<ISystemTrigger>));
             return services;
         }
 

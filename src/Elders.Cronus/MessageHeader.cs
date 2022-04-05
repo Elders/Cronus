@@ -23,5 +23,7 @@
         public const string RecipientHandlers = "recipient_handlers";
 
         public const string RecipientBoundedContext = "recipient_bounded_context";
+
+        public const string TTL = "ttl";
     }
 }

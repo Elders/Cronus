@@ -1,15 +1,20 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 
 namespace Elders.Cronus
 {
-    public class CronusBooter
+    public sealed class CronusBooter
     {
-        public static void BootstrapCronus(IServiceProvider serviceProvider)
+        private readonly IServiceProvider serviceProvider;
+
+        public CronusBooter(IServiceProvider serviceProvider)
         {
-            CronusLogger.Configure(serviceProvider.GetService<ILoggerFactory>());
+            this.serviceProvider = serviceProvider;
+        }
+
+        public void BootstrapCronus()
+        {
             var scanner = new CronusStartupScanner(new DefaulAssemblyScanner());
             IEnumerable<Type> startups = scanner.Scan();
             foreach (var startupType in startups)

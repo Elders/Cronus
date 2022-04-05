@@ -4,11 +4,11 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = "25e39039-8b05-411e-b62b-161e5ea91902")]
-    public class RebuildProjection : ISystemCommand
+    public class RebuildProjectionCommand : ISystemCommand
     {
-        RebuildProjection() { }
+        RebuildProjectionCommand() { }
 
-        public RebuildProjection(ProjectionVersionManagerId id, string hash)
+        public RebuildProjectionCommand(ProjectionVersionManagerId id, string hash)
         {
             if (ReferenceEquals(null, id)) throw new ArgumentNullException(nameof(id));
             if (string.IsNullOrEmpty(hash)) throw new ArgumentNullException(nameof(hash));

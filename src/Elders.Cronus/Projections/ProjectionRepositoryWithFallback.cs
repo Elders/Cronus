@@ -99,6 +99,36 @@ namespace Elders.Cronus.Projections
             reporter.ReportAndThrowIfError();
         }
 
+        public async Task SaveAsync(Type projectionType, CronusMessage cronusMessage)
+        {
+            var reporter = new FallbackReporter(this, projectionType);
+
+            try
+            {
+                await primary.SaveAsync(projectionType, cronusMessage).ConfigureAwait(false);
+                reporter.PrimaryWriteOK();
+            }
+            catch (Exception ex)
+            {
+                reporter.PrimaryWriteFailed(ex, cronusMessage.Payload);
+            }
+
+            if (isFallbackEnabled)
+            {
+                try
+                {
+                    await fallback.SaveAsync(projectionType, cronusMessage).ConfigureAwait(false);
+                    reporter.FallbackWriteOK();
+                }
+                catch (Exception ex)
+                {
+                    reporter.FallbackWriteFailed(ex, cronusMessage.Payload);
+                }
+            }
+
+            reporter.ReportAndThrowIfError();
+        }
+
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin)
         {
             var reporter = new FallbackReporter(this, projectionType);
@@ -128,9 +158,44 @@ namespace Elders.Cronus.Projections
             reporter.ReportAndThrowIfError();
         }
 
+        public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin)
+        {
+            var reporter = new FallbackReporter(this, projectionType);
+
+            try
+            {
+                await primary.SaveAsync(projectionType, @event, eventOrigin).ConfigureAwait(false);
+                reporter.PrimaryWriteOK();
+            }
+            catch (Exception ex)
+            {
+                reporter.PrimaryWriteFailed(ex, @event);
+            }
+            if (isFallbackEnabled)
+            {
+                try
+                {
+                    await fallback.SaveAsync(projectionType, @event, eventOrigin).ConfigureAwait(false);
+                    reporter.FallbackWriteOK();
+                }
+                catch (Exception ex)
+                {
+                    reporter.FallbackWriteFailed(ex, @event);
+                }
+            }
+
+            reporter.ReportAndThrowIfError();
+        }
+
         public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
         {
             primary.Save(projectionType, @event, eventOrigin, version);
+            // this method is specific for the ProjectionsPlayer and it does not make sense to execute the fallback. We need to rethink this
+        }
+
+        public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
+        {
+            await primary.SaveAsync(projectionType, @event, eventOrigin, version).ConfigureAwait(false);
             // this method is specific for the ProjectionsPlayer and it does not make sense to execute the fallback. We need to rethink this
         }
 
