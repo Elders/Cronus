@@ -1,3 +1,58 @@
+# [7.0.0](https://github.com/Elders/Cronus/compare/v6.4.3...v7.0.0) (2022-04-05)
+
+
+### Bug Fixes
+
+* Accelerate replay/rebuild job ([ae02d19](https://github.com/Elders/Cronus/commit/ae02d19139cc3662172eb66af6360607c438459a))
+* Add Aggregate Commit transformation interface ([045c617](https://github.com/Elders/Cronus/commit/045c617ccc11e4239c156b06c6929a6fda75029c))
+* Add heartbeat interval to settigns ([a09cd3f](https://github.com/Elders/Cronus/commit/a09cd3f13733fb3a0a69553774151df375f4db1a))
+* Add interceptor for modifying upcomming aggregate commits ([55ba3f9](https://github.com/Elders/Cronus/commit/55ba3f9abd8b12639d09fee012d815234080f780))
+* Add logging om handle error ([634e6ba](https://github.com/Elders/Cronus/commit/634e6ba2e7a0059d67a60e7775d4dd52f83e592d))
+* Add Machine name to heartbeat ([49ae370](https://github.com/Elders/Cronus/commit/49ae3707acf8f438778b4db38baa3798d17b9602))
+* Add timered logger for every Rebuild index operation [INT] ([fccd98c](https://github.com/Elders/Cronus/commit/fccd98c6628b08454d8864c22f60a8d0618e1e28))
+* Add TTL to MessageHeaders ([00074c6](https://github.com/Elders/Cronus/commit/00074c61b4547c7691d132138b5e7f5c2adf0948))
+* Adds retries and log when replaying projection ([f5ebdff](https://github.com/Elders/Cronus/commit/f5ebdff614924677b4cb7db2a927aa94a6310667))
+* Adds try catches on all job runner methods ([41d42e5](https://github.com/Elders/Cronus/commit/41d42e5711926b96b26e0a1e68d72d602638ee24))
+* And the other eye ([c98b74c](https://github.com/Elders/Cronus/commit/c98b74c4cbfb822079183dea7ede3c00ef746b64))
+* Bootstrap Cronus before all services have started ([07d686d](https://github.com/Elders/Cronus/commit/07d686d8edef56ae52aefdc81ab7bf5f94c92691))
+* Build fix ([175640e](https://github.com/Elders/Cronus/commit/175640ec6d8e7a0d505abf23a063724df214260e))
+* bump version ([507111c](https://github.com/Elders/Cronus/commit/507111c73c5f7a388ceadca9ec11165f4fd81181))
+* Change  NotFound projection message log level to Debug ([5c18665](https://github.com/Elders/Cronus/commit/5c186659c965682eb3c038634476c7443de97196))
+* Change subscriber workflow for Triggers ([9e92912](https://github.com/Elders/Cronus/commit/9e929121edeb647cef151e247438bd6645b529ca))
+* Configures the signal settings ([49cef65](https://github.com/Elders/Cronus/commit/49cef65603aed8840c115b84b0b748a139d43a31))
+* Ensure service provider in ErrorContext ([24af784](https://github.com/Elders/Cronus/commit/24af78470a4af3baa515f6fd12412986b93a2661))
+* Fix build ([a2f325c](https://github.com/Elders/Cronus/commit/a2f325c4e60212afb4714c6eed45257b59a8f08a))
+* Fix error handling in async lamda + fix while loop condition ([e30b468](https://github.com/Elders/Cronus/commit/e30b46830c4c40fe9fb15de383cf0ecc207eec7a))
+* Fixes Linux paths. _!_0x M$ ([e76ea49](https://github.com/Elders/Cronus/commit/e76ea490262243b5f15d7c9faba0f0c643548f5f))
+* Fixes projection version building ([17e417e](https://github.com/Elders/Cronus/commit/17e417ecd5eda5426cf04799c43a7eec34c92f29))
+* Fixes projection version handler not loading ([70b975e](https://github.com/Elders/Cronus/commit/70b975ec05ec0a577c909ecbdbce97cf6ca18080))
+* Introducing live progress with fast signals ([cbf4704](https://github.com/Elders/Cronus/commit/cbf4704fc030a3ab2b98986e4dad5a7cb2318f26))
+* Launch fast signals ([3b8d505](https://github.com/Elders/Cronus/commit/3b8d5052b2e6253081b6d3127813882d1a625d32))
+* log elapsed time for indexing AR commits ([5c630c5](https://github.com/Elders/Cronus/commit/5c630c5b4846371ccec5c427eca23ce3d02f3f65))
+* Log unsuccessful publish ([01fc3a9](https://github.com/Elders/Cronus/commit/01fc3a9eb7dbb4db1a22f4cb1250e2093fc1ea17))
+* Makes the the AR id value format in the message header consistent everywhere ([daf2f31](https://github.com/Elders/Cronus/commit/daf2f312ed6d725c618afbc74d101272392c1a61))
+* Moved to synchronous Start ([54e80f9](https://github.com/Elders/Cronus/commit/54e80f95698505d5d0ca71b6aacace857e5ea210))
+* My eyes ([d9eb59d](https://github.com/Elders/Cronus/commit/d9eb59df07e706646170b793b9834a56e0875dfe))
+* Removes obsolete log extensions ([5449e27](https://github.com/Elders/Cronus/commit/5449e27f88775efd74ddb45ff83cb2a9a3d3e166))
+* Removes retries ([ab489d2](https://github.com/Elders/Cronus/commit/ab489d2816ef91bf094c058ea0a9ea02b9ce0f42))
+* Revert "fix: Makes the the AR id value format in the message header consistent everywhere" ([2136fbc](https://github.com/Elders/Cronus/commit/2136fbcb9e25c93ec486c8b0aaf8d5ec14af4fb4))
+* Reverts the diagnostic logs because they create a log of noise at the moment ([386c224](https://github.com/Elders/Cronus/commit/386c224be56984917e9aada2f1ac68778df66345))
+* Rolls back how projections are rebuilt ([f02a065](https://github.com/Elders/Cronus/commit/f02a065c611d03e1368f59c36f03135f64c3a2d8))
+* Sending heartbeat twice, since now every service should use AddCronusHeartbeat ([604058f](https://github.com/Elders/Cronus/commit/604058f7bba5c63148072122e9cd67e621ec8f1c))
+* Transitions to Assembly.Location from Assembly.CodeBase ([b6b4a94](https://github.com/Elders/Cronus/commit/b6b4a948c7a10ee6ccb997b8bfa2ed184d93045d))
+* update Domain Modeling package ([b994800](https://github.com/Elders/Cronus/commit/b9948006f2db568c894c03f35b17d931a12a3916))
+* Update Domain Modeling package version ([17ab387](https://github.com/Elders/Cronus/commit/17ab387a6510dc803d95e309eca8da0c7dc2fb37))
+* Update Domain Modeling package version ([3ac9b1c](https://github.com/Elders/Cronus/commit/3ac9b1c5f2f39533ec14afb16382e1daed8b8dea))
+
+
+### Features
+
+* add EnvironmentConfig field ([a2357c7](https://github.com/Elders/Cronus/commit/a2357c731357eb095c29492017d816b10d51c7f3))
+* Add snapshot skipping optimization for not snapshotable projections ([5d2771b](https://github.com/Elders/Cronus/commit/5d2771b8fc45d7bc375bde3672dba67faaa05f7e))
+* Adds heartbeat ([60f703e](https://github.com/Elders/Cronus/commit/60f703e4a75fb01cfea8b2193127219dc173b325))
+* Adds the ability to deserialize from ReadOnlyMemory<byte> ([558d998](https://github.com/Elders/Cronus/commit/558d9988af9134e0f8684885f3480dac389b4618))
+* Rework of rebuild job ([c68a013](https://github.com/Elders/Cronus/commit/c68a01312836794f777c3457186421539ad90fad))
+
 # [7.0.0-preview.40](https://github.com/Elders/Cronus/compare/v7.0.0-preview.39...v7.0.0-preview.40) (2022-03-31)
 
 
