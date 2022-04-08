@@ -19,7 +19,8 @@ namespace Elders.Cronus.Migrations
         public override async Task RunAsync(IEnumerable<IMigration<AggregateCommitRaw>> migrations)
         {
             int counter = 0;
-            foreach (var sourceCommit in source.LoadAggregateCommitsRaw(5000))
+
+            await foreach (var sourceCommit in source.LoadAggregateCommitsRawAsync(5000).ConfigureAwait(false))
             {
                 if (counter % 10000 == 0) logger.Info(() => $"[Migrations] Migrated records: {counter}");
 

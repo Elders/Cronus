@@ -54,7 +54,7 @@ namespace Elders.Cronus.EventStore.Players
                     After = Data.After,
                     Before = Data.Before
                 };
-                var foundAggregateCommits = eventStorePlayer.LoadAggregateCommits(opt);
+                LoadAggregateCommitsResult foundAggregateCommits = await eventStorePlayer.LoadAggregateCommitsAsync(opt).ConfigureAwait(false);
 
                 foreach (AggregateCommit arCommit in foundAggregateCommits.Commits)
                 {

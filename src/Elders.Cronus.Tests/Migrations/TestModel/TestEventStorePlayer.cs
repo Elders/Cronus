@@ -1,6 +1,7 @@
 ﻿using Elders.Cronus.EventStore;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
 {
@@ -12,33 +13,25 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
             if (ReferenceEquals(eventStore, null) == true) throw new ArgumentNullException(nameof(eventStore));
             this.eventStore = eventStore;
         }
-        public IEnumerable<AggregateCommit> LoadAggregateCommits(int batchSize = 5000)
+
+        public async IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync(int batchSize = 5000)
         {
             // hack
-            return eventStore.Storage;
+            foreach (var @event in eventStore.Storage)
+                yield return @event;
         }
 
-        public LoadAggregateCommitsResult LoadAggregateCommits(string paginationToken, int batchSize = 5000)
+        public Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(string paginationToken, int batchSize = 5000)
         {
             throw new NotImplementedException();
         }
 
-        public LoadAggregateCommitsResult LoadAggregateCommits(ReplayOptions replayOptions)
+        public Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(ReplayOptions replayOptions)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<AggregateCommitRaw> LoadAggregateCommitsRaw(int batchSize = 5000)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync()
+        public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync(int batchSize = 5000)
         {
             throw new NotImplementedException();
         }

@@ -10,34 +10,20 @@ namespace Elders.Cronus.EventStore
         /// <summary>
         /// Loads all aggregate commits. The commits are unordered.
         /// </summary>
-        /// <param name="batchSize">Size of the batch.</param>
-        /// <returns></returns>
-        IEnumerable<AggregateCommit> LoadAggregateCommits(int batchSize = 5000);
+        IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync(int batchSize = 5000);
+
+        /// <summary>
+        /// Loads all aggregate commits. The commits are unordered.
+        /// </summary>
+        IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync(int batchSize = 5000);
 
         /// <summary>
         /// Loads all aggregate commits. The commits are unordered.
         /// </summary>
         /// <param name="batchSize">Size of the batch.</param>
         /// <returns></returns>
-        IEnumerable<AggregateCommitRaw> LoadAggregateCommitsRaw(int batchSize = 5000);
+        Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(string paginationToken, int batchSize = 5000);
 
-        /// <summary>
-        /// Loads all aggregate commits. The commits are unordered.
-        /// </summary>
-        IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync();
-
-        /// <summary>
-        /// Loads all aggregate commits. The commits are unordered.
-        /// </summary>
-        IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync();
-
-        /// <summary>
-        /// Loads all aggregate commits. The commits are unordered.
-        /// </summary>
-        /// <param name="batchSize">Size of the batch.</param>
-        /// <returns></returns>
-        LoadAggregateCommitsResult LoadAggregateCommits(string paginationToken, int batchSize = 5000);
-
-        LoadAggregateCommitsResult LoadAggregateCommits(ReplayOptions replayOptions);
+        Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(ReplayOptions replayOptions);
     }
 }

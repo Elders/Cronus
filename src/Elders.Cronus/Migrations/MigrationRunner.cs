@@ -14,7 +14,7 @@ namespace Elders.Cronus.Migrations
 
         public override async Task RunAsync(IEnumerable<IMigration<AggregateCommit>> migrations)
         {
-            LoadAggregateCommitsResult result = source.LoadAggregateCommits("", 5000);
+            LoadAggregateCommitsResult result = await source.LoadAggregateCommitsAsync("", 5000).ConfigureAwait(false);
             int counter = 0;
             try
             {
@@ -34,7 +34,7 @@ namespace Elders.Cronus.Migrations
                         }
                         await target.AppendAsync(sourceCommit).ConfigureAwait(false);
                     }
-                    result = source.LoadAggregateCommits(result.PaginationToken, 5000); // think of paging
+                    result = await source.LoadAggregateCommitsAsync(result.PaginationToken, 5000).ConfigureAwait(false); // think of paging
                     logger.Info(() => $"Migrated commits - Counter: `{counter}` - Pagination Token: `{result.PaginationToken}`");
                 }
             }

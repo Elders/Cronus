@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.InMemory
 {
@@ -13,39 +14,31 @@ namespace Elders.Cronus.EventStore.InMemory
             this.eventStoreStorage = eventStoreStorage;
         }
 
-        public IEnumerable<AggregateCommit> LoadAggregateCommits(int batchSize = 5000)
+        public async IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync(int batchSize = 5000)
         {
-            return eventStoreStorage.GetOrderedEvents();
+            foreach (var @event in eventStoreStorage.GetOrderedEvents())
+                yield return @event;
         }
 
-        public LoadAggregateCommitsResult LoadAggregateCommits(string paginationToken, int batchSize = 5000)
+        public Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(ReplayOptions replayOptions)
         {
-            return new LoadAggregateCommitsResult
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync(int batchSize = 5000)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<LoadAggregateCommitsResult> IEventStorePlayer.LoadAggregateCommitsAsync(string paginationToken, int batchSize)
+        {
+            LoadAggregateCommitsResult aggregateCommit = new LoadAggregateCommitsResult
             {
                 Commits = eventStoreStorage.GetOrderedEvents().ToList(),
                 PaginationToken = paginationToken
             };
-        }
 
-        public LoadAggregateCommitsResult LoadAggregateCommits(ReplayOptions replayOptions)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync()
-        {
-            foreach (var @event in LoadAggregateCommits())
-                yield return @event;
-        }
-
-        public IEnumerable<AggregateCommitRaw> LoadAggregateCommitsRaw(int batchSize = 5000)
-        {
-            throw new NotImplementedException();
-        }
-
-        IAsyncEnumerable<AggregateCommitRaw> IEventStorePlayer.LoadAggregateCommitsRawAsync()
-        {
-            throw new NotImplementedException();
+            return Task.FromResult(aggregateCommit);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.IntegrityValidation;
 
@@ -28,11 +29,11 @@ namespace Elders.Cronus.Migrations
             return integrityPolicy;
         }
 
-        public void Validate(EventStreamIntegrityPolicy policy)
+        public async Task ValidateAsync(EventStreamIntegrityPolicy policy)
         {
             var aggregateCommits = new List<AggregateCommit>();
             byte[] currentId = { 0 };
-            foreach (var commit in player.LoadAggregateCommits(1000))
+            await foreach (var commit in player.LoadAggregateCommitsAsync(1000))
             {
                 if (ByteArrayHelper.Compare(currentId, commit.AggregateRootId) == false)
                 {
