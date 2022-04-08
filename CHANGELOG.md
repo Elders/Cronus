@@ -1,3 +1,10 @@
+# [8.0.0-preview.4](https://github.com/Elders/Cronus/compare/v8.0.0-preview.3...v8.0.0-preview.4) (2022-04-08)
+
+
+### Bug Fixes
+
+* Load Aggregate Commits async ([0b66a21](https://github.com/Elders/Cronus/commit/0b66a216fe9369eb52d61703ef2386d538273f2f))
+
 # [8.0.0-preview.3](https://github.com/Elders/Cronus/compare/v8.0.0-preview.2...v8.0.0-preview.3) (2022-04-08)
 
 
