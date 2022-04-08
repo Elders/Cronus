@@ -1,3 +1,10 @@
+# [8.0.0-preview.3](https://github.com/Elders/Cronus/compare/v8.0.0-preview.2...v8.0.0-preview.3) (2022-04-08)
+
+
+### Bug Fixes
+
+* Return ILock back ([8384337](https://github.com/Elders/Cronus/commit/8384337b8fdc45bf1f419c19826a0b8f37780f8c))
+
 # [8.0.0-preview.2](https://github.com/Elders/Cronus/compare/v8.0.0-preview.1...v8.0.0-preview.2) (2022-04-08)
 
 
