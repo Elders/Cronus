@@ -72,7 +72,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
                         {
                             try
                             {
-                                await action().ConfigureAwait(false); 
+                                await action().ConfigureAwait(false);
                                 return Result.Success;
                             }
                             catch (Exception)

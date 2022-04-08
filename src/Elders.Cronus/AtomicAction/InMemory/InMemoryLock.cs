@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace Elders.Cronus.AtomicAction.InMemory
 {
+    public interface ILock { }
     public class InMemoryLock : ILock
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger<InMemoryLock>();

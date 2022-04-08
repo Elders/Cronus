@@ -18,11 +18,9 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             eventStoreStorage = new InMemoryEventStoreStorage();
             eventStore = new InMemoryEventStore(eventStoreStorage);
             eventStoreFactory = new EventStoreFactory(eventStore, new NoAggregateCommitTransformer(), null);
-            eventStoreManager = new InMemoryEventStoreStorageManager();
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
             integrityPpolicy = new EventStreamIntegrityPolicy();
             aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy);
-            eventStoreManager.CreateStorage();
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
             await aggregateRepository.SaveAsync<TestAggregateRoot>(aggregateRoot);
@@ -46,7 +44,6 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
         static InMemoryEventStoreStorage eventStoreStorage;
         static IAggregateRootAtomicAction versionService;
         static IEventStore eventStore;
-        static InMemoryEventStoreStorageManager eventStoreManager;
         static IEventStorePlayer eventStorePlayer;
         static IAggregateRepository aggregateRepository;
         static TestAggregateRoot aggregateRoot;

@@ -1,6 +1,5 @@
 ﻿using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
-using Elders.Cronus.EventStore.InMemory;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,11 +10,7 @@ namespace Elders.Cronus.Discoveries
     {
         protected override DiscoveryResult<IEventStore> DiscoverFromAssemblies(DiscoveryContext context)
         {
-            IEnumerable<DiscoveredModel> models =
-                DiscoverEventStore<InMemoryEventStore>(context)
-                .Concat(DiscoverEventStorePlayer<InMemoryEventStorePlayer>(context))
-                .Concat(DiscoverIndexStore<InMemoryIndexStore>(context))
-                .Concat(DiscoverIndices(context));
+            IEnumerable<DiscoveredModel> models = DiscoverIndices(context);
 
             return new DiscoveryResult<IEventStore>(models);
         }
@@ -24,7 +19,6 @@ namespace Elders.Cronus.Discoveries
         {
             return DiscoverModel<IEventStore, TEventStore>(ServiceLifetime.Singleton)
                 .Concat(new[] {
-                    new DiscoveredModel(typeof(InMemoryEventStoreStorage), typeof(InMemoryEventStoreStorage), ServiceLifetime.Singleton),
                     new DiscoveredModel(typeof(IEventStoreInterceptor), typeof(NoAggregateCommitTransformer), ServiceLifetime.Singleton),
                     new DiscoveredModel(typeof(NoAggregateCommitTransformer), typeof(NoAggregateCommitTransformer), ServiceLifetime.Singleton),
                     new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Scoped)

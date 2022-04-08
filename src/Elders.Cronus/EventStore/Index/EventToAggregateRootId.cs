@@ -49,7 +49,7 @@ namespace Elders.Cronus.EventStore.Index
             await indexStore.ApendAsync(indexRecord).ConfigureAwait(false);
         }
 
-        public Task<IEnumerable<IndexRecord>> EnumerateRecordsAsync(string dataId)
+        public IAsyncEnumerable<IndexRecord> EnumerateRecordsAsync(string dataId)
         {
             // TODO: index exists?
             return indexStore.GetAsync(dataId);
