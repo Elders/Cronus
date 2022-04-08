@@ -5,17 +5,11 @@ namespace Elders.Cronus.Projections
 {
     public interface IProjectionStore
     {
-        IEnumerable<ProjectionCommit> Load(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
-
         Task<IEnumerable<ProjectionCommit>> LoadAsync(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
 
         bool HasSnapshotMarker(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
 
-        Task<bool> HasSnapshotMarkerAsync(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
-
         IEnumerable<ProjectionCommit> EnumerateProjection(ProjectionVersion version, IBlobId projectionId);
-
-        void Save(ProjectionCommit commit);
 
         Task SaveAsync(ProjectionCommit commit);
     }

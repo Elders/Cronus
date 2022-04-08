@@ -25,7 +25,7 @@ namespace Elders.Cronus.Migrations.TestMigration
         {
             if (aggregateMaxRevision.ContainsKey(rootId)) return;
 
-            var stream = eventStore.Load(rootId);
+            var stream = eventStore.LoadAsync(rootId).GetAwaiter().GetResult();
             if (ReferenceEquals(stream, null) == true)
             {
                 aggregateMaxRevision.Add(rootId, 0);

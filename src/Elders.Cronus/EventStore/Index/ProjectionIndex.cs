@@ -12,18 +12,18 @@ namespace Elders.Cronus.EventStore.Index
     [DataContract(Name = "37336a18-573a-4e9e-b4a2-085033b74353")]
     public class ProjectionIndex : IEventStoreIndex, ICronusEventStoreIndex
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionIndex));
-
+        private readonly ILogger<ProjectionIndex> logger;
         private readonly TypeContainer<IProjection> projectionsContainer;
         private readonly IProjectionWriter projection;
 
-        public ProjectionIndex(TypeContainer<IProjection> projectionsContainer, IProjectionWriter projection)
+        public ProjectionIndex(TypeContainer<IProjection> projectionsContainer, IProjectionWriter projection, ILogger<ProjectionIndex> logger)
         {
             this.projectionsContainer = projectionsContainer;
             this.projection = projection;
+            this.logger = logger;
         }
 
-        public void Index(CronusMessage message)
+        public async Task IndexAsync(CronusMessage message)
         {
             IEnumerable<Type> projectionTypes = projectionsContainer.Items;
             if (message.IsRepublished)
@@ -40,34 +40,7 @@ namespace Elders.Cronus.EventStore.Index
 
                 if (isInterested)
                 {
-                    projection.Save(projectionType, message);
-                }
-            }
-        }
-
-        public void Index(AggregateCommit aggregateCommit, ProjectionVersion version)
-        {
-            Type baseMessageType = typeof(IMessage);
-
-            IEnumerable<(IEvent, EventOrigin)> eventDataList = GetEventData(aggregateCommit);
-
-            foreach (var eventData in eventDataList)
-            {
-                Type messagePayloadType = eventData.Item1.GetType();
-                foreach (var projectionType in projectionsContainer.Items)
-                {
-                    if (projectionType.GetContractId().Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
-                        continue;
-
-                    bool isInterested = projectionType.GetInterfaces()
-                        .Where(x => x.IsGenericType && x.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(x.GetGenericArguments()[0])))
-                        .Where(@interface => @interface.GetGenericArguments()[0].IsAssignableFrom(messagePayloadType))
-                        .Any();
-
-                    if (isInterested)
-                    {
-                        projection.Save(projectionType, eventData.Item1, eventData.Item2, version);
-                    }
+                    await projection.SaveAsync(projectionType, message).ConfigureAwait(false);
                 }
             }
         }

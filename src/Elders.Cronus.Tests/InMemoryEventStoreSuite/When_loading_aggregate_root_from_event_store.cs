@@ -11,7 +11,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
     [Subject("AggregateRoot")]
     public class When_loading_aggregate_root_from_event_store
     {
-        Establish context = () =>
+        Establish context = async () =>
         {
 
             versionService = new InMemoryAggregateRootAtomicAction();
@@ -25,13 +25,14 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             eventStoreManager.CreateStorage();
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
-            aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
-            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
+            await aggregateRepository.SaveAsync<TestAggregateRoot>(aggregateRoot);
+            var events = await aggregateRepository.LoadAsync<TestAggregateRoot>(id);
+            aggregateRoot = events.Data;
             aggregateRoot.DoSomething("When_build_aggregate_root_from_events");
-            aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
+            await aggregateRepository.SaveAsync<TestAggregateRoot>(aggregateRoot);
         };
 
-        Because of = () => loadedAggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
+        Because of = () => loadedAggregateRoot = aggregateRepository.LoadAsync<TestAggregateRoot>(id).GetAwaiter().GetResult().Data;
 
         It should_instansiate_aggregate_root = () => loadedAggregateRoot.ShouldNotBeNull();
 

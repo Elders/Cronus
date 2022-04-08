@@ -49,16 +49,6 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        public ReadResult<T> Get<T>(IBlobId projectionId) where T : IProjectionDefinition
-        {
-            return ExecuteWithFallback(repo => repo.Get<T>(projectionId));
-        }
-
-        public ReadResult<IProjectionDefinition> Get(IBlobId projectionId, Type projectionType)
-        {
-            return ExecuteWithFallback(repo => repo.Get(projectionId, projectionType));
-        }
-
         public Task<ReadResult<T>> GetAsync<T>(IBlobId projectionId) where T : IProjectionDefinition
         {
             return ExecuteWithFallbackAsync(repo => repo.GetAsync<T>(projectionId));
@@ -67,36 +57,6 @@ namespace Elders.Cronus.Projections
         public Task<ReadResult<IProjectionDefinition>> GetAsync(IBlobId projectionId, Type projectionType)
         {
             return ExecuteWithFallbackAsync(repo => repo.GetAsync(projectionId, projectionType));
-        }
-
-        public void Save(Type projectionType, CronusMessage cronusMessage)
-        {
-            var reporter = new FallbackReporter(this, projectionType);
-
-            try
-            {
-                primary.Save(projectionType, cronusMessage);
-                reporter.PrimaryWriteOK();
-            }
-            catch (Exception ex)
-            {
-                reporter.PrimaryWriteFailed(ex, cronusMessage.Payload);
-            }
-
-            if (isFallbackEnabled)
-            {
-                try
-                {
-                    fallback.Save(projectionType, cronusMessage);
-                    reporter.FallbackWriteOK();
-                }
-                catch (Exception ex)
-                {
-                    reporter.FallbackWriteFailed(ex, cronusMessage.Payload);
-                }
-            }
-
-            reporter.ReportAndThrowIfError();
         }
 
         public async Task SaveAsync(Type projectionType, CronusMessage cronusMessage)
@@ -123,35 +83,6 @@ namespace Elders.Cronus.Projections
                 catch (Exception ex)
                 {
                     reporter.FallbackWriteFailed(ex, cronusMessage.Payload);
-                }
-            }
-
-            reporter.ReportAndThrowIfError();
-        }
-
-        public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin)
-        {
-            var reporter = new FallbackReporter(this, projectionType);
-
-            try
-            {
-                primary.Save(projectionType, @event, eventOrigin);
-                reporter.PrimaryWriteOK();
-            }
-            catch (Exception ex)
-            {
-                reporter.PrimaryWriteFailed(ex, @event);
-            }
-            if (isFallbackEnabled)
-            {
-                try
-                {
-                    fallback.Save(projectionType, @event, eventOrigin);
-                    reporter.FallbackWriteOK();
-                }
-                catch (Exception ex)
-                {
-                    reporter.FallbackWriteFailed(ex, @event);
                 }
             }
 
@@ -187,44 +118,10 @@ namespace Elders.Cronus.Projections
             reporter.ReportAndThrowIfError();
         }
 
-        public void Save(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
-        {
-            primary.Save(projectionType, @event, eventOrigin, version);
-            // this method is specific for the ProjectionsPlayer and it does not make sense to execute the fallback. We need to rethink this
-        }
-
         public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
         {
             await primary.SaveAsync(projectionType, @event, eventOrigin, version).ConfigureAwait(false);
             // this method is specific for the ProjectionsPlayer and it does not make sense to execute the fallback. We need to rethink this
-        }
-
-        private ReadResult<T> ExecuteWithFallback<T>(Func<IProjectionReader, ReadResult<T>> func)
-        {
-            var report = new FallbackReporter(this, typeof(T));
-
-            if (useOnlyFallback && IsFallbackNested == false)
-            {
-                var result = func(fallback);
-                report.FallbackReadResult<T>(result);
-                report.Report();
-
-                return result;
-            }
-            else
-            {
-                var result = func(primary);
-                report.PrimaryReadResult<T>(result);
-
-                if (result.HasError && isFallbackEnabled)
-                {
-                    result = func(fallback);
-                    report.FallbackReadResult<T>(result);
-                }
-                report.Report();
-
-                return result;
-            }
         }
 
         private async Task<ReadResult<T>> ExecuteWithFallbackAsync<T>(Func<IProjectionReader, Task<ReadResult<T>>> func)
@@ -257,15 +154,16 @@ namespace Elders.Cronus.Projections
 
         public class FallbackReporter
         {
-            private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(FallbackReporter));
+            private readonly ILogger logger;
             private readonly StringBuilder report;
             private readonly ProjectionRepositoryWithFallback<TPrimary, TFallback> repository;
 
             List<Exception> exceptions = new List<Exception>();
 
-            public FallbackReporter(ProjectionRepositoryWithFallback<TPrimary, TFallback> repository, Type projectionType)
+            public FallbackReporter(ProjectionRepositoryWithFallback<TPrimary, TFallback> repository, Type projectionType, ILogger logger = null)
             {
                 this.repository = repository;
+                this.logger = logger;
 
                 report = ReportPrepare(projectionType);
             }

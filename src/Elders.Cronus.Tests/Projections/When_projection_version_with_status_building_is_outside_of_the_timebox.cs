@@ -2,6 +2,7 @@
 using Machine.Specifications;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections
 {
@@ -26,7 +27,7 @@ namespace Elders.Cronus.Projections
                 .Event(new ProjectionVersionRequestTimedout(id, new ProjectionVersion(projectionName, ProjectionStatus.Timedout, 5, hash), new VersionRequestTimebox(DateTime.Parse("2018-11-28T14:43:35.834907Z"), DateTime.Parse("2018-11-29T14:43:35.834907Z"))));
         };
 
-        Because of = () => projection = projectionHistory.Build();
+        Because of = async () => projection = await projectionHistory.BuildAsync().ConfigureAwait(false);
 
         It should_timeout_the_obsolete_building_versions = () => projection.State.ShouldNotBeNull();
 
@@ -59,10 +60,10 @@ namespace Elders.Cronus.Projections
                 return this;
             }
 
-            public T Build()
+            public async Task<T> BuildAsync()
             {
                 var instance = (T)Activator.CreateInstance(typeof(T), true);
-                instance.ReplayEvents(Events);
+                await instance.ReplayEventsAsync(Events).ConfigureAwait(false);
                 return instance;
             }
         }

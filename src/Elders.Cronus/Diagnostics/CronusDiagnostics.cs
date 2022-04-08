@@ -30,7 +30,8 @@ namespace Elders.Cronus.Diagnostics
                 return new TResult();
             }
 
-            logger.Info(() => $"{operationName} completed after {GetElapsedTimeString()}");
+
+            logger.Info(() => "{cronus_OperationName} completed after {Elapsed}", operationName, GetElapsedTimeString());
             return result;
 
             string GetElapsedTimeString() => new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp))).ToString("c");

@@ -1,6 +1,7 @@
 ﻿using Elders.Cronus.Workflow;
 using Machine.Specifications;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Tests.Middleware
 {
@@ -21,13 +22,14 @@ namespace Elders.Cronus.Tests.Middleware
             mainMiddleware.Use((execution) =>
             {
                 execution.Transfer(secondMiddleware);
+                return Task.CompletedTask;
             });
             expectedExecution.Add(secondToken);
 
 
         };
 
-        Because of = () => mainMiddleware.Run(invocationContext);
+        Because of = async () => await mainMiddleware.RunAsync(invocationContext).ConfigureAwait(false);
 
         It the_execution_chain_should_not_be_empty = () => executionChain.GetTokens().ShouldNotBeEmpty();
 

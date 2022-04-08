@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
 
@@ -22,7 +23,7 @@ namespace Elders.Cronus.Workflow
             this.diagnosticListener = diagnosticListener;
         }
 
-        protected override void Run(Execution<TContext> execution)
+        protected override async Task RunAsync(Execution<TContext> execution)
         {
             if (execution is null) throw new ArgumentNullException(nameof(execution));
 
@@ -44,7 +45,7 @@ namespace Elders.Cronus.Workflow
                     long startTimestamp = 0;
                     startTimestamp = Stopwatch.GetTimestamp();
 
-                    workflow.Run(execution.Context);
+                    await workflow.RunAsync(execution.Context).ConfigureAwait(false);
 
                     TimeSpan elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
                     logger.Info(() => "{cronus_MessageHandler} handled {cronus_MessageName} in {Elapsed:0.0000} ms", execution.Context.HandlerType.Name, msgType.Name, elapsed.TotalMilliseconds, execution.Context.Message.Headers);
@@ -52,7 +53,7 @@ namespace Elders.Cronus.Workflow
             }
             else
             {
-                workflow.Run(execution.Context);
+                await workflow.RunAsync(execution.Context).ConfigureAwait(false);
             }
 
             StopActivity(activity);
@@ -92,10 +93,9 @@ namespace Elders.Cronus.Workflow
         {
             this.workflow = workflow;
         }
-
-        protected override void Run(Execution<TContext> execution)
+        protected override async Task RunAsync(Execution<TContext> execution)
         {
-            try { workflow.Run(execution.Context); }
+            try { await workflow.RunAsync(execution.Context); } // here we shouldn't elide async kwyword 'cause it'll raise an exception outside this catch
             catch (Exception ex) when (logger.ErrorException(ex, () => "Somewhere along the way an exception was thrown and it was eaten. See inner exception")) { }
         }
     }

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Migrations
 {
@@ -24,7 +25,7 @@ namespace Elders.Cronus.Migrations
             this.logger = logger;
         }
 
-        public void Handle(AggregateCommit aggregateCommit)
+        public async Task HandleAsync(AggregateCommit aggregateCommit)
         {
             foreach (var migration in migrations)
             {
@@ -32,7 +33,7 @@ namespace Elders.Cronus.Migrations
                     aggregateCommit = migration.Apply(aggregateCommit);
             }
 
-            eventStore.Append(aggregateCommit);
+            await eventStore.AppendAsync(aggregateCommit).ConfigureAwait(false);
 
             try
             {

@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -20,14 +21,14 @@ namespace Elders.Cronus.MessageProcessing
             this.commiter = commiter;
         }
 
-        public ReadResult<AR> Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        public Task<ReadResult<AR>> LoadAsync<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
-            return aggregateRepository.Load<AR>(id);
+            return aggregateRepository.LoadAsync<AR>(id);
         }
 
-        public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
+        public async Task SaveAsync<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
-            AggregateCommit commit = aggregateRepository.SaveInternal(aggregateRoot);
+            AggregateCommit commit = await aggregateRepository.SaveInternalAsync(aggregateRoot).ConfigureAwait(false);
 
             if (commit is default(AggregateCommit))
             {

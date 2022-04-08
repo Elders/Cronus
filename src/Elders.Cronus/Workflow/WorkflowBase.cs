@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Workflow
 {
@@ -15,11 +16,11 @@ namespace Elders.Cronus.Workflow
 
         public string Name { get; protected set; }
 
-        protected abstract object AbstractRun(Execution<TContext> execution);
+        protected abstract Task<object> AbstractRunAsync(Execution<TContext> execution);
 
-        public object Run(TContext context)
+        public Task<object> RunAsync(TContext context)
         {
-            return InvokeChain(CreateExecutionContext(context));
+            return InvokeChainAsync(CreateExecutionContext(context));
         }
 
         /// <summary>
@@ -43,16 +44,16 @@ namespace Elders.Cronus.Workflow
             ExecutionChain.Override(nextWorkflow);
         }
 
-        protected object InvokeChain(Execution<TContext> control)
+        protected async Task<object> InvokeChainAsync(Execution<TContext> control)
         {
             var iterator = control as IEnumerator<WorkflowBase<TContext>>;
             control.Follow(ExecutionChain);
-            var result = this.AbstractRun(control);
+            var result = await this.AbstractRunAsync(control).ConfigureAwait(false);
             control.ExecutionResult(result);
             var stupidityFactor = 1;
             while (iterator.MoveNext())
             {
-                result = iterator.Current.InvokeChain(control);
+                result = await iterator.Current.InvokeChainAsync(control).ConfigureAwait(false);
                 control.ExecutionResult(result);
 
                 stupidityFactor++;

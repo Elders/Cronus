@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Elders.Cronus.Projections.Snapshotting;
 using Microsoft.Extensions.Logging;
 
@@ -36,20 +37,20 @@ namespace Elders.Cronus.Projections
 
         public List<ProjectionCommit> Commits { get; private set; }
 
-        public IProjectionDefinition RestoreFromHistory(Type projectionType)
+        public Task<IProjectionDefinition> RestoreFromHistoryAsync(Type projectionType)
         {
-            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return null;
+            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return Task.FromResult(default(IProjectionDefinition));
 
             IProjectionDefinition projection = (IProjectionDefinition)FastActivator.CreateInstance(projectionType, true);
-            return RestoreFromHistoryMamamia(projection);
+            return RestoreFromHistoryMamamiaAsync(projection);
         }
 
-        public T RestoreFromHistory<T>() where T : IProjectionDefinition
+        public Task<T> RestoreFromHistoryAsync<T>() where T : IProjectionDefinition
         {
-            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return default(T);
+            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return Task.FromResult(default(T));
 
             T projection = (T)FastActivator.CreateInstance(typeof(T), true);
-            return RestoreFromHistoryMamamia<T>(projection);
+            return RestoreFromHistoryMamamiaAsync<T>(projection);
         }
 
         ISnapshot GetSnapshot()
@@ -60,7 +61,7 @@ namespace Elders.Cronus.Projections
             return snapshot;
         }
 
-        T RestoreFromHistoryMamamia<T>(T projection) where T : IProjectionDefinition
+        async Task<T> RestoreFromHistoryMamamiaAsync<T>(T projection) where T : IProjectionDefinition
         {
             ISnapshot localSnapshot = GetSnapshot();
             projection.InitializeState(projectionId, localSnapshot.State);
@@ -85,7 +86,7 @@ namespace Elders.Cronus.Projections
                     .OrderBy(x => x.EventOrigin.Timestamp)
                     .Select(x => x.Event);
 
-                projection.ReplayEvents(events);
+                await projection.ReplayEventsAsync(events).ConfigureAwait(false);
             }
 
             return projection;

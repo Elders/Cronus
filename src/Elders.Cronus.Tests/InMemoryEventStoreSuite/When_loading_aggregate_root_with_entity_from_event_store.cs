@@ -11,7 +11,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
     [Subject("Entity")]
     public class When_loading_aggregate_root_with_entity_from_event_store
     {
-        Establish context = () =>
+        Establish context = async () =>
         {
             versionService = new InMemoryAggregateRootAtomicAction();
             eventStoreStorage = new InMemoryEventStoreStorage();
@@ -25,20 +25,22 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
-            aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
+            await aggregateRepository.SaveAsync<TestAggregateRoot>(aggregateRoot);
 
-            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
+            var events = await aggregateRepository.LoadAsync<TestAggregateRoot>(id).ConfigureAwait(false);
+            aggregateRoot = events.Data;
             var entityId0 = new TestEntityId(id);
             aggregateRoot.CreateEntity(entityId0);
-            aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
+            await aggregateRepository.SaveAsync<TestAggregateRoot>(aggregateRoot);
 
-            aggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
+            events = await aggregateRepository.LoadAsync<TestAggregateRoot>(id).ConfigureAwait(false);
+            aggregateRoot = events.Data;
             var entityId1 = new TestEntityId(id);
             aggregateRoot.CreateEntity(entityId1);
-            aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
+            await aggregateRepository.SaveAsync<TestAggregateRoot>(aggregateRoot);
         };
 
-        Because of = () => loadedAggregateRoot = aggregateRepository.Load<TestAggregateRoot>(id).Data;
+        Because of = () => loadedAggregateRoot = aggregateRepository.LoadAsync<TestAggregateRoot>(id).GetAwaiter().GetResult().Data;
 
         It should_instansiate_aggregate_root = () => loadedAggregateRoot.ShouldNotBeNull();
 

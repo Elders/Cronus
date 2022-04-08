@@ -1,6 +1,7 @@
 ﻿using Elders.Cronus.Cluster.Job;
 using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.Index.Handlers
 {
@@ -22,7 +23,7 @@ namespace Elders.Cronus.EventStore.Index.Handlers
             this.messageCounterJobFactory = messageCounterJobFactory;
         }
 
-        public void Handle(EventStoreIndexRequested @event)
+        public Task HandleAsync(EventStoreIndexRequested @event)
         {
             var startRebuildAt = @event.Timebox.RequestStartAt;
             if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
@@ -30,9 +31,11 @@ namespace Elders.Cronus.EventStore.Index.Handlers
                 RequestTimeout(new RebuildIndexInternal(@event, @event.Timebox.RequestStartAt));
                 RequestTimeout(new EventStoreIndexRebuildTimedout(@event, @event.Timebox.FinishRequestUntil));
             }
+
+            return Task.CompletedTask;
         }
 
-        public void Handle(RebuildIndexInternal sagaTimeout)
+        public async Task HandleAsync(RebuildIndexInternal sagaTimeout)
         {
             ICronusJob<object> job = null;
             // we need to redesign the job factories
@@ -50,7 +53,7 @@ namespace Elders.Cronus.EventStore.Index.Handlers
                 return;
             }
 
-            var result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
+            JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
 
             if (result == JobExecutionStatus.Running)
             {
@@ -68,10 +71,11 @@ namespace Elders.Cronus.EventStore.Index.Handlers
             }
         }
 
-        public void Handle(EventStoreIndexRebuildTimedout sagaTimeout)
+        public Task HandleAsync(EventStoreIndexRebuildTimedout sagaTimeout)
         {
             //var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             //commandPublisher.Publish(timedout);
+            return Task.CompletedTask;
         }
     }
 

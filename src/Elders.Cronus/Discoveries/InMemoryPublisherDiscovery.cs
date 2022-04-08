@@ -16,10 +16,10 @@ namespace Elders.Cronus.Discoveries
         IEnumerable<DiscoveredModel> GetModels()
         {
             yield return new DiscoveredModel(typeof(ILock), typeof(InMemoryLockWithTTL), ServiceLifetime.Transient);
-            yield return new DiscoveredModel(typeof(IPublisher<>), typeof(InMemoryPublisher<>), ServiceLifetime.Singleton);
+            // yield return new DiscoveredModel(typeof(IPublisher<>), typeof(InMemoryPublisher<>), ServiceLifetime.Singleton);
             yield return new DiscoveredModel(typeof(IAggregateRootAtomicAction), typeof(InMemoryAggregateRootAtomicAction), ServiceLifetime.Transient);
 
-            yield return new DiscoveredModel(typeof(IConsumer<>), typeof(EmptyConsumer<>), ServiceLifetime.Singleton);
+            //yield return new DiscoveredModel(typeof(IConsumer<>), typeof(EmptyConsumer<>), ServiceLifetime.Singleton);
         }
     }
 }

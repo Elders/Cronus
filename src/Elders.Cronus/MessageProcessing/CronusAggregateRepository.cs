@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -18,14 +19,14 @@ namespace Elders.Cronus.MessageProcessing
             this.context = context;
         }
 
-        public ReadResult<AR> Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        public Task<ReadResult<AR>> LoadAsync<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
-            return aggregateRepository.Load<AR>(id);
+            return aggregateRepository.LoadAsync<AR>(id);
         }
 
-        public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
+        public async Task SaveAsync<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
-            aggregateRepository.Save<AR>(aggregateRoot);
+            await aggregateRepository.SaveAsync<AR>(aggregateRoot).ConfigureAwait(false);
 
             if (ReferenceEquals(null, aggregateRoot.UncommittedEvents) || aggregateRoot.UncommittedEvents.Any() == false)
                 return;

@@ -1,30 +1,33 @@
-﻿namespace Elders.Cronus.Workflow
+﻿using System.Threading.Tasks;
+
+namespace Elders.Cronus.Workflow
 {
     public abstract class Workflow<TContext> : WorkflowBase<TContext> where TContext : class
     {
-        protected override object AbstractRun(Execution<TContext> execution)
+        protected override async Task<object> AbstractRunAsync(Execution<TContext> execution)
         {
-            Run(execution);
-            return null;
-        }
-        new public void Run(TContext context)
-        {
-            base.Run(context);
+            await RunAsync(execution).ConfigureAwait(false);
+            return default(object);
         }
 
-        protected abstract void Run(Execution<TContext> execution);
+        new public Task RunAsync(TContext context)
+        {
+            return base.RunAsync(context);
+        }
+
+        protected abstract Task RunAsync(Execution<TContext> execution);
     }
 
     public abstract class Workflow<TContext, TResult> : WorkflowBase<TContext> where TContext : class
     {
-        protected override object AbstractRun(Execution<TContext> execution)
+        protected override async Task<object> AbstractRunAsync(Execution<TContext> execution)
         {
-            return Run(new Execution<TContext, TResult>(execution));
+            return await RunAsync(new Execution<TContext, TResult>(execution)).ConfigureAwait(false);
         }
 
-        new public TResult Run(TContext context)
+        new public async Task<TResult> RunAsync(TContext context)
         {
-            return (TResult)base.Run(context);
+            return (TResult)await base.RunAsync(context);
         }
 
         protected override Execution<TContext> CreateExecutionContext(TContext context)
@@ -32,6 +35,6 @@
             return new Execution<TContext, TResult>(context);
         }
 
-        protected abstract TResult Run(Execution<TContext, TResult> execution);
+        protected abstract Task<TResult> RunAsync(Execution<TContext, TResult> execution);
     }
 }

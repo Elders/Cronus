@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.Index
 {
@@ -13,12 +14,14 @@ namespace Elders.Cronus.EventStore.Index
             this.eventCounter = eventCounter;
         }
 
-        public void Index(CronusMessage message)
+        public Task IndexAsync(CronusMessage message)
         {
             if (message.Payload is IEvent @event)
             {
                 eventCounter.Increment(@event.Unwrap().GetType());
             }
+
+            return Task.CompletedTask;
         }
     }
 }

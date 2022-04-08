@@ -26,11 +26,11 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             aggregateRoot = new TestAggregateRoot(id);
         };
 
-        Because of = () => aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
+        Because of = async () => await aggregateRepository.SaveAsync(aggregateRoot).ConfigureAwait(false);
 
-        It should_instansiate_aggregate_root = () => aggregateRepository.Load<TestAggregateRoot>(id).ShouldNotBeNull();
+        It should_instansiate_aggregate_root = async () => (await aggregateRepository.LoadAsync<TestAggregateRoot>(id).ConfigureAwait(false)).ShouldNotBeNull();
 
-        It should_instansiate_aggregate_root_with_valid_state = () => aggregateRepository.Load<TestAggregateRoot>(id).Data.State.Id.ShouldEqual(id);
+        It should_instansiate_aggregate_root_with_valid_state = async () => (await aggregateRepository.LoadAsync<TestAggregateRoot>(id).ConfigureAwait(false)).Data.State.Id.ShouldEqual(id);
 
         static TestAggregateId id;
         static InMemoryEventStoreStorage eventStoreStorage;

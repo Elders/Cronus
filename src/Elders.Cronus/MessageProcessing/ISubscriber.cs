@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -12,7 +13,6 @@ namespace Elders.Cronus.MessageProcessing
         /// </summary>
         /// <returns></returns>
         IEnumerable<Type> GetInvolvedMessageTypes();
-
-        void Process(CronusMessage message);
+        Task ProcessAsync(CronusMessage message);
     }
 }

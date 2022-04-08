@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
@@ -14,7 +15,7 @@ namespace Elders.Cronus.Migrations
         {
         }
 
-        protected override AggregateCommit Run(Execution<AggregateCommit, AggregateCommit> context)
+        protected override Task<AggregateCommit> RunAsync(Execution<AggregateCommit, AggregateCommit> context)
         {
             AggregateCommit result = context.Context;
             var commit = context.Context;
@@ -28,7 +29,7 @@ namespace Elders.Cronus.Migrations
                 logger.ErrorException(ex, () => "Error while applying migration");
             }
 
-            return result;
+            return Task.FromResult(result);
         }
     }
 
@@ -40,8 +41,8 @@ namespace Elders.Cronus.Migrations
             : base(migration)
         {
         }
-
-        protected override AggregateCommitRaw Run(Execution<AggregateCommitRaw, AggregateCommitRaw> context)
+         
+        protected override Task<AggregateCommitRaw> RunAsync(Execution<AggregateCommitRaw, AggregateCommitRaw> context)
         {
             AggregateCommitRaw result = context.Context;
             var commit = context.Context;
@@ -55,7 +56,7 @@ namespace Elders.Cronus.Migrations
                 logger.ErrorException(ex, () => "Error while applying migration");
             }
 
-            return result;
+            return Task.FromResult(result);
         }
     }
 }

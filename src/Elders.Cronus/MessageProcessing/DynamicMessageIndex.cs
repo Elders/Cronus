@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.Workflow;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -8,10 +9,10 @@ namespace Elders.Cronus.MessageProcessing
     /// </summary>
     public class DynamicMessageIndex : Workflow<HandlerContext>
     {
-        protected override void Run(Execution<HandlerContext> execution)
+        protected override async Task RunAsync(Execution<HandlerContext> execution)
         {
             dynamic handler = execution.Context.HandlerInstance;
-            handler.Index((dynamic)execution.Context.CronusMessage);
+            await handler.IndexAsync((dynamic)execution.Context.CronusMessage);
         }
     }
 }

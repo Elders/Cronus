@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections.Versioning.Handlers
 {
@@ -23,7 +24,7 @@ namespace Elders.Cronus.Projections.Versioning.Handlers
             this.logger = logger;
         }
 
-        public void Handle(NewProjectionVersionIsNowLive @event)
+        public async Task HandleAsync(NewProjectionVersionIsNowLive @event)
         {
             var projectionType = @event.ProjectionVersion.ProjectionName.GetTypeByContract();
             if (projectionType.IsRebuildableProjection())
@@ -35,7 +36,7 @@ namespace Elders.Cronus.Projections.Versioning.Handlers
                 try
                 {
                     IEnumerable<ProjectionCommit> commits = projectionStore.EnumerateProjection(@event.ProjectionVersion, id);
-                    projection.ReplayEvents(commits.Select(x => x.Event));
+                    await projection.ReplayEventsAsync(commits.Select(x => x.Event)).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

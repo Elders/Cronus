@@ -43,7 +43,7 @@ namespace Elders.Cronus.EventStore.InMemory
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync()
+        IAsyncEnumerable<AggregateCommitRaw> IEventStorePlayer.LoadAggregateCommitsRawAsync()
         {
             throw new NotImplementedException();
         }

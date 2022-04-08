@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -19,8 +20,7 @@ namespace Elders.Cronus.MessageProcessing
             this.ioc = ioc;
             this.workflow = workflow;
         }
-
-        protected override void Run(Execution<HandleContext> execution)
+        protected override async Task RunAsync(Execution<HandleContext> execution)
         {
             using (IServiceScope scope = ioc.CreateScope())
             {
@@ -34,7 +34,7 @@ namespace Elders.Cronus.MessageProcessing
                         scopes.AddOrUpdate(execution.Context, scope, (c, s) => scope);
                         try
                         {
-                            workflow.Run(execution.Context);
+                            await workflow.RunAsync(execution.Context).ConfigureAwait(false);
                         }
                         finally
                         {
@@ -45,7 +45,7 @@ namespace Elders.Cronus.MessageProcessing
             }
         }
 
-        bool EnsureTenantIsSet(IServiceScope scope, CronusMessage message)
+        private bool EnsureTenantIsSet(IServiceScope scope, CronusMessage message)
         {
             var cronusContextFactory = scope.ServiceProvider.GetRequiredService<CronusContextFactory>();
             var context = cronusContextFactory.GetContext(message, scope.ServiceProvider);

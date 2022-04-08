@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Elders.Cronus.FaultHandling.Strategies;
 using Elders.Cronus.Workflow;
 
@@ -17,14 +18,14 @@ namespace Elders.Cronus.FaultHandling
             retryPolicy = new RetryPolicy(new TransientErrorCatchAllStrategy(), retryStrategy);
         }
 
-        protected override void Run(Execution<TContext> execution)
+        protected override async Task RunAsync(Execution<TContext> execution)
         {
             if (execution is null) throw new ArgumentNullException(nameof(execution));
 
             TContext context = execution.Context;
-            retryPolicy.ExecuteAction(() =>
+            await retryPolicy.ExecuteAction(() =>
             {
-                workflow.Run(execution.Context);
+                return workflow.RunAsync(execution.Context).ConfigureAwait(false);
             });
         }
     }

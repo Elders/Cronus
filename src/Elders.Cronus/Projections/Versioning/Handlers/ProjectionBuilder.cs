@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.Projections.Rebuilding;
 using Microsoft.Extensions.Logging;
@@ -24,7 +25,7 @@ namespace Elders.Cronus.Projections.Versioning
             this.jobFactory = jobFactory;
         }
 
-        public void Handle(ProjectionVersionRequested @event)
+        public Task HandleAsync(ProjectionVersionRequested @event)
         {
             var startRebuildAt = @event.Timebox.RequestStartAt;
             if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
@@ -32,12 +33,14 @@ namespace Elders.Cronus.Projections.Versioning
                 RequestTimeout(new CreateNewProjectionVersion(@event, @event.Timebox.RequestStartAt));
                 RequestTimeout(new ProjectionVersionRequestHeartbeat(@event, @event.Timebox.FinishRequestUntil));
             }
+
+            return Task.CompletedTask;
         }
 
-        public void Handle(CreateNewProjectionVersion sagaTimeout)
+        public async Task HandleAsync(CreateNewProjectionVersion sagaTimeout)
         {
             RebuildProjection_Job job = jobFactory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
-            JobExecutionStatus result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
+            JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
             logger.Debug(() => "Replay projection version {@cronus_projection_rebuild}", result);
 
 
@@ -57,10 +60,12 @@ namespace Elders.Cronus.Projections.Versioning
             }
         }
 
-        public void Handle(ProjectionVersionRequestHeartbeat sagaTimeout)
+        public Task HandleAsync(ProjectionVersionRequestHeartbeat sagaTimeout)
         {
             var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
             commandPublisher.Publish(timedout);
+
+            return Task.CompletedTask;
         }
     }
 

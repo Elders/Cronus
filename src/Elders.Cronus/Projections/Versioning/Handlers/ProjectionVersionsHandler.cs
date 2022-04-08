@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Elders.Cronus.Projections.Snapshotting;
 
 namespace Elders.Cronus.Projections.Versioning
@@ -21,28 +22,32 @@ namespace Elders.Cronus.Projections.Versioning
             Subscribe<ProjectionVersionRequestTimedout>(x => x.Id);
         }
 
-        public void Handle(ProjectionVersionRequested @event)
+        public Task HandleAsync(ProjectionVersionRequested @event)
         {
             State.Id = @event.Id;
             State.AllVersions.Add(@event.Version);
+            return Task.CompletedTask;
         }
 
-        public void Handle(NewProjectionVersionIsNowLive @event)
+        public Task HandleAsync(NewProjectionVersionIsNowLive @event)
         {
             State.Id = @event.Id;
             State.AllVersions.Add(@event.ProjectionVersion);
+            return Task.CompletedTask;
         }
 
-        public void Handle(ProjectionVersionRequestCanceled @event)
+        public Task HandleAsync(ProjectionVersionRequestCanceled @event)
         {
             State.Id = @event.Id;
             State.AllVersions.Add(@event.Version);
+            return Task.CompletedTask;
         }
 
-        public void Handle(ProjectionVersionRequestTimedout @event)
+        public Task HandleAsync(ProjectionVersionRequestTimedout @event)
         {
             State.Id = @event.Id;
             State.AllVersions.Add(@event.Version);
+            return Task.CompletedTask;
         }
     }
 

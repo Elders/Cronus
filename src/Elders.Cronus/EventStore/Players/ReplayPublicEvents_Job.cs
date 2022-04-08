@@ -23,7 +23,6 @@ namespace Elders.Cronus.EventStore.Players
             this.eventStorePlayer = eventStorePlayer;
             this.eventToAggregateIndex = eventToAggregateIndex;
         }
-
         public override string Name { get; set; } = "c0e0f5fc-1f22-4022-96d0-bf02590951d6";
 
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
@@ -35,7 +34,7 @@ namespace Elders.Cronus.EventStore.Players
             while (hasMoreRecords && Data.IsCompleted == false)
             {
                 string paginationToken = Data.EventTypePaging?.PaginationToken;
-                LoadIndexRecordsResult indexRecordsResult = eventToAggregateIndex.EnumerateRecords(eventTypeId, paginationToken);
+                LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false);
                 IEnumerable<IndexRecord> indexRecords = indexRecordsResult.Records;
                 Type publicEventType = typeof(IPublicEvent);
                 ReplayOptions opt = new ReplayOptions()
@@ -182,20 +181,5 @@ namespace Elders.Cronus.EventStore.Players
                 EventTypePaging.TotalCount = progress.TotalCount;
             }
         }
-
-        //public RebuildProjectionProgress GetProgressSignal(string tenant)
-        //{
-        //    return new RebuildProjectionProgress(tenant, Version.ProjectionName, EventTypePaging.Sum(x => x.ProcessedCount), EventTypePaging.Sum(x => x.TotalCount));
-        //}
-
-        //public RebuildProjectionFinished GetProgressFinishedSignal(string tenant)
-        //{
-        //    return new RebuildProjectionFinished(tenant, Version.ProjectionName);
-        //}
-
-        //public RebuildProjectionStarted GetProgressStartedSignal(string tenant)
-        //{
-        //    return new RebuildProjectionStarted(tenant, Version.ProjectionName);
-        //}
     }
 }

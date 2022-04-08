@@ -6,6 +6,7 @@ using Elders.Cronus.EventStore.Index.Handlers;
 using Elders.Cronus.Projections.Versioning;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.EventStore.Index;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
@@ -37,9 +38,10 @@ namespace Elders.Cronus.Projections.Rebuilding
             projectionVersionInitializer.Initialize(newPersistentVersion);
         }
 
-        public bool ShouldBeRetried(ProjectionVersion version)
+        public async Task<bool> ShouldBeRetriedAsync(ProjectionVersion version)
         {
-            if (IsVersionTrackerMissing())
+            bool isVersionTrackerMissing = await IsVersionTrackerMissingAsync().ConfigureAwait(false);
+            if (isVersionTrackerMissing)
             {
                 InitializeNewProjectionVersion();
 
@@ -47,16 +49,16 @@ namespace Elders.Cronus.Projections.Rebuilding
                     return true;
             }
 
-            IndexStatus indexStatus = GetIndexStatus<EventToAggregateRootId>();
+            IndexStatus indexStatus = await GetIndexStatusAsync<EventToAggregateRootId>().ConfigureAwait(false);
             Type projectionType = version.ProjectionName.GetTypeByContract();
 
-            if (IsVersionTrackerMissing() && IsNotSystemProjection(projectionType)) return true;
+            if (isVersionTrackerMissing && IsNotSystemProjection(projectionType)) return true;
             if (indexStatus.IsNotPresent() && IsNotSystemProjection(projectionType)) return true;
 
             return false;
         }
 
-        public bool ShouldBeCanceled(ProjectionVersion version, DateTimeOffset dueDate)
+        public async Task<bool> ShouldBeCanceledAsync(ProjectionVersion version, DateTimeOffset dueDate)
         {
             if (HasReplayTimeout(dueDate))
             {
@@ -64,7 +66,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                 return true;
             }
 
-            var allVersions = GetAllVersions(version);
+            ProjectionVersions allVersions = await GetAllVersionsAsync(version).ConfigureAwait(false);
             if (allVersions.IsOutdatad(version))
             {
                 logger.Error(() => $"Version `{version}` is outdated. There is a newer one which is already live.");
@@ -95,10 +97,10 @@ namespace Elders.Cronus.Projections.Rebuilding
             return new ProjectionVersion(ProjectionVersionsHandler.ContractId, ProjectionStatus.Live, 1, projectionHasher.CalculateHash(typeof(ProjectionVersionsHandler)));
         }
 
-        private bool IsVersionTrackerMissing()
+        private async Task<bool> IsVersionTrackerMissingAsync()
         {
             var versionId = new ProjectionVersionManagerId(ProjectionVersionsHandler.ContractId, context.Tenant);
-            var result = projectionReader.Get<ProjectionVersionsHandler>(versionId);
+            var result = await projectionReader.GetAsync<ProjectionVersionsHandler>(versionId).ConfigureAwait(false);
 
             return result.HasError || result.NotFound;
         }
@@ -113,20 +115,20 @@ namespace Elders.Cronus.Projections.Rebuilding
             return typeof(ISystemProjection).IsAssignableFrom(projectionType) == false;
         }
 
-        private IndexStatus GetIndexStatus<TIndex>() where TIndex : IEventStoreIndex
+        private async Task<IndexStatus> GetIndexStatusAsync<TIndex>() where TIndex : IEventStoreIndex
         {
             var id = new EventStoreIndexManagerId(typeof(TIndex).GetContractId(), context.Tenant);
-            var result = projectionReader.Get<EventStoreIndexStatus>(id);
+            var result = await projectionReader.GetAsync<EventStoreIndexStatus>(id).ConfigureAwait(false);
             if (result.IsSuccess)
                 return result.Data.State.Status;
 
             return IndexStatus.NotPresent;
         }
 
-        private ProjectionVersions GetAllVersions(ProjectionVersion version)
+        private async Task<ProjectionVersions> GetAllVersionsAsync(ProjectionVersion version)
         {
             var versionId = new ProjectionVersionManagerId(version.ProjectionName, context.Tenant);
-            var result = projectionReader.Get<ProjectionVersionsHandler>(versionId);
+            var result = await projectionReader.GetAsync<ProjectionVersionsHandler>(versionId).ConfigureAwait(false);
             if (result.IsSuccess)
                 return result.Data.State.AllVersions;
 
