@@ -1,3 +1,10 @@
+# [8.0.0-preview.2](https://github.com/Elders/Cronus/compare/v8.0.0-preview.1...v8.0.0-preview.2) (2022-04-08)
+
+
+### Bug Fixes
+
+* Move some In-memory implementations to support only tests ([49cd3a5](https://github.com/Elders/Cronus/commit/49cd3a5388c6e3d8f2f720c2cafec86e52228547))
+
 # [8.0.0-preview.1](https://github.com/Elders/Cronus/compare/v7.0.0...v8.0.0-preview.1) (2022-04-08)
 
 # [7.0.0](https://github.com/Elders/Cronus/compare/v6.4.3...v7.0.0) (2022-04-05)
