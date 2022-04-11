@@ -1,3 +1,10 @@
+# [8.0.0-preview.5](https://github.com/Elders/Cronus/compare/v8.0.0-preview.4...v8.0.0-preview.5) (2022-04-11)
+
+
+### Bug Fixes
+
+* Provide async message counter ([e23c79c](https://github.com/Elders/Cronus/commit/e23c79c985ff5d0a19f3f2f9c246b87d92fde18a))
+
 # [8.0.0-preview.4](https://github.com/Elders/Cronus/compare/v8.0.0-preview.3...v8.0.0-preview.4) (2022-04-08)
 
 
