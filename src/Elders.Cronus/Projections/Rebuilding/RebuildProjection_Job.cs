@@ -44,7 +44,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             ProjectionVersion version = Data.Version;
             Type projectionType = version.ProjectionName.GetTypeByContract();
 
-            progressTracker.Initialize(version);
+            await progressTracker.InitializeAsync(version).ConfigureAwait(false);
 
             if (await projectionVersionHelper.ShouldBeRetriedAsync(version).ConfigureAwait(false))
                 return JobExecutionStatus.Running;

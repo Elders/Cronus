@@ -18,7 +18,7 @@ namespace Elders.Cronus.EventStore.Index
         {
             if (message.Payload is IEvent @event)
             {
-                eventCounter.Increment(@event.Unwrap().GetType());
+                eventCounter.IncrementAsync(@event.Unwrap().GetType());
             }
 
             return Task.CompletedTask;
