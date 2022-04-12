@@ -1,3 +1,10 @@
+# [8.0.0-preview.8](https://github.com/Elders/Cronus/compare/v8.0.0-preview.7...v8.0.0-preview.8) (2022-04-12)
+
+
+### Bug Fixes
+
+* InitializeAsync ([d03d689](https://github.com/Elders/Cronus/commit/d03d689006b14ff66e59eeeacc4486ad2fb9c633))
+
 # [8.0.0-preview.7](https://github.com/Elders/Cronus/compare/v8.0.0-preview.6...v8.0.0-preview.7) (2022-04-12)
 
 
