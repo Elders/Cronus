@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
+using Elders.Cronus.AtomicAction;
 using Elders.Cronus.Diagnostics;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.EventStore.Index;
@@ -35,6 +36,7 @@ namespace Elders.Cronus
             services.AddTenantSupport();
             services.AddCronusHostOptions();
             services.AddDefaultSubscribers();
+            services.AddInMemoryLock();
 
             var discoveryFinder = new DiscoveryScanner();
             var discoveryContext = new DiscoveryContext(AssemblyLoader.Assemblies.Values, cronusServicesProvider.Configuration);
@@ -51,6 +53,13 @@ namespace Elders.Cronus
             services.AddOptions<HeartbeatOptions, HeartbeaOptionsProvider>();
             services.AddSingleton<IHeartbeat, CronusHeartbeat>();
             services.AddHostedService<CronusHeartbeatService>();
+
+            return services;
+        }
+
+        public static IServiceCollection AddInMemoryLock(this IServiceCollection services)
+        {
+            services.AddSingleton<ILock, InMemoryLockWithTTL>();
 
             return services;
         }
