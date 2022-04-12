@@ -6,26 +6,16 @@ namespace Elders.Cronus.Projections.Snapshotting
     {
         public void InitializeProjectionSnapshotStore(ProjectionVersion version) { }
 
-        public ISnapshot Load(string projectionName, IBlobId id, ProjectionVersion version)
-        {
-            return new NoSnapshot(id, projectionName);
-        }
-
         public Task<ISnapshot> LoadAsync(string projectionName, IBlobId id, ProjectionVersion version)
         {
-            return Task.FromResult(Load(projectionName, id, version));
-        }
-
-        public SnapshotMeta LoadMeta(string projectionName, IBlobId id, ProjectionVersion version)
-        {
-            return new NoSnapshot(id, projectionName).GetMeta();
+            return Task.FromResult((ISnapshot)new NoSnapshot(id, projectionName));
         }
 
         public Task<SnapshotMeta> LoadMetaAsync(string projectionName, IBlobId id, ProjectionVersion version)
         {
-            return Task.FromResult(LoadMeta(projectionName, id, version));
+            return Task.FromResult(new NoSnapshot(id, projectionName).GetMeta());
         }
 
-        public void Save(ISnapshot snapshot, ProjectionVersion version) { }
+        public Task SaveAsync(ISnapshot snapshot, ProjectionVersion version) { return Task.CompletedTask; }
     }
 }

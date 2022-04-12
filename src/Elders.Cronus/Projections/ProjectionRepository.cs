@@ -267,8 +267,10 @@ namespace Elders.Cronus.Projections
 
         private async Task<ProjectionStream> LoadProjectionStreamAsync(Type projectionType, ProjectionVersion version, IBlobId projectionId, SnapshotMeta snapshotMeta)
         {
+            ISnapshot loadedSnapshot = await snapshotStore.LoadAsync(version.ProjectionName, projectionId, version).ConfigureAwait(false);
+
             Func<ISnapshot> loadSnapshot = () => projectionType.IsSnapshotable()
-                ? snapshotStore.Load(version.ProjectionName, projectionId, version)
+                ? loadedSnapshot
                 : new NoSnapshot(projectionId, version.ProjectionName);
 
             return await LoadProjectionStreamAsync(version, projectionId, snapshotMeta, loadSnapshot).ConfigureAwait(false);
