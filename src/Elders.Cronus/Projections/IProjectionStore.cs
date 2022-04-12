@@ -16,11 +16,11 @@ namespace Elders.Cronus.Projections
 
     public interface IInitializableProjectionStore
     {
-        void Initialize(ProjectionVersion version);
+        Task InitializeAsync(ProjectionVersion version);
     }
 
     public class NotInitializableProjectionStore : IInitializableProjectionStore
     {
-        public void Initialize(ProjectionVersion version) { }
+        public Task InitializeAsync(ProjectionVersion version) { return Task.CompletedTask; }
     }
 }

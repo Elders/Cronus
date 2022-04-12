@@ -52,7 +52,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             if (await projectionVersionHelper.ShouldBeCanceledAsync(version, Data.DueDate).ConfigureAwait(false))
                 return JobExecutionStatus.Failed;
 
-            projectionStoreInitializer.Initialize(version);
+            projectionStoreInitializer.InitializeAsync(version);
 
             var startSignal = progressTracker.GetProgressStartedSignal();
             signalPublisher.Publish(startSignal);

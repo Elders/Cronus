@@ -35,7 +35,7 @@ namespace Elders.Cronus.Projections.Rebuilding
         public void InitializeNewProjectionVersion()
         {
             ProjectionVersion newPersistentVersion = GetNewProjectionVersion();
-            projectionVersionInitializer.Initialize(newPersistentVersion);
+            projectionVersionInitializer.InitializeAsync(newPersistentVersion);
         }
 
         public async Task<bool> ShouldBeRetriedAsync(ProjectionVersion version)
