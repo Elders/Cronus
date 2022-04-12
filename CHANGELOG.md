@@ -1,3 +1,10 @@
+# [8.0.0-preview.6](https://github.com/Elders/Cronus/compare/v8.0.0-preview.5...v8.0.0-preview.6) (2022-04-12)
+
+
+### Bug Fixes
+
+* Fix not registered ILock ([dd82912](https://github.com/Elders/Cronus/commit/dd829123507905b8a6d818ed8b21da5fe75efe2f))
+
 # [8.0.0-preview.5](https://github.com/Elders/Cronus/compare/v8.0.0-preview.4...v8.0.0-preview.5) (2022-04-11)
 
 
