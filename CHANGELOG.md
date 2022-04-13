@@ -1,3 +1,10 @@
+# [8.0.0-preview.9](https://github.com/Elders/Cronus/compare/v8.0.0-preview.8...v8.0.0-preview.9) (2022-04-13)
+
+
+### Bug Fixes
+
+* Improve Projection Store ([f1b3efb](https://github.com/Elders/Cronus/commit/f1b3efb5069adb8ddead2551e2ee5bb84b40c223))
+
 # [8.0.0-preview.8](https://github.com/Elders/Cronus/compare/v8.0.0-preview.7...v8.0.0-preview.8) (2022-04-12)
 
 
