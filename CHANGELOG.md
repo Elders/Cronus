@@ -1,3 +1,10 @@
+# [8.0.0-preview.10](https://github.com/Elders/Cronus/compare/v8.0.0-preview.9...v8.0.0-preview.10) (2022-04-13)
+
+
+### Bug Fixes
+
+* Enable public events replay ([b67b4f8](https://github.com/Elders/Cronus/commit/b67b4f8bcc80be6d86ad3944a4b0c457670572a5))
+
 # [8.0.0-preview.9](https://github.com/Elders/Cronus/compare/v8.0.0-preview.8...v8.0.0-preview.9) (2022-04-13)
 
 
