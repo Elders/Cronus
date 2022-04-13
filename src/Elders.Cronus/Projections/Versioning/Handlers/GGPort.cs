@@ -35,7 +35,14 @@ namespace Elders.Cronus.Projections.Versioning.Handlers
 
                 try
                 {
-                    IEnumerable<ProjectionCommit> commits = projectionStore.EnumerateProjection(@event.ProjectionVersion, id);
+                    List<ProjectionCommit> commits = new List<ProjectionCommit>();
+
+                    var asyncCommits = projectionStore.EnumerateProjectionAsync(@event.ProjectionVersion, id).ConfigureAwait(false);
+                    await foreach (var commit in asyncCommits)
+                    {
+                        commits.Add(commit);
+                    }
+
                     await projection.ReplayEventsAsync(commits.Select(x => x.Event)).ConfigureAwait(false);
                 }
                 catch (Exception ex)

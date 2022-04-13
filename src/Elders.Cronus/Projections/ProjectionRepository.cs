@@ -285,10 +285,13 @@ namespace Elders.Cronus.Projections
             while (shouldLoadMore)
             {
                 snapshotMarker++;
-                var loadedCommits = await projectionStore.LoadAsync(version, projectionId, snapshotMarker).ConfigureAwait(false);
-                projectionCommits.AddRange(loadedCommits);
+                var loadedCommits = projectionStore.LoadAsync(version, projectionId, snapshotMarker).ConfigureAwait(false);
+                await foreach (var commit in loadedCommits)
+                {
+                    projectionCommits.Add(commit);
+                }
 
-                shouldLoadMore = projectionStore.HasSnapshotMarker(version, projectionId, snapshotMarker + 1);
+                shouldLoadMore = await projectionStore.HasSnapshotMarkerAsync(version, projectionId, snapshotMarker + 1).ConfigureAwait(false);
             }
 
             ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
@@ -306,12 +309,12 @@ namespace Elders.Cronus.Projections
             {
                 snapshotMarker++;
 
-                var loadProjectionCommitsTask = projectionStore.LoadAsync(version, projectionId, snapshotMarker).ConfigureAwait(false);
-                bool checkNextSnapshotMarker = projectionStore.HasSnapshotMarker(version, projectionId, snapshotMarker + 1);
+                var loadProjectionCommits = projectionStore.LoadAsync(version, projectionId, snapshotMarker).ConfigureAwait(false);
+                bool checkNextSnapshotMarker = await projectionStore.HasSnapshotMarkerAsync(version, projectionId, snapshotMarker + 1).ConfigureAwait(false);
                 shouldLoadMore = checkNextSnapshotMarker;
-                IEnumerable<ProjectionCommit> loadedProjectionCommits = await loadProjectionCommitsTask;
 
-                projectionCommits.AddRange(loadedProjectionCommits);
+                await foreach (var commit in loadProjectionCommits)
+                    projectionCommits.Add(commit);
             }
 
             ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
