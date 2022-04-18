@@ -1,3 +1,10 @@
+# [8.0.0-preview.11](https://github.com/Elders/Cronus/compare/v8.0.0-preview.10...v8.0.0-preview.11) (2022-04-18)
+
+
+### Bug Fixes
+
+* Add missing await ([96749d2](https://github.com/Elders/Cronus/commit/96749d20564fbe508e97ea10721ee25ad840fb8c))
+
 # [8.0.0-preview.10](https://github.com/Elders/Cronus/compare/v8.0.0-preview.9...v8.0.0-preview.10) (2022-04-13)
 
 
