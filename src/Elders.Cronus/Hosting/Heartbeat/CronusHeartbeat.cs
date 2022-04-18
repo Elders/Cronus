@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -35,9 +34,9 @@ namespace Elders.Cronus.Hosting.Heartbeat
             {
                 try
                 {
-                    var @event = new HeartbeatSignal(boundedContext.Name, tenants);
-                    publisher.Publish(@event, heartbeatHeaders);
-
+                    var signal = new HeartbeatSignal(boundedContext.Name, tenants);
+                    publisher.Publish(signal, heartbeatHeaders);
+                    logger.Debug(() => "Heartbeat sent");
                     await Task.Delay(TimeSpan.FromSeconds(options.IntervalInSeconds), stoppingToken);
                 }
                 catch (Exception ex) when (ex is TaskCanceledException or ObjectDisposedException)
