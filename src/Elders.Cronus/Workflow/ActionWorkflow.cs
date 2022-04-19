@@ -16,11 +16,13 @@ namespace Elders.Cronus.Workflow
         {
             if (execution is null) throw new ArgumentNullException(nameof(execution));
 
-            if (implementation != null)
+            if (implementation is not null)
                 return implementation(execution);
 
             return Task.CompletedTask;
         }
+
+        public static ActionWorkflow<TContext> Empty = new ActionWorkflow<TContext>(default);
     }
 
     public class ActionWorkflow<TContext, TResult> : Workflow<TContext, TResult> where TContext : class
@@ -36,10 +38,12 @@ namespace Elders.Cronus.Workflow
         {
             if (execution is null) throw new ArgumentNullException(nameof(execution));
 
-            if (implementation != null)
+            if (implementation is not null)
                 return implementation(execution);
             else
                 return Task.FromResult(default(TResult));
         }
+
+        public static ActionWorkflow<TContext, TResult> Empty = new ActionWorkflow<TContext, TResult>(default);
     }
 }

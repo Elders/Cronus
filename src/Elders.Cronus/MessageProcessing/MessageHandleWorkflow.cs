@@ -5,7 +5,7 @@ using Elders.Cronus.Workflow;
 namespace Elders.Cronus.MessageProcessing
 {
     /// <summary>
-    /// A work-flow which gives you the ability to call Handle on an instance object for a message. A 'Workflow<HandleContext, IHandlerInstance>' should be passed which
+    /// A workflow which gives you the ability to call Handle on an instance object for a message. A 'Workflow<HandleContext, IHandlerInstance>' should be passed which
     /// would be used for instantiating a new instance of the desired object which would handle the message.
     /// </summary>
     public sealed class MessageHandleWorkflow : Workflow<HandleContext>
@@ -16,9 +16,9 @@ namespace Elders.Cronus.MessageProcessing
         {
             CreateHandler = createHandler;
             BeginHandle = WorkflowExtensions.Lamda<HandlerContext>();
-            ActualHandle = WorkflowExtensions.Lamda<HandlerContext>().Use((context) => new DynamicMessageHandle().RunAsync(context.Context));
+            ActualHandle = WorkflowExtensions.Lamda<HandlerContext>().Use(context => new DynamicMessageHandle().RunAsync(context.Context));
             EndHandle = WorkflowExtensions.Lamda<HandlerContext>();
-            Error = WorkflowExtensions.Lamda<ErrorContext>().Use((context) => new LogExceptionOnHandleError().RunAsync(context.Context));
+            Error = WorkflowExtensions.Lamda<ErrorContext>().Use(context => new LogExceptionOnHandleError().RunAsync(context.Context));
             Finalize = WorkflowExtensions.Lamda<HandleContext>();
         }
 
