@@ -12,10 +12,10 @@ namespace Elders.Cronus.MessageProcessing
     /// </summary>
     public class DynamicMessageHandle : Workflow<HandlerContext>
     {
-        protected override async Task RunAsync(Execution<HandlerContext> execution)
+        protected override Task RunAsync(Execution<HandlerContext> execution)
         {
             dynamic handler = execution.Context.HandlerInstance;
-            await handler.HandleAsync((dynamic)execution.Context.Message);
+            return handler.HandleAsync((dynamic)execution.Context.Message);
         }
     }
 
@@ -23,21 +23,22 @@ namespace Elders.Cronus.MessageProcessing
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(LogExceptionOnHandleError));
 
-        protected override Task RunAsync(Execution<ErrorContext> execution)
+        protected override async Task RunAsync(Execution<ErrorContext> execution)
         {
             var serializer = execution.Context.ServiceProvider.GetRequiredService<ISerializer>();
-            logger.ErrorException(execution.Context.Error, () => $"There was an error in {execution.Context.HandlerType.Name} while handling message {MessageAsString(serializer, execution.Context.Message)}");
-            return Task.CompletedTask;
+
+            string messageContent = await MessageAsStringAsync(serializer, execution.Context.Message).ConfigureAwait(false);
+            logger.ErrorException(execution.Context.Error, () => $"There was an error in {execution.Context.HandlerType.Name} while handling message {messageContent}");
         }
 
-        private string MessageAsString(ISerializer serializer, CronusMessage message)
+        private Task<string> MessageAsStringAsync(ISerializer serializer, CronusMessage message)
         {
             using (var stream = new MemoryStream())
             using (StreamReader reader = new StreamReader(stream))
             {
                 serializer.Serialize(stream, message);
                 stream.Position = 0;
-                return reader.ReadToEnd();
+                return reader.ReadToEndAsync();
             }
         }
     }
