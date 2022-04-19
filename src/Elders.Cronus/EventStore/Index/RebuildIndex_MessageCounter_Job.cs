@@ -58,7 +58,7 @@ namespace Elders.Cronus.EventStore.Index
                     {
                         logger.Info(() => $"Message counter for {eventTypeId} has been reset");
                         // Maybe we should move this to a BeforeRun method.
-                        messageCounter.ResetAsync(eventType);
+                        await messageCounter.ResetAsync(eventType).ConfigureAwait(false);
                     }
                     LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false);
 
@@ -83,7 +83,7 @@ namespace Elders.Cronus.EventStore.Index
                                 }
 
                                 if (eventTypeId.Equals(@event.GetType().GetContractId(), StringComparison.OrdinalIgnoreCase))
-                                    messageCounter.IncrementAsync(eventType);
+                                    await messageCounter.IncrementAsync(eventType).ConfigureAwait(false);
                             }
                         }
                     }
