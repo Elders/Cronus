@@ -1,3 +1,12 @@
+# [8.0.0-preview.12](https://github.com/Elders/Cronus/compare/v8.0.0-preview.11...v8.0.0-preview.12) (2022-04-19)
+
+
+### Bug Fixes
+
+* Awaits async invocations when building the message counter ([c19086b](https://github.com/Elders/Cronus/commit/c19086b21d6df0396b8b8a1debdde15de2f30f7b))
+* Use static empty workflow when no work is required ([6ba363b](https://github.com/Elders/Cronus/commit/6ba363ba5522560e2673b6c1215d9208b612ed46))
+* Uses async to log an error message ([f158392](https://github.com/Elders/Cronus/commit/f1583924af8af681f8fca81ed13973996ec2b937))
+
 # [8.0.0-preview.11](https://github.com/Elders/Cronus/compare/v8.0.0-preview.10...v8.0.0-preview.11) (2022-04-18)
 
 
