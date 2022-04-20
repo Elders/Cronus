@@ -14,9 +14,7 @@ namespace Elders.Cronus.Workflow
         /// <returns></returns>
         public static Workflow<TContext> Use<TContext>(this Workflow<TContext> self, Func<Execution<TContext>, Task> action) where TContext : class
         {
-            ActionWorkflow<TContext> workflow = action is null ? ActionWorkflow<TContext>.Empty : new ActionWorkflow<TContext>(action);
-
-            self.Use(workflow);
+            self.Use(new ActionWorkflow<TContext>(action));
             return self;
         }
 
@@ -30,9 +28,7 @@ namespace Elders.Cronus.Workflow
         /// <returns></returns>
         public static Workflow<TContext, TResult> Use<TContext, TResult>(this Workflow<TContext, TResult> self, Func<Execution<TContext>, Task<TResult>> action) where TContext : class
         {
-            ActionWorkflow<TContext, TResult> workflow = action is null ? ActionWorkflow<TContext, TResult>.Empty : new ActionWorkflow<TContext, TResult>(action);
-
-            self.Use(workflow);
+            self.Use(new ActionWorkflow<TContext, TResult>(action));
             return self;
         }
 
@@ -44,17 +40,11 @@ namespace Elders.Cronus.Workflow
         /// <returns></returns>
         public static Workflow<TContext> Lamda<TContext>(Func<Execution<TContext>, Task> action = null) where TContext : class
         {
-            if (action is null)
-                return ActionWorkflow<TContext>.Empty;
-
             return new ActionWorkflow<TContext>(action);
         }
 
         public static Workflow<TContext, TResult> Lambda<TContext, TResult>(Func<Execution<TContext>, Task<TResult>> action = null) where TContext : class
         {
-            if (action is null)
-                return ActionWorkflow<TContext, TResult>.Empty;
-
             return new ActionWorkflow<TContext, TResult>(action);
         }
     }
