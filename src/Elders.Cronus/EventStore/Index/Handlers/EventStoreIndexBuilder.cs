@@ -1,7 +1,7 @@
-﻿using Elders.Cronus.Cluster.Job;
-using System;
-using System.Runtime.Serialization;
+﻿using System;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
+using Elders.Cronus.Cluster.Job;
 
 namespace Elders.Cronus.EventStore.Index.Handlers
 {
