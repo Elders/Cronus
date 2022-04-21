@@ -1,3 +1,16 @@
+# [8.0.0-preview.12](https://github.com/Elders/Cronus/compare/v8.0.0-preview.11...v8.0.0-preview.12) (2022-04-21)
+
+
+### Bug Fixes
+
+* Awaits async invocations when building the message counter ([49c0aed](https://github.com/Elders/Cronus/commit/49c0aed626206d89edac79da51829c8cb81700c3))
+* Deploy ([91e6c60](https://github.com/Elders/Cronus/commit/91e6c6008843534aa65a5b5f94002b502c166556))
+
+
+### Reverts
+
+* Revert "fix: Uses async to log an error message" ([575b3b8](https://github.com/Elders/Cronus/commit/575b3b8b8f58f5525968abd16ff407181c62ac27))
+
 # [8.0.0-preview.12](https://github.com/Elders/Cronus/compare/v8.0.0-preview.11...v8.0.0-preview.12) (2022-04-19)
 
 
