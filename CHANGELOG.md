@@ -1,3 +1,10 @@
+# [8.0.0-preview.13](https://github.com/Elders/Cronus/compare/v8.0.0-preview.12...v8.0.0-preview.13) (2022-04-21)
+
+
+### Bug Fixes
+
+* changelog fix and push version .13 ([eeddd4b](https://github.com/Elders/Cronus/commit/eeddd4bc2e9cac279cc1bb4e7619bc38c15f6aa7))
+
 # [8.0.0-preview.12](https://github.com/Elders/Cronus/compare/v8.0.0-preview.11...v8.0.0-preview.12) (2022-04-21)
 
 
