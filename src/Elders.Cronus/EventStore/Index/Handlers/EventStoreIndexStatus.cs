@@ -1,7 +1,7 @@
-﻿using Elders.Cronus.Projections;
-using Elders.Cronus.Projections.Snapshotting;
+﻿using System.Threading.Tasks;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
+using Elders.Cronus.Projections;
+using Elders.Cronus.Projections.Snapshotting;
 
 namespace Elders.Cronus.EventStore.Index.Handlers
 {
