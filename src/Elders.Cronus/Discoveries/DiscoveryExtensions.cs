@@ -17,11 +17,15 @@ namespace Elders.Cronus.Discoveries
 
         public static IEnumerable<Type> Find<TService>(this IEnumerable<Assembly> assemblies)
         {
+            Func<Type, bool> predicate = type => ;
             return assemblies
                 .SelectMany(asm => asm.GetLoadableTypes())
-                .Where(type => type.IsAbstract == false)
-                .Where(type => type.IsInterface == false)
+                .Where(TypeIsNotAbstract)
+                .Where(TypeIsNotInterface)
                 .Where(type => typeof(TService).IsAssignableFrom(type));
         }
+
+        private static bool TypeIsNotAbstract(Type type) => type.IsAbstract == false;
+        private static bool TypeIsNotInterface(Type type) => type.IsInterface == false;
     }
 }
