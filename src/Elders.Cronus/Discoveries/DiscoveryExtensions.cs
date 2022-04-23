@@ -17,7 +17,6 @@ namespace Elders.Cronus.Discoveries
 
         public static IEnumerable<Type> Find<TService>(this IEnumerable<Assembly> assemblies)
         {
-            Func<Type, bool> predicate = type => ;
             return assemblies
                 .SelectMany(asm => asm.GetLoadableTypes())
                 .Where(TypeIsNotAbstract)
