@@ -2,6 +2,7 @@
 using Machine.Specifications;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections
@@ -60,11 +61,11 @@ namespace Elders.Cronus.Projections
                 return this;
             }
 
-            public async Task<T> BuildAsync()
+            public Task<T> BuildAsync()
             {
                 var instance = (T)Activator.CreateInstance(typeof(T), true);
-                await instance.ReplayEventsAsync(Events).ConfigureAwait(false);
-                return instance;
+                Events.Select(async e => await instance.ReplayEventAsync(e).ConfigureAwait(false));
+                return Task.FromResult(instance);
             }
         }
     }
