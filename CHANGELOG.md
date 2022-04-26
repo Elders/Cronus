@@ -1,3 +1,5 @@
+# [8.0.0-preview.14](https://github.com/Elders/Cronus/compare/v8.0.0-preview.13...v8.0.0-preview.14) (2022-04-26)
+
 # [8.0.0-preview.13](https://github.com/Elders/Cronus/compare/v8.0.0-preview.12...v8.0.0-preview.13) (2022-04-21)
 
 
