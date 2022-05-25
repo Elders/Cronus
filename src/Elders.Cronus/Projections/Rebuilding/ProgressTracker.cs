@@ -34,11 +34,13 @@ namespace Elders.Cronus.Projections.Rebuilding
         /// Use Initialize for initializing progress for specified projection 
         /// </summary>
         /// <param name="version">Projection version that should be initialized</param>
-        public void Initialize(ProjectionVersion version)
+        public async Task InitializeAsync(ProjectionVersion version)
         {
             ProjectionName = version.ProjectionName;
             IEnumerable<Type> projectionHandledEventTypes = projectionVersionHelper.GetInvolvedEventTypes(ProjectionName.GetTypeByContract());
-            TotalEvents = projectionHandledEventTypes.Select(type => messageCounter.GetCount(type)).Sum();
+            foreach (var eventType in projectionHandledEventTypes)
+                TotalEvents += await messageCounter.GetCountAsync(eventType).ConfigureAwait(false);
+
             Processed = 0;
         }
 

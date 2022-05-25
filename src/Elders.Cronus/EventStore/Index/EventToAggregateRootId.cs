@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.Index
 {
@@ -18,7 +19,7 @@ namespace Elders.Cronus.EventStore.Index
             this.indexStore = indexStore;
         }
 
-        public void Index(AggregateCommit aggregateCommit)
+        public async Task IndexAsync(AggregateCommit aggregateCommit)
         {
             List<IndexRecord> indexRecordsBatch = new List<IndexRecord>();
             foreach (var @event in aggregateCommit.Events)
@@ -35,29 +36,29 @@ namespace Elders.Cronus.EventStore.Index
                 indexRecordsBatch.Add(record);
             }
 
-            indexStore.Apend(indexRecordsBatch);
+            await indexStore.ApendAsync(indexRecordsBatch).ConfigureAwait(false);
         }
 
-        public void Index(CronusMessage message)
+        public async Task IndexAsync(CronusMessage message)
         {
             var @event = message.Payload as IEvent;
             string eventTypeId = @event.Unwrap().GetType().GetContractId();
 
             var indexRecord = new List<IndexRecord>();
             indexRecord.Add(new IndexRecord(eventTypeId, Encoding.UTF8.GetBytes(message.GetRootId())));
-            indexStore.Apend(indexRecord);
+            await indexStore.ApendAsync(indexRecord).ConfigureAwait(false);
         }
 
-        public IEnumerable<IndexRecord> EnumerateRecords(string dataId)
+        public IAsyncEnumerable<IndexRecord> EnumerateRecordsAsync(string dataId)
         {
             // TODO: index exists?
-            return indexStore.Get(dataId);
+            return indexStore.GetAsync(dataId);
         }
 
-        public LoadIndexRecordsResult EnumerateRecords(string dataId, string paginationToken, int pageSize = 5000)
+        public Task<LoadIndexRecordsResult> EnumerateRecordsAsync(string dataId, string paginationToken, int pageSize = 5000)
         {
             // TODO: index exists?
-            return indexStore.Get(dataId, paginationToken, pageSize);
+            return indexStore.GetAsync(dataId, paginationToken, pageSize);
         }
     }
 }

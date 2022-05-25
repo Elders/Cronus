@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Elders.Cronus.Userfull;
 
 namespace Elders.Cronus.AtomicAction
 {
     public interface IAggregateRootAtomicAction : IDisposable
     {
-        Result<bool> Execute(IAggregateRootId arId, int aggregateRootRevision, Action action);
+        Task<Result<bool>> ExecuteAsync(IAggregateRootId arId, int aggregateRootRevision, Func<Task> action);
     }
 }

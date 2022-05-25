@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -18,10 +19,10 @@ namespace Elders.Cronus.Projections.Versioning
             this.projectionVersioningPolicy = projectionVersioningPolicy;
         }
 
-        public void Handle(RegisterProjection command)
+        public async Task HandleAsync(RegisterProjection command)
         {
             ProjectionVersionManager ar = null;
-            ReadResult<ProjectionVersionManager> result = repository.Load<ProjectionVersionManager>(command.Id);
+            ReadResult<ProjectionVersionManager> result = await repository.LoadAsync<ProjectionVersionManager>(command.Id).ConfigureAwait(false);
             if (result.IsSuccess)
             {
                 ar = result.Data;
@@ -31,32 +32,32 @@ namespace Elders.Cronus.Projections.Versioning
             if (result.NotFound)
                 ar = new ProjectionVersionManager(command.Id, command.Hash);
 
-            repository.Save(ar);
+            await repository.SaveAsync(ar).ConfigureAwait(false);
         }
 
-        public void Handle(ReplayProjection command)
+        public Task HandleAsync(ReplayProjection command)
         {
-            Update(command.Id, ar => ar.Replay(command.Hash, projectionVersioningPolicy));
+            return UpdateAsync(command.Id, ar => ar.Replay(command.Hash, projectionVersioningPolicy));
         }
 
-        public void Handle(RebuildProjectionCommand command)
+        public Task HandleAsync(RebuildProjectionCommand command)
         {
-            Update(command.Id, ar => ar.Rebuild(command.Hash));
+            return UpdateAsync(command.Id, ar => ar.Rebuild(command.Hash));
         }
 
-        public void Handle(FinalizeProjectionVersionRequest command)
+        public Task HandleAsync(FinalizeProjectionVersionRequest command)
         {
-            Update(command.Id, ar => ar.FinalizeVersionRequest(command.Version));
+            return UpdateAsync(command.Id, ar => ar.FinalizeVersionRequest(command.Version));
         }
 
-        public void Handle(CancelProjectionVersionRequest command)
+        public Task HandleAsync(CancelProjectionVersionRequest command)
         {
-            Update(command.Id, ar => ar.CancelVersionRequest(command.Version, command.Reason));
+            return UpdateAsync(command.Id, ar => ar.CancelVersionRequest(command.Version, command.Reason));
         }
 
-        public void Handle(TimeoutProjectionVersionRequest command)
+        public Task HandleAsync(TimeoutProjectionVersionRequest command)
         {
-            Update(command.Id, ar => ar.VersionRequestTimedout(command.Version, command.Timebox));
+            return UpdateAsync(command.Id, ar => ar.VersionRequestTimedout(command.Version, command.Timebox));
         }
     }
 }

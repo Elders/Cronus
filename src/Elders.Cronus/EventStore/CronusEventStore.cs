@@ -17,13 +17,13 @@ namespace Elders.Cronus.EventStore
             this.logger = logger;
         }
 
-        public void Append(AggregateCommit aggregateCommit)
+        public async Task AppendAsync(AggregateCommit aggregateCommit)
         {
             AggregateCommit transformedAggregateCommit = aggregateCommit;
             try
             {
                 transformedAggregateCommit = aggregateCommitTransformer.Transform(aggregateCommit);
-                eventStore.Append(transformedAggregateCommit);
+                await eventStore.AppendAsync(transformedAggregateCommit).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -32,28 +32,15 @@ namespace Elders.Cronus.EventStore
             }
         }
 
-        public void Append(AggregateCommitRaw aggregateCommitRaw)
+        public async Task AppendAsync(AggregateCommitRaw aggregateCommitRaw)
         {
             try
             {
-                eventStore.Append(aggregateCommitRaw);
+                await eventStore.AppendAsync(aggregateCommitRaw).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 logger.ErrorException(ex, () => $"Failed to append aggregate with id = {aggregateCommitRaw.AggregateRootId}. \n Exception: {ex.Message}");
-                throw;
-            }
-        }
-
-        public EventStream Load(IAggregateRootId aggregateId)
-        {
-            try
-            {
-                return eventStore.Load(aggregateId);
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId}. \n Exception: {ex.Message}");
                 throw;
             }
         }

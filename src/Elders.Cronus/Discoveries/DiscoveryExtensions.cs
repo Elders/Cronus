@@ -19,9 +19,12 @@ namespace Elders.Cronus.Discoveries
         {
             return assemblies
                 .SelectMany(asm => asm.GetLoadableTypes())
-                .Where(type => type.IsAbstract == false)
-                .Where(type => type.IsInterface == false)
+                .Where(TypeIsNotAbstract)
+                .Where(TypeIsNotInterface)
                 .Where(type => typeof(TService).IsAssignableFrom(type));
         }
+
+        private static bool TypeIsNotAbstract(Type type) => type.IsAbstract == false;
+        private static bool TypeIsNotInterface(Type type) => type.IsInterface == false;
     }
 }

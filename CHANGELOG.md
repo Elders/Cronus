@@ -1,3 +1,95 @@
+# [8.0.0-preview.14](https://github.com/Elders/Cronus/compare/v8.0.0-preview.13...v8.0.0-preview.14) (2022-04-26)
+
+# [8.0.0-preview.13](https://github.com/Elders/Cronus/compare/v8.0.0-preview.12...v8.0.0-preview.13) (2022-04-21)
+
+
+### Bug Fixes
+
+* changelog fix and push version .13 ([eeddd4b](https://github.com/Elders/Cronus/commit/eeddd4bc2e9cac279cc1bb4e7619bc38c15f6aa7))
+
+# [8.0.0-preview.12](https://github.com/Elders/Cronus/compare/v8.0.0-preview.11...v8.0.0-preview.12) (2022-04-21)
+
+
+### Bug Fixes
+
+* Awaits async invocations when building the message counter ([49c0aed](https://github.com/Elders/Cronus/commit/49c0aed626206d89edac79da51829c8cb81700c3))
+
+### Reverts
+
+* Revert "fix: Uses async to log an error message" ([575b3b8](https://github.com/Elders/Cronus/commit/575b3b8b8f58f5525968abd16ff407181c62ac27))
+
+# [8.0.0-preview.11](https://github.com/Elders/Cronus/compare/v8.0.0-preview.10...v8.0.0-preview.11) (2022-04-18)
+
+
+### Bug Fixes
+
+* Add missing await ([96749d2](https://github.com/Elders/Cronus/commit/96749d20564fbe508e97ea10721ee25ad840fb8c))
+
+# [8.0.0-preview.10](https://github.com/Elders/Cronus/compare/v8.0.0-preview.9...v8.0.0-preview.10) (2022-04-13)
+
+
+### Bug Fixes
+
+* Enable public events replay ([b67b4f8](https://github.com/Elders/Cronus/commit/b67b4f8bcc80be6d86ad3944a4b0c457670572a5))
+
+# [8.0.0-preview.9](https://github.com/Elders/Cronus/compare/v8.0.0-preview.8...v8.0.0-preview.9) (2022-04-13)
+
+
+### Bug Fixes
+
+* Improve Projection Store ([f1b3efb](https://github.com/Elders/Cronus/commit/f1b3efb5069adb8ddead2551e2ee5bb84b40c223))
+
+# [8.0.0-preview.8](https://github.com/Elders/Cronus/compare/v8.0.0-preview.7...v8.0.0-preview.8) (2022-04-12)
+
+
+### Bug Fixes
+
+* InitializeAsync ([d03d689](https://github.com/Elders/Cronus/commit/d03d689006b14ff66e59eeeacc4486ad2fb9c633))
+
+# [8.0.0-preview.7](https://github.com/Elders/Cronus/compare/v8.0.0-preview.6...v8.0.0-preview.7) (2022-04-12)
+
+
+### Bug Fixes
+
+* Implement async SnapshotStore ([b075ae2](https://github.com/Elders/Cronus/commit/b075ae2639c73a19afb950973d29dde1c3331a2c))
+
+# [8.0.0-preview.6](https://github.com/Elders/Cronus/compare/v8.0.0-preview.5...v8.0.0-preview.6) (2022-04-12)
+
+
+### Bug Fixes
+
+* Fix not registered ILock ([dd82912](https://github.com/Elders/Cronus/commit/dd829123507905b8a6d818ed8b21da5fe75efe2f))
+
+# [8.0.0-preview.5](https://github.com/Elders/Cronus/compare/v8.0.0-preview.4...v8.0.0-preview.5) (2022-04-11)
+
+
+### Bug Fixes
+
+* Provide async message counter ([e23c79c](https://github.com/Elders/Cronus/commit/e23c79c985ff5d0a19f3f2f9c246b87d92fde18a))
+
+# [8.0.0-preview.4](https://github.com/Elders/Cronus/compare/v8.0.0-preview.3...v8.0.0-preview.4) (2022-04-08)
+
+
+### Bug Fixes
+
+* Load Aggregate Commits async ([0b66a21](https://github.com/Elders/Cronus/commit/0b66a216fe9369eb52d61703ef2386d538273f2f))
+
+# [8.0.0-preview.3](https://github.com/Elders/Cronus/compare/v8.0.0-preview.2...v8.0.0-preview.3) (2022-04-08)
+
+
+### Bug Fixes
+
+* Return ILock back ([8384337](https://github.com/Elders/Cronus/commit/8384337b8fdc45bf1f419c19826a0b8f37780f8c))
+
+# [8.0.0-preview.2](https://github.com/Elders/Cronus/compare/v8.0.0-preview.1...v8.0.0-preview.2) (2022-04-08)
+
+
+### Bug Fixes
+
+* Move some In-memory implementations to support only tests ([49cd3a5](https://github.com/Elders/Cronus/commit/49cd3a5388c6e3d8f2f720c2cafec86e52228547))
+
+# [8.0.0-preview.1](https://github.com/Elders/Cronus/compare/v7.0.0...v8.0.0-preview.1) (2022-04-08)
+
 # [7.0.0](https://github.com/Elders/Cronus/compare/v6.4.3...v7.0.0) (2022-04-05)
 
 

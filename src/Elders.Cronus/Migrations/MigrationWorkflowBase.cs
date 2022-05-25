@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
 
@@ -19,10 +20,10 @@ namespace Elders.Cronus.Migrations
             this.migration = migration;
         }
 
-        protected override TResult Run(Execution<TInput, TResult> context)
+        protected override Task<TResult> RunAsync(Execution<TInput, TResult> execution)
         {
             TResult result = default(TResult);
-            var input = context.Context;
+            var input = execution.Context;
             try
             {
                 if (migration.ShouldApply(input))
@@ -33,7 +34,7 @@ namespace Elders.Cronus.Migrations
                 logger.ErrorException(ex, () => "Error while applying migration");
             }
 
-            return result;
+            return Task.FromResult(result);
         }
     }
 }

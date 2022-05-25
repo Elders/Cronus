@@ -63,5 +63,4 @@ namespace Elders.Cronus.Tests.TestModel
     {
         public override TestEntityId EntityId { get; set; }
     }
-
 }

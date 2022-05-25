@@ -5,13 +5,11 @@ namespace Elders.Cronus.Projections.Snapshotting
 {
     public interface ISnapshotStore
     {
-        ISnapshot Load(string projectionName, IBlobId id, ProjectionVersion version);
         Task<ISnapshot> LoadAsync(string projectionName, IBlobId id, ProjectionVersion version);
 
-        SnapshotMeta LoadMeta(string projectionName, IBlobId id, ProjectionVersion version);
         Task<SnapshotMeta> LoadMetaAsync(string projectionName, IBlobId id, ProjectionVersion version);
 
-        void Save(ISnapshot snapshot, ProjectionVersion version);
+        Task SaveAsync(ISnapshot snapshot, ProjectionVersion version);
     }
 
     public interface ISnapshotStoreFactory

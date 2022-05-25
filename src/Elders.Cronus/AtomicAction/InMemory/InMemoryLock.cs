@@ -2,26 +2,32 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.AtomicAction.InMemory
 {
     public class InMemoryLock : ILock
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger<InMemoryLock>();
+        private readonly ILogger logger;
+
+        public InMemoryLock(ILogger logger)
+        {
+            this.logger = logger;
+        }
 
         private static readonly ConcurrentDictionary<string, Mutex> lockedResources = new ConcurrentDictionary<string, Mutex>();
 
-        public bool IsLocked(string resource)
+        public Task<bool> IsLockedAsync(string resource)
         {
             Mutex locked;
 
             if (lockedResources.TryGetValue(resource, out locked) == false)
-                return false;
+                return Task.FromResult(false);
 
-            return locked.IsLocked;
+            return Task.FromResult(locked.IsLocked);
         }
 
-        public bool Lock(string resource, TimeSpan ttl)
+        public Task<bool> LockAsync(string resource, TimeSpan ttl)
         {
             try
             {
@@ -44,18 +50,18 @@ namespace Elders.Cronus.AtomicAction.InMemory
 
                 lockedResources.AddOrUpdate(resource, locked, (r, old) => locked);
 
-                return true;
+                return Task.FromResult(true);
 
             }
             catch (Exception ex)
             {
                 logger.ErrorException(ex, () => $"Failed to accure lock for resource {resource}!");
 
-                return false;
+                return Task.FromResult(false);
             }
         }
 
-        public void Unlock(string resource)
+        public Task UnlockAsync(string resource)
         {
             try
             {
@@ -84,6 +90,8 @@ namespace Elders.Cronus.AtomicAction.InMemory
             {
                 logger.ErrorException(ex, () => $"Failed to unlock mutex: {resource}!");
             }
+
+            return Task.CompletedTask;
         }
 
         private class Mutex

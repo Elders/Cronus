@@ -6,6 +6,7 @@
     <RootNamespace>Elders.Cronus</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Cronus.DomainModeling" Version="8.0.0-preview.4" />
     <PackageReference Include="Machine.Specifications" Version="1.0.0" />
     <PackageReference Include="Machine.Specifications.Runner.VisualStudio" Version="2.10.2" />
     <PackageReference Include="Machine.Specifications.Should" Version="1.0.0" />

@@ -10,37 +10,29 @@ namespace Elders.Cronus.Projections.InMemory
     {
         private readonly ConcurrentDictionary<ProjectionVersion, List<ISnapshot>> snapshots = new ConcurrentDictionary<ProjectionVersion, List<ISnapshot>>();
 
-        public ISnapshot Load(string projectionName, IBlobId id, ProjectionVersion version)
-        {
-            if (snapshots.ContainsKey(version) == false)
-                return new NoSnapshot(id, projectionName);
-
-            var snapshot = snapshots[version].FirstOrDefault(x => x.ProjectionName == projectionName && x.Id == id);
-            return snapshot ?? new NoSnapshot(id, projectionName);
-        }
-
         public Task<ISnapshot> LoadAsync(string projectionName, IBlobId id, ProjectionVersion version)
         {
-            return Task.FromResult(Load(projectionName, id, version));
+            if (snapshots.ContainsKey(version) == false)
+                return Task.FromResult((ISnapshot)new NoSnapshot(id, projectionName));
+
+            ISnapshot snapshot = snapshots[version].FirstOrDefault(x => x.ProjectionName == projectionName && x.Id == id);
+            return Task.FromResult(snapshot ?? new NoSnapshot(id, projectionName));
         }
 
-        public SnapshotMeta LoadMeta(string projectionName, IBlobId id, ProjectionVersion version)
+        public async Task<SnapshotMeta> LoadMetaAsync(string projectionName, IBlobId id, ProjectionVersion version)
         {
-            var snapshot = Load(projectionName, id, version);
+            var snapshot = await LoadAsync(projectionName, id, version).ConfigureAwait(false);
             return SnapshotMeta.From(snapshot);
         }
 
-        public Task<SnapshotMeta> LoadMetaAsync(string projectionName, IBlobId id, ProjectionVersion version)
-        {
-            return Task.FromResult(LoadMeta(projectionName, id, version));
-        }
-
-        public void Save(ISnapshot snapshot, ProjectionVersion version)
+        public Task SaveAsync(ISnapshot snapshot, ProjectionVersion version)
         {
             if (snapshots.ContainsKey(version) == false)
                 snapshots.TryAdd(version, new List<ISnapshot>());
 
             snapshots[version].Add(snapshot);
+
+            return Task.CompletedTask;
         }
     }
 }

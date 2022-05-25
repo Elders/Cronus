@@ -13,7 +13,7 @@ namespace Elders.Cronus.Tests.Middleware
             mainMiddleware = new TestMiddleware(executionToken);
         };
 
-        Because of = () => mainMiddleware.Run(invocationContext);
+        Because of = async () => await mainMiddleware.RunAsync(invocationContext).ConfigureAwait(false);
 
         It the_execution_chain_should_not_be_empty = () =>
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 
 namespace Elders.Cronus.Migrations
@@ -21,7 +22,7 @@ namespace Elders.Cronus.Migrations
         /// Applies the specified migrations to every <see cref="TDataFormat"/>
         /// </summary>
         /// <param name="migrations"></param>
-        public abstract void Run(IEnumerable<IMigration<TDataFormat>> migrations);
+        public abstract Task RunAsync(IEnumerable<IMigration<TDataFormat>> migrations);
 
     }
 }

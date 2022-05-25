@@ -1,6 +1,7 @@
 using System;
 using System.Globalization;
 using System.Threading;
+using System.Threading.Tasks;
 using Elders.Cronus.Userfull;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -38,7 +39,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
             aggregateRevisions = new MemoryCache(aggregateRevisionsMemoryCacheOptions);
         }
 
-        public Result<bool> Execute(IAggregateRootId aggregateRootId, int aggregateRootRevision, Action action)
+        public async Task<Result<bool>> ExecuteAsync(IAggregateRootId aggregateRootId, int aggregateRootRevision, Func<Task> action)
         {
             var result = new Result<bool>(false);
             var acquired = new AtomicBoolean(false);
@@ -71,7 +72,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
                         {
                             try
                             {
-                                action();
+                                await action().ConfigureAwait(false);
                                 return Result.Success;
                             }
                             catch (Exception)

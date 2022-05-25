@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.Workflow;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Tests.Middleware
 {
@@ -10,9 +11,11 @@ namespace Elders.Cronus.Tests.Middleware
         {
             this.token = token;
         }
-        protected override void Run(Execution<string> context)
+
+        protected override Task RunAsync(Execution<string> execution)
         {
             token.Notify();
+            return Task.CompletedTask;
         }
     }
 }

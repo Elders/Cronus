@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -11,21 +12,22 @@ namespace Elders.Cronus.MessageProcessing
     /// </summary>
     public class DynamicMessageHandle : Workflow<HandlerContext>
     {
-        protected override void Run(Execution<HandlerContext> execution)
+        protected override async Task RunAsync(Execution<HandlerContext> execution)
         {
             dynamic handler = execution.Context.HandlerInstance;
-            handler.Handle((dynamic)execution.Context.Message);
+            await handler.HandleAsync((dynamic)execution.Context.Message);
         }
     }
 
     public class LogExceptionOnHandleError : Workflow<ErrorContext>
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(LogExceptionOnHandleError));
-        protected override void Run(Execution<ErrorContext> execution)
+
+        protected override Task RunAsync(Execution<ErrorContext> execution)
         {
             var serializer = execution.Context.ServiceProvider.GetRequiredService<ISerializer>();
-
             logger.ErrorException(execution.Context.Error, () => $"There was an error in {execution.Context.HandlerType.Name} while handling message {MessageAsString(serializer, execution.Context.Message)}");
+            return Task.CompletedTask;
         }
 
         private string MessageAsString(ISerializer serializer, CronusMessage message)

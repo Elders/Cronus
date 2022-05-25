@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.Index
 {
@@ -10,10 +11,10 @@ namespace Elders.Cronus.EventStore.Index
     {
         public EventStoreIndexManagerAppService(IAggregateRepository repository) : base(repository) { }
 
-        public void Handle(RegisterIndex command)
+        public async Task HandleAsync(RegisterIndex command)
         {
             EventStoreIndexManager ar = null;
-            ReadResult<EventStoreIndexManager> result = repository.Load<EventStoreIndexManager>(command.Id);
+            ReadResult<EventStoreIndexManager> result = await repository.LoadAsync<EventStoreIndexManager>(command.Id).ConfigureAwait(false);
             if (result.IsSuccess)
             {
                 ar = result.Data;
@@ -23,13 +24,13 @@ namespace Elders.Cronus.EventStore.Index
             if (result.NotFound)
                 ar = new EventStoreIndexManager(command.Id);
 
-            repository.Save(ar);
+            await repository.SaveAsync(ar).ConfigureAwait(false);
         }
 
-        public void Handle(RebuildIndexCommand command)
+        public async Task HandleAsync(RebuildIndexCommand command)
         {
             EventStoreIndexManager ar = null;
-            ReadResult<EventStoreIndexManager> result = repository.Load<EventStoreIndexManager>(command.Id);
+            ReadResult<EventStoreIndexManager> result = await repository.LoadAsync<EventStoreIndexManager>(command.Id).ConfigureAwait(false);
 
             if (result.NotFound)
             {
@@ -43,13 +44,13 @@ namespace Elders.Cronus.EventStore.Index
 
             ar.Rebuild();
 
-            repository.Save(ar);
+            await repository.SaveAsync(ar).ConfigureAwait(false);
         }
 
-        public void Handle(FinalizeEventStoreIndexRequest command)
+        public async Task HandleAsync(FinalizeEventStoreIndexRequest command)
         {
             EventStoreIndexManager ar = null;
-            ReadResult<EventStoreIndexManager> result = repository.Load<EventStoreIndexManager>(command.Id);
+            ReadResult<EventStoreIndexManager> result = await repository.LoadAsync<EventStoreIndexManager>(command.Id).ConfigureAwait(false);
 
             if (result.NotFound)
             {
@@ -63,7 +64,7 @@ namespace Elders.Cronus.EventStore.Index
 
             ar.FinalizeRequest();
 
-            repository.Save(ar);
+            await repository.SaveAsync(ar).ConfigureAwait(false);
         }
     }
 }

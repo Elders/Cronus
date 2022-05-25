@@ -38,7 +38,7 @@ namespace Elders.Cronus.EventStore.Index
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             // mynkow. this one fails
-            IndexStatus indexStatus = GetIndexStatus<EventToAggregateRootId>();
+            IndexStatus indexStatus = await GetIndexStatusAsync<EventToAggregateRootId>().ConfigureAwait(false);
             if (indexStatus.IsNotPresent()) return JobExecutionStatus.Running;
 
             //projectionStoreInitializer.Initialize(version);
@@ -58,9 +58,9 @@ namespace Elders.Cronus.EventStore.Index
                     {
                         logger.Info(() => $"Message counter for {eventTypeId} has been reset");
                         // Maybe we should move this to a BeforeRun method.
-                        messageCounter.Reset(eventType);
+                        await messageCounter.ResetAsync(eventType).ConfigureAwait(false);
                     }
-                    LoadIndexRecordsResult indexRecordsResult = eventToAggregateIndex.EnumerateRecords(eventTypeId, paginationToken);
+                    LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false);
 
                     IEnumerable<IndexRecord> indexRecords = indexRecordsResult.Records;
                     long currentSessionProcessedCount = 0;
@@ -70,7 +70,7 @@ namespace Elders.Cronus.EventStore.Index
 
                         string mess = Encoding.UTF8.GetString(indexRecord.AggregateRootId);
                         IAggregateRootId arId = GetAggregateRootId(mess);
-                        EventStream stream = eventStore.Load(arId);
+                        EventStream stream = await eventStore.LoadAsync(arId).ConfigureAwait(false);
 
                         foreach (AggregateCommit arCommit in stream.Commits)
                         {
@@ -83,7 +83,7 @@ namespace Elders.Cronus.EventStore.Index
                                 }
 
                                 if (eventTypeId.Equals(@event.GetType().GetContractId(), StringComparison.OrdinalIgnoreCase))
-                                    messageCounter.Increment(eventType);
+                                    await messageCounter.IncrementAsync(eventType).ConfigureAwait(false);
                             }
                         }
                     }
@@ -127,10 +127,10 @@ namespace Elders.Cronus.EventStore.Index
             throw new ArgumentException($"Invalid aggregate root id: {mess}", nameof(mess));
         }
 
-        IndexStatus GetIndexStatus<TIndex>() where TIndex : IEventStoreIndex
+        async Task<IndexStatus> GetIndexStatusAsync<TIndex>() where TIndex : IEventStoreIndex
         {
             var id = new EventStoreIndexManagerId(typeof(TIndex).GetContractId(), context.Tenant);
-            var result = projectionReader.Get<EventStoreIndexStatus>(id);
+            var result = await projectionReader.GetAsync<EventStoreIndexStatus>(id).ConfigureAwait(false);
             if (result.IsSuccess)
                 return result.Data.State.Status;
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Microsoft.Extensions.Logging;
 
@@ -11,9 +12,9 @@ namespace Elders.Cronus.Migrations
 
         public MigrationRunner(IMigrationEventStorePlayer source, EventStoreFactory factory) : base(source, factory.GetEventStore()) { }
 
-        public override void Run(IEnumerable<IMigration<AggregateCommit>> migrations)
+        public override async Task RunAsync(IEnumerable<IMigration<AggregateCommit>> migrations)
         {
-            LoadAggregateCommitsResult result = source.LoadAggregateCommits("", 5000);
+            LoadAggregateCommitsResult result = await source.LoadAggregateCommitsAsync("", 5000).ConfigureAwait(false);
             int counter = 0;
             try
             {
@@ -31,9 +32,9 @@ namespace Elders.Cronus.Migrations
                                 sourceCommit = migration.Apply(sourceCommit);
                             }
                         }
-                        target.Append(sourceCommit);
+                        await target.AppendAsync(sourceCommit).ConfigureAwait(false);
                     }
-                    result = source.LoadAggregateCommits(result.PaginationToken, 5000); // think of paging
+                    result = await source.LoadAggregateCommitsAsync(result.PaginationToken, 5000).ConfigureAwait(false); // think of paging
                     logger.Info(() => $"Migrated commits - Counter: `{counter}` - Pagination Token: `{result.PaginationToken}`");
                 }
             }

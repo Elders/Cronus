@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.MessageProcessing
@@ -10,7 +11,8 @@ namespace Elders.Cronus.MessageProcessing
 
     public class DefaultHandlerFactory : IHandlerFactory
     {
-        public static Workflow<HandleContext, IHandlerInstance> FactoryWrokflow = WorkflowExtensions.Lambda<HandleContext, IHandlerInstance>((exec) => factory.Create(exec.Context.HandlerType));
+        public static Workflow<HandleContext, IHandlerInstance> FactoryWrokflow = WorkflowExtensions.Lambda<HandleContext, IHandlerInstance>((exec) =>
+        { return Task.FromResult(factory.Create(exec.Context.HandlerType)); });
 
         readonly Func<Type, object> handlerFctory;
 

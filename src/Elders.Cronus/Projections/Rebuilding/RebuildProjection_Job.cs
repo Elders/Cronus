@@ -44,15 +44,15 @@ namespace Elders.Cronus.Projections.Rebuilding
             ProjectionVersion version = Data.Version;
             Type projectionType = version.ProjectionName.GetTypeByContract();
 
-            progressTracker.Initialize(version);
+            await progressTracker.InitializeAsync(version).ConfigureAwait(false);
 
-            if (projectionVersionHelper.ShouldBeRetried(version))
+            if (await projectionVersionHelper.ShouldBeRetriedAsync(version).ConfigureAwait(false))
                 return JobExecutionStatus.Running;
 
-            if (projectionVersionHelper.ShouldBeCanceled(version, Data.DueDate))
+            if (await projectionVersionHelper.ShouldBeCanceledAsync(version, Data.DueDate).ConfigureAwait(false))
                 return JobExecutionStatus.Failed;
 
-            projectionStoreInitializer.Initialize(version);
+            await projectionStoreInitializer.InitializeAsync(version).ConfigureAwait(false);
 
             var startSignal = progressTracker.GetProgressStartedSignal();
             signalPublisher.Publish(startSignal);
@@ -89,7 +89,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             progressTracker.Processed = pagingProcessedCount;
 
             string paginationToken = paging?.PaginationToken;
-            LoadIndexRecordsResult indexRecordsResult = eventToAggregateIndex.EnumerateRecords(eventTypeId, paginationToken); // TODO: Think about cassandra exception here. Such exceptions MUST be handled in the concrete impl of the IndexStore
+            LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false); // TODO: Think about cassandra exception here. Such exceptions MUST be handled in the concrete impl of the IndexStore
             IEnumerable<EventStream> eventStreams = await rebuildingRepository.LoadEventsAsync(indexRecordsResult.Records, Data.Version).ConfigureAwait(false);
 
             await rebuildingRepository.SaveAggregateCommitsAsync(eventStreams, Data.Version).ConfigureAwait(false);

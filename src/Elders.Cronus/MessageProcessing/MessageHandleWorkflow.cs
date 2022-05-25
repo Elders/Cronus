@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.MessageProcessing
@@ -15,9 +16,9 @@ namespace Elders.Cronus.MessageProcessing
         {
             CreateHandler = createHandler;
             BeginHandle = WorkflowExtensions.Lamda<HandlerContext>();
-            ActualHandle = WorkflowExtensions.Lamda<HandlerContext>().Use(context => new DynamicMessageHandle().Run(context.Context));
+            ActualHandle = WorkflowExtensions.Lamda<HandlerContext>().Use((context) => new DynamicMessageHandle().RunAsync(context.Context));
             EndHandle = WorkflowExtensions.Lamda<HandlerContext>();
-            Error = WorkflowExtensions.Lamda<ErrorContext>().Use(context => new LogExceptionOnHandleError().Run(context.Context));
+            Error = WorkflowExtensions.Lamda<ErrorContext>().Use((context) => new LogExceptionOnHandleError().RunAsync(context.Context));
             Finalize = WorkflowExtensions.Lamda<HandleContext>();
         }
 
@@ -58,29 +59,28 @@ namespace Elders.Cronus.MessageProcessing
             ActualHandle = handle(ActualHandle);
         }
 
-        protected override void Run(Execution<HandleContext> execution)
+        protected async override Task RunAsync(Execution<HandleContext> execution)
         {
             try
             {
-                using (IHandlerInstance handler = CreateHandler.Run(execution.Context))
+                using (IHandlerInstance handler = await CreateHandler.RunAsync(execution.Context).ConfigureAwait(false))
                 {
                     var handleContext = new HandlerContext(execution.Context.Message.Payload, handler.Current, execution.Context.Message);
-                    BeginHandle.Run(handleContext);
-                    ActualHandle.Run(handleContext);
-                    EndHandle.Run(handleContext);
+                    await BeginHandle.RunAsync(handleContext).ConfigureAwait(false);
+                    await ActualHandle.RunAsync(handleContext).ConfigureAwait(false);
+                    await EndHandle.RunAsync(handleContext).ConfigureAwait(false);
                 }
             }
-
             catch (Exception ex)
             {
                 var context = new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType);
                 context.AssignPropertySafely<IWorkflowContextWithServiceProvider>(prop => prop.ServiceProvider = execution.Context.ServiceProvider);
-                Error.Run(context);
+                await Error.RunAsync(context).ConfigureAwait(false);
                 throw;
             }
             finally
             {
-                Finalize.Run(execution.Context);
+                await Finalize.RunAsync(execution.Context).ConfigureAwait(false);
             }
         }
     }

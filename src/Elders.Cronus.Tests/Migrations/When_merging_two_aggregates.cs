@@ -12,7 +12,7 @@ namespace Elders.Cronus.Migrations
     [Subject("Migration")]
     public class When_merging_two_aggregates
     {
-        Establish context = () =>
+        Establish context = async () =>
         {
             var eventStore = new TestEventStore();
 
@@ -25,12 +25,12 @@ namespace Elders.Cronus.Migrations
                     new TestUpdateEventFoo(fooId, string.Empty)
                 });
 
-            eventStore.Append(aggregateCommitFoo);
+            await eventStore.AppendAsync(aggregateCommitFoo).ConfigureAwait(false);
 
             var barId = new BarId("1234", "elders");
             aggregateCommitBar = new AggregateCommit(barId.RawId, 0, new List<IEvent>
                 {
-                    new TestCreateEventBar(barId)
+                     new TestCreateEventBar(barId)
                 });
         };
 

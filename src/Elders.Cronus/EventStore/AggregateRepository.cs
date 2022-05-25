@@ -1,9 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.Userfull;
 using Elders.Cronus.IntegrityValidation;
-using System;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore
 {
@@ -32,9 +33,9 @@ namespace Elders.Cronus.EventStore
         /// <typeparam name="AR">The type of the aggregate root.</typeparam>
         /// <param name="aggregateRoot">The aggregate root.</param>
         /// <exception cref="Elders.Cronus.DomainModeling.AggregateRootException"></exception>
-        public void Save<AR>(AR aggregateRoot) where AR : IAggregateRoot
+        public Task SaveAsync<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
-            SaveInternal(aggregateRoot);
+            return SaveInternalAsync(aggregateRoot);
         }
 
         /// <summary>
@@ -43,21 +44,21 @@ namespace Elders.Cronus.EventStore
         /// <typeparam name="AR">The type of the r.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public ReadResult<AR> Load<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        public async Task<ReadResult<AR>> LoadAsync<AR>(IAggregateRootId id) where AR : IAggregateRoot
         {
-            EventStream eventStream = eventStore.Load(id);
+            EventStream eventStream = await eventStore.LoadAsync(id).ConfigureAwait(false);
             var integrityResult = integrityPolicy.Apply(eventStream);
             if (integrityResult.IsIntegrityViolated)
                 throw new EventStreamIntegrityViolationException($"AR integrity is violated for ID={id.Value}");
             eventStream = integrityResult.Output;
             AR aggregateRoot;
-            if (eventStream.TryRestoreFromHistory<AR>(out aggregateRoot) == false)
+            if (eventStream.TryRestoreFromHistory(out aggregateRoot) == false) // this should be a sync operation, it's just triggers internal inmemory handlers for aggregate
                 return ReadResult<AR>.WithNotFoundHint($"Unable to load AR with ID={id.Value}");
 
             return new ReadResult<AR>(aggregateRoot);
         }
 
-        internal AggregateCommit SaveInternal<AR>(AR aggregateRoot) where AR : IAggregateRoot
+        internal async Task<AggregateCommit> SaveInternalAsync<AR>(AR aggregateRoot) where AR : IAggregateRoot
         {
             if (aggregateRoot.UncommittedEvents is null || aggregateRoot.UncommittedEvents.Any() == false)
             {
@@ -70,7 +71,7 @@ namespace Elders.Cronus.EventStore
             }
 
             var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList());
-            var result = atomicAction.Execute(aggregateRoot.State.Id, aggregateRoot.Revision, () => eventStore.Append(arCommit));
+            var result = await atomicAction.ExecuteAsync(aggregateRoot.State.Id, aggregateRoot.Revision, async () => await eventStore.AppendAsync(arCommit).ConfigureAwait(false)).ConfigureAwait(false);
 
             if (result.IsSuccessful)
             {

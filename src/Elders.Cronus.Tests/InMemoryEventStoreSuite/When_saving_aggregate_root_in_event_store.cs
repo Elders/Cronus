@@ -16,27 +16,24 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             versionService = new InMemoryAggregateRootAtomicAction();
             eventStoreStorage = new InMemoryEventStoreStorage();
             eventStore = new InMemoryEventStore(eventStoreStorage);
-            eventStoreManager = new InMemoryEventStoreStorageManager();
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
             integrityPpolicy = new EventStreamIntegrityPolicy();
             eventStoreFactory = new EventStoreFactory(eventStore, new NoAggregateCommitTransformer(), null);
             aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy);
-            eventStoreManager.CreateStorage();
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
         };
 
-        Because of = () => aggregateRepository.Save<TestAggregateRoot>(aggregateRoot);
+        Because of = async () => await aggregateRepository.SaveAsync(aggregateRoot).ConfigureAwait(false);
 
-        It should_instansiate_aggregate_root = () => aggregateRepository.Load<TestAggregateRoot>(id).ShouldNotBeNull();
+        It should_instansiate_aggregate_root = async () => (await aggregateRepository.LoadAsync<TestAggregateRoot>(id).ConfigureAwait(false)).ShouldNotBeNull();
 
-        It should_instansiate_aggregate_root_with_valid_state = () => aggregateRepository.Load<TestAggregateRoot>(id).Data.State.Id.ShouldEqual(id);
+        It should_instansiate_aggregate_root_with_valid_state = async () => (await aggregateRepository.LoadAsync<TestAggregateRoot>(id).ConfigureAwait(false)).Data.State.Id.ShouldEqual(id);
 
         static TestAggregateId id;
         static InMemoryEventStoreStorage eventStoreStorage;
         static IAggregateRootAtomicAction versionService;
         static IEventStore eventStore;
-        static InMemoryEventStoreStorageManager eventStoreManager;
         static IEventStorePlayer eventStorePlayer;
         static IAggregateRepository aggregateRepository;
         static TestAggregateRoot aggregateRoot;

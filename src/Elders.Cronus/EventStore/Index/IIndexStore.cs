@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.Index
 {
     public interface IIndexStore
     {
-        void Apend(IEnumerable<IndexRecord> indexRecords);
-        IEnumerable<IndexRecord> Get(string indexRecordId);
-        LoadIndexRecordsResult Get(string indexRecordId, string paginationToken, int pageSize);
+        Task ApendAsync(IEnumerable<IndexRecord> indexRecords);
+        IAsyncEnumerable<IndexRecord> GetAsync(string indexRecordId);
+        Task<LoadIndexRecordsResult> GetAsync(string indexRecordId, string paginationToken, int pageSize);
     }
 
     public class LoadIndexRecordsResult

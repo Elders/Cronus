@@ -14,26 +14,22 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
             Storage = new List<AggregateCommit>();
         }
 
-        public void Append(AggregateCommit aggregateCommit)
+        public Task AppendAsync(AggregateCommit aggregateCommit)
         {
             Storage.Add(aggregateCommit);
+
+            return Task.CompletedTask;
         }
 
-        public EventStream Load(IAggregateRootId aggregateId)
+
+        public Task AppendAsync(AggregateCommitRaw aggregateCommitRaw)
         {
-            var es = new EventStream(Storage.Where(x => x.AggregateRootId.SequenceEqual(aggregateId.RawId)).ToList());
-            return es;
+            return Task.FromException(new System.NotImplementedException());
         }
-
         public Task<EventStream> LoadAsync(IAggregateRootId aggregateId)
         {
             var es = new EventStream(Storage.Where(x => x.AggregateRootId.SequenceEqual(aggregateId.RawId)).ToList());
             return Task.FromResult(es);
-        }
-
-        public void Append(AggregateCommitRaw aggregateCommitRaw)
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Microsoft.Extensions.Logging;
 
@@ -8,18 +9,22 @@ namespace Elders.Cronus.Migrations
         where TSourceEventStorePlayer : IEventStorePlayer
         where TTargetEventStore : IEventStore
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CopyEventStore<,>));
+        private readonly ILogger logger;
 
-        public CopyEventStore(TSourceEventStorePlayer source, TTargetEventStore target) : base(source, target) { }
+        public CopyEventStore(TSourceEventStorePlayer source, TTargetEventStore target, ILogger logger) : base(source, target)
+        {
+            this.logger = logger;
+        }
 
-        public override void Run(IEnumerable<IMigration<AggregateCommitRaw>> migrations)
+        public override async Task RunAsync(IEnumerable<IMigration<AggregateCommitRaw>> migrations)
         {
             int counter = 0;
-            foreach (var sourceCommit in source.LoadAggregateCommitsRaw(5000))
+
+            await foreach (var sourceCommit in source.LoadAggregateCommitsRawAsync(5000).ConfigureAwait(false))
             {
                 if (counter % 10000 == 0) logger.Info(() => $"[Migrations] Migrated records: {counter}");
 
-                target.Append(sourceCommit);
+                await target.AppendAsync(sourceCommit).ConfigureAwait(false);
 
                 counter++;
             }

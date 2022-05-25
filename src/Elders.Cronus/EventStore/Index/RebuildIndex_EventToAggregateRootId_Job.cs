@@ -34,12 +34,12 @@ namespace Elders.Cronus.EventStore.Index
                     return JobExecutionStatus.Running;
                 }
 
-                var result = eventStorePlayer.LoadAggregateCommits(Data.PaginationToken);
+                LoadAggregateCommitsResult result = await eventStorePlayer.LoadAggregateCommitsAsync(Data.PaginationToken).ConfigureAwait(false);
 
                 logger.Info(() => $"Loaded aggregate commits count ${result.Commits.Count} using pagination token {result.PaginationToken}");
                 foreach (var aggregateCommit in result.Commits)
                 {
-                    index.Index(aggregateCommit);
+                    await index.IndexAsync(aggregateCommit).ConfigureAwait(false);
                 }
 
                 Data.PaginationToken = result.PaginationToken;

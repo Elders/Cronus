@@ -1,11 +1,11 @@
 ﻿using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore.Players
 {
-
     [DataContract(Name = "51b93c21-20fb-473f-b7fc-c12e6a56e194")]
     public class PublicEventsPlayer : ISystemSaga,
         IEventHandler<ReplayPublicEventsRequested>
@@ -21,10 +21,10 @@ namespace Elders.Cronus.EventStore.Players
             this.jobFactory = jobFactory;
         }
 
-        public void Handle(ReplayPublicEventsRequested signal)
+        public async Task HandleAsync(ReplayPublicEventsRequested signal)
         {
             ReplayPublicEvents_Job job = jobFactory.CreateJob(signal);
-            JobExecutionStatus result = jobRunner.ExecuteAsync(job).GetAwaiter().GetResult();
+            JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
 
             logger.Debug(() => "Rebuild projection version {@cronus_projection_rebuild}", result);
         }

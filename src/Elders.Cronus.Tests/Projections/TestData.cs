@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.Projections;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Tests.Projections
 {
@@ -9,11 +10,11 @@ namespace Elders.Cronus.Tests.Projections
         IEventHandler<TestEvent2>,
         IEventHandler<TestEvent3>
     {
-        public void Handle(TestEvent1 @event) { }
+        public Task HandleAsync(TestEvent1 @event) { return Task.CompletedTask; }
 
-        public void Handle(TestEvent2 @event) { }
+        public Task HandleAsync(TestEvent2 @event) { return Task.CompletedTask; }
 
-        public void Handle(TestEvent3 @event) { }
+        public Task HandleAsync(TestEvent3 @event) { return Task.CompletedTask; }
 
         [DataMember(Order = 1)]
         public string Text { get; set; }
@@ -25,11 +26,11 @@ namespace Elders.Cronus.Tests.Projections
         IEventHandler<TestEvent3>,
         IEventHandler<TestEvent1>
     {
-        public void Handle(TestEvent1 @event) { }
+        public Task HandleAsync(TestEvent1 @event) { return Task.CompletedTask; }
 
-        public void Handle(TestEvent2 @event) { }
+        public Task HandleAsync(TestEvent2 @event) { return Task.CompletedTask; }
 
-        public void Handle(TestEvent3 @event) { }
+        public Task HandleAsync(TestEvent3 @event) { return Task.CompletedTask; }
 
         [DataMember(Order = 1)]
         public string Text { get; set; }
@@ -40,9 +41,9 @@ namespace Elders.Cronus.Tests.Projections
         IEventHandler<TestEvent2>,
         IEventHandler<TestEvent1>
     {
-        public void Handle(TestEvent1 @event) { }
+        public Task HandleAsync(TestEvent1 @event) { return Task.CompletedTask; }
 
-        public void Handle(TestEvent2 @event) { }
+        public Task HandleAsync(TestEvent2 @event) { return Task.CompletedTask; }
 
         [DataMember(Order = 1)]
         public string Text { get; set; }

@@ -1,4 +1,6 @@
-﻿namespace Elders.Cronus.EventStore.Index
+﻿using System.Threading.Tasks;
+
+namespace Elders.Cronus.EventStore.Index
 {
     public interface ICronusEventStoreIndex : IEventStoreIndex, ISystemHandler, IMessageHandler
     {
@@ -6,6 +8,6 @@
 
     public interface IEventStoreIndex : IMessageHandler
     {
-        void Index(CronusMessage message);
+        Task IndexAsync(CronusMessage message);
     }
 }

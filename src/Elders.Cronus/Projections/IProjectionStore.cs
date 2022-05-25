@@ -5,28 +5,22 @@ namespace Elders.Cronus.Projections
 {
     public interface IProjectionStore
     {
-        IEnumerable<ProjectionCommit> Load(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
-
-        Task<IEnumerable<ProjectionCommit>> LoadAsync(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
-
-        bool HasSnapshotMarker(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
+        IAsyncEnumerable<ProjectionCommit> LoadAsync(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
 
         Task<bool> HasSnapshotMarkerAsync(ProjectionVersion version, IBlobId projectionId, int snapshotMarker);
 
-        IEnumerable<ProjectionCommit> EnumerateProjection(ProjectionVersion version, IBlobId projectionId);
-
-        void Save(ProjectionCommit commit);
+        IAsyncEnumerable<ProjectionCommit> EnumerateProjectionAsync(ProjectionVersion version, IBlobId projectionId);
 
         Task SaveAsync(ProjectionCommit commit);
     }
 
     public interface IInitializableProjectionStore
     {
-        void Initialize(ProjectionVersion version);
+        Task InitializeAsync(ProjectionVersion version);
     }
 
     public class NotInitializableProjectionStore : IInitializableProjectionStore
     {
-        public void Initialize(ProjectionVersion version) { }
+        public Task InitializeAsync(ProjectionVersion version) { return Task.CompletedTask; }
     }
 }

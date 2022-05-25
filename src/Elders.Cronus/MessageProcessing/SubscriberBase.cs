@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.MessageProcessing
@@ -21,10 +22,10 @@ namespace Elders.Cronus.MessageProcessing
 
         public string Id { get; protected set; }
 
-        public virtual void Process(CronusMessage message)
+        public virtual Task ProcessAsync(CronusMessage message)
         {
             var context = new HandleContext(message, handlerType);
-            handlerWorkflow.Run(context);
+            return handlerWorkflow.RunAsync(context);
         }
 
         /// <summary>
