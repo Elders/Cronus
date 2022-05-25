@@ -1,3 +1,10 @@
+## [8.0.1](https://github.com/Elders/Cronus/compare/v8.0.0...v8.0.1) (2022-05-25)
+
+
+### Bug Fixes
+
+* Update Domain Modeling ([6057f22](https://github.com/Elders/Cronus/commit/6057f2256780df4c0f5ca77c8133edd0b2fd7699))
+
 # [8.0.0](https://github.com/Elders/Cronus/compare/v7.0.0...v8.0.0) (2022-05-25)
 
 
