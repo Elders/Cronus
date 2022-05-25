@@ -1,3 +1,30 @@
+# [8.0.0](https://github.com/Elders/Cronus/compare/v7.0.0...v8.0.0) (2022-05-25)
+
+
+### Bug Fixes
+
+* Add missing await ([96749d2](https://github.com/Elders/Cronus/commit/96749d20564fbe508e97ea10721ee25ad840fb8c))
+* Another try ([915e022](https://github.com/Elders/Cronus/commit/915e02271fe8ac845936e78b442e8f14c59a7d7b))
+* Awaits async invocations when building the message counter ([49c0aed](https://github.com/Elders/Cronus/commit/49c0aed626206d89edac79da51829c8cb81700c3))
+* bump Microsoft.NET.Test.Sdk from 17.1.0 to 17.2.0 ([7aa80b3](https://github.com/Elders/Cronus/commit/7aa80b3b431d26f5a1adaa93644d0ab0fc034ebd))
+* changelog fix and push version .13 ([eeddd4b](https://github.com/Elders/Cronus/commit/eeddd4bc2e9cac279cc1bb4e7619bc38c15f6aa7))
+* Could you deploy yourself please ([8d59354](https://github.com/Elders/Cronus/commit/8d5935477de5203c96948002f9ff8cfaf77ebce6))
+* Deploy ([91e6c60](https://github.com/Elders/Cronus/commit/91e6c6008843534aa65a5b5f94002b502c166556))
+* Enable public events replay ([b67b4f8](https://github.com/Elders/Cronus/commit/b67b4f8bcc80be6d86ad3944a4b0c457670572a5))
+* Fix not registered ILock ([dd82912](https://github.com/Elders/Cronus/commit/dd829123507905b8a6d818ed8b21da5fe75efe2f))
+* Implement async SnapshotStore ([b075ae2](https://github.com/Elders/Cronus/commit/b075ae2639c73a19afb950973d29dde1c3331a2c))
+* Improve Projection Store ([f1b3efb](https://github.com/Elders/Cronus/commit/f1b3efb5069adb8ddead2551e2ee5bb84b40c223))
+* InitializeAsync ([d03d689](https://github.com/Elders/Cronus/commit/d03d689006b14ff66e59eeeacc4486ad2fb9c633))
+* Load Aggregate Commits async ([0b66a21](https://github.com/Elders/Cronus/commit/0b66a216fe9369eb52d61703ef2386d538273f2f))
+* Move some In-memory implementations to support only tests ([49cd3a5](https://github.com/Elders/Cronus/commit/49cd3a5388c6e3d8f2f720c2cafec86e52228547))
+* Provide async message counter ([e23c79c](https://github.com/Elders/Cronus/commit/e23c79c985ff5d0a19f3f2f9c246b87d92fde18a))
+* Return ILock back ([8384337](https://github.com/Elders/Cronus/commit/8384337b8fdc45bf1f419c19826a0b8f37780f8c))
+
+
+### Reverts
+
+* Revert "fix: Uses async to log an error message" ([575b3b8](https://github.com/Elders/Cronus/commit/575b3b8b8f58f5525968abd16ff407181c62ac27))
+
 # [8.0.0-preview.14](https://github.com/Elders/Cronus/compare/v8.0.0-preview.13...v8.0.0-preview.14) (2022-04-26)
 
 # [8.0.0-preview.13](https://github.com/Elders/Cronus/compare/v8.0.0-preview.12...v8.0.0-preview.13) (2022-04-21)
