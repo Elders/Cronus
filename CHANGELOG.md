@@ -1,3 +1,10 @@
+## [8.0.3](https://github.com/Elders/Cronus/compare/v8.0.2...v8.0.3) (2022-05-26)
+
+
+### Bug Fixes
+
+* Stop awaiting dynamic handles as we know that await waits for the execution to be completed ([022023e](https://github.com/Elders/Cronus/commit/022023ec7da1ecad5a85f157dd6433b916dc2a27))
+
 ## [8.0.2](https://github.com/Elders/Cronus/compare/v8.0.1...v8.0.2) (2022-05-26)
 
 
