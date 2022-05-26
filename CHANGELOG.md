@@ -1,3 +1,10 @@
+## [8.0.4](https://github.com/Elders/Cronus/compare/v8.0.3...v8.0.4) (2022-05-26)
+
+
+### Bug Fixes
+
+* Remove one of two indices startup ([ac8c277](https://github.com/Elders/Cronus/commit/ac8c2776c8a091fbf78240036bdab33fd3e5b0c7))
+
 ## [8.0.3](https://github.com/Elders/Cronus/compare/v8.0.2...v8.0.3) (2022-05-26)
 
 
