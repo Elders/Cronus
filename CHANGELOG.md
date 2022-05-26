@@ -1,3 +1,10 @@
+## [8.0.2](https://github.com/Elders/Cronus/compare/v8.0.1...v8.0.2) (2022-05-26)
+
+
+### Bug Fixes
+
+* Async improvements ([4b490ff](https://github.com/Elders/Cronus/commit/4b490ff2791c9e9b82902339bbc1ee23d2698bd4))
+
 ## [8.0.1](https://github.com/Elders/Cronus/compare/v8.0.0...v8.0.1) (2022-05-25)
 
 
