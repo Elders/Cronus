@@ -71,6 +71,7 @@ namespace Elders.Cronus.EventStore.Index
                         string mess = Encoding.UTF8.GetString(indexRecord.AggregateRootId);
                         IAggregateRootId arId = GetAggregateRootId(mess);
                         EventStream stream = await eventStore.LoadAsync(arId).ConfigureAwait(false);
+                        List<Task> incrementTasks = new List<Task>();
 
                         foreach (AggregateCommit arCommit in stream.Commits)
                         {
@@ -83,9 +84,11 @@ namespace Elders.Cronus.EventStore.Index
                                 }
 
                                 if (eventTypeId.Equals(@event.GetType().GetContractId(), StringComparison.OrdinalIgnoreCase))
-                                    await messageCounter.IncrementAsync(eventType).ConfigureAwait(false);
+                                    incrementTasks.Add(messageCounter.IncrementAsync(eventType));
                             }
                         }
+
+                        await Task.WhenAll(incrementTasks).ConfigureAwait(false);
                     }
 
                     Data.MarkPaginationTokenAsProcessed(eventTypeId, indexRecordsResult.PaginationToken);

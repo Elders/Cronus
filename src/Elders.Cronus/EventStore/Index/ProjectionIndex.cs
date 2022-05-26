@@ -12,6 +12,8 @@ namespace Elders.Cronus.EventStore.Index
     [DataContract(Name = "37336a18-573a-4e9e-b4a2-085033b74353")]
     public class ProjectionIndex : IEventStoreIndex, ICronusEventStoreIndex
     {
+        private static Type baseMessageType = typeof(IMessage);
+
         private readonly ILogger<ProjectionIndex> logger;
         private readonly TypeContainer<IProjection> projectionsContainer;
         private readonly IProjectionWriter projection;
@@ -29,7 +31,7 @@ namespace Elders.Cronus.EventStore.Index
             if (message.IsRepublished)
                 projectionTypes = message.RecipientHandlers.Intersect(projectionsContainer.Items.Select(t => t.GetContractId())).Select(dc => dc.GetTypeByContract());
 
-            Type baseMessageType = typeof(IMessage);
+            List<Task> projectionSaveTasks = new List<Task>();
             Type messagePayloadType = message.Payload.GetType();
             foreach (var projectionType in projectionTypes)
             {
@@ -40,19 +42,20 @@ namespace Elders.Cronus.EventStore.Index
 
                 if (isInterested)
                 {
-                    await projection.SaveAsync(projectionType, message).ConfigureAwait(false);
+                    projectionSaveTasks.Add(projection.SaveAsync(projectionType, message));
                 }
             }
+
+            await Task.WhenAll(projectionSaveTasks).ConfigureAwait(false);
         }
 
         public async Task IndexAsync(AggregateCommit aggregateCommit, ProjectionVersion version)
         {
-            Type baseMessageType = typeof(IMessage);
-
             IEnumerable<(IEvent, EventOrigin)> eventDataList = GetEventData(aggregateCommit);
 
             foreach (var eventData in eventDataList)
             {
+                List<Task> projectionSaveTasks = new List<Task>();
                 Type messagePayloadType = eventData.Item1.GetType();
                 foreach (var projectionType in projectionsContainer.Items)
                 {
@@ -60,15 +63,17 @@ namespace Elders.Cronus.EventStore.Index
                         continue;
 
                     bool isInterested = projectionType.GetInterfaces()
-                        .Where(x => x.IsGenericType && x.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(x.GetGenericArguments()[0])))
+                        .Where(@interface => @interface.IsGenericType && @interface.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(@interface.GetGenericArguments()[0])))
                         .Where(@interface => @interface.GetGenericArguments()[0].IsAssignableFrom(messagePayloadType))
                         .Any();
 
                     if (isInterested)
                     {
-                        await projection.SaveAsync(projectionType, eventData.Item1, eventData.Item2, version).ConfigureAwait(false);
+                        projectionSaveTasks.Add(projection.SaveAsync(projectionType, eventData.Item1, eventData.Item2, version));
                     }
                 }
+
+                await Task.WhenAll(projectionSaveTasks).ConfigureAwait(false);
             }
         }
 
