@@ -9,10 +9,10 @@ namespace Elders.Cronus.MessageProcessing
     /// </summary>
     public class DynamicMessageIndex : Workflow<HandlerContext>
     {
-        protected override async Task RunAsync(Execution<HandlerContext> execution)
+        protected override Task RunAsync(Execution<HandlerContext> execution)
         {
             dynamic handler = execution.Context.HandlerInstance;
-            await handler.IndexAsync((dynamic)execution.Context.CronusMessage);
+            return handler.IndexAsync((dynamic)execution.Context.CronusMessage);
         }
     }
 }

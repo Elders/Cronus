@@ -12,10 +12,10 @@ namespace Elders.Cronus.MessageProcessing
     /// </summary>
     public class DynamicMessageHandle : Workflow<HandlerContext>
     {
-        protected override async Task RunAsync(Execution<HandlerContext> execution)
+        protected override Task RunAsync(Execution<HandlerContext> execution)
         {
             dynamic handler = execution.Context.HandlerInstance;
-            await handler.HandleAsync((dynamic)execution.Context.Message);
+            return handler.HandleAsync((dynamic)execution.Context.Message);
         }
     }
 
