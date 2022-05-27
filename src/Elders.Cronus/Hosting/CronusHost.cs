@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.Hosting;
 using Elders.Cronus.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -25,6 +26,7 @@ namespace Elders.Cronus
         private readonly IConsumer<ISystemTrigger> systemTriggers;
         private readonly IConsumer<ISystemProjection> systemProjections;
         private readonly IConsumer<IMigrationHandler> migrations;
+        private readonly IRpcHost rpcHost;
         private readonly IServiceProvider serviceProvider;
         private CronusHostOptions hostOptions;
 
@@ -45,7 +47,7 @@ namespace Elders.Cronus
             IConsumer<ISystemProjection> systemProjections,
             IConsumer<IMigrationHandler> migrations,
             IOptionsMonitor<CronusHostOptions> cronusHostOptions,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider, IRpcHost rpcHost)
         {
             this.booter = booter;
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
@@ -63,6 +65,7 @@ namespace Elders.Cronus
             this.systemProjections = systemProjections;
             this.migrations = migrations;
             this.serviceProvider = serviceProvider;
+            this.rpcHost = rpcHost;
             this.hostOptions = cronusHostOptions.CurrentValue;
             cronusHostOptions.OnChange(Changed);
         }
@@ -93,6 +96,12 @@ namespace Elders.Cronus
                     systemSagas.Start();
                     systemTriggers.Start();
                 }
+
+                if (hostOptions.RpcApiEnabled)
+                {
+                    rpcHost.Start();
+                }
+
             }
             catch (Exception ex)
             {
@@ -122,6 +131,11 @@ namespace Elders.Cronus
                     systemTriggers.Stop();
                     systemIndices.Stop();
                     indices.Stop();
+                }
+
+                if (hostOptions.RpcApiEnabled)
+                {
+                    rpcHost.Stop();
                 }
             }
             catch (Exception ex)
@@ -156,6 +170,7 @@ namespace Elders.Cronus
                 if (oldOptions.PortsEnabled == false && newOptions.PortsEnabled == true) ports.Start();
                 if (oldOptions.GatewaysEnabled == false && newOptions.GatewaysEnabled == true) gateways.Start();
                 if (oldOptions.TriggersEnabled == false && newOptions.TriggersEnabled == true) gateways.Start();
+                if (oldOptions.RpcApiEnabled == false && newOptions.RpcApiEnabled == true) rpcHost.Start();
             }
             catch (Exception ex)
             {
@@ -174,6 +189,7 @@ namespace Elders.Cronus
                 if (oldOptions.PortsEnabled == true && newOptions.PortsEnabled == false) ports.Stop();
                 if (oldOptions.GatewaysEnabled == true && newOptions.GatewaysEnabled == false) gateways.Stop();
                 if (oldOptions.TriggersEnabled == true && newOptions.TriggersEnabled == false) gateways.Stop();
+                if (oldOptions.RpcApiEnabled == true && newOptions.RpcApiEnabled == false) rpcHost.Stop();
             }
             catch (Exception ex)
             {
