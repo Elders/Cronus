@@ -1,3 +1,10 @@
+## [8.0.6](https://github.com/Elders/Cronus/compare/v8.0.5...v8.0.6) (2022-05-31)
+
+
+### Bug Fixes
+
+* The information of the omitted aggregate commit is not important unless when debugging the framework ([988dbf0](https://github.com/Elders/Cronus/commit/988dbf0bdb07a6ac67beaeb54ebc2ef7c9b57711))
+
 ## [8.0.5](https://github.com/Elders/Cronus/compare/v8.0.4...v8.0.5) (2022-05-31)
 
 
