@@ -1,3 +1,10 @@
+## [8.0.5](https://github.com/Elders/Cronus/compare/v8.0.4...v8.0.5) (2022-05-31)
+
+
+### Bug Fixes
+
+* Resolves a problem where a developer wants to remove an aggregate commit. It is actually a feature, maybe.... ([086ef83](https://github.com/Elders/Cronus/commit/086ef83332bd2fa1472cc1d1b90fe6a32c465aeb))
+
 ## [8.0.4](https://github.com/Elders/Cronus/compare/v8.0.3...v8.0.4) (2022-05-26)
 
 
