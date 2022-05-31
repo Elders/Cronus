@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
@@ -14,7 +15,7 @@ namespace Elders.Cronus.Migrations
 
         public override async Task RunAsync(IEnumerable<IMigration<AggregateCommit>> migrations)
         {
-            LoadAggregateCommitsResult result = await source.LoadAggregateCommitsAsync("", 5000).ConfigureAwait(false);
+            LoadAggregateCommitsResult result = await source.LoadAggregateCommitsAsync(string.Empty, 5000).ConfigureAwait(false);
             int counter = 0;
             try
             {
@@ -32,7 +33,15 @@ namespace Elders.Cronus.Migrations
                                 sourceCommit = migration.Apply(sourceCommit);
                             }
                         }
+
+                        if (ForSomeReasonTheAggregateCommitHasBeenDeleted(sourceCommit))
+                        {
+                            logger.Info(() => $"An aggregate commit has been wiped from the face of the Earth. R.I.P.{Environment.NewLine}{result.Commits[i].ToString()}"); // Bonus: How Пикасо is spelled in English => Piccasso, Picasso, Piccaso ?? I bet spmeone will git-blame me
+                            continue;
+                        }
+
                         await target.AppendAsync(sourceCommit).ConfigureAwait(false);
+
                     }
                     result = await source.LoadAggregateCommitsAsync(result.PaginationToken, 5000).ConfigureAwait(false); // think of paging
                     logger.Info(() => $"Migrated commits - Counter: `{counter}` - Pagination Token: `{result.PaginationToken}`");
@@ -42,6 +51,11 @@ namespace Elders.Cronus.Migrations
             {
                 logger.ErrorException(ex, () => $"Something boom bam while runnning migration. Here is paginator: {result.PaginationToken}");
             }
+        }
+
+        private static bool ForSomeReasonTheAggregateCommitHasBeenDeleted(AggregateCommit aggregateCommit)
+        {
+            return aggregateCommit is null || aggregateCommit.Events.Any() == false;
         }
     }
 }
