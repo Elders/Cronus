@@ -7,11 +7,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {
-    public class MigrationRunner<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateCommit, IMigrationEventStorePlayer, IEventStore>
+    public sealed class MigrationRunner : MigrationRunnerBase<AggregateCommit, IMigrationEventStorePlayer, IEventStore>
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(MigrationRunner<,>));
+        private readonly ILogger logger;
 
-        public MigrationRunner(IMigrationEventStorePlayer source, EventStoreFactory factory) : base(source, factory.GetEventStore()) { }
+        public MigrationRunner(IMigrationEventStorePlayer source, EventStoreFactory factory, ILogger logger) : base(source, factory.GetEventStore())
+        {
+            this.logger = logger;
+        }
 
         public override async Task RunAsync(IEnumerable<IMigration<AggregateCommit>> migrations)
         {
