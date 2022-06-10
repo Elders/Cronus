@@ -42,7 +42,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public Task HandleAsync(RebuildProjectionCommand command)
         {
-            return UpdateAsync(command.Id, ar => ar.Rebuild(command.Hash));
+            return UpdateAsync(command.Id, ar => ar.Rebuild(command.Hash, projectionVersioningPolicy));
         }
 
         public Task HandleAsync(FinalizeProjectionVersionRequest command)
