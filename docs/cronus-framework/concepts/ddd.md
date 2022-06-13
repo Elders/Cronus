@@ -4,14 +4,14 @@ description: DDD
 
 # Domain Driven Design
 
-## What is Domain Driven Design?
+## What is Domain-Driven Design?
 
 It is our job, as software engineers, to effectively transfer real-world business problems and solutions into the digital world. This is not an easy task. You have to understand how the business operates and what are its key advantages over the competitors. Exploring models in collaboration with _domain experts_ and software experts is essential. To be successful you need to uncover and concentrate on how the business generates profit. We call this area the _Core Domain_.
 
 There are different supporting pieces as part of the overall puzzle which enhance the _Core Domain_. We call those _Supporting Domains_. You need to pay special attention to the details because sometimes a so-called "_very important part of the business"_ could be something generic and commonly used in other applications - a.k.a _Generic Domain_. For such cases, it is recommended to use an off-the-shelf product or leverage an open-source project and concentrate on the _Core_ and _Supporting domains_. Otherwise, the software engineers will build something which does not bring value nor a competitive advantage to the client.
 
 {% hint style="info" %}
-With Domain Driven Design the focus is on the core complexity of the domain!
+With Domain-Driven Design the focus is on the core complexity of the domain!
 {% endhint %}
 
 {% hint style="info" %}
@@ -34,7 +34,7 @@ There are several factors which make Domain Driven Design shine. If you have eve
 
 {% hint style="success" %}
 * you are building software for an established and already operating business
-* you have access to _domain experts_ 
+* you have access to _domain experts_&#x20;
 * you are passionate about what you are doing
 {% endhint %}
 
@@ -59,4 +59,3 @@ Tactical design
 Fail fast
 
 Anticipate the steep learning curve
-
