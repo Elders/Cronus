@@ -106,8 +106,11 @@ namespace Elders.Cronus.Projections.Rebuilding
         {
             RebuildProjection_JobData.EventPaging paging = Data.EventTypePaging.Where(et => et.Type.Equals(eventTypeId, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
-            long pagingProcessedCount = Data.EventTypePaging.Select(p => p.ProcessedCount).DefaultIfEmpty(0).Sum();
-            progressTracker.Processed = pagingProcessedCount;
+            unchecked
+            {
+                ulong pagingProcessedCount = Data.EventTypePaging.Select(p => p.ProcessedCount).DefaultIfEmpty().Aggregate((x, y) => x + y);
+                progressTracker.Processed = pagingProcessedCount;
+            }
 
             string paginationToken = paging?.PaginationToken;
             LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false); // TODO: Think about cassandra exception here. Such exceptions MUST be handled in the concrete impl of the IndexStore

@@ -17,8 +17,8 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly ILogger<ProgressTracker> logger;
 
         public string ProjectionName { get; set; }
-        public long Processed { get; set; }
-        public long TotalEvents { get; set; }
+        public ulong Processed { get; set; }
+        public ulong TotalEvents { get; set; }
 
 
         public ProgressTracker(IMessageCounter messageCounter, CronusContext context, IPublisher<ISignal> signalPublisher, ProjectionVersionHelper projectionVersionHelper, ILogger<ProgressTracker> logger)
@@ -39,7 +39,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             ProjectionName = version.ProjectionName;
             IEnumerable<Type> projectionHandledEventTypes = projectionVersionHelper.GetInvolvedEventTypes(ProjectionName.GetTypeByContract());
             foreach (var eventType in projectionHandledEventTypes)
-                TotalEvents += await messageCounter.GetCountAsync(eventType).ConfigureAwait(false);
+                TotalEvents += (ulong)await messageCounter.GetCountAsync(eventType).ConfigureAwait(false);
 
             Processed = 0;
         }

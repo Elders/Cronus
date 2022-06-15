@@ -7,7 +7,7 @@ namespace Elders.Cronus.Projections
     {
         public RebuildProjectionProgress() { }
 
-        public RebuildProjectionProgress(string tenant, string projectionTypeId, long processedCount, long totalCount)
+        public RebuildProjectionProgress(string tenant, string projectionTypeId, ulong processedCount, ulong totalCount)
         {
             Tenant = tenant;
             ProjectionTypeId = projectionTypeId;
@@ -22,9 +22,9 @@ namespace Elders.Cronus.Projections
         public string ProjectionTypeId { get; set; }
 
         [DataMember(Order = 2)]
-        public long ProcessedCount { get; set; }
+        public ulong ProcessedCount { get; set; }
 
         [DataMember(Order = 3)]
-        public long TotalCount { get; set; }
+        public ulong TotalCount { get; set; }
     }
 }

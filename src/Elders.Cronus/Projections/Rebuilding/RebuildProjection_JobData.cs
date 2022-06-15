@@ -54,7 +54,7 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         public partial class EventPaging
         {
-            public EventPaging(string eventTypeId, string paginationToken, long processedCount, long totalCount)
+            public EventPaging(string eventTypeId, string paginationToken, ulong processedCount, ulong totalCount)
             {
                 Type = eventTypeId;
                 PaginationToken = paginationToken;
@@ -66,9 +66,9 @@ namespace Elders.Cronus.Projections.Rebuilding
 
             public string PaginationToken { get; set; }
 
-            public long ProcessedCount { get; set; }
+            public ulong ProcessedCount { get; set; }
 
-            public long TotalCount { get; set; }
+            public ulong TotalCount { get; set; }
         }
     }
 }
