@@ -1,3 +1,10 @@
+# [8.1.0](https://github.com/Elders/Cronus/compare/v8.0.6...v8.1.0) (2022-06-15)
+
+
+### Features
+
+* Ensure canceling of projections is working (for better experience we should deploy UI ) ([1186428](https://github.com/Elders/Cronus/commit/1186428b052f032a4bf33b2e5c5ec037a494a882))
+
 ## [8.0.6](https://github.com/Elders/Cronus/compare/v8.0.5...v8.0.6) (2022-05-31)
 
 
