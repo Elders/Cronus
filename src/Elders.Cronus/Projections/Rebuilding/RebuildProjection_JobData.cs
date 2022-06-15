@@ -10,12 +10,15 @@ namespace Elders.Cronus.Projections.Rebuilding
         public RebuildProjection_JobData()
         {
             IsCompleted = false;
+            IsCanceled = false;
             EventTypePaging = new List<EventPaging>();
             Timestamp = DateTimeOffset.UtcNow;
             DueDate = DateTimeOffset.MaxValue;
         }
 
         public bool IsCompleted { get; set; }
+
+        public bool IsCanceled { get; set; }
 
         public List<EventPaging> EventTypePaging { get; set; }
 

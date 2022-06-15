@@ -116,6 +116,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         private bool CanRebuild(ProjectionVersion currentLiveVersion)
         {
+            if (currentLiveVersion is null)
+                return false;
+
             bool hashMatchesCurrentLiveVersion = currentLiveVersion.Hash.Equals(currentLiveVersion.Hash);
             bool hasRebuildingVersion = state.Versions.HasRebuildingVersion();
 

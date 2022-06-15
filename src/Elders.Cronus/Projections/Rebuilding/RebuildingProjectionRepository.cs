@@ -49,21 +49,24 @@ namespace Elders.Cronus.Projections.Rebuilding
             return streamTasks.Select(t => t.Result);
         }
 
-        public async Task SaveAggregateCommitsAsync(IEnumerable<EventStream> eventStreams, ProjectionVersion version)
+        public async Task SaveAggregateCommitsAsync(IEnumerable<EventStream> eventStreams, RebuildProjection_JobData Data)
         {
             List<Task> indexingTasks = new List<Task>();
 
             foreach (EventStream stream in eventStreams)
             {
+                if (Data.IsCanceled)
+                    return;
+
                 try
                 {
                     foreach (AggregateCommit arCommit in stream.Commits)
                     {
-                        Task indexAction = progressTracker.CompleteActionWithProgressSignalAsync(() => index.IndexAsync(arCommit, version));
+                        Task indexAction = progressTracker.CompleteActionWithProgressSignalAsync(() => index.IndexAsync(arCommit, Data.Version));
                         indexingTasks.Add(indexAction);
                     }
                 }
-                catch (Exception ex) when (logger.WarnException(ex, () => $"{stream.ToString()} was skipped when rebuilding {version.ProjectionName}.")) { }
+                catch (Exception ex) when (logger.WarnException(ex, () => $"{stream.ToString()} was skipped when rebuilding {Data.Version.ProjectionName}.")) { }
             }
 
             await Task.WhenAll(indexingTasks.ToArray()).ConfigureAwait(false);

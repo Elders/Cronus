@@ -72,9 +72,9 @@ namespace Elders.Cronus.Projections.Rebuilding
                 logger.Error(() => $"Version `{version}` is outdated. There is a newer one which is already live.");
                 return true;
             }
-            if (allVersions.IsCanceled(version) && version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase) == false)
+            else if (allVersions.IsCanceled(version) && version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase) == false)
             {
-                logger.Error(() => $"Version `{version}` was canceled.false");
+                logger.Error(() => $"Version `{version}` was canceled");
                 return true;
             }
 

@@ -43,7 +43,6 @@ namespace Elders.Cronus.Projections.Versioning
             JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
             logger.Debug(() => "Replay projection version {@cronus_projection_rebuild}", result);
 
-
             if (result == JobExecutionStatus.Running)
             {
                 RequestTimeout(new CreateNewProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
