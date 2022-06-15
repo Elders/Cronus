@@ -1,3 +1,10 @@
+## [8.1.1](https://github.com/Elders/Cronus/compare/v8.1.0...v8.1.1) (2022-06-15)
+
+
+### Bug Fixes
+
+* Fix overflow of processed count when rebuilding projcetion. ([a9bd003](https://github.com/Elders/Cronus/commit/a9bd003c840332395464647f462dcdaea41b1402))
+
 # [8.1.0](https://github.com/Elders/Cronus/compare/v8.0.6...v8.1.0) (2022-06-15)
 
 
