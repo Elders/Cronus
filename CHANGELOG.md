@@ -1,3 +1,10 @@
+## [8.1.2](https://github.com/Elders/Cronus/compare/v8.1.1...v8.1.2) (2022-06-16)
+
+
+### Bug Fixes
+
+* enables rebuilding of projections that don't have a live version ([943701d](https://github.com/Elders/Cronus/commit/943701db8d4976a61c1c4f7f26cf7f32724f1d38))
+
 ## [8.1.1](https://github.com/Elders/Cronus/compare/v8.1.0...v8.1.1) (2022-06-15)
 
 
