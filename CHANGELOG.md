@@ -1,3 +1,10 @@
+# [8.2.0](https://github.com/Elders/Cronus/compare/v8.1.3...v8.2.0) (2022-06-24)
+
+
+### Features
+
+* Add Rpc Api to Cronus ([b02a2b9](https://github.com/Elders/Cronus/commit/b02a2b9175600c2cd30fd837593e1888865af052))
+
 ## [8.1.3](https://github.com/Elders/Cronus/compare/v8.1.2...v8.1.3) (2022-06-24)
 
 
