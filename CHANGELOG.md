@@ -20,6 +20,7 @@
 * Fix overflow of processed count when rebuilding projcetion. ([a9bd003](https://github.com/Elders/Cronus/commit/a9bd003c840332395464647f462dcdaea41b1402))
 
 # [8.1.0](https://github.com/Elders/Cronus/compare/v8.0.6...v8.1.0) (2022-06-15)
+# [8.1.0-preview.1](https://github.com/Elders/Cronus/compare/v8.0.4...v8.1.0-preview.1) (2022-05-27)
 
 
 ### Features
@@ -39,6 +40,8 @@
 ### Bug Fixes
 
 * Resolves a problem where a developer wants to remove an aggregate commit. It is actually a feature, maybe.... ([086ef83](https://github.com/Elders/Cronus/commit/086ef83332bd2fa1472cc1d1b90fe6a32c465aeb))
+* Add Rpc host ([8b1e03b](https://github.com/Elders/Cronus/commit/8b1e03bc3b9e6b3a372adfbec9d599ec551f0363))
+* Trigger pipeline ([3f76e8b](https://github.com/Elders/Cronus/commit/3f76e8b6cc816d81f070e832449702e984e31f83))
 
 ## [8.0.4](https://github.com/Elders/Cronus/compare/v8.0.3...v8.0.4) (2022-05-26)
 

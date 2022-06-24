@@ -45,7 +45,7 @@ namespace Elders.Cronus.Hosting.Heartbeat
                 }
                 catch (Exception ex)
                 {
-                    // failed to send heartbeat
+                    // failed to send heartbeat 
                     logger.WarnException(ex, () => "Failed to send heartbeat.");
                 }
             }

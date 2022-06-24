@@ -12,6 +12,7 @@ namespace Elders.Cronus
         public bool TriggersEnabled { get; set; } = true;
         public bool MigrationsEnabled { get; set; } = false;
         public bool SystemServicesEnabled { get; set; } = true;
+        public bool RpcApiEnabled { get; set; } = false;
     }
 
     public class CronusHostOptionsProvider : CronusOptionsProviderBase<CronusHostOptions>
