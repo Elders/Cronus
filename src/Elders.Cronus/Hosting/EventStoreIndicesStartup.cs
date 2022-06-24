@@ -10,23 +10,28 @@ namespace Elders.Cronus
         private readonly TenantsOptions tenants;
         private readonly IPublisher<ICommand> publisher;
         private readonly TypeContainer<IEventStoreIndex> indexTypeContainer;
+        private readonly CronusHostOptions cronusHostOptions;
 
-        public EventStoreIndicesStartup(TypeContainer<IEventStoreIndex> indexTypeContainer, IOptionsMonitor<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher)
+        public EventStoreIndicesStartup(TypeContainer<IEventStoreIndex> indexTypeContainer, IOptions<CronusHostOptions> cronusHostOptions, IOptionsMonitor<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher)
         {
             this.tenants = tenantsOptions.CurrentValue;
             this.publisher = publisher;
             this.indexTypeContainer = indexTypeContainer;
+            this.cronusHostOptions = cronusHostOptions.Value;
         }
 
         public void Bootstrap()
         {
-            foreach (var index in indexTypeContainer.Items)
+            if (cronusHostOptions.ApplicationServicesEnabled)
             {
-                foreach (var tenant in tenants.Tenants)
+                foreach (var index in indexTypeContainer.Items)
                 {
-                    var id = new EventStoreIndexManagerId(index.GetContractId(), tenant);
-                    var command = new RegisterIndex(id);
-                    publisher.Publish(command);
+                    foreach (var tenant in tenants.Tenants)
+                    {
+                        var id = new EventStoreIndexManagerId(index.GetContractId(), tenant);
+                        var command = new RegisterIndex(id);
+                        publisher.Publish(command);
+                    }
                 }
             }
         }

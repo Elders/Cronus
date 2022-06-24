@@ -12,25 +12,30 @@ namespace Elders.Cronus
         private readonly ProjectionHasher hasher;
         private readonly IPublisher<ICommand> publisher;
         private readonly TypeContainer<IProjection> handlerTypeContainer;
+        private readonly CronusHostOptions cronusHostOptions;
 
-        public ProjectionsStartup(TypeContainer<IProjection> handlerTypeContainer, IOptionsMonitor<TenantsOptions> tenantsOptions, ProjectionHasher hasher, IPublisher<ICommand> publisher)
+        public ProjectionsStartup(TypeContainer<IProjection> handlerTypeContainer, IOptions<CronusHostOptions> cronusHostOptions, IOptions<TenantsOptions> tenantsOptions, ProjectionHasher hasher, IPublisher<ICommand> publisher)
         {
-            this.tenants = tenantsOptions.CurrentValue;
+            this.tenants = tenantsOptions.Value;
             this.hasher = hasher;
-            this.publisher =  publisher;
+            this.publisher = publisher;
             this.handlerTypeContainer = handlerTypeContainer;
+            this.cronusHostOptions = cronusHostOptions.Value;
         }
 
         public void Bootstrap()
         {
-            var systemProjection = typeof(ISystemProjection);
-            foreach (var handler in handlerTypeContainer.Items.OrderByDescending(x => systemProjection.IsAssignableFrom(x)))
+            if (cronusHostOptions.ProjectionsEnabled)
             {
-                foreach (var tenant in tenants.Tenants)
+                var systemProjection = typeof(ISystemProjection);
+                foreach (var handler in handlerTypeContainer.Items.OrderByDescending(x => systemProjection.IsAssignableFrom(x)))
                 {
-                    var id = new ProjectionVersionManagerId(handler.GetContractId(), tenant);
-                    var command = new RegisterProjection(id, hasher.CalculateHash(handler));
-                    publisher.Publish(command);
+                    foreach (var tenant in tenants.Tenants)
+                    {
+                        var id = new ProjectionVersionManagerId(handler.GetContractId(), tenant);
+                        var command = new RegisterProjection(id, hasher.CalculateHash(handler));
+                        publisher.Publish(command);
+                    }
                 }
             }
         }
