@@ -54,7 +54,7 @@ namespace Elders.Cronus.Projections.Versioning
         {
             if (CanRebuild(hash))
             {
-                ProjectionVersion currentLiveVersion = state.Versions.GetNext(policy, hash);
+                ProjectionVersion currentLiveVersion = state.Versions.GetLive();
                 var timebox = GetVersionRequestTimebox(hash);
                 RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Rebuilding), timebox);
             }
