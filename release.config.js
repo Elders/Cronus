@@ -11,7 +11,7 @@ module.exports={
     }],
 
     ["@semantic-release/exec",{
-        successCmd: `
+        verifyReleaseCmd: `
           set -e
           echo \${nextRelease.version} > semver.txt
         `,
