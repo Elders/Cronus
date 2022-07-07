@@ -1,3 +1,18 @@
+# [8.3.0](https://github.com/Elders/Cronus/compare/v8.2.0...v8.3.0) (2022-07-07)
+
+
+### Bug Fixes
+
+* Fix Rebuild increments projection version ([719e02e](https://github.com/Elders/Cronus/commit/719e02e138137db19b83897a043870490e39aaf2))
+* semantic release, attempt 1 ([75cbd2c](https://github.com/Elders/Cronus/commit/75cbd2c21c94ab2893fd8c5bfaa40813669161fa))
+* semantic release, attempt 2 ([b2d3469](https://github.com/Elders/Cronus/commit/b2d3469cc482bb3960d1f6c5e84e9df1c8907df6))
+* semantic release, attempt 2 ([c2f1fe8](https://github.com/Elders/Cronus/commit/c2f1fe8288af7d9a2a5a95a4824162d9b45e868e))
+
+
+### Features
+
+* Update Domain Modeling ([70e4dd2](https://github.com/Elders/Cronus/commit/70e4dd2d8456eae1f1b93a0568476e0aeda10ce2))
+
 # [8.2.0](https://github.com/Elders/Cronus/compare/v8.1.3...v8.2.0) (2022-06-24)
 
 
