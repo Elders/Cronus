@@ -1,3 +1,10 @@
+## [8.3.1](https://github.com/Elders/Cronus/compare/v8.3.0...v8.3.1) (2022-07-08)
+
+
+### Bug Fixes
+
+* Reworks TenantResolver ([fbb61a3](https://github.com/Elders/Cronus/commit/fbb61a34704f52aeb0ab079bd91768c609ba085b))
+
 # [8.3.0](https://github.com/Elders/Cronus/compare/v8.2.0...v8.3.0) (2022-07-07)
 
 
