@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Elders.Cronus.AspNetCore.Exeptions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 
 namespace Elders.Cronus.Multitenancy
@@ -12,6 +15,16 @@ namespace Elders.Cronus.Multitenancy
 
     public interface ITenantResolver<in T>
     {
+        /// <summary>
+        /// Resolves a teannt name from a specific source.
+        /// </summary>
+        /// <param name="source">The source from which the system will try to extract the tenant name.</param>
+        /// <returns>Returns the tenant name or empty string if the tenant resolving fails.</returns>
+        /// <remarks>
+        /// This method should never throw an exception. The system will try to resolve the tenant name
+        /// from several places based on the current execution chain. If the process still fails then
+        /// an exception will be thrown from the underlying execution.
+        /// </remarks>
         string Resolve(T source);
     }
 
@@ -19,11 +32,13 @@ namespace Elders.Cronus.Multitenancy
     {
         ConcurrentDictionary<Type, ResolverCache> resolvers = new ConcurrentDictionary<Type, ResolverCache>();
 
+        private readonly TenantsOptions tenants;
         private readonly IServiceProvider serviceProvider;
 
-        public TenantResolver(IServiceProvider serviceProvider)
+        public TenantResolver(IServiceProvider serviceProvider, IOptions<TenantsOptions> tenantsOptions)
         {
             this.serviceProvider = serviceProvider;
+            this.tenants = tenantsOptions.Value;
         }
 
         public string Resolve(object source)
@@ -33,16 +48,28 @@ namespace Elders.Cronus.Multitenancy
             ResolverCache resolverCache;
             if (resolvers.TryGetValue(source.GetType(), out resolverCache) == false)
             {
-                var tenantResolverType = typeof(ITenantResolver<>);
-                var tenantResolverTypeGeneric = tenantResolverType.MakeGenericType(source.GetType());
-                var resolver = serviceProvider.GetRequiredService(tenantResolverTypeGeneric);
+                Type tenantResolverType = typeof(ITenantResolver<>);
+                Type tenantResolverTypeGeneric = tenantResolverType.MakeGenericType(source.GetType());
+                object resolver = serviceProvider.GetRequiredService(tenantResolverTypeGeneric);
                 MethodInfo resolveMethod = tenantResolverTypeGeneric.GetMethod("Resolve");
 
                 resolverCache = new ResolverCache(resolver, resolveMethod);
                 resolvers.TryAdd(source.GetType(), resolverCache);
             }
 
-            return resolverCache.GetTenantFrom(source);
+            string tenant = resolverCache.GetTenantFrom(source);
+
+            if (string.IsNullOrEmpty(tenant) == false)
+            {
+                return tenant;
+            }
+            else
+            {
+                if (tenants.Tenants.Count() == 1)
+                    return tenants.Tenants.Single();
+            }
+
+            throw new UnableToResolveTenantException("Unable to resolve tenant.");
         }
 
         class ResolverCache
