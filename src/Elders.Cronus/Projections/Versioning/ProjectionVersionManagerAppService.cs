@@ -13,10 +13,12 @@ namespace Elders.Cronus.Projections.Versioning
         ICommandHandler<RebuildProjectionCommand>
     {
         private readonly IProjectionVersioningPolicy projectionVersioningPolicy;
+        private readonly InMemoryProjectionVersionStore projectionStore;
 
-        public ProjectionVersionManagerAppService(IAggregateRepository repository, IProjectionVersioningPolicy projectionVersioningPolicy) : base(repository)
+        public ProjectionVersionManagerAppService(IAggregateRepository repository, IProjectionVersioningPolicy projectionVersioningPolicy, InMemoryProjectionVersionStore projectionStore) : base(repository)
         {
             this.projectionVersioningPolicy = projectionVersioningPolicy;
+            this.projectionStore = projectionStore;
         }
 
         public async Task HandleAsync(RegisterProjection command)
@@ -26,7 +28,7 @@ namespace Elders.Cronus.Projections.Versioning
             if (result.IsSuccess)
             {
                 ar = result.Data;
-                ar.NotifyHash(command.Hash, projectionVersioningPolicy);
+                ar.NotifyHash(command.Id, command.Hash, projectionVersioningPolicy, projectionStore);
             }
 
             if (result.NotFound)
@@ -42,7 +44,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public Task HandleAsync(RebuildProjectionCommand command)
         {
-            return UpdateAsync(command.Id, ar => ar.Rebuild(command.Hash, projectionVersioningPolicy));
+            return UpdateAsync(command.Id, ar => ar.Rebuild(command.Hash));
         }
 
         public Task HandleAsync(FinalizeProjectionVersionRequest command)
