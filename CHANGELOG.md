@@ -1,3 +1,10 @@
+# [8.4.0](https://github.com/Elders/Cronus/compare/v8.3.1...v8.4.0) (2022-07-12)
+
+
+### Features
+
+* Auto-recover projections when using new projection store ([37725d2](https://github.com/Elders/Cronus/commit/37725d25e7a384eee3b9e6db694004148c87b441))
+
 ## [8.3.1](https://github.com/Elders/Cronus/compare/v8.3.0...v8.3.1) (2022-07-08)
 
 
