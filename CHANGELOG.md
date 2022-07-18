@@ -1,3 +1,10 @@
+## [8.4.1](https://github.com/Elders/Cronus/compare/v8.4.0...v8.4.1) (2022-07-18)
+
+
+### Bug Fixes
+
+* prevents NullReferenceException when a tenant resolver returns null ([d0839df](https://github.com/Elders/Cronus/commit/d0839dfe30879eda8f8521762ee794942376a611))
+
 # [8.4.0](https://github.com/Elders/Cronus/compare/v8.3.1...v8.4.0) (2022-07-12)
 
 
