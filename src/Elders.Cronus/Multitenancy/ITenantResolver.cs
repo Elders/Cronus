@@ -1,10 +1,10 @@
-﻿using Elders.Cronus.AspNetCore.Exeptions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using Elders.Cronus.AspNetCore.Exeptions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.Multitenancy
 {
@@ -85,7 +85,7 @@ namespace Elders.Cronus.Multitenancy
 
             public string GetTenantFrom(object source)
             {
-                return _resolveMethod.Invoke(_resolver, new object[] { source }).ToString();
+                return _resolveMethod.Invoke(_resolver, new object[] { source })?.ToString();
             }
         }
     }
