@@ -52,6 +52,8 @@ namespace Elders.Cronus.Projections.Versioning
 
         public void Rebuild(string hash)
         {
+            EnsureThereIsNoOutdatedBuildingVersions();
+
             if (CanRebuild(hash))
             {
                 ProjectionVersion currentLiveVersion = state.Versions.GetLive();
@@ -74,17 +76,13 @@ namespace Elders.Cronus.Projections.Versioning
             }
         }
 
-        public void NotifyHash(ProjectionVersionManagerId id, string hash, IProjectionVersioningPolicy policy, InMemoryProjectionVersionStore projectionStore)
+        public void NotifyHash(string hash, IProjectionVersioningPolicy policy)
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
             if (ShouldReplay(hash))
             {
                 Replay(hash, policy);
-            }
-            else if (ShouldRebuild(id.Id, projectionStore))
-            {
-                Rebuild(hash);
             }
         }
 
@@ -106,13 +104,6 @@ namespace Elders.Cronus.Projections.Versioning
             bool isInProgress = state.Versions.HasBuildingVersion();
 
             return isInProgress == false && (state.Versions.HasLiveVersion == false || isNewHashTheLiveOne == false);
-        }
-
-        private bool ShouldRebuild(string projectionName, InMemoryProjectionVersionStore projectionStore)
-        {
-            ProjectionVersions versions = projectionStore.Get(projectionName);
-
-            return versions.HasLiveVersion == false && versions.HasRebuildingVersion() == false;
         }
 
         private bool CanReplay(string hash, IProjectionVersioningPolicy policy)

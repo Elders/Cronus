@@ -13,12 +13,13 @@ namespace Elders.Cronus.Projections.Versioning
         ICommandHandler<RebuildProjectionCommand>
     {
         private readonly IProjectionVersioningPolicy projectionVersioningPolicy;
-        private readonly InMemoryProjectionVersionStore projectionStore;
+        private readonly IProjectionReader projectionReader;
 
-        public ProjectionVersionManagerAppService(IAggregateRepository repository, IProjectionVersioningPolicy projectionVersioningPolicy, InMemoryProjectionVersionStore projectionStore) : base(repository)
+
+        public ProjectionVersionManagerAppService(IAggregateRepository repository, IProjectionVersioningPolicy projectionVersioningPolicy, IProjectionReader projectionReader) : base(repository)
         {
             this.projectionVersioningPolicy = projectionVersioningPolicy;
-            this.projectionStore = projectionStore;
+            this.projectionReader = projectionReader;
         }
 
         public async Task HandleAsync(RegisterProjection command)
@@ -28,7 +29,12 @@ namespace Elders.Cronus.Projections.Versioning
             if (result.IsSuccess)
             {
                 ar = result.Data;
-                ar.NotifyHash(command.Id, command.Hash, projectionVersioningPolicy, projectionStore);
+                ar.NotifyHash(command.Hash, projectionVersioningPolicy);
+
+                if (await ShouldRebuildMissingSystemProjectionsAsync(command.Id, projectionReader).ConfigureAwait(false))
+                {
+                    ar.Rebuild(command.Hash);
+                }
             }
 
             if (result.NotFound)
@@ -60,6 +66,24 @@ namespace Elders.Cronus.Projections.Versioning
         public Task HandleAsync(TimeoutProjectionVersionRequest command)
         {
             return UpdateAsync(command.Id, ar => ar.VersionRequestTimedout(command.Version, command.Timebox));
+        }
+
+        private async Task<bool> ShouldRebuildMissingSystemProjectionsAsync(ProjectionVersionManagerId projectionId, IProjectionReader projectionReader)
+        {
+            string projectionName = projectionId.Id;
+
+            if (projectionName.IsProjectionVersionHandler() || projectionName.IsEventStoreIndexStatus())
+            {
+                ReadResult<ProjectionVersionsHandler> result = await projectionReader.GetAsync<ProjectionVersionsHandler>(projectionId).ConfigureAwait(false);
+                if (result.IsSuccess)
+                {
+                    ProjectionVersions versions = result.Data.State.AllVersions;
+                    return versions.HasLiveVersion == false && versions.HasRebuildingVersion() == false;
+                }
+                return true;
+            }
+
+            return false;
         }
     }
 }
