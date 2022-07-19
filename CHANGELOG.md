@@ -1,3 +1,10 @@
+# [8.5.0](https://github.com/Elders/Cronus/compare/v8.4.1...v8.5.0) (2022-07-19)
+
+
+### Features
+
+* Auto recover missing projection store ([feb4fca](https://github.com/Elders/Cronus/commit/feb4fca9083288e3a3b393702b25a64f4fac9589))
+
 ## [8.4.1](https://github.com/Elders/Cronus/compare/v8.4.0...v8.4.1) (2022-07-18)
 
 
