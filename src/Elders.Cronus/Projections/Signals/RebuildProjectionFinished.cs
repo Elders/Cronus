@@ -3,7 +3,7 @@
 namespace Elders.Cronus.Projections
 {
     [DataContract(Name = "b248432b-451c-4894-84f2-c5ac5bc35139")]
-    public class RebuildProjectionFinished : ISignal
+    public class RebuildProjectionFinished : ISystemSignal
     {
         public RebuildProjectionFinished() { }
 

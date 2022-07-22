@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
@@ -12,7 +11,7 @@ namespace Elders.Cronus.Projections.Rebuilding
     {
         private readonly string tenant;
         private readonly IMessageCounter messageCounter;
-        private readonly IPublisher<ISignal> signalPublisher;
+        private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly ProjectionVersionHelper projectionVersionHelper;
         private readonly ILogger<ProgressTracker> logger;
 
@@ -21,7 +20,7 @@ namespace Elders.Cronus.Projections.Rebuilding
         public ulong TotalEvents { get; set; }
 
 
-        public ProgressTracker(IMessageCounter messageCounter, CronusContext context, IPublisher<ISignal> signalPublisher, ProjectionVersionHelper projectionVersionHelper, ILogger<ProgressTracker> logger)
+        public ProgressTracker(IMessageCounter messageCounter, CronusContext context, IPublisher<ISystemSignal> signalPublisher, ProjectionVersionHelper projectionVersionHelper, ILogger<ProgressTracker> logger)
         {
             tenant = context.Tenant;
             this.messageCounter = messageCounter;

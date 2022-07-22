@@ -12,7 +12,7 @@ namespace Elders.Cronus.Projections.Rebuilding
 {
     public sealed class RebuildProjection_Job : CronusJob<RebuildProjection_JobData>
     {
-        private readonly IPublisher<ISignal> signalPublisher;
+        private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly IRebuildingProjectionRepository rebuildingRepository;
         private readonly EventToAggregateRootId eventToAggregateIndex;
@@ -25,7 +25,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             ProgressTracker progressTracker,
             ProjectionVersionHelper projectionVersionHelper,
             EventToAggregateRootId eventToAggregateIndex,
-            IPublisher<ISignal> signalPublisher,
+            IPublisher<ISystemSignal> signalPublisher,
             ILogger<RebuildProjection_Job> logger)
             : base(logger)
         {
