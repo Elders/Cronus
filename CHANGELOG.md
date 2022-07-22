@@ -1,3 +1,10 @@
+# [8.6.0](https://github.com/Elders/Cronus/compare/v8.5.0...v8.6.0) (2022-07-22)
+
+
+### Features
+
+* Mark rebuild job progress signals as ISystemSignal ([ea0ab90](https://github.com/Elders/Cronus/commit/ea0ab90ac872eaf75efc99ae960cd013790549ac))
+
 # [8.5.0](https://github.com/Elders/Cronus/compare/v8.4.1...v8.5.0) (2022-07-19)
 
 
