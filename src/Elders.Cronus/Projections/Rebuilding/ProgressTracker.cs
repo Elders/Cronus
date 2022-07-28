@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
@@ -16,12 +17,12 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly ILogger<ProgressTracker> logger;
 
         public string ProjectionName { get; set; }
-        public ulong Processed { get; set; }
+        public Dictionary<string, ulong> EventTypeProcessed { get; set; }
         public ulong TotalEvents { get; set; }
-
 
         public ProgressTracker(IMessageCounter messageCounter, CronusContext context, IPublisher<ISystemSignal> signalPublisher, ProjectionVersionHelper projectionVersionHelper, ILogger<ProgressTracker> logger)
         {
+            EventTypeProcessed = new Dictionary<string, ulong>();
             tenant = context.Tenant;
             this.messageCounter = messageCounter;
             this.signalPublisher = signalPublisher;
@@ -35,12 +36,15 @@ namespace Elders.Cronus.Projections.Rebuilding
         /// <param name="version">Projection version that should be initialized</param>
         public async Task InitializeAsync(ProjectionVersion version)
         {
+            EventTypeProcessed = new Dictionary<string, ulong>();
+
             ProjectionName = version.ProjectionName;
             IEnumerable<Type> projectionHandledEventTypes = projectionVersionHelper.GetInvolvedEventTypes(ProjectionName.GetTypeByContract());
             foreach (var eventType in projectionHandledEventTypes)
+            {
                 TotalEvents += (ulong)await messageCounter.GetCountAsync(eventType).ConfigureAwait(false);
-
-            Processed = 0;
+                EventTypeProcessed.Add(eventType.GetContractId(), 0);
+            }
         }
 
         /// <summary>
@@ -48,21 +52,25 @@ namespace Elders.Cronus.Projections.Rebuilding
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        public async Task CompleteActionWithProgressSignalAsync(Func<Task> action)
+        public async Task CompleteActionWithProgressSignalAsync(Func<Task> action, string eventType)
         {
             try
             {
                 await action().ConfigureAwait(false);
 
-                var progressSignalche = new RebuildProjectionProgress(tenant, ProjectionName, ++Processed, TotalEvents);
+                var progressSignalche = GetProgressSignal();
                 signalPublisher.Publish(progressSignalche);
+
+                EventTypeProcessed.TryGetValue(eventType, out ulong processed);
+                EventTypeProcessed[eventType] = ++processed;
+
             }
             catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }
         }
 
         public RebuildProjectionProgress GetProgressSignal()
         {
-            return new RebuildProjectionProgress(tenant, ProjectionName, Processed, TotalEvents);
+            return new RebuildProjectionProgress(tenant, ProjectionName, CountTotalProcessedEvents(), TotalEvents);
         }
 
         public RebuildProjectionFinished GetProgressFinishedSignal()
@@ -73,6 +81,16 @@ namespace Elders.Cronus.Projections.Rebuilding
         public RebuildProjectionStarted GetProgressStartedSignal()
         {
             return new RebuildProjectionStarted(tenant, ProjectionName);
+        }
+
+        public ulong CountTotalProcessedEvents()
+        {
+            ulong totalProcessed = 0;
+            foreach (var typeProcessed in EventTypeProcessed)
+            {
+                totalProcessed += typeProcessed.Value;
+            }
+            return totalProcessed;
         }
     }
 }

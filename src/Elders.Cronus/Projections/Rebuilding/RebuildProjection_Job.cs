@@ -106,17 +106,11 @@ namespace Elders.Cronus.Projections.Rebuilding
         {
             RebuildProjection_JobData.EventPaging paging = Data.EventTypePaging.Where(et => et.Type.Equals(eventTypeId, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
-            unchecked
-            {
-                ulong pagingProcessedCount = Data.EventTypePaging.Select(p => p.ProcessedCount).DefaultIfEmpty().Aggregate((x, y) => x + y);
-                progressTracker.Processed = pagingProcessedCount;
-            }
-
             string paginationToken = paging?.PaginationToken;
             LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false); // TODO: Think about cassandra exception here. Such exceptions MUST be handled in the concrete impl of the IndexStore
             IEnumerable<EventStream> eventStreams = await rebuildingRepository.LoadEventsAsync(indexRecordsResult.Records, Data.Version).ConfigureAwait(false);
 
-            await rebuildingRepository.SaveAggregateCommitsAsync(eventStreams, Data).ConfigureAwait(false);
+            await rebuildingRepository.SaveAggregateCommitsAsync(eventStreams, eventTypeId, Data).ConfigureAwait(false);
 
             await NotifyClusterAsync(eventTypeId, indexRecordsResult.PaginationToken, cluster, cancellationToken).ConfigureAwait(false);
 
@@ -127,7 +121,8 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         private async Task NotifyClusterAsync(string eventTypeId, string paginationToken, IClusterOperations cluster, CancellationToken cancellationToken)
         {
-            var progress = new RebuildProjection_JobData.EventPaging(eventTypeId, paginationToken, progressTracker.Processed, progressTracker.TotalEvents);
+            ulong totalProcessed = progressTracker.CountTotalProcessedEvents();
+            var progress = new RebuildProjection_JobData.EventPaging(eventTypeId, paginationToken, totalProcessed, progressTracker.TotalEvents);
 
             Data.MarkEventTypeProgress(progress);
             Data.Timestamp = DateTimeOffset.UtcNow;
