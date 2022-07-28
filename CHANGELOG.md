@@ -1,3 +1,10 @@
+## [8.6.1](https://github.com/Elders/Cronus/compare/v8.6.0...v8.6.1) (2022-07-28)
+
+
+### Bug Fixes
+
+* Fix projection job progress ([acc90e0](https://github.com/Elders/Cronus/commit/acc90e0c4e6f5c9b1501aee609832cf44deb72d7))
+
 # [8.6.0](https://github.com/Elders/Cronus/compare/v8.5.0...v8.6.0) (2022-07-22)
 
 
