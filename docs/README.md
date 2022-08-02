@@ -10,6 +10,7 @@ description: >-
 
 Cronus is an open-source framework that helps you to solve business problems with less time spent on infrastructure concerns. Applications built with Cronus are centered around three core concepts:
 
+* [Quick Start](getting-started/quick-start/)
 * [Domain-Driven Design](cronus-framework/concepts/ddd.md)
 * [Event Sourcing](cronus-framework/concepts/es.md)
 * [Command Query Responsibility Segregation](cronus-framework/concepts/cqrs.md)

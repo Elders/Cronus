@@ -2,6 +2,13 @@
 
 * [Introduction](README.md)
 
+## Getting Started
+
+* [Quick Start](getting-started/quick-start/README.md)
+  * [Setup](getting-started/quick-start/setup.md)
+  * [Persist First Event](getting-started/quick-start/persist-first-event.md)
+  * [Explore Projections](getting-started/quick-start/explore-projections.md)
+
 ## Cronus Framework
 
 * [Concepts](cronus-framework/concepts/README.md)
@@ -40,4 +47,3 @@
   * [Serialization](cronus-framework/messaging/serialization.md)
 * [Configuration](cronus-framework/configuration.md)
 * [Unit testing](cronus-framework/unit-testing.md)
-

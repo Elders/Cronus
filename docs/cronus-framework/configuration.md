@@ -6,15 +6,15 @@ By default, Cronus and its sub-components have good default settings. However, n
 
 ## Cronus
 
-| Name | Type | Required | Default Value |
-| :--- | :--- | :--- | :--- |
-| [Cronus:BoundedContext](configuration.md#cronus-boundedcontext) | string | yes |  |
-| [Cronus:Tenants](configuration.md#cronus-tenants-greater-than-greater-than-string-or-required-yes) | string\[\] | yes |  |
-| [Cronus:ApplicationServicesEnabled](configuration.md#cronus-applicationservicesenabled) | bool | no | true |
-| [Cronus:ProjectionsEnabled](configuration.md#cronus-projectionsenabled) | bool | no | true |
-| [Cronus:PortsEnabled](configuration.md#cronus-portsenabled) | bool | no | true |
-| [Cronus:SagasEnabled](configuration.md#cronus-sagasenabled) | bool | no | true |
-| [Cronus:GatewaysEnabled](configuration.md#cronus-gatewaysenabled) | bool | no | true |
+| Name                                                                                               | Type      | Required | Default Value |
+| -------------------------------------------------------------------------------------------------- | --------- | -------- | ------------- |
+| [Cronus:BoundedContext](configuration.md#cronus-boundedcontext)                                    | string    | yes      |               |
+| [Cronus:Tenants](configuration.md#cronus-tenants-greater-than-greater-than-string-or-required-yes) | string\[] | yes      |               |
+| [Cronus:ApplicationServicesEnabled](configuration.md#cronus-applicationservicesenabled)            | bool      | no       | true          |
+| [Cronus:ProjectionsEnabled](configuration.md#cronus-projectionsenabled)                            | bool      | no       | true          |
+| [Cronus:PortsEnabled](configuration.md#cronus-portsenabled)                                        | bool      | no       | true          |
+| [Cronus:SagasEnabled](configuration.md#cronus-sagasenabled)                                        | bool      | no       | true          |
+| [Cronus:GatewaysEnabled](configuration.md#cronus-gatewaysenabled)                                  | bool      | no       | true          |
 
 #### Cronus:BoundedContext
 
@@ -65,10 +65,10 @@ Specifies whether to start a consumer for the Gateways
 
 ## Cronus.Api
 
-| Name | Type | Required | Default Value |
-| :--- | :--- | :--- | :--- |
-| [Cronus:Api:Kestrel](configuration.md#hosting) | configurationSection | no |  |
-| [Cronus:Api:JwtAuthentication](configuration.md#authentication) | configurationSection | no |  |
+| Name                                                            | Type                 | Required | Default Value |
+| --------------------------------------------------------------- | -------------------- | -------- | ------------- |
+| [Cronus:Api:Kestrel](configuration.md#hosting)                  | configurationSection | no       |               |
+| [Cronus:Api:JwtAuthentication](configuration.md#authentication) | configurationSection | no       |               |
 
 ### Hosting
 
@@ -80,7 +80,7 @@ A configuration could be provided by [KestrelOptions](https://docs.microsoft.com
 
 #### Cronus:Api:Kestrel
 
-```text
+```
 {
     "Cronus": {
         "Api": {
@@ -106,11 +106,11 @@ A configuration could be provided by [KestrelOptions](https://docs.microsoft.com
 
 The API could be protected using a JWT bearer authentication.
 
-The configuration is provided by [JwtBearerOptions](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.builder.jwtbeareroptions?view=aspnetcore-1.1&viewFallbackFrom=aspnetcore-2.2). You can supply them directly in the DI or through a configuration file.
+The configuration is provided by [JwtBearerOptions](https://docs.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.builder.jwtbeareroptions?view=aspnetcore-1.1\&viewFallbackFrom=aspnetcore-2.2). You can supply them directly in the DI or through a configuration file.
 
 #### Cronus:Api:JwtAuthentication
 
-```text
+```
 {
     "Cronus": {
         "Api": {
@@ -127,12 +127,12 @@ Remarks: [https://stackoverflow.com/a/58736850/224667](https://stackoverflow.com
 
 ## Cronus.Persistence.Cassandra
 
-| Name | Type | Required | Default Value |
-| :--- | :--- | :--- | :--- |
-| [Cronus:Persistence:Cassandra:ConnectionString](configuration.md#cronus-persistence-cassandra-connectionstring) | string | yes |  |
-| [Cronus:Persistence:Cassandra:ReplicationStrategy](configuration.md#cronus-persistence-cassandra-replicationstrategy) | string | no | simple |
-| [Cronus:Persistence:Cassandra:ReplicationFactor](configuration.md#cronus-persistence-cassandra-replicationstrategy) | int | no | 1 |
-| [Cronus:Persistence:Cassandra:Datacenters](configuration.md#cronus-persistence-cassandra-replicationstrategy) | string\[\] | no |  |
+| Name                                                                                                                  | Type      | Required | Default Value |
+| --------------------------------------------------------------------------------------------------------------------- | --------- | -------- | ------------- |
+| [Cronus:Persistence:Cassandra:ConnectionString](configuration.md#cronus-persistence-cassandra-connectionstring)       | string    | yes      |               |
+| [Cronus:Persistence:Cassandra:ReplicationStrategy](configuration.md#cronus-persistence-cassandra-replicationstrategy) | string    | no       | simple        |
+| [Cronus:Persistence:Cassandra:ReplicationFactor](configuration.md#cronus-persistence-cassandra-replicationstrategy)   | int       | no       | 1             |
+| [Cronus:Persistence:Cassandra:Datacenters](configuration.md#cronus-persistence-cassandra-replicationstrategy)         | string\[] | no       |               |
 
 #### Cronus:Persistence:Cassandra:ConnectionString
 
@@ -149,14 +149,14 @@ Valid values:
 
 ## Cronus.Projections.Cassandra
 
-| Name | Type | Required | Default Value |
-| :--- | :--- | :--- | :--- |
-| [Cronus:Projections:Cassandra:ConnectionString](configuration.md#cronus-projections-cassandra-connectionstring) | string | yes |  |
-| [Cronus:Pojections:Cassandra:ReplicationStrategy](configuration.md#cronus-projections-cassandra-replicationstrategy) | string | no | simple |
-| [Cronus:Pojections:Cassandra:ReplicationFactor](configuration.md#cronus-projections-cassandra-replicationfactor) | int | no | 1 |
-| [Cronus:Pojections:Cassandra:Datacenters](configuration.md#cronus-projections-cassandra-datacenters) | string\[\] | no |  |
-| [Cronus:Pojections:Cassandra:TableRetention:DeleteOldProjectionTables](configuration.md#cronus-projections-cassandra-tableretention-deleteoldprojectiontables) | boolean | no | true |
-| [Cronus:Projections:Cassandra:TableRetention:NumberOfOldProjectionTablesToRetain](configuration.md#cronus-projections-cassandra-tableretention-numberofoldprojectiontablestoretain) | uint | no | 2 |
+| Name                                                                                                                                                                                | Type      | Required | Default Value |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | -------- | ------------- |
+| [Cronus:Projections:Cassandra:ConnectionString](configuration.md#cronus-projections-cassandra-connectionstring)                                                                     | string    | yes      |               |
+| [Cronus:Pojections:Cassandra:ReplicationStrategy](configuration.md#cronus-projections-cassandra-replicationstrategy)                                                                | string    | no       | simple        |
+| [Cronus:Pojections:Cassandra:ReplicationFactor](configuration.md#cronus-projections-cassandra-replicationfactor)                                                                    | int       | no       | 1             |
+| [Cronus:Pojections:Cassandra:Datacenters](configuration.md#cronus-projections-cassandra-datacenters)                                                                                | string\[] | no       |               |
+| [Cronus:Pojections:Cassandra:TableRetention:DeleteOldProjectionTables](configuration.md#cronus-projections-cassandra-tableretention-deleteoldprojectiontables)                      | boolean   | no       | true          |
+| [Cronus:Projections:Cassandra:TableRetention:NumberOfOldProjectionTablesToRetain](configuration.md#cronus-projections-cassandra-tableretention-numberofoldprojectiontablestoretain) | uint      | no       | 2             |
 
 #### `Cronus:Projections:Cassandra:ConnectionString`
 
@@ -175,41 +175,41 @@ Valid values:
 
 #### `Cronus:Projections:Cassandra:Datacenters`
 
-#### `Cronus:Projections:Cassandra:TableRetention:DeleteOldProjectionTables` 
+#### `Cronus:Projections:Cassandra:TableRetention:DeleteOldProjectionTables`&#x20;
 
 Enables deletion of old projection tables
 
-#### `Cronus:Projections:Cassandra:TableRetention:NumberOfOldProjectionTablesToRetain` 
+#### `Cronus:Projections:Cassandra:TableRetention:NumberOfOldProjectionTablesToRetain`&#x20;
 
-Configures Cassandra number of old projection tables -&gt; default: live table and 2 old tables
+Configures Cassandra number of old projection tables -> default: live table and 2 old tables
 
 ## Cronus.Transport.RabbitMq
 
-#### `Cronus:Transport:RabbiMQ:ConsumerWorkersCount` &gt;&gt; _integer \| Required: Yes \| Default: 5_
+#### `Cronus:Transport:RabbiMQ:ConsumerWorkersCount` >> _integer | Required: Yes | Default: 5_
 
-Configures the number of threads which will be dedicated for consuming messages from RabbitMQ for _every_ consumer.
+Configures the number of threads which will be dedicated to consuming messages from RabbitMQ for _every_ consumer.
 
-#### `Cronus:Transport:RabbiMQ:Server` &gt;&gt; _string \| Required: Yes \| Default: 127.0.0.1_
+#### `Cronus:Transport:RabbiMQ:Server` >> _string | Required: Yes | Default: 127.0.0.1_
 
 DNS or IP to the RabbitMQ server
 
-#### `Cronus:Transport:RabbiMQ:Port` &gt;&gt; _integer \| Required: Yes \| Default: 5672_
+#### `Cronus:Transport:RabbiMQ:Port` >> _integer | Required: Yes | Default: 5672_
 
 The port number on which the RabbitMQ server is running
 
-#### `Cronus:Transport:RabbiMQ:VHost` &gt;&gt; _string \| Required: Yes \| Default: /_
+#### `Cronus:Transport:RabbiMQ:VHost` >> _string | Required: Yes | Default: /_
 
 The name of the virtual host. It is a good practice to not use the default `/` vhost. For more details see the [official docs](https://www.rabbitmq.com/vhosts.html). Cronus is not using this for managing multitenancy.
 
-#### `Cronus:Transport:RabbiMQ:Username` &gt;&gt; _string \| Required: Yes \| Default: guest_
+#### `Cronus:Transport:RabbiMQ:Username` >> _string | Required: Yes | Default: guest_
 
 The RabbitMQ username
 
-#### `Cronus:Transport:RabbiMQ:Password` &gt;&gt; _string \| Required: Yes \| Default: guest_
+#### `Cronus:Transport:RabbiMQ:Password` >> _string | Required: Yes | Default: guest_
 
 The RabbitMQ password
 
-#### `Cronus:Transport:RabbiMQ:AdminPort` &gt;&gt; _integer \| Required: Yes \| Default: 5672_
+#### `Cronus:Transport:RabbiMQ:AdminPort` >> _integer | Required: Yes | Default: 5672_
 
 RabbitMQ admin port used to create, delete rabbitmq resources
 
@@ -217,21 +217,20 @@ RabbitMQ admin port used to create, delete rabbitmq resources
 
 An implementation of `Cronus.AtomicAction` using distributed locks with Redis
 
-\(_Source:_ [https://redis.io/topics/distlock](https://redis.io/topics/distlock)\)
+(_Source:_ [https://redis.io/topics/distlock](https://redis.io/topics/distlock))
 
-#### `Cronus:AtomicAction:Redis:ConnectionString` &gt;&gt; _string \| Required: Yes_
+#### `Cronus:AtomicAction:Redis:ConnectionString` >> _string | Required: Yes_
 
 Configures the connection string where Redis is located
 
-#### `Cronus:AtomicAction:Redis:LockTtl` &gt;&gt; _TimeSpan \| Required: No \| Default: 00:00:01.000_
+#### `Cronus:AtomicAction:Redis:LockTtl` >> _TimeSpan | Required: No | Default: 00:00:01.000_
 
-#### `Cronus:AtomicAction:Redis:ShorTtl` &gt;&gt; _TimeSpan \| Required: No \| Default: 00:00:01.000_
+#### `Cronus:AtomicAction:Redis:ShorTtl` >> _TimeSpan | Required: No | Default: 00:00:01.000_
 
-#### `Cronus:AtomicAction:Redis:LongTtl` &gt;&gt; _TimeSpan \| Required: No \| Default: 00:00:05.000_
+#### `Cronus:AtomicAction:Redis:LongTtl` >> _TimeSpan | Required: No | Default: 00:00:05.000_
 
-#### `Cronus:AtomicAction:Redis:LockRetryCount` &gt;&gt; _int \| Required: No \| Default: 3_
+#### `Cronus:AtomicAction:Redis:LockRetryCount` >> _int | Required: No | Default: 3_
 
-#### `Cronus:AtomicAction:Redis:LockRetryDelay` &gt;&gt; _TimeSpan \| Required: No \| Default: 00:00:00.100_
+#### `Cronus:AtomicAction:Redis:LockRetryDelay` >> _TimeSpan | Required: No | Default: 00:00:00.100_
 
-#### `Cronus:AtomicAction:Redis:ClockDriveFactor` &gt;&gt; _double \| Required: No \| Default: 0.01_
-
+#### `Cronus:AtomicAction:Redis:ClockDriveFactor` >> _double | Required: No | Default: 0.01_

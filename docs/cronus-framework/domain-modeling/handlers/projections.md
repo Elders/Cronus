@@ -1,12 +1,12 @@
 # Projections
 
-A projection is a representation of an object using a different perspective. In the context of CQRS, projections are queryable models on the "_read_" side that never manipulate the original data \(events in event-sourced systems\) in any way. Projections should be designed in a way that is useful and convenient for the reader \(API, UI, etc.\).
+A projection is a representation of an object using a different perspective. In the context of CQRS, projections are queryable models on the "_read_" side that never manipulate the original data (events in event-sourced systems) in any way. Projections should be designed in a way that is useful and convenient for the reader (API, UI, etc.).
 
 Cronus supports non-event-sourced and event-sourced projections with snapshots.
 
 ## Defining a projection
 
-To create a projection, create a class for it that inherits `ProjectionDefinition<TState, TId>`. The id can be any type that implements the `IBlobId` interface. All ids provided by Cronus implement this interface but it is common to create your own for specific business cases. The `ProjectionDefinition<TState, TId>` base class provides a `Subscribe()` method that is used to create a projection id from an event. This will define an event-sourced projection with a state that will be used to persist snapshots.
+To create a projection, create a class for it that inherits `ProjectionDefinition<TState, TId>`. The id can be any type that implements the `IBlobId` interface. All ids provided by Cronus implement this interface but it is common to create your own for specific business cases. The `ProjectionDefinition<TState, TId>` base class provides a `Subscribe()` the method that is used to create a projection id from an event. This will define an event-sourced projection with a state that will be used to persist snapshots.
 
 Use the `IEventHandler<TEvent>` interface to indicate that the projection can handle events of the specified event type. Implement this interface for each event type your projection needs to handle.
 
@@ -31,7 +31,9 @@ public class ExampleByIdProjection : ProjectionDefinition<ExampleByIdProjectionS
 
 Create a class for the projection state. The state of the projection gets serialized and deserialized when persisting or restoring a snapshot. That's why it must have a parameterless constructor, a data contract and data members.
 
-{% page-ref page="../../messaging/serialization.md" %}
+{% content-ref url="../../messaging/serialization.md" %}
+[serialization.md](../../messaging/serialization.md)
+{% endcontent-ref %}
 
 ```csharp
 // TODO: give a relevant example
@@ -54,7 +56,7 @@ There is no guarantee the events will be handled in the order of publishing nor 
 If the projection state contains a collection, make sure it doesn't get populated with duplicates. This can be achieved by using a `HashSet<T>` and `ValueObject`.
 {% endhint %}
 
-You can define a non-event-sourced projection by decorating it with the `IProjection` interface. This is useful when you want to persist the state in an external system \(e.g. ElasticSearch, relational database\).
+You can define a non-event-sourced projection by decorating it with the `IProjection` interface. This is useful when you want to persist the state in an external system (e.g. ElasticSearch, relational database).
 
 ```csharp
 // TODO: give a relevant example
@@ -139,4 +141,3 @@ TODO
 
 * a projection **should not** query other projections. All the data of a projection must be collected from the Events' data
 {% endhint %}
-

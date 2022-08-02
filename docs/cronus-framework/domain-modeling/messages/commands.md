@@ -2,7 +2,9 @@
 
 A command is a simple immutable object that is sent to the domain to trigger a state change. There should be a single command handler for each command. It is recommended to use imperative verbs when naming commands together with the name of the aggregate they operate on.
 
-{% page-ref page="../handlers/application-services.md" %}
+{% content-ref url="../handlers/application-services.md" %}
+[application-services.md](../handlers/application-services.md)
+{% endcontent-ref %}
 
 It is possible for a command to get rejected if the data it holds is incorrect or inconsistent with the current state of the aggregate.
 
@@ -19,7 +21,9 @@ It is possible for a command to get rejected if the data it holds is incorrect o
 
 You can define a command with Cronus using the `ICommand` markup interface. All commands get serialized and deserialized, that's why you need to keep the parameterless constructor and specify data contracts.
 
-{% page-ref page="../../messaging/serialization.md" %}
+{% content-ref url="../../messaging/serialization.md" %}
+[serialization.md](../../messaging/serialization.md)
+{% endcontent-ref %}
 
 ```csharp
 // TODO: give relevant example
@@ -51,12 +55,12 @@ public class CreateExample : ICommand
 ```
 
 {% hint style="info" %}
-Cronus uses the `ToString()` method for logging, so you can override it to generate user-readable logs. Otherwise, the name of the command class will be used for log messages. 
+Cronus uses the `ToString()` method for logging, so you can override it to generate user-readable logs. Otherwise, the name of the command class will be used for log messages.&#x20;
 {% endhint %}
 
 ## Publishing a command
 
-To publish a command, inject an instance of `IPublisher<ICommand>` into your code and invoke the `Publish()` method passing the command. This method will return `true` if the command has been published successfully through the configured transport. You can also use one of the overrides of the `Publish()` method to delay or schedule a command.
+To publish a command, inject an instance of`IPublisher<ICommand>` into your code and invoke the `Publish()` method passing the command. This method will return `true` if the command has been published successfully through the configured transport. You can also use one of the overrides of the `Publish()` method to delay or schedule a command.
 
 ```csharp
 // TODO: give relevant example
@@ -82,4 +86,3 @@ public class CreateExampleController : ControllerBase
     }
 }
 ```
-

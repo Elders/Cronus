@@ -6,7 +6,7 @@ An event is something significant that has happened in the domain.  It encapsula
 **You can/should/must...**
 
 * an event **must** be immutable
-* an event **must** represent a domain event which already happened with a name in the past tense
+* an event **must** represent a domain event that already happened with a name in the past tense
 * an event **can** be dispatched only by one aggregate
 {% endhint %}
 
@@ -40,6 +40,5 @@ public class ExampleCreated : IEvent
 ```
 
 {% hint style="info" %}
-Cronus uses the `ToString()` method for logging, so you can override it to generate user-readable logs. Otherwise, the name of the event class will be used for log messages. 
+Cronus uses the `ToString()` method for logging, so you can override it to generate user-readable logs. Otherwise, the name of the event class will be used for log messages.&#x20;
 {% endhint %}
-

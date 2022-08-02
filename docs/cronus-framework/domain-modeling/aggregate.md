@@ -29,7 +29,7 @@ public class Concert : AggregateRoot<ConcertState>
 
 ## Aggregate root state
 
-The aggregate root state keeps current data of the aggregate root and is responsible for changing it based on events raised only by the root.
+The aggregate root state keeps the current data of the aggregate root and is responsible for changing it based on events raised only by the root.
 
 Use the abstract helper class `AggregateRootState<TAggregateRoot, TAggregateRootId>` to create an aggregate root state. It can be accessed in the aggregate root using the `state` field provided by the base class. Also, you can implement the `IAggregateRootState` interface by yourself in case inheritance is not a viable option.
 
@@ -73,7 +73,7 @@ You could read more about the state pattern [here](https://refactoring.guru/desi
 
 ## Aggregate root id
 
-All aggregate root ids must implement the `IAggregateRootId` interface. Since Cronus uses [URNs](https://en.wikipedia.org/wiki/Uniform_Resource_Name) for ids that will require implementing the [URN specification](https://tools.ietf.org/html/rfc8141) as well. If you don't want to do that, you can use the provided helper base class `AggregateRootId`.
+All aggregate root ids must implement the `IAggregateRootId` interface. Since Cronus uses [URNs](https://en.wikipedia.org/wiki/Uniform\_Resource\_Name) for ids that will require implementing the [URN specification](https://tools.ietf.org/html/rfc8141) as well. If you don't want to do that, you can use the provided helper base class `AggregateRootId`.
 
 ```csharp
 [DataContract(Name = "e96d90d0-4943-43f4-8a84-cd90b1217d06")]
@@ -104,4 +104,3 @@ public class ConcertId : AggregateRootId<ConcertId>
     }
 }
 ```
-

@@ -2,9 +2,11 @@
 
 This is a handler where commands are received and delivered to the addressed aggregate. Such a handler is called an application service. This is the "_write"_ side in [CQRS](../../concepts/cqrs.md).
 
-An application service is a command handler for a specific aggregate. One aggregate has one application service whose purpose is to orchestrate how commands will be fulfilled. Its the application service's responsibility to invoke the appropriate aggregate methods and pass the command's payload. It mediates between Domain and infrastructure and it shields any domain model from the "_outside_". Only the application service __interacts with the domain model.
+An application service is a command handler for a specific aggregate. One aggregate has one application service whose purpose is to orchestrate how commands will be fulfilled. Its the application service's responsibility to invoke the appropriate aggregate methods and pass the command's payload. It mediates between Domain and infrastructure and it shields any domain model from the "_outside_". Only the application service __ interacts with the domain model.
 
-{% page-ref page="../aggregate.md" %}
+{% content-ref url="../aggregate.md" %}
+[aggregate.md](../aggregate.md)
+{% endcontent-ref %}
 
 You can create an application service with Cronus by using the `AggregateRootApplicationService` base class. Specifying which commands the application service can handle is done using the `ICommandHandler<T>` interface.
 
@@ -42,7 +44,7 @@ public class ConcertAppService : AggregateRootApplicationService<Concert>,
 
 * an application service **can** load an aggregate root from the event store
 * an application service **can** save new aggregate root events to the event store
-* an application service **can** establish calls to the read model \(not a common practice but sometimes needed\)
+* an application service **can** establish calls to the read model (not a common practice but sometimes needed)
 * an application service **can** establish calls to external services
 * you **can** do dependency orchestration
 * an application service **must** be stateless
@@ -57,4 +59,3 @@ public class ConcertAppService : AggregateRootApplicationService<Concert>,
 * you **should not** use an application service to send emails, push notifications etc. Use a port or a gateway instead
 * an application service **should not** update the read model
 {% endhint %}
-
