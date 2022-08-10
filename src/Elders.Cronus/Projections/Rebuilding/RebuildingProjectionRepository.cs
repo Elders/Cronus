@@ -60,7 +60,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                 {
                     foreach (AggregateCommit arCommit in stream.Commits)
                     {
-                        await progressTracker.CompleteActionWithProgressSignalAsync(() => index.IndexAsync(arCommit, Data.Version)).ConfigureAwait(false);
+                        await progressTracker.CompleteActionWithProgressSignalAsync(() => index.IndexAsync(arCommit, Data.Version), eventType).ConfigureAwait(false);
                     }
                 }
                 catch (Exception ex) when (logger.WarnException(ex, () => $"{stream} was skipped when rebuilding {Data.Version.ProjectionName}.")) { }
