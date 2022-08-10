@@ -1,3 +1,11 @@
+# [8.7.0](https://github.com/Elders/Cronus/compare/v8.6.1...v8.7.0) (2022-08-10)
+
+
+### Features
+
+* Fix previous feature build ([612ac4e](https://github.com/Elders/Cronus/commit/612ac4e7a21ac62a15f7323f74bd26a8434150fb))
+* Tries to stay away from optimizations that could lead to the connections overflow ([c88b07a](https://github.com/Elders/Cronus/commit/c88b07a80f5bc109678142bcfa6b09c0b9ea25bb))
+
 ## [8.6.1](https://github.com/Elders/Cronus/compare/v8.6.0...v8.6.1) (2022-07-28)
 
 
