@@ -37,15 +37,12 @@ namespace Elders.Cronus.EventStore.Index
 
                 LoadAggregateCommitsResult result = await eventStorePlayer.LoadAggregateCommitsAsync(Data.PaginationToken).ConfigureAwait(false);
 
-                List<Task> indexTasks = new List<Task>();
-
                 logger.Info(() => $"Loaded aggregate commits count ${result.Commits.Count} using pagination token {result.PaginationToken}");
                 foreach (var aggregateCommit in result.Commits)
                 {
-                    indexTasks.Add(index.IndexAsync(aggregateCommit));
+                    await index.IndexAsync(aggregateCommit).ConfigureAwait(false);
                 }
 
-                await Task.WhenAll(indexTasks).ConfigureAwait(false);
 
                 Data.PaginationToken = result.PaginationToken;
                 Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);

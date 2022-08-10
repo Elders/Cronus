@@ -51,8 +51,6 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         public async Task SaveAggregateCommitsAsync(IEnumerable<EventStream> eventStreams, string eventType, RebuildProjection_JobData Data)
         {
-            List<Task> indexingTasks = new List<Task>();
-
             foreach (EventStream stream in eventStreams)
             {
                 if (Data.IsCanceled)
@@ -62,14 +60,11 @@ namespace Elders.Cronus.Projections.Rebuilding
                 {
                     foreach (AggregateCommit arCommit in stream.Commits)
                     {
-                        Task indexAction = progressTracker.CompleteActionWithProgressSignalAsync(() => index.IndexAsync(arCommit, Data.Version), eventType);
-                        indexingTasks.Add(indexAction);
+                        await progressTracker.CompleteActionWithProgressSignalAsync(() => index.IndexAsync(arCommit, Data.Version)).ConfigureAwait(false);
                     }
                 }
                 catch (Exception ex) when (logger.WarnException(ex, () => $"{stream} was skipped when rebuilding {Data.Version.ProjectionName}.")) { }
             }
-
-            await Task.WhenAll(indexingTasks.ToArray()).ConfigureAwait(false);
         }
 
         private bool ShouldLoadAggregate(int aggreagteRootIdHash)

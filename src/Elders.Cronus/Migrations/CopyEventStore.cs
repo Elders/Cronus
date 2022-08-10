@@ -20,18 +20,14 @@ namespace Elders.Cronus.Migrations
         {
             int counter = 0;
             var arCommits = source.LoadAggregateCommitsRawAsync(5000).ConfigureAwait(false);
-            List<Task> appendTasks = new List<Task>();
-
             await foreach (AggregateCommitRaw sourceCommit in arCommits)
             {
                 if (counter % 10000 == 0) logger.Info(() => $"[Migrations] Migrated records: {counter}");
 
-                appendTasks.Add(target.AppendAsync(sourceCommit));
+                await target.AppendAsync(sourceCommit).ConfigureAwait(false);
 
                 counter++;
             }
-
-            await Task.WhenAll(appendTasks).ConfigureAwait(false);
         }
     }
 }

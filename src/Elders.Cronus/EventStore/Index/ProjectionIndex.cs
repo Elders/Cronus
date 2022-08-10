@@ -31,7 +31,6 @@ namespace Elders.Cronus.EventStore.Index
             if (message.IsRepublished)
                 projectionTypes = message.RecipientHandlers.Intersect(projectionsContainer.Items.Select(t => t.GetContractId())).Select(dc => dc.GetTypeByContract());
 
-            List<Task> projectionSaveTasks = new List<Task>();
             Type messagePayloadType = message.Payload.GetType();
             foreach (var projectionType in projectionTypes)
             {
@@ -42,11 +41,9 @@ namespace Elders.Cronus.EventStore.Index
 
                 if (isInterested)
                 {
-                    projectionSaveTasks.Add(projection.SaveAsync(projectionType, message));
+                    await projection.SaveAsync(projectionType, message).ConfigureAwait(false);
                 }
             }
-
-            await Task.WhenAll(projectionSaveTasks).ConfigureAwait(false);
         }
 
         public async Task IndexAsync(AggregateCommit aggregateCommit, ProjectionVersion version)
@@ -55,7 +52,6 @@ namespace Elders.Cronus.EventStore.Index
 
             foreach (var eventData in eventDataList)
             {
-                List<Task> projectionSaveTasks = new List<Task>();
                 Type messagePayloadType = eventData.Item1.GetType();
                 foreach (var projectionType in projectionsContainer.Items)
                 {
@@ -69,11 +65,9 @@ namespace Elders.Cronus.EventStore.Index
 
                     if (isInterested)
                     {
-                        projectionSaveTasks.Add(projection.SaveAsync(projectionType, eventData.Item1, eventData.Item2, version));
+                        await projection.SaveAsync(projectionType, eventData.Item1, eventData.Item2, version).ConfigureAwait(false);
                     }
                 }
-
-                await Task.WhenAll(projectionSaveTasks).ConfigureAwait(false);
             }
         }
 
