@@ -1,112 +1,58 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+---
+variables:
+  PROJECT_DIR: Elders.Cronus
+
 trigger:
-    branches:
-      include:
-      - master
-      - beta
-      - preview
-    paths:
-      exclude:
-      - docs/CHANGELOG.md
+  branches:
+    include: [master,beta,preview]
+  paths:
+    exclude: [CHANGELOG.md]
 
 pool:
-  vmImage: 'ubuntu-latest'
-
-  container: elders/dotnet-npm:0.0.2
-
-variables:
-  buildConfiguration: 'Release'
+  vmImage: ubuntu-latest
 
 jobs:
-- job: Build
-  condition: true
+- job: build_pack_publish
 
   steps:
   - checkout: self
     clean: true
     persistCredentials: true
 
-  - task: UseDotNet@2
-    displayName: 'Use .NET 6 Core sdk'
-    enabled: false
-    inputs:
-      packageType: sdk
-      version: 6.0.x
-      installationPath: $(Agent.ToolsDirectory)/dotnet
-    
   - task: DotNetCoreCLI@2
-    name: Test
+    name: test
     inputs:
-      command: 'test'
-      projects: 'src/**/*.Tests.csproj'
+      command: test
+      projects: '**/*Tests.csproj'
+
+  - task: DotNetCoreCLI@2
+    name: build
+    inputs:
+      command: build
+      projects: 'src/$(PROJECT_DIR)/*.csproj'
 
   - task: Bash@3
-    name: GetNextVersion
+    name: release
+    displayName: semantic release + pack
     env:
-      STAGING_PATH: $(Build.ArtifactStagingDirectory)
-      LOCAL_PATH: $(Build.Repository.LocalPath)
-    inputs:
-      targetType: 'inline'
-      script: |
-        time curl -L https://github.com/Elders/blob/releases/download/SemRel-01/node_modules.tar.gz | tar mx -I pigz
-        time npx semantic-release -d
-        export SEMVER=$(cat semver.txt)
-        echo "##vso[task.setvariable variable=SEMVER;isOutput=true;]$SEMVER"
-        if [ "$SEMVER" != "" ]; then export semverDefined="true"; fi
-        echo "##vso[task.setvariable variable=semverDefined;isOutput=true;]$semverDefined"
-
-  - task: DotNetCoreCLI@2
-    inputs:
-      command: 'build'
-      projects: 'src/Elders.Cronus/*.csproj'
-
-- job: Artifact
-  dependsOn: ['Build']
-
-  variables:
-    SEMVER: $[dependencies.Build.outputs['GetNextVersion.SEMVER']]
-  condition: eq(dependencies.Build.outputs['GetNextVersion.semverDefined'], true)
-
-  steps:
-  - checkout: self
-    clean: true
-    persistCredentials: true
-
-  - task: UseDotNet@2
-    displayName: 'Use .NET 6 Core sdk'
-    enabled: false
-    inputs:
-      packageType: sdk
-      version: 6.0.x
-      installationPath: $(Agent.ToolsDirectory)/dotnet
-
-  - task: DotNetCoreCLI@2
-    name: Pack
-    inputs:
-      command: 'pack'
-      packagesToPack: 'src/Elders.Cronus/*.csproj'
-      versioningScheme: 'off'
-      buildProperties: 'PackageVersion=$(SEMVER)'
-
-  - task: Bash@3
-    name: Release
-    env:
-      STAGING_PATH: $(Build.ArtifactStagingDirectory)
-      LOCAL_PATH: $(Build.Repository.LocalPath)
-      GH_TOKEN: $(GITHUB_TOKEN)
+      STAGING_PATH: $(Build.StagingDirectory)
     inputs:
       targetType: 'inline'
       script: |
         time curl -L https://github.com/Elders/blob/releases/download/SemRel-01/node_modules.tar.gz | tar mx -I pigz
         time npx semantic-release --no-ci
+        # few commands for debugging purposes
+        ls -l $STAGING_PATH/*.nupkg
+        echo dotnet msbuild `dotnet msbuild --version`
+        echo dotnet nuget `dotnet nuget --version`
+        echo dotnet `dotnet --version`
 
   - task: NuGetCommand@2
-    name: Publish
+    name: publish
+    enabled: true
+    condition: and(eq(variables['newVer'], 'yes'), succeeded())
     inputs:
       command: 'push'
-      packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+      packagesToPush: '$(Build.StagingDirectory)/*.nupkg'
       nuGetFeedType: 'external'
       publishFeedCredentials: 'CI-AzurePipelines'

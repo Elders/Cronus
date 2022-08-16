@@ -11,9 +11,15 @@ module.exports={
     }],
 
     ["@semantic-release/exec",{
-        verifyReleaseCmd: `
-          set -e
-          echo \${nextRelease.version} > semver.txt
+        prepareCmd: `
+            set -e
+            VER=\${nextRelease.version}
+            ##vso[build.updatebuildnumber]\${nextRelease.version}
+            dotnet pack "src/$PROJECT_DIR/"*.csproj -o "$STAGING_PATH" -p:Configuration=Release -p:PackageVersion=$VER --verbosity Detailed
+        `,
+        successCmd: `
+            set -e
+            echo "##vso[task.setvariable variable=newVer;]yes"
         `,
     }],
 
@@ -23,7 +29,7 @@ module.exports={
   ],
 
   branches: [
-    {name: 'master'},
+    'master',
     {name: 'beta', channel: 'beta', prerelease: true},
     {name: 'preview', channel: 'beta', prerelease: true}
   ],
