@@ -1,3 +1,10 @@
+## [8.7.2](https://github.com/Elders/Cronus/compare/v8.7.1...v8.7.2) (2022-08-29)
+
+
+### Bug Fixes
+
+* retry workflow works with async/awat ([ae58926](https://github.com/Elders/Cronus/commit/ae58926a94493055e2b4c4b7898cd860266873e7))
+
 ## [8.7.1](https://github.com/Elders/Cronus/compare/v8.7.0...v8.7.1) (2022-08-16)
 
 
