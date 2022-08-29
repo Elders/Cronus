@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Elders.Cronus.FaultHandling.Strategies;
 using Microsoft.Extensions.Logging;
 
@@ -118,21 +119,10 @@ namespace Elders.Cronus.FaultHandling
         /// <summary>
         /// Repetitively executes the specified action while it satisfies the current retry policy.
         /// </summary>
-        /// <param name="action">A delegate representing the executable action which doesn't return any results.</param>
-        public virtual void ExecuteAction(Action action)
-        {
-            //Guard.ArgumentNotNull(action, "action");
-
-            this.ExecuteAction(() => { action(); return default(object); });
-        }
-
-        /// <summary>
-        /// Repetitively executes the specified action while it satisfies the current retry policy.
-        /// </summary>
         /// <typeparam name="TResult">The type of result expected from the executable action.</typeparam>
         /// <param name="func">A delegate representing the executable action which returns the result of type R.</param>
         /// <returns>The result from the action.</returns>
-        public virtual TResult ExecuteAction<TResult>(Func<TResult> func)
+        public virtual async Task<TResult> ExecuteAction<TResult>(Func<Task<TResult>> func)
         {
             //Guard.ArgumentNotNull(func, "func");
 
@@ -148,7 +138,8 @@ namespace Elders.Cronus.FaultHandling
 
                 try
                 {
-                    return func();
+                    var result = await func();
+                    return result;
                 }
                 catch (RetryLimitExceededException limitExceededEx)
                 {

@@ -23,10 +23,7 @@ namespace Elders.Cronus.FaultHandling
             if (execution is null) throw new ArgumentNullException(nameof(execution));
 
             TContext context = execution.Context;
-            await retryPolicy.ExecuteAction(() =>
-            {
-                return workflow.RunAsync(execution.Context).ConfigureAwait(false);
-            });
+            await retryPolicy.ExecuteAction(() => workflow.RunAsync(execution.Context));
         }
     }
 }

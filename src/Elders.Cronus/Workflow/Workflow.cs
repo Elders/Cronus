@@ -10,11 +10,6 @@ namespace Elders.Cronus.Workflow
             return default(object);
         }
 
-        new public Task RunAsync(TContext context)
-        {
-            return base.RunAsync(context);
-        }
-
         protected abstract Task RunAsync(Execution<TContext> execution);
     }
 
