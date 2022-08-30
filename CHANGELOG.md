@@ -1,3 +1,10 @@
+## [8.7.3](https://github.com/Elders/Cronus/compare/v8.7.2...v8.7.3) (2022-08-30)
+
+
+### Bug Fixes
+
+* add proper exception when there is no aggregate root id in state ([41333d4](https://github.com/Elders/Cronus/commit/41333d4519770a50827fd1e5e0a30fcdd5f158a9))
+
 ## [8.7.2](https://github.com/Elders/Cronus/compare/v8.7.1...v8.7.2) (2022-08-29)
 
 
