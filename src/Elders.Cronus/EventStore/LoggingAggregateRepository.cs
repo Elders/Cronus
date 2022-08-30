@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore
@@ -29,11 +30,26 @@ namespace Elders.Cronus.EventStore
         {
             using (logger.BeginScope(s => s
                                             .AddScope(Log.AggregateName, typeof(AR).Name)
-                                            .AddScope(Log.AggregateId, aggregateRoot.State.Id.Value)))
+                                            .AddScope(Log.AggregateId, GetAggregateRootId(aggregateRoot))))
             {
                 await realDeal.SaveAsync<AR>(aggregateRoot).ConfigureAwait(false);
                 logger.Debug(() => "Aggregate has been saved.");
             }
         }
+
+        #region Welcome
+        private string GetAggregateRootId<AR>(AR aggregateRoot) where AR : IAggregateRoot
+        {
+            string aggregateId = string.Empty;
+            try { aggregateId = aggregateRoot.State.Id.Value; }
+            catch (Exception ex)
+            {
+                logger.ErrorException(ex, () => $"Unable to save aggregate. There is a problem with the ID for {typeof(AR).Name}");
+                throw new Exception($"Unable to save aggregate. There is a problem with the ID for {typeof(AR).Name}. Check the inner exception if you want to be confused even more.", ex);
+            }
+
+            return aggregateId;
+        }
+        #endregion
     }
 }
