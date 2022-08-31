@@ -1,11 +1,11 @@
-﻿using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Projections.Snapshotting;
-using Elders.Cronus.Projections.Versioning;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Projections.Snapshotting;
+using Elders.Cronus.Projections.Versioning;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections
 {
@@ -120,10 +120,14 @@ namespace Elders.Cronus.Projections
             if (projectionName.Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
                 throw new ArgumentException($"Invalid version. The version `{version}` does not match projection `{projectionName}`", nameof(version));
 
-            var handlerInstance = handlerFactory.Create(projectionType);
-            var projection = handlerInstance.Current as IProjectionDefinition;
-            if (projection != null)
+            bool isProjectionDefinitionType = typeof(IProjectionDefinition).IsAssignableFrom(projectionType);
+            bool isEventSourcedType = typeof(IAmEventSourcedProjection).IsAssignableFrom(projectionType);
+
+            if (isProjectionDefinitionType)
             {
+                var handlerInstance = handlerFactory.Create(projectionType);
+                var projection = handlerInstance.Current as IProjectionDefinition;
+
                 var projectionIds = projection.GetProjectionIds(@event);
 
                 foreach (var projectionId in projectionIds)
@@ -142,7 +146,7 @@ namespace Elders.Cronus.Projections
                     }
                 }
             }
-            else if (handlerInstance.Current is IAmEventSourcedProjection eventSourcedProjection)
+            else if (isEventSourcedType)
             {
                 try
                 {
