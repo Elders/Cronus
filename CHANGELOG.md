@@ -1,3 +1,10 @@
+## [8.7.4](https://github.com/Elders/Cronus/compare/v8.7.3...v8.7.4) (2022-08-31)
+
+
+### Bug Fixes
+
+* do not create instances of the projection when rebuilding it ([2bbdf7a](https://github.com/Elders/Cronus/commit/2bbdf7ad107613eb7b03f49438ade13384a92376))
+
 ## [8.7.3](https://github.com/Elders/Cronus/compare/v8.7.2...v8.7.3) (2022-08-30)
 
 
