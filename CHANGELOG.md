@@ -1,3 +1,10 @@
+## [8.7.5](https://github.com/Elders/Cronus/compare/v8.7.4...v8.7.5) (2022-09-02)
+
+
+### Bug Fixes
+
+* Continues to index aggregate commit for a projection version when there is an error. ([58bc69b](https://github.com/Elders/Cronus/commit/58bc69b57d02e6069e934465a443d401196e0116))
+
 ## [8.7.4](https://github.com/Elders/Cronus/compare/v8.7.3...v8.7.4) (2022-08-31)
 
 
