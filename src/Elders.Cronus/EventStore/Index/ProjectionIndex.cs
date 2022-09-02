@@ -48,6 +48,7 @@ namespace Elders.Cronus.EventStore.Index
 
         public async Task IndexAsync(AggregateCommit aggregateCommit, ProjectionVersion version)
         {
+            
             IEnumerable<(IEvent, EventOrigin)> eventDataList = GetEventData(aggregateCommit);
 
             foreach (var eventData in eventDataList)
@@ -55,20 +56,27 @@ namespace Elders.Cronus.EventStore.Index
                 Type messagePayloadType = eventData.Item1.GetType();
                 foreach (var projectionType in projectionsContainer.Items)
                 {
-                    if (projectionType.GetContractId().Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
-                        continue;
-
-                    bool isInterested = projectionType.GetInterfaces()
-                        .Where(@interface => @interface.IsGenericType && @interface.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(@interface.GetGenericArguments()[0])))
-                        .Where(@interface => @interface.GetGenericArguments()[0].IsAssignableFrom(messagePayloadType))
-                        .Any();
-
-                    if (isInterested)
+                    try
                     {
-                        await projection.SaveAsync(projectionType, eventData.Item1, eventData.Item2, version).ConfigureAwait(false);
+                        if (projectionType.GetContractId().Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
+                            continue;
+
+                        bool isInterested = projectionType.GetInterfaces()
+                            .Where(@interface => @interface.IsGenericType && @interface.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(@interface.GetGenericArguments()[0])))
+                            .Where(@interface => @interface.GetGenericArguments()[0].IsAssignableFrom(messagePayloadType))
+                            .Any();
+
+                        if (isInterested)
+                        {
+                            await projection.SaveAsync(projectionType, eventData.Item1, eventData.Item2, version).ConfigureAwait(false);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorException(ex, () => $"Failed to index aggregate commit for projection version.{Environment.NewLine}{aggregateCommit}{Environment.NewLine}{version}");
                     }
                 }
-            }
+            } 
         }
 
         private IEnumerable<(IEvent, EventOrigin)> GetEventData(AggregateCommit commit)
