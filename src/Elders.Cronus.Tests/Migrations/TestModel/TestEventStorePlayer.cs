@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Index;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -32,6 +33,11 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
         }
 
         public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync(int batchSize = 5000)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEvent> LoadEventWithRebuildProjectionAsync(IndexRecord indexRecord)
         {
             throw new NotImplementedException();
         }

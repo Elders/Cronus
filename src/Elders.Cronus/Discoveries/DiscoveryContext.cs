@@ -21,5 +21,7 @@ namespace Elders.Cronus.Discoveries
         public IEnumerable<Type> Types => Assemblies.SelectMany(asm => asm.GetLoadableTypes());
 
         public IEnumerable<Type> FindService<TService>() => Assemblies.Find<TService>();
+
+        public IEnumerable<Type> FindServiceExcept<TService>(Type serviceType) => Assemblies.FindExcept<TService>(serviceType);
     }
 }

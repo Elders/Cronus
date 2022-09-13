@@ -52,7 +52,7 @@ namespace Elders.Cronus.EventStore
                 throw new EventStreamIntegrityViolationException($"AR integrity is violated for ID={id.Value}");
             eventStream = integrityResult.Output;
             AR aggregateRoot;
-            if (eventStream.TryRestoreFromHistory(out aggregateRoot) == false) // this should be a sync operation, it's just triggers internal inmemory handlers for aggregate
+            if (eventStream.TryRestoreFromHistory(out aggregateRoot) == false) // this should be a sync operation, it's just triggers internal in-memory handlers for an aggregate
                 return ReadResult<AR>.WithNotFoundHint($"Unable to load AR with ID={id.Value}");
 
             return new ReadResult<AR>(aggregateRoot);
@@ -70,7 +70,7 @@ namespace Elders.Cronus.EventStore
                 return default;
             }
 
-            var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList());
+            var arCommit = new AggregateCommit(aggregateRoot.State.Id.RawId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList(), DateTime.UtcNow.ToFileTimeUtc());
             var result = await atomicAction.ExecuteAsync(aggregateRoot.State.Id, aggregateRoot.Revision, async () => await eventStore.AppendAsync(arCommit).ConfigureAwait(false)).ConfigureAwait(false);
 
             if (result.IsSuccessful)

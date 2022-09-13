@@ -2,7 +2,7 @@
 
 namespace Elders.Cronus.EventStore.Index
 {
-    public interface ICronusEventStoreIndex : IEventStoreIndex, ISystemHandler, IMessageHandler
+    public interface ICronusEventStoreIndex : IEventStoreIndex, ISystemHandler
     {
     }
 
@@ -10,4 +10,10 @@ namespace Elders.Cronus.EventStore.Index
     {
         Task IndexAsync(CronusMessage message);
     }
+
+    public interface IEventStoreJobIndex : IMessageHandler
+    {
+        Task IndexAsync(AggregateCommit aggregateCommit);
+    }
+
 }

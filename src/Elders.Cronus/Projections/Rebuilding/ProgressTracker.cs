@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
+using Microsoft.Toolkit.HighPerformance.Helpers;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
@@ -52,18 +53,45 @@ namespace Elders.Cronus.Projections.Rebuilding
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        public async Task CompleteActionWithProgressSignalAsync(Func<Task> action, string eventType)
+        public async Task CompleteActionWithProgressSignalAsync(Func<Task<string>> action)
         {
             try
             {
-                await action().ConfigureAwait(false);
+                await ExecuteAndTrackAsync(action);
 
                 var progressSignalche = GetProgressSignal();
                 signalPublisher.Publish(progressSignalche);
 
-                EventTypeProcessed.TryGetValue(eventType, out ulong processed);
-                EventTypeProcessed[eventType] = ++processed;
+            }
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }
+        }
 
+        private async Task ExecuteAndTrackAsync(Func<Task<string>> taskToExecute)
+        {
+            try
+            {
+                string actionId = await taskToExecute().ConfigureAwait(false);
+
+                EventTypeProcessed.TryGetValue(actionId, out ulong processed);
+                EventTypeProcessed[actionId] = ++processed;
+
+            }
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }
+        }
+
+        /// <summary>
+        /// Finishes the action and sending incrementing progress signal
+        /// </summary>
+        /// <param name="action"></param>
+        /// <returns></returns>
+        public async Task CompleteActionWithProgressSignalAsync(IEnumerable<Func<Task<string>>> actions)
+        {
+            try
+            {
+                await Task.WhenAll(actions.Select(x=> ExecuteAndTrackAsync(x)).ToArray()).ConfigureAwait(false);
+
+                var progressSignalche = GetProgressSignal();
+                signalPublisher.Publish(progressSignalche);
             }
             catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }
         }

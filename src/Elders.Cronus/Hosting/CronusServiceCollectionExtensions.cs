@@ -124,13 +124,18 @@ namespace Elders.Cronus
         public static IServiceCollection Replace<TService, TImplementation>(this IServiceCollection services)
             where TImplementation : class, TService
         {
-            var descriptorToRemove = services.FirstOrDefault(d => d.ServiceType == typeof(TService));
+            return Replace(services, typeof(TService), typeof(TImplementation));
+        }
+
+        public static IServiceCollection Replace(this IServiceCollection services, Type serviceType, Type implementationType)
+        {
+            var descriptorToRemove = services.FirstOrDefault(d => d.ServiceType == serviceType);
             if (descriptorToRemove is null)
             {
-                throw new ArgumentException($"Service of type {typeof(TService).Name} is not registered and cannot be replaced.");
+                throw new ArgumentException($"Service of type {serviceType.Name} is not registered and cannot be replaced.");
             }
             services.Remove(descriptorToRemove);
-            var descriptorToAdd = new ServiceDescriptor(typeof(TService), typeof(TImplementation), descriptorToRemove.Lifetime);
+            var descriptorToAdd = new ServiceDescriptor(serviceType, implementationType, descriptorToRemove.Lifetime);
             services.Add(descriptorToAdd);
 
             return services;

@@ -7,20 +7,23 @@
     /// </summary>
     public sealed class AggregateCommitRaw
     {
-        public AggregateCommitRaw(string aggregateRootId, byte[] data, int revision, long timestamp)
+        public AggregateCommitRaw(byte[] aggregateRootId, byte[] data, int revision, int position, long timestamp)
         {
             AggregateRootId = aggregateRootId;
             Data = data;
             Revision = revision;
+            Position = position;
             Timestamp = timestamp;
         }
 
-        public string AggregateRootId { get; private set; }
+        public byte[] AggregateRootId { get; private set; }
 
         public byte[] Data { get; private set; }
 
         public int Revision { get; private set; }
 
+        public int Position { get; private set; }
         public long Timestamp { get; private set; }
+
     }
 }

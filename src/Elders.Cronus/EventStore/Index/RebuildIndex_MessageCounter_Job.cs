@@ -20,10 +20,10 @@ namespace Elders.Cronus.EventStore.Index
         private readonly TypeContainer<IEvent> eventTypes;
         private readonly IEventStore eventStore;
         private readonly IMessageCounter messageCounter;
-        private readonly EventToAggregateRootId eventToAggregateIndex;
+        private readonly NewEventToAggregateRootId eventToAggregateIndex;
         private readonly IProjectionReader projectionReader;
 
-        public RebuildIndex_MessageCounter_Job(CronusContext context, TypeContainer<IEvent> eventTypes, EventStoreFactory eventStoreFactory, IMessageCounter eventCounter, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, ILogger<RebuildIndex_MessageCounter_Job> logger) : base(logger)
+        public RebuildIndex_MessageCounter_Job(CronusContext context, TypeContainer<IEvent> eventTypes, EventStoreFactory eventStoreFactory, IMessageCounter eventCounter, NewEventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, ILogger<RebuildIndex_MessageCounter_Job> logger) : base(logger)
         {
             this.context = context;
             this.eventTypes = eventTypes;
@@ -38,7 +38,7 @@ namespace Elders.Cronus.EventStore.Index
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             // mynkow. this one fails
-            IndexStatus indexStatus = await GetIndexStatusAsync<EventToAggregateRootId>().ConfigureAwait(false);
+            IndexStatus indexStatus = await GetIndexStatusAsync<NewEventToAggregateRootId>().ConfigureAwait(false);
             if (indexStatus.IsNotPresent()) return JobExecutionStatus.Running;
 
             //projectionStoreInitializer.Initialize(version);

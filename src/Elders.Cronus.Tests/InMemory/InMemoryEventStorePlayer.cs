@@ -1,3 +1,4 @@
+using Elders.Cronus.EventStore.Index;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +27,11 @@ namespace Elders.Cronus.EventStore.InMemory
         }
 
         public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync(int batchSize = 5000)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IEvent> LoadEventWithRebuildProjectionAsync(IndexRecord indexRecord)
         {
             throw new NotImplementedException();
         }

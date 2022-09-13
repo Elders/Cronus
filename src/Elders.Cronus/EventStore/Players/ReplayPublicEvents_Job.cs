@@ -15,9 +15,9 @@ namespace Elders.Cronus.EventStore.Players
     {
         private readonly IPublisher<IPublicEvent> publicEventPublisher;
         private readonly IEventStorePlayer eventStorePlayer;
-        private readonly EventToAggregateRootId eventToAggregateIndex;
+        private readonly NewEventToAggregateRootId eventToAggregateIndex;
 
-        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, IEventStorePlayer eventStorePlayer, EventToAggregateRootId eventToAggregateIndex, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
+        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, IEventStorePlayer eventStorePlayer, NewEventToAggregateRootId eventToAggregateIndex, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
         {
             this.publicEventPublisher = publicEventPublisher;
             this.eventStorePlayer = eventStorePlayer;

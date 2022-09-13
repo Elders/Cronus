@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elders.Cronus.EventStore.Index;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace Elders.Cronus.MessageProcessing
         public SubscriberCollection(ISubscriberFinder<T> subscriberFinder, ISubscriberFactory<T> subscriberFactory)
         {
             subscribers = new ConcurrentBag<ISubscriber>();
-
+            
             foreach (var subscriberType in subscriberFinder.Find())
             {
                 ISubscriber subscriber = subscriberFactory.Create(subscriberType);

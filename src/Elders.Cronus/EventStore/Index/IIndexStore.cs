@@ -4,6 +4,11 @@ using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.Index
 {
+    public interface ISkipedBulshit
+    {
+
+    }
+
     public interface IIndexStore
     {
         Task ApendAsync(IEnumerable<IndexRecord> indexRecords);

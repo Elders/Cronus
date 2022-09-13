@@ -49,7 +49,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                     return true;
             }
 
-            IndexStatus indexStatus = await GetIndexStatusAsync<EventToAggregateRootId>().ConfigureAwait(false);
+            IndexStatus indexStatus = await GetIndexStatusAsync<NewEventToAggregateRootId>().ConfigureAwait(false);
             Type projectionType = version.ProjectionName.GetTypeByContract();
 
             if (isVersionTrackerMissing && IsNotSystemProjection(projectionType)) return true;

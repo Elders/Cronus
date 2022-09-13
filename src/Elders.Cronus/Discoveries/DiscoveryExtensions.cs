@@ -24,6 +24,16 @@ namespace Elders.Cronus.Discoveries
                 .Where(type => typeof(TService).IsAssignableFrom(type));
         }
 
+        public static IEnumerable<Type> FindExcept<TService>(this IEnumerable<Assembly> assemblies, Type second)
+        {
+            return assemblies
+                 .SelectMany(asm => asm.GetLoadableTypes())
+                 .Where(TypeIsNotAbstract)
+                 .Where(TypeIsNotInterface)
+                 .Where(type => typeof(TService).IsAssignableFrom(type))
+                 .Where(type => type.IsAssignableFrom(second) == false);
+        }
+
         private static bool TypeIsNotAbstract(Type type) => type.IsAbstract == false;
         private static bool TypeIsNotInterface(Type type) => type.IsInterface == false;
     }

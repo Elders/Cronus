@@ -11,11 +11,11 @@ namespace Elders.Cronus.Discoveries
         protected override DiscoveryResult<IEventStore> DiscoverFromAssemblies(DiscoveryContext context)
         {
             IEnumerable<DiscoveredModel> models = DiscoverIndices(context)
-                .Concat(new[] {
+               .Concat(new[] {
                     new DiscoveredModel(typeof(IEventStoreInterceptor), typeof(NoAggregateCommitTransformer), ServiceLifetime.Singleton),
                     new DiscoveredModel(typeof(NoAggregateCommitTransformer), typeof(NoAggregateCommitTransformer), ServiceLifetime.Singleton),
                     new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Scoped)
-                });
+               });
 
             return new DiscoveryResult<IEventStore>(models);
         }
@@ -23,6 +23,7 @@ namespace Elders.Cronus.Discoveries
         protected virtual IEnumerable<DiscoveredModel> DiscoverIndices(DiscoveryContext context)
         {
             var appIndices = context.Assemblies.Find<IEventStoreIndex>();
+
             yield return new DiscoveredModel(typeof(TypeContainer<IEventStoreIndex>), new TypeContainer<IEventStoreIndex>(appIndices));
 
             foreach (var indexDef in appIndices)

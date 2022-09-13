@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace Elders.Cronus.EventStore.Players
 {
     [DataContract(Name = "51b93c21-20fb-473f-b7fc-c12e6a56e194")]
-    public class PublicEventsPlayer : ISystemSaga,
+    public class PublicEventsPlayer  : ISystemSaga,
         IEventHandler<ReplayPublicEventsRequested>
     {
         private static ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionBuilder));

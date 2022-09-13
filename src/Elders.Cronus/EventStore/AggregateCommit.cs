@@ -15,14 +15,20 @@ namespace Elders.Cronus.EventStore
             PublicEvents = new List<IPublicEvent>();
         }
 
+        [Obsolete]
         public AggregateCommit(IBlobId aggregateId, int revision, List<IEvent> events) : this(aggregateId.RawId, revision, events, new List<IPublicEvent>()) { }
+        [Obsolete]
         public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events) : this(aggregateRootId, revision, events, new List<IPublicEvent>(), DateTime.UtcNow.ToFileTimeUtc()) { }
-
+        [Obsolete]
         public AggregateCommit(IBlobId aggregateId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents) : this(aggregateId.RawId, revision, events, publicEvents) { }
+        [Obsolete]
         public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents) : this(aggregateRootId, revision, events, publicEvents, DateTime.UtcNow.ToFileTimeUtc()) { }
 
         public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents, long timestamp)
         {
+            if (revision < 1) throw new ArgumentOutOfRangeException(nameof(revision), revision, "Aggregate commit revision is out of range.");
+            if (timestamp <= 0) throw new ArgumentOutOfRangeException(nameof(timestamp), timestamp, "Aggregate commit timestamp is out of range.");
+
             AggregateRootId = aggregateRootId;
             Revision = revision;
             Events = events;

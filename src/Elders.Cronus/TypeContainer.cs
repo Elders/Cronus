@@ -11,7 +11,10 @@ namespace Elders.Cronus
             var expectedType = typeof(T);
             Items = items.Where(type => expectedType.IsAssignableFrom(type));
         }
+        public TypeContainer()
+        {
 
+        }
         public IEnumerable<Type> Items { get; set; }
     }
 }

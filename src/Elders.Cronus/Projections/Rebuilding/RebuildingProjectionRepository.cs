@@ -49,24 +49,6 @@ namespace Elders.Cronus.Projections.Rebuilding
             return streamTasks.Select(t => t.Result);
         }
 
-        public async Task SaveAggregateCommitsAsync(IEnumerable<EventStream> eventStreams, string eventType, RebuildProjection_JobData Data)
-        {
-            foreach (EventStream stream in eventStreams)
-            {
-                if (Data.IsCanceled)
-                    return;
-
-                try
-                {
-                    foreach (AggregateCommit arCommit in stream.Commits)
-                    {
-                        await progressTracker.CompleteActionWithProgressSignalAsync(() => index.IndexAsync(arCommit, Data.Version), eventType).ConfigureAwait(false);
-                    }
-                }
-                catch (Exception ex) when (logger.WarnException(ex, () => $"{stream} was skipped when rebuilding {Data.Version.ProjectionName}.")) { }
-            }
-        }
-
         private bool ShouldLoadAggregate(int aggreagteRootIdHash)
         {
             if (processedAggregates.ContainsKey(aggreagteRootIdHash) == false)
@@ -100,6 +82,33 @@ namespace Elders.Cronus.Projections.Rebuilding
             }
 
             throw new ArgumentException($"Invalid aggregate root id: {mess}", nameof(mess));
+        }
+
+        const ushort BatchSize = 1000;
+        public async Task SaveAggregateCommitsAsync(IEnumerable<IndexRecord> eventStreams, RebuildProjection_JobData jobData)
+        {
+            List<Func<Task<string>>> indexingTasks = new List<Func<Task<string>>>(BatchSize);
+
+            try
+            {
+                ushort currentSize = 0;
+                foreach (IndexRecord record in eventStreams)
+                {
+                    currentSize++;
+
+                    if (currentSize % BatchSize == 0)
+                    {
+                        await progressTracker.CompleteActionWithProgressSignalAsync(indexingTasks).ConfigureAwait(false);
+
+                        indexingTasks.Clear();
+                    }
+                    else
+                    {
+                        indexingTasks.Add(() => index.IndexAsync(record, jobData.Version));
+                    }
+                }
+            }
+            catch (Exception ex) when (logger.WarnException(ex, () => $"Index record was skipped when rebuilding {jobData.Version.ProjectionName}.")) { }
         }
     }
 }

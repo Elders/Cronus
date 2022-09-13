@@ -8,7 +8,7 @@ namespace Elders.Cronus.Projections
     {
         EventOrigin() { }
 
-        public EventOrigin(string aggregateRootId, int aggregateRevision, int aggregateEventPosition, long timestamp)
+        public EventOrigin(byte[] aggregateRootId, int aggregateRevision, int aggregateEventPosition, long timestamp)
         {
             if (ReferenceEquals(null, aggregateRootId)) throw new ArgumentNullException(nameof(aggregateRootId));
             if (aggregateRevision <= 0) throw new ArgumentException("Invalid revision", nameof(aggregateRevision));
@@ -21,7 +21,7 @@ namespace Elders.Cronus.Projections
         }
 
         [DataMember(Order = 1)]
-        public string AggregateRootId { get; private set; }
+        public byte[] AggregateRootId { get; private set; }
 
         [DataMember(Order = 2)]
         public int AggregateRevision { get; private set; }

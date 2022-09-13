@@ -22,15 +22,16 @@ namespace Elders.Cronus.Discoveries
         protected virtual IEnumerable<DiscoveredModel> DiscoverAggregateRepository(DiscoveryContext context)
         {
             yield return new DiscoveredModel(typeof(AggregateRepository), typeof(AggregateRepository), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(AggregateRepositoryAndEventPublisher), typeof(AggregateRepositoryAndEventPublisher), ServiceLifetime.Transient);
 
             if ("true".Equals(context.Configuration["Cronus:PublishAggregateCommits"], System.StringComparison.OrdinalIgnoreCase))
             {
                 yield return new DiscoveredModel(typeof(AggregateCommitPublisherRepository), provider => new AggregateCommitPublisherRepository(provider.GetRequiredService<AggregateRepository>(), provider.GetRequiredService<IPublisher<AggregateCommit>>(), provider.GetRequiredService<CronusContext>(), provider.GetService<ILogger<AggregateCommitPublisherRepository>>()), ServiceLifetime.Transient);
-                yield return new DiscoveredModel(typeof(CronusAggregateRepository), provider => new CronusAggregateRepository(provider.GetRequiredService<AggregateCommitPublisherRepository>(), provider.GetRequiredService<IPublisher<IEvent>>(), provider.GetRequiredService<IPublisher<IPublicEvent>>(), provider.GetRequiredService<CronusContext>()), ServiceLifetime.Transient);
+                yield return new DiscoveredModel(typeof(CronusAggregateRepository), provider => new CronusAggregateRepository(provider.GetRequiredService<AggregateRepositoryAndEventPublisher>()), ServiceLifetime.Transient);
             }
             else
             {
-                yield return new DiscoveredModel(typeof(CronusAggregateRepository), provider => new CronusAggregateRepository(provider.GetRequiredService<AggregateRepository>(), provider.GetRequiredService<IPublisher<IEvent>>(), provider.GetRequiredService<IPublisher<IPublicEvent>>(), provider.GetRequiredService<CronusContext>()), ServiceLifetime.Transient);
+                yield return new DiscoveredModel(typeof(CronusAggregateRepository), provider => new CronusAggregateRepository(provider.GetRequiredService<AggregateRepositoryAndEventPublisher>()), ServiceLifetime.Transient);
             }
 
             yield return new DiscoveredModel(typeof(LoggingAggregateRepository), provider => new LoggingAggregateRepository(provider.GetRequiredService<CronusAggregateRepository>(), provider.GetService<ILogger<LoggingAggregateRepository>>()), ServiceLifetime.Transient);

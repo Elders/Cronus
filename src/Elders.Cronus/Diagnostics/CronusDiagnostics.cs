@@ -15,7 +15,7 @@ namespace Elders.Cronus.Diagnostics
 
         public static TResult LogElapsedTime<TResult>(Func<TResult> operation, string operationName) where TResult : new()
         {
-            logger ??= CronusLogger.CreateLogger(typeof(EventToAggregateRootId));
+            logger ??= CronusLogger.CreateLogger(typeof(NewEventToAggregateRootId)); // logger ??= CronusLogger.CreateLogger(typeof(EventToAggregateRootId));
             TResult result;
             long startTimestamp = 0;
             double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;

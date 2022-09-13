@@ -6,6 +6,8 @@
 
         public const string AggregateRootRevision = "ar_revision";
 
+        public const string AggregateCommitTimestamp = "ar_commit_timestamp";
+
         public const string AggregateRootEventPosition = "event_position";
 
         public const string CorelationId = "corelationid";

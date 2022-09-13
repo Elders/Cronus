@@ -7,52 +7,53 @@ using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {
-    public class MigrationRunner<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateCommit, IMigrationEventStorePlayer, IEventStore>
+    public class MigrationRunner<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateCommit, TSourceEventStorePlayer, IEventStore>
+        where TSourceEventStorePlayer: IMigrationEventStorePlayer
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(MigrationRunner<,>));
 
-        public MigrationRunner(IMigrationEventStorePlayer source, EventStoreFactory factory) : base(source, factory.GetEventStore()) { }
+        public MigrationRunner(TSourceEventStorePlayer source, EventStoreFactory factory) : base(source, factory.GetEventStore()) { }
 
         public override async Task RunAsync(IEnumerable<IMigration<AggregateCommit>> migrations)
         {
-            LoadAggregateCommitsResult result = await source.LoadAggregateCommitsAsync(string.Empty, 5000).ConfigureAwait(false);
-            int counter = 0;
+            var data = source.LoadAggregateCommitsAsync(5000).ConfigureAwait(false);
+
+
             try
             {
-                while (result.Commits.Any())
+                uint counter = 0;
+
+                await foreach (AggregateCommit sourceCommit in data)
                 {
-                    for (int i = 0; i < result.Commits.Count; i++)
+                    counter++;
+
+                    AggregateCommit migrated = sourceCommit;
+                    foreach (var migration in migrations)
                     {
-                        counter++;
-                        AggregateCommit sourceCommit = result.Commits[i];
-
-                        foreach (var migration in migrations)
+                        if (migration.ShouldApply(sourceCommit))
                         {
-                            if (migration.ShouldApply(sourceCommit))
-                            {
-                                sourceCommit = migration.Apply(sourceCommit);
-                            }
+                            migrated = migration.Apply(sourceCommit);
                         }
-
-                        if (ForSomeReasonTheAggregateCommitHasBeenDeleted(sourceCommit))
-                        {
-                            logger.Debug(() => $"An aggregate commit has been wiped from the face of the Earth. R.I.P.{Environment.NewLine}{result.Commits[i].ToString()}"); // Bonus: How Пикасо is spelled in English => Piccasso, Picasso, Piccaso ?? I bet spmeone will git-blame me
-                            continue;
-                        }
-
-                        await target.AppendAsync(sourceCommit).ConfigureAwait(false);
-
                     }
-                    result = await source.LoadAggregateCommitsAsync(result.PaginationToken, 5000).ConfigureAwait(false); // think of paging
-                    logger.Info(() => $"Migrated commits - Counter: `{counter}` - Pagination Token: `{result.PaginationToken}`");
+
+                    if (ForSomeReasonTheAggregateCommitHasBeenDeleted(migrated))
+                    {
+                        //logger.Debug(() => $"An aggregate commit has been wiped from the face of the Earth. R.I.P.{Environment.NewLine}{result.Commits[i].ToString()}"); // Bonus: How Пикасо is spelled in English => Piccasso, Picasso, Piccaso ?? I bet spmeone will git-blame me
+                        continue;
+                    }
+
+                    await target.AppendAsync(migrated).ConfigureAwait(false);
                 }
+
+               // logger.Info(() => $"Migrated commits - Counter: `{counter}` - Pagination Token: `{result.PaginationToken}`");
             }
+
             catch (System.Exception ex)
             {
-                logger.ErrorException(ex, () => $"Something boom bam while runnning migration. Here is paginator: {result.PaginationToken}");
+                //logger.ErrorException(ex, () => $"Something boom bam while runnning migration. Here is paginator: {result.PaginationToken}");
             }
-        }
 
+        }
         private static bool ForSomeReasonTheAggregateCommitHasBeenDeleted(AggregateCommit aggregateCommit)
         {
             return aggregateCommit is null || aggregateCommit.Events.Any() == false;
