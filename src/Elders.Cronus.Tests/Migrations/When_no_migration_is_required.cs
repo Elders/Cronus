@@ -14,7 +14,7 @@ namespace Elders.Cronus.Migrations
         {
             var barId = new BarId("1234", "elders");
             migration = new SimpleMigration();
-            aggregateCommitBar = new AggregateCommit(barId.RawId, 0, new List<IEvent> { new TestCreateEventBar(barId) });
+            aggregateCommitBar = new AggregateCommit(barId.RawId, 1, new List<IEvent> { new TestCreateEventBar(barId) });
         };
 
         Because of = () => migrationOuput = migration.Apply(aggregateCommitBar).ToList();

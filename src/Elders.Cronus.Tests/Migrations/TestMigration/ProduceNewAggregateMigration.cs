@@ -88,7 +88,7 @@ namespace Elders.Cronus.Migrations.TestMigration
         void HandleMaxRevision(IAggregateRootId rootId)
         {
             if (aggregateMaxRevision.ContainsKey(rootId) == false)
-                aggregateMaxRevision.Add(rootId, 0);
+                aggregateMaxRevision.Add(rootId, 1);
             else
                 aggregateMaxRevision[rootId]++;
         }
