@@ -2,7 +2,7 @@
 
 namespace Elders.Cronus.EventStore.Index
 {
-    public class IndexRecord
+    public sealed class IndexRecord
     {
         public IndexRecord(string id, byte[] aggregateRootId)
         {
