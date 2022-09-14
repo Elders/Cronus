@@ -1,3 +1,15 @@
+# [9.0.0-preview.1](https://github.com/Elders/Cronus/compare/v8.7.5...v9.0.0-preview.1) (2022-09-14)
+
+
+### Bug Fixes
+
+* Fix aggregate revision in tests ([60691a7](https://github.com/Elders/Cronus/commit/60691a7ac2029a5d6c73095192cab454e0ca26cc))
+
+
+### Features
+
+* Mark Index record as sealed and try to deploy ([0d4cb38](https://github.com/Elders/Cronus/commit/0d4cb38b5e5890cd35efe692527e09c9d86f32d8))
+
 ## [8.7.5](https://github.com/Elders/Cronus/compare/v8.7.4...v8.7.5) (2022-09-02)
 
 
