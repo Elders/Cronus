@@ -1,3 +1,10 @@
+# [9.0.0-preview.2](https://github.com/Elders/Cronus/compare/v9.0.0-preview.1...v9.0.0-preview.2) (2022-09-14)
+
+
+### Bug Fixes
+
+* Try to deploy [#2](https://github.com/Elders/Cronus/issues/2) ([357ffd7](https://github.com/Elders/Cronus/commit/357ffd7cb2141742d8994ba8c5d838ff9308f06d))
+
 # [9.0.0-preview.1](https://github.com/Elders/Cronus/compare/v8.7.5...v9.0.0-preview.1) (2022-09-14)
 
 
