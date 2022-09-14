@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Elders.Cronus.Hosting.Heartbeat
 {
-    public class CronusHeartbeatService : BackgroundService
+    public sealed class CronusHeartbeatService : BackgroundService
     {
         private readonly ILogger<CronusHeartbeatService> _logger;
 
