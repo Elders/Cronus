@@ -1,3 +1,10 @@
+# [9.0.0-preview.4](https://github.com/Elders/Cronus/compare/v9.0.0-preview.3...v9.0.0-preview.4) (2022-09-15)
+
+
+### Bug Fixes
+
+* Minor rebuilding progress improvements ([463c151](https://github.com/Elders/Cronus/commit/463c151bd0cf8723c8befcd621c6a32b712bbbc9))
+
 # [9.0.0-preview.3](https://github.com/Elders/Cronus/compare/v9.0.0-preview.2...v9.0.0-preview.3) (2022-09-14)
 
 
