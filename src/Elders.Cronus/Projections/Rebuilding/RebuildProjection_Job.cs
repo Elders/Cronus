@@ -212,6 +212,15 @@ namespace Elders.Cronus.Projections.Rebuilding
                 bool hasMoreRecords = true;
                 while (hasMoreRecords && Data.IsCompleted == false)
                 {
+                    if (Data.IsCanceled || cancellationToken.IsCancellationRequested || await projectionVersionHelper.ShouldBeCanceledAsync(version, Data.DueDate).ConfigureAwait(false))
+                    {
+                        if (Data.IsCanceled == false)
+                            await CancelJobAsync(cluster).ConfigureAwait(false);
+
+                        logger.Info(() => $"The job {version} has been cancelled.");
+                        return JobExecutionStatus.Canceled;
+                    }
+
                     hasMoreRecords = await RebuildEventsAsync(eventTypeId, cluster, cancellationToken).ConfigureAwait(false);
                 }
             }
@@ -262,6 +271,15 @@ namespace Elders.Cronus.Projections.Rebuilding
                 return fromLocal;
             else
                 return fromCluster;
+        }
+        private async Task CancelJobAsync(IClusterOperations cluster)
+        {
+            Data.IsCanceled = true;
+            Data.Timestamp = DateTimeOffset.UtcNow;
+            Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+
+            var finishSignal = progressTracker.GetProgressFinishedSignal();
+            signalPublisher.Publish(finishSignal);
         }
     }
 }

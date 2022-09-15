@@ -35,11 +35,13 @@ namespace Elders.Cronus
                 using (logger.BeginScope(cronusMessage.CorelationId))
                 {
                     bool isPublished = RetryableOperation.TryExecute(() => PublishInternal(cronusMessage), retryPolicy, () => BuildTraceData());
-                    if (isPublished)
+                    bool isSignal = typeof(TMessage) == typeof(ISystemSignal);
+
+                    if (isPublished && isSignal == false)
                     {
                         logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
                     }
-                    else
+                    else if (isPublished == false)
                     {
                         logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
                     }

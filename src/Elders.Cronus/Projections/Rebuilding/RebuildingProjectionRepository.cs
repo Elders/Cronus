@@ -84,10 +84,10 @@ namespace Elders.Cronus.Projections.Rebuilding
             throw new ArgumentException($"Invalid aggregate root id: {mess}", nameof(mess));
         }
 
-        const ushort BatchSize = 1000;
+        const ushort _batchSize = 1000;
         public async Task SaveAggregateCommitsAsync(IEnumerable<IndexRecord> eventStreams, RebuildProjection_JobData jobData)
         {
-            List<Func<Task<string>>> indexingTasks = new List<Func<Task<string>>>(BatchSize);
+            List<Func<Task<string>>> indexingTasks = new List<Func<Task<string>>>(_batchSize);
 
             try
             {
@@ -96,11 +96,13 @@ namespace Elders.Cronus.Projections.Rebuilding
                 {
                     currentSize++;
 
-                    if (currentSize % BatchSize == 0)
+                    if (currentSize % _batchSize == 0)
                     {
                         await progressTracker.CompleteActionWithProgressSignalAsync(indexingTasks).ConfigureAwait(false);
-
                         indexingTasks.Clear();
+
+                        if (jobData.IsCanceled)
+                            return;
                     }
                     else
                     {
