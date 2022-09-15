@@ -12,7 +12,6 @@ namespace Elders.Cronus
         private readonly TypeContainer<IEventStoreIndex> indexTypeContainer;
         private readonly CronusHostOptions cronusHostOptions;
 
-        //TypeContainer<ICronusEventStoreIndex>
         public EventStoreIndicesStartup(TypeContainer<IEventStoreIndex> indexTypeContainer, IOptions<CronusHostOptions> cronusHostOptions, IOptionsMonitor<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher)
         {
             this.tenants = tenantsOptions.CurrentValue;

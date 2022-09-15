@@ -1,4 +1,4 @@
-﻿/*using Elders.Cronus.Cluster.Job;
+﻿using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.Projections.Versioning;
 
 namespace Elders.Cronus.EventStore.Index
@@ -31,4 +31,3 @@ namespace Elders.Cronus.EventStore.Index
         }
     }
 }
-*/

@@ -10,13 +10,14 @@ namespace Elders.Cronus.EventStore.Index
     {
         private readonly IEventStorePlayer eventStorePlayer;
         private readonly IEventStoreJobIndex index;
+
         public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, IEventStoreJobIndex index, ILogger<RebuildIndex_EventToAggregateRootId_Job> logger) : base(logger)
         {
             this.eventStorePlayer = eventStorePlayer;
             this.index = index;
         }
 
-        public override string Name { get; set; } = typeof(NewEventToAggregateRootId).GetContractId();
+        public override string Name { get; set; } = typeof(EventToAggregateRootId).GetContractId();
 
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
@@ -29,7 +30,7 @@ namespace Elders.Cronus.EventStore.Index
                     return JobExecutionStatus.Running;
                 }
 
-                LoadAggregateCommitsResult result = await eventStorePlayer.LoadAggregateCommitsAsync(Data.PaginationToken).ConfigureAwait(false);
+                var result = await eventStorePlayer.LoadAggregateCommitsAsync(Data.PaginationToken).ConfigureAwait(false);
 
                 logger.Info(() => $"Loaded aggregate commits count ${result.Commits.Count} using pagination token {result.PaginationToken}");
                 foreach (var aggregateCommit in result.Commits)

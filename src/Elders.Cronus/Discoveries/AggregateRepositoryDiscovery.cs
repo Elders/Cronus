@@ -27,13 +27,9 @@ namespace Elders.Cronus.Discoveries
             if ("true".Equals(context.Configuration["Cronus:PublishAggregateCommits"], System.StringComparison.OrdinalIgnoreCase))
             {
                 yield return new DiscoveredModel(typeof(AggregateCommitPublisherRepository), provider => new AggregateCommitPublisherRepository(provider.GetRequiredService<AggregateRepository>(), provider.GetRequiredService<IPublisher<AggregateCommit>>(), provider.GetRequiredService<CronusContext>(), provider.GetService<ILogger<AggregateCommitPublisherRepository>>()), ServiceLifetime.Transient);
-                yield return new DiscoveredModel(typeof(CronusAggregateRepository), provider => new CronusAggregateRepository(provider.GetRequiredService<AggregateRepositoryAndEventPublisher>()), ServiceLifetime.Transient);
-            }
-            else
-            {
-                yield return new DiscoveredModel(typeof(CronusAggregateRepository), provider => new CronusAggregateRepository(provider.GetRequiredService<AggregateRepositoryAndEventPublisher>()), ServiceLifetime.Transient);
             }
 
+            yield return new DiscoveredModel(typeof(CronusAggregateRepository), provider => new CronusAggregateRepository(provider.GetRequiredService<AggregateRepositoryAndEventPublisher>()), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(LoggingAggregateRepository), provider => new LoggingAggregateRepository(provider.GetRequiredService<CronusAggregateRepository>(), provider.GetService<ILogger<LoggingAggregateRepository>>()), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(IAggregateRepository), provider => provider.GetRequiredService<LoggingAggregateRepository>(), ServiceLifetime.Transient);
         }
