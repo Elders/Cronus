@@ -89,10 +89,10 @@ namespace Elders.Cronus.Projections.Rebuilding
         {
             List<Func<Task<string>>> indexingTasks = new List<Func<Task<string>>>(_batchSize);
 
-            try
+            ushort currentSize = 0;
+            foreach (IndexRecord record in eventStreams)
             {
-                ushort currentSize = 0;
-                foreach (IndexRecord record in eventStreams)
+                try
                 {
                     currentSize++;
 
@@ -109,8 +109,8 @@ namespace Elders.Cronus.Projections.Rebuilding
                         indexingTasks.Add(() => index.IndexAsync(record, jobData.Version));
                     }
                 }
+                catch (Exception ex) when (logger.WarnException(ex, () => $"Index record was skipped when rebuilding {jobData.Version.ProjectionName}.")) { }
             }
-            catch (Exception ex) when (logger.WarnException(ex, () => $"Index record was skipped when rebuilding {jobData.Version.ProjectionName}.")) { }
         }
     }
 }
