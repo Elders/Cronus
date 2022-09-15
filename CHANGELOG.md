@@ -1,3 +1,10 @@
+# [9.0.0-preview.5](https://github.com/Elders/Cronus/compare/v9.0.0-preview.4...v9.0.0-preview.5) (2022-09-15)
+
+
+### Bug Fixes
+
+* Code refactoring ([a8ca052](https://github.com/Elders/Cronus/commit/a8ca052dfa6d95fbe5cb139a5a097d9afe135589))
+
 # [9.0.0-preview.4](https://github.com/Elders/Cronus/compare/v9.0.0-preview.3...v9.0.0-preview.4) (2022-09-15)
 
 
