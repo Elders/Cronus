@@ -16,17 +16,13 @@ namespace Elders.Cronus.Migrations
 
         public override async Task RunAsync(IEnumerable<IMigration<AggregateCommit>> migrations)
         {
-            var data = source.LoadAggregateCommitsAsync(5000).ConfigureAwait(false);
-
+            var data = source.LoadAggregateCommitsAsync().ConfigureAwait(false);
 
             try
             {
-                uint counter = 0;
-
+                List<Task> tasks = new List<Task>();
                 await foreach (AggregateCommit sourceCommit in data)
                 {
-                    counter++;
-
                     AggregateCommit migrated = sourceCommit;
                     foreach (var migration in migrations)
                     {
@@ -38,19 +34,28 @@ namespace Elders.Cronus.Migrations
 
                     if (ForSomeReasonTheAggregateCommitHasBeenDeleted(migrated))
                     {
-                        //logger.Debug(() => $"An aggregate commit has been wiped from the face of the Earth. R.I.P.{Environment.NewLine}{result.Commits[i].ToString()}"); // Bonus: How Пикасо is spelled in English => Piccasso, Picasso, Piccaso ?? I bet spmeone will git-blame me
+                        logger.Debug(() => $"An aggregate commit has been wiped from the face of the Earth. R.I.P."); // Bonus: How Пикасо is spelled in English => Piccasso, Picasso, Piccaso ?? I bet spmeone will git-blame me
                         continue;
                     }
 
-                    await target.AppendAsync(migrated).ConfigureAwait(false);
+                    var task = target.AppendAsync(migrated);
+                    tasks.Add(task);
+
+                    if (tasks.Count > 100)
+                    {
+                        Task finished = await Task.WhenAny(tasks).ConfigureAwait(false);
+                        tasks.Remove(finished);
+                    }
                 }
 
-               // logger.Info(() => $"Migrated commits - Counter: `{counter}` - Pagination Token: `{result.PaginationToken}`");
+                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+                // logger.Info(() => $"Migrated commits - Counter: `{counter}` - Pagination Token: `{result.PaginationToken}`");
             }
 
             catch (System.Exception ex)
             {
-                //logger.ErrorException(ex, () => $"Something boom bam while runnning migration. Here is paginator: {result.PaginationToken}");
+                logger.ErrorException(ex, () => $"Something boom bam while runnning migration.");
             }
 
         }
