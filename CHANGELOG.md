@@ -1,3 +1,10 @@
+# [9.0.0-preview.6](https://github.com/Elders/Cronus/compare/v9.0.0-preview.5...v9.0.0-preview.6) (2022-09-21)
+
+
+### Bug Fixes
+
+* Improve migrator execution process ([932cd90](https://github.com/Elders/Cronus/commit/932cd900a22bd2bd3da8705f7f492bf1d81dece1))
+
 # [9.0.0-preview.5](https://github.com/Elders/Cronus/compare/v9.0.0-preview.4...v9.0.0-preview.5) (2022-09-15)
 
 
