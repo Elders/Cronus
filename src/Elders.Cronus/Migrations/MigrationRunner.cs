@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace Elders.Cronus.Migrations
 {
     public class MigrationRunner<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateCommit, TSourceEventStorePlayer, IEventStore>
-        where TSourceEventStorePlayer: IMigrationEventStorePlayer
+        where TSourceEventStorePlayer : IMigrationEventStorePlayer
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(MigrationRunner<,>));
 
@@ -38,7 +38,7 @@ namespace Elders.Cronus.Migrations
                         continue;
                     }
 
-                    var task = target.AppendAsync(migrated);
+                    Task task = target.AppendAsync(migrated);
                     tasks.Add(task);
 
                     if (tasks.Count > 100)
