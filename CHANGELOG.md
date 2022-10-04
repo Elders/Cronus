@@ -1,3 +1,12 @@
+# [9.0.0-preview.7](https://github.com/Elders/Cronus/compare/v9.0.0-preview.6...v9.0.0-preview.7) (2022-10-04)
+
+
+### Bug Fixes
+
+* Code cleanup ([54844c6](https://github.com/Elders/Cronus/commit/54844c6e742f6cd4ca022c991aa8733cbe2ea1dc))
+* Improve the async operations when indexing ([3a4cfe7](https://github.com/Elders/Cronus/commit/3a4cfe77562a98df94b92240a501dbd5dd201584))
+* Removes SourceLink package because it is in the root dir ([5bb43c9](https://github.com/Elders/Cronus/commit/5bb43c91ebdd6af620eef77211bf0e9b4217522e))
+
 # [9.0.0-preview.6](https://github.com/Elders/Cronus/compare/v9.0.0-preview.5...v9.0.0-preview.6) (2022-09-21)
 
 
