@@ -1,3 +1,10 @@
+# [9.0.0-preview.8](https://github.com/Elders/Cronus/compare/v9.0.0-preview.7...v9.0.0-preview.8) (2022-10-05)
+
+
+### Bug Fixes
+
+* Optimizes the message counter job. Some code cleanups ([2fe5548](https://github.com/Elders/Cronus/commit/2fe5548552b50070119df9a08d741221b983da13))
+
 # [9.0.0-preview.7](https://github.com/Elders/Cronus/compare/v9.0.0-preview.6...v9.0.0-preview.7) (2022-10-04)
 
 
