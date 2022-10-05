@@ -8,7 +8,6 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,19 +17,17 @@ namespace Elders.Cronus.EventStore.Index
     {
         private readonly CronusContext context;
         private readonly TypeContainer<IEvent> eventTypes;
-        private readonly IEventStore eventStore;
         private readonly IMessageCounter messageCounter;
-        private readonly EventToAggregateRootId eventToAggregateIndex;
         private readonly IProjectionReader projectionReader;
+        private readonly IIndexStore indexStore;
 
-        public RebuildIndex_MessageCounter_Job(CronusContext context, TypeContainer<IEvent> eventTypes, EventStoreFactory eventStoreFactory, IMessageCounter eventCounter, EventToAggregateRootId eventToAggregateIndex, IProjectionReader projectionReader, ILogger<RebuildIndex_MessageCounter_Job> logger) : base(logger)
+        public RebuildIndex_MessageCounter_Job(CronusContext context, TypeContainer<IEvent> eventTypes, IMessageCounter eventCounter, IProjectionReader projectionReader, IIndexStore indexStore, ILogger<RebuildIndex_MessageCounter_Job> logger) : base(logger)
         {
             this.context = context;
             this.eventTypes = eventTypes;
-            this.eventStore = eventStoreFactory.GetEventStore();
             this.messageCounter = eventCounter;
-            this.eventToAggregateIndex = eventToAggregateIndex;
             this.projectionReader = projectionReader;
+            this.indexStore = indexStore;
         }
 
         public override string Name { get; set; } = typeof(MessageCounterIndex).GetContractId();
@@ -47,53 +44,12 @@ namespace Elders.Cronus.EventStore.Index
             {
                 string eventTypeId = eventType.GetContractId();
 
-                bool hasMoreRecords = true;
+                logger.Info(() => $"Message counter for {eventTypeId} has been reset");
+                // Maybe we should move this to a BeforeRun method.
+                await messageCounter.ResetAsync(eventType).ConfigureAwait(false);
 
-                while (hasMoreRecords && Data.IsCompleted == false)
-                {
-                    RebuildEventCounterIndex_JobData.EventTypeRebuildPaging paging = Data.EventTypePaging.Where(et => et.Type.Equals(eventTypeId, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-
-                    string paginationToken = paging?.PaginationToken;
-                    if (string.IsNullOrEmpty(paginationToken))
-                    {
-                        logger.Info(() => $"Message counter for {eventTypeId} has been reset");
-                        // Maybe we should move this to a BeforeRun method.
-                        await messageCounter.ResetAsync(eventType).ConfigureAwait(false);
-                    }
-                    LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false);
-
-                    IEnumerable<IndexRecord> indexRecords = indexRecordsResult.Records;
-                    long currentSessionProcessedCount = 0;
-                    foreach (IndexRecord indexRecord in indexRecords)
-                    {
-                        currentSessionProcessedCount++;
-
-                        string mess = Encoding.UTF8.GetString(indexRecord.AggregateRootId);
-                        IAggregateRootId arId = GetAggregateRootId(mess);
-                        EventStream stream = await eventStore.LoadAsync(arId).ConfigureAwait(false);
-
-                        foreach (AggregateCommit arCommit in stream.Commits)
-                        {
-                            foreach (var @event in arCommit.Events)
-                            {
-                                if (cancellationToken.IsCancellationRequested)
-                                {
-                                    logger.Info(() => $"Job has been cancelled.");
-                                    return JobExecutionStatus.Running;
-                                }
-
-                                if (eventTypeId.Equals(@event.GetType().GetContractId(), StringComparison.OrdinalIgnoreCase))
-                                    await messageCounter.IncrementAsync(eventType).ConfigureAwait(false);
-                            }
-                        }
-
-                    }
-
-                    Data.MarkPaginationTokenAsProcessed(eventTypeId, indexRecordsResult.PaginationToken);
-                    Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
-
-                    hasMoreRecords = indexRecordsResult.Records.Any();
-                }
+                long count = await indexStore.GetCountAsync(eventTypeId).ConfigureAwait(false);
+                await messageCounter.IncrementAsync(eventType, count).ConfigureAwait(false);
             }
 
             Data.IsCompleted = true;
@@ -104,29 +60,6 @@ namespace Elders.Cronus.EventStore.Index
             return JobExecutionStatus.Completed;
         }
 
-        IAggregateRootId GetAggregateRootId(string mess)
-        {
-            var parts = mess.Split(new[] { "||" }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var part in parts)
-            {
-                AggregateUrn urn;
-                if (AggregateUrn.TryParse(part, out urn))
-                {
-                    return new AggregateRootId(urn.AggregateRootName, urn);
-                }
-                else
-                {
-                    byte[] raw = Convert.FromBase64String(part);
-                    string urnString = Encoding.UTF8.GetString(raw);
-                    if (AggregateUrn.TryParse(urnString, out urn))
-                    {
-                        return new AggregateRootId(urn.AggregateRootName, urn);
-                    }
-                }
-            }
-
-            throw new ArgumentException($"Invalid aggregate root id: {mess}", nameof(mess));
-        }
 
         async Task<IndexStatus> GetIndexStatusAsync<TIndex>() where TIndex : IEventStoreIndex
         {

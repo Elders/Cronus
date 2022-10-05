@@ -1,5 +1,4 @@
 ﻿using Elders.Cronus.Projections;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,16 +10,14 @@ namespace Elders.Cronus.EventStore.Index
     [DataContract(Name = "37336a18-573a-4e9e-b4a2-085033b74353")]
     public class ProjectionIndex : ICronusEventStoreIndex
     {
-        private readonly ILogger<ProjectionIndex> logger;
         private readonly TypeContainer<IProjection> projectionsContainer;
         private readonly IProjectionWriter projection;
         private readonly IEventStorePlayer eventStore;
 
-        public ProjectionIndex(TypeContainer<IProjection> projectionsContainer, IEventStorePlayer eventStore, IProjectionWriter projection, ILogger<ProjectionIndex> logger)
+        public ProjectionIndex(TypeContainer<IProjection> projectionsContainer, IEventStorePlayer eventStore, IProjectionWriter projection)
         {
             this.projectionsContainer = projectionsContainer;
             this.projection = projection;
-            this.logger = logger;
             this.eventStore = eventStore;
         }
 
@@ -30,13 +27,11 @@ namespace Elders.Cronus.EventStore.Index
             if (message.IsRepublished)
                 projectionTypes = message.RecipientHandlers.Intersect(projectionsContainer.Items.Select(t => t.GetContractId())).Select(dc => dc.GetTypeByContract());
 
-            Type baseMessageType = typeof(IMessage);
             Type messagePayloadType = message.Payload.GetType();
             foreach (var projectionType in projectionTypes)
             {
                 bool isInterested = projectionType.GetInterfaces()
-                    .Where(x => x.IsGenericType && x.GetGenericArguments().Length == 1 && (baseMessageType.IsAssignableFrom(x.GetGenericArguments()[0])))
-                    .Where(@interface => @interface.GetGenericArguments()[0].IsAssignableFrom(messagePayloadType))
+                    .Where(@interface => IsInterested(@interface, messagePayloadType))
                     .Any();
 
                 if (isInterested)
