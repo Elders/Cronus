@@ -1,3 +1,10 @@
+# [9.0.0-preview.10](https://github.com/Elders/Cronus/compare/v9.0.0-preview.9...v9.0.0-preview.10) (2022-10-06)
+
+
+### Bug Fixes
+
+* Ping every 5 seconds when doing the message counter ([8ccf7fa](https://github.com/Elders/Cronus/commit/8ccf7faf478b9e6e6b427f26adf40771b5e727e8))
+
 # [9.0.0-preview.9](https://github.com/Elders/Cronus/compare/v9.0.0-preview.8...v9.0.0-preview.9) (2022-10-06)
 
 
