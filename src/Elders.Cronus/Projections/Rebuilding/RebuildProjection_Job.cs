@@ -94,15 +94,38 @@ namespace Elders.Cronus.Projections.Rebuilding
             RebuildProjection_JobData.EventPaging paging = Data.EventTypePaging.Where(et => et.Type.Equals(eventTypeId, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
 
             string paginationToken = paging?.PaginationToken;
-            LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false); // TODO: Think about cassandra exception here. Such exceptions MUST be handled in the concrete impl of the IndexStore
+            logger.Info(() => "mynkow start");
+            //LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false); // TODO: Think about cassandra exception here. Such exceptions MUST be handled in the concrete impl of the IndexStore
+            var elements = eventToAggregateIndex.EnumerateRecords(eventTypeId);
 
-            await rebuildingRepository.SaveAggregateCommitsAsync(indexRecordsResult.Records, Data).ConfigureAwait(false);
 
-            await NotifyClusterAsync(eventTypeId, indexRecordsResult.PaginationToken, cluster, cancellationToken).ConfigureAwait(false);
 
-            var hasMoreRecords = indexRecordsResult.Records.Any();
+           // The trick with the task should be one level above. This method should be responsible for handling single record.
+           List <Task> tasks = new List<Task>();
+            await foreach (IndexRecord record in elements)
+            {
+                Task task = rebuildingRepository.SaveAggregateCommitsAsync(record, Data);
+                tasks.Add(task);
 
-            return hasMoreRecords;
+                if (tasks.Count > 100)
+                {
+                    Task finished = await Task.WhenAny(tasks).ConfigureAwait(false);
+                    tasks.Remove(finished);
+                }
+            }
+
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+
+            logger.Info(() => "mynkow end");
+            //await rebuildingRepository.SaveAggregateCommitsAsync(indexRecordsResult.Records, Data).ConfigureAwait(false);
+
+            await NotifyClusterAsync(eventTypeId, "", cluster, cancellationToken).ConfigureAwait(false);
+
+            //var hasMoreRecords = indexRecordsResult.Records.Any();
+
+            // return hasMoreRecords;
+
+            return false;
         }
 
         private async Task NotifyClusterAsync(string eventTypeId, string paginationToken, IClusterOperations cluster, CancellationToken cancellationToken)

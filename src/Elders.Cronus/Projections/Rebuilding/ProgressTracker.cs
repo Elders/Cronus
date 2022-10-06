@@ -13,7 +13,6 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly IMessageCounter messageCounter;
         private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly ProjectionVersionHelper projectionVersionHelper;
-        private int counter = 0;
         private readonly ILogger<ProgressTracker> logger;
 
         public string ProjectionName { get; set; }
@@ -55,7 +54,7 @@ namespace Elders.Cronus.Projections.Rebuilding
         public void TrackAndNotify(string executionId)
         {
             Track(executionId);
-            Notify();
+            Notify(executionId);
         }
 
         public RebuildProjectionProgress GetProgressSignal()
@@ -87,7 +86,6 @@ namespace Elders.Cronus.Projections.Rebuilding
         {
             try
             {
-                counter++;
                 EventTypeProcessed.TryGetValue(executionId, out ulong processed);
                 EventTypeProcessed[executionId] = ++processed;
 
@@ -95,9 +93,9 @@ namespace Elders.Cronus.Projections.Rebuilding
             catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }
         }
 
-        private void Notify()
+        private void Notify(string executionId)
         {
-            if (counter % 100 == 0)
+            if (EventTypeProcessed[executionId] % 1000 == 0)
             {
                 RebuildProjectionProgress progressSignalche = GetProgressSignal();
                 signalPublisher.Publish(progressSignalche);

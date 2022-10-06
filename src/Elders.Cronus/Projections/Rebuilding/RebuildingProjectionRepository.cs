@@ -19,26 +19,28 @@ namespace Elders.Cronus.Projections.Rebuilding
             this.logger = logger;
         }
 
-        public async Task SaveAggregateCommitsAsync(IEnumerable<IndexRecord> indexRecords, RebuildProjection_JobData jobData)
+        public Task SaveAggregateCommitsAsync(IndexRecord indexRecord, RebuildProjection_JobData jobData)
         {
-            // The trick with the task should be one level above. This method should be responsible for handling single record.
-            List<Task> tasks = new List<Task>();
-            foreach (IndexRecord record in indexRecords)
-            {
-                if (jobData.IsCanceled)
-                    return;
+            return ExecuteAndTrack(indexRecord, jobData.Version);
 
-                Task task = ExecuteAndTrack(record, jobData.Version);
-                tasks.Add(task);
+            //// The trick with the task should be one level above. This method should be responsible for handling single record.
+            //List<Task> tasks = new List<Task>();
+            //foreach (IndexRecord record in indexRecords)
+            //{
+            //    if (jobData.IsCanceled)
+            //        return;
 
-                if (tasks.Count > 100)
-                {
-                    Task finished = await Task.WhenAny(tasks).ConfigureAwait(false);
-                    tasks.Remove(finished);
-                }
+            //    Task task = ExecuteAndTrack(record, jobData.Version);
+            //    tasks.Add(task);
 
-                await Task.WhenAll(tasks).ConfigureAwait(false);
-            }
+            //    if (tasks.Count > 100)
+            //    {
+            //        Task finished = await Task.WhenAny(tasks).ConfigureAwait(false);
+            //        tasks.Remove(finished);
+            //    }
+
+            //    await Task.WhenAll(tasks).ConfigureAwait(false);
+            //}
         }
 
         private async Task ExecuteAndTrack(IndexRecord record, ProjectionVersion projectionVersion)
