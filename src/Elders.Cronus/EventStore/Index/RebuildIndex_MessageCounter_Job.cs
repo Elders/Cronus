@@ -40,16 +40,32 @@ namespace Elders.Cronus.EventStore.Index
 
             //projectionStoreInitializer.Initialize(version);
 
+            
             foreach (Type eventType in eventTypes.Items)
             {
+                var pingSource = new CancellationTokenSource();
+
                 string eventTypeId = eventType.GetContractId();
 
                 logger.Info(() => $"Message counter for {eventTypeId} has been reset");
+
+               
+                CancellationToken ct = pingSource.Token;
+
+                Task.Factory.StartNew(async () =>
+                {
+                    logger.Info(() => $"Message counter cluster ping for {eventTypeId}.");
+                    await cluster.PingAsync<RebuildEventCounterIndex_JobData>(ct).ConfigureAwait(false);
+                    await Task.Delay(15000, ct).ConfigureAwait(false);
+                }, ct).ConfigureAwait(false);
+
                 // Maybe we should move this to a BeforeRun method.
                 await messageCounter.ResetAsync(eventType).ConfigureAwait(false);
 
                 long count = await indexStore.GetCountAsync(eventTypeId).ConfigureAwait(false);
                 await messageCounter.IncrementAsync(eventType, count).ConfigureAwait(false);
+
+                pingSource.Cancel();
             }
 
             Data.IsCompleted = true;
