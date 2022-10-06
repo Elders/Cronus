@@ -1,3 +1,10 @@
+# [9.0.0-preview.12](https://github.com/Elders/Cronus/compare/v9.0.0-preview.11...v9.0.0-preview.12) (2022-10-06)
+
+
+### Bug Fixes
+
+* Removes batching when rebuilding projection ([b3ab726](https://github.com/Elders/Cronus/commit/b3ab7260b8a12e7c4c8293f643977032341d98e6))
+
 # [9.0.0-preview.11](https://github.com/Elders/Cronus/compare/v9.0.0-preview.10...v9.0.0-preview.11) (2022-10-06)
 
 
