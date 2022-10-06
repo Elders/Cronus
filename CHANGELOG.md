@@ -1,3 +1,10 @@
+# [9.0.0-preview.14](https://github.com/Elders/Cronus/compare/v9.0.0-preview.13...v9.0.0-preview.14) (2022-10-06)
+
+
+### Bug Fixes
+
+* Rebuild projection try with IAsyncEnumerable ([3d91577](https://github.com/Elders/Cronus/commit/3d91577fe9694bdce3c01f1d6298d74d55efd51c))
+
 # [9.0.0-preview.13](https://github.com/Elders/Cronus/compare/v9.0.0-preview.12...v9.0.0-preview.13) (2022-10-06)
 
 
