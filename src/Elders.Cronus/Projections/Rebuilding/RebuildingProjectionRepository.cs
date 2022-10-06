@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Elders.Cronus.EventStore.Index;
-using Elders.Cronus.EventStore;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
@@ -22,17 +21,34 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         public async Task SaveAggregateCommitsAsync(IEnumerable<IndexRecord> indexRecords, RebuildProjection_JobData jobData)
         {
+            // The trick with the task should be one level above. This method should be responsible for handling single record.
+            List<Task> tasks = new List<Task>();
             foreach (IndexRecord record in indexRecords)
             {
-                try
-                {
-                    await progressTracker.CompleteActionWithProgressSignalAsync(() => index.IndexAsync(record, jobData.Version)).ConfigureAwait(false);
+                if (jobData.IsCanceled)
+                    return;
 
-                    if (jobData.IsCanceled)
-                        return;
+                Task task = ExecuteAndTrack(record, jobData.Version);
+                tasks.Add(task);
+
+                if (tasks.Count > 100)
+                {
+                    Task finished = await Task.WhenAny(tasks).ConfigureAwait(false);
+                    tasks.Remove(finished);
                 }
-                catch (Exception ex) when (logger.WarnException(ex, () => $"Index record was skipped when rebuilding {jobData.Version.ProjectionName}.")) { }
+
+                await Task.WhenAll(tasks).ConfigureAwait(false);
             }
+        }
+
+        private async Task ExecuteAndTrack(IndexRecord record, ProjectionVersion projectionVersion)
+        {
+            try
+            {
+                string executionId = await index.IndexAsync(record, projectionVersion).ConfigureAwait(false);
+                progressTracker.TrackAndNotify(executionId);
+            }
+            catch (Exception ex) when (logger.WarnException(ex, () => $"Index record was skipped when rebuilding {projectionVersion.ProjectionName}.")) { }
         }
     }
 }
