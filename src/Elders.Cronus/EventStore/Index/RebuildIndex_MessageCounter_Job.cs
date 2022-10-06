@@ -55,8 +55,8 @@ namespace Elders.Cronus.EventStore.Index
                 Task.Factory.StartNew(async () =>
                 {
                     logger.Info(() => $"Message counter cluster ping for {eventTypeId}.");
-                    await cluster.PingAsync<RebuildEventCounterIndex_JobData>(ct).ConfigureAwait(false);
-                    await Task.Delay(15000, ct).ConfigureAwait(false);
+                    await cluster.PingAsync(Data, ct).ConfigureAwait(false);
+                    await Task.Delay(5000, ct).ConfigureAwait(false);
                 }, ct).ConfigureAwait(false);
 
                 // Maybe we should move this to a BeforeRun method.
