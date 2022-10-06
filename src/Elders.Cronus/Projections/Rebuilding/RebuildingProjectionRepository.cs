@@ -20,30 +20,16 @@ namespace Elders.Cronus.Projections.Rebuilding
             this.logger = logger;
         }
 
-        const ushort _batchSize = 1000;
         public async Task SaveAggregateCommitsAsync(IEnumerable<IndexRecord> indexRecords, RebuildProjection_JobData jobData)
         {
-            List<Func<Task<string>>> indexingTasks = new List<Func<Task<string>>>(_batchSize);
-
-            ushort currentSize = 0;
             foreach (IndexRecord record in indexRecords)
             {
                 try
                 {
-                    currentSize++;
+                    await progressTracker.CompleteActionWithProgressSignalAsync(() => index.IndexAsync(record, jobData.Version)).ConfigureAwait(false);
 
-                    if (currentSize % _batchSize == 0)
-                    {
-                        await progressTracker.CompleteActionWithProgressSignalAsync(indexingTasks).ConfigureAwait(false);
-                        indexingTasks.Clear();
-
-                        if (jobData.IsCanceled)
-                            return;
-                    }
-                    else
-                    {
-                        indexingTasks.Add(() => index.IndexAsync(record, jobData.Version));
-                    }
+                    if (jobData.IsCanceled)
+                        return;
                 }
                 catch (Exception ex) when (logger.WarnException(ex, () => $"Index record was skipped when rebuilding {jobData.Version.ProjectionName}.")) { }
             }

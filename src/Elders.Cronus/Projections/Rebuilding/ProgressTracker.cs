@@ -13,6 +13,8 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly IMessageCounter messageCounter;
         private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly ProjectionVersionHelper projectionVersionHelper;
+        private readonly List<Task> tasks;
+        private int counter = 0;
         private readonly ILogger<ProgressTracker> logger;
 
         public string ProjectionName { get; set; }
@@ -26,6 +28,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             this.messageCounter = messageCounter;
             this.signalPublisher = signalPublisher;
             this.projectionVersionHelper = projectionVersionHelper;
+            this.tasks = new List<Task>();
             this.logger = logger;
         }
 
@@ -51,29 +54,23 @@ namespace Elders.Cronus.Projections.Rebuilding
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        public async Task CompleteActionWithProgressSignalAsync(IEnumerable<Func<Task<string>>> actions)
+        public async Task CompleteActionWithProgressSignalAsync(Func<Task<string>> action)
         {
-            int counter = 0;
-
             try
             {
-                List<Task> tasks = new List<Task>();
-                foreach (var action in actions)
+                counter++;
+                tasks.Add(ExecuteAndTrackAsync(action));
+
+                if (tasks.Count > 100)
                 {
-                    counter++;
-                    tasks.Add(ExecuteAndTrackAsync(action));
+                    Task finished = await Task.WhenAny(tasks).ConfigureAwait(false);
+                    tasks.Remove(finished);
+                }
 
-                    if (tasks.Count > 100)
-                    {
-                        Task finished = await Task.WhenAny(tasks).ConfigureAwait(false);
-                        tasks.Remove(finished);
-                    }
-
-                    if (counter % 100 == 0)
-                    {
-                        var progressSignalche = GetProgressSignal();
-                        signalPublisher.Publish(progressSignalche);
-                    }
+                if (counter % 100 == 0)
+                {
+                    RebuildProjectionProgress progressSignalche = GetProgressSignal();
+                    signalPublisher.Publish(progressSignalche);
                 }
 
                 await Task.WhenAll(tasks).ConfigureAwait(false);
