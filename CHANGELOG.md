@@ -1,3 +1,10 @@
+# [9.0.0-preview.9](https://github.com/Elders/Cronus/compare/v9.0.0-preview.8...v9.0.0-preview.9) (2022-10-06)
+
+
+### Bug Fixes
+
+* Adds message counter ping for the cluster ([71afb49](https://github.com/Elders/Cronus/commit/71afb49eabc43a9f236ad8cf8ad207ab6e2d83e6))
+
 # [9.0.0-preview.8](https://github.com/Elders/Cronus/compare/v9.0.0-preview.7...v9.0.0-preview.8) (2022-10-05)
 
 
