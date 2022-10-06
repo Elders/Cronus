@@ -1,3 +1,10 @@
+# [9.0.0-preview.13](https://github.com/Elders/Cronus/compare/v9.0.0-preview.12...v9.0.0-preview.13) (2022-10-06)
+
+
+### Bug Fixes
+
+* Try improving the replay performance ([2234cd9](https://github.com/Elders/Cronus/commit/2234cd90a8918632af11de451277a08f35b96422))
+
 # [9.0.0-preview.12](https://github.com/Elders/Cronus/compare/v9.0.0-preview.11...v9.0.0-preview.12) (2022-10-06)
 
 
