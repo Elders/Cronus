@@ -19,23 +19,20 @@ namespace Elders.Cronus.Projections
         readonly IProjectionStore projectionStore;
         readonly ISnapshotStore snapshotStore;
         readonly ISnapshotStrategy snapshotStrategy;
-        readonly InMemoryProjectionVersionStore inMemoryVersionStore;
         private readonly IHandlerFactory handlerFactory;
         private readonly ProjectionHasher projectionHasher;
 
-        public ProjectionRepository(CronusContext context, IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, InMemoryProjectionVersionStore inMemoryVersionStore, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
+        public ProjectionRepository(CronusContext context, IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
         {
             if (context is null) throw new ArgumentException(nameof(context));
             if (projectionStore is null) throw new ArgumentException(nameof(projectionStore));
             if (snapshotStore is null) throw new ArgumentException(nameof(snapshotStore));
             if (snapshotStrategy is null) throw new ArgumentException(nameof(snapshotStrategy));
-            if (inMemoryVersionStore is null) throw new ArgumentException(nameof(inMemoryVersionStore));
 
             this.context = context;
             this.projectionStore = projectionStore;
             this.snapshotStore = snapshotStore;
             this.snapshotStrategy = snapshotStrategy;
-            this.inMemoryVersionStore = inMemoryVersionStore;
             this.handlerFactory = handlerFactory;
             this.projectionHasher = projectionHasher;
         }
@@ -220,29 +217,16 @@ namespace Elders.Cronus.Projections
         {
             if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
 
-            var elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - LastRefreshTimestamp)));
+            ProjectionVersions versions = default;
 
-            ProjectionVersions versions = inMemoryVersionStore.Get(projectionName);
-
-            //TODO: This optimization caused some problems
-            //if (elapsed.TotalMinutes > 5 || versions is null || versions.Count == 0)
+            var queryResult = await GetProjectionVersionsFromStoreAsync(projectionName).ConfigureAwait(false);
+            if (queryResult.IsSuccess)
             {
-                var queryResult = await GetProjectionVersionsFromStoreAsync(projectionName).ConfigureAwait(false);
-                if (queryResult.IsSuccess)
-                {
-                    if (queryResult.Data.State.Live != null)
-                        inMemoryVersionStore.Cache(queryResult.Data.State.Live);
-                    foreach (var buildingVersion in queryResult.Data.State.AllVersions.GetBuildingVersions())
-                    {
-                        inMemoryVersionStore.Cache(buildingVersion);
-                    }
-                    versions = inMemoryVersionStore.Get(projectionName);
-                    LastRefreshTimestamp = Stopwatch.GetTimestamp();
-                }
-
-                if (queryResult.HasError)
-                    return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
+                versions = queryResult.Data.State.AllVersions;
             }
+
+            if (queryResult.HasError)
+                return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
 
             return new ReadResult<ProjectionVersions>(versions);
         }

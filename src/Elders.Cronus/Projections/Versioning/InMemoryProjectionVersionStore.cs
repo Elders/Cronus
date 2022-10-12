@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 
 namespace Elders.Cronus.Projections.Versioning
 {
+    [Obsolete("Does not support multitenancy.", true)]
     public class InMemoryProjectionVersionStore
     {
         private readonly ConcurrentDictionary<string, ProjectionVersions> store;
