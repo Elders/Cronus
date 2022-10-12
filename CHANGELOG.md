@@ -1,3 +1,10 @@
+## [8.7.6](https://github.com/Elders/Cronus/compare/v8.7.5...v8.7.6) (2022-10-12)
+
+
+### Bug Fixes
+
+* Removes InMemoryProjectionVersionStore because it does not support multitenancy ([51dea5d](https://github.com/Elders/Cronus/commit/51dea5dce4bf9f09a9fededa72b761af4224ebc4))
+
 ## [8.7.5](https://github.com/Elders/Cronus/compare/v8.7.4...v8.7.5) (2022-09-02)
 
 
