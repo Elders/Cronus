@@ -1,3 +1,10 @@
+# [9.0.0-preview.15](https://github.com/Elders/Cronus/compare/v9.0.0-preview.14...v9.0.0-preview.15) (2022-10-19)
+
+
+### Bug Fixes
+
+* Adds method to load PublicEvents when we do replay ([7dd7f3b](https://github.com/Elders/Cronus/commit/7dd7f3b7545b438c0592caaf4fb7f897357a1bcf))
+
 # [9.0.0-preview.14](https://github.com/Elders/Cronus/compare/v9.0.0-preview.13...v9.0.0-preview.14) (2022-10-06)
 
 
