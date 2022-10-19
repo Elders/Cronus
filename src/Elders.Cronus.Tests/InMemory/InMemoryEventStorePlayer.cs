@@ -2,6 +2,7 @@ using Elders.Cronus.EventStore.Index;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.InMemory
@@ -32,6 +33,11 @@ namespace Elders.Cronus.EventStore.InMemory
         }
 
         public Task<IEvent> LoadEventWithRebuildProjectionAsync(IndexRecord indexRecord)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<IPublicEvent> LoadPublicEventsAsync(ReplayOptions replayOptions, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

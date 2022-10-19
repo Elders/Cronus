@@ -39,7 +39,7 @@ namespace Elders.Cronus.EventStore.Players
                 Type publicEventType = typeof(IPublicEvent);
                 ReplayOptions opt = new ReplayOptions()
                 {
-                    AggregateIds = indexRecordsResult.Records.Select(indexRecord => AggregateUrn.Parse(Convert.ToBase64String(indexRecord.AggregateRootId), Urn.Base64)),
+                    IndexRecords = indexRecordsResult.Records,
                     ShouldSelect = commit =>
                     {
                         bool result = (from publicEvent in commit.PublicEvents
@@ -54,29 +54,27 @@ namespace Elders.Cronus.EventStore.Players
                     After = Data.After,
                     Before = Data.Before
                 };
-                LoadAggregateCommitsResult foundAggregateCommits = await eventStorePlayer.LoadAggregateCommitsAsync(opt).ConfigureAwait(false);
 
-                foreach (AggregateCommit arCommit in foundAggregateCommits.Commits)
+                var headers = new Dictionary<string, string>()
+                {
+                    {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
+                    {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
+                };
+
+                IAsyncEnumerable<IPublicEvent> publicEvents = eventStorePlayer.LoadPublicEventsAsync(opt);
+                await foreach (IPublicEvent publicEvent in publicEvents)
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
-                        logger.Info(() => $"Job has been cancelled.");
+                        logger.Info(() => $"Job {nameof(ReplayPublicEvents_Job)} has been cancelled.");
                         return JobExecutionStatus.Running;
                     }
 
-                    foreach (IPublicEvent publicEvent in arCommit.PublicEvents)
-                    {
-                        if (publicEvent.GetType().GetContractId().Equals(eventTypeId))
-                        {
-                            var headers = new Dictionary<string, string>()
-                            {
-                                {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
-                                {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
-                            };
-                            publicEventPublisher.Publish(publicEvent, headers);
-                        }
-                    }
+                    publicEventPublisher.Publish(publicEvent, headers);
                 }
+
+
+
 
                 var progress = new ReplayPublicEvents_JobData.EventTypePagingProgress(eventTypeId, indexRecordsResult.PaginationToken, 0, 0);
                 Data.MarkEventTypeProgress(progress);

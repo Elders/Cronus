@@ -1,5 +1,7 @@
 using Elders.Cronus.EventStore.Index;
+using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore
@@ -25,7 +27,10 @@ namespace Elders.Cronus.EventStore
         /// <returns></returns>
         Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(string paginationToken, int batchSize = 5000);
 
+        [Obsolete("Use LoadPublicEventsAsync(...)")]
         Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(ReplayOptions replayOptions);
+
+        IAsyncEnumerable<IPublicEvent> LoadPublicEventsAsync(ReplayOptions replayOptions, CancellationToken cancellationToken = default);
 
         Task<IEvent> LoadEventWithRebuildProjectionAsync(IndexRecord indexRecord);
     }

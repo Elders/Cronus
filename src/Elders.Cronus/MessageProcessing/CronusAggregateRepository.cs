@@ -2,7 +2,6 @@
 
 namespace Elders.Cronus.MessageProcessing
 {
-
     public sealed class CronusAggregateRepository : IAggregateRepository
     {
         // TODO: This class should be responsible for logging and building the headers.
