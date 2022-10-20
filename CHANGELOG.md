@@ -1,3 +1,10 @@
+# [9.0.0-preview.16](https://github.com/Elders/Cronus/compare/v9.0.0-preview.15...v9.0.0-preview.16) (2022-10-20)
+
+
+### Bug Fixes
+
+* Adds dirty fix about event position while indexing. This needs refactoring! ([1591e79](https://github.com/Elders/Cronus/commit/1591e794e8e084fc40c59578be3690ecc6c74ece))
+
 # [9.0.0-preview.15](https://github.com/Elders/Cronus/compare/v9.0.0-preview.14...v9.0.0-preview.15) (2022-10-19)
 
 
