@@ -32,22 +32,22 @@ namespace Elders.Cronus.MessageProcessing
             if (aggregateRoot.UncommittedEvents is null || aggregateRoot.UncommittedEvents.Any() == false)
                 return;
 
-            var events = aggregateRoot.UncommittedEvents.ToList();
-            for (int i = 0; i < events.Count; i++)
+            int position = -1;
+            foreach (IEvent theEvent in aggregateRoot.UncommittedEvents)
             {
-                var theEvent = events[i];
-                var entityEvent = theEvent as EntityEvent;
-                if (ReferenceEquals(null, entityEvent) == false)
-                    theEvent = entityEvent.Event;
-
-
-                eventPublisher.Publish(theEvent, BuildHeaders(aggregateCommit, aggregateRoot, i));
+                if (theEvent is EntityEvent entityEvent)
+                {
+                    eventPublisher.Publish(entityEvent.Event, BuildHeaders(aggregateCommit, aggregateRoot, ++position));
+                }
+                else
+                {
+                    eventPublisher.Publish(theEvent, BuildHeaders(aggregateCommit, aggregateRoot, ++position));
+                }
             }
-
-            var publicEvents = aggregateRoot.UncommittedPublicEvents.ToList();
-            for (int i = 0; i < publicEvents.Count; i++)
+            position += 5;
+            foreach (IPublicEvent publicEvent in aggregateRoot.UncommittedPublicEvents)
             {
-                publicEventPublisher.Publish(publicEvents[i], BuildHeaders(aggregateCommit, aggregateRoot, i));
+                publicEventPublisher.Publish(publicEvent, BuildHeaders(aggregateCommit, aggregateRoot, position++));
             }
         }
 

@@ -20,22 +20,19 @@ namespace Elders.Cronus.EventStore.Index
 
         public async Task IndexAsync(AggregateCommit aggregateCommit)
         {
+            int possition = -1;
             for (var eventPosition = 0; eventPosition < aggregateCommit.Events.Count; eventPosition++)
             {
                 string eventTypeId = aggregateCommit.Events[eventPosition].Unwrap().GetType().GetContractId();
-                var record = new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId, aggregateCommit.Revision, eventPosition, aggregateCommit.Timestamp);
+                var record = new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId, aggregateCommit.Revision, ++possition, aggregateCommit.Timestamp);
                 await indexStore.ApendAsync(record).ConfigureAwait(false);
             }
 
-            int positionFix = aggregateCommit.Events.Count;
-            int totalEventsCount = aggregateCommit.PublicEvents.Count + aggregateCommit.Events.Count;
-
-            for (var publicEventPosition = positionFix; publicEventPosition < totalEventsCount; publicEventPosition++)
+            possition += 5;
+            foreach (IPublicEvent publicEvent in aggregateCommit.PublicEvents)
             {
-                int publicEventIndex = publicEventPosition - positionFix;
-
-                string eventTypeId = aggregateCommit.PublicEvents[publicEventIndex].GetType().GetContractId();
-                var record = new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId, aggregateCommit.Revision, publicEventPosition, aggregateCommit.Timestamp);
+                string eventTypeId = publicEvent.GetType().GetContractId();
+                var record = new IndexRecord(eventTypeId, aggregateCommit.AggregateRootId, aggregateCommit.Revision, possition++, aggregateCommit.Timestamp);
                 await indexStore.ApendAsync(record).ConfigureAwait(false);
             }
         }
