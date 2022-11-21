@@ -1,3 +1,10 @@
+## [8.7.7](https://github.com/Elders/Cronus/compare/v8.7.6...v8.7.7) (2022-11-21)
+
+
+### Bug Fixes
+
+* Reduces the page size when rebuilding a projection ([561ed2c](https://github.com/Elders/Cronus/commit/561ed2c3bb6feda8a1a74c266890fd76fdbbf051))
+
 ## [8.7.6](https://github.com/Elders/Cronus/compare/v8.7.5...v8.7.6) (2022-10-12)
 
 
