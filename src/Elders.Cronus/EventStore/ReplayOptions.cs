@@ -7,17 +7,21 @@ namespace Elders.Cronus.EventStore
 {
     public class ReplayOptions
     {
+        private static DateTimeOffset MinAfterTimestamp = new DateTimeOffset(1602, 1, 1, 0, 0, 0, TimeSpan.Zero);   // 315360000000000
+        private static DateTimeOffset MaxAfterTimestamp = DateTimeOffset.MaxValue.Subtract(TimeSpan.FromDays(100)); // 2650381343999999999
+
         public ReplayOptions()
         {
-            AggregateIds = Enumerable.Empty<IAggregateRootId>();
-            IndexRecords = Enumerable.Empty<IndexRecord>();
             ShouldSelect = commit => true;
         }
 
         [Obsolete("With the new EventStore structure we do not this anymore. Use IndexRecords collection instead.")]
         public IEnumerable<IAggregateRootId> AggregateIds { get; set; }
 
+        [Obsolete("With the new EventStore structure we do not this anymore. Use IndexRecords collection instead.")]
         public IEnumerable<IndexRecord> IndexRecords { get; set; }
+
+        public string EventTypeId { get; set; }
 
         public string PaginationToken { get; set; }
 
@@ -25,8 +29,21 @@ namespace Elders.Cronus.EventStore
 
         public int BatchSize { get; set; } = 1000;
 
-        public DateTimeOffset? After { get; set; }
+        public DateTimeOffset? After { get; set; } = MinAfterTimestamp;
 
-        public DateTimeOffset? Before { get; set; }
+        public DateTimeOffset? Before { get; set; } = MaxAfterTimestamp;
+
+        public ReplayOptions WithPaginationToken(string token)
+        {
+            return new ReplayOptions()
+            {
+                EventTypeId = this.EventTypeId,
+                After = this.After,
+                Before = this.Before,
+                PaginationToken = token,
+                BatchSize = this.BatchSize,
+                ShouldSelect = this.ShouldSelect
+            };
+        }
     }
 }

@@ -11,8 +11,6 @@ namespace Elders.Cronus.EventStore.Index
         Task<LoadIndexRecordsResult> GetAsync(string indexRecordId, string paginationToken, int pageSize);
 
         Task<long> GetCountAsync(string indexRecordId);
-
-        IAsyncEnumerable<LoadIndexRecordsResult> GetRecordsAsync(string indexRecordId, string paginationToken, int pageSize);
     }
 
     public class LoadIndexRecordsResult

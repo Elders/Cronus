@@ -42,6 +42,11 @@ namespace Elders.Cronus.EventStore.InMemory
             throw new NotImplementedException();
         }
 
+        public IAsyncEnumerable<IPublicEvent> LoadPublicEventsAsync(ReplayOptions replayOptions, Action<ReplayOptions> notifyProgress = null, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         Task<LoadAggregateCommitsResult> IEventStorePlayer.LoadAggregateCommitsAsync(string paginationToken, int batchSize)
         {
             LoadAggregateCommitsResult aggregateCommit = new LoadAggregateCommitsResult

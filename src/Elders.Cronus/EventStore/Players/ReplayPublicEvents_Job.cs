@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,73 +16,50 @@ namespace Elders.Cronus.EventStore.Players
     {
         private readonly IPublisher<IPublicEvent> publicEventPublisher;
         private readonly IEventStorePlayer eventStorePlayer;
-        private readonly EventToAggregateRootId eventToAggregateIndex;
 
-        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, IEventStorePlayer eventStorePlayer, EventToAggregateRootId eventToAggregateIndex, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
+        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, IEventStorePlayer eventStorePlayer, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
         {
             this.publicEventPublisher = publicEventPublisher;
             this.eventStorePlayer = eventStorePlayer;
-            this.eventToAggregateIndex = eventToAggregateIndex;
         }
         public override string Name { get; set; } = "c0e0f5fc-1f22-4022-96d0-bf02590951d6";
 
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
+            if (Data.IsCompleted)
+                return JobExecutionStatus.Completed;
 
-            string eventTypeId = Data.SourceEventTypeId;
-            bool hasMoreRecords = true;
-            while (hasMoreRecords && Data.IsCompleted == false)
+            ReplayOptions opt = new ReplayOptions()
             {
-                string paginationToken = Data.EventTypePaging?.PaginationToken;
-                LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false);
-                IEnumerable<IndexRecord> indexRecords = indexRecordsResult.Records;
-                Type publicEventType = typeof(IPublicEvent);
-                ReplayOptions opt = new ReplayOptions()
-                {
-                    IndexRecords = indexRecordsResult.Records,
-                    ShouldSelect = commit =>
-                    {
-                        bool result = (from publicEvent in commit.PublicEvents
-                                       let eventType = publicEvent.GetType()
-                                       where publicEventType.IsAssignableFrom(eventType)
-                                       where eventType.GetContractId().Equals(eventTypeId)
-                                       select publicEvent)
-                                       .Any();
+                EventTypeId = Data.SourceEventTypeId,
+                PaginationToken = Data.EventTypePaging?.PaginationToken,
+                After = Data.After,
+                Before = Data.Before ?? DateTimeOffset.UtcNow
+            };
 
-                        return result;
-                    },
-                    After = Data.After,
-                    Before = Data.Before
-                };
+            var headers = new Dictionary<string, string>()
+            {
+                {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
+                {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
+            };
 
-                var headers = new Dictionary<string, string>()
-                {
-                    {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
-                    {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
-                };
-
-                IAsyncEnumerable<IPublicEvent> publicEvents = eventStorePlayer.LoadPublicEventsAsync(opt);
-                await foreach (IPublicEvent publicEvent in publicEvents)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        logger.Info(() => $"Job {nameof(ReplayPublicEvents_Job)} has been cancelled.");
-                        return JobExecutionStatus.Running;
-                    }
-
-                    publicEventPublisher.Publish(publicEvent, headers);
-                }
-
-
-
-
-                var progress = new ReplayPublicEvents_JobData.EventTypePagingProgress(eventTypeId, indexRecordsResult.PaginationToken, 0, 0);
+            var publicEvents = eventStorePlayer.LoadPublicEventsAsync(opt, async (replayOptions) =>
+            {
+                var progress = new ReplayPublicEvents_JobData.EventTypePagingProgress(replayOptions.EventTypeId, replayOptions.PaginationToken, 0, 0);
                 Data.MarkEventTypeProgress(progress);
                 Data.Timestamp = DateTimeOffset.UtcNow;
                 Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
+            }).ConfigureAwait(false);
 
-                hasMoreRecords = indexRecordsResult.Records.Any();
+            await foreach (IPublicEvent publicEvent in publicEvents)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                {
+                    logger.Info(() => $"Job {nameof(ReplayPublicEvents_Job)} has been paused.");
+                    return JobExecutionStatus.Running;
+                }
+
+                publicEventPublisher.Publish(publicEvent, headers);
             }
 
             Data.IsCompleted = true;
@@ -123,6 +101,7 @@ namespace Elders.Cronus.EventStore.Players
             return job;
         }
     }
+
 
     public class ReplayPublicEvents_JobData : IJobData
     {

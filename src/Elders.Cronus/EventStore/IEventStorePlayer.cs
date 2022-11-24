@@ -30,7 +30,14 @@ namespace Elders.Cronus.EventStore
         [Obsolete("Use LoadPublicEventsAsync(...)")]
         Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(ReplayOptions replayOptions);
 
-        IAsyncEnumerable<IPublicEvent> LoadPublicEventsAsync(ReplayOptions replayOptions, CancellationToken cancellationToken = default);
+        /// <summary>
+        /// Loads public events.
+        /// </summary>
+        /// <param name="replayOptions">The replay options</param>
+        /// <param name="notifyProgress">If the persister supports pagination this action will be invoked when a page has been loaded and processed.</param>
+        /// <param name="cancellationToken">The cancelation token.</param>
+        /// <returns></returns>
+        IAsyncEnumerable<IPublicEvent> LoadPublicEventsAsync(ReplayOptions replayOptions, Action<ReplayOptions> notifyProgress = null, CancellationToken cancellationToken = default);
 
         Task<IEvent> LoadEventWithRebuildProjectionAsync(IndexRecord indexRecord);
     }
