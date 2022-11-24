@@ -1,3 +1,10 @@
+# [9.0.0-preview.17](https://github.com/Elders/Cronus/compare/v9.0.0-preview.16...v9.0.0-preview.17) (2022-11-24)
+
+
+### Bug Fixes
+
+* Cronus interface for replaying public events ([0e6d9d1](https://github.com/Elders/Cronus/commit/0e6d9d1906b98809e95375096c6ae3a5e26e24bd))
+
 # [9.0.0-preview.16](https://github.com/Elders/Cronus/compare/v9.0.0-preview.15...v9.0.0-preview.16) (2022-10-20)
 
 
