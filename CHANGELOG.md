@@ -1,3 +1,10 @@
+# [9.0.0-preview.18](https://github.com/Elders/Cronus/compare/v9.0.0-preview.17...v9.0.0-preview.18) (2022-12-14)
+
+
+### Features
+
+* adds OnReplayCompleted method in GGPort ([4ce9ae4](https://github.com/Elders/Cronus/commit/4ce9ae40cf10cb32f6c62f790510100909f168f4))
+
 # [9.0.0-preview.17](https://github.com/Elders/Cronus/compare/v9.0.0-preview.16...v9.0.0-preview.17) (2022-11-24)
 
 
