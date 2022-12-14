@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -31,19 +30,49 @@ namespace Elders.Cronus.Projections.Versioning.Handlers
             {
                 var id = Urn.Parse($"urn:cronus:{@event.ProjectionVersion.ProjectionName}");
 
-                IAmEventSourcedProjection projection = cronusContext.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
-
-                try
+                object projectionPlain = cronusContext.ServiceProvider.GetRequiredService(projectionType);
+                if (projectionPlain is IAmEventSourcedProjectionFast projectionFast)
                 {
-                    var asyncCommits = projectionStore.EnumerateProjectionAsync(@event.ProjectionVersion, id).ConfigureAwait(false);
-                    await foreach (var commit in asyncCommits)
+                    try
                     {
-                        await projection.ReplayEventAsync(commit.Event).ConfigureAwait(false);
+                        List<Task> tasks = new List<Task>();
+                        var asyncCommits = projectionStore.EnumerateProjectionAsync(@event.ProjectionVersion, id).ConfigureAwait(false);
+                        await foreach (var commit in asyncCommits)
+                        {
+                            var currentTask = projectionFast.ReplayEventAsync(commit.Event);
+                            if (tasks.Count > 100)
+                            {
+                                Task finished = await Task.WhenAny(tasks).ConfigureAwait(false);
+                                tasks.Remove(finished);
+                            }
+                        }
+
+                        await Task.WhenAll(tasks).ConfigureAwait(false);
+                        await projectionFast.OnReplayCompletedAsync();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorException(ex, () => "Error while replaying projection.");
                     }
                 }
-                catch (Exception ex)
+                else if (projectionPlain is IAmEventSourcedProjection projection)
                 {
-                    logger.ErrorException(ex, () => "Error while replaying projection.");
+                    try
+                    {
+                        var asyncCommits = projectionStore.EnumerateProjectionAsync(@event.ProjectionVersion, id).ConfigureAwait(false);
+                        await foreach (var commit in asyncCommits)
+                        {
+                            await projection.ReplayEventAsync(commit.Event).ConfigureAwait(false);
+                        }
+
+                        await projection.OnReplayCompletedAsync();
+
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.ErrorException(ex, () => "Error while replaying projection.");
+                    }
                 }
             }
         }
