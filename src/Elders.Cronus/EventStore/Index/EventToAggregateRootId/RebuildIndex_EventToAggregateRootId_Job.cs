@@ -30,7 +30,7 @@ namespace Elders.Cronus.EventStore.Index
                     logger.Info(() => $"The job has been cancelled.");
                     return JobExecutionStatus.Running;
                 }
-                
+
                 var result = await eventStorePlayer.LoadAggregateCommitsAsync(Data.PaginationToken).ConfigureAwait(false);
 
                 logger.Info(() => $"Loaded aggregate commits count {result.Commits.Count} using pagination token {result.PaginationToken}");
@@ -53,7 +53,7 @@ namespace Elders.Cronus.EventStore.Index
                 Data.PaginationToken = result.PaginationToken;
                 Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
-                hasMoreRecords = result.Commits.Any();
+                hasMoreRecords = result.HasMoreResults;
             }
 
             Data.IsCompleted = true;
