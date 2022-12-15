@@ -1,3 +1,10 @@
+# [9.0.0-preview.19](https://github.com/Elders/Cronus/compare/v9.0.0-preview.18...v9.0.0-preview.19) (2022-12-15)
+
+
+### Bug Fixes
+
+* Fixes hasMoreRecords check when building EventToAggregateRootId ([4b68e2f](https://github.com/Elders/Cronus/commit/4b68e2fc302e85d923802f7875f929a4e587403b))
+
 # [9.0.0-preview.18](https://github.com/Elders/Cronus/compare/v9.0.0-preview.17...v9.0.0-preview.18) (2022-12-14)
 
 
