@@ -12,4 +12,4 @@ We have several success stories using the Cronus framework in production and we 
 
 For project documentation, please visit [Cronus docs](https://elders-oss.gitbook.io/cronus/)
 
-Feel free to join our [Discord](https://discord.gg/2wbN8kt) if you have any question, ideas or suggestions.
+Feel free to join our [Discord](https://discord.gg/WvM4mTU7CS) if you have any question, ideas or suggestions.
