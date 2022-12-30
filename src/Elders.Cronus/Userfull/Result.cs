@@ -10,27 +10,39 @@ namespace Elders.Cronus.Userfull
 
         public Result(T value)
         {
-            Value = value;
-            errors = null;
+            this.Value = value;
+            this.errors = null;
+        }
+
+        private Result(Exception error, T defaultValue)
+        {
+            this.Value = defaultValue;
+            this.errors = new List<Exception>(1) { error };
+        }
+
+        private Result(IEnumerable<Exception> errors, T defaultValue)
+        {
+            this.Value = defaultValue;
+            this.errors = new List<Exception>(errors) { };
         }
 
         public T Value { get; }
 
-        public bool IsSuccessful { get { return ReferenceEquals(null, errors) || errors.Count == 0; } }
+        public bool IsSuccessful => errors is null || errors.Any() == false;
 
-        public bool IsNotSuccessful { get { return IsSuccessful == false; } }
+        public bool IsNotSuccessful => IsSuccessful == false;
 
         public IEnumerable<Exception> Errors
         {
             get
             {
-                return ReferenceEquals(null, errors) ? Enumerable.Empty<Exception>() : errors.AsReadOnly();
+                return errors is null ? Enumerable.Empty<Exception>() : errors;
             }
         }
 
         public Result<T> WithError(Exception error)
         {
-            var newErrors = ReferenceEquals(null, errors) ? new List<Exception>() : new List<Exception>(errors);
+            var newErrors = errors is null ? new List<Exception>() : new List<Exception>(errors);
             newErrors.Add(error);
             var newResult = new Result<T>();
             newResult.errors = newErrors;
@@ -39,7 +51,7 @@ namespace Elders.Cronus.Userfull
 
         public Result<T> WithError(string errorMessage)
         {
-            var newErrors = ReferenceEquals(null, errors) ? new List<Exception>() : new List<Exception>(errors);
+            var newErrors = errors is null ? new List<Exception>() : new List<Exception>(errors);
             newErrors.Add(new Exception(errorMessage));
             var newResult = new Result<T>();
             newResult.errors = newErrors;
@@ -54,6 +66,21 @@ namespace Elders.Cronus.Userfull
             newResult.errors = newErrors;
             return newResult;
         }
+
+        public static Result<T> FromError(string errorMessage, T defaultValue = default)
+        {
+            return FromError(new Exception(errorMessage), defaultValue);
+        }
+
+        public static Result<T> FromError(Exception exception, T defaultValue = default)
+        {
+            return new Result<T>(exception, defaultValue);
+        }
+
+        public static Result<T> FromError(IEnumerable<Exception> exceptions, T defaultValue = default)
+        {
+            return new Result<T>(exceptions, defaultValue);
+        }
     }
 
     public static class Result
@@ -62,22 +89,17 @@ namespace Elders.Cronus.Userfull
 
         public static Result<bool> Error(Exception error)
         {
-            return new Result<bool>().WithError(error);
+            return Result<bool>.FromError(error, false);
         }
 
         public static Result<bool> Error(string errorMessage)
         {
-            return new Result<bool>().WithError(new Exception(errorMessage));
+            return Error(new Exception(errorMessage));
         }
 
         public static Result<bool> Error(IEnumerable<Exception> errors)
         {
-            return new Result<bool>().WithError(errors);
-        }
-
-        public static Result<T> Error<T>(Exception error)
-        {
-            return new Result<T>().WithError(error);
+            return Result<bool>.FromError(errors, false);
         }
     }
 

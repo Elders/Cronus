@@ -92,7 +92,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
             }
             catch (Exception ex)
             {
-                return result.WithError(ex);
+                return Result.Error(ex);
             }
         }
 
