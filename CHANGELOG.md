@@ -1,3 +1,10 @@
+# [9.0.0-preview.20](https://github.com/Elders/Cronus/compare/v9.0.0-preview.19...v9.0.0-preview.20) (2022-12-30)
+
+
+### Bug Fixes
+
+* Cleans the Error struct and adds some more options to construct it ([30d7652](https://github.com/Elders/Cronus/commit/30d7652fbac1f4fa93e38ca5ec8f5bf2273b3cfd))
+
 # [9.0.0-preview.19](https://github.com/Elders/Cronus/compare/v9.0.0-preview.18...v9.0.0-preview.19) (2022-12-15)
 
 
