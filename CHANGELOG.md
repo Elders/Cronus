@@ -1,3 +1,10 @@
+# [9.0.0-preview.21](https://github.com/Elders/Cronus/compare/v9.0.0-preview.20...v9.0.0-preview.21) (2023-01-05)
+
+
+### Bug Fixes
+
+* Improves logging when there is a client error ([5b3ba2f](https://github.com/Elders/Cronus/commit/5b3ba2face3c9fb50cdca1b6280ad9a31ba51654))
+
 # [9.0.0-preview.20](https://github.com/Elders/Cronus/compare/v9.0.0-preview.19...v9.0.0-preview.20) (2022-12-30)
 
 
