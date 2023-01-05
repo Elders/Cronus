@@ -3,15 +3,12 @@ using System.Linq;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.Userfull;
 using Elders.Cronus.IntegrityValidation;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore
 {
     public sealed class AggregateRepository : IAggregateRepository
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(AggregateRepository));
-
         readonly IAggregateRootAtomicAction atomicAction;
         readonly IEventStore eventStore;
         readonly IIntegrityPolicy<EventStream> integrityPolicy;

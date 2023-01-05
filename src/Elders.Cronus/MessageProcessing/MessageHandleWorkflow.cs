@@ -1,6 +1,12 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
+using Elders.Cronus.FaultHandling.Strategies;
 using Elders.Cronus.Workflow;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using static System.Collections.Specialized.BitVector32;
+using static Microsoft.AspNetCore.Hosting.Internal.HostingApplication;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -18,7 +24,7 @@ namespace Elders.Cronus.MessageProcessing
             BeginHandle = WorkflowExtensions.Lamda<HandlerContext>();
             ActualHandle = WorkflowExtensions.Lamda<HandlerContext>().Use((context) => new DynamicMessageHandle().RunAsync(context.Context));
             EndHandle = WorkflowExtensions.Lamda<HandlerContext>();
-            Error = WorkflowExtensions.Lamda<ErrorContext>().Use((context) => new LogExceptionOnHandleError().RunAsync(context.Context));
+            Error = WorkflowExtensions.Lamda<ErrorContext>();
             Finalize = WorkflowExtensions.Lamda<HandleContext>();
         }
 
@@ -76,7 +82,8 @@ namespace Elders.Cronus.MessageProcessing
                 var context = new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType);
                 context.AssignPropertySafely<IWorkflowContextWithServiceProvider>(prop => prop.ServiceProvider = execution.Context.ServiceProvider);
                 await Error.RunAsync(context).ConfigureAwait(false);
-                throw;
+
+                throw await context.ToExceptionAsync();
             }
             finally
             {

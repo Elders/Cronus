@@ -2,6 +2,7 @@
 using Elders.Cronus.FaultHandling;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 
@@ -22,10 +23,12 @@ namespace Elders.Cronus.MessageProcessing
 
         public IWorkflow GetWorkflow()
         {
+            ILogger<InMemoryRetryWorkflow<HandleContext>> logger = serviceProvider.GetRequiredService<ILogger<InMemoryRetryWorkflow<HandleContext>>>();
+
             MessageHandleWorkflow messageHandleWorkflow = new MessageHandleWorkflow(new CreateScopedHandlerWorkflow());
             messageHandleWorkflow.ActualHandle.Override(new DynamicMessageIndex());
             ScopedMessageWorkflow scopedWorkflow = new ScopedMessageWorkflow(serviceProvider, messageHandleWorkflow);
-            InMemoryRetryWorkflow<HandleContext> retryableWorkflow = new InMemoryRetryWorkflow<HandleContext>(scopedWorkflow);
+            InMemoryRetryWorkflow<HandleContext> retryableWorkflow = new InMemoryRetryWorkflow<HandleContext>(scopedWorkflow, logger);
             DiagnosticsWorkflow<HandleContext> diagnosticsWorkflow = new DiagnosticsWorkflow<HandleContext>(retryableWorkflow, serviceProvider.GetRequiredService<DiagnosticListener>());
             ExceptionEaterWorkflow<HandleContext> exceptionEater = new ExceptionEaterWorkflow<HandleContext>(diagnosticsWorkflow);
 

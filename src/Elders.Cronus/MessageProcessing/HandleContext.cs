@@ -9,6 +9,7 @@ namespace Elders.Cronus.MessageProcessing
             Message = message;
             HandlerType = handlerType;
         }
+
         public CronusMessage Message { get; private set; }
 
         public Type HandlerType { get; private set; }
