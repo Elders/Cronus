@@ -21,7 +21,7 @@ namespace Elders.Cronus.MessageProcessing
             this.commiter = commiter;
         }
 
-        public Task<ReadResult<AR>> LoadAsync<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        public Task<ReadResult<AR>> LoadAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
         {
             return aggregateRepository.LoadAsync<AR>(id);
         }

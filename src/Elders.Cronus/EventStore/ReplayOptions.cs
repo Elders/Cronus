@@ -16,7 +16,7 @@ namespace Elders.Cronus.EventStore
         }
 
         [Obsolete("With the new EventStore structure we do not this anymore. Use IndexRecords collection instead.")]
-        public IEnumerable<IAggregateRootId> AggregateIds { get; set; }
+        public IEnumerable<AggregateRootId> AggregateIds { get; set; }
 
         [Obsolete("With the new EventStore structure we do not this anymore. Use IndexRecords collection instead.")]
         public IEnumerable<IndexRecord> IndexRecords { get; set; }

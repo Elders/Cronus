@@ -27,9 +27,6 @@ namespace Elders.Cronus.EventStore
         /// <returns></returns>
         Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(string paginationToken, int batchSize = 5000);
 
-        [Obsolete("Use LoadPublicEventsAsync(...)")]
-        Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(ReplayOptions replayOptions);
-
         /// <summary>
         /// Loads public events.
         /// </summary>
@@ -37,8 +34,15 @@ namespace Elders.Cronus.EventStore
         /// <param name="notifyProgress">If the persister supports pagination this action will be invoked when a page has been loaded and processed.</param>
         /// <param name="cancellationToken">The cancelation token.</param>
         /// <returns></returns>
-        IAsyncEnumerable<IPublicEvent> LoadPublicEventsAsync(ReplayOptions replayOptions, Action<ReplayOptions> notifyProgress = null, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<Wrapper<IPublicEvent>> LoadPublicEventsAsync(ReplayOptions replayOptions, Func<ReplayOptions, Task> notifyProgressAsync = null, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<Wrapper<IEvent>> LoadEventsAsync(ReplayOptions replayOptions, Func<ReplayOptions, Task> notifyProgressAsync = null, CancellationToken cancellationToken = default);
 
         Task<IEvent> LoadEventWithRebuildProjectionAsync(IndexRecord indexRecord);
+    }
+
+    public class Wrapper<TMessage> where TMessage : IMessage
+    {
+        public IndexRecord IndexRecord { get; set; }
+        public TMessage Message { get; set; }
     }
 }

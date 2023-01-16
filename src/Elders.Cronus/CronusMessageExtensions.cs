@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Projections;
 
 namespace Elders.Cronus
@@ -9,6 +10,11 @@ namespace Elders.Cronus
         public static EventOrigin GetEventOrigin(this CronusMessage message)
         {
             return new EventOrigin(Encoding.UTF8.GetBytes(GetRootId(message)), GetRevision(message), GetRootEventPosition(message), GetTimestamp(message));
+        }
+
+        public static EventOrigin GetEventOrigin(this IndexRecord indexRecord)
+        {
+            return new EventOrigin(indexRecord.AggregateRootId, indexRecord.Revision, indexRecord.Position, indexRecord.TimeStamp);
         }
 
         public static int GetRevision(this CronusMessage message)

@@ -38,47 +38,40 @@ namespace Elders.Cronus.EventStore.Index
             IndexStatus indexStatus = await GetIndexStatusAsync<EventToAggregateRootId>().ConfigureAwait(false);
             if (indexStatus.IsNotPresent()) return JobExecutionStatus.Running;
 
-            //projectionStoreInitializer.Initialize(version);
+            var pingSource = new CancellationTokenSource();
+            CancellationToken ct = pingSource.Token;
+            _ = Task.Factory.StartNew(async () =>
+            {
+                while (ct.IsCancellationRequested == false)
+                {
+                    try
+                    {
+                        logger.Debug(() => $"Message counter cluster ping.");
+                        await cluster.PingAsync(Data, ct).ConfigureAwait(false);
+                        await Task.Delay(5000, ct).ConfigureAwait(false);
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        logger.Info(() => $"Message counter cluster ping has been stopped.");
+                    }
+                }
+            }, ct);
 
-            
             foreach (Type eventType in eventTypes.Items)
             {
-                var pingSource = new CancellationTokenSource();
-
                 string eventTypeId = eventType.GetContractId();
 
                 logger.Info(() => $"Message counter for {eventTypeId} has been reset");
 
-               
-                CancellationToken ct = pingSource.Token;
+                var countTask = indexStore.GetCountAsync(eventTypeId);
+                var resetTask = messageCounter.ResetAsync(eventType);
 
-                Task.Factory.StartNew(async () =>
-                {
-                    while (ct.IsCancellationRequested == false)
-                    {
-                        try
-                        {
-                            logger.Info(() => $"Message counter cluster ping for {eventTypeId}.");
-                            await cluster.PingAsync(Data, ct).ConfigureAwait(false);
-                            await Task.Delay(5000, ct).ConfigureAwait(false);
-                        }
-                        catch (TaskCanceledException)
-                        {
-                            logger.Info(() => $"Message counter cluster ping for {eventTypeId} has been stopped.");
-                        }
-
-                    }                    
-                }, ct).ConfigureAwait(false);
-
-                // Maybe we should move this to a BeforeRun method.
-                await messageCounter.ResetAsync(eventType).ConfigureAwait(false);
-
-                long count = await indexStore.GetCountAsync(eventTypeId).ConfigureAwait(false);
+                long count = await countTask;
+                await resetTask;
                 await messageCounter.IncrementAsync(eventType, count).ConfigureAwait(false);
-
-                pingSource.Cancel();
             }
 
+            pingSource.Cancel();
             Data.IsCompleted = true;
             Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 

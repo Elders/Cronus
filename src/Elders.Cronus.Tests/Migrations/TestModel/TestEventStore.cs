@@ -26,7 +26,7 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
         {
             return Task.FromException(new System.NotImplementedException());
         }
-        public Task<EventStream> LoadAsync(IAggregateRootId aggregateId)
+        public Task<EventStream> LoadAsync(AggregateRootId aggregateId)
         {
             var es = new EventStream(Storage.Where(x => x.AggregateRootId.SequenceEqual(aggregateId.RawId)).ToList());
             return Task.FromResult(es);

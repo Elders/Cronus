@@ -4,6 +4,7 @@ using Elders.Cronus.EventStore;
 using Machine.Specifications;
 using System.Collections.Generic;
 using Elders.Cronus.Migrations.TestMigration;
+using System;
 
 namespace Elders.Cronus.Migrations
 {
@@ -15,8 +16,8 @@ namespace Elders.Cronus.Migrations
             migration = new SimpleMigration();
             var fooId = new FooId("1234", "elders");
             var barId = new BarId("1234", "elders");
-            aggregateCommitFoo = new AggregateCommit(fooId.RawId, 1, new List<IEvent>());
-            aggregateCommitBar = new AggregateCommit(barId.RawId, 1, new List<IEvent>());
+            aggregateCommitFoo = new AggregateCommit(fooId.RawId, 1, new List<IEvent>(), new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
+            aggregateCommitBar = new AggregateCommit(barId.RawId, 1, new List<IEvent>(), new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
         };
 
         Because of = () => { };

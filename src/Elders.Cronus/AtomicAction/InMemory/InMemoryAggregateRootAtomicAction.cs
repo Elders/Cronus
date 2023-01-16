@@ -39,7 +39,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
             aggregateRevisions = new MemoryCache(aggregateRevisionsMemoryCacheOptions);
         }
 
-        public async Task<Result<bool>> ExecuteAsync(IAggregateRootId aggregateRootId, int aggregateRootRevision, Func<Task> action)
+        public async Task<Result<bool>> ExecuteAsync(AggregateRootId aggregateRootId, int aggregateRootRevision, Func<Task> action)
         {
             var result = new Result<bool>(false);
             var acquired = new AtomicBoolean(false);

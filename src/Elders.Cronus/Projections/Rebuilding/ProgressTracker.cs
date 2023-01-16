@@ -9,6 +9,7 @@ namespace Elders.Cronus.Projections.Rebuilding
 {
     public class ProgressTracker
     {
+        private Task notifier;
         private readonly string tenant;
         private readonly IMessageCounter messageCounter;
         private readonly IPublisher<ISystemSignal> signalPublisher;
@@ -54,7 +55,7 @@ namespace Elders.Cronus.Projections.Rebuilding
         public void TrackAndNotify(string executionId)
         {
             Track(executionId);
-            Notify(executionId);
+            Notify();
         }
 
         public RebuildProjectionProgress GetProgressSignal()
@@ -93,12 +94,24 @@ namespace Elders.Cronus.Projections.Rebuilding
             catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }
         }
 
-        private void Notify(string executionId)
+        private void Notify()
         {
-            if (EventTypeProcessed[executionId] % 1000 == 0)
+            if (notifier is null)
             {
-                RebuildProjectionProgress progressSignalche = GetProgressSignal();
-                signalPublisher.Publish(progressSignalche);
+                notifier = Task.Run(async () =>
+                {
+                    try
+                    {
+                        while (true)
+                        {
+                            RebuildProjectionProgress progressSignalche = GetProgressSignal();
+                            signalPublisher.Publish(progressSignalche);
+
+                            await Task.Delay(1000);
+                        }
+                    }
+                    catch (Exception) { }
+                });
             }
         }
     }

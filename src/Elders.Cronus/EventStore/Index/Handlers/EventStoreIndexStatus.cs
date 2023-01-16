@@ -6,7 +6,7 @@ using Elders.Cronus.Projections.Snapshotting;
 namespace Elders.Cronus.EventStore.Index.Handlers
 {
     [DataContract(Name = ContractId)]
-    public class EventStoreIndexStatus : ProjectionDefinition<EventStoreIndexStatusState, EventStoreIndexManagerId>, IAmNotSnapshotable, ISystemProjection, ISystemEventStoreIndexHandler,
+    public class EventStoreIndexStatus : ProjectionDefinition<EventStoreIndexStatusState, EventStoreIndexManagerId>, ISystemProjection, ISystemEventStoreIndexHandler,
         IEventHandler<EventStoreIndexRequested>,
         IEventHandler<EventStoreIndexIsNowPresent>
     {

@@ -3,6 +3,6 @@
     /// <summary>
     /// Indicates that a snapshot will not be created.
     /// </summary>
-    public interface IAmNotSnapshotable { }
+    public interface IAmSnapshotable { }
 
 }

@@ -7,13 +7,13 @@ namespace Elders.Cronus.Tests.TestModel
     public class TestAggregateId : AggregateRootId
     {
         public TestAggregateId(Guid id)
-            : base(id.ToString(), "TestAggregateId", "cronustest")
+            : base("cronustest", "TestAggregateId", id.ToString())
         {
 
         }
 
         public TestAggregateId()
-            : base(Guid.NewGuid().ToString(), "TestAggregateId", "cronustest")
+            : base("cronustest", "TestAggregateId", Guid.NewGuid().ToString())
         {
 
         }

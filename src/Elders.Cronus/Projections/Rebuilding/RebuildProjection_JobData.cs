@@ -28,19 +28,27 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         public DateTimeOffset DueDate { get; set; }
 
-        public void MarkEventTypeProgress(EventPaging progress)
+        public bool MarkEventTypeProgress(EventPaging progress)
         {
             EventPaging existing = EventTypePaging.Where(et => et.Type.Equals(progress.Type, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
             if (existing is null)
             {
                 EventTypePaging.Add(progress);
+                return true;
             }
             else
             {
-                existing.PaginationToken = progress.PaginationToken;
-                existing.ProcessedCount = progress.ProcessedCount;
-                existing.TotalCount = progress.TotalCount;
+                if (existing.PaginationToken.Equals(progress.PaginationToken) == false)
+                {
+                    existing.PaginationToken = progress.PaginationToken;
+                    existing.ProcessedCount = progress.ProcessedCount;
+                    existing.TotalCount = progress.TotalCount;
+
+                    return true;
+                }
             }
+
+            return false;
         }
 
         public void Init(EventPaging progress)
@@ -54,10 +62,12 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         public partial class EventPaging
         {
-            public EventPaging(string eventTypeId, string paginationToken, ulong processedCount, ulong totalCount)
+            public EventPaging(string eventTypeId, string paginationToken, DateTimeOffset? after, DateTimeOffset? before, ulong processedCount, ulong totalCount)
             {
                 Type = eventTypeId;
                 PaginationToken = paginationToken;
+                After = after;
+                Before = before;
                 ProcessedCount = processedCount;
                 TotalCount = totalCount;
             }
@@ -65,6 +75,9 @@ namespace Elders.Cronus.Projections.Rebuilding
             public string Type { get; set; }
 
             public string PaginationToken { get; set; }
+
+            public DateTimeOffset? After { get; set; }
+            public DateTimeOffset? Before { get; set; }
 
             public ulong ProcessedCount { get; set; }
 

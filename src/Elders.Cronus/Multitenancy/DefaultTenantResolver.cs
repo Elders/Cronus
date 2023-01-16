@@ -7,7 +7,7 @@ namespace Elders.Cronus.Multitenancy
 {
     public class DefaultTenantResolver :
         ITenantResolver<string>,
-        ITenantResolver<IAggregateRootId>,
+        ITenantResolver<AggregateRootId>,
         ITenantResolver<AggregateCommit>,
         ITenantResolver<ProjectionCommit>,
         ITenantResolver<IMessage>,
@@ -36,7 +36,7 @@ namespace Elders.Cronus.Multitenancy
             throw new NotSupportedException($"Unable to resolve tenant for id {id}");
         }
 
-        public string Resolve(IAggregateRootId id)
+        public string Resolve(AggregateRootId id)
         {
             if (ReferenceEquals(null, id) == true) throw new ArgumentNullException(nameof(id));
 
@@ -95,9 +95,9 @@ namespace Elders.Cronus.Multitenancy
         {
             tenant = string.Empty;
             var urn = System.Text.Encoding.UTF8.GetString(id);
-            AggregateUrn aggregateUrn;
+            AggregateRootId aggregateUrn;
 
-            if (AggregateUrn.TryParse(urn, out aggregateUrn))
+            if (AggregateRootId.TryParse(urn, out aggregateUrn))
             {
                 tenant = aggregateUrn.Tenant;
                 return true;

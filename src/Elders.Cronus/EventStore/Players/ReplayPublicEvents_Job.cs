@@ -43,12 +43,12 @@ namespace Elders.Cronus.EventStore.Players
                 {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
             };
 
-            var publicEvents = eventStorePlayer.LoadPublicEventsAsync(opt, async (replayOptions) =>
+            var publicEvents = eventStorePlayer.LoadPublicEventsAsync(opt, async replayOptions =>
             {
                 var progress = new ReplayPublicEvents_JobData.EventTypePagingProgress(replayOptions.EventTypeId, replayOptions.PaginationToken, 0, 0);
                 Data.MarkEventTypeProgress(progress);
                 Data.Timestamp = DateTimeOffset.UtcNow;
-                Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
+                Data = await cluster.PingAsync(Data);
             }).ConfigureAwait(false);
 
             await foreach (IPublicEvent publicEvent in publicEvents)

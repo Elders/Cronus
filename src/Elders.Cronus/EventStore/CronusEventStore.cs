@@ -45,7 +45,7 @@ namespace Elders.Cronus.EventStore
             }
         }
 
-        public async Task<EventStream> LoadAsync(IAggregateRootId aggregateId)
+        public async Task<EventStream> LoadAsync(AggregateRootId aggregateId)
         {
             try
             {

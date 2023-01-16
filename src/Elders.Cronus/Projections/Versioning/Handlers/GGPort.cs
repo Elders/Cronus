@@ -40,6 +40,7 @@ namespace Elders.Cronus.Projections.Versioning.Handlers
                         await foreach (var commit in asyncCommits)
                         {
                             var currentTask = projectionFast.ReplayEventAsync(commit.Event);
+                            tasks.Add(currentTask);
                             if (tasks.Count > 100)
                             {
                                 Task finished = await Task.WhenAny(tasks).ConfigureAwait(false);

@@ -110,7 +110,6 @@ namespace Elders.Cronus.Projections
         {
             if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
             if (ReferenceEquals(null, @event)) throw new ArgumentNullException(nameof(@event));
-            if (ReferenceEquals(null, eventOrigin)) throw new ArgumentNullException(nameof(eventOrigin));
             if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
 
             if (ShouldSaveEventForVersion(version) == false)

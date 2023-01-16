@@ -4,13 +4,14 @@ using Elders.Cronus.EventStore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System;
 
 namespace Elders.Cronus.Migrations.TestMigration
 {
     public class MergeAggregatesMigration : IMigration<AggregateCommit, IEnumerable<AggregateCommit>>
     {
         readonly string targetAggregateBar = "Bar".ToLowerInvariant();
-        readonly Dictionary<IAggregateRootId, int> aggregateMaxRevision;
+        readonly Dictionary<AggregateRootId, int> aggregateMaxRevision;
         readonly IEventStore eventStore;
 
         public MergeAggregatesMigration(IEventStore eventStore)
@@ -18,10 +19,10 @@ namespace Elders.Cronus.Migrations.TestMigration
             if (ReferenceEquals(eventStore, null) == true) throw new System.ArgumentNullException(nameof(eventStore));
             this.eventStore = eventStore;
 
-            aggregateMaxRevision = new Dictionary<IAggregateRootId, int>();
+            aggregateMaxRevision = new Dictionary<AggregateRootId, int>();
         }
 
-        private void LoadFromEventStore(IAggregateRootId rootId)
+        private void LoadFromEventStore(AggregateRootId rootId)
         {
             if (aggregateMaxRevision.ContainsKey(rootId)) return;
 
@@ -42,7 +43,7 @@ namespace Elders.Cronus.Migrations.TestMigration
             if (ShouldApply(current))
             {
                 var urnRaw = Urn.Parse(Encoding.UTF8.GetString(current.AggregateRootId));
-                var urn = AggregateUrn.Parse(urnRaw.Value);
+                var urn = AggregateRootId.Parse(urnRaw.Value);
                 var fooId = new FooId(urn.Id, urn.Tenant);
                 LoadFromEventStore(fooId);
                 aggregateMaxRevision[fooId]++;
@@ -60,7 +61,7 @@ namespace Elders.Cronus.Migrations.TestMigration
                         newFooEvents.Add(new TestUpdateEventFoo(fooId, theEvent.UpdatedFieldValue));
                     }
                 }
-                var aggregateCommitFooBar = new AggregateCommit(fooId.RawId, aggregateMaxRevision[fooId], newFooEvents);
+                var aggregateCommitFooBar = new AggregateCommit(fooId.RawId, aggregateMaxRevision[fooId], newFooEvents, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
                 yield return aggregateCommitFooBar;
 
             }
@@ -71,7 +72,7 @@ namespace Elders.Cronus.Migrations.TestMigration
         public bool ShouldApply(AggregateCommit current)
         {
             var urnRaw = Urn.Parse(Encoding.UTF8.GetString(current.AggregateRootId));
-            var urn = AggregateUrn.Parse(urnRaw.Value);
+            var urn = AggregateRootId.Parse(urnRaw.Value);
             string currentAggregateName = urn.AggregateRootName;
 
             if (currentAggregateName == targetAggregateBar)

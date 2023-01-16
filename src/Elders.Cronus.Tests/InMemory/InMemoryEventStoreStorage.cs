@@ -52,7 +52,7 @@ namespace Elders.Cronus.EventStore.InMemory
             eventsForReplay.Enqueue(aggregateCommit);
         }
 
-        internal protected List<AggregateCommit> Seek(IAggregateRootId aggregateId)
+        internal protected List<AggregateCommit> Seek(AggregateRootId aggregateId)
         {
             var idHash = Convert.ToBase64String(aggregateId.RawId);
             ConcurrentQueue<AggregateCommit> commits;

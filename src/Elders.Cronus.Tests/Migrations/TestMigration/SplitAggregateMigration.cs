@@ -4,6 +4,7 @@ using Elders.Cronus.Migration.Middleware.Tests.TestModel.FooBar;
 using Elders.Cronus.EventStore;
 using System.Collections.Generic;
 using System.Text;
+using System;
 
 namespace Elders.Cronus.Migrations.TestMigration
 {
@@ -30,7 +31,7 @@ namespace Elders.Cronus.Migrations.TestMigration
                         newFooEvents.Add(new TestUpdateEventFoo(fooId, theEvent.UpdatedFieldValue));
                     }
                 }
-                var aggregateCommitFoo = new AggregateCommit(fooId.RawId, current.Revision, newFooEvents);
+                var aggregateCommitFoo = new AggregateCommit(fooId.RawId, current.Revision, newFooEvents, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
                 yield return aggregateCommitFoo;
 
                 var barId = new BarId("5432", "elders");
@@ -47,7 +48,7 @@ namespace Elders.Cronus.Migrations.TestMigration
                         newBarEvents.Add(new TestUpdateEventBar(barId, theEvent.UpdatedFieldValue));
                     }
                 }
-                var aggregateCommitBar = new AggregateCommit(barId.RawId, current.Revision, newFooEvents);
+                var aggregateCommitBar = new AggregateCommit(barId.RawId, current.Revision, newFooEvents, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
 
                 yield return aggregateCommitBar;
 
@@ -59,7 +60,7 @@ namespace Elders.Cronus.Migrations.TestMigration
         public bool ShouldApply(AggregateCommit current)
         {
             var urnRaw = Urn.Parse(Encoding.UTF8.GetString(current.AggregateRootId));
-            var urn = AggregateUrn.Parse(urnRaw.Value);
+            var urn = AggregateRootId.Parse(urnRaw.Value);
             string currentAggregateName = urn.AggregateRootName;
 
             if (currentAggregateName == targetAggregateName)

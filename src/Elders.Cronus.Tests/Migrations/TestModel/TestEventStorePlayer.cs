@@ -38,17 +38,27 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
             throw new NotImplementedException();
         }
 
+        public IAsyncEnumerable<Wrapper<IEvent>> LoadEventsAsync(ReplayOptions replayOptions, Func<ReplayOptions, Task> notifyProgressAsync = null, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<IEvent> LoadEventWithRebuildProjectionAsync(IndexRecord indexRecord)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<IPublicEvent> LoadPublicEventsAsync(ReplayOptions replayOptions, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<Wrapper<IPublicEvent>> LoadPublicEventsAsync(ReplayOptions replayOptions, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<IPublicEvent> LoadPublicEventsAsync(ReplayOptions replayOptions, Action<ReplayOptions> notifyProgress = null, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<Wrapper<IPublicEvent>> LoadPublicEventsAsync(ReplayOptions replayOptions, Action<ReplayOptions> notifyProgress = null, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<Wrapper<IPublicEvent>> LoadPublicEventsAsync(ReplayOptions replayOptions, Func<ReplayOptions, Task> notifyProgressAsync = null, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

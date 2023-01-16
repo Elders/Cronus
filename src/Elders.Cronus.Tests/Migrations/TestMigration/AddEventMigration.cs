@@ -2,6 +2,7 @@
 using Elders.Cronus.EventStore;
 using System.Collections.Generic;
 using System.Text;
+using System;
 
 namespace Elders.Cronus.Migrations.TestMigration
 {
@@ -17,7 +18,7 @@ namespace Elders.Cronus.Migrations.TestMigration
             {
                 var newEvents = new List<IEvent>(current.Events);
                 newEvents.Add(eventToAdd);
-                var newAggregateCommit = new AggregateCommit(current.AggregateRootId, current.Revision, newEvents);
+                var newAggregateCommit = new AggregateCommit(current.AggregateRootId, current.Revision, newEvents, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
 
                 yield return newAggregateCommit;
             }
@@ -28,7 +29,7 @@ namespace Elders.Cronus.Migrations.TestMigration
         public bool ShouldApply(AggregateCommit current)
         {
             var urnRaw = Urn.Parse(Encoding.UTF8.GetString(current.AggregateRootId));
-            var urn = AggregateUrn.Parse(urnRaw.Value);
+            var urn = AggregateRootId.Parse(urnRaw.Value);
             string currentAggregateName = urn.AggregateRootName;
 
             if (currentAggregateName == targetAggregateName)

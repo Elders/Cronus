@@ -21,7 +21,7 @@ namespace Elders.Cronus.EventStore.InMemory
         /// </summary>
         /// <param name="aggregateId">The aggregate identifier.</param>
         /// <returns></returns>
-        public Task<EventStream> LoadAsync(IAggregateRootId aggregateId)
+        public Task<EventStream> LoadAsync(AggregateRootId aggregateId)
         {
             return Task.FromResult(new EventStream(eventStoreStorage.Seek(aggregateId)));
         }

@@ -41,7 +41,7 @@ namespace Elders.Cronus.EventStore
         /// <typeparam name="AR">The type of the r.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<ReadResult<AR>> LoadAsync<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        public async Task<ReadResult<AR>> LoadAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
         {
             EventStream eventStream = await eventStore.LoadAsync(id).ConfigureAwait(false);
             var integrityResult = integrityPolicy.Apply(eventStream);

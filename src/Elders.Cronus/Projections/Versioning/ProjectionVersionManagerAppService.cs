@@ -15,7 +15,6 @@ namespace Elders.Cronus.Projections.Versioning
         private readonly IProjectionVersioningPolicy projectionVersioningPolicy;
         private readonly IProjectionReader projectionReader;
 
-
         public ProjectionVersionManagerAppService(IAggregateRepository repository, IProjectionVersioningPolicy projectionVersioningPolicy, IProjectionReader projectionReader) : base(repository)
         {
             this.projectionVersioningPolicy = projectionVersioningPolicy;
