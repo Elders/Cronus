@@ -1,4 +1,4 @@
-﻿namespace Elders.Cronus.EventStore.Index
+﻿namespace Elders.Cronus.Cluster.Job
 {
     public interface IJobNameBuilder
     {

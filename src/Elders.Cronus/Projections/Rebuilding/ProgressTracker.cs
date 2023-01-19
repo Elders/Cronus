@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
@@ -37,6 +38,7 @@ namespace Elders.Cronus.Projections.Rebuilding
         public async Task InitializeAsync(ProjectionVersion version)
         {
             EventTypeProcessed = new Dictionary<string, ulong>();
+            TotalEvents = 0;
 
             ProjectionName = version.ProjectionName;
             IEnumerable<Type> projectionHandledEventTypes = projectionVersionHelper.GetInvolvedEventTypes(ProjectionName.GetTypeByContract());
@@ -52,10 +54,10 @@ namespace Elders.Cronus.Projections.Rebuilding
         /// </summary>
         /// <param name="action"></param>
         /// <returns></returns>
-        public void TrackAndNotify(string executionId)
+        public void TrackAndNotify(string executionId, CancellationToken cancellationToken = default)
         {
             Track(executionId);
-            Notify();
+            Notify(cancellationToken);
         }
 
         public RebuildProjectionProgress GetProgressSignal()
@@ -65,12 +67,30 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         public RebuildProjectionFinished GetProgressFinishedSignal()
         {
+            notifier = null;
             return new RebuildProjectionFinished(tenant, ProjectionName);
         }
 
         public RebuildProjectionStarted GetProgressStartedSignal()
         {
             return new RebuildProjectionStarted(tenant, ProjectionName);
+        }
+
+        public ulong GetTotalProcessedCount()
+        {
+            ulong totalProcessed = 0;
+            foreach (var typeProcessed in EventTypeProcessed)
+            {
+                totalProcessed += typeProcessed.Value;
+            }
+            return totalProcessed;
+        }
+
+        public ulong GetTotalProcessedCount(string executionId)
+        {
+            ulong totalProcessed = 0;
+            EventTypeProcessed.TryGetValue(executionId, out totalProcessed);
+            return totalProcessed;
         }
 
         public ulong CountTotalProcessedEvents()
@@ -94,24 +114,34 @@ namespace Elders.Cronus.Projections.Rebuilding
             catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }
         }
 
-        private void Notify()
+        object gate = new object();
+
+        private void Notify(CancellationToken cancellationToken = default)
         {
             if (notifier is null)
             {
-                notifier = Task.Run(async () =>
+                lock (gate)
                 {
-                    try
-                    {
-                        while (true)
+                    if (notifier is null)
+                        notifier = Task.Run(async () =>
                         {
-                            RebuildProjectionProgress progressSignalche = GetProgressSignal();
-                            signalPublisher.Publish(progressSignalche);
+                            try
+                            {
+                                while (true)
+                                {
+                                    RebuildProjectionProgress progressSignalche = GetProgressSignal();
+                                    signalPublisher.Publish(progressSignalche);
 
-                            await Task.Delay(1000);
-                        }
-                    }
-                    catch (Exception) { }
-                });
+                                    await Task.Delay(1000, cancellationToken);
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                notifier = null;
+                            }
+                        }, cancellationToken);
+                }
+
             }
         }
     }

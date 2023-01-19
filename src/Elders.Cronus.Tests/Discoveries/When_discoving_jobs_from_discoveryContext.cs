@@ -1,6 +1,5 @@
 ﻿using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.Cluster.Job.InMemory;
-using Elders.Cronus.EventStore.Index;
 using Machine.Specifications;
 using Microsoft.Extensions.Configuration;
 using System;

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {
-    public class CopyEventStore<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateCommitRaw, TSourceEventStorePlayer, TTargetEventStore>
+    public class CopyEventStore<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateEventRaw, TSourceEventStorePlayer, TTargetEventStore>
         where TSourceEventStorePlayer : IEventStorePlayer
         where TTargetEventStore : IEventStore
     {
@@ -16,18 +16,15 @@ namespace Elders.Cronus.Migrations
             this.logger = logger;
         }
 
-        public override async Task RunAsync(IEnumerable<IMigration<AggregateCommitRaw>> migrations)
+        public override async Task RunAsync(IEnumerable<IMigration<AggregateEventRaw>> migrations)
         {
-            int counter = 0;
-            var arCommits = source.LoadAggregateCommitsRawAsync(5000).ConfigureAwait(false);
-            await foreach (AggregateCommitRaw sourceCommit in arCommits)
+            PlayerOperator @operator = new PlayerOperator()
             {
-                if (counter % 10000 == 0) logger.Info(() => $"[Migrations] Migrated records: {counter}");
+                OnLoadAsync = raw => target.AppendAsync(raw)
+            };
 
-                await target.AppendAsync(sourceCommit).ConfigureAwait(false);
-
-                counter++;
-            }
+            PlayerOptions playerOptions = new PlayerOptions();
+            await source.EnumerateEventStore(@operator, playerOptions);
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Elders.Cronus.EventStore
             }
         }
 
-        public async Task AppendAsync(AggregateCommitRaw aggregateCommitRaw)
+        public async Task AppendAsync(AggregateEventRaw aggregateCommitRaw)
         {
             try
             {
@@ -45,7 +45,7 @@ namespace Elders.Cronus.EventStore
             }
         }
 
-        public async Task<EventStream> LoadAsync(AggregateRootId aggregateId)
+        public async Task<EventStream> LoadAsync(IBlobId aggregateId)
         {
             try
             {

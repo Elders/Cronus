@@ -1,4 +1,5 @@
 ﻿using System;
+using Elders.Cronus.Cluster.Job;
 
 namespace Elders.Cronus.EventStore.Index
 {

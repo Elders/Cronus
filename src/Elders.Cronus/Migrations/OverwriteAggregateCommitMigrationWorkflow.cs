@@ -33,18 +33,18 @@ namespace Elders.Cronus.Migrations
         }
     }
 
-    public class CopyAggregateCommitMigrationWorkflow : MigrationWorkflowBase<AggregateCommitRaw, AggregateCommitRaw>
+    public class CopyAggregateCommitMigrationWorkflow : MigrationWorkflowBase<AggregateEventRaw, AggregateEventRaw>
     {
         static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CopyAggregateCommitMigrationWorkflow));
 
-        public CopyAggregateCommitMigrationWorkflow(IMigration<AggregateCommitRaw, AggregateCommitRaw> migration)
+        public CopyAggregateCommitMigrationWorkflow(IMigration<AggregateEventRaw, AggregateEventRaw> migration)
             : base(migration)
         {
         }
          
-        protected override Task<AggregateCommitRaw> RunAsync(Execution<AggregateCommitRaw, AggregateCommitRaw> context)
+        protected override Task<AggregateEventRaw> RunAsync(Execution<AggregateEventRaw, AggregateEventRaw> context)
         {
-            AggregateCommitRaw result = context.Context;
+            AggregateEventRaw result = context.Context;
             var commit = context.Context;
             try
             {

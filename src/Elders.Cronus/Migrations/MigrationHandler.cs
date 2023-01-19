@@ -41,7 +41,7 @@ namespace Elders.Cronus.Migrations
             }
             catch (Exception ex)
             {
-                logger.ErrorException(ex, () => "We do not trust people that inject their custom logic into important LOOOOONG running processes like thsi one.");
+                logger.ErrorException(ex, () => "We do not trust people that inject their custom logic into important LOOOOONG running processes like this one.");
             }
         }
     }

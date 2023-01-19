@@ -1,7 +1,7 @@
 ﻿using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Options;
 
-namespace Elders.Cronus.EventStore.Index
+namespace Elders.Cronus.Cluster.Job
 {
     public class DefaultJobNameBuilder : IJobNameBuilder
     {

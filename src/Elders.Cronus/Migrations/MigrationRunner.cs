@@ -34,7 +34,7 @@ namespace Elders.Cronus.Migrations
 
                     if (ForSomeReasonTheAggregateCommitHasBeenDeleted(migrated))
                     {
-                        logger.Debug(() => $"An aggregate commit has been wiped from the face of the Earth. R.I.P."); // Bonus: How Пикасо is spelled in English => Piccasso, Picasso, Piccaso ?? I bet spmeone will git-blame me
+                        logger.Debug(() => $"An aggregate commit has been wiped from the face of the Earth. R.I.P."); // Bonus: How Пикасо is spelled in English => Piccasso, Picasso, Piccaso ?? I bet someone will git-blame me
                         continue;
                     }
 

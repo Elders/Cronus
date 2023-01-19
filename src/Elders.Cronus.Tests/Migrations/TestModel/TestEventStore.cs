@@ -22,11 +22,11 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
         }
 
 
-        public Task AppendAsync(AggregateCommitRaw aggregateCommitRaw)
+        public Task AppendAsync(AggregateEventRaw aggregateCommitRaw)
         {
             return Task.FromException(new System.NotImplementedException());
         }
-        public Task<EventStream> LoadAsync(AggregateRootId aggregateId)
+        public Task<EventStream> LoadAsync(IBlobId aggregateId)
         {
             var es = new EventStream(Storage.Where(x => x.AggregateRootId.SequenceEqual(aggregateId.RawId)).ToList());
             return Task.FromResult(es);

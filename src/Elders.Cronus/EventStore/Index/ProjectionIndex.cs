@@ -12,13 +12,11 @@ namespace Elders.Cronus.EventStore.Index
     {
         private readonly TypeContainer<IProjection> projectionsContainer;
         private readonly IProjectionWriter projection;
-        private readonly IEventStorePlayer eventStore;
 
-        public ProjectionIndex(TypeContainer<IProjection> projectionsContainer, IEventStorePlayer eventStore, IProjectionWriter projection)
+        public ProjectionIndex(TypeContainer<IProjection> projectionsContainer, IProjectionWriter projection)
         {
             this.projectionsContainer = projectionsContainer;
             this.projection = projection;
-            this.eventStore = eventStore;
         }
 
         public async Task IndexAsync(CronusMessage message)
@@ -27,6 +25,7 @@ namespace Elders.Cronus.EventStore.Index
             if (message.IsRepublished)
                 projectionTypes = message.RecipientHandlers.Intersect(projectionsContainer.Items.Select(t => t.GetContractId())).Select(dc => dc.GetTypeByContract());
 
+            List<Task> tasks = new List<Task>();
             Type messagePayloadType = message.Payload.GetType();
             foreach (var projectionType in projectionTypes)
             {
@@ -36,32 +35,12 @@ namespace Elders.Cronus.EventStore.Index
 
                 if (isInterested)
                 {
-                    await projection.SaveAsync(projectionType, message).ConfigureAwait(false);
-                }
-            }
-        }
-
-        public async Task<string> IndexAsync(IndexRecord indexRecord, ProjectionVersion version)
-        {
-            IEvent @event = await eventStore.LoadEventWithRebuildProjectionAsync(indexRecord).ConfigureAwait(false);
-
-            Type messagePayloadType = @event.GetType();
-
-            IEnumerable<Type> projectionTypes = projectionsContainer.Items.Where(projectionType => projectionType.GetContractId().Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase));
-            foreach (var projectionType in projectionTypes)
-            {
-                bool isInterested = projectionType.GetInterfaces()
-                                    .Where(@interface => IsInterested(@interface, messagePayloadType))
-                                    .Any();
-
-                if (isInterested)
-                {
-                    var origin = new EventOrigin(indexRecord.AggregateRootId, indexRecord.Revision, indexRecord.Position, indexRecord.TimeStamp);
-                    await projection.SaveAsync(projectionType, @event, origin, version).ConfigureAwait(false);
+                    var task = projection.SaveAsync(projectionType, message);
+                    tasks.Add(task);
                 }
             }
 
-            return messagePayloadType.GetContractId();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         }
 
         private static bool IsInterested(Type handlerInterfaces, Type messagePayloadType)

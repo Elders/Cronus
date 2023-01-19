@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.Cluster.Job;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {

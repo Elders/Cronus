@@ -21,7 +21,7 @@ namespace Elders.Cronus.EventStore.InMemory
         /// </summary>
         /// <param name="aggregateId">The aggregate identifier.</param>
         /// <returns></returns>
-        public Task<EventStream> LoadAsync(AggregateRootId aggregateId)
+        public Task<EventStream> LoadAsync(IBlobId aggregateId)
         {
             return Task.FromResult(new EventStream(eventStoreStorage.Seek(aggregateId)));
         }
@@ -37,7 +37,7 @@ namespace Elders.Cronus.EventStore.InMemory
             return Task.CompletedTask;
         }
 
-        public Task AppendAsync(AggregateCommitRaw aggregateCommitRaw)
+        public Task AppendAsync(AggregateEventRaw aggregateCommitRaw)
         {
             return Task.FromException(new System.NotImplementedException());
         }

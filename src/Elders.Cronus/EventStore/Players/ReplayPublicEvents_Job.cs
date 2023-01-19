@@ -1,5 +1,4 @@
 ﻿using Elders.Cronus.Cluster.Job;
-using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,47 +25,47 @@ namespace Elders.Cronus.EventStore.Players
 
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            if (Data.IsCompleted)
-                return JobExecutionStatus.Completed;
+            //if (Data.IsCompleted)
+            //    return JobExecutionStatus.Completed;
 
-            ReplayOptions opt = new ReplayOptions()
-            {
-                EventTypeId = Data.SourceEventTypeId,
-                PaginationToken = Data.EventTypePaging?.PaginationToken,
-                After = Data.After,
-                Before = Data.Before ?? DateTimeOffset.UtcNow
-            };
+            //PlayerOptions opt = new PlayerOptions()
+            //{
+            //    EventTypeId = Data.SourceEventTypeId,
+            //    PaginationToken = Data.EventTypePaging?.PaginationToken,
+            //    After = Data.After,
+            //    Before = Data.Before ?? DateTimeOffset.UtcNow
+            //};
 
-            var headers = new Dictionary<string, string>()
-            {
-                {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
-                {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
-            };
+            //var headers = new Dictionary<string, string>()
+            //{
+            //    {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
+            //    {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
+            //};
 
-            var publicEvents = eventStorePlayer.LoadPublicEventsAsync(opt, async replayOptions =>
-            {
-                var progress = new ReplayPublicEvents_JobData.EventTypePagingProgress(replayOptions.EventTypeId, replayOptions.PaginationToken, 0, 0);
-                Data.MarkEventTypeProgress(progress);
-                Data.Timestamp = DateTimeOffset.UtcNow;
-                Data = await cluster.PingAsync(Data);
-            }).ConfigureAwait(false);
+            //var publicEvents = eventStorePlayer.LoadPublicEventsAsync(opt, async replayOptions =>
+            //{
+            //    var progress = new ReplayPublicEvents_JobData.EventTypePagingProgress(replayOptions.EventTypeId, replayOptions.PaginationToken, 0, 0);
+            //    Data.MarkEventTypeProgress(progress);
+            //    Data.Timestamp = DateTimeOffset.UtcNow;
+            //    Data = await cluster.PingAsync(Data);
+            //}).ConfigureAwait(false);
 
-            await foreach (IPublicEvent publicEvent in publicEvents)
-            {
-                if (cancellationToken.IsCancellationRequested)
-                {
-                    logger.Info(() => $"Job {nameof(ReplayPublicEvents_Job)} has been paused.");
-                    return JobExecutionStatus.Running;
-                }
+            //await foreach (IPublicEvent publicEvent in publicEvents)
+            //{
+            //    if (cancellationToken.IsCancellationRequested)
+            //    {
+            //        logger.Info(() => $"Job {nameof(ReplayPublicEvents_Job)} has been paused.");
+            //        return JobExecutionStatus.Running;
+            //    }
 
-                publicEventPublisher.Publish(publicEvent, headers);
-            }
+            //    publicEventPublisher.Publish(publicEvent, headers);
+            //}
 
-            Data.IsCompleted = true;
-            Data.Timestamp = DateTimeOffset.UtcNow;
+            //Data.IsCompleted = true;
+            //Data.Timestamp = DateTimeOffset.UtcNow;
 
-            Data = await cluster.PingAsync(Data).ConfigureAwait(false);
-            logger.Info(() => $"The job has been completed.");
+            //Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+            //logger.Info(() => $"The job has been completed.");
 
             return JobExecutionStatus.Completed;
         }

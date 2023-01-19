@@ -5,8 +5,8 @@ namespace Elders.Cronus.EventStore
     public interface IEventStore
     {
         Task AppendAsync(AggregateCommit aggregateCommit);
-        Task AppendAsync(AggregateCommitRaw aggregateCommitRaw);
-        Task<EventStream> LoadAsync(AggregateRootId aggregateId);
+        Task AppendAsync(AggregateEventRaw aggregateCommitRaw);
+        Task<EventStream> LoadAsync(IBlobId aggregateId);
     }
 
     public interface IEventStore<TSettings> : IEventStore

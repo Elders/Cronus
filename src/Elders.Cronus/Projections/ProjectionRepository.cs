@@ -64,7 +64,8 @@ namespace Elders.Cronus.Projections
             {
                 var projectionIds = projection.GetProjectionIds(@event);
 
-                foreach (var projectionId in projectionIds)
+                List<Task> tasks = new List<Task>();
+                foreach (IBlobId projectionId in projectionIds)
                 {
                     using (log.BeginScope(s => s.AddScope("cronus_projection_id", projectionId)))
                     {
@@ -77,31 +78,19 @@ namespace Elders.Cronus.Projections
                                 {
                                     if (ShouldSaveEventForVersion(version))
                                     {
-                                        try
-                                        {
-                                            SnapshotMeta snapshotMeta = null;
-                                            if (projectionType.IsSnapshotable())
-                                                snapshotMeta = await snapshotStore.LoadMetaAsync(projectionName, projectionId, version).ConfigureAwait(false);
-                                            else
-                                                snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
-
-                                            int snapshotMarker = snapshotMeta.Revision + 2;
-
-                                            var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
-                                            await projectionStore.SaveAsync(commit).ConfigureAwait(false);
-                                        }
-                                        catch (Exception ex) when (LogMessageWhenFailToUpdateProjection(ex, version)) { }
+                                        Task task = PersistAsync(projectionType, projectionName, projectionId, version, @event, eventOrigin);
+                                        tasks.Add(task);
                                     }
                                 }
                             }
-
-                            if (result.HasError)
-                            {
-                                log.Error(() => "Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + result.Error + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
-                            }
+                        }
+                        if (result.HasError)
+                        {
+                            log.Error(() => "Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + result.Error + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
                         }
                     }
                 }
+                await Task.WhenAll(tasks).ConfigureAwait(false);
             }
         }
 
@@ -128,22 +117,13 @@ namespace Elders.Cronus.Projections
                 var projection = handlerInstance.Current as IProjectionDefinition;
 
                 var projectionIds = projection.GetProjectionIds(@event);
-
+                List<Task> tasks = new List<Task>();
                 foreach (var projectionId in projectionIds)
                 {
-                    try
-                    {
-                        SnapshotMeta snapshotMeta = await GetSnapshotMeta(projectionType, projectionName, projectionId, version).ConfigureAwait(false);
-                        int snapshotMarker = snapshotMeta.Revision == 0 ? 1 : snapshotMeta.Revision + 2;
-
-                        var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.UtcNow);
-                        await projectionStore.SaveAsync(commit).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        log.ErrorException(ex, () => "Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}");
-                    }
+                    Task task = PersistAsync(projectionType, projectionName, projectionId, version, @event, eventOrigin);
+                    tasks.Add(task);
                 }
+                await Task.WhenAll(tasks).ConfigureAwait(false);
             }
             else if (isEventSourcedType)
             {
@@ -151,7 +131,7 @@ namespace Elders.Cronus.Projections
                 {
                     var projectionId = Urn.Parse($"urn:cronus:{projectionName}");
 
-                    var commit = new ProjectionCommit(projectionId, version, @event, 1, eventOrigin, DateTime.UtcNow); // Snapshotting is disable till we test it => hardcoded 1
+                    var commit = new ProjectionCommit(projectionId, version, @event, 1, eventOrigin, DateTime.FromFileTime(eventOrigin.Timestamp)); // Snapshotting is disable till we test it => hardcoded 1
                     await projectionStore.SaveAsync(commit).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -246,6 +226,18 @@ namespace Elders.Cronus.Projections
             return new ReadResult<ProjectionVersions>(versions);
         }
 
+        private async Task PersistAsync(Type projectionType, string projectionName, IBlobId projectionId, ProjectionVersion version, IEvent @event, EventOrigin eventOrigin)
+        {
+            try
+            {
+                SnapshotMeta snapshotMeta = await GetSnapshotMeta(projectionType, projectionName, projectionId, version).ConfigureAwait(false);
+                int snapshotMarker = snapshotMeta.Revision == 0 ? 1 : snapshotMeta.Revision + 2;
+
+                var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.FromFileTime(eventOrigin.Timestamp));
+                await projectionStore.SaveAsync(commit).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (LogMessageWhenFailToUpdateProjection(ex, version)) { }
+        }
 
         private async Task<ReadResult<ProjectionVersionsHandler>> GetProjectionVersionsFromStoreAsync(string projectionName)
         {

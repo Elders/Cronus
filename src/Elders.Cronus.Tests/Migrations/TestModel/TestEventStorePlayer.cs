@@ -16,6 +16,11 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
             this.eventStore = eventStore;
         }
 
+        public Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions)
+        {
+            throw new NotImplementedException();
+        }
+
         public async IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync(int batchSize = 5000)
         {
             // hack
@@ -23,44 +28,6 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
                 yield return @event;
         }
 
-        public Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(string paginationToken, int batchSize = 5000)
-        {
-            throw new NotImplementedException();
-        }
 
-        public Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(ReplayOptions replayOptions)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync(int batchSize = 5000)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<Wrapper<IEvent>> LoadEventsAsync(ReplayOptions replayOptions, Func<ReplayOptions, Task> notifyProgressAsync = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEvent> LoadEventWithRebuildProjectionAsync(IndexRecord indexRecord)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<Wrapper<IPublicEvent>> LoadPublicEventsAsync(ReplayOptions replayOptions, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<Wrapper<IPublicEvent>> LoadPublicEventsAsync(ReplayOptions replayOptions, Action<ReplayOptions> notifyProgress = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<Wrapper<IPublicEvent>> LoadPublicEventsAsync(ReplayOptions replayOptions, Func<ReplayOptions, Task> notifyProgressAsync = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

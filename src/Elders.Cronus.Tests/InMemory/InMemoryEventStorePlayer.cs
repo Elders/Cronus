@@ -16,56 +16,15 @@ namespace Elders.Cronus.EventStore.InMemory
             this.eventStoreStorage = eventStoreStorage;
         }
 
+        public Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions)
+        {
+            throw new NotImplementedException();
+        }
+
         public async IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync(int batchSize = 5000)
         {
             foreach (var @event in eventStoreStorage.GetOrderedEvents())
                 yield return @event;
-        }
-
-        public Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(ReplayOptions replayOptions)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync(int batchSize = 5000)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<Wrapper<IEvent>> LoadEventsAsync(ReplayOptions replayOptions, Func<ReplayOptions, Task> notifyProgressAsync = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEvent> LoadEventWithRebuildProjectionAsync(IndexRecord indexRecord)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<Wrapper<IPublicEvent>> LoadPublicEventsAsync(ReplayOptions replayOptions, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<Wrapper<IPublicEvent>> LoadPublicEventsAsync(ReplayOptions replayOptions, Action<ReplayOptions> notifyProgress = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<Wrapper<IPublicEvent>> LoadPublicEventsAsync(ReplayOptions replayOptions, Func<ReplayOptions, Task> notifyProgressAsync = null, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        Task<LoadAggregateCommitsResult> IEventStorePlayer.LoadAggregateCommitsAsync(string paginationToken, int batchSize)
-        {
-            LoadAggregateCommitsResult aggregateCommit = new LoadAggregateCommitsResult
-            {
-                Commits = eventStoreStorage.GetOrderedEvents().ToList(),
-                PaginationToken = paginationToken
-            };
-
-            return Task.FromResult(aggregateCommit);
         }
     }
 }

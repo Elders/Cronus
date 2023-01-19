@@ -7,12 +7,18 @@ using Microsoft.Extensions.Logging;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.EventStore;
+using System.IO;
+using Elders.Cronus.MessageProcessing;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
     public sealed class RebuildProjection_Job : CronusJob<RebuildProjection_JobData>
     {
         private readonly IPublisher<ISystemSignal> signalPublisher;
+        private readonly ISerializer serializer;
+        private readonly CronusContext context;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly IEventStorePlayer player;
         private readonly IProjectionWriter projectionWriter;
@@ -26,10 +32,14 @@ namespace Elders.Cronus.Projections.Rebuilding
             ProgressTracker progressTracker,
             ProjectionVersionHelper projectionVersionHelper,
             IPublisher<ISystemSignal> signalPublisher,
+            ISerializer serializer,
+            CronusContext context,
             ILogger<RebuildProjection_Job> logger)
             : base(logger)
         {
             this.signalPublisher = signalPublisher;
+            this.serializer = serializer;
+            this.context = context;
             this.projectionStoreInitializer = projectionStoreInitializer;
             this.progressTracker = progressTracker;
             this.projectionVersionHelper = projectionVersionHelper;
@@ -48,6 +58,13 @@ namespace Elders.Cronus.Projections.Rebuilding
             Type projectionType = version.ProjectionName.GetTypeByContract();
 
             await progressTracker.InitializeAsync(version).ConfigureAwait(false);
+            foreach (var item in Data.EventTypePaging)
+            {
+                if (progressTracker.EventTypeProcessed.ContainsKey(item.Type))
+                {
+                    progressTracker.EventTypeProcessed[item.Type] = item.ProcessedCount;
+                }
+            }
 
             if (await projectionVersionHelper.ShouldBeRetriedAsync(version).ConfigureAwait(false))
                 return JobExecutionStatus.Running;
@@ -61,6 +78,48 @@ namespace Elders.Cronus.Projections.Rebuilding
             signalPublisher.Publish(startSignal);
 
             IEnumerable<Type> projectionHandledEventTypes = projectionVersionHelper.GetInvolvedEventTypes(projectionType);
+            ConcurrentDictionary<Type, IAmEventSourcedProjection> projectionInstancesToReplay = new ConcurrentDictionary<Type, IAmEventSourcedProjection>();
+
+            var pingSource = new CancellationTokenSource();
+            CancellationToken ct = pingSource.Token;
+
+            uint counter = 0;
+            PlayerOperator @operator = new PlayerOperator()
+            {
+                OnLoadAsync = async eventRaw =>
+                {
+                    using (var stream = new MemoryStream(eventRaw.Data))
+                    {
+                        if (serializer.Deserialize(stream) is IEvent @event)
+                        {
+                            var instance = projectionInstancesToReplay.GetOrAdd(projectionType, type => context.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection);
+
+                            EventOrigin origin = new EventOrigin(eventRaw.AggregateRootId, eventRaw.Revision, eventRaw.Position, eventRaw.Timestamp);
+                            await projectionWriter
+                                .SaveAsync(projectionType, @event, origin, version)
+                                .ContinueWith(t => instance?
+                                    .ReplayEventAsync(@event))
+                                .ConfigureAwait(false);
+
+                            progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
+                        }
+                    }
+                    counter++;
+                },
+                NotifyProgressAsync = async options =>
+                {
+                    var progress = new RebuildProjection_JobData.EventPaging(options.EventTypeId, options.PaginationToken, options.After, options.Before, progressTracker.GetTotalProcessedCount(options.EventTypeId), 0);
+                    if (Data.MarkEventTypeProgress(progress))
+                    {
+                        Data.Timestamp = DateTimeOffset.UtcNow;
+                        Data = await cluster.PingAsync(Data);
+                    }
+
+
+                    if (counter % 1000 == 0)
+                        logger.Info(() => $"RebuildIndex_EventToAggregateRootId_Job progress: {counter}");
+                }
+            };
 
             foreach (Type eventType in projectionHandledEventTypes)
             {
@@ -76,7 +135,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                 }
 
                 var found = Data.EventTypePaging.Where(upstream => upstream.Type.Equals(eventTypeId)).SingleOrDefault();
-                ReplayOptions opt = new ReplayOptions()
+                PlayerOptions opt = new PlayerOptions()
                 {
                     EventTypeId = eventTypeId,
                     PaginationToken = found?.PaginationToken,
@@ -84,34 +143,10 @@ namespace Elders.Cronus.Projections.Rebuilding
                     Before = found?.Before ?? DateTimeOffset.UtcNow
                 };
 
-                var results = player.LoadEventsAsync(opt, async replayOptions =>
-                {
-                    var progress = new RebuildProjection_JobData.EventPaging(replayOptions.EventTypeId, replayOptions.PaginationToken, replayOptions.After, replayOptions.Before, 0, 0);
-                    if (Data.MarkEventTypeProgress(progress))
-                    {
-                        Data.Timestamp = DateTimeOffset.UtcNow;
-                        Data = await cluster.PingAsync(Data);
-                    }
-
-                    progressTracker.TrackAndNotify(replayOptions.EventTypeId);
-
-                }).ConfigureAwait(false);
-
-                List<Task> projectionTasks = new List<Task>();
-                await foreach (var result in results)
-                {
-                    Task saveEventToProjection = projectionWriter.SaveAsync(projectionType, result.Message, result.IndexRecord.GetEventOrigin(), version);
-                    projectionTasks.Add(saveEventToProjection);
-                    if (projectionTasks.Count > 100)
-                    {
-                        Task completedTask = await Task.WhenAny(projectionTasks).ConfigureAwait(false);
-                        projectionTasks.Remove(completedTask);
-                    }
-                }
-
-                await Task.WhenAll(projectionTasks).ConfigureAwait(false);
+                await player.EnumerateEventStore(@operator, opt).ConfigureAwait(false);
             }
 
+            pingSource.Cancel();
             Data.IsCompleted = true;
             Data.Timestamp = DateTimeOffset.UtcNow;
             Data = await cluster.PingAsync(Data).ConfigureAwait(false);
