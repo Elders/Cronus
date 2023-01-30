@@ -1,3 +1,11 @@
+# [9.0.0-preview.25](https://github.com/Elders/Cronus/compare/v9.0.0-preview.24...v9.0.0-preview.25) (2023-01-30)
+
+
+### Bug Fixes
+
+* Fixes a side affect  issue when building headers for a message. ([ba9a08a](https://github.com/Elders/Cronus/commit/ba9a08ab1273ac72a942eb2660a3f7f8dd5f566b))
+* Fixes the public events replay job ([7d6d35e](https://github.com/Elders/Cronus/commit/7d6d35e99c9a86cf44b9fe6b1b06f258b4ba89bd))
+
 # [9.0.0-preview.24](https://github.com/Elders/Cronus/compare/v9.0.0-preview.23...v9.0.0-preview.24) (2023-01-26)
 
 
