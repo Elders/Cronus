@@ -3,7 +3,7 @@
 namespace Elders.Cronus.EventStore.Players
 {
     [DataContract(Name = "6574cff5-9195-4183-9f98-83e80da842cb")]
-    public class ReplayPublicEventsRequested : ISystemEvent
+    public class ReplayPublicEventsRequested : ISystemSignal
     {
         [DataMember(Order = 0)]
         public string Tenant { get; set; }

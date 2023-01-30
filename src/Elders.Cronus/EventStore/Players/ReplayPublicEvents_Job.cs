@@ -4,8 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Metrics;
-using System.Linq;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,59 +13,66 @@ namespace Elders.Cronus.EventStore.Players
     public class ReplayPublicEvents_Job : CronusJob<ReplayPublicEvents_JobData>
     {
         private readonly IPublisher<IPublicEvent> publicEventPublisher;
-        private readonly IEventStorePlayer eventStorePlayer;
+        private readonly ISerializer serializer;
+        private readonly IEventStorePlayer player;
 
-        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, IEventStorePlayer eventStorePlayer, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
+        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, ISerializer serializer, IEventStorePlayer eventStorePlayer, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
         {
             this.publicEventPublisher = publicEventPublisher;
-            this.eventStorePlayer = eventStorePlayer;
+            this.serializer = serializer;
+            this.player = eventStorePlayer;
         }
         public override string Name { get; set; } = "c0e0f5fc-1f22-4022-96d0-bf02590951d6";
 
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            //if (Data.IsCompleted)
-            //    return JobExecutionStatus.Completed;
+            if (Data.IsCompleted)
+                return JobExecutionStatus.Completed;
 
-            //PlayerOptions opt = new PlayerOptions()
-            //{
-            //    EventTypeId = Data.SourceEventTypeId,
-            //    PaginationToken = Data.EventTypePaging?.PaginationToken,
-            //    After = Data.After,
-            //    Before = Data.Before ?? DateTimeOffset.UtcNow
-            //};
+            PlayerOptions opt = new PlayerOptions()
+            {
+                EventTypeId = Data.SourceEventTypeId,
+                PaginationToken = Data.EventTypePaging?.PaginationToken,
+                After = Data.After,
+                Before = Data.Before ?? DateTimeOffset.UtcNow
+            };
 
-            //var headers = new Dictionary<string, string>()
-            //{
-            //    {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
-            //    {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
-            //};
+            var headers = new Dictionary<string, string>()
+            {
+                {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
+                {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
+            };
 
-            //var publicEvents = eventStorePlayer.LoadPublicEventsAsync(opt, async replayOptions =>
-            //{
-            //    var progress = new ReplayPublicEvents_JobData.EventTypePagingProgress(replayOptions.EventTypeId, replayOptions.PaginationToken, 0, 0);
-            //    Data.MarkEventTypeProgress(progress);
-            //    Data.Timestamp = DateTimeOffset.UtcNow;
-            //    Data = await cluster.PingAsync(Data);
-            //}).ConfigureAwait(false);
+            uint counter = 0;
+            PlayerOperator @operator = new PlayerOperator()
+            {
+                OnLoadAsync = eventRaw =>
+                {
+                    using (var stream = new MemoryStream(eventRaw.Data))
+                    {
+                        if (serializer.Deserialize(stream) is IPublicEvent publicEvent)
+                        {
+                            publicEventPublisher.Publish(publicEvent, headers);
+                        }
+                    }
+                    counter++;
+                    return Task.CompletedTask;
+                },
+                NotifyProgressAsync = async options =>
+                {
+                    var progress = new ReplayPublicEvents_JobData.EventPaging(options.EventTypeId, options.PaginationToken, options.After, options.Before, 0, 0);
+                    Data.Timestamp = DateTimeOffset.UtcNow;
+                    Data = await cluster.PingAsync(Data);
+                }
+            };
 
-            //await foreach (IPublicEvent publicEvent in publicEvents)
-            //{
-            //    if (cancellationToken.IsCancellationRequested)
-            //    {
-            //        logger.Info(() => $"Job {nameof(ReplayPublicEvents_Job)} has been paused.");
-            //        return JobExecutionStatus.Running;
-            //    }
+            await player.EnumerateEventStore(@operator, opt).ConfigureAwait(false);
 
-            //    publicEventPublisher.Publish(publicEvent, headers);
-            //}
+            Data.IsCompleted = true;
+            Data.Timestamp = DateTimeOffset.UtcNow;
+            Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-            //Data.IsCompleted = true;
-            //Data.Timestamp = DateTimeOffset.UtcNow;
-
-            //Data = await cluster.PingAsync(Data).ConfigureAwait(false);
-            //logger.Info(() => $"The job has been completed.");
-
+            logger.Info(() => $"The job has been completed.");
             return JobExecutionStatus.Completed;
         }
     }
@@ -101,7 +107,6 @@ namespace Elders.Cronus.EventStore.Players
         }
     }
 
-
     public class ReplayPublicEvents_JobData : IJobData
     {
         public ReplayPublicEvents_JobData()
@@ -113,7 +118,7 @@ namespace Elders.Cronus.EventStore.Players
 
         public bool IsCompleted { get; set; }
 
-        public EventTypePagingProgress EventTypePaging { get; set; }
+        public EventPaging EventTypePaging { get; set; }
 
         public DateTimeOffset Timestamp { get; set; }
 
@@ -125,12 +130,14 @@ namespace Elders.Cronus.EventStore.Players
         public string RecipientHandlers { get; set; }
         public string SourceEventTypeId { get; set; }
 
-        public class EventTypePagingProgress
+        public class EventPaging
         {
-            public EventTypePagingProgress(string eventTypeId, string paginationToken, long processedCount, long totalCount)
+            public EventPaging(string eventTypeId, string paginationToken, DateTimeOffset? after, DateTimeOffset? before, ulong processedCount, ulong totalCount)
             {
                 Type = eventTypeId;
                 PaginationToken = paginationToken;
+                After = after;
+                Before = before;
                 ProcessedCount = processedCount;
                 TotalCount = totalCount;
             }
@@ -139,23 +146,12 @@ namespace Elders.Cronus.EventStore.Players
 
             public string PaginationToken { get; set; }
 
-            public long ProcessedCount { get; set; }
+            public DateTimeOffset? After { get; set; }
+            public DateTimeOffset? Before { get; set; }
 
-            public long TotalCount { get; set; }
-        }
+            public ulong ProcessedCount { get; set; }
 
-        public void MarkEventTypeProgress(EventTypePagingProgress progress)
-        {
-            if (EventTypePaging is null)
-            {
-                EventTypePaging = progress;
-            }
-            else
-            {
-                EventTypePaging.PaginationToken = progress.PaginationToken;
-                EventTypePaging.ProcessedCount += progress.ProcessedCount;
-                EventTypePaging.TotalCount = progress.TotalCount;
-            }
+            public ulong TotalCount { get; set; }
         }
     }
 }
