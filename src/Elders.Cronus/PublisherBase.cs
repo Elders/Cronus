@@ -74,41 +74,41 @@ namespace Elders.Cronus
 
         protected virtual Dictionary<string, string> BuildHeaders(TMessage message, Dictionary<string, string> messageHeaders)
         {
-            messageHeaders = messageHeaders ?? new Dictionary<string, string>();
+            var headers = messageHeaders is null ? new Dictionary<string, string>() : new Dictionary<string, string>(messageHeaders);
 
-            if (messageHeaders.ContainsKey(MessageHeader.PublishTimestamp) == false)
-                messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
+            if (headers.ContainsKey(MessageHeader.PublishTimestamp) == false)
+                headers.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
 
-            if (messageHeaders.ContainsKey(MessageHeader.Tenant) == false)
-                messageHeaders.Add(MessageHeader.Tenant, tenantResolver.Resolve(message));
+            if (headers.ContainsKey(MessageHeader.Tenant) == false)
+                headers.Add(MessageHeader.Tenant, tenantResolver.Resolve(message));
 
-            if (messageHeaders.ContainsKey(MessageHeader.BoundedContext))
+            if (headers.ContainsKey(MessageHeader.BoundedContext))
             {
                 var bc = message.GetType().GetBoundedContext(boundedContext.Name);
-                messageHeaders[MessageHeader.BoundedContext] = bc;
+                headers[MessageHeader.BoundedContext] = bc;
             }
             else
             {
                 var bc = message.GetType().GetBoundedContext(boundedContext.Name);
-                messageHeaders.Add(MessageHeader.BoundedContext, bc);
+                headers.Add(MessageHeader.BoundedContext, bc);
             }
 
             string messageId = string.Empty;
-            if (messageHeaders.ContainsKey(MessageHeader.MessageId) == false)
+            if (headers.ContainsKey(MessageHeader.MessageId) == false)
             {
-                messageId = $"urn:cronus:{messageHeaders[MessageHeader.BoundedContext]}:{messageHeaders[MessageHeader.Tenant]}:{Guid.NewGuid()}";
-                messageHeaders.Add(MessageHeader.MessageId, messageId);
+                messageId = $"urn:cronus:{headers[MessageHeader.BoundedContext]}:{headers[MessageHeader.Tenant]}:{Guid.NewGuid()}";
+                headers.Add(MessageHeader.MessageId, messageId);
             }
             else
-                messageId = messageHeaders[MessageHeader.MessageId];
+                messageId = headers[MessageHeader.MessageId];
 
-            if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
-                messageHeaders.Add(MessageHeader.CorelationId, messageId);
+            if (headers.ContainsKey(MessageHeader.CorelationId) == false)
+                headers.Add(MessageHeader.CorelationId, messageId);
 
-            messageHeaders.Remove("contract_name");
-            messageHeaders.Add("contract_name", message.GetType().GetContractId());
+            headers.Remove("contract_name");
+            headers.Add("contract_name", message.GetType().GetContractId());
 
-            return messageHeaders;
+            return headers;
         }
     }
 }
