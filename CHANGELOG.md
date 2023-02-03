@@ -1,3 +1,10 @@
+# [9.0.0-preview.26](https://github.com/Elders/Cronus/compare/v9.0.0-preview.25...v9.0.0-preview.26) (2023-02-03)
+
+
+### Bug Fixes
+
+* Fixes how the projection store is initialized ([74bf3e5](https://github.com/Elders/Cronus/commit/74bf3e5893bf6be82574a2ffd30805ded5b17bc8))
+
 # [9.0.0-preview.25](https://github.com/Elders/Cronus/compare/v9.0.0-preview.24...v9.0.0-preview.25) (2023-01-30)
 
 
