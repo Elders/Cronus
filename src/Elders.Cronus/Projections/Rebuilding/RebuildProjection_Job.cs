@@ -72,7 +72,9 @@ namespace Elders.Cronus.Projections.Rebuilding
             if (await projectionVersionHelper.ShouldBeCanceledAsync(version, Data.DueDate).ConfigureAwait(false))
                 return JobExecutionStatus.Failed;
 
-            await projectionStoreInitializer.InitializeAsync(version).ConfigureAwait(false);
+            bool isStoreInitialized = await projectionStoreInitializer.InitializeAsync(version).ConfigureAwait(false);
+            if (isStoreInitialized == false)
+                return JobExecutionStatus.Running;
 
             var startSignal = progressTracker.GetProgressStartedSignal();
             signalPublisher.Publish(startSignal);
@@ -115,9 +117,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                         Data = await cluster.PingAsync(Data);
                     }
 
-
-                    if (counter % 1000 == 0)
-                        logger.Info(() => $"RebuildIndex_EventToAggregateRootId_Job progress: {counter}");
+                    logger.Info(() => $"RebuildProjection_Job progress: {counter}");
                 }
             };
 
