@@ -1,3 +1,10 @@
+# [9.0.0-preview.27](https://github.com/Elders/Cronus/compare/v9.0.0-preview.26...v9.0.0-preview.27) (2023-02-08)
+
+
+### Features
+
+* Allows deleting events from the event store ([2bc303a](https://github.com/Elders/Cronus/commit/2bc303a9ff698378ded5fe017ec7919c9916bdf6))
+
 # [9.0.0-preview.26](https://github.com/Elders/Cronus/compare/v9.0.0-preview.25...v9.0.0-preview.26) (2023-02-03)
 
 
