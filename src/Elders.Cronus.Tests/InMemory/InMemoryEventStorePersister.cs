@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.InMemory
 {
-
     public class InMemoryEventStore : IEventStore
     {
         private InMemoryEventStoreStorage eventStoreStorage;
@@ -40,6 +39,11 @@ namespace Elders.Cronus.EventStore.InMemory
         public Task AppendAsync(AggregateEventRaw aggregateCommitRaw)
         {
             return Task.FromException(new System.NotImplementedException());
+        }
+
+        public Task<bool> DeleteAsync(AggregateEventRaw eventRaw)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

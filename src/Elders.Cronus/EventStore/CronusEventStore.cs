@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Elders.Cronus.Testing;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -25,9 +26,8 @@ namespace Elders.Cronus.EventStore
                 transformedAggregateCommit = aggregateCommitTransformer.Transform(aggregateCommit);
                 await eventStore.AppendAsync(transformedAggregateCommit).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to append aggregate with id = {transformedAggregateCommit.AggregateRootId}. \n Exception: {ex.Message}"))
             {
-                logger.ErrorException(ex, () => $"Failed to append aggregate with id = {transformedAggregateCommit.AggregateRootId}. \n Exception: {ex.Message}");
                 throw;
             }
         }
@@ -38,9 +38,20 @@ namespace Elders.Cronus.EventStore
             {
                 await eventStore.AppendAsync(aggregateCommitRaw).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to append aggregate with id = {aggregateCommitRaw.AggregateRootId}. \n Exception: {ex.Message}"))
             {
-                logger.ErrorException(ex, () => $"Failed to append aggregate with id = {aggregateCommitRaw.AggregateRootId}. \n Exception: {ex.Message}");
+                throw;
+            }
+        }
+
+        public async Task<bool> DeleteAsync(AggregateEventRaw eventRaw)
+        {
+            try
+            {
+                return await eventStore.DeleteAsync(eventRaw).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to delete aggregate event with id = {eventRaw.AggregateRootId}. \n Exception: {ex.Message}"))
+            {
                 throw;
             }
         }
@@ -51,9 +62,8 @@ namespace Elders.Cronus.EventStore
             {
                 return await eventStore.LoadAsync(aggregateId).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId}. \n Exception: {ex.Message}"))
             {
-                logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId}. \n Exception: {ex.Message}");
                 throw;
             }
         }

@@ -6,6 +6,7 @@ namespace Elders.Cronus.EventStore
 {
     public class PlayerOperator
     {
+        public Func<AggregateStream, Task> OnAggregateStreamLoadedAsync { get; set; }
         public Func<AggregateEventRaw, Task> OnLoadAsync { get; set; }
         public Func<PlayerOptions, Task> NotifyProgressAsync { get; set; }
 

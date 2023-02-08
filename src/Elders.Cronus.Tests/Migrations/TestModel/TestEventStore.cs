@@ -31,5 +31,10 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
             var es = new EventStream(Storage.Where(x => x.AggregateRootId.SequenceEqual(aggregateId.RawId)).ToList());
             return Task.FromResult(es);
         }
+
+        public Task<bool> DeleteAsync(AggregateEventRaw eventRaw)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

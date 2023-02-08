@@ -5,6 +5,22 @@ using System.Text;
 
 namespace Elders.Cronus.EventStore
 {
+    public class AggregateStream
+    {
+        List<AggregateCommitRaw> commits;
+
+        public AggregateStream(IEnumerable<AggregateEventRaw> events)
+        {
+            commits = new List<AggregateCommitRaw>();
+            IEnumerable<IGrouping<int, AggregateEventRaw>> byRevision = events.GroupBy(x => x.Revision);
+            foreach (IGrouping<int, AggregateEventRaw> revisionEvents in byRevision)
+            {
+                AggregateCommitRaw commit = new AggregateCommitRaw(revisionEvents);
+                commits.Add(commit);
+            }
+        }
+    }
+
     public class EventStream
     {
         IList<AggregateCommit> aggregateCommits;

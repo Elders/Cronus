@@ -6,6 +6,16 @@ using System.Text;
 
 namespace Elders.Cronus.EventStore
 {
+    public class AggregateCommitRaw : IMessage
+    {
+        public AggregateCommitRaw(IEnumerable<AggregateEventRaw> @events)
+        {
+            Events = new List<AggregateEventRaw>(@events);
+        }
+
+        public List<AggregateEventRaw> Events { get; private set; }
+    }
+
     [DataContract(Namespace = "cronus", Name = "f69daa12-171c-43a1-b049-be8a93ff137f")]
     public class AggregateCommit : IMessage
     {
@@ -14,15 +24,6 @@ namespace Elders.Cronus.EventStore
             Events = new List<IEvent>();
             PublicEvents = new List<IPublicEvent>();
         }
-
-        //[Obsolete]
-        //public AggregateCommit(IBlobId aggregateId, int revision, List<IEvent> events) : this(aggregateId.RawId, revision, events, new List<IPublicEvent>()) { }
-        //[Obsolete]
-        //public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events) : this(aggregateRootId, revision, events, new List<IPublicEvent>(), DateTime.UtcNow.ToFileTimeUtc()) { }
-        //[Obsolete]
-        //public AggregateCommit(IBlobId aggregateId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents) : this(aggregateId.RawId, revision, events, publicEvents) { }
-        //[Obsolete]
-        //public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents) : this(aggregateRootId, revision, events, publicEvents, DateTime.UtcNow.ToFileTimeUtc()) { }
 
         public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents, long timestamp)
         {

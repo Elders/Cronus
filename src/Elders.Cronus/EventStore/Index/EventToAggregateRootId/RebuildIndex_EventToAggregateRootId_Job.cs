@@ -34,7 +34,7 @@ namespace Elders.Cronus.EventStore.Index
             {
                 OnLoadAsync = async @event =>
                 {
-                    string eventContractId = eventFinder.FindEvent(@event.Data);
+                    string eventContractId = eventFinder.Find(@event.Data);
                     if (string.IsNullOrEmpty(eventContractId))
                         logger.Error(() => $"Unable to find a valid event in the data : {Encoding.UTF8.GetString(@event.Data)}");
 

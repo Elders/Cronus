@@ -1,7 +1,7 @@
 ﻿namespace Elders.Cronus.EventStore
 {
     /// <summary>
-    /// Represents an <see cref="AggregateCommit"/> in a raw form. This means that you need to take care
+    /// Represents an aggregate event in a raw form. This means that you need to take care
     /// about the deserialization in order to work with the data. This <see cref="AggregateEventRaw"/> is
     /// really usefull in a situation where you want to copy/move the data without touching it.
     /// </summary>
