@@ -28,7 +28,7 @@ namespace Elders.Cronus.Projections.Snapshotting
 
         public virtual bool ShouldCreateSnapshot(IEnumerable<ProjectionCommit> commits, int lastSnapshotRevision)
         {
-            var commitsAfterLastSnapshotRevision = commits.Where(x => x.SnapshotMarker > lastSnapshotRevision);
+            IEnumerable<ProjectionCommit> commitsAfterLastSnapshotRevision = commits.Where(x => x.SnapshotMarker >= lastSnapshotRevision);
             int latestSnapshotMarker = commitsAfterLastSnapshotRevision.Select(x => x.SnapshotMarker).DefaultIfEmpty(lastSnapshotRevision + 1).Max();
             if (latestSnapshotMarker > lastSnapshotRevision)
             {

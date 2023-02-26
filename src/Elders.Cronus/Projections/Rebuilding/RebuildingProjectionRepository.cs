@@ -84,9 +84,11 @@ namespace Elders.Cronus.Projections.Rebuilding
             throw new ArgumentException($"Invalid aggregate root id: {mess}", nameof(mess));
         }
 
-        const ushort _batchSize = 1000;
+        //const ushort _batchSize = 1000;
         public async Task SaveAggregateCommitsAsync(IEnumerable<IndexRecord> eventStreams, RebuildProjection_JobData jobData)
         {
+            int _batchSize = eventStreams.Count() < 1000 ? eventStreams.Count() : 1000;
+
             List<Func<Task<string>>> indexingTasks = new List<Func<Task<string>>>(_batchSize);
 
             ushort currentSize = 0;
@@ -111,6 +113,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                 }
                 catch (Exception ex) when (logger.WarnException(ex, () => $"Index record was skipped when rebuilding {jobData.Version.ProjectionName}.")) { }
             }
+            //await Task.WhenAll(indexingTasks.Select(a => a())).ConfigureAwait(false);
         }
     }
 }

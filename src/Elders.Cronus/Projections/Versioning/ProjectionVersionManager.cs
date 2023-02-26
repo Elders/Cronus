@@ -58,6 +58,11 @@ namespace Elders.Cronus.Projections.Versioning
             {
                 ProjectionVersion currentLiveVersion = state.Versions.GetLive();
                 var timebox = GetVersionRequestTimebox(hash);
+
+                if (currentLiveVersion is null)
+                {
+                    currentLiveVersion = new ProjectionVersion(state.Id.Id, ProjectionStatus.Replaying, 1, hash);
+                }
                 RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Rebuilding), timebox);
             }
         }

@@ -105,6 +105,11 @@ namespace Elders.Cronus
             if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
                 messageHeaders.Add(MessageHeader.CorelationId, messageId);
 
+            //if (messageHeaders.ContainsKey(MessageHeader.AggregateRootId) == false)
+            //{;
+            //    messageHeaders.Add(MessageHeader.AggregateRootId, message.GetType().GetContractId());
+            //}
+
             messageHeaders.Remove("contract_name");
             messageHeaders.Add("contract_name", message.GetType().GetContractId());
 

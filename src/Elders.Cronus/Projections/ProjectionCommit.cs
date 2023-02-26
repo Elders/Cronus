@@ -8,7 +8,7 @@ namespace Elders.Cronus.Projections
     {
         ProjectionCommit() { }
 
-        public ProjectionCommit(IBlobId projectionId, ProjectionVersion version, IEvent @event, int snapshotMarker, EventOrigin eventOrigin, DateTime timeStamp)
+        public ProjectionCommit(IBlobId projectionId, Type projectionType, ProjectionVersion version, IEvent @event, int snapshotMarker, EventOrigin eventOrigin, DateTime timeStamp)
         {
             ProjectionId = projectionId;
             ProjectionName = version.ProjectionName;
@@ -17,13 +17,14 @@ namespace Elders.Cronus.Projections
             EventOrigin = eventOrigin;
             TimeStamp = timeStamp;
             Version = version;
+            ProjectionType = projectionType;
         }
 
         [DataMember(Order = 1)]
         public IBlobId ProjectionId { get; private set; }
 
         [DataMember(Order = 2)]
-        Type ProjectionType { get; set; }
+        public Type ProjectionType { get; private set; }
 
         [DataMember(Order = 3)]
         public IEvent Event { get; private set; }

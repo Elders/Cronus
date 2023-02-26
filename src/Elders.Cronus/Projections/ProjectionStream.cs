@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Elders.Cronus.Projections.Snapshotting;
@@ -18,7 +19,7 @@ namespace Elders.Cronus.Projections
         private readonly Func<ISnapshot> getSnapshot;
         private ISnapshot snapshot;
 
-        ProjectionStream()
+        internal ProjectionStream()
         {
             this.Commits = _empty;
             this.snapshot = new NoSnapshot(null, null);
@@ -53,7 +54,7 @@ namespace Elders.Cronus.Projections
             return RestoreFromHistoryMamamiaAsync<T>(projection);
         }
 
-        ISnapshot GetSnapshot()
+        public ISnapshot GetSnapshot()
         {
             if (ReferenceEquals(null, snapshot))
                 snapshot = getSnapshot();
@@ -101,5 +102,27 @@ namespace Elders.Cronus.Projections
         {
             return _emptyProjectionStream;
         }
+
+        public ProjectionStreamDto ToDto()
+        {
+            return new ProjectionStreamDto(GetSnapshot(), Commits);
+        }
+    }
+
+    [DataContract(Name = "73a78656-c298-4cd2-ad78-f0eb5b866ad0")]
+    public class ProjectionStreamDto
+    {
+        public ProjectionStreamDto() { }
+        public ProjectionStreamDto(ISnapshot snapshot, List<ProjectionCommit> commits)
+        {
+            Snapshot = snapshot;
+            Commits = commits;
+        }
+
+        [DataMember(Order = 1)]
+        public ISnapshot Snapshot { get; private set; }
+
+        [DataMember(Order = 2)]
+        public List<ProjectionCommit> Commits { get; private set; }
     }
 }
