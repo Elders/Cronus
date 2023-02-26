@@ -12,7 +12,7 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
         readonly TestEventStore eventStore;
         public TestEventStorePlayer(TestEventStore eventStore)
         {
-            if (ReferenceEquals(eventStore, null) == true) throw new ArgumentNullException(nameof(eventStore));
+            if (eventStore is null == true) throw new ArgumentNullException(nameof(eventStore));
             this.eventStore = eventStore;
         }
 

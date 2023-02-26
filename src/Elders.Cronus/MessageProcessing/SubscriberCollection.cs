@@ -17,7 +17,7 @@ namespace Elders.Cronus.MessageProcessing
         public SubscriberCollection(ISubscriberFinder<T> subscriberFinder, ISubscriberFactory<T> subscriberFactory)
         {
             subscribers = new ConcurrentBag<ISubscriber>();
-            
+
             foreach (var subscriberType in subscriberFinder.Find())
             {
                 ISubscriber subscriber = subscriberFactory.Create(subscriberType);
@@ -31,7 +31,7 @@ namespace Elders.Cronus.MessageProcessing
         /// <param name="subscriber">The subscriber.</param>
         public void Subscribe(ISubscriber subscriber)
         {
-            if (ReferenceEquals(null, subscriber)) throw new ArgumentNullException(nameof(subscriber));
+            if (subscriber is null) throw new ArgumentNullException(nameof(subscriber));
             if (subscribers.Any(x => x.Id == subscriber.Id)) throw new ArgumentException($"There is already subscriber with id '{subscriber.Id}'");
 
             subscribers.Add(subscriber);

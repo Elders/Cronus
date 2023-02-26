@@ -16,7 +16,7 @@ namespace Elders.Cronus.Multitenancy
     {
         public string Resolve(ProjectionCommit projectionCommit)
         {
-            if (ReferenceEquals(null, projectionCommit) == true) throw new ArgumentNullException(nameof(projectionCommit));
+            if (projectionCommit is null == true) throw new ArgumentNullException(nameof(projectionCommit));
 
             string tenant;
             if (TryResolve(projectionCommit.ProjectionId.RawId, out tenant))
@@ -27,7 +27,7 @@ namespace Elders.Cronus.Multitenancy
 
         public string Resolve(IBlobId id)
         {
-            if (ReferenceEquals(null, id) == true) throw new ArgumentNullException(nameof(id));
+            if (id is null == true) throw new ArgumentNullException(nameof(id));
 
             string tenant;
             if (TryResolve(id.RawId, out tenant))
@@ -38,7 +38,7 @@ namespace Elders.Cronus.Multitenancy
 
         public string Resolve(AggregateRootId id)
         {
-            if (ReferenceEquals(null, id) == true) throw new ArgumentNullException(nameof(id));
+            if (id is null == true) throw new ArgumentNullException(nameof(id));
 
             if (id is AggregateRootId)
                 return ((AggregateRootId)id).Tenant;
@@ -48,7 +48,7 @@ namespace Elders.Cronus.Multitenancy
 
         public string Resolve(AggregateCommit aggregateCommit)
         {
-            if (ReferenceEquals(null, aggregateCommit) == true) throw new ArgumentNullException(nameof(aggregateCommit));
+            if (aggregateCommit is null == true) throw new ArgumentNullException(nameof(aggregateCommit));
 
             string tenant;
             if (TryResolve(aggregateCommit.AggregateRootId, out tenant))

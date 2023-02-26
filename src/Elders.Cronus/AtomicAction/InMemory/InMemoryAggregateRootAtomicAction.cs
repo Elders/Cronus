@@ -47,10 +47,10 @@ namespace Elders.Cronus.AtomicAction.InMemory
             try
             {
                 acquired = aggregateLock.Get(aggregateRootId.Value) as AtomicBoolean;
-                if (ReferenceEquals(null, acquired))
+                if (acquired is null)
                 {
                     acquired = aggregateLock.Set(aggregateRootId.Value, new AtomicBoolean(false), cacheEntryOptions);
-                    if (ReferenceEquals(null, acquired))
+                    if (acquired is null)
                         return result;
                 }
 
@@ -59,11 +59,11 @@ namespace Elders.Cronus.AtomicAction.InMemory
                     try
                     {
                         AtomicInteger revision = aggregateRevisions.Get(aggregateRootId.Value) as AtomicInteger;
-                        if (ReferenceEquals(null, revision))
+                        if (revision is null)
                         {
                             var newRevision = new AtomicInteger(aggregateRootRevision - 1);
                             revision = aggregateRevisions.Set(aggregateRootId.Value, newRevision, cacheEntryOptions);
-                            if (ReferenceEquals(null, revision))
+                            if (revision is null)
                                 return result;
                         }
 
@@ -173,7 +173,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
 
         public static bool operator ==(AtomicBoolean left, AtomicBoolean right)
         {
-            if (Object.ReferenceEquals(left, null) || Object.ReferenceEquals(right, null))
+            if (left is null || right is null)
                 return false;
 
             return left.Value == right.Value;
@@ -274,7 +274,7 @@ namespace Elders.Cronus.AtomicAction.InMemory
 
         public static bool operator ==(AtomicInteger left, AtomicInteger right)
         {
-            if (Object.ReferenceEquals(left, null) || Object.ReferenceEquals(right, null))
+            if (left is null || right is null)
                 return false;
 
             return left.Value == right.Value;

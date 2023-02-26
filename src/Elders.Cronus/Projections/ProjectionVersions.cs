@@ -41,7 +41,7 @@ namespace Elders.Cronus.Projections
             if (version is null) throw new ArgumentNullException(nameof(version));
 
             var existingVersion = versions.FirstOrDefault();
-            if (ReferenceEquals(null, existingVersion))
+            if (existingVersion is null)
                 return;
 
             if (existingVersion.ProjectionName.Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)

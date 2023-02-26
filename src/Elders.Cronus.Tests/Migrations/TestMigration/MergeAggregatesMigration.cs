@@ -16,7 +16,7 @@ namespace Elders.Cronus.Migrations.TestMigration
 
         public MergeAggregatesMigration(IEventStore eventStore)
         {
-            if (ReferenceEquals(eventStore, null) == true) throw new System.ArgumentNullException(nameof(eventStore));
+            if (eventStore is null == true) throw new System.ArgumentNullException(nameof(eventStore));
             this.eventStore = eventStore;
 
             aggregateMaxRevision = new Dictionary<AggregateRootId, int>();
@@ -27,7 +27,7 @@ namespace Elders.Cronus.Migrations.TestMigration
             if (aggregateMaxRevision.ContainsKey(rootId)) return;
 
             var stream = eventStore.LoadAsync(rootId).GetAwaiter().GetResult();
-            if (ReferenceEquals(stream, null) == true)
+            if (stream is null == true)
             {
                 aggregateMaxRevision.Add(rootId, 0);
             }

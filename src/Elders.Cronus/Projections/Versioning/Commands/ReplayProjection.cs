@@ -10,7 +10,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public ReplayProjection(ProjectionVersionManagerId id, string hash)
         {
-            if (ReferenceEquals(null, id)) throw new ArgumentNullException(nameof(id));
+            if (id is null) throw new ArgumentNullException(nameof(id));
             if (string.IsNullOrEmpty(hash)) throw new ArgumentNullException(nameof(hash));
 
             Id = id;

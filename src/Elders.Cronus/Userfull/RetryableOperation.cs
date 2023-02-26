@@ -39,7 +39,7 @@ namespace Elders.Cronus
             for (int i = 0; i > -1; i++)
             {
                 operationResult = InvokeTryExecuteInternal(operation, out exception);
-                if (ReferenceEquals(null, operationResult) || operationResult.Equals(default(T)))
+                if (operationResult is null || operationResult.Equals(default(T)))
                 {
                     if (retry(i, exception, out delay))
                     {

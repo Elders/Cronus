@@ -60,7 +60,7 @@ namespace Elders.Cronus.Userfull
 
         public Result<T> WithError(IEnumerable<Exception> errors)
         {
-            var newErrors = ReferenceEquals(null, this.errors) ? new List<Exception>() : new List<Exception>(this.errors);
+            var newErrors = this.errors is null ? new List<Exception>() : new List<Exception>(this.errors);
             newErrors.AddRange(errors);
             var newResult = new Result<T>();
             newResult.errors = newErrors;

@@ -42,8 +42,8 @@ namespace Elders.Cronus.Projections
 
         public async Task SaveAsync(Type projectionType, CronusMessage cronusMessage)
         {
-            if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
-            if (ReferenceEquals(null, cronusMessage)) throw new ArgumentNullException(nameof(cronusMessage));
+            if (projectionType is null) throw new ArgumentNullException(nameof(projectionType));
+            if (cronusMessage is null) throw new ArgumentNullException(nameof(cronusMessage));
 
             EventOrigin eventOrigin = cronusMessage.GetEventOrigin();
             IEvent @event = cronusMessage.Payload as IEvent;
@@ -53,9 +53,9 @@ namespace Elders.Cronus.Projections
 
         public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin)
         {
-            if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
-            if (ReferenceEquals(null, @event)) throw new ArgumentNullException(nameof(@event));
-            if (ReferenceEquals(null, eventOrigin)) throw new ArgumentNullException(nameof(eventOrigin));
+            if (projectionType is null) throw new ArgumentNullException(nameof(projectionType));
+            if (@event is null) throw new ArgumentNullException(nameof(@event));
+            if (eventOrigin is null) throw new ArgumentNullException(nameof(eventOrigin));
 
             string projectionName = projectionType.GetContractId();
             var handlerInstance = handlerFactory.Create(projectionType);
@@ -97,9 +97,9 @@ namespace Elders.Cronus.Projections
         // Used by replay projections only
         public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
         {
-            if (ReferenceEquals(null, projectionType)) throw new ArgumentNullException(nameof(projectionType));
-            if (ReferenceEquals(null, @event)) throw new ArgumentNullException(nameof(@event));
-            if (ReferenceEquals(null, version)) throw new ArgumentNullException(nameof(version));
+            if (projectionType is null) throw new ArgumentNullException(nameof(projectionType));
+            if (@event is null) throw new ArgumentNullException(nameof(@event));
+            if (version is null) throw new ArgumentNullException(nameof(version));
 
             if (ShouldSaveEventForVersion(version) == false)
                 throw new ArgumentException("Invalid version. Only versions in `Building` and `Live` status are eligable for persistence.", nameof(version));
@@ -150,7 +150,7 @@ namespace Elders.Cronus.Projections
                        .AddScope(Log.ProjectionType, projectionType.Name)
                        .AddScope(Log.ProjectionInstanceId, projectionId.RawId)))
             {
-                if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+                if (projectionId is null) throw new ArgumentNullException(nameof(projectionId));
 
                 try
                 {
@@ -176,7 +176,7 @@ namespace Elders.Cronus.Projections
                        .AddScope(Log.ProjectionType, projectionType.Name)
                        .AddScope(Log.ProjectionInstanceId, projectionId.RawId)))
             {
-                if (ReferenceEquals(null, projectionId)) throw new ArgumentNullException(nameof(projectionId));
+                if (projectionId is null) throw new ArgumentNullException(nameof(projectionId));
 
                 try
                 {

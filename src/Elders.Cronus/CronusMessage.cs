@@ -79,7 +79,7 @@ namespace Elders.Cronus
 
         public override bool Equals(System.Object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
+            if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (!typeof(CronusMessage).IsAssignableFrom(obj.GetType())) return false;
             return Equals((CronusMessage)obj);
@@ -87,7 +87,7 @@ namespace Elders.Cronus
 
         public virtual bool Equals(CronusMessage other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
             return this.Id == other.Id;
         }
@@ -102,8 +102,8 @@ namespace Elders.Cronus
 
         public static bool operator ==(CronusMessage left, CronusMessage right)
         {
-            if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return true;
-            if (ReferenceEquals(null, left))
+            if (left is null && right is null) return true;
+            if (left is null)
                 return false;
             else
                 return left.Equals(right);
