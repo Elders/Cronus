@@ -32,6 +32,24 @@ namespace Elders.Cronus.EventStore
 
         public IEnumerable<AggregateCommit> Commits { get { return aggregateCommits; } }
 
+        public bool TryRestoreFromSnapshot<T>(object snapshot, out T aggregateRoot)
+            where T : IAmEventSourced
+        {
+            aggregateRoot = default(T);
+            var events = aggregateCommits.SelectMany(x => x.Events);
+            if (events.Any())
+            {
+                int currentRevision = aggregateCommits.Last().Revision;
+                aggregateRoot = (T)FastActivator.CreateInstance(typeof(T), true);
+                aggregateRoot.ReplayEvents(events.ToList(), currentRevision, snapshot);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public bool TryRestoreFromHistory<T>(out T aggregateRoot) where T : IAmEventSourced
         {
             //http://www.datastax.com/dev/blog/client-side-improvements-in-cassandra-2-0
@@ -42,6 +60,24 @@ namespace Elders.Cronus.EventStore
                 int currentRevision = aggregateCommits.Last().Revision;
                 aggregateRoot = (T)FastActivator.CreateInstance(typeof(T), true);
                 aggregateRoot.ReplayEvents(events.ToList(), currentRevision);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool TryRestoreFromHistory(int revision, Type aggregateRootType, out object aggregateRoot)
+        {
+            //http://www.datastax.com/dev/blog/client-side-improvements-in-cassandra-2-0
+            aggregateRoot = default;
+            var events = aggregateCommits.Where(x => x.Revision <= revision).SelectMany(x => x.Events);
+            if (events.Any())
+            {
+                int currentRevision = aggregateCommits.Last().Revision;
+                aggregateRoot = FastActivator.CreateInstance(aggregateRootType, true);
+                ((IAmEventSourced)aggregateRoot).ReplayEvents(events.ToList(), currentRevision);
                 return true;
             }
             else

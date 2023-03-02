@@ -1,19 +1,22 @@
 ﻿using System;
 using System.Linq;
-using Elders.Cronus.AtomicAction;
-using Elders.Cronus.Userfull;
-using Elders.Cronus.IntegrityValidation;
 using System.Threading.Tasks;
+using Elders.Cronus.AtomicAction;
+using Elders.Cronus.IntegrityValidation;
+using Elders.Cronus.Snapshots;
+using Elders.Cronus.Userfull;
 
 namespace Elders.Cronus.EventStore
 {
     public sealed class AggregateRepository : IAggregateRepository
     {
         readonly IAggregateRootAtomicAction atomicAction;
+        private readonly ISnapshotReader snapshotReader;
         readonly IEventStore eventStore;
         readonly IIntegrityPolicy<EventStream> integrityPolicy;
+        private readonly IPublisher<ISystemCommand> publisher;
 
-        public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
+        public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, ISnapshotReader snapshotReader, IIntegrityPolicy<EventStream> integrityPolicy, IPublisher<ISystemCommand> publisher)
         {
             if (eventStoreFactory is null) throw new ArgumentNullException(nameof(eventStoreFactory));
             if (atomicAction is null) throw new ArgumentNullException(nameof(atomicAction));
@@ -21,7 +24,9 @@ namespace Elders.Cronus.EventStore
 
             this.eventStore = eventStoreFactory.GetEventStore();
             this.atomicAction = atomicAction;
+            this.snapshotReader = snapshotReader;
             this.integrityPolicy = integrityPolicy;
+            this.publisher = publisher;
         }
 
         /// <summary>
@@ -42,6 +47,27 @@ namespace Elders.Cronus.EventStore
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
         public async Task<ReadResult<AR>> LoadAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
+        {
+            if (typeof(AR).IsSnapshotable())
+            {
+                var snapshot = await snapshotReader.ReadAsync(id);
+                if (snapshot is not null)
+                {
+                    EventStream eventStream = await eventStore.LoadAsync(id, snapshot.Revision).ConfigureAwait(false);
+                    var integrityResult = integrityPolicy.Apply(eventStream);
+                    if (integrityResult.IsIntegrityViolated)
+                        throw new EventStreamIntegrityViolationException($"Aggregare root integrity is violated for id {id.Value} and snapshot revision {snapshot.Revision}");
+                    eventStream = integrityResult.Output;
+
+                    if (eventStream.TryRestoreFromSnapshot(snapshot, out AR aggregateRoot))
+                        return new ReadResult<AR>(aggregateRoot);
+                }
+            }
+
+            return await LoadInternalAsync<AR>(id).ConfigureAwait(false);
+        }
+
+        private async Task<ReadResult<AR>> LoadInternalAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
         {
             EventStream eventStream = await eventStore.LoadAsync(id).ConfigureAwait(false);
             var integrityResult = integrityPolicy.Apply(eventStream);
@@ -75,6 +101,11 @@ namespace Elders.Cronus.EventStore
                 // #prodalzavameNapred
                 // #bravoKobra
                 // https://www.youtube.com/watch?v=2wWusHu_3w8
+                var published = publisher.Publish(new RequestSnapshot(new SnapshotManagerId(aggregateRoot.State.Id, aggregateRoot.State.Id.Tenant), aggregateRoot.Revision, typeof(AR).GetContractId()));
+                if (published == false)
+                {
+                    // epic fail
+                }
 
                 return arCommit;
             }

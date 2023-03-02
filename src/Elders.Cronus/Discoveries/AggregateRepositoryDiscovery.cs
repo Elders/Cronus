@@ -3,6 +3,7 @@ using System.Linq;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Snapshots;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +15,8 @@ namespace Elders.Cronus.Discoveries
         {
             IEnumerable<DiscoveredModel> models =
                DiscoverEventStreamIntegrityPolicy<EventStreamIntegrityPolicy>(context)
-               .Concat(DiscoverAggregateRepository(context));
+               .Concat(DiscoverAggregateRepository(context))
+               .Concat(DiscoverSnapshots(context));
 
             return new DiscoveryResult<IAggregateRepository>(models);
         }
@@ -37,6 +39,14 @@ namespace Elders.Cronus.Discoveries
         protected virtual IEnumerable<DiscoveredModel> DiscoverEventStreamIntegrityPolicy<TIntegrityPolicy>(DiscoveryContext context) where TIntegrityPolicy : IIntegrityPolicy<EventStream>
         {
             return DiscoverModel<IIntegrityPolicy<EventStream>, TIntegrityPolicy>(ServiceLifetime.Transient);
+        }
+
+        protected virtual IEnumerable<DiscoveredModel> DiscoverSnapshots(DiscoveryContext context)
+        {
+            yield return new DiscoveredModel(typeof(CreateSnapshot_Job), typeof(CreateSnapshot_Job), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(ISnapshotStrategy), typeof(NoSnapshotsStrategy), ServiceLifetime.Singleton) { CanOverrideDefaults = true };
+            yield return new DiscoveredModel(typeof(ISnapshotWriter), typeof(NoOpSnapshotWriter), ServiceLifetime.Singleton) { CanOverrideDefaults = true };
+            yield return new DiscoveredModel(typeof(ISnapshotReader), typeof(NoOpSnapshotReader), ServiceLifetime.Singleton) { CanOverrideDefaults = true };
         }
     }
 }
