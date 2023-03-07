@@ -1,3 +1,10 @@
+# [9.0.0-preview.28](https://github.com/Elders/Cronus/compare/v9.0.0-preview.27...v9.0.0-preview.28) (2023-03-07)
+
+
+### Bug Fixes
+
+* Consolidates publisher log and error handling ([24697ef](https://github.com/Elders/Cronus/commit/24697ef9b99d01e2c27ba2dc3c43c221cff2c695))
+
 # [9.0.0-preview.27](https://github.com/Elders/Cronus/compare/v9.0.0-preview.26...v9.0.0-preview.27) (2023-02-08)
 
 
