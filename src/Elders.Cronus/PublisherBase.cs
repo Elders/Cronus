@@ -31,6 +31,16 @@ namespace Elders.Cronus
                 {
                     bool isPublished = PublishInternal(cronusMessage);
 
+                    bool isSignal = typeof(TMessage) == typeof(ISystemSignal);
+                    if (isPublished && isSignal == false)
+                    {
+                        logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
+                    }
+                    else if (isPublished == false)
+                    {
+                        logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", typeof(TMessage).Name, message.GetType().Name, messageHeaders);
+                    }
+
                     return isPublished;
                 }
             }
