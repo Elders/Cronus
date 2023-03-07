@@ -1,3 +1,10 @@
+## [8.7.8](https://github.com/Elders/Cronus/compare/v8.7.7...v8.7.8) (2023-03-07)
+
+
+### Bug Fixes
+
+* Logs warning message when a tenant is misconfigured ([1f5b15a](https://github.com/Elders/Cronus/commit/1f5b15acb06ac598f99a2133001518c6e847d71f))
+
 ## [8.7.7](https://github.com/Elders/Cronus/compare/v8.7.6...v8.7.7) (2022-11-21)
 
 
