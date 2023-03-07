@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Elders.Cronus.Multitenancy;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.MessageProcessing
@@ -10,12 +11,13 @@ namespace Elders.Cronus.MessageProcessing
         private readonly CronusContext context;
         private readonly TenantsOptions tenants;
         private readonly ITenantResolver tenantResolver;
+        private readonly ILogger<CronusContextFactory> logger;
 
-        public CronusContextFactory(CronusContext context, IOptionsMonitor<TenantsOptions> tenantsOptions, ITenantResolver tenantResolver)
+        public CronusContextFactory(CronusContext context, IOptionsMonitor<TenantsOptions> tenantsOptions, ITenantResolver tenantResolver, ILogger<CronusContextFactory> logger)
         {
             this.context = context;
             this.tenantResolver = tenantResolver;
-
+            this.logger = logger;
             this.tenants = tenantsOptions.CurrentValue;
         }
 
@@ -37,7 +39,12 @@ namespace Elders.Cronus.MessageProcessing
             if (string.IsNullOrEmpty(tenant)) throw new ArgumentNullException(nameof(tenant));
 
             if (tenants.Tenants.Where(t => t.Equals(tenant, StringComparison.OrdinalIgnoreCase)).Any() == false)
-                throw new ArgumentException($"The tenant `{tenant}` is not registered. Make sure that the tenant `{tenant}` is properly configured using `cronus:tenants`. More info at https://github.com/Elders/Cronus/blob/master/doc/Configuration.md", nameof(tenant));
+            {
+                string errorMessage = $"The tenant `{tenant}` is not registered. Make sure that the tenant `{tenant}` is properly configured using `cronus:tenants`. More info at https://github.com/Elders/Cronus/blob/master/doc/Configuration.md";
+
+                logger.Warn(() => errorMessage);
+                throw new ArgumentException(errorMessage, nameof(tenant));
+            }
         }
     }
 }
