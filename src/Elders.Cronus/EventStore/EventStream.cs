@@ -1,3 +1,4 @@
+using Elders.Cronus.Snapshots;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace Elders.Cronus.EventStore
 
         public IEnumerable<AggregateCommit> Commits { get { return aggregateCommits; } }
 
-        public bool TryRestoreFromSnapshot<T>(object snapshot, out T aggregateRoot)
+        public bool TryRestoreFromSnapshot<T>(Snapshot snapshot, out T aggregateRoot)
             where T : IAmEventSourced
         {
             aggregateRoot = default(T);
@@ -41,7 +42,7 @@ namespace Elders.Cronus.EventStore
             {
                 int currentRevision = aggregateCommits.Last().Revision;
                 aggregateRoot = (T)FastActivator.CreateInstance(typeof(T), true);
-                aggregateRoot.ReplayEvents(events.ToList(), currentRevision, snapshot);
+                aggregateRoot.ReplayEvents(events.ToList(), currentRevision, snapshot.State);
                 return true;
             }
             else

@@ -18,7 +18,7 @@ namespace Elders.Cronus.Snapshots
         Task<Snapshot> ReadAsync(Urn id, int revision);
     }
 
-    public record Snapshot(Urn Id, int Revision, object State);
+    public record Snapshot(Urn Id, int Revision, IAggregateRootState State);
 
     public class NoOpSnapshotReader : ISnapshotReader
     {

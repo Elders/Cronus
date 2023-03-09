@@ -50,7 +50,7 @@ namespace Elders.Cronus.EventStore
         {
             if (typeof(AR).IsSnapshotable())
             {
-                var snapshot = await snapshotReader.ReadAsync(id);
+                Snapshot snapshot = await snapshotReader.ReadAsync(id);
                 if (snapshot is not null)
                 {
                     EventStream eventStream = await eventStore.LoadAsync(id, snapshot.Revision).ConfigureAwait(false);
