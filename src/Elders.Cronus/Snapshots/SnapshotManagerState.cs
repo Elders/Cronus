@@ -16,14 +16,14 @@ namespace Elders.Cronus.Snapshots
             .FirstOrDefault();
 
         public int LastCompletedRevision => Revisions
-            .Where(x => x.Status == SnapshotStatus.Completed)
+            .Where(x => x.Status == SnapshotRevisionStatus.Completed)
             .Select(x => x.Revision)
             .Max();
 
         public void When(SnapshotRequested e)
         {
             Id = e.Id;
-            Revisions.Add(new RevisionStatus(e.Revision, SnapshotStatus.Running));
+            Revisions.Add(new RevisionStatus(e.Revision, SnapshotRevisionStatus.Running));
             AggregateContract = e.AggregareContract;
         }
     }

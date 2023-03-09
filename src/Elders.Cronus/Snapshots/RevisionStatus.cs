@@ -8,7 +8,7 @@ namespace Elders.Cronus.Snapshots
     {
         RevisionStatus() { }
 
-        public RevisionStatus(int revision, SnapshotStatus status)
+        public RevisionStatus(int revision, SnapshotRevisionStatus status)
         {
             Revision = revision;
             Status = status ?? throw new ArgumentNullException(nameof(status));
@@ -18,6 +18,6 @@ namespace Elders.Cronus.Snapshots
         public int Revision { get; private set; }
 
         [DataMember(Order = 2)]
-        public SnapshotStatus Status { get; private set; }
+        public SnapshotRevisionStatus Status { get; private set; }
     }
 }
