@@ -24,7 +24,7 @@ namespace Elders.Cronus.Snapshots
         {
             Id = e.Id;
             Revisions.Add(new RevisionStatus(e.Revision, SnapshotRevisionStatus.Running));
-            AggregateContract = e.AggregareContract;
+            AggregateContract = e.AggregateContract;
         }
     }
 }

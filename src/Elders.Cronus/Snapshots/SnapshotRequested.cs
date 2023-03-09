@@ -14,7 +14,7 @@ namespace Elders.Cronus.Snapshots
 
             Id = id ?? throw new ArgumentNullException(nameof(id));
             Revision = revision;
-            AggregareContract = aggregareContract;
+            AggregateContract = aggregareContract;
             Timestamp = timestamp;
         }
 
@@ -25,7 +25,7 @@ namespace Elders.Cronus.Snapshots
         public int Revision { get; private set; }
 
         [DataMember(Order = 3)]
-        public string AggregareContract { get; private set; }
+        public string AggregateContract { get; private set; }
 
         [DataMember(Order = 4)]
         public DateTimeOffset Timestamp { get; private set; }
