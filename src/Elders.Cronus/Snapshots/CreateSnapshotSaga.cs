@@ -5,7 +5,7 @@ using Elders.Cronus.Cluster.Job;
 
 namespace Elders.Cronus.Snapshots
 {
-    public sealed class CreateSnapshotSaga : Saga,
+    public sealed class CreateSnapshotSaga : Saga, ISystemSaga,
         IEventHandler<SnapshotRequested>,
         ISagaTimeoutHandler<CreateSnapshotScheduledMessage>
     {
@@ -29,7 +29,7 @@ namespace Elders.Cronus.Snapshots
         {
             var job = createSnapshot_JobFactory.CreateJob(
                 sagaTimeout.SnapshotRequested.Id.AggregateId,
-                sagaTimeout.SnapshotRequested.AggregareContract,
+                sagaTimeout.SnapshotRequested.AggregateContract,
                 sagaTimeout.SnapshotRequested.Revision,
                 sagaTimeout.SnapshotRequested.Timestamp);
 
@@ -41,17 +41,17 @@ namespace Elders.Cronus.Snapshots
             }
             else if (result == JobExecutionStatus.Failed)
             {
-                var failed = new MarkSnapshotCreationAsFailed(sagaTimeout.SnapshotRequested.Id);
+                var failed = new MarkSnapshotCreationAsFailed(sagaTimeout.SnapshotRequested.Id, sagaTimeout.SnapshotRequested.Revision);
                 commandPublisher.Publish(failed);
             }
             else if (result == JobExecutionStatus.Completed)
             {
-                var finalize = new MarkSnapshotAsCreated(sagaTimeout.SnapshotRequested.Id);
+                var finalize = new MarkSnapshotAsCreated(sagaTimeout.SnapshotRequested.Id, sagaTimeout.SnapshotRequested.Revision);
                 commandPublisher.Publish(finalize);
             }
             else if (result == JobExecutionStatus.Canceled)
             {
-                var canceled = new MarkSnapshotAsCanceled(sagaTimeout.SnapshotRequested.Id);
+                var canceled = new MarkSnapshotAsCanceled(sagaTimeout.SnapshotRequested.Id, sagaTimeout.SnapshotRequested.Revision);
                 commandPublisher.Publish(canceled);
             }
         }
@@ -82,13 +82,17 @@ namespace Elders.Cronus.Snapshots
     {
         MarkSnapshotCreationAsFailed() { }
 
-        public MarkSnapshotCreationAsFailed(SnapshotManagerId id)
+        public MarkSnapshotCreationAsFailed(SnapshotManagerId id, int revision)
         {
             Id = id;
+            Revision = revision;
         }
 
         [DataMember(Order = 1)]
         public SnapshotManagerId Id { get; private set; }
+
+        [DataMember(Order = 2)]
+        public int Revision { get; private set; }
     }
 
     [DataContract(Name = "c29ed844-58da-4196-81f3-96b29ad1628f")]
@@ -96,13 +100,17 @@ namespace Elders.Cronus.Snapshots
     {
         MarkSnapshotAsCreated() { }
 
-        public MarkSnapshotAsCreated(SnapshotManagerId id)
+        public MarkSnapshotAsCreated(SnapshotManagerId id, int revision)
         {
             Id = id;
+            Revision = revision;
         }
 
         [DataMember(Order = 1)]
         public SnapshotManagerId Id { get; private set; }
+
+        [DataMember(Order = 2)]
+        public int Revision { get; private set; }
     }
 
     [DataContract(Name = "9047662e-2be2-4df6-98c6-0efc79baf0a4")]
@@ -110,12 +118,16 @@ namespace Elders.Cronus.Snapshots
     {
         MarkSnapshotAsCanceled() { }
 
-        public MarkSnapshotAsCanceled(SnapshotManagerId id)
+        public MarkSnapshotAsCanceled(SnapshotManagerId id, int revision)
         {
             Id = id;
+            Revision = revision;
         }
 
         [DataMember(Order = 1)]
         public SnapshotManagerId Id { get; private set; }
+
+        [DataMember(Order = 2)]
+        public int Revision { get; private set; }
     }
 }

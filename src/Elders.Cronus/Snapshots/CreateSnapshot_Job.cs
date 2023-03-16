@@ -48,13 +48,20 @@ namespace Elders.Cronus.Snapshots
                     return JobExecutionStatus.Failed;
                 }
 
-                var state = ((dynamic)aggregateRoot).State;
-                await snapshotWriter.WriteAsync(Data.Id, Data.Revision, state).ConfigureAwait(false);
-                Data.Error = null;
+                if (aggregateRoot is IHaveState<IAggregateRootState> state)
+                {
+                    await snapshotWriter.WriteAsync(Data.Id, Data.Revision, state.State).ConfigureAwait(false);
+                    Data.Error = null;
+                    Data.IsCompleted = true;
+                    Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+
+                    return JobExecutionStatus.Completed;
+                }
+
+                Data.Error = $"Aggregate root does not implement {nameof(IHaveState<IAggregateRootState>)}. Canceling.";
                 Data.IsCompleted = true;
                 Data = await cluster.PingAsync(Data).ConfigureAwait(false);
-
-                return JobExecutionStatus.Completed;
+                return JobExecutionStatus.Canceled;
             }
             catch (Exception ex)
             {

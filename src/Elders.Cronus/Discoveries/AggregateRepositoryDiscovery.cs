@@ -43,7 +43,6 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverSnapshots(DiscoveryContext context)
         {
-            yield return new DiscoveredModel(typeof(CreateSnapshot_Job), typeof(CreateSnapshot_Job), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(ISnapshotStrategy), typeof(NoSnapshotsStrategy), ServiceLifetime.Singleton) { CanOverrideDefaults = true };
             yield return new DiscoveredModel(typeof(ISnapshotWriter), typeof(NoOpSnapshotWriter), ServiceLifetime.Singleton) { CanOverrideDefaults = true };
             yield return new DiscoveredModel(typeof(ISnapshotReader), typeof(NoOpSnapshotReader), ServiceLifetime.Singleton) { CanOverrideDefaults = true };

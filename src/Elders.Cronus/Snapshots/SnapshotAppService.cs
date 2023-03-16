@@ -3,7 +3,10 @@
 namespace Elders.Cronus.Snapshots
 {
     internal sealed class SnapshotAppService : ApplicationService<SnapshotManager>, ISystemAppService,
-        ICommandHandler<RequestSnapshot>
+    ICommandHandler<RequestSnapshot>,
+    ICommandHandler<MarkSnapshotAsCreated>,
+    ICommandHandler<MarkSnapshotAsCanceled>,
+    ICommandHandler<MarkSnapshotCreationAsFailed>
     {
         private readonly ISnapshotStrategy snapshotStrategy;
 
@@ -27,6 +30,21 @@ namespace Elders.Cronus.Snapshots
 
             await snapshot.RequestSnapshotAsync(command.Id, command.Revision, command.AggregareContract, snapshotStrategy).ConfigureAwait(false);
             await repository.SaveAsync(snapshot).ConfigureAwait(false);
+        }
+
+        public Task HandleAsync(MarkSnapshotAsCreated command)
+        {
+            return UpdateAsync(command.Id, ar => ar.MarkAsCreated(command.Revision));
+        }
+
+        public Task HandleAsync(MarkSnapshotAsCanceled command)
+        {
+            return UpdateAsync(command.Id, ar => ar.MarkAsCanceled(command.Revision));
+        }
+
+        public Task HandleAsync(MarkSnapshotCreationAsFailed command)
+        {
+            return UpdateAsync(command.Id, ar => ar.MarkAsFailed(command.Revision));
         }
     }
 }

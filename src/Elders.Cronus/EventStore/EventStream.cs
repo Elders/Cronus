@@ -1,4 +1,3 @@
-using Elders.Cronus.Snapshots;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,22 +32,20 @@ namespace Elders.Cronus.EventStore
 
         public IEnumerable<AggregateCommit> Commits { get { return aggregateCommits; } }
 
-        public bool TryRestoreFromSnapshot<T>(Snapshot snapshot, out T aggregateRoot)
+        public bool TryRestoreFromSnapshot<T>(object state, int snapshotRevision, out T aggregateRoot)
             where T : IAmEventSourced
         {
-            aggregateRoot = default(T);
-            var events = aggregateCommits.SelectMany(x => x.Events);
-            if (events.Any())
-            {
-                int currentRevision = aggregateCommits.Last().Revision;
-                aggregateRoot = (T)FastActivator.CreateInstance(typeof(T), true);
-                aggregateRoot.ReplayEvents(events.ToList(), currentRevision, snapshot.State);
-                return true;
-            }
-            else
-            {
+            aggregateRoot = default;
+
+            if (state is null)
                 return false;
-            }
+
+            var events = aggregateCommits.SelectMany(x => x.Events);
+
+            int currentRevision = aggregateCommits.Any() ? aggregateCommits.Last().Revision : snapshotRevision;
+            aggregateRoot = (T)FastActivator.CreateInstance(typeof(T), true);
+            aggregateRoot.ReplayEvents(events.ToList(), currentRevision, (IAggregateRootState)state);
+            return true;
         }
 
         public bool TryRestoreFromHistory<T>(out T aggregateRoot) where T : IAmEventSourced

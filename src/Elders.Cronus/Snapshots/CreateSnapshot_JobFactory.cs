@@ -19,7 +19,7 @@ namespace Elders.Cronus.Snapshots
 
         public CreateSnapshot_Job CreateJob(Urn id, string aggregateContract, int revision, DateTimeOffset requestedOn)
         {
-            job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{id}_{revision}";
+            job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{id.NSS}_{revision}";
 
             job.BuildInitialData(() =>
             {

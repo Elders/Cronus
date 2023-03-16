@@ -59,7 +59,7 @@ namespace Elders.Cronus.EventStore
                         throw new EventStreamIntegrityViolationException($"Aggregare root integrity is violated for id {id.Value} and snapshot revision {snapshot.Revision}");
                     eventStream = integrityResult.Output;
 
-                    if (eventStream.TryRestoreFromSnapshot(snapshot, out AR aggregateRoot))
+                    if (eventStream.TryRestoreFromSnapshot(snapshot.State, snapshot.Revision, out AR aggregateRoot))
                         return new ReadResult<AR>(aggregateRoot);
                 }
             }
@@ -101,10 +101,13 @@ namespace Elders.Cronus.EventStore
                 // #prodalzavameNapred
                 // #bravoKobra
                 // https://www.youtube.com/watch?v=2wWusHu_3w8
-                var published = publisher.Publish(new RequestSnapshot(new SnapshotManagerId(aggregateRoot.State.Id, aggregateRoot.State.Id.Tenant), aggregateRoot.Revision, typeof(AR).GetContractId()));
-                if (published == false)
+                if (typeof(AR).IsSnapshotable())
                 {
-                    // epic fail
+                    var published = publisher.Publish(new RequestSnapshot(new SnapshotManagerId(aggregateRoot.State.Id, aggregateRoot.State.Id.Tenant), aggregateRoot.Revision, typeof(AR).GetContractId()));
+                    if (published == false)
+                    {
+                        // epic fail
+                    }
                 }
 
                 return arCommit;

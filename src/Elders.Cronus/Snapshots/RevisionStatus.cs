@@ -8,10 +8,11 @@ namespace Elders.Cronus.Snapshots
     {
         RevisionStatus() { }
 
-        public RevisionStatus(int revision, SnapshotRevisionStatus status)
+        public RevisionStatus(int revision, SnapshotRevisionStatus status, DateTimeOffset timestamp)
         {
             Revision = revision;
             Status = status ?? throw new ArgumentNullException(nameof(status));
+            Timestamp = timestamp;
         }
 
         [DataMember(Order = 1)]
@@ -19,5 +20,8 @@ namespace Elders.Cronus.Snapshots
 
         [DataMember(Order = 2)]
         public SnapshotRevisionStatus Status { get; private set; }
+
+        [DataMember(Order = 3)]
+        public DateTimeOffset Timestamp { get; private set; }
     }
 }
