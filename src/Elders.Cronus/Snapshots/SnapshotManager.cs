@@ -9,7 +9,7 @@ namespace Elders.Cronus.Snapshots
         {
             if (state.LastRevision is not null && state.LastRevision.Status.IsRunning)
             {
-                if (DateTimeOffset.UtcNow.AddSeconds(-3) > state.LastRevision.Timestamp)
+                if (DateTimeOffset.UtcNow.AddSeconds(-30) > state.LastRevision.Timestamp)
                     Apply(new SnapshotCanceled(id, revision, aggregateContract, DateTimeOffset.UtcNow));
                 else
                     return;
