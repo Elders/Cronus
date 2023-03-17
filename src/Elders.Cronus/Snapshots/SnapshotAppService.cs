@@ -3,10 +3,10 @@
 namespace Elders.Cronus.Snapshots
 {
     internal sealed class SnapshotAppService : ApplicationService<SnapshotManager>, ISystemAppService,
-    ICommandHandler<RequestSnapshot>,
-    ICommandHandler<MarkSnapshotAsCreated>,
-    ICommandHandler<MarkSnapshotAsCanceled>,
-    ICommandHandler<MarkSnapshotCreationAsFailed>
+        ICommandHandler<RequestSnapshot>,
+        ICommandHandler<MarkSnapshotAsCreated>,
+        ICommandHandler<MarkSnapshotAsCanceled>,
+        ICommandHandler<MarkSnapshotCreationAsFailed>
     {
         private readonly ISnapshotStrategy snapshotStrategy;
 
@@ -22,7 +22,7 @@ namespace Elders.Cronus.Snapshots
                 return;
 
             var loadResult = await repository.LoadAsync<SnapshotManager>(command.Id).ConfigureAwait(false);
-            SnapshotManager snapshot = default;
+            SnapshotManager snapshot;
             if (loadResult.IsSuccess == false)
                 snapshot = new SnapshotManager();
             else
