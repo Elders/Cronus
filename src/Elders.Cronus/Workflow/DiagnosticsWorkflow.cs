@@ -85,7 +85,7 @@ namespace Elders.Cronus.Workflow
 
     public sealed class ExceptionEaterWorkflow<TContext> : Workflow<TContext> where TContext : HandleContext
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DiagnosticsWorkflow<>));
+        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(ExceptionEaterWorkflow<TContext>));
 
         readonly Workflow<TContext> workflow;
 

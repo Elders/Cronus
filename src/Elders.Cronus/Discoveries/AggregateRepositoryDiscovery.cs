@@ -3,7 +3,8 @@ using System.Linq;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Snapshots;
+using Elders.Cronus.Snapshots.SnapshotStore;
+using Elders.Cronus.Snapshots.Strategy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -24,6 +25,7 @@ namespace Elders.Cronus.Discoveries
         protected virtual IEnumerable<DiscoveredModel> DiscoverAggregateRepository(DiscoveryContext context)
         {
             yield return new DiscoveredModel(typeof(AggregateRepository), typeof(AggregateRepository), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(SnapshottingAggregateRepository), typeof(SnapshottingAggregateRepository), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(AggregateRepositoryAndEventPublisher), typeof(AggregateRepositoryAndEventPublisher), ServiceLifetime.Transient);
 
             if ("true".Equals(context.Configuration["Cronus:PublishAggregateCommits"], System.StringComparison.OrdinalIgnoreCase))
@@ -43,9 +45,9 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverSnapshots(DiscoveryContext context)
         {
-            yield return new DiscoveredModel(typeof(ISnapshotStrategy), typeof(NoSnapshotsStrategy), ServiceLifetime.Singleton) { CanOverrideDefaults = true };
-            yield return new DiscoveredModel(typeof(ISnapshotWriter), typeof(NoOpSnapshotWriter), ServiceLifetime.Singleton) { CanOverrideDefaults = true };
-            yield return new DiscoveredModel(typeof(ISnapshotReader), typeof(NoOpSnapshotReader), ServiceLifetime.Singleton) { CanOverrideDefaults = true };
+            yield return new DiscoveredModel(typeof(ISnapshotStrategy<AggregateSnapshotStrategyContext>), typeof(NoAggregateSnapshotsStrategy), ServiceLifetime.Singleton);
+            yield return new DiscoveredModel(typeof(ISnapshotWriter), typeof(NoOpSnapshotWriter), ServiceLifetime.Singleton);
+            yield return new DiscoveredModel(typeof(ISnapshotReader), typeof(NoOpSnapshotReader), ServiceLifetime.Singleton);
         }
     }
 }

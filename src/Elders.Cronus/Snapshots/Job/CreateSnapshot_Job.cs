@@ -4,9 +4,10 @@ using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.IntegrityValidation;
+using Elders.Cronus.Snapshots.SnapshotStore;
 using Microsoft.Extensions.Logging;
 
-namespace Elders.Cronus.Snapshots
+namespace Elders.Cronus.Snapshots.Job
 {
     public sealed class CreateSnapshot_Job : CronusJob<CreateSnapshot_JobData>
     {

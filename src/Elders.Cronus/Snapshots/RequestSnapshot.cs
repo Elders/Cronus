@@ -8,14 +8,16 @@ namespace Elders.Cronus.Snapshots
     {
         RequestSnapshot() { }
 
-        public RequestSnapshot(SnapshotManagerId id, int revision, string aggregareContract)
+        public RequestSnapshot(SnapshotManagerId id, int revision, string contract, int eventsLoaded, TimeSpan loadTime)
         {
             if (revision <= 0) throw new ArgumentOutOfRangeException(nameof(revision), "Revision must be a positive number.");
-            if (string.IsNullOrWhiteSpace(aggregareContract)) throw new ArgumentException($"'{nameof(aggregareContract)}' cannot be null or whitespace.", nameof(aggregareContract));
+            if (string.IsNullOrWhiteSpace(contract)) throw new ArgumentException($"'{nameof(contract)}' cannot be null or whitespace.", nameof(contract));
 
             Id = id ?? throw new ArgumentNullException(nameof(id));
             Revision = revision;
-            AggregareContract = aggregareContract;
+            Contract = contract;
+            EventsLoaded = eventsLoaded;
+            LoadTime = loadTime;
         }
 
         [DataMember(Order = 1)]
@@ -25,6 +27,12 @@ namespace Elders.Cronus.Snapshots
         public int Revision { get; private set; }
 
         [DataMember(Order = 3)]
-        public string AggregareContract { get; private set; }
+        public string Contract { get; private set; }
+
+        [DataMember(Order = 4)]
+        public int EventsLoaded { get; private set; }
+
+        [DataMember(Order = 5)]
+        public TimeSpan LoadTime { get; private set; }
     }
 }

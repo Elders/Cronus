@@ -2,7 +2,7 @@
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Options;
 
-namespace Elders.Cronus.Snapshots
+namespace Elders.Cronus.Snapshots.Job
 {
     public sealed class CreateSnapshot_JobFactory
     {

@@ -28,9 +28,12 @@ namespace Elders.Cronus.EventStore
         public EventStream(IList<AggregateCommit> aggregateCommits)
         {
             this.aggregateCommits = aggregateCommits;
+            EventsCount = aggregateCommits.SelectMany(x => x.Events).Count();
         }
 
         public IEnumerable<AggregateCommit> Commits { get { return aggregateCommits; } }
+        public int Count => aggregateCommits.Count;
+        public int EventsCount { get; }
 
         public bool TryRestoreFromSnapshot<T>(object state, int snapshotRevision, out T aggregateRoot)
             where T : IAmEventSourced

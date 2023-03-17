@@ -3,7 +3,7 @@ using Elders.Cronus.Discoveries;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.EventStore.Players;
 using Elders.Cronus.Projections.Rebuilding;
-using Elders.Cronus.Snapshots;
+using Elders.Cronus.Snapshots.Job;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Cluster.Job.InMemory

@@ -7,46 +7,43 @@ namespace Elders.Cronus.Snapshots
     {
         public override SnapshotManagerId Id { get; set; }
 
-        public string AggregateContract { get; set; }
+        public string Contract { get; set; }
 
         public HashSet<RevisionStatus> Revisions { get; set; } = new();
 
         public RevisionStatus GetRevisionStatus(int revision) => Revisions.Where(x => x.Revision == revision).FirstOrDefault();
 
         public RevisionStatus LastRevision => Revisions
-            .OrderByDescending(r => r.Revision)
-            .FirstOrDefault();
+            .MaxBy(r => r.Revision);
 
-        public RevisionStatus LastCompletedRevision => Revisions
+        public int? LastCompletedRevision => Revisions
             .Where(x => x.Status == SnapshotRevisionStatus.Completed)
-            .MaxBy(x => x.Revision);
+            .MaxBy(x => x.Revision)
+            ?.Revision;
 
         public void When(SnapshotRequested e)
         {
             Id = e.Id;
-            Revisions.Add(new RevisionStatus(e.Revision, SnapshotRevisionStatus.Running, e.Timestamp));
-            AggregateContract = e.AggregateContract;
+            Revisions.Add(e.NewRevisionStatus);
+            Contract = e.Contract;
         }
 
         public void When(SnapshotCompleted e)
         {
-            RevisionStatus rev = GetRevisionStatus(e.Revision);
-            Revisions.Remove(rev);
-            Revisions.Add(new RevisionStatus(e.Revision, SnapshotRevisionStatus.Completed, e.Timestamp));
+            Revisions.Remove(e.PreviousRevisionStatus);
+            Revisions.Add(e.NewRevisionStatus);
         }
 
         public void When(SnapshotCanceled e)
         {
-            RevisionStatus rev = GetRevisionStatus(e.Revision);
-            Revisions.Remove(rev);
-            Revisions.Add(new RevisionStatus(e.Revision, SnapshotRevisionStatus.Canceled, e.Timestamp));
+            Revisions.Remove(e.PreviousRevisionStatus);
+            Revisions.Add(e.NewRevisionStatus);
         }
 
         public void When(SnapshotFailed e)
         {
-            RevisionStatus rev = GetRevisionStatus(e.Revision);
-            Revisions.Remove(rev);
-            Revisions.Add(new RevisionStatus(e.Revision, SnapshotRevisionStatus.Failed, e.Timestamp));
+            Revisions.Remove(e.PreviousRevisionStatus);
+            Revisions.Add(e.NewRevisionStatus);
         }
     }
 }

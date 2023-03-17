@@ -3,17 +3,18 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Snapshots
 {
-    [DataContract(Name = "7636607d-40b9-4dfe-b395-d2da71e02444")]
-    public class SnapshotRequested : ISystemEvent
+    [DataContract(Name = "d1b92bdf-1d4a-43c9-b0c9-b0a63f336786")]
+    public class SnapshotCanceled : ISystemEvent
     {
-        SnapshotRequested() { }
+        SnapshotCanceled() { }
 
-        public SnapshotRequested(SnapshotManagerId id, RevisionStatus newRevisionStatus, string contract, DateTimeOffset timestamp)
+        public SnapshotCanceled(SnapshotManagerId id, RevisionStatus newRevisionStatus, RevisionStatus previousRevisionStatus, string contract, DateTimeOffset timestamp)
         {
             if (string.IsNullOrWhiteSpace(contract)) throw new ArgumentException($"'{nameof(contract)}' cannot be null or whitespace.", nameof(contract));
 
             Id = id ?? throw new ArgumentNullException(nameof(id));
-            NewRevisionStatus = newRevisionStatus;
+            NewRevisionStatus = newRevisionStatus ?? throw new ArgumentNullException(nameof(newRevisionStatus));
+            PreviousRevisionStatus = previousRevisionStatus;
             Contract = contract;
             Timestamp = timestamp;
         }
@@ -25,9 +26,12 @@ namespace Elders.Cronus.Snapshots
         public RevisionStatus NewRevisionStatus { get; private set; }
 
         [DataMember(Order = 3)]
-        public string Contract { get; private set; }
+        public RevisionStatus PreviousRevisionStatus { get; private set; }
 
         [DataMember(Order = 4)]
+        public string Contract { get; private set; }
+
+        [DataMember(Order = 5)]
         public DateTimeOffset Timestamp { get; private set; }
     }
 }

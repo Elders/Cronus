@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.IntegrityValidation;
-using Elders.Cronus.Snapshots;
 using Elders.Cronus.Userfull;
 
 namespace Elders.Cronus.EventStore
@@ -11,12 +10,10 @@ namespace Elders.Cronus.EventStore
     public sealed class AggregateRepository : IAggregateRepository
     {
         readonly IAggregateRootAtomicAction atomicAction;
-        private readonly ISnapshotReader snapshotReader;
         readonly IEventStore eventStore;
         readonly IIntegrityPolicy<EventStream> integrityPolicy;
-        private readonly IPublisher<ISystemCommand> publisher;
 
-        public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, ISnapshotReader snapshotReader, IIntegrityPolicy<EventStream> integrityPolicy, IPublisher<ISystemCommand> publisher)
+        public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
         {
             if (eventStoreFactory is null) throw new ArgumentNullException(nameof(eventStoreFactory));
             if (atomicAction is null) throw new ArgumentNullException(nameof(atomicAction));
@@ -24,9 +21,7 @@ namespace Elders.Cronus.EventStore
 
             this.eventStore = eventStoreFactory.GetEventStore();
             this.atomicAction = atomicAction;
-            this.snapshotReader = snapshotReader;
             this.integrityPolicy = integrityPolicy;
-            this.publisher = publisher;
         }
 
         /// <summary>
@@ -48,26 +43,14 @@ namespace Elders.Cronus.EventStore
         /// <returns></returns>
         public async Task<ReadResult<AR>> LoadAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
         {
-            if (typeof(AR).IsSnapshotable())
-            {
-                Snapshot snapshot = await snapshotReader.ReadAsync(id);
-                if (snapshot is not null)
-                {
-                    EventStream eventStream = await eventStore.LoadAsync(id, snapshot.Revision).ConfigureAwait(false);
-                    var integrityResult = integrityPolicy.Apply(eventStream);
-                    if (integrityResult.IsIntegrityViolated)
-                        throw new EventStreamIntegrityViolationException($"Aggregare root integrity is violated for id {id.Value} and snapshot revision {snapshot.Revision}");
-                    eventStream = integrityResult.Output;
+            var result = await LoadInternalAsync<AR>(id);
+            if (result.IsSuccess)
+                return result.Data.AggregateRootReadResult;
 
-                    if (eventStream.TryRestoreFromSnapshot(snapshot.State, snapshot.Revision, out AR aggregateRoot))
-                        return new ReadResult<AR>(aggregateRoot);
-                }
-            }
-
-            return await LoadInternalAsync<AR>(id).ConfigureAwait(false);
+            return ReadResult<AR>.WithNotFoundHint(result.NotFoundHint);
         }
 
-        private async Task<ReadResult<AR>> LoadInternalAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
+        internal async Task<ReadResult<AggregateRootReadMetadata<AR>>> LoadInternalAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
         {
             EventStream eventStream = await eventStore.LoadAsync(id).ConfigureAwait(false);
             var integrityResult = integrityPolicy.Apply(eventStream);
@@ -76,9 +59,10 @@ namespace Elders.Cronus.EventStore
             eventStream = integrityResult.Output;
             AR aggregateRoot;
             if (eventStream.TryRestoreFromHistory(out aggregateRoot) == false) // this should be a sync operation, it's just triggers internal in-memory handlers for an aggregate
-                return ReadResult<AR>.WithNotFoundHint($"Unable to load AR with ID={id.Value}");
+                return ReadResult<AggregateRootReadMetadata<AR>>.WithNotFoundHint($"Unable to load AR with ID={id.Value}");
 
-            return new ReadResult<AR>(aggregateRoot);
+            var metadata = new AggregateRootReadMetadata<AR>(new ReadResult<AR>(aggregateRoot), eventStream.Count, eventStream.EventsCount);
+            return new ReadResult<AggregateRootReadMetadata<AR>>(metadata);
         }
 
         internal async Task<AggregateCommit> SaveInternalAsync<AR>(AR aggregateRoot) where AR : IAggregateRoot
@@ -101,21 +85,26 @@ namespace Elders.Cronus.EventStore
                 // #prodalzavameNapred
                 // #bravoKobra
                 // https://www.youtube.com/watch?v=2wWusHu_3w8
-                if (typeof(AR).IsSnapshotable())
-                {
-                    var published = publisher.Publish(new RequestSnapshot(new SnapshotManagerId(aggregateRoot.State.Id, aggregateRoot.State.Id.Tenant), aggregateRoot.Revision, typeof(AR).GetContractId()));
-                    if (published == false)
-                    {
-                        // epic fail
-                    }
-                }
-
                 return arCommit;
             }
             else
             {
                 throw new AggregateStateFirstLevelConcurrencyException($"Unable to save AR {Environment.NewLine}{arCommit.ToString()}", result.Errors.MakeJustOneException());
             }
+        }
+
+        internal class AggregateRootReadMetadata<AR>
+        {
+            public AggregateRootReadMetadata(ReadResult<AR> aggregateRootReadResult, int aggregateCommitsCount, int eventsCount)
+            {
+                AggregateRootReadResult = aggregateRootReadResult;
+                AggregateCommitsCount = aggregateCommitsCount;
+                EventsCount = eventsCount;
+            }
+
+            public ReadResult<AR> AggregateRootReadResult { get; }
+            public int AggregateCommitsCount { get; }
+            public int EventsCount { get; }
         }
     }
 }

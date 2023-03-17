@@ -1,24 +1,25 @@
 ﻿using System.Threading.Tasks;
+using Elders.Cronus.Snapshots.Strategy;
 
 namespace Elders.Cronus.Snapshots
 {
     internal sealed class SnapshotAppService : ApplicationService<SnapshotManager>, ISystemAppService,
         ICommandHandler<RequestSnapshot>,
-        ICommandHandler<MarkSnapshotAsCreated>,
-        ICommandHandler<MarkSnapshotAsCanceled>,
-        ICommandHandler<MarkSnapshotCreationAsFailed>
+        ICommandHandler<CompleteSnapshot>,
+        ICommandHandler<CancelSnapshot>,
+        ICommandHandler<FailSnapshotCreation>
     {
-        private readonly ISnapshotStrategy snapshotStrategy;
+        private readonly ISnapshotStrategy<AggregateSnapshotStrategyContext> snapshotStrategy;
 
-        public SnapshotAppService(IAggregateRepository repository, ISnapshotStrategy snapshotStrategy) : base(repository)
+        public SnapshotAppService(IAggregateRepository repository, ISnapshotStrategy<AggregateSnapshotStrategyContext> snapshotStrategy) : base(repository)
         {
             this.snapshotStrategy = snapshotStrategy;
         }
 
         public async Task HandleAsync(RequestSnapshot command)
         {
-            var aggregateType = command.AggregareContract.GetTypeByContract();
-            if (aggregateType.IsSnapshotable() == false)
+            var instanceType = command.Contract.GetTypeByContract();
+            if (instanceType.IsSnapshotable() == false)
                 return;
 
             var loadResult = await repository.LoadAsync<SnapshotManager>(command.Id).ConfigureAwait(false);
@@ -28,23 +29,23 @@ namespace Elders.Cronus.Snapshots
             else
                 snapshot = loadResult.Data;
 
-            await snapshot.RequestSnapshotAsync(command.Id, command.Revision, command.AggregareContract, snapshotStrategy).ConfigureAwait(false);
+            await snapshot.RequestSnapshotAsync(command.Id, command.Revision, command.Contract, command.EventsLoaded, command.LoadTime, snapshotStrategy).ConfigureAwait(false);
             await repository.SaveAsync(snapshot).ConfigureAwait(false);
         }
 
-        public Task HandleAsync(MarkSnapshotAsCreated command)
+        public Task HandleAsync(CompleteSnapshot command)
         {
-            return UpdateAsync(command.Id, ar => ar.MarkAsCreated(command.Revision));
+            return UpdateAsync(command.Id, ar => ar.Complete(command.Revision));
         }
 
-        public Task HandleAsync(MarkSnapshotAsCanceled command)
+        public Task HandleAsync(CancelSnapshot command)
         {
-            return UpdateAsync(command.Id, ar => ar.MarkAsCanceled(command.Revision));
+            return UpdateAsync(command.Id, ar => ar.Cancel(command.Revision));
         }
 
-        public Task HandleAsync(MarkSnapshotCreationAsFailed command)
+        public Task HandleAsync(FailSnapshotCreation command)
         {
-            return UpdateAsync(command.Id, ar => ar.MarkAsFailed(command.Revision));
+            return UpdateAsync(command.Id, ar => ar.Fail(command.Revision));
         }
     }
 }

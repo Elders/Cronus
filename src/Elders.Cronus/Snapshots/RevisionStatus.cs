@@ -23,5 +23,9 @@ namespace Elders.Cronus.Snapshots
 
         [DataMember(Order = 3)]
         public DateTimeOffset Timestamp { get; private set; }
+
+        public RevisionStatus Cancel(DateTimeOffset timestamp) => new(Revision, SnapshotRevisionStatus.Canceled, timestamp);
+        public RevisionStatus Complete(DateTimeOffset timestamp) => new(Revision, SnapshotRevisionStatus.Completed, timestamp);
+        public RevisionStatus Fail(DateTimeOffset timestamp) => new(Revision, SnapshotRevisionStatus.Failed, timestamp);
     }
 }

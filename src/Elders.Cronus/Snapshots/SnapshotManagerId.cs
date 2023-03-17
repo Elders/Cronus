@@ -6,12 +6,12 @@ namespace Elders.Cronus.Snapshots
     public class SnapshotManagerId : AggregateRootId
     {
         SnapshotManagerId() { }
-        public SnapshotManagerId(Urn aggregateId, string tenant) : base(tenant, "snapshot", aggregateId.NSS)
+        public SnapshotManagerId(Urn instanceId, string tenant) : base(tenant, "snapshot", instanceId.NSS)
         {
-            AggregateId = aggregateId;
+            InstanceId = instanceId;
         }
 
         [DataMember(Order = 1)]
-        public Urn AggregateId { get; private set; }
+        public Urn InstanceId { get; private set; }
     }
 }

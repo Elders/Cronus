@@ -1,7 +1,7 @@
 ﻿using System;
 using Elders.Cronus.Cluster.Job;
 
-namespace Elders.Cronus.Snapshots
+namespace Elders.Cronus.Snapshots.Job
 {
     public sealed class CreateSnapshot_JobData : IJobData
     {
