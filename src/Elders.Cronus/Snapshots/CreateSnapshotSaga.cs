@@ -46,8 +46,8 @@ namespace Elders.Cronus.Snapshots
             }
             else if (result == JobExecutionStatus.Completed)
             {
-                var finalize = new MarkSnapshotAsCreated(sagaTimeout.SnapshotRequested.Id, sagaTimeout.SnapshotRequested.Revision);
-                commandPublisher.Publish(finalize);
+                var created = new MarkSnapshotAsCreated(sagaTimeout.SnapshotRequested.Id, sagaTimeout.SnapshotRequested.Revision);
+                commandPublisher.Publish(created);
             }
             else if (result == JobExecutionStatus.Canceled)
             {
