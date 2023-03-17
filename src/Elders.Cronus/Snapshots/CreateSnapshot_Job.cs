@@ -34,7 +34,7 @@ namespace Elders.Cronus.Snapshots
                 {
                     logger.Error(() => "Aggregate root's integrity with id {id} is violated.", Data.Id);
                     Data.Error = $"Aggregate root's integrity with id {Data.Id} is violated.";
-                    Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                    Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
                     return JobExecutionStatus.Failed;
                 }
 
@@ -44,7 +44,7 @@ namespace Elders.Cronus.Snapshots
                 {
                     logger.Error(() => "Unable to restore aggregate root with id {id} from history.", Data.Id);
                     Data.Error = $"Unable to restore aggregate root with id {Data.Id} from history.";
-                    Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                    Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
                     return JobExecutionStatus.Failed;
                 }
 
@@ -53,20 +53,20 @@ namespace Elders.Cronus.Snapshots
                     await snapshotWriter.WriteAsync(Data.Id, Data.Revision, iHaveState.State).ConfigureAwait(false);
                     Data.Error = null;
                     Data.IsCompleted = true;
-                    Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                    Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
                     return JobExecutionStatus.Completed;
                 }
 
-                Data.Error = $"Aggregate root does not implement {nameof(IHaveState<IAggregateRootState>)}. Canceling.";
-                Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                Data.Error = $"Aggregate root does not implement {nameof(IHaveState<IAggregateRootState>)}. Canceling...";
+                Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
                 return JobExecutionStatus.Canceled;
             }
             catch (Exception ex)
             {
                 logger.ErrorException(ex, () => "{jobName} job failed.", nameof(CreateSnapshot_Job));
                 Data.Error = ex.Message;
-                Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
                 return JobExecutionStatus.Failed;
             }
