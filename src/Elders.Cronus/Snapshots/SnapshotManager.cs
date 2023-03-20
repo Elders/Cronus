@@ -6,6 +6,13 @@ namespace Elders.Cronus.Snapshots
 {
     public class SnapshotManager : AggregateRoot<SnapshotManagerState>
     {
+        SnapshotManager() { }
+
+        public SnapshotManager(SnapshotManagerId id)
+        {
+            state.Id = id ?? throw new ArgumentNullException(nameof(id));
+        }
+
         public async Task RequestSnapshotAsync(SnapshotManagerId id, int revision, string contract, int eventsLoaded, TimeSpan loadTime, ISnapshotStrategy<AggregateSnapshotStrategyContext> snapshotStrategy)
         {
             if (state.LastRevision is not null && state.LastRevision.Status.IsRunning)

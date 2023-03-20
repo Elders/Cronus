@@ -23,7 +23,7 @@ namespace Elders.Cronus.EventStore
 
     public class EventStream
     {
-        IList<AggregateCommit> aggregateCommits;
+        readonly IList<AggregateCommit> aggregateCommits;
 
         public EventStream(IList<AggregateCommit> aggregateCommits)
         {
@@ -35,19 +35,17 @@ namespace Elders.Cronus.EventStore
         public int Count => aggregateCommits.Count;
         public int EventsCount { get; }
 
-        public bool TryRestoreFromSnapshot<T>(object state, int snapshotRevision, out T aggregateRoot)
-            where T : IAmEventSourced
+        public bool TryRestoreFromSnapshot<TRoot>(object state, int snapshotRevision, out TRoot aggregateRoot)
+            where TRoot : IAggregateRoot
         {
-            aggregateRoot = default;
+            aggregateRoot = (TRoot)FastActivator.CreateInstance(typeof(TRoot), true);
 
-            if (state is null)
+            if (aggregateRoot.IsSnapshotable() == false)
                 return false;
 
             var events = aggregateCommits.SelectMany(x => x.Events);
-
             int currentRevision = aggregateCommits.Any() ? aggregateCommits.Last().Revision : snapshotRevision;
-            aggregateRoot = (T)FastActivator.CreateInstance(typeof(T), true);
-            aggregateRoot.ReplayEvents(events.ToList(), currentRevision, (IAggregateRootState)state);
+            aggregateRoot.ReplayEvents(events.ToList(), currentRevision, state);
             return true;
         }
 

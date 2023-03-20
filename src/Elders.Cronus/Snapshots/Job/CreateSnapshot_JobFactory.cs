@@ -17,7 +17,7 @@ namespace Elders.Cronus.Snapshots.Job
             this.boundedContext = boundedContext.Value;
         }
 
-        public CreateSnapshot_Job CreateJob(Urn id, string aggregateContract, int revision, DateTimeOffset requestedOn)
+        public CreateSnapshot_Job CreateJob(Urn id, string contract, int revision, DateTimeOffset requestedOn)
         {
             job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{id.NSS}_{revision}";
 
@@ -27,7 +27,7 @@ namespace Elders.Cronus.Snapshots.Job
                 data.Timestamp = requestedOn;
                 data.Id = id;
                 data.Revision = revision;
-                data.AggregateContract = aggregateContract;
+                data.Contract = contract;
 
                 return data;
             });

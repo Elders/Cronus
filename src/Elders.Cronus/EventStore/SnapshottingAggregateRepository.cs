@@ -41,9 +41,7 @@ namespace Elders.Cronus.EventStore
                     if (result.IsSuccess)
                     {
                         var aggregateRootResult = result.Data.AggregateRootReadResult;
-                        var state = aggregateRootResult.Data.State;
-                        var revision = aggregateRootResult.Data.Revision;
-                        RequestSnapshot(arType, state, revision, result.Data.EventsCount, sw.Elapsed);
+                        RequestSnapshot(aggregateRootResult.Data, result.Data.EventsCount, sw.Elapsed);
                         return aggregateRootResult;
                     }
 
@@ -61,11 +59,12 @@ namespace Elders.Cronus.EventStore
                     if (eventStream.TryRestoreFromSnapshot(snapshot.State, snapshot.Revision, out AR aggregateRoot))
                     {
                         sw.Stop();
-                        RequestSnapshot(arType, aggregateRoot.State, aggregateRoot.Revision, eventStream.EventsCount, sw.Elapsed);
+                        RequestSnapshot(aggregateRoot, eventStream.EventsCount, sw.Elapsed);
                         return new ReadResult<AR>(aggregateRoot);
                     }
 
-                    return ReadResult<AR>.WithNotFoundHint($"Unable to load aggregate root with id {id.Value} from snapshot with revision {snapshot.Revision}.");
+                    var result = await realDeal.LoadAsync<AR>(id).ConfigureAwait(false);
+                    return result;
                 }
             }
             else
@@ -81,12 +80,21 @@ namespace Elders.Cronus.EventStore
         internal Task<AggregateCommit> SaveInternalAsync<AR>(AR aggregateRoot) where AR : IAggregateRoot
             => realDeal.SaveInternalAsync(aggregateRoot);
 
-        private void RequestSnapshot(Type arType, IAggregateRootState aggregateRootState, int revision, int eventsLoaded, TimeSpan loadTime)
+        private void RequestSnapshot(IAggregateRoot aggregateRoot, int eventsLoaded, TimeSpan loadTime)
         {
+            var arType = aggregateRoot.GetType();
             logger.Debug(() => "Aggregate root {type} with revision {revision} was loaded for {time} from {eventsCount} events. Requesting snapshot...",
-                arType.Name, revision, loadTime, eventsLoaded);
+                arType.Name, aggregateRoot.Revision, loadTime, eventsLoaded);
 
-            var published = publisher.Publish(new RequestSnapshot(new SnapshotManagerId(aggregateRootState.Id, aggregateRootState.Id.Tenant), revision, arType.GetContractId(), eventsLoaded, loadTime));
+            var id = new SnapshotManagerId(aggregateRoot.State.Id, aggregateRoot.State.Id.Tenant);
+            var published = publisher.Publish(
+                new RequestSnapshot(
+                    id,
+                    aggregateRoot.Revision,
+                    arType.GetContractId(),
+                    eventsLoaded,
+                    loadTime));
+
             if (published == false)
                 logger.Warn(() => "Failed to publish {cmd} command.", nameof(Snapshots.RequestSnapshot));
         }

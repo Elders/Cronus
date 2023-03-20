@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
@@ -40,7 +41,7 @@ namespace Elders.Cronus.Snapshots.Job
                 }
 
                 eventStream = integrityResult.Output;
-                var arType = Data.AggregateContract.GetTypeByContract();
+                var arType = Data.Contract.GetTypeByContract();
                 if (eventStream.TryRestoreFromHistory(Data.Revision, arType, out var aggregateRoot) == false)
                 {
                     logger.Error(() => "Unable to restore aggregate root with id {id} from history.", Data.Id);
@@ -49,19 +50,32 @@ namespace Elders.Cronus.Snapshots.Job
                     return JobExecutionStatus.Failed;
                 }
 
-                if (aggregateRoot is IHaveState<IAggregateRootState> iHaveState)
+                if (aggregateRoot is IAggregateRoot root)
                 {
-                    await snapshotWriter.WriteAsync(Data.Id, Data.Revision, iHaveState.State).ConfigureAwait(false);
-                    Data.Error = null;
-                    Data.IsCompleted = true;
-                    Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
+                    if (root.IsSnapshotable())
+                    {
+                        var method = root.GetType().GetMethod(nameof(IAmSnapshotable<object>.CreateSnapshot), BindingFlags.Public | BindingFlags.Instance);
+                        var snapshot = method.Invoke(root, null);
+                        await snapshotWriter.WriteAsync(Data.Id, Data.Revision, snapshot).ConfigureAwait(false);
+                        Data.Error = null;
+                        Data.IsCompleted = true;
+                        Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
-                    return JobExecutionStatus.Completed;
+                        return JobExecutionStatus.Completed;
+                    }
+                    else
+                    {
+                        Data.Error = $"Aggregate root state does not implement {nameof(IAmSnapshotable<object>)}. Canceling...";
+                        Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
+                        return JobExecutionStatus.Canceled;
+                    }
                 }
-
-                Data.Error = $"Aggregate root does not implement {nameof(IHaveState<IAggregateRootState>)}. Canceling...";
-                Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
-                return JobExecutionStatus.Canceled;
+                else
+                {
+                    Data.Error = $"Aggregate root does not implement {nameof(IAggregateRoot)}. Canceling...";
+                    Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
+                    return JobExecutionStatus.Canceled;
+                }
             }
             catch (Exception ex)
             {

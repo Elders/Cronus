@@ -9,7 +9,7 @@ namespace Elders.Cronus.Snapshots.Job
         public DateTimeOffset Timestamp { get; set; }
         public Urn Id { get; set; }
         public int Revision { get; set; }
-        public string AggregateContract { get; set; }
+        public string Contract { get; set; }
         public string Error { get; set; }
     }
 }

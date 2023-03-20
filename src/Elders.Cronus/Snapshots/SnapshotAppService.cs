@@ -25,7 +25,7 @@ namespace Elders.Cronus.Snapshots
             var loadResult = await repository.LoadAsync<SnapshotManager>(command.Id).ConfigureAwait(false);
             SnapshotManager snapshot;
             if (loadResult.IsSuccess == false)
-                snapshot = new SnapshotManager();
+                snapshot = new SnapshotManager(command.Id);
             else
                 snapshot = loadResult.Data;
 
