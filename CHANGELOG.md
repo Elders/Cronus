@@ -1,3 +1,10 @@
+# [9.0.0-preview.29](https://github.com/Elders/Cronus/compare/v9.0.0-preview.28...v9.0.0-preview.29) (2023-03-21)
+
+
+### Bug Fixes
+
+* update domainmodeling ([76167b1](https://github.com/Elders/Cronus/commit/76167b15922e07707c4223b13e9f7fa6ac15b8ca))
+
 # [9.0.0-preview.28](https://github.com/Elders/Cronus/compare/v9.0.0-preview.27...v9.0.0-preview.28) (2023-03-07)
 
 
