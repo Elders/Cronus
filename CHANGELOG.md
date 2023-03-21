@@ -1,3 +1,10 @@
+# [9.0.0-preview.30](https://github.com/Elders/Cronus/compare/v9.0.0-preview.29...v9.0.0-preview.30) (2023-03-21)
+
+
+### Features
+
+* Cronus now properly is indexing the PublicEvents produced by the current bounded context ([33c90a2](https://github.com/Elders/Cronus/commit/33c90a2e35b6b6bf85a5688786fabab474b8157d))
+
 # [9.0.0-preview.29](https://github.com/Elders/Cronus/compare/v9.0.0-preview.28...v9.0.0-preview.29) (2023-03-21)
 
 
