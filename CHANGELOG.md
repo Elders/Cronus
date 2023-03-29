@@ -1,3 +1,10 @@
+# [9.0.0-preview.32](https://github.com/Elders/Cronus/compare/v9.0.0-preview.31...v9.0.0-preview.32) (2023-03-29)
+
+
+### Bug Fixes
+
+* Fixes null reference error when setting counter ([4f8f99a](https://github.com/Elders/Cronus/commit/4f8f99a9ad31ed46f3b7c03970f6466daa86e998))
+
 # [9.0.0-preview.31](https://github.com/Elders/Cronus/compare/v9.0.0-preview.30...v9.0.0-preview.31) (2023-03-29)
 
 
