@@ -1,3 +1,10 @@
+# [9.0.0-preview.33](https://github.com/Elders/Cronus/compare/v9.0.0-preview.32...v9.0.0-preview.33) (2023-03-29)
+
+
+### Bug Fixes
+
+* Adds ToJson() method for IndexRecord ([5a04d7d](https://github.com/Elders/Cronus/commit/5a04d7d24caf9d207fde4ed6ea3d06ff69d8e101))
+
 # [9.0.0-preview.32](https://github.com/Elders/Cronus/compare/v9.0.0-preview.31...v9.0.0-preview.32) (2023-03-29)
 
 
