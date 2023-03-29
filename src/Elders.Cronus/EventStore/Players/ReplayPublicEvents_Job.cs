@@ -44,7 +44,7 @@ namespace Elders.Cronus.EventStore.Players
                 {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
             };
 
-            uint counter = 0;
+            ulong counter = Data.EventTypePaging.ProcessedCount;
             PlayerOperator @operator = new PlayerOperator()
             {
                 OnLoadAsync = eventRaw =>
@@ -61,7 +61,8 @@ namespace Elders.Cronus.EventStore.Players
                 },
                 NotifyProgressAsync = async options =>
                 {
-                    var progress = new ReplayPublicEvents_JobData.EventPaging(options.EventTypeId, options.PaginationToken, options.After, options.Before, 0, 0);
+                    var progress = new ReplayPublicEvents_JobData.EventPaging(options.EventTypeId, options.PaginationToken, options.After, options.Before, counter, 0);
+                    Data.EventTypePaging = progress;
                     Data.Timestamp = DateTimeOffset.UtcNow;
                     Data = await cluster.PingAsync(Data);
                 }
