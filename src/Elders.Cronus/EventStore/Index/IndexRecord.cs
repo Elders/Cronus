@@ -35,5 +35,10 @@ namespace Elders.Cronus.EventStore.Index
         public int Position { get; private set; }
 
         public long TimeStamp { get; private set; }
+
+        public string ToJson()
+        {
+            return System.Text.Json.JsonSerializer.Serialize(this);
+        }
     }
 }
