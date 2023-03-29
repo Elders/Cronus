@@ -44,7 +44,7 @@ namespace Elders.Cronus.EventStore.Players
                 {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
             };
 
-            ulong counter = Data.EventTypePaging.ProcessedCount;
+            ulong counter = Data.EventTypePaging is null ? 0 : Data.EventTypePaging.ProcessedCount;
             PlayerOperator @operator = new PlayerOperator()
             {
                 OnLoadAsync = eventRaw =>
