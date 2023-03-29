@@ -1,3 +1,10 @@
+# [9.0.0-preview.31](https://github.com/Elders/Cronus/compare/v9.0.0-preview.30...v9.0.0-preview.31) (2023-03-29)
+
+
+### Bug Fixes
+
+* Fixes ReplayPublicEvents_Job data sync with the cluster ([759a270](https://github.com/Elders/Cronus/commit/759a2701e45328ca32b5405cdfec9b8906c7dd1d))
+
 # [9.0.0-preview.30](https://github.com/Elders/Cronus/compare/v9.0.0-preview.29...v9.0.0-preview.30) (2023-03-21)
 
 
