@@ -1,3 +1,10 @@
+# [9.0.0-preview.34](https://github.com/Elders/Cronus/compare/v9.0.0-preview.33...v9.0.0-preview.34) (2023-03-31)
+
+
+### Bug Fixes
+
+* Fixes replay of the events ([c172e16](https://github.com/Elders/Cronus/commit/c172e16ee383ea5e2a1a4d0c404ad5f106e92086))
+
 # [9.0.0-preview.33](https://github.com/Elders/Cronus/compare/v9.0.0-preview.32...v9.0.0-preview.33) (2023-03-29)
 
 
