@@ -11,6 +11,7 @@ using System.IO;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
+using Elders.Cronus.Projections.Cassandra.EventSourcing;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
@@ -94,6 +95,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                     {
                         if (serializer.Deserialize(stream) is IEvent @event)
                         {
+                            @event = @event.Unwrap();
                             var instance = projectionInstancesToReplay.GetOrAdd(projectionType, type => context.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection);
 
                             EventOrigin origin = new EventOrigin(eventRaw.AggregateRootId, eventRaw.Revision, eventRaw.Position, eventRaw.Timestamp);
