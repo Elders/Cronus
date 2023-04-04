@@ -1,3 +1,10 @@
+# [9.0.0-preview.35](https://github.com/Elders/Cronus/compare/v9.0.0-preview.34...v9.0.0-preview.35) (2023-04-04)
+
+
+### Bug Fixes
+
+* call OnReplayCompletedAsync after projection is built ([ec0408a](https://github.com/Elders/Cronus/commit/ec0408a2bc746485215ad67faa3ef47d0ec6efca))
+
 # [9.0.0-preview.34](https://github.com/Elders/Cronus/compare/v9.0.0-preview.33...v9.0.0-preview.34) (2023-03-31)
 
 
