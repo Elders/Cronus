@@ -91,6 +91,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             {
                 OnLoadAsync = async eventRaw =>
                 {
+                    counter++;
                     using (var stream = new MemoryStream(eventRaw.Data))
                     {
                         if (serializer.Deserialize(stream) is IEvent @event)
@@ -108,7 +109,6 @@ namespace Elders.Cronus.Projections.Rebuilding
                             progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
                         }
                     }
-                    counter++;
                 },
                 NotifyProgressAsync = async options =>
                 {
@@ -147,6 +147,9 @@ namespace Elders.Cronus.Projections.Rebuilding
 
                 await player.EnumerateEventStore(@operator, opt).ConfigureAwait(false);
             }
+
+            var instance = projectionInstancesToReplay.GetOrAdd(projectionType, type => context.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection);
+            await instance.OnReplayCompletedAsync();
 
             pingSource.Cancel();
             Data.IsCompleted = true;
