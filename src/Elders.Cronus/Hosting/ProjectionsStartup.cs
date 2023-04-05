@@ -25,7 +25,7 @@ namespace Elders.Cronus
 
         public void Bootstrap()
         {
-            if (cronusHostOptions.ProjectionsEnabled)
+            if (cronusHostOptions.SystemServicesEnabled)
             {
                 var systemProjection = typeof(ISystemProjection);
                 foreach (var handler in handlerTypeContainer.Items.OrderByDescending(x => systemProjection.IsAssignableFrom(x)))

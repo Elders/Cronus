@@ -78,7 +78,12 @@ namespace Elders.Cronus
 
                 booter.BootstrapCronus();
 
-                if (hostOptions.ApplicationServicesEnabled) appServices.Start();
+                if (hostOptions.ApplicationServicesEnabled)
+                {
+                    appServices.Start();
+                    indices.Start();
+                }
+
                 if (hostOptions.SagasEnabled) sagas.Start();
                 if (hostOptions.ProjectionsEnabled) projections.Start();
                 if (hostOptions.PortsEnabled) ports.Start();
@@ -88,7 +93,6 @@ namespace Elders.Cronus
 
                 if (hostOptions.SystemServicesEnabled)
                 {
-                    indices.Start();
                     systemIndices.Start();
                     systemAppServices.Start();
                     systemPorts.Start();

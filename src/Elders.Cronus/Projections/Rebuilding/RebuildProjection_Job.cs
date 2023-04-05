@@ -102,8 +102,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                             EventOrigin origin = new EventOrigin(eventRaw.AggregateRootId, eventRaw.Revision, eventRaw.Position, eventRaw.Timestamp);
                             await projectionWriter
                                 .SaveAsync(projectionType, @event, origin, version)
-                                .ContinueWith(t => instance?
-                                    .ReplayEventAsync(@event))
+                                .ContinueWith(t => instance?.ReplayEventAsync(@event))
                                 .ConfigureAwait(false);
 
                             progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
@@ -149,7 +148,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             }
 
             var instance = projectionInstancesToReplay.GetOrAdd(projectionType, type => context.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection);
-            await instance.OnReplayCompletedAsync();
+            await instance.OnReplayCompletedAsync().ConfigureAwait(false);
 
             pingSource.Cancel();
             Data.IsCompleted = true;
