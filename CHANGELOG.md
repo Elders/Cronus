@@ -1,3 +1,10 @@
+# [9.0.0-preview.36](https://github.com/Elders/Cronus/compare/v9.0.0-preview.35...v9.0.0-preview.36) (2023-04-05)
+
+
+### Bug Fixes
+
+* Fixes projections/indices startup ([79b08a4](https://github.com/Elders/Cronus/commit/79b08a401cc2b5bae8945feb8e2f536ce46e55e7))
+
 # [9.0.0-preview.35](https://github.com/Elders/Cronus/compare/v9.0.0-preview.34...v9.0.0-preview.35) (2023-04-04)
 
 
