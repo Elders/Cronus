@@ -1,3 +1,10 @@
+# [9.0.0-preview.38](https://github.com/Elders/Cronus/compare/v9.0.0-preview.37...v9.0.0-preview.38) (2023-04-07)
+
+
+### Bug Fixes
+
+* Limits the rettry to 1 ([5ac941d](https://github.com/Elders/Cronus/commit/5ac941d76f09e802b703234d82eb408728eebef0))
+
 # [9.0.0-preview.37](https://github.com/Elders/Cronus/compare/v9.0.0-preview.36...v9.0.0-preview.37) (2023-04-07)
 
 
