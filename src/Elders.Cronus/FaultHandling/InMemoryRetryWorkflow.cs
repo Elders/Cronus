@@ -15,7 +15,7 @@ namespace Elders.Cronus.FaultHandling
         public InMemoryRetryWorkflow(Workflow<TContext> workflow, ILogger logger)
         {
             this.workflow = workflow;
-            var retryStrategy = new Incremental(5, TimeSpan.FromMilliseconds(250), TimeSpan.FromMilliseconds(500));//Total 3 etries
+            var retryStrategy = new Incremental(1, TimeSpan.FromMilliseconds(250), TimeSpan.FromMilliseconds(500));//Total 3 etries
             retryPolicy = new RetryPolicy(new TransientErrorCatchAllStrategy(), retryStrategy, logger);
         }
 
