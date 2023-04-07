@@ -13,6 +13,14 @@ namespace Elders.Cronus
             Headers = new Dictionary<string, string>();
         }
 
+        public CronusMessage(ReadOnlyMemory<byte> message, Type messageType, IDictionary<string, string> headers) : this()
+        {
+            Id = Guid.NewGuid();
+            PayloadRaw = message;
+            Headers = headers;
+            Headers.TryAdd(MessageHeader.MessageType, messageType.GetContractId());
+        }
+
         public CronusMessage(IMessage message, IDictionary<string, string> headers) : this()
         {
             Id = Guid.NewGuid();
@@ -28,6 +36,18 @@ namespace Elders.Cronus
 
         [DataMember(Order = 3)]
         public IDictionary<string, string> Headers { get; private set; }
+
+        [DataMember(Order = 4)]
+        public ReadOnlyMemory<byte> PayloadRaw { get; private set; }
+
+        public Type GetMessageType()
+        {
+            Type messageType = Payload is not null
+                ? Payload.GetType()
+                : Headers[MessageHeader.MessageType].GetTypeByContract();
+
+            return messageType;
+        }
 
         public string MessageId { get { return GetHeader(MessageHeader.MessageId); } }
 

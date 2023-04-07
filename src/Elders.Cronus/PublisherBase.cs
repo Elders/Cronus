@@ -67,6 +67,55 @@ namespace Elders.Cronus
             }
         }
 
+        public virtual bool Publish(ReadOnlyMemory<byte> messageRaw, Type messageType, Dictionary<string, string> messageHeaders)
+        {
+            try
+            {
+                if (typeof(TMessage).IsAssignableFrom(messageType) == false)
+                    throw new ArgumentException($"Publisher {this.GetType().Name} cannot publish a message of type {messageType.Name}");
+
+                var cronusMessage = new CronusMessage(messageRaw, messageType, messageHeaders);
+
+                using (logger.BeginScope(cronusMessage.CorelationId))
+                {
+                    bool isPublished = PublishInternal(cronusMessage);
+
+                    bool isSignal = typeof(TMessage) == typeof(ISystemSignal);
+                    if (isPublished && isSignal == false)
+                    {
+                        logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", typeof(TMessage).Name, messageType.Name, messageHeaders);
+                    }
+                    else if (isPublished == false)
+                    {
+                        logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", typeof(TMessage).Name, messageType.Name, messageHeaders);
+                    }
+
+                    return isPublished;
+                }
+            }
+            catch (Exception ex) when (logger.ErrorException(ex, () => BuildTraceData()))
+            {
+                return false;
+            }
+
+            string BuildTraceData()
+            {
+                StringBuilder errorMessage = new StringBuilder();
+                errorMessage.AppendLine("Failed to publish message!");
+
+                errorMessage.AppendLine("Headers:");
+                foreach (var header in messageHeaders)
+                {
+                    errorMessage.AppendLine($"{header.Key}:{header.Value}");
+                }
+
+                string messageString = Convert.ToBase64String(messageRaw.ToArray());
+                errorMessage.AppendLine(messageString);
+
+                return errorMessage.ToString();
+            }
+        }
+
         public virtual bool Publish(TMessage message, DateTime publishAt, Dictionary<string, string> messageHeaders = null)
         {
             messageHeaders = messageHeaders ?? new Dictionary<string, string>();

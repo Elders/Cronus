@@ -35,6 +35,14 @@ namespace Elders.Cronus.MessageProcessing
             return publisher.Publish(message, publishAt, messageHeaders);
         }
 
+        public bool Publish(ReadOnlyMemory<byte> messageRaw, Type messageRawType, Dictionary<string, string> messageHeaders = null)
+        {
+            messageHeaders = messageHeaders ?? new Dictionary<string, string>();
+            AddTrackHeaders(messageHeaders, cronusMessage);
+
+            return publisher.Publish(messageRaw, messageRawType, messageHeaders);
+        }
+
         Dictionary<string, string> AddTrackHeaders(Dictionary<string, string> messageHeaders, CronusMessage triggeredBy)
         {
             messageHeaders.Add(MessageHeader.CausationId, triggeredBy.MessageId);

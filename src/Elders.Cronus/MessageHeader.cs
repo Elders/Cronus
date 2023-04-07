@@ -16,6 +16,8 @@
 
         public const string MessageId = "messageid";
 
+        public const string MessageType = "messagetype";
+
         public const string Tenant = "tenant";
 
         public const string BoundedContext = "bounded_context";

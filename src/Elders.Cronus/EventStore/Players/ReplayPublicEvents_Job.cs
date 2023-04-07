@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
@@ -14,13 +15,13 @@ namespace Elders.Cronus.EventStore.Players
     public class ReplayPublicEvents_Job : CronusJob<ReplayPublicEvents_JobData>
     {
         private readonly IPublisher<IPublicEvent> publicEventPublisher;
-        private readonly ISerializer serializer;
+        private readonly CronusContext context;
         private readonly IEventStorePlayer player;
 
-        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, ISerializer serializer, IEventStorePlayer eventStorePlayer, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
+        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, CronusContext context, IEventStorePlayer eventStorePlayer, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
         {
             this.publicEventPublisher = publicEventPublisher;
-            this.serializer = serializer;
+            this.context = context;
             this.player = eventStorePlayer;
         }
         public override string Name { get; set; } = "c0e0f5fc-1f22-4022-96d0-bf02590951d6";
@@ -38,24 +39,29 @@ namespace Elders.Cronus.EventStore.Players
                 Before = Data.Before ?? DateTimeOffset.UtcNow
             };
 
-            var headers = new Dictionary<string, string>()
-            {
-                {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
-                {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
-            };
+            Type messageType = Data.SourceEventTypeId.GetTypeByContract();
+            string boundedContext = messageType.GetBoundedContext();
 
             ulong counter = Data.EventTypePaging is null ? 0 : Data.EventTypePaging.ProcessedCount;
             PlayerOperator @operator = new PlayerOperator()
             {
                 OnLoadAsync = eventRaw =>
                 {
-                    using (var stream = new MemoryStream(eventRaw.Data))
+                    string messageId = $"urn:cronus:{boundedContext}:{context.Tenant}:{Guid.NewGuid()}";
+                    var headers = new Dictionary<string, string>()
                     {
-                        if (serializer.Deserialize(stream) is IPublicEvent publicEvent)
-                        {
-                            publicEventPublisher.Publish(publicEvent, headers);
-                        }
-                    }
+                        { MessageHeader.MessageId, messageId },
+                        { MessageHeader.CorelationId, messageId },
+                        { MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext },
+                        { MessageHeader.RecipientHandlers, Data.RecipientHandlers },
+                        { MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString() },
+                        { MessageHeader.Tenant, context.Tenant },
+                        { MessageHeader.BoundedContext, boundedContext },
+                        { "contract_name",  Data.SourceEventTypeId }
+                    };
+
+                    publicEventPublisher.Publish(eventRaw.Data, Data.SourceEventTypeId.GetTypeByContract(), headers);
+
                     counter++;
                     return Task.CompletedTask;
                 },
