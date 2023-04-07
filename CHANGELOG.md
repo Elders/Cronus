@@ -1,3 +1,10 @@
+# [9.0.0-preview.39](https://github.com/Elders/Cronus/compare/v9.0.0-preview.38...v9.0.0-preview.39) (2023-04-07)
+
+
+### Reverts
+
+* Revert "fix: Limits the rettry to 1" ([d68b7a9](https://github.com/Elders/Cronus/commit/d68b7a97791f43ce98c55e859ba92e4e623d696a))
+
 # [9.0.0-preview.38](https://github.com/Elders/Cronus/compare/v9.0.0-preview.37...v9.0.0-preview.38) (2023-04-07)
 
 
