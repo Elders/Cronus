@@ -1,3 +1,10 @@
+# [9.0.0-preview.37](https://github.com/Elders/Cronus/compare/v9.0.0-preview.36...v9.0.0-preview.37) (2023-04-07)
+
+
+### Features
+
+* Optimizes the public event replays ([73051c5](https://github.com/Elders/Cronus/commit/73051c5499bb89a9886e22ffebff8d2eed4cc01f))
+
 # [9.0.0-preview.36](https://github.com/Elders/Cronus/compare/v9.0.0-preview.35...v9.0.0-preview.36) (2023-04-05)
 
 
