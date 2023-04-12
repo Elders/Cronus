@@ -54,6 +54,15 @@ namespace Elders.Cronus.Projections.Versioning
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
+            // This is a special case so we can recover the projections in case of disaster recovery.
+            if (state.Versions.ProjectionName == ProjectionVersionsHandler.ContractId)
+            {
+                ProjectionVersion currentLiveVersion = state.Versions.GetLive();
+                RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Rebuilding), new VersionRequestTimebox(DateTime.UtcNow));
+
+                return;
+            }
+
             if (CanRebuild(hash))
             {
                 ProjectionVersion currentLiveVersion = state.Versions.GetLive();
@@ -101,19 +110,20 @@ namespace Elders.Cronus.Projections.Versioning
         private bool ShouldReplay(string hash)
         {
             bool isNewHashTheLiveOne = state.Versions.IsHashTheLiveOne(hash);
-            bool isInProgress = state.Versions.HasBuildingVersion();
+            bool isInProgress = state.Versions.IsInProgress();
 
             return isInProgress == false && (state.Versions.HasLiveVersion == false || isNewHashTheLiveOne == false);
         }
 
         private bool CanReplay(string hash, IProjectionVersioningPolicy policy)
         {
+            bool isVersionable = state.Versions.IsVersionable(policy);
+            bool replayInProgress = state.Versions.HasReplayInProgress();
             bool isNewHashTheLiveOne = state.Versions.IsHashTheLiveOne(hash);
 
-            bool isVersionable = state.Versions.IsVersionable(policy);
-            bool doesntHaveBuildingVersion = state.Versions.HasBuildingVersion() == false;
+            bool initialProjectionCreation = isVersionable == false && isNewHashTheLiveOne == false && state.Versions.IsInProgress() == false; // This function handles the creation of a new projection when the system is running for the first time, regardless of whether or not the projection is versionable and there is no live version available.
 
-            return (doesntHaveBuildingVersion && isVersionable) || (doesntHaveBuildingVersion && isVersionable == false && isNewHashTheLiveOne == false);
+            return (replayInProgress == false && isVersionable) || initialProjectionCreation;
         }
 
         private bool CanRebuild(string hash)

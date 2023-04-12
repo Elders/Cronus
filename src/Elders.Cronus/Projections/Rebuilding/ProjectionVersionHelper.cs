@@ -67,7 +67,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             }
 
             ProjectionVersions allVersions = await GetAllVersionsAsync(version).ConfigureAwait(false);
-            if (allVersions.IsOutdatad(version))
+            if (allVersions.IsOutdated(version))
             {
                 logger.Error(() => $"Version `{version}` is outdated. There is a newer one which is already live.");
                 return true;

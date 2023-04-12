@@ -22,7 +22,7 @@ namespace Elders.Cronus.Projections
         It should_have_live_version = () => versions.GetLive().ShouldBeNull();
 
         It should_not_be__canceled__ = () => versions.IsCanceled(buildingVersion2).ShouldBeFalse();
-        It should_not_be__outdated__ = () => versions.IsOutdatad(buildingVersion2).ShouldBeFalse();
+        It should_not_be__outdated__ = () => versions.IsOutdated(buildingVersion2).ShouldBeFalse();
 
         static ProjectionVersion nextVersion;
         static ProjectionVersions versions;
