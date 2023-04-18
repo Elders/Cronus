@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Elders.Cronus.Snapshots.Options;
 using Elders.Cronus.Snapshots.Strategy;
 
 namespace Elders.Cronus.Snapshots
@@ -13,15 +14,14 @@ namespace Elders.Cronus.Snapshots
             state.Id = id ?? throw new ArgumentNullException(nameof(id));
         }
 
-        public async Task RequestSnapshotAsync(SnapshotManagerId id, int revision, string contract, int eventsLoaded, TimeSpan loadTime, ISnapshotStrategy<AggregateSnapshotStrategyContext> snapshotStrategy)
+        public async Task RequestSnapshotAsync(SnapshotManagerId id, int revision, string contract, int eventsLoaded, TimeSpan loadTime, ISnapshotStrategy<AggregateSnapshotStrategyContext> snapshotStrategy, SnapshotManagerOptions options)
         {
             if (state.LastRevision is not null && state.LastRevision.Status.IsRunning)
             {
-                if (DateTimeOffset.UtcNow.AddSeconds(-30) > state.LastRevision.Timestamp)
+                if (DateTimeOffset.UtcNow.AddMilliseconds(-options.SnapshotCreationTimeoutMilliseconds) > state.LastRevision.Timestamp)
                 {
                     var now = DateTimeOffset.UtcNow;
-                    var prevRevision = state.GetRevisionStatus(revision);
-                    Apply(new SnapshotCanceled(id, prevRevision.Cancel(now), prevRevision, contract, now));
+                    Apply(new SnapshotCanceled(id, state.LastRevision.Cancel(now), state.LastRevision, contract, now));
                 }
                 else
                     return;

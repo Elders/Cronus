@@ -1,5 +1,7 @@
 ﻿using System.Threading.Tasks;
+using Elders.Cronus.Snapshots.Options;
 using Elders.Cronus.Snapshots.Strategy;
+using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.Snapshots
 {
@@ -10,10 +12,12 @@ namespace Elders.Cronus.Snapshots
         ICommandHandler<FailSnapshotCreation>
     {
         private readonly ISnapshotStrategy<AggregateSnapshotStrategyContext> snapshotStrategy;
+        private readonly SnapshotManagerOptions _options;
 
-        public SnapshotAppService(IAggregateRepository repository, ISnapshotStrategy<AggregateSnapshotStrategyContext> snapshotStrategy) : base(repository)
+        public SnapshotAppService(IAggregateRepository repository, ISnapshotStrategy<AggregateSnapshotStrategyContext> snapshotStrategy, IOptionsMonitor<SnapshotManagerOptions> monitor) : base(repository)
         {
             this.snapshotStrategy = snapshotStrategy;
+            _options = monitor.CurrentValue;
         }
 
         public async Task HandleAsync(RequestSnapshot command)
@@ -29,7 +33,7 @@ namespace Elders.Cronus.Snapshots
             else
                 snapshot = loadResult.Data;
 
-            await snapshot.RequestSnapshotAsync(command.Id, command.Revision, command.Contract, command.EventsLoaded, command.LoadTime, snapshotStrategy).ConfigureAwait(false);
+            await snapshot.RequestSnapshotAsync(command.Id, command.Revision, command.Contract, command.EventsLoaded, command.LoadTime, snapshotStrategy, _options).ConfigureAwait(false);
             await repository.SaveAsync(snapshot).ConfigureAwait(false);
         }
 

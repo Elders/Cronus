@@ -3,6 +3,7 @@ using System.Linq;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Snapshots.Options;
 using Elders.Cronus.Snapshots.SnapshotStore;
 using Elders.Cronus.Snapshots.Strategy;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,7 +20,7 @@ namespace Elders.Cronus.Discoveries
                .Concat(DiscoverAggregateRepository(context))
                .Concat(DiscoverSnapshots(context));
 
-            return new DiscoveryResult<IAggregateRepository>(models);
+            return new DiscoveryResult<IAggregateRepository>(models, services => services.AddOptions<SnapshotManagerOptions, SnapshotManagerOptionsProvider>());
         }
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverAggregateRepository(DiscoveryContext context)
