@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,15 +28,19 @@ namespace Elders.Cronus.Snapshots.Job
 
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
+            Stopwatch sw = Stopwatch.StartNew();
             try
             {
                 EventStream eventStream = await eventStore.LoadAsync(Data.Id).ConfigureAwait(false);
+                logger.Info(() => "Loaded event stream for requested snapshot with id {id} for {elapsed}.", Data.Id, sw.Elapsed);
 
                 var integrityResult = integrityPolicy.Apply(eventStream);
                 if (integrityResult.IsIntegrityViolated)
                 {
-                    logger.Error(() => "Aggregate root's integrity with id {id} is violated.", Data.Id);
-                    Data.Error = $"Aggregate root's integrity with id {Data.Id} is violated.";
+                    sw.Stop();
+                    var elapsed = sw.Elapsed;
+                    logger.Error(() => "Aggregate root's integrity with id {id} is violated, time elapsed: {elapsed}", Data.Id, elapsed);
+                    Data.Error = $"Aggregate root's integrity with id {Data.Id} is violated, time elapsed: {elapsed}.";
                     Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
                     return JobExecutionStatus.Failed;
                 }
@@ -44,8 +49,10 @@ namespace Elders.Cronus.Snapshots.Job
                 var arType = Data.Contract.GetTypeByContract();
                 if (eventStream.TryRestoreFromHistory(Data.Revision, arType, out var aggregateRoot) == false)
                 {
-                    logger.Error(() => "Unable to restore aggregate root with id {id} from history.", Data.Id);
-                    Data.Error = $"Unable to restore aggregate root with id {Data.Id} from history.";
+                    sw.Stop();
+                    var elapsed = sw.Elapsed;
+                    logger.Error(() => "Unable to restore aggregate root with id {id} from history for {elapsed}", Data.Id, elapsed);
+                    Data.Error = $"Unable to restore aggregate root with id {Data.Id} from history for {elapsed}.";
                     Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
                     return JobExecutionStatus.Failed;
                 }
@@ -59,12 +66,15 @@ namespace Elders.Cronus.Snapshots.Job
                         await snapshotWriter.WriteAsync(Data.Id, Data.Revision, snapshot).ConfigureAwait(false);
                         Data.Error = null;
                         Data.IsCompleted = true;
-                        Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
+                        sw.Stop();
+                        logger.Info(() => "Created snapshot for aggregate root with id {id} for {elapsed}.", Data.Id, sw.Elapsed);
+                        Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
                         return JobExecutionStatus.Completed;
                     }
                     else
                     {
+                        sw.Stop();
                         Data.Error = $"Aggregate root state does not implement {nameof(IAmSnapshotable<object>)}. Canceling...";
                         Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
                         return JobExecutionStatus.Canceled;
@@ -72,6 +82,7 @@ namespace Elders.Cronus.Snapshots.Job
                 }
                 else
                 {
+                    sw.Stop();
                     Data.Error = $"Aggregate root does not implement {nameof(IAggregateRoot)}. Canceling...";
                     Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
                     return JobExecutionStatus.Canceled;
@@ -79,8 +90,9 @@ namespace Elders.Cronus.Snapshots.Job
             }
             catch (Exception ex)
             {
-                logger.ErrorException(ex, () => "{jobName} job failed.", nameof(CreateSnapshot_Job));
-                Data.Error = ex.Message;
+                sw.Stop();
+                logger.ErrorException(ex, () => "{jobName} job for aggregate root with id {id} failed, running for {elapsed}.", nameof(CreateSnapshot_Job), Data.Id, sw.Elapsed);
+                Data.Error = ex.Message + Environment.NewLine + $"Running for {sw.Elapsed}.";
                 Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
 
                 return JobExecutionStatus.Failed;
