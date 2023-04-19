@@ -1,18 +1,18 @@
-﻿using Elders.Cronus.EventStore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
 
 namespace Elders.Cronus.MessageProcessing
 {
     internal class AggregateRepositoryAndEventPublisher : IAggregateRepository
     {
-        readonly AggregateRepository aggregateRepository;
+        readonly SnapshottingAggregateRepository aggregateRepository;
         readonly IPublisher<IEvent> eventPublisher;
         private readonly IPublisher<IPublicEvent> publicEventPublisher;
         private readonly CronusContext context;
 
-        public AggregateRepositoryAndEventPublisher(AggregateRepository repository, IPublisher<IEvent> eventPublisher, IPublisher<IPublicEvent> publicEventPublisher, CronusContext context)
+        public AggregateRepositoryAndEventPublisher(SnapshottingAggregateRepository repository, IPublisher<IEvent> eventPublisher, IPublisher<IPublicEvent> publicEventPublisher, CronusContext context)
         {
             this.aggregateRepository = repository;
             this.eventPublisher = eventPublisher;

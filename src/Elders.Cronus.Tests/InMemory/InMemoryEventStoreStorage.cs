@@ -62,6 +62,16 @@ namespace Elders.Cronus.EventStore.InMemory
                 return new List<AggregateCommit>();
         }
 
+        internal protected List<AggregateCommit> Seek(IBlobId aggregateId, int afterRevision)
+        {
+            var idHash = Convert.ToBase64String(aggregateId.RawId);
+            ConcurrentQueue<AggregateCommit> commits;
+            if (eventsStreams.TryGetValue(idHash, out commits))
+                return commits.Where(x => x.Revision > afterRevision).ToList();
+            else
+                return new List<AggregateCommit>();
+        }
+
         public void Dispose()
         {
             if (eventsStreams != null)

@@ -7,6 +7,7 @@ namespace Elders.Cronus.EventStore
         Task AppendAsync(AggregateCommit aggregateCommit);
         Task AppendAsync(AggregateEventRaw eventRaw);
         Task<EventStream> LoadAsync(IBlobId aggregateId);
+        Task<EventStream> LoadAsync(IBlobId aggregateId, int afterRevision);
         Task<bool> DeleteAsync(AggregateEventRaw eventRaw);
     }
 

@@ -1,15 +1,15 @@
-﻿using Elders.Cronus.EventStore.Index.Handlers;
+﻿using System;
+using Elders.Cronus.EventStore.Index.Handlers;
 using Elders.Cronus.Projections.Versioning;
-using System;
 
 namespace Elders.Cronus.Projections
 {
     public static class ProjectionExtensions
     {
-        public static bool IsSnapshotable(this Type projectionType)
-        {
-            return typeof(Snapshotting.IAmSnapshotable).IsAssignableFrom(projectionType);
-        }
+        //public static bool IsSnapshotable(this Type projectionType)
+        //{
+        //    return typeof(Snapshotting.IAmSnapshotable).IsAssignableFrom(projectionType);
+        //}
 
         public static bool IsProjectionVersionHandler(this string projectionName)
         {

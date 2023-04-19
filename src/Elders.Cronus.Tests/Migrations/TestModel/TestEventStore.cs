@@ -1,7 +1,7 @@
-﻿using Elders.Cronus.EventStore;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
 
 namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
 {
@@ -35,6 +35,17 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
         public Task<bool> DeleteAsync(AggregateEventRaw eventRaw)
         {
             throw new System.NotImplementedException();
+        }
+
+        public Task<EventStream> LoadAsync(IBlobId aggregateId, int afterRevision)
+        {
+            var commits = Storage
+                .Where(x => x.AggregateRootId.SequenceEqual(aggregateId.RawId))
+                .Where(x => x.Revision > afterRevision)
+                .ToList();
+
+            var es = new EventStream(commits);
+            return Task.FromResult(es);
         }
     }
 }

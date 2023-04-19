@@ -45,5 +45,10 @@ namespace Elders.Cronus.EventStore.InMemory
         {
             throw new System.NotImplementedException();
         }
+
+        public Task<EventStream> LoadAsync(IBlobId aggregateId, int revision)
+        {
+            return Task.FromResult(new EventStream(eventStoreStorage.Seek(aggregateId, revision)));
+        }
     }
 }

@@ -23,14 +23,34 @@ namespace Elders.Cronus.EventStore
 
     public class EventStream
     {
-        IList<AggregateCommit> aggregateCommits;
+        readonly IList<AggregateCommit> aggregateCommits;
 
         public EventStream(IList<AggregateCommit> aggregateCommits)
         {
             this.aggregateCommits = aggregateCommits;
+            EventsCount = aggregateCommits.SelectMany(x => x.Events).Count();
         }
 
         public IEnumerable<AggregateCommit> Commits { get { return aggregateCommits; } }
+        public int Count => aggregateCommits.Count;
+        public int EventsCount { get; }
+
+        public bool TryRestoreFromSnapshot<TRoot>(object snapshot, int snapshotRevision, out TRoot aggregateRoot)
+            where TRoot : IAggregateRoot
+        {
+            aggregateRoot = default;
+
+            var rootType = typeof(TRoot);
+            if (rootType.IsSnapshotable() == false)
+                return false;
+
+            aggregateRoot = (TRoot)FastActivator.CreateInstance(rootType, true);
+
+            var events = aggregateCommits.SelectMany(x => x.Events);
+            int currentRevision = aggregateCommits.Any() ? aggregateCommits.Last().Revision : snapshotRevision;
+            aggregateRoot.ReplayEvents(events.ToList(), currentRevision, snapshot);
+            return true;
+        }
 
         public bool TryRestoreFromHistory<T>(out T aggregateRoot) where T : IAmEventSourced
         {
@@ -42,6 +62,24 @@ namespace Elders.Cronus.EventStore
                 int currentRevision = aggregateCommits.Last().Revision;
                 aggregateRoot = (T)FastActivator.CreateInstance(typeof(T), true);
                 aggregateRoot.ReplayEvents(events.ToList(), currentRevision);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool TryRestoreFromHistory(int revision, Type aggregateRootType, out object aggregateRoot)
+        {
+            //http://www.datastax.com/dev/blog/client-side-improvements-in-cassandra-2-0
+            aggregateRoot = default;
+            var events = aggregateCommits.Where(x => x.Revision <= revision).SelectMany(x => x.Events);
+            if (events.Any())
+            {
+                int currentRevision = aggregateCommits.Last().Revision;
+                aggregateRoot = FastActivator.CreateInstance(aggregateRootType, true);
+                ((IAmEventSourced)aggregateRoot).ReplayEvents(events.ToList(), currentRevision);
                 return true;
             }
             else

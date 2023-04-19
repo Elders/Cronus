@@ -3,6 +3,9 @@ using System.Linq;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Snapshots.Options;
+using Elders.Cronus.Snapshots.SnapshotStore;
+using Elders.Cronus.Snapshots.Strategy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -14,14 +17,16 @@ namespace Elders.Cronus.Discoveries
         {
             IEnumerable<DiscoveredModel> models =
                DiscoverEventStreamIntegrityPolicy<EventStreamIntegrityPolicy>(context)
-               .Concat(DiscoverAggregateRepository(context));
+               .Concat(DiscoverAggregateRepository(context))
+               .Concat(DiscoverSnapshots(context));
 
-            return new DiscoveryResult<IAggregateRepository>(models);
+            return new DiscoveryResult<IAggregateRepository>(models, services => services.AddOptions<SnapshotManagerOptions, SnapshotManagerOptionsProvider>());
         }
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverAggregateRepository(DiscoveryContext context)
         {
             yield return new DiscoveredModel(typeof(AggregateRepository), typeof(AggregateRepository), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(SnapshottingAggregateRepository), typeof(SnapshottingAggregateRepository), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(AggregateRepositoryAndEventPublisher), typeof(AggregateRepositoryAndEventPublisher), ServiceLifetime.Transient);
 
             if ("true".Equals(context.Configuration["Cronus:PublishAggregateCommits"], System.StringComparison.OrdinalIgnoreCase))
@@ -37,6 +42,13 @@ namespace Elders.Cronus.Discoveries
         protected virtual IEnumerable<DiscoveredModel> DiscoverEventStreamIntegrityPolicy<TIntegrityPolicy>(DiscoveryContext context) where TIntegrityPolicy : IIntegrityPolicy<EventStream>
         {
             return DiscoverModel<IIntegrityPolicy<EventStream>, TIntegrityPolicy>(ServiceLifetime.Transient);
+        }
+
+        protected virtual IEnumerable<DiscoveredModel> DiscoverSnapshots(DiscoveryContext context)
+        {
+            yield return new DiscoveredModel(typeof(ISnapshotStrategy<AggregateSnapshotStrategyContext>), typeof(NoAggregateSnapshotsStrategy), ServiceLifetime.Singleton);
+            yield return new DiscoveredModel(typeof(ISnapshotWriter), typeof(NoOpSnapshotWriter), ServiceLifetime.Singleton);
+            yield return new DiscoveredModel(typeof(ISnapshotReader), typeof(NoOpSnapshotReader), ServiceLifetime.Singleton);
         }
     }
 }

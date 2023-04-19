@@ -135,10 +135,12 @@ namespace Elders.Cronus
             return true;
         }
 
-        public static void ErrorException(this ILogger logger, Exception ex, Func<string> func, params object[] args)
+        public static bool ErrorException(this ILogger logger, Exception ex, Func<string> func, params object[] args)
         {
             if (logger.IsErrorEnabled())
                 logger.LogError(ex, func(), args);
+
+            return true;
         }
 
         public static void Critical(this ILogger logger, Func<string> func)

@@ -1,7 +1,6 @@
-﻿using Elders.Cronus.Testing;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore
 {
@@ -61,6 +60,18 @@ namespace Elders.Cronus.EventStore
             try
             {
                 return await eventStore.LoadAsync(aggregateId).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId}. \n Exception: {ex.Message}"))
+            {
+                throw;
+            }
+        }
+
+        public async Task<EventStream> LoadAsync(IBlobId aggregateId, int revision)
+        {
+            try
+            {
+                return await eventStore.LoadAsync(aggregateId, revision).ConfigureAwait(false);
             }
             catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId}. \n Exception: {ex.Message}"))
             {

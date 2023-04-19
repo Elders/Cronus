@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Elders.Cronus.AtomicAction;
-using Elders.Cronus.Userfull;
-using Elders.Cronus.IntegrityValidation;
 using System.Threading.Tasks;
+using Elders.Cronus.AtomicAction;
+using Elders.Cronus.IntegrityValidation;
+using Elders.Cronus.Userfull;
 
 namespace Elders.Cronus.EventStore
 {
@@ -43,6 +43,15 @@ namespace Elders.Cronus.EventStore
         /// <returns></returns>
         public async Task<ReadResult<AR>> LoadAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
         {
+            var result = await LoadInternalAsync<AR>(id);
+            if (result.IsSuccess)
+                return result.Data.AggregateRootReadResult;
+
+            return ReadResult<AR>.WithNotFoundHint(result.NotFoundHint);
+        }
+
+        internal async Task<ReadResult<AggregateRootReadMetadata<AR>>> LoadInternalAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
+        {
             EventStream eventStream = await eventStore.LoadAsync(id).ConfigureAwait(false);
             var integrityResult = integrityPolicy.Apply(eventStream);
             if (integrityResult.IsIntegrityViolated)
@@ -50,9 +59,10 @@ namespace Elders.Cronus.EventStore
             eventStream = integrityResult.Output;
             AR aggregateRoot;
             if (eventStream.TryRestoreFromHistory(out aggregateRoot) == false) // this should be a sync operation, it's just triggers internal in-memory handlers for an aggregate
-                return ReadResult<AR>.WithNotFoundHint($"Unable to load AR with ID={id.Value}");
+                return ReadResult<AggregateRootReadMetadata<AR>>.WithNotFoundHint($"Unable to load AR with ID={id.Value}");
 
-            return new ReadResult<AR>(aggregateRoot);
+            var metadata = new AggregateRootReadMetadata<AR>(new ReadResult<AR>(aggregateRoot), eventStream.Count, eventStream.EventsCount);
+            return new ReadResult<AggregateRootReadMetadata<AR>>(metadata);
         }
 
         internal async Task<AggregateCommit> SaveInternalAsync<AR>(AR aggregateRoot) where AR : IAggregateRoot
@@ -75,13 +85,26 @@ namespace Elders.Cronus.EventStore
                 // #prodalzavameNapred
                 // #bravoKobra
                 // https://www.youtube.com/watch?v=2wWusHu_3w8
-
                 return arCommit;
             }
             else
             {
                 throw new AggregateStateFirstLevelConcurrencyException($"Unable to save AR {Environment.NewLine}{arCommit.ToString()}", result.Errors.MakeJustOneException());
             }
+        }
+
+        internal class AggregateRootReadMetadata<AR>
+        {
+            public AggregateRootReadMetadata(ReadResult<AR> aggregateRootReadResult, int aggregateCommitsCount, int eventsCount)
+            {
+                AggregateRootReadResult = aggregateRootReadResult;
+                AggregateCommitsCount = aggregateCommitsCount;
+                EventsCount = eventsCount;
+            }
+
+            public ReadResult<AR> AggregateRootReadResult { get; }
+            public int AggregateCommitsCount { get; }
+            public int EventsCount { get; }
         }
     }
 }
