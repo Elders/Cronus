@@ -55,7 +55,7 @@ namespace Elders.Cronus.Snapshots
             It should_be_running = () => snapshot.RootState().GetRevisionStatus(revision).Status.ShouldBeTheSameAs(running.Status);
         }
 
-        class And_last_revision_is_still_running_after_30_seconds
+        class And_last_revision_is_still_running_after_snapshot_timeout
         {
             Because of = async () => await alreadyRequestedSnapshot.RequestSnapshotAsync(snapshotId, revision, contract, revision, new TimeSpan(0), snapshotStrategy, options);
 
