@@ -48,6 +48,7 @@ namespace Elders.Cronus.EventStore.Players
                 OnLoadAsync = eventRaw =>
                 {
                     string messageId = $"urn:cronus:{boundedContext}:{context.Tenant}:{Guid.NewGuid()}";
+                    //TODO: Document which headers are essential or make another ctor for CronusMessage with byte[]
                     var headers = new Dictionary<string, string>()
                     {
                         { MessageHeader.MessageId, messageId },

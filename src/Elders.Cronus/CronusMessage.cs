@@ -13,7 +13,7 @@ namespace Elders.Cronus
             Headers = new Dictionary<string, string>();
         }
 
-        public CronusMessage(ReadOnlyMemory<byte> message, Type messageType, IDictionary<string, string> headers) : this()
+        public CronusMessage(byte[] message, Type messageType, IDictionary<string, string> headers) : this()
         {
             Id = Guid.NewGuid();
             PayloadRaw = message;
@@ -38,7 +38,7 @@ namespace Elders.Cronus
         public IDictionary<string, string> Headers { get; private set; }
 
         [DataMember(Order = 4)]
-        public ReadOnlyMemory<byte> PayloadRaw { get; private set; }
+        public byte[] PayloadRaw { get; private set; }
 
         public Type GetMessageType()
         {

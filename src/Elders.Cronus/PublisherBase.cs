@@ -74,7 +74,7 @@ namespace Elders.Cronus
                 if (typeof(TMessage).IsAssignableFrom(messageType) == false)
                     throw new ArgumentException($"Publisher {this.GetType().Name} cannot publish a message of type {messageType.Name}");
 
-                var cronusMessage = new CronusMessage(messageRaw, messageType, messageHeaders);
+                var cronusMessage = new CronusMessage(messageRaw.ToArray(), messageType, messageHeaders);
 
                 using (logger.BeginScope(cronusMessage.CorelationId))
                 {
