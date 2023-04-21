@@ -1,3 +1,10 @@
+# [9.0.0-preview.40](https://github.com/Elders/Cronus/compare/v9.0.0-preview.39...v9.0.0-preview.40) (2023-04-21)
+
+
+### Bug Fixes
+
+* Fixes publicEventPublisher job when using raw messages ([54fbeb0](https://github.com/Elders/Cronus/commit/54fbeb03dfd86ad4f378ef9d81fb73c907002cf8))
+
 # [9.0.0-preview.39](https://github.com/Elders/Cronus/compare/v9.0.0-preview.38...v9.0.0-preview.39) (2023-04-07)
 
 
