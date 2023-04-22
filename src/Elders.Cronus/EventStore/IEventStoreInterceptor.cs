@@ -1,11 +1,11 @@
 ﻿namespace Elders.Cronus.EventStore
 {
-    public interface IEventStoreInterceptor
+    public interface IAggregateInterceptor
     {
         AggregateCommit Transform(AggregateCommit origin);
     }
 
-    public class NoAggregateCommitTransformer : IEventStoreInterceptor
+    public class EmptyAggregateTransformer : IAggregateInterceptor
     {
         public AggregateCommit Transform(AggregateCommit origin) => origin;
     }

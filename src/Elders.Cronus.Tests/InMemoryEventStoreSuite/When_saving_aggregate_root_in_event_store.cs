@@ -18,8 +18,8 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             eventStore = new InMemoryEventStore(eventStoreStorage);
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
             integrityPpolicy = new EventStreamIntegrityPolicy();
-            eventStoreFactory = new EventStoreFactory(eventStore, new NoAggregateCommitTransformer(), null);
-            aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy);
+            eventStoreFactory = new EventStoreFactory(eventStore, null);
+            aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy, new EmptyAggregateTransformer());
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
         };
