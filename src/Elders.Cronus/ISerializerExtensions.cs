@@ -1,7 +1,6 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System;
 using System.IO;
-using System.Text;
 
 namespace Elders.Cronus
 {
@@ -9,7 +8,6 @@ namespace Elders.Cronus
     {
         public static object DeserializeFromBytes(this ISerializer self, byte[] bytes)
         {
-            Encoding.UTF8.GetString(bytes);
             using (var stream = new MemoryStream(bytes))
             {
                 return self.Deserialize(stream);
