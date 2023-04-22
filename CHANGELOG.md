@@ -1,3 +1,16 @@
+# [9.0.0-preview.41](https://github.com/Elders/Cronus/compare/v9.0.0-preview.40...v9.0.0-preview.41) (2023-04-22)
+
+
+### Bug Fixes
+
+* Fixes logger type ([43726b2](https://github.com/Elders/Cronus/commit/43726b2028497d93205cf65fc0dcc58b572d0764))
+* Removes left over code which is slowing deserialization ([3fd3ab9](https://github.com/Elders/Cronus/commit/3fd3ab9ac4713e5cbc53a9a2c665446398288b0c))
+
+
+### Features
+
+* Reworks IEventStoreInterceptor to IAggregateInterceptor ([e5d9a97](https://github.com/Elders/Cronus/commit/e5d9a97c624914ee9f1e7f92b336bee9c4fcb437))
+
 # [9.0.0-preview.40](https://github.com/Elders/Cronus/compare/v9.0.0-preview.39...v9.0.0-preview.40) (2023-04-21)
 
 
