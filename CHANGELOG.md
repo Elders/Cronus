@@ -1,3 +1,10 @@
+# [8.8.0](https://github.com/Elders/Cronus/compare/v8.7.8...v8.8.0) (2023-04-28)
+
+
+### Features
+
+* Adds raw Payload to the CronusMessage ([816644c](https://github.com/Elders/Cronus/commit/816644c44dc8c8e074429c697eff384e5859b2b0))
+
 ## [8.7.8](https://github.com/Elders/Cronus/compare/v8.7.7...v8.7.8) (2023-03-07)
 
 
