@@ -13,6 +13,14 @@ namespace Elders.Cronus
             Headers = new Dictionary<string, string>();
         }
 
+        public CronusMessage(byte[] message, Type messageType, IDictionary<string, string> headers) : this()
+        {
+            Id = Guid.NewGuid();
+            PayloadRaw = message;
+            Headers = headers;
+            Headers.TryAdd(MessageHeader.MessageType, messageType.GetContractId());
+        }
+
         public CronusMessage(IMessage message, IDictionary<string, string> headers) : this()
         {
             Id = Guid.NewGuid();
@@ -28,6 +36,18 @@ namespace Elders.Cronus
 
         [DataMember(Order = 3)]
         public IDictionary<string, string> Headers { get; private set; }
+
+        [DataMember(Order = 4)]
+        public byte[] PayloadRaw { get; private set; }
+
+        public Type GetMessageType()
+        {
+            Type messageType = Payload is not null
+                ? Payload.GetType()
+                : Headers[MessageHeader.MessageType].GetTypeByContract();
+
+            return messageType;
+        }
 
         public string MessageId { get { return GetHeader(MessageHeader.MessageId); } }
 
@@ -79,7 +99,7 @@ namespace Elders.Cronus
 
         public override bool Equals(System.Object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
+            if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (!typeof(CronusMessage).IsAssignableFrom(obj.GetType())) return false;
             return Equals((CronusMessage)obj);
@@ -87,7 +107,7 @@ namespace Elders.Cronus
 
         public virtual bool Equals(CronusMessage other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
             return this.Id == other.Id;
         }
@@ -102,8 +122,8 @@ namespace Elders.Cronus
 
         public static bool operator ==(CronusMessage left, CronusMessage right)
         {
-            if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return true;
-            if (ReferenceEquals(null, left))
+            if (left is null && right is null) return true;
+            if (left is null)
                 return false;
             else
                 return left.Equals(right);
