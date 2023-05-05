@@ -1,3 +1,10 @@
+# [9.0.0-preview.42](https://github.com/Elders/Cronus/compare/v9.0.0-preview.41...v9.0.0-preview.42) (2023-05-05)
+
+
+### Bug Fixes
+
+* Disables event store index diagnostics ([1e6187b](https://github.com/Elders/Cronus/commit/1e6187b6955a8dd04c61e18f9c524bd5382b8f8d))
+
 # [9.0.0-preview.41](https://github.com/Elders/Cronus/compare/v9.0.0-preview.40...v9.0.0-preview.41) (2023-04-22)
 
 
