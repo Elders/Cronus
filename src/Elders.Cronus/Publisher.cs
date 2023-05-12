@@ -14,14 +14,9 @@ namespace Elders.Cronus;
 public abstract class Publisher<TMessage> : PublisherBase<TMessage> where TMessage : IMessage
 {
     private RetryPolicy retryPolicy;
-    private readonly BoundedContext boundedContext;
-    private readonly ILogger logger;
 
     public Publisher(ITenantResolver<IMessage> tenantResolver, BoundedContext boundedContext, ILogger logger) : base(tenantResolver, boundedContext, logger)
     {
-        this.boundedContext = boundedContext;
-        this.logger = logger;
-
         retryPolicy = new RetryPolicy(RetryableOperation.RetryPolicyFactory.CreateLinearRetryPolicy(5, TimeSpan.FromMilliseconds(300)));
     }
 
