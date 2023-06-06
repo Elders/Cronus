@@ -97,7 +97,15 @@ namespace Elders.Cronus.Projections.Rebuilding
                         if (serializer.Deserialize(stream) is IEvent @event)
                         {
                             @event = @event.Unwrap();
-                            var instance = projectionInstancesToReplay.GetOrAdd(projectionType, type => context.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection);
+
+                            IAmEventSourcedProjection instance;
+                            if (projectionInstancesToReplay.TryGetValue(projectionType, out instance) == false)
+                            {
+                                instance = context.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
+                                if (instance is null)
+                                    return;
+                                projectionInstancesToReplay.TryAdd(projectionType, instance);
+                            }
 
                             EventOrigin origin = new EventOrigin(eventRaw.AggregateRootId, eventRaw.Revision, eventRaw.Position, eventRaw.Timestamp);
                             await projectionWriter
@@ -114,6 +122,9 @@ namespace Elders.Cronus.Projections.Rebuilding
                     var progress = new RebuildProjection_JobData.EventPaging(options.EventTypeId, options.PaginationToken, options.After, options.Before, progressTracker.GetTotalProcessedCount(options.EventTypeId), 0);
                     if (Data.MarkEventTypeProgress(progress))
                     {
+                        Data.After = options.After;
+                        Data.Before = options.Before;
+                        Data.MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
                         Data.Timestamp = DateTimeOffset.UtcNow;
                         Data = await cluster.PingAsync(Data);
                     }
@@ -140,14 +151,23 @@ namespace Elders.Cronus.Projections.Rebuilding
                 {
                     EventTypeId = eventTypeId,
                     PaginationToken = found?.PaginationToken,
-                    After = found?.After,
-                    Before = found?.Before ?? DateTimeOffset.UtcNow
+                    After = Data.After,
+                    Before = Data.Before ?? DateTimeOffset.UtcNow,
+                    MaxDegreeOfParallelism = Data.MaxDegreeOfParallelism
                 };
 
                 await player.EnumerateEventStore(@operator, opt).ConfigureAwait(false);
             }
 
-            var instance = projectionInstancesToReplay.GetOrAdd(projectionType, type => context.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection);
+            IAmEventSourcedProjection instance;
+            if (projectionInstancesToReplay.TryGetValue(projectionType, out instance) == false)
+            {
+                instance = context.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
+                if (instance is null)
+                    return JobExecutionStatus.Completed;
+                projectionInstancesToReplay.TryAdd(projectionType, instance);
+            }
+
             await instance.OnReplayCompletedAsync().ConfigureAwait(false);
 
             pingSource.Cancel();
@@ -169,6 +189,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             else
                 return fromCluster;
         }
+
         private async Task CancelJobAsync(IClusterOperations cluster)
         {
             Data.IsCanceled = true;

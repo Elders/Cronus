@@ -18,6 +18,6 @@ namespace Elders.Cronus.EventStore.Players
         public string RecipientHandlers { get; set; }
 
         [DataMember(Order = 4)]
-        public ReplayPublicEventsOptions ReplayOptions { get; set; }
+        public ReplayEventsOptions ReplayOptions { get; set; }
     }
 }

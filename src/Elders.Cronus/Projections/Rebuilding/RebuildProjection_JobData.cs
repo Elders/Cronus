@@ -28,6 +28,10 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         public DateTimeOffset DueDate { get; set; }
 
+        public DateTimeOffset? After { get; set; }
+        public DateTimeOffset? Before { get; set; }
+        public int MaxDegreeOfParallelism { get; set; }
+
         public bool MarkEventTypeProgress(EventPaging progress)
         {
             EventPaging existing = EventTypePaging.Where(et => et.Type.Equals(progress.Type, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();

@@ -1,6 +1,8 @@
-﻿using Elders.Cronus.MessageProcessing;
+﻿using Elders.Cronus.EventStore.Players;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.Metrics;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
@@ -17,18 +19,19 @@ namespace Elders.Cronus.Projections.Rebuilding
             this.boundedContext = boundedContext.Value;
         }
 
-        public RebuildProjection_Job CreateJob(ProjectionVersion version, VersionRequestTimebox timebox)
+        public RebuildProjection_Job CreateJob(ProjectionVersion version, ReplayEventsOptions replayEventsOptions, VersionRequestTimebox timebox)
         {
             job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}:{version.ProjectionName}_{version.Hash}_{version.Revision}";
 
-            job.BuildInitialData(() =>
+            job.BuildInitialData(() => new RebuildProjection_JobData()
             {
-                var data = new RebuildProjection_JobData();
-                data.Timestamp = timebox.RequestStartAt;
-                data.DueDate = timebox.FinishRequestUntil;
-                data.Version = version;
+                After = replayEventsOptions.After,
+                Before = replayEventsOptions.Before,
+                MaxDegreeOfParallelism = replayEventsOptions.MaxDegreeOfParallelism,
+                Timestamp = timebox.RequestStartAt,
+                DueDate = timebox.FinishRequestUntil,
+                Version = version
 
-                return data;
             });
 
             return job;

@@ -28,11 +28,11 @@ namespace Elders.Cronus.Projections.Versioning
             if (result.IsSuccess)
             {
                 ar = result.Data;
-                ar.NotifyHash(command.Hash, projectionVersioningPolicy);
+                ar.NotifyHash(command.Hash, projectionVersioningPolicy, command.ReplayEventsOptions);
 
                 if (await ShouldRebuildMissingSystemProjectionsAsync(command.Id, projectionReader).ConfigureAwait(false))
                 {
-                    ar.Rebuild(command.Hash);
+                    ar.Rebuild(command.Hash, projectionVersioningPolicy, command.ReplayEventsOptions);
                 }
             }
 
@@ -44,12 +44,12 @@ namespace Elders.Cronus.Projections.Versioning
 
         public Task HandleAsync(ReplayProjection command)
         {
-            return UpdateAsync(command.Id, ar => ar.Replay(command.Hash, projectionVersioningPolicy));
+            return UpdateAsync(command.Id, ar => ar.Replay(command.Hash, projectionVersioningPolicy, command.ReplayEventsOptions));
         }
 
         public Task HandleAsync(RebuildProjectionCommand command)
         {
-            return UpdateAsync(command.Id, ar => ar.Rebuild(command.Hash));
+            return UpdateAsync(command.Id, ar => ar.Rebuild(command.Hash, projectionVersioningPolicy, command.ReplayEventsOptions));
         }
 
         public Task HandleAsync(FinalizeProjectionVersionRequest command)
