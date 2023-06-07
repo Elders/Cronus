@@ -1,3 +1,15 @@
+# [9.0.0-preview.44](https://github.com/Elders/Cronus/compare/v9.0.0-preview.43...v9.0.0-preview.44) (2023-06-07)
+
+
+### Bug Fixes
+
+* Fixes unit tests for ProjectionVersions where the validation does not throw exception anymore ([22a7862](https://github.com/Elders/Cronus/commit/22a7862aabfe71d107d85b4446e091797b192d3c))
+
+
+### Features
+
+* Splits workflow execution to Create/Run/Complete ([be02438](https://github.com/Elders/Cronus/commit/be02438d1e07ed4c3106db452af786e427efd42e))
+
 # [9.0.0-preview.43](https://github.com/Elders/Cronus/compare/v9.0.0-preview.42...v9.0.0-preview.43) (2023-06-06)
 
 
