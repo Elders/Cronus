@@ -38,23 +38,27 @@ namespace Elders.Cronus.Projections
 
         public bool IsReadOnly { get { return true; } }
 
-        public void ValidateVersion(ProjectionVersion version)
+        private bool IsValidVersion(ProjectionVersion version)
         {
             if (version is null) throw new ArgumentNullException(nameof(version));
 
             var existingVersion = versions.FirstOrDefault();
             if (existingVersion is null)
-                return;
+                return true;
 
             if (existingVersion.ProjectionName.Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
             {
+                return false;
                 throw new ArgumentException("Invalid version. " + version.ToString() + Environment.NewLine + "Expected version for projection: " + existingVersion.ProjectionName, nameof(version));
             }
+
+            return true;
         }
 
         public void Add(ProjectionVersion version)
         {
-            ValidateVersion(version);
+            if (IsValidVersion(version) == false)
+                return;
 
             if (version.Status == ProjectionStatus.NotPresent)
                 return;

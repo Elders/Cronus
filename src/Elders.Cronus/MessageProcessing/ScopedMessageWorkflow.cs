@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -20,35 +21,63 @@ namespace Elders.Cronus.MessageProcessing
             this.ioc = ioc;
             this.workflow = workflow;
         }
-        protected override async Task RunAsync(Execution<HandleContext> execution)
+
+        protected override Execution<HandleContext> CreateExecutionContext(HandleContext context)
         {
-            using (IServiceScope scope = ioc.CreateScope())
+            bool hasScopeError = false;
+            if (context.ServiceProvider is null)
             {
-                execution.Context.AssignPropertySafely<IWorkflowContextWithServiceProvider>(prop => prop.ServiceProvider = scope.ServiceProvider);
-                ILogger<ScopedMessageWorkflow> logger = scope.ServiceProvider.GetRequiredService<ILogger<ScopedMessageWorkflow>>();
-                if (EnsureTenantIsSet(scope, execution.Context.Message))
+                IServiceScope scope = default;
+                if (scopes.TryGetValue(context, out scope) == false)
                 {
-                    using (logger.BeginScope(scope => scope
-                        .AddScope("cronus_tenant", execution.Context.Message.GetTenant())))
+                    scope = ioc.CreateScope();
+                    if (scopes.TryAdd(context, scope) == false)
                     {
-                        scopes.AddOrUpdate(execution.Context, scope, (c, s) => scope);
-                        try
-                        {
-                            await workflow.RunAsync(execution.Context).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            scopes.TryRemove(execution.Context, out IServiceScope s);
-                        }
+                        hasScopeError = true;
                     }
                 }
+
+                context.ServiceProvider = scope.ServiceProvider;
+            }
+
+            ILogger<ScopedMessageWorkflow> logger = context.ServiceProvider.GetRequiredService<ILogger<ScopedMessageWorkflow>>();
+            context.LoggerScope = logger.BeginScope(scope => scope.AddScope("cronus_tenant", context.Message.GetTenant()));
+            if (hasScopeError)
+                logger.Critical(() => "Somehow the IServiceScope has been already created and there will be an unexpected behavior after this message.");
+
+            return base.CreateExecutionContext(context);
+        }
+
+        protected override Task OnRunCompletedAsync(Execution<HandleContext> execution)
+        {
+            if (scopes.TryRemove(execution.Context, out IServiceScope s))
+            {
+                execution.Context.ServiceProvider = null;
+                s.Dispose();
+
+                if (execution.Context.ServiceProvider is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            }
+
+            execution.Context.LoggerScope?.Dispose();
+
+            return Task.CompletedTask;
+        }
+
+        protected override async Task RunAsync(Execution<HandleContext> execution)
+        {
+            if (EnsureTenantIsSet(execution.Context.ServiceProvider, execution.Context.Message))
+            {
+                await workflow.RunAsync(execution.Context).ConfigureAwait(false);
             }
         }
 
-        private bool EnsureTenantIsSet(IServiceScope scope, CronusMessage message)
+        private bool EnsureTenantIsSet(IServiceProvider serviceProvider, CronusMessage message)
         {
-            var cronusContextFactory = scope.ServiceProvider.GetRequiredService<CronusContextFactory>();
-            var context = cronusContextFactory.GetContext(message, scope.ServiceProvider);
+            var cronusContextFactory = serviceProvider.GetRequiredService<CronusContextFactory>();
+            var context = cronusContextFactory.GetContext(message, serviceProvider);
 
             foreach (var header in message.Headers)
             {

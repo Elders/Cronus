@@ -262,8 +262,8 @@ namespace Elders.Cronus
         {
             foreach (var item in Stash.Values)
             {
-                if (item is IDisposable)
-                    (item as IDisposable).Dispose();
+                if (item is IDisposable disposableItem)
+                    disposableItem.Dispose();
             }
             Stash.Clear();
         }

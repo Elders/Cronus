@@ -110,7 +110,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                             EventOrigin origin = new EventOrigin(eventRaw.AggregateRootId, eventRaw.Revision, eventRaw.Position, eventRaw.Timestamp);
                             await projectionWriter
                                 .SaveAsync(projectionType, @event, origin, version)
-                                .ContinueWith(t => instance?.ReplayEventAsync(@event))
+                                .ContinueWith(t => { instance?.ReplayEventAsync(@event); })
                                 .ConfigureAwait(false);
 
                             progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
