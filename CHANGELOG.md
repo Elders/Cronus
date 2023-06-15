@@ -1,3 +1,10 @@
+# [9.0.0-preview.45](https://github.com/Elders/Cronus/compare/v9.0.0-preview.44...v9.0.0-preview.45) (2023-06-15)
+
+
+### Bug Fixes
+
+* Multiply MaxDegreeOfParallelism by 100 ([40a08c0](https://github.com/Elders/Cronus/commit/40a08c08b08f6545248909decef8b2e2fdda5978))
+
 # [9.0.0-preview.44](https://github.com/Elders/Cronus/compare/v9.0.0-preview.43...v9.0.0-preview.44) (2023-06-07)
 
 
