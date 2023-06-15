@@ -53,6 +53,12 @@ namespace Elders.Cronus.EventStore.Index
             };
 
             PlayerOptions options = new PlayerOptions().WithPaginationToken(Data.PaginationToken);
+
+            logger.Info(() => $"MaxDegreeOfParallelism is {options.MaxDegreeOfParallelism}");
+
+            if(options.MaxDegreeOfParallelism < 50)
+                options.MaxDegreeOfParallelism = 100 // TODO: mynkow fix this!
+
             await eventStorePlayer.EnumerateEventStore(@operator, options).ConfigureAwait(false);
 
             Data.IsCompleted = true;
