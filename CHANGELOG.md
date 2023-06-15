@@ -1,3 +1,10 @@
+# [9.0.0-preview.46](https://github.com/Elders/Cronus/compare/v9.0.0-preview.45...v9.0.0-preview.46) (2023-06-15)
+
+
+### Bug Fixes
+
+* Log MaxDegreeOfParallelism ([5624651](https://github.com/Elders/Cronus/commit/56246517ac992e0b5a234fdcfa02b0014e237ed1))
+
 # [9.0.0-preview.45](https://github.com/Elders/Cronus/compare/v9.0.0-preview.44...v9.0.0-preview.45) (2023-06-15)
 
 
