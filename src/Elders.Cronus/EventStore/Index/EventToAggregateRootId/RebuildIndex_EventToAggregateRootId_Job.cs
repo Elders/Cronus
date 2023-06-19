@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.Cluster.Job;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace Elders.Cronus.EventStore.Index
             {
                 OnLoadAsync = async @event =>
                 {
-                    string eventContractId = eventFinder.Find(@event.Data);
+                    string eventContractId = eventFinder.FindEventId(@event.Data.AsSpan());
                     if (string.IsNullOrEmpty(eventContractId))
                         logger.Error(() => $"Unable to find a valid event in the data : {Encoding.UTF8.GetString(@event.Data)}");
 
