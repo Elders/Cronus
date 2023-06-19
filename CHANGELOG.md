@@ -1,3 +1,10 @@
+# [9.0.0-preview.47](https://github.com/Elders/Cronus/compare/v9.0.0-preview.46...v9.0.0-preview.47) (2023-06-19)
+
+
+### Bug Fixes
+
+* Replaces ByteArrayLookup with array.IndexOf(Span) ([41f955a](https://github.com/Elders/Cronus/commit/41f955a51c0c6dd1c0db2cac43414cbcde2595ba))
+
 # [9.0.0-preview.46](https://github.com/Elders/Cronus/compare/v9.0.0-preview.45...v9.0.0-preview.46) (2023-06-15)
 
 
