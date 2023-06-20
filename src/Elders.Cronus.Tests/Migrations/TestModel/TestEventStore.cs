@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Index;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,6 +34,15 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
         }
 
         public Task<bool> DeleteAsync(AggregateEventRaw eventRaw)
+        {
+            throw new System.NotImplementedException();
+        }
+        public Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingDescendingAsync(IBlobId aggregateId, PagingOptions pagingOptions)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord)
         {
             throw new System.NotImplementedException();
         }
