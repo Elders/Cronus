@@ -1,3 +1,10 @@
+# [9.0.0-preview.48](https://github.com/Elders/Cronus/compare/v9.0.0-preview.47...v9.0.0-preview.48) (2023-06-21)
+
+
+### Bug Fixes
+
+* Exposes the Commits collection in AggregateStream ([f42d01a](https://github.com/Elders/Cronus/commit/f42d01a8383d58ba6f74461e943b4eb504b986e5))
+
 # [9.0.0-preview.47](https://github.com/Elders/Cronus/compare/v9.0.0-preview.46...v9.0.0-preview.47) (2023-06-19)
 
 
