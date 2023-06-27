@@ -1,3 +1,6 @@
+using Elders.Cronus.EventStore.Index;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.InMemory
@@ -44,6 +47,15 @@ namespace Elders.Cronus.EventStore.InMemory
         public Task<bool> DeleteAsync(AggregateEventRaw eventRaw)
         {
             throw new System.NotImplementedException();
+        }
+        public Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingDescendingAsync(IBlobId aggregateId, PagingOptions pagingOptions)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Elders.Cronus.EventStore.Index;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -51,6 +52,18 @@ namespace Elders.Cronus.EventStore
             }
         }
 
+        public async Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord)
+        {
+            try
+            {
+                return await eventStore.LoadAggregateEventRaw(indexRecord).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to load aggregate event raw with id = {indexRecord.AggregateRootId}. \n Exception: {ex.Message}"))
+            {
+                throw;
+            }
+        }
+
         public async Task<EventStream> LoadAsync(IBlobId aggregateId)
         {
             try
@@ -58,6 +71,18 @@ namespace Elders.Cronus.EventStore
                 return await eventStore.LoadAsync(aggregateId).ConfigureAwait(false);
             }
             catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId}. \n Exception: {ex.Message}"))
+            {
+                throw;
+            }
+        }
+
+        public async Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingDescendingAsync(IBlobId aggregateId, PagingOptions pagingOptions)
+        {
+            try
+            {
+                return await eventStore.LoadWithPagingDescendingAsync(aggregateId, pagingOptions).ConfigureAwait(false);
+            }
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId} and Paging options {pagingOptions}. \n Exception: {ex.Message}"))
             {
                 throw;
             }
