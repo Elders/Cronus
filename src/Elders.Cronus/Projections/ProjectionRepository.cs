@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Snapshotting;
@@ -12,8 +11,6 @@ namespace Elders.Cronus.Projections
     public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
     {
         private static readonly ILogger log = CronusLogger.CreateLogger(typeof(ProjectionRepository));
-        private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
-        private static long LastRefreshTimestamp = 0;
 
         private readonly CronusContext context;
         readonly IProjectionStore projectionStore;
