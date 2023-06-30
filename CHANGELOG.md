@@ -1,3 +1,10 @@
+# [9.0.0-preview.50](https://github.com/Elders/Cronus/compare/v9.0.0-preview.49...v9.0.0-preview.50) (2023-06-30)
+
+
+### Bug Fixes
+
+* Removes obosolete InMemoryProjectionVersion caching ([64b307d](https://github.com/Elders/Cronus/commit/64b307d27e2bd1bef2b97ad8987ac8a7f0efa9c3))
+
 # [9.0.0-preview.49](https://github.com/Elders/Cronus/compare/v9.0.0-preview.48...v9.0.0-preview.49) (2023-06-27)
 
 
