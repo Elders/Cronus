@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Text.Json;
+using System.Diagnostics;
 using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Logging;
 
@@ -15,7 +14,7 @@ public abstract class Publisher<TMessage> : PublisherBase<TMessage> where TMessa
 {
     private RetryPolicy retryPolicy;
 
-    public Publisher(ITenantResolver<IMessage> tenantResolver, BoundedContext boundedContext, ILogger logger) : base(tenantResolver, boundedContext, logger)
+    public Publisher(IEnumerable<DelegatingPublishHandler> handlers) : base(handlers)
     {
         retryPolicy = new RetryPolicy(RetryableOperation.RetryPolicyFactory.CreateLinearRetryPolicy(5, TimeSpan.FromMilliseconds(300)));
     }

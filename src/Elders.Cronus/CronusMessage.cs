@@ -87,7 +87,7 @@ namespace Elders.Cronus
         {
             string value;
             if (Headers.TryGetValue(key, out value) == false && MessageHeader.MessageId.Equals(key) == false)
-                value = $"Missing {key} for {GetHeader(MessageHeader.MessageId)}";
+                value = string.Empty;
 
             return value;
         }

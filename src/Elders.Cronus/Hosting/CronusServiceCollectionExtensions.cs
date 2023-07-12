@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Linq;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.Diagnostics;
 using Elders.Cronus.Discoveries;
-using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Hosting.Heartbeat;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Migrations;
 using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,9 +74,9 @@ namespace Elders.Cronus
             // I am sure there is a better way for doing the setup so please if you end up here and you have problems please fix it.
             if (services.Any(x => x.ServiceType == typeof(DiagnosticListener)) == false)
             {
-                var listener = new DiagnosticListener(CronusDiagnostics.Name);
-                services.AddSingleton<DiagnosticListener>(listener);
-                services.AddSingleton<DiagnosticSource>(listener);
+                services.AddSingleton<DiagnosticListener>(new DiagnosticListener("cronus"));
+
+                services.AddSingleton<ActivitySource>(new ActivitySource("Elders.Cronus", "9.0.0"));
             }
 
             return services;
@@ -150,147 +147,6 @@ namespace Elders.Cronus
             services.AddSingleton<IOptionsFactory<TOptions>, TOptionsProvider>();
 
             return services;
-        }
-    }
-
-    public static class SubscriberCollectionServiceCollectionExtensions
-    {
-        public static IServiceCollection AddSubscribers<T>(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(ISubscriberCollection<T>), typeof(SubscriberCollection<T>));
-            services.AddSingleton(typeof(ISubscriberFinder<T>), typeof(SubscriberFinder<T>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<T>), typeof(DefaultSubscriberWorkflow<T>));
-            services.AddSingleton(typeof(ISubscriberFactory<T>), typeof(HandlerSubscriberFactory<T>));
-
-            return services;
-        }
-
-        public static IServiceCollection AddDefaultSubscribers(this IServiceCollection services)
-        {
-            services.AddSubscribersWithOpenGenerics();
-
-            services.AddApplicationServiceSubscribers();
-            services.AddSubscribers<IPort>();
-            services.AddSubscribers<IGateway>();
-            services.AddSubscribers<ISaga>();
-            services.AddSubscribers<ISystemAppService>();
-            services.AddSubscribers<ISystemPort>();
-            services.AddSubscribers<ISystemSaga>();
-            services.AddSubscribers<ISystemProjection>();
-            services.AddSubscribers<IMigrationHandler>();
-            services.AddTriggersSubscribers();
-            services.AddEventStoreIndexSubscribers();
-            services.AddSystemEventStoreIndexSubscribers();
-            services.AddProjections();
-
-            return services;
-        }
-
-        public static IServiceCollection AddSubscribersWithOpenGenerics(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(ISubscriberCollection<>), typeof(SubscriberCollection<>));
-            services.AddSingleton(typeof(ISubscriberFinder<>), typeof(SubscriberFinder<>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<>), typeof(DefaultSubscriberWorkflow<>));
-            services.AddSingleton(typeof(ISubscriberFactory<>), typeof(HandlerSubscriberFactory<>));
-
-            return services;
-        }
-
-        public static IServiceCollection AddApplicationServiceSubscribers(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(ISubscriberCollection<IApplicationService>), typeof(SubscriberCollection<IApplicationService>));
-            services.AddSingleton(typeof(ISubscriberFinder<IApplicationService>), typeof(SubscriberFinder<IApplicationService>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<IApplicationService>), typeof(ApplicationServiceSubscriberWorkflow));
-            services.AddSingleton(typeof(ISubscriberFactory<IApplicationService>), typeof(HandlerSubscriberFactory<IApplicationService>));
-
-            return services;
-        }
-
-        public static IServiceCollection AddTriggersSubscribers(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(ISubscriberCollection<ITrigger>), typeof(SubscriberCollection<ITrigger>));
-            services.AddSingleton(typeof(ISubscriberFinder<ITrigger>), typeof(SubscriberFinder<ITrigger>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<ITrigger>), typeof(TriggersSubscriberWorkflow<ITrigger>));
-            services.AddSingleton(typeof(ISubscriberFactory<ITrigger>), typeof(HandlerSubscriberFactory<ITrigger>));
-
-            services.AddSingleton(typeof(ISubscriberCollection<ISystemTrigger>), typeof(SubscriberCollection<ISystemTrigger>));
-            services.AddSingleton(typeof(ISubscriberFinder<ISystemTrigger>), typeof(SubscriberFinder<ISystemTrigger>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<ISystemTrigger>), typeof(TriggersSubscriberWorkflow<ISystemTrigger>));
-            services.AddSingleton(typeof(ISubscriberFactory<ISystemTrigger>), typeof(HandlerSubscriberFactory<ISystemTrigger>));
-            return services;
-        }
-
-        public static IServiceCollection AddEventStoreIndexSubscribers(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(ISubscriberCollection<IEventStoreIndex>), typeof(SubscriberCollection<IEventStoreIndex>));
-            services.AddSingleton(typeof(ISubscriberFinder<IEventStoreIndex>), typeof(SubscriberFinder<IEventStoreIndex>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberWorkflow<IEventStoreIndex>));
-            services.AddSingleton(typeof(ISubscriberFactory<IEventStoreIndex>), typeof(EventStoreIndexSubscriberFactory<IEventStoreIndex>));
-
-            return services;
-        }
-
-        public static IServiceCollection AddSystemEventStoreIndexSubscribers(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(ISubscriberCollection<ICronusEventStoreIndex>), typeof(SubscriberCollection<ICronusEventStoreIndex>));
-            services.AddSingleton(typeof(ISubscriberFinder<ICronusEventStoreIndex>), typeof(SubscriberFinder<ICronusEventStoreIndex>));
-            services.AddSingleton(typeof(ISubscriberWorkflowFactory<ICronusEventStoreIndex>), typeof(EventStoreIndexSubscriberWorkflow<ICronusEventStoreIndex>));
-            services.AddSingleton(typeof(ISubscriberFactory<ICronusEventStoreIndex>), typeof(EventStoreIndexSubscriberFactory<ICronusEventStoreIndex>));
-
-            return services;
-        }
-
-        public static IServiceCollection AddProjections(this IServiceCollection services)
-        {
-            services.AddSingleton(typeof(ProjectionSubscriberFinder));
-            services.AddSingleton(typeof(ISubscriberFinder<IProjection>), typeof(ProjectionSubscriberFinder));
-
-            return services;
-        }
-    }
-
-    public class SingletonPerTenantContainer<T> : IDisposable
-    {
-        public SingletonPerTenantContainer()
-        {
-            Stash = new ConcurrentDictionary<string, T>();
-        }
-
-        public ConcurrentDictionary<string, T> Stash { get; private set; }
-
-        public void Dispose()
-        {
-            foreach (var item in Stash.Values)
-            {
-                if (item is IDisposable disposableItem)
-                    disposableItem.Dispose();
-            }
-            Stash.Clear();
-        }
-    }
-
-    // TODO: mynkow
-    public class SingletonPerTenant<T>
-    {
-        private readonly SingletonPerTenantContainer<T> container;
-        private readonly CronusContext context;
-
-        public SingletonPerTenant(SingletonPerTenantContainer<T> container, CronusContext context)
-        {
-            if (context is null) throw new ArgumentNullException(nameof(context));
-            this.container = container;
-            this.context = context;
-        }
-
-        public T Get()
-        {
-            if (container.Stash.TryGetValue(context.Tenant, out T instance) == false)
-            {
-                instance = context.ServiceProvider.GetRequiredService<T>();
-                container.Stash.TryAdd(context.Tenant, instance);
-            }
-
-            return instance;
         }
     }
 }
