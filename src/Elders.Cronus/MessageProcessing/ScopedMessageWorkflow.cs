@@ -27,9 +27,6 @@ namespace Elders.Cronus.MessageProcessing
         {
             string tenant = context.Message.GetTenant();
 
-            ILogger<ScopedMessageWorkflow> logger = context.ServiceProvider.GetRequiredService<ILogger<ScopedMessageWorkflow>>();
-            context.LoggerScope = logger.BeginScope(scope => scope.AddScope(Log.Tenant, tenant));
-
             bool hasScopeError = false;
 
             IServiceScope scope = default;
@@ -47,6 +44,9 @@ namespace Elders.Cronus.MessageProcessing
             }
 
             context.ServiceProvider = scope.ServiceProvider;
+
+            ILogger<ScopedMessageWorkflow> logger = context.ServiceProvider.GetRequiredService<ILogger<ScopedMessageWorkflow>>();
+            context.LoggerScope = logger.BeginScope(scope => scope.AddScope(Log.Tenant, tenant));
 
             if (hasScopeError)
             {
