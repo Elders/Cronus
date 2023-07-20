@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Snapshotting;
@@ -13,21 +12,21 @@ namespace Elders.Cronus.Projections
     {
         private static readonly ILogger log = CronusLogger.CreateLogger(typeof(ProjectionRepository));
 
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
         readonly IProjectionStore projectionStore;
         readonly ISnapshotStore snapshotStore;
         readonly ISnapshotStrategy snapshotStrategy;
         private readonly IHandlerFactory handlerFactory;
         private readonly ProjectionHasher projectionHasher;
 
-        public ProjectionRepository(CronusContext context, IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
+        public ProjectionRepository(ICronusContextAccessor contextAccessor, IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
         {
-            if (context is null) throw new ArgumentException(nameof(context));
+            if (contextAccessor is null) throw new ArgumentException(nameof(contextAccessor));
             if (projectionStore is null) throw new ArgumentException(nameof(projectionStore));
             if (snapshotStore is null) throw new ArgumentException(nameof(snapshotStore));
             if (snapshotStrategy is null) throw new ArgumentException(nameof(snapshotStrategy));
 
-            this.context = context;
+            this.contextAccessor = contextAccessor;
             this.projectionStore = projectionStore;
             this.snapshotStore = snapshotStore;
             this.snapshotStrategy = snapshotStrategy;
@@ -226,7 +225,7 @@ namespace Elders.Cronus.Projections
                 var persistentVersionType = typeof(ProjectionVersionsHandler);
                 var projectionVersions_ProjectionName = persistentVersionType.GetContractId();
 
-                var versionId = new ProjectionVersionManagerId(projectionName, context.Tenant);
+                var versionId = new ProjectionVersionManagerId(projectionName, contextAccessor.CronusContext.Tenant);
                 var persistentVersion = new ProjectionVersion(projectionVersions_ProjectionName, ProjectionStatus.Live, 1, projectionHasher.CalculateHash(persistentVersionType));
                 ProjectionStream stream = await LoadProjectionStreamAsync(persistentVersionType, persistentVersion, versionId, new NoSnapshot(versionId, projectionVersions_ProjectionName).GetMeta()).ConfigureAwait(false);
                 var queryResult = await stream.RestoreFromHistoryAsync<ProjectionVersionsHandler>().ConfigureAwait(false);

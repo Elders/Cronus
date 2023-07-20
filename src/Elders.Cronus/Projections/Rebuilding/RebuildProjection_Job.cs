@@ -19,7 +19,7 @@ namespace Elders.Cronus.Projections.Rebuilding
     {
         private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly ISerializer serializer;
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
         private readonly IInitializableProjectionStore projectionStoreInitializer;
         private readonly IEventStorePlayer player;
         private readonly IProjectionWriter projectionWriter;
@@ -34,13 +34,13 @@ namespace Elders.Cronus.Projections.Rebuilding
             ProjectionVersionHelper projectionVersionHelper,
             IPublisher<ISystemSignal> signalPublisher,
             ISerializer serializer,
-            CronusContext context,
+            ICronusContextAccessor contextAccessor,
             ILogger<RebuildProjection_Job> logger)
             : base(logger)
         {
             this.signalPublisher = signalPublisher;
             this.serializer = serializer;
-            this.context = context;
+            this.contextAccessor = contextAccessor;
             this.projectionStoreInitializer = projectionStoreInitializer;
             this.progressTracker = progressTracker;
             this.projectionVersionHelper = projectionVersionHelper;
@@ -101,7 +101,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                             IAmEventSourcedProjection instance;
                             if (projectionInstancesToReplay.TryGetValue(projectionType, out instance) == false)
                             {
-                                instance = context.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
+                                instance = contextAccessor.CronusContext.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
                                 if (instance is null)
                                     return;
                                 projectionInstancesToReplay.TryAdd(projectionType, instance);
@@ -162,7 +162,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             IAmEventSourcedProjection instance;
             if (projectionInstancesToReplay.TryGetValue(projectionType, out instance) == false)
             {
-                instance = context.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
+                instance = contextAccessor.CronusContext.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
                 if (instance is null)
                     return JobExecutionStatus.Completed;
                 projectionInstancesToReplay.TryAdd(projectionType, instance);

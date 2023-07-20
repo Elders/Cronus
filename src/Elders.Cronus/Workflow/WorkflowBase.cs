@@ -17,10 +17,7 @@ namespace Elders.Cronus.Workflow
         public string Name { get; protected set; }
 
         protected abstract Task<object> AbstractRunAsync(Execution<TContext> execution);
-        protected virtual Task OnRunCompletedAsync(Execution<TContext> execution)
-        {
-            return Task.CompletedTask;
-        }
+        protected virtual Task OnRunCompletedAsync(Execution<TContext> execution) => Task.CompletedTask;
 
         public async Task<object> RunAsync(TContext context)
         {
@@ -31,7 +28,7 @@ namespace Elders.Cronus.Workflow
             }
             finally
             {
-                await OnRunCompletedAsync(execution);
+                await OnRunCompletedAsync(execution).ConfigureAwait(false);
             }
         }
 

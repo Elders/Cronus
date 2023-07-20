@@ -10,14 +10,14 @@ namespace Elders.Cronus.MessageProcessing
         readonly AggregateRepository aggregateRepository;
         readonly IPublisher<IEvent> eventPublisher;
         private readonly IPublisher<IPublicEvent> publicEventPublisher;
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
 
-        public AggregateRepositoryAndEventPublisher(AggregateRepository repository, IPublisher<IEvent> eventPublisher, IPublisher<IPublicEvent> publicEventPublisher, CronusContext context)
+        public AggregateRepositoryAndEventPublisher(AggregateRepository repository, IPublisher<IEvent> eventPublisher, IPublisher<IPublicEvent> publicEventPublisher, ICronusContextAccessor contextAccessor)
         {
             this.aggregateRepository = repository;
             this.eventPublisher = eventPublisher;
             this.publicEventPublisher = publicEventPublisher;
-            this.context = context;
+            this.contextAccessor = contextAccessor;
         }
 
         public Task<ReadResult<AR>> LoadAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
@@ -60,7 +60,7 @@ namespace Elders.Cronus.MessageProcessing
             messageHeaders.Add(MessageHeader.AggregateRootEventPosition, eventPosition.ToString());
             messageHeaders.Add(MessageHeader.AggregateCommitTimestamp, aggregatecommit.Timestamp.ToString());
 
-            foreach (var trace in context.Trace)
+            foreach (var trace in contextAccessor.CronusContext.Trace)
             {
                 if (messageHeaders.ContainsKey(trace.Key) == false)
                     messageHeaders.Add(trace.Key, trace.Value.ToString());

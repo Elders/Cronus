@@ -12,47 +12,58 @@ namespace Elders.Cronus.MessageProcessing
         private static ConcurrentDictionary<HandleContext, IServiceScope> scopes = new ConcurrentDictionary<HandleContext, IServiceScope>();
         public static IServiceScope GetScope(HandleContext context) => scopes[context];
 
-        private readonly IServiceProvider ioc;
+        private readonly DefaultCronusContextFactory cronusContextFactory;
         readonly Workflow<HandleContext> workflow;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
-        public ScopedMessageWorkflow(IServiceProvider ioc, Workflow<HandleContext> workflow)
+        public ScopedMessageWorkflow(Workflow<HandleContext> workflow, IServiceProvider serviceProvider)
         {
-            this.ioc = ioc;
             this.workflow = workflow;
+            this.cronusContextFactory = serviceProvider.GetRequiredService<DefaultCronusContextFactory>();
+            this.serviceScopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
         }
 
         protected override Execution<HandleContext> CreateExecutionContext(HandleContext context)
         {
-            bool hasScopeError = false;
-            if (context.ServiceProvider is null)
-            {
-                IServiceScope scope = default;
-                if (scopes.TryGetValue(context, out scope) == false)
-                {
-                    scope = ioc.CreateScope();
-                    if (scopes.TryAdd(context, scope) == false)
-                    {
-                        hasScopeError = true;
-                    }
-                }
-
-                context.ServiceProvider = scope.ServiceProvider;
-            }
+            string tenant = context.Message.GetTenant();
 
             ILogger<ScopedMessageWorkflow> logger = context.ServiceProvider.GetRequiredService<ILogger<ScopedMessageWorkflow>>();
-            context.LoggerScope = logger.BeginScope(scope => scope.AddScope("cronus_tenant", context.Message.GetTenant()));
+            context.LoggerScope = logger.BeginScope(scope => scope.AddScope(Log.Tenant, tenant));
+
+            bool hasScopeError = false;
+
+            IServiceScope scope = default;
+            if (scopes.TryGetValue(context, out scope) == false)
+            {
+                scope = serviceScopeFactory.CreateScope();
+                if (scopes.TryAdd(context, scope) == false)
+                    hasScopeError = true;
+
+                var cronusContext = cronusContextFactory.Create(tenant, scope.ServiceProvider);
+                foreach (var header in context.Message.Headers)
+                {
+                    cronusContext.Trace.Add(header.Key, header.Value);
+                }
+            }
+
+            context.ServiceProvider = scope.ServiceProvider;
+
             if (hasScopeError)
-                logger.Critical(() => "Somehow the IServiceScope has been already created and there will be an unexpected behavior after this message.");
+            {
+                string message = "Somehow the IServiceScope has been already created and there will be an unexpected behavior after this message.";
+                logger.Critical(() => message);
+                throw new Exception(message);
+            }
 
             return base.CreateExecutionContext(context);
         }
 
         protected override Task OnRunCompletedAsync(Execution<HandleContext> execution)
         {
-            if (scopes.TryRemove(execution.Context, out IServiceScope s))
+            if (scopes.TryRemove(execution.Context, out IServiceScope serviceScope))
             {
                 execution.Context.ServiceProvider = null;
-                s.Dispose();
+                serviceScope.Dispose();
 
                 if (execution.Context.ServiceProvider is IDisposable disposable)
                 {
@@ -65,25 +76,9 @@ namespace Elders.Cronus.MessageProcessing
             return Task.CompletedTask;
         }
 
-        protected override async Task RunAsync(Execution<HandleContext> execution)
+        protected override Task RunAsync(Execution<HandleContext> execution)
         {
-            if (EnsureTenantIsSet(execution.Context.ServiceProvider, execution.Context.Message))
-            {
-                await workflow.RunAsync(execution.Context).ConfigureAwait(false);
-            }
-        }
-
-        private bool EnsureTenantIsSet(IServiceProvider serviceProvider, CronusMessage message)
-        {
-            var cronusContextFactory = serviceProvider.GetRequiredService<CronusContextFactory>();
-            var context = cronusContextFactory.GetContext(message, serviceProvider);
-
-            foreach (var header in message.Headers)
-            {
-                context.Trace.Add(header.Key, header.Value);
-            }
-
-            return context.IsInitialized;
+            return workflow.RunAsync(execution.Context);
         }
     }
 }

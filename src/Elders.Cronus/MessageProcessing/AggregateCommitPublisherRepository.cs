@@ -9,14 +9,14 @@ namespace Elders.Cronus.MessageProcessing
     public class AggregateCommitPublisherRepository : IAggregateRepository
     {
         readonly AggregateRepository aggregateRepository;
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
         private readonly IPublisher<AggregateCommit> commiter;
         private readonly ILogger<AggregateCommitPublisherRepository> logger;
 
-        public AggregateCommitPublisherRepository(AggregateRepository repository, IPublisher<AggregateCommit> commiter, CronusContext context, ILogger<AggregateCommitPublisherRepository> logger)
+        public AggregateCommitPublisherRepository(AggregateRepository repository, IPublisher<AggregateCommit> commiter, ICronusContextAccessor contextAccessor, ILogger<AggregateCommitPublisherRepository> logger)
         {
             this.aggregateRepository = repository;
-            this.context = context;
+            this.contextAccessor = contextAccessor;
             this.logger = logger;
             this.commiter = commiter;
         }
@@ -56,7 +56,7 @@ namespace Elders.Cronus.MessageProcessing
                 { MessageHeader.AggregateRootId, Convert.ToBase64String(commit.AggregateRootId) }
             };
 
-            foreach (var trace in context.Trace)
+            foreach (var trace in contextAccessor.CronusContext.Trace)
             {
                 messageHeaders.Add(trace.Key, trace.Value.ToString());
             }

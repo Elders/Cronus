@@ -1,12 +1,9 @@
 ﻿using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,13 +12,13 @@ namespace Elders.Cronus.EventStore.Players
     public class ReplayPublicEvents_Job : CronusJob<ReplayPublicEvents_JobData>
     {
         private readonly IPublisher<IPublicEvent> publicEventPublisher;
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
         private readonly IEventStorePlayer player;
 
-        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, CronusContext context, IEventStorePlayer eventStorePlayer, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
+        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, ICronusContextAccessor contextAccessor, IEventStorePlayer eventStorePlayer, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
         {
             this.publicEventPublisher = publicEventPublisher;
-            this.context = context;
+            this.contextAccessor = contextAccessor;
             this.player = eventStorePlayer;
         }
         public override string Name { get; set; } = "c0e0f5fc-1f22-4022-96d0-bf02590951d6";
@@ -47,16 +44,15 @@ namespace Elders.Cronus.EventStore.Players
             {
                 OnLoadAsync = eventRaw =>
                 {
-                    string messageId = $"urn:cronus:{boundedContext}:{context.Tenant}:{Guid.NewGuid()}";
+                    string messageId = $"urn:cronus:{boundedContext}:{contextAccessor.CronusContext.Tenant}:{Guid.NewGuid()}";
                     //TODO: Document which headers are essential or make another ctor for CronusMessage with byte[]
                     var headers = new Dictionary<string, string>()
                     {
                         { MessageHeader.MessageId, messageId },
-                        { MessageHeader.CorelationId, messageId },
                         { MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext },
                         { MessageHeader.RecipientHandlers, Data.RecipientHandlers },
                         { MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString() },
-                        { MessageHeader.Tenant, context.Tenant },
+                        { MessageHeader.Tenant, contextAccessor.CronusContext.Tenant },
                         { MessageHeader.BoundedContext, boundedContext },
                         { "contract_name",  Data.SourceEventTypeId }
                     };
@@ -89,19 +85,19 @@ namespace Elders.Cronus.EventStore.Players
     public class ReplayPublicEvents_JobFactory
     {
         private readonly ReplayPublicEvents_Job job;
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
         private readonly BoundedContext boundedContext;
 
-        public ReplayPublicEvents_JobFactory(ReplayPublicEvents_Job job, IOptions<BoundedContext> boundedContext, CronusContext context)
+        public ReplayPublicEvents_JobFactory(ReplayPublicEvents_Job job, IOptions<BoundedContext> boundedContext, ICronusContextAccessor contextAccessor)
         {
             this.job = job;
-            this.context = context;
+            this.contextAccessor = contextAccessor;
             this.boundedContext = boundedContext.Value;
         }
 
         public ReplayPublicEvents_Job CreateJob(ReplayPublicEventsRequested signal)
         {
-            job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}:{signal.RecipientBoundedContext}:{signal.RecipientHandlers}:{signal.SourceEventTypeId}";
+            job.Name = $"urn:{boundedContext.Name}:{contextAccessor.CronusContext.Tenant}:{job.Name}:{signal.RecipientBoundedContext}:{signal.RecipientHandlers}:{signal.SourceEventTypeId}";
 
             job.BuildInitialData(() => new ReplayPublicEvents_JobData()
             {

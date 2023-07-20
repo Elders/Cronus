@@ -47,19 +47,14 @@ namespace Elders.Cronus.Workflow
 
             if (logger.IsInfoEnabled())
             {
-                string scopeId = GetScopeId(execution.Context.Message);
+                long startTimestamp = 0;
+                startTimestamp = Stopwatch.GetTimestamp();
 
-                using (logger.BeginScope(scopeId))
-                {
-                    long startTimestamp = 0;
-                    startTimestamp = Stopwatch.GetTimestamp();
+                await workflow.RunAsync(execution.Context).ConfigureAwait(false);
 
-                    await workflow.RunAsync(execution.Context).ConfigureAwait(false);
+                TimeSpan elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
 
-                    TimeSpan elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
-
-                    LogHandleSuccess(logger, execution.Context.HandlerType.Name, msgType.Name, elapsed.TotalMilliseconds, null);
-                }
+                LogHandleSuccess(logger, execution.Context.HandlerType.Name, msgType.Name, elapsed.TotalMilliseconds, null);
             }
             else
             {
@@ -69,30 +64,9 @@ namespace Elders.Cronus.Workflow
             StopActivity(activity);
         }
 
-        private string GetScopeId(CronusMessage cronusMessage)
-        {
-            if (cronusMessage.Headers.TryGetValue(MessageHeader.CorelationId, out string scopeId) == false)
-            {
-                scopeId = Guid.NewGuid().ToString();
-            }
-
-            return scopeId;
-        }
-
-        private string GetParentId(CronusMessage cronusMessage)
-        {
-            if (cronusMessage.Headers.TryGetValue(MessageHeader.CausationId, out string scopeId))
-            {
-                return scopeId;
-            }
-
-            return null;
-        }
-
         [MethodImpl(MethodImplOptions.NoInlining)]
         private Activity StartActivity(TContext context)
         {
-            var asd = Activity.Current;
             if (diagnosticListener.IsEnabled())
             {
                 Activity? activity = null;
@@ -110,11 +84,10 @@ namespace Elders.Cronus.Workflow
 
                 if (activity is null)
                 {
-                    activity = new Activity($"{context.HandlerType.Name}__{context.Message.Payload.GetType().Name}");
-                    if (!string.IsNullOrEmpty(parentId))
-                    {
+                    activity = new Activity(activityName);
+
+                    if (string.IsNullOrEmpty(parentId) == false)
                         activity.SetParentId(parentId);
-                    }
                 }
 
                 activity.Start();

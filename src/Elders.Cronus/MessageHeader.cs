@@ -10,10 +10,6 @@
 
         public const string AggregateRootEventPosition = "event_position";
 
-        public const string CorelationId = "corelationid";
-
-        public const string CausationId = "causationid";
-
         public const string MessageId = "messageid";
 
         public const string MessageType = "messagetype";

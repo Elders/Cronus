@@ -7,6 +7,7 @@ namespace Elders.Cronus
 {
     public static class Log
     {
+        public const string Tenant = "cronus_tenant";
         public const string AggregateId = "cronus_arid";
         public const string AggregateName = "cronus_arname";
 

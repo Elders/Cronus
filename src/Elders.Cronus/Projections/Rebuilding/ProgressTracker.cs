@@ -21,10 +21,10 @@ namespace Elders.Cronus.Projections.Rebuilding
         public Dictionary<string, ulong> EventTypeProcessed { get; set; }
         public ulong TotalEvents { get; set; }
 
-        public ProgressTracker(IMessageCounter messageCounter, CronusContext context, IPublisher<ISystemSignal> signalPublisher, ProjectionVersionHelper projectionVersionHelper, ILogger<ProgressTracker> logger)
+        public ProgressTracker(IMessageCounter messageCounter, ICronusContextAccessor contextAccessor, IPublisher<ISystemSignal> signalPublisher, ProjectionVersionHelper projectionVersionHelper, ILogger<ProgressTracker> logger)
         {
             EventTypeProcessed = new Dictionary<string, ulong>();
-            tenant = context.Tenant;
+            tenant = contextAccessor.CronusContext.Tenant;
             this.messageCounter = messageCounter;
             this.signalPublisher = signalPublisher;
             this.projectionVersionHelper = projectionVersionHelper;

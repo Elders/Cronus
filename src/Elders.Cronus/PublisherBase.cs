@@ -84,48 +84,45 @@ namespace Elders.Cronus
 
         protected internal override bool PublishInternal(CronusMessage message)
         {
-            using (logger.BeginScope(message.CorelationId))
+            try
             {
-                try
+                bool isPublished = base.PublishInternal(message);
+
+                Type messageType = message.GetMessageType();
+
+                bool isSignal = messageType.IsAssignableFrom(typeof(ISystemSignal));
+                if (isPublished && isSignal == false)
                 {
-                    bool isPublished = base.PublishInternal(message);
-
-                    Type messageType = message.GetMessageType();
-
-                    bool isSignal = messageType.IsAssignableFrom(typeof(ISystemSignal));
-                    if (isPublished && isSignal == false)
-                    {
-                        logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", messageType.Name, messageType.Name);
-                    }
-                    else if (isPublished == false)
-                    {
-                        logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", messageType.Name, messageType.Name);
-                    }
-
-                    return isPublished;
+                    logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", messageType.Name, messageType.Name);
+                }
+                else if (isPublished == false)
+                {
+                    logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", messageType.Name, messageType.Name);
                 }
 
-                catch (Exception ex) when (logger.ErrorException(ex, () => BuildTraceData()))
+                return isPublished;
+            }
+
+            catch (Exception ex) when (logger.ErrorException(ex, () => BuildTraceData()))
+            {
+                return false;
+            }
+
+            string BuildTraceData()
+            {
+                StringBuilder errorMessage = new StringBuilder();
+                errorMessage.AppendLine("Failed to publish message!");
+
+                errorMessage.AppendLine("Headers:");
+                foreach (var header in message.Headers)
                 {
-                    return false;
+                    errorMessage.AppendLine($"{header.Key}:{header.Value}");
                 }
 
-                string BuildTraceData()
-                {
-                    StringBuilder errorMessage = new StringBuilder();
-                    errorMessage.AppendLine("Failed to publish message!");
+                string messageString = JsonSerializer.Serialize<object>(message);
+                errorMessage.AppendLine(messageString);
 
-                    errorMessage.AppendLine("Headers:");
-                    foreach (var header in message.Headers)
-                    {
-                        errorMessage.AppendLine($"{header.Key}:{header.Value}");
-                    }
-
-                    string messageString = JsonSerializer.Serialize<object>(message);
-                    errorMessage.AppendLine(messageString);
-
-                    return errorMessage.ToString();
-                }
+                return errorMessage.ToString();
             }
         }
     }

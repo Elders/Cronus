@@ -15,7 +15,7 @@ namespace Elders.Cronus.MessageProcessing
         public IWorkflow GetWorkflow()
         {
             MessageHandleWorkflow messageHandleWorkflow = new MessageHandleWorkflow(new CreateScopedHandlerWorkflow());
-            ScopedMessageWorkflow scopedWorkflow = new ScopedMessageWorkflow(serviceProvider, messageHandleWorkflow);
+            ScopedMessageWorkflow scopedWorkflow = new ScopedMessageWorkflow(messageHandleWorkflow, serviceProvider);
 
             return scopedWorkflow;
         }

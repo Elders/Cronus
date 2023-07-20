@@ -15,15 +15,15 @@ namespace Elders.Cronus.EventStore.Index
 {
     public class RebuildIndex_MessageCounter_Job : CronusJob<RebuildEventCounterIndex_JobData>
     {
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
         private readonly TypeContainer<IEvent> eventTypes;
         private readonly IMessageCounter messageCounter;
         private readonly IProjectionReader projectionReader;
         private readonly IIndexStore indexStore;
 
-        public RebuildIndex_MessageCounter_Job(CronusContext context, TypeContainer<IEvent> eventTypes, IMessageCounter eventCounter, IProjectionReader projectionReader, IIndexStore indexStore, ILogger<RebuildIndex_MessageCounter_Job> logger) : base(logger)
+        public RebuildIndex_MessageCounter_Job(ICronusContextAccessor contextAccessor, TypeContainer<IEvent> eventTypes, IMessageCounter eventCounter, IProjectionReader projectionReader, IIndexStore indexStore, ILogger<RebuildIndex_MessageCounter_Job> logger) : base(logger)
         {
-            this.context = context;
+            this.contextAccessor = contextAccessor;
             this.eventTypes = eventTypes;
             this.messageCounter = eventCounter;
             this.projectionReader = projectionReader;
@@ -83,7 +83,7 @@ namespace Elders.Cronus.EventStore.Index
 
         async Task<IndexStatus> GetIndexStatusAsync<TIndex>() where TIndex : IEventStoreIndex
         {
-            var id = new EventStoreIndexManagerId(typeof(TIndex).GetContractId(), context.Tenant);
+            var id = new EventStoreIndexManagerId(typeof(TIndex).GetContractId(), contextAccessor.CronusContext.Tenant);
             var result = await projectionReader.GetAsync<EventStoreIndexStatus>(id).ConfigureAwait(false);
             if (result.IsSuccess)
                 return result.Data.State.Status;
@@ -95,19 +95,19 @@ namespace Elders.Cronus.EventStore.Index
     public class RebuildIndex_MessageCounter_JobFactory
     {
         private readonly RebuildIndex_MessageCounter_Job job;
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
         private readonly BoundedContext boundedContext;
 
-        public RebuildIndex_MessageCounter_JobFactory(RebuildIndex_MessageCounter_Job job, IOptions<BoundedContext> boundedContext, CronusContext context)
+        public RebuildIndex_MessageCounter_JobFactory(RebuildIndex_MessageCounter_Job job, IOptions<BoundedContext> boundedContext, ICronusContextAccessor contextAccessor)
         {
             this.job = job;
-            this.context = context;
+            this.contextAccessor = contextAccessor;
             this.boundedContext = boundedContext.Value;
         }
 
         public RebuildIndex_MessageCounter_Job CreateJob(VersionRequestTimebox timebox)
         {
-            job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}";
+            job.Name = $"urn:{boundedContext.Name}:{contextAccessor.CronusContext.Tenant}:{job.Name}";
             job.BuildInitialData(() => new RebuildEventCounterIndex_JobData()
             {
                 Timestamp = timebox.RequestStartAt

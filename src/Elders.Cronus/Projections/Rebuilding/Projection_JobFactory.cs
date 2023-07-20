@@ -2,26 +2,25 @@
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.Options;
-using System.Diagnostics.Metrics;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
     public class Projection_JobFactory
     {
         private readonly RebuildProjection_Job job;
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
         private readonly BoundedContext boundedContext;
 
-        public Projection_JobFactory(RebuildProjection_Job job, IOptions<BoundedContext> boundedContext, CronusContext context)
+        public Projection_JobFactory(RebuildProjection_Job job, IOptions<BoundedContext> boundedContext, ICronusContextAccessor contextAccessor)
         {
             this.job = job;
-            this.context = context;
+            this.contextAccessor = contextAccessor;
             this.boundedContext = boundedContext.Value;
         }
 
         public RebuildProjection_Job CreateJob(ProjectionVersion version, ReplayEventsOptions replayEventsOptions, VersionRequestTimebox timebox)
         {
-            job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}:{version.ProjectionName}_{version.Hash}_{version.Revision}";
+            job.Name = $"urn:{boundedContext.Name}:{contextAccessor.CronusContext.Tenant}:{job.Name}:{version.ProjectionName}_{version.Hash}_{version.Revision}";
 
             job.BuildInitialData(() => new RebuildProjection_JobData()
             {

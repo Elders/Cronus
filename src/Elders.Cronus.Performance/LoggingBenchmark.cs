@@ -1,10 +1,8 @@
-﻿using System;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 using Microsoft.Extensions.Logging;
 
-BenchmarkRunner.Run<LoggingBench>();
+//BenchmarkRunner.Run<LoggingBench>();
 
 [MemoryDiagnoser]
 public class LoggingBench

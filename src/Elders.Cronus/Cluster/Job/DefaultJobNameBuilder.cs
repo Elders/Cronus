@@ -6,17 +6,17 @@ namespace Elders.Cronus.Cluster.Job
     public class DefaultJobNameBuilder : IJobNameBuilder
     {
         private readonly BoundedContext boundedContext;
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
 
-        public DefaultJobNameBuilder(IOptions<BoundedContext> boundedContext, CronusContext context)
+        public DefaultJobNameBuilder(IOptions<BoundedContext> boundedContext, ICronusContextAccessor contextAccessor)
         {
             this.boundedContext = boundedContext.Value;
-            this.context = context;
+            this.contextAccessor = contextAccessor;
         }
 
         public string GetJobName(string defaultName)
         {
-            return $"urn:{boundedContext.Name}:{context.Tenant}:{defaultName}";
+            return $"urn:{boundedContext.Name}:{contextAccessor.CronusContext.Tenant}:{defaultName}";
         }
     }
 }

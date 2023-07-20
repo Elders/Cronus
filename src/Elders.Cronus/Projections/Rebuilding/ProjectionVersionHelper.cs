@@ -12,15 +12,15 @@ namespace Elders.Cronus.Projections.Rebuilding
 {
     public class ProjectionVersionHelper
     {
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
         private readonly ProjectionHasher projectionHasher;
         private readonly IInitializableProjectionStore projectionVersionInitializer;
         private readonly IProjectionReader projectionReader;
         private readonly ILogger<ProjectionVersionHelper> logger;
 
-        public ProjectionVersionHelper(CronusContext context, IProjectionReader projectionReader, IInitializableProjectionStore projectionVersionInitializer, ProjectionHasher projectionHasher, ILogger<ProjectionVersionHelper> logger)
+        public ProjectionVersionHelper(ICronusContextAccessor contextAccessor, IProjectionReader projectionReader, IInitializableProjectionStore projectionVersionInitializer, ProjectionHasher projectionHasher, ILogger<ProjectionVersionHelper> logger)
         {
-            this.context = context;
+            this.contextAccessor = contextAccessor;
             this.projectionReader = projectionReader;
             this.projectionVersionInitializer = projectionVersionInitializer;
             this.projectionHasher = projectionHasher;
@@ -99,7 +99,7 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         private async Task<bool> IsVersionTrackerMissingAsync()
         {
-            var versionId = new ProjectionVersionManagerId(ProjectionVersionsHandler.ContractId, context.Tenant);
+            var versionId = new ProjectionVersionManagerId(ProjectionVersionsHandler.ContractId, contextAccessor.CronusContext.Tenant);
             var result = await projectionReader.GetAsync<ProjectionVersionsHandler>(versionId).ConfigureAwait(false);
 
             return result.HasError || result.NotFound;
@@ -117,7 +117,7 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         private async Task<IndexStatus> GetIndexStatusAsync<TIndex>() where TIndex : IEventStoreIndex
         {
-            var id = new EventStoreIndexManagerId(typeof(TIndex).GetContractId(), context.Tenant);
+            var id = new EventStoreIndexManagerId(typeof(TIndex).GetContractId(), contextAccessor.CronusContext.Tenant);
             var result = await projectionReader.GetAsync<EventStoreIndexStatus>(id).ConfigureAwait(false);
             if (result.IsSuccess)
                 return result.Data.State.Status;
@@ -127,7 +127,7 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         private async Task<ProjectionVersions> GetAllVersionsAsync(ProjectionVersion version)
         {
-            var versionId = new ProjectionVersionManagerId(version.ProjectionName, context.Tenant);
+            var versionId = new ProjectionVersionManagerId(version.ProjectionName, contextAccessor.CronusContext.Tenant);
             var result = await projectionReader.GetAsync<ProjectionVersionsHandler>(versionId).ConfigureAwait(false);
             if (result.IsSuccess)
                 return result.Data.State.AllVersions;

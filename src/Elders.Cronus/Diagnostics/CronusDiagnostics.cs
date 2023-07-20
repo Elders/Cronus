@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.EventStore.Index;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 

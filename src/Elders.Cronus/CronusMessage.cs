@@ -51,10 +51,6 @@ namespace Elders.Cronus
 
         public string MessageId { get { return GetHeader(MessageHeader.MessageId); } }
 
-        public string CausationId { get { return GetHeader(MessageHeader.CausationId); } }
-
-        public string CorelationId { get { return GetHeader(MessageHeader.CorelationId); } }
-
         public string[] RecipientHandlers
         {
             get

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Machine.Specifications;
 using Elders.Cronus.Tests.TestModel;
 using Elders.Cronus.EventStore;
-using System.Linq;
 
 namespace Elders.Cronus.Tests
 {

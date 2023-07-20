@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Linq;
 using Elders.Cronus.AtomicAction;
-using Elders.Cronus.Diagnostics;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.Hosting.Heartbeat;
 using Elders.Cronus.MessageProcessing;
@@ -87,8 +86,9 @@ namespace Elders.Cronus
             services.AddOptions<TenantsOptions, TenantsOptionsProvider>();
             services.AddTransient(typeof(SingletonPerTenant<>));
             services.AddSingleton(typeof(SingletonPerTenantContainer<>));
-            services.AddScoped<CronusContext>();
-            services.AddScoped<CronusContextFactory>();
+
+            services.AddSingleton<ICronusContextAccessor, CronusContextAccessor>();
+            services.AddSingleton<DefaultCronusContextFactory>();
 
             return services;
         }

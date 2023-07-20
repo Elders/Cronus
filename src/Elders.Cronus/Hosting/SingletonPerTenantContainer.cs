@@ -29,21 +29,21 @@ namespace Elders.Cronus
     public class SingletonPerTenant<T>
     {
         private readonly SingletonPerTenantContainer<T> container;
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
 
-        public SingletonPerTenant(SingletonPerTenantContainer<T> container, CronusContext context)
+        public SingletonPerTenant(SingletonPerTenantContainer<T> container, ICronusContextAccessor contextAccessor)
         {
-            if (context is null) throw new ArgumentNullException(nameof(context));
+            if (contextAccessor is null) throw new ArgumentNullException(nameof(contextAccessor));
             this.container = container;
-            this.context = context;
+            this.contextAccessor = contextAccessor;
         }
 
         public T Get()
         {
-            if (container.Stash.TryGetValue(context.Tenant, out T instance) == false)
+            if (container.Stash.TryGetValue(contextAccessor.CronusContext.Tenant, out T instance) == false)
             {
-                instance = context.ServiceProvider.GetRequiredService<T>();
-                container.Stash.TryAdd(context.Tenant, instance);
+                instance = contextAccessor.CronusContext.ServiceProvider.GetRequiredService<T>();
+                container.Stash.TryAdd(contextAccessor.CronusContext.Tenant, instance);
             }
 
             return instance;
