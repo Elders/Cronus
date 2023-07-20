@@ -1,3 +1,10 @@
+# [9.0.0-preview.54](https://github.com/Elders/Cronus/compare/v9.0.0-preview.53...v9.0.0-preview.54) (2023-07-20)
+
+
+### Bug Fixes
+
+* Properly create logger for ScopedMessageWorkflow ([b4b8db7](https://github.com/Elders/Cronus/commit/b4b8db77da72e4bce6489c356b3b6793979692e9))
+
 # [9.0.0-preview.53](https://github.com/Elders/Cronus/compare/v9.0.0-preview.52...v9.0.0-preview.53) (2023-07-20)
 
 # [9.0.0-preview.52](https://github.com/Elders/Cronus/compare/v9.0.0-preview.51...v9.0.0-preview.52) (2023-07-14)
