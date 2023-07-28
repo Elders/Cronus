@@ -92,30 +92,28 @@ namespace Elders.Cronus.Projections.Rebuilding
                 OnLoadAsync = async eventRaw =>
                 {
                     counter++;
-                    using (var stream = new MemoryStream(eventRaw.Data))
+
+                    IEvent @event = serializer.DeserializeFromBytes<IEvent>(eventRaw.Data);
+                    if (@event is null)
+                        return;
+
+                    @event = @event.Unwrap();
+                    IAmEventSourcedProjection instance;
+                    if (projectionInstancesToReplay.TryGetValue(projectionType, out instance) == false)
                     {
-                        if (serializer.Deserialize(stream) is IEvent @event)
-                        {
-                            @event = @event.Unwrap();
-
-                            IAmEventSourcedProjection instance;
-                            if (projectionInstancesToReplay.TryGetValue(projectionType, out instance) == false)
-                            {
-                                instance = contextAccessor.CronusContext.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
-                                if (instance is null)
-                                    return;
-                                projectionInstancesToReplay.TryAdd(projectionType, instance);
-                            }
-
-                            EventOrigin origin = new EventOrigin(eventRaw.AggregateRootId, eventRaw.Revision, eventRaw.Position, eventRaw.Timestamp);
-                            await projectionWriter
-                                .SaveAsync(projectionType, @event, origin, version)
-                                .ContinueWith(t => { instance?.ReplayEventAsync(@event); })
-                                .ConfigureAwait(false);
-
-                            progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
-                        }
+                        instance = contextAccessor.CronusContext.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjection;
+                        if (instance is null)
+                            return;
+                        projectionInstancesToReplay.TryAdd(projectionType, instance);
                     }
+
+                    EventOrigin origin = new EventOrigin(eventRaw.AggregateRootId, eventRaw.Revision, eventRaw.Position, eventRaw.Timestamp);
+                    await projectionWriter
+                        .SaveAsync(projectionType, @event, origin, version)
+                        .ContinueWith(t => { instance?.ReplayEventAsync(@event); })
+                        .ConfigureAwait(false);
+
+                    progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
                 },
                 NotifyProgressAsync = async options =>
                 {

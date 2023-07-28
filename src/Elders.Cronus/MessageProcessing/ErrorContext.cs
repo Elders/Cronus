@@ -29,26 +29,20 @@ namespace Elders.Cronus.MessageProcessing
 
         public string MessageAsJson { get; private set; }
 
-        public async Task<Exception> ToExceptionAsync()
+        public Exception ToException()
         {
-            string errorMessage = $"MessageHandleWorkflow execution has failed.{Environment.NewLine}{await GetMessageAsJsonAsync(ServiceProvider, Message).ConfigureAwait(false)}";
+            string errorMessage = $"MessageHandleWorkflow execution has failed.{Environment.NewLine}{GetMessageAsJson(ServiceProvider, Message)}";
             return new WorkflowExecutionException(errorMessage, this, Error);
         }
 
-        private async Task<string> GetMessageAsJsonAsync(IServiceProvider serviceProvider, CronusMessage message)
+        private string GetMessageAsJson(IServiceProvider serviceProvider, CronusMessage message)
         {
             if (string.IsNullOrEmpty(MessageAsJson) && ServiceProvider is not null)
             {
                 try
                 {
                     var serializer = serviceProvider.GetRequiredService<ISerializer>();
-                    using (var stream = new MemoryStream())
-                    using (StreamReader reader = new StreamReader(stream))
-                    {
-                        serializer.Serialize(stream, message);
-                        stream.Position = 0;
-                        MessageAsJson = await reader.ReadToEndAsync().ConfigureAwait(false);
-                    }
+                    MessageAsJson = serializer.SerializeToString(message);
                 }
                 catch (Exception) { }
             }

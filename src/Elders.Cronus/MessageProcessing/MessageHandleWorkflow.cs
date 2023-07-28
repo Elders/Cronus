@@ -77,7 +77,7 @@ namespace Elders.Cronus.MessageProcessing
                 context.AssignPropertySafely<IWorkflowContextWithServiceProvider>(prop => prop.ServiceProvider = execution.Context.ServiceProvider);
                 await Error.RunAsync(context).ConfigureAwait(false);
 
-                throw await context.ToExceptionAsync();
+                throw context.ToException();
             }
             finally
             {
