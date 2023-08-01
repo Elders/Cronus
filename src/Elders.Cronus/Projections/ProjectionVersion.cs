@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.Projections
 {
     [DataContract(Name = "bb4883b9-c3a5-48e5-8ba1-28fb94d061ac")]
-    public class ProjectionVersion : ValueObject<ProjectionVersion>
+    public sealed class ProjectionVersion : ValueObject<ProjectionVersion>
     {
         private ProjectionVersion() { }
 

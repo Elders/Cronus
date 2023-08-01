@@ -14,4 +14,19 @@ namespace Elders.Cronus
         }
         public IEnumerable<Type> Items { get; set; }
     }
+
+    public static class ExceptionFilter
+    {
+        public static bool True(Action action)
+        {
+            action();
+            return true;
+        }
+
+        public static bool False(Action action)
+        {
+            action();
+            return false;
+        }
+    }
 }

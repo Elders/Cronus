@@ -14,14 +14,16 @@ namespace Elders.Cronus.Workflow
 
     internal static class CronusLogEvent
     {
-        public static EventId CronusHandle = new EventId(7478, "CronusHandle");
+        public static EventId CronusWorkflowHandle = new EventId(74001, "CronusWorkflowHandle");
+        public static EventId CronusProjectionRead = new EventId(74020, "CronusProjectionRead");
+        public static EventId CronusProjectionWrite = new EventId(74021, "CronusProjectionWrite");
     }
 
     public class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext : HandleContext
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DiagnosticsWorkflow<>));
         private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
-        private static readonly Action<ILogger, string, string, double, Exception> LogHandleSuccess = LoggerMessage.Define<string, string, double>(LogLevel.Information, CronusLogEvent.CronusHandle, "{cronus_MessageHandler} handled {cronus_MessageName} in {Elapsed:0.0000} ms.", LogOption.SkipLogInfoChecks);
+        private static readonly Action<ILogger, string, string, double, Exception> LogHandleSuccess = LoggerMessage.Define<string, string, double>(LogLevel.Information, CronusLogEvent.CronusWorkflowHandle, "{cronus_MessageHandler} handled {cronus_MessageName} in {Elapsed:0.0000} ms.", LogOption.SkipLogInfoChecks);
 
         private const string ActivityName = "Elders.Cronus.Hosting.Workflow";
         private const string DiagnosticsUnhandledExceptionKey = "Elders.Cronus.Hosting.UnhandledException";

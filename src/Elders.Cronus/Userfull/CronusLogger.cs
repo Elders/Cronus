@@ -17,6 +17,7 @@ namespace Elders.Cronus
         public const string ProjectionName = "cronus_projection_name";
         public const string ProjectionType = "cronus_projection_type";
         public const string ProjectionInstanceId = "cronus_projection_id";
+        public const string ProjectionVersion = "cronus_projection_version";
     }
 
     public static class CronusLogger

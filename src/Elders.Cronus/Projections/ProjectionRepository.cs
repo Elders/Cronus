@@ -4,13 +4,19 @@ using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;
+using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
+
 
 namespace Elders.Cronus.Projections
 {
     public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
     {
         private static readonly ILogger log = CronusLogger.CreateLogger(typeof(ProjectionRepository));
+        private static readonly Action<ILogger, Exception> LogProjectionInstanceNotFound = LoggerMessage.Define(LogLevel.Debug, CronusLogEvent.CronusProjectionRead, "Projection instance not found.");
+        private static readonly Action<ILogger, Exception> LogProjectionLoadError = LoggerMessage.Define(LogLevel.Error, CronusLogEvent.CronusProjectionRead, "Unable to load projection.");
+        private static readonly Action<ILogger, Exception> LogProjectionLiveVersionMissing = LoggerMessage.Define(LogLevel.Error, CronusLogEvent.CronusProjectionRead, "Unable to find projection `live` version.");
+        private static readonly Action<ILogger, Exception> LogProjectionWriteError = LoggerMessage.Define(LogLevel.Error, CronusLogEvent.CronusProjectionWrite, "Failed to write in projection.");
 
         private readonly ICronusContextAccessor contextAccessor;
         readonly IProjectionStore projectionStore;
@@ -52,23 +58,24 @@ namespace Elders.Cronus.Projections
             if (eventOrigin is null) throw new ArgumentNullException(nameof(eventOrigin));
 
             string projectionName = projectionType.GetContractId();
-            var handlerInstance = handlerFactory.Create(projectionType);
-            var projection = handlerInstance.Current as IProjectionDefinition;
-            if (projection != null)
+            IHandlerInstance handlerInstance = handlerFactory.Create(projectionType);
+            IProjectionDefinition projection = handlerInstance.Current as IProjectionDefinition;
+
+            if (projection is not null)
             {
                 var projectionIds = projection.GetProjectionIds(@event);
 
                 List<Task> tasks = new List<Task>();
                 foreach (IBlobId projectionId in projectionIds)
                 {
-                    using (log.BeginScope(s => s.AddScope("cronus_projection_id", projectionId)))
+                    using (log.BeginScope(s => s.AddScope(Log.ProjectionInstanceId, projectionId)))
                     {
                         ReadResult<ProjectionVersions> result = await GetProjectionVersionsAsync(projectionName).ConfigureAwait(false);
                         if (result.IsSuccess)
                         {
                             foreach (ProjectionVersion version in result.Data)
                             {
-                                using (log.BeginScope(s => s.AddScope("cronus_projection_version", version)))
+                                using (log.BeginScope(s => s.AddScope(Log.ProjectionVersion, version)))
                                 {
                                     if (ShouldSaveEventForVersion(version))
                                     {
@@ -128,10 +135,7 @@ namespace Elders.Cronus.Projections
                     var commit = new ProjectionCommit(projectionId, version, @event, 1, eventOrigin, DateTime.FromFileTime(eventOrigin.Timestamp)); // Snapshotting is disable till we test it => hardcoded 1
                     await projectionStore.SaveAsync(commit).ConfigureAwait(false);
                 }
-                catch (Exception ex)
-                {
-                    log.ErrorException(ex, () => "Failed to persist event." + Environment.NewLine + $"\tProjectionVersion:{version}" + Environment.NewLine + $"\tEvent:{@event}");
-                }
+                catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex))) { }
             }
         }
 
@@ -150,14 +154,13 @@ namespace Elders.Cronus.Projections
                 {
                     ProjectionStream stream = await LoadProjectionStreamAsync(projectionType, projectionId).ConfigureAwait(false);
                     var readResult = new ReadResult<T>(await stream.RestoreFromHistoryAsync<T>().ConfigureAwait(false));
-                    if (readResult.NotFound && log.IsDebugEnabled())
-                        log.Debug(() => "Projection instance not found.");
+                    if (readResult.NotFound)
+                        LogProjectionInstanceNotFound(log, null);
 
                     return readResult;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionLoadError(log, ex)))
                 {
-                    log.ErrorException(ex, () => "Unable to load projection.");
                     return ReadResult<T>.WithError(ex);
                 }
             }
@@ -165,25 +168,24 @@ namespace Elders.Cronus.Projections
 
         public async Task<ReadResult<IProjectionDefinition>> GetAsync(IBlobId projectionId, Type projectionType)
         {
+            if (projectionId is null) throw new ArgumentNullException(nameof(projectionId));
+
             using (log.BeginScope(s => s
                        .AddScope(Log.ProjectionName, projectionType.GetContractId())
                        .AddScope(Log.ProjectionType, projectionType.Name)
                        .AddScope(Log.ProjectionInstanceId, projectionId.RawId)))
             {
-                if (projectionId is null) throw new ArgumentNullException(nameof(projectionId));
-
                 try
                 {
                     ProjectionStream stream = await LoadProjectionStreamAsync(projectionType, projectionId);
                     var readResult = new ReadResult<IProjectionDefinition>(await stream.RestoreFromHistoryAsync(projectionType).ConfigureAwait(false));
-                    if (readResult.NotFound && log.IsDebugEnabled())
-                        log.Debug(() => "Projection instance not found.");
+                    if (readResult.NotFound)
+                        LogProjectionInstanceNotFound(log, null);
 
                     return readResult;
                 }
-                catch (Exception ex)
+                catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionLoadError(log, ex)))
                 {
-                    log.ErrorException(ex, () => "Unable to load projection.");
                     return ReadResult<IProjectionDefinition>.WithError(ex);
                 }
             }
@@ -195,14 +197,9 @@ namespace Elders.Cronus.Projections
 
             var queryResult = await GetProjectionVersionsFromStoreAsync(projectionName).ConfigureAwait(false);
             if (queryResult.IsSuccess)
-            {
                 return new ReadResult<ProjectionVersions>(queryResult.Data.State.AllVersions);
-            }
 
-            if (queryResult.HasError || queryResult.NotFound)
-                return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
-
-            return default;
+            return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
         }
 
         private async Task PersistAsync(Type projectionType, string projectionName, IBlobId projectionId, ProjectionVersion version, IEvent @event, EventOrigin eventOrigin)
@@ -215,7 +212,7 @@ namespace Elders.Cronus.Projections
                 var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.FromFileTime(eventOrigin.Timestamp));
                 await projectionStore.SaveAsync(commit).ConfigureAwait(false);
             }
-            catch (Exception ex) when (LogMessageWhenFailToUpdateProjection(ex, version)) { }
+            catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex))) { }
         }
 
         private async Task<ReadResult<ProjectionVersionsHandler>> GetProjectionVersionsFromStoreAsync(string projectionName)
@@ -223,18 +220,17 @@ namespace Elders.Cronus.Projections
             try
             {
                 var persistentVersionType = typeof(ProjectionVersionsHandler);
-                var projectionVersions_ProjectionName = persistentVersionType.GetContractId();
+                string projectionVersions_ProjectionName = persistentVersionType.GetContractId();
 
-                var versionId = new ProjectionVersionManagerId(projectionName, contextAccessor.CronusContext.Tenant);
-                var persistentVersion = new ProjectionVersion(projectionVersions_ProjectionName, ProjectionStatus.Live, 1, projectionHasher.CalculateHash(persistentVersionType));
+                ProjectionVersionManagerId versionId = new ProjectionVersionManagerId(projectionName, contextAccessor.CronusContext.Tenant);
+                ProjectionVersion persistentVersion = new ProjectionVersion(projectionVersions_ProjectionName, ProjectionStatus.Live, 1, projectionHasher.CalculateHash(persistentVersionType));
                 ProjectionStream stream = await LoadProjectionStreamAsync(persistentVersionType, persistentVersion, versionId, new NoSnapshot(versionId, projectionVersions_ProjectionName).GetMeta()).ConfigureAwait(false);
-                var queryResult = await stream.RestoreFromHistoryAsync<ProjectionVersionsHandler>().ConfigureAwait(false);
+                ProjectionVersionsHandler queryResult = await stream.RestoreFromHistoryAsync<ProjectionVersionsHandler>().ConfigureAwait(false);
 
                 return new ReadResult<ProjectionVersionsHandler>(queryResult);
             }
-            catch (Exception ex)
+            catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionLoadError(log, ex)))
             {
-                log.WarnException(ex, () => $"Failed to load projection versions. ProjectionName: {projectionName}");
                 return ReadResult<ProjectionVersionsHandler>.WithError(ex.Message);
             }
         }
@@ -305,7 +301,7 @@ namespace Elders.Cronus.Projections
                 ProjectionVersion liveVersion = result.Data.GetLive();
                 if (liveVersion is null)
                 {
-                    log.Warn(() => $"Unable to find projection `live` version. {Environment.NewLine}AvailableVersions:{Environment.NewLine}{result.Data.ToString()}");
+                    LogProjectionLiveVersionMissing(log, null);
                     return ProjectionStream.Empty();
                 }
 
@@ -313,20 +309,18 @@ namespace Elders.Cronus.Projections
                     ? await snapshotStore.LoadAsync(projectionName, projectionId, liveVersion).ConfigureAwait(false)
                     : new NoSnapshot(projectionId, projectionName);
 
-                return await LoadProjectionStreamAsync(liveVersion, projectionId, snapshot);
+                return await LoadProjectionStreamAsync(liveVersion, projectionId, snapshot).ConfigureAwait(false);
+            }
+            else if (result.NotFound)
+            {
+                LogProjectionInstanceNotFound(log, null);
+            }
+            else if (result.HasError)
+            {
+                LogProjectionLoadError(log, null);
             }
 
             return ProjectionStream.Empty();
-        }
-
-        private bool LogMessageWhenFailToUpdateProjection(Exception ex, ProjectionVersion version)
-        {
-            if (version.Status == ProjectionStatus.Live)
-                log.ErrorException(ex, () => $"Failed to update projection. Please replay the projection to restore the state.");
-            else
-                log.WarnException(ex, () => $"Failed to update projection. Most probably the event will be replayed later so you could ignore this message OR log a bug.");
-
-            return true;
         }
 
         private bool ShouldSaveEventForVersion(ProjectionVersion version)
