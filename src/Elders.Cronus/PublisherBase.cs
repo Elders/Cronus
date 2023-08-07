@@ -159,7 +159,7 @@ namespace Elders.Cronus
             var asd = Activity.Current;
             if (diagnosticListener.IsEnabled())
             {
-                Activity? activity = null;
+                Activity activity = null;
                 string parentId = string.Empty;
                 message.Headers?.TryGetValue(TelemetryTraceParent, out parentId);
                 string messageTypeName = message.GetMessageType().Name;

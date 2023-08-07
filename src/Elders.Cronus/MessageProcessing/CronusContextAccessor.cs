@@ -10,7 +10,7 @@ namespace Elders.Cronus.MessageProcessing
         private static readonly AsyncLocal<CronusContextHolder> _cronusContextCurrent = new AsyncLocal<CronusContextHolder>();
 
         /// <inheritdoc/>
-        public CronusContext? CronusContext
+        public CronusContext CronusContext
         {
             get
             {
@@ -37,7 +37,7 @@ namespace Elders.Cronus.MessageProcessing
 
         private sealed class CronusContextHolder
         {
-            public CronusContext? Context;
+            public CronusContext Context;
         }
     }
 }

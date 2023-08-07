@@ -130,7 +130,7 @@ namespace Elders.Cronus.Projections
             {
                 try
                 {
-                    var projectionId = Urn.Parse($"urn:cronus:{projectionName}");
+                    var projectionId = new Urn($"urn:cronus:{projectionName}");
 
                     var commit = new ProjectionCommit(projectionId, version, @event, 1, eventOrigin, DateTime.FromFileTime(eventOrigin.Timestamp)); // Snapshotting is disable till we test it => hardcoded 1
                     await projectionStore.SaveAsync(commit).ConfigureAwait(false);

@@ -13,7 +13,7 @@ namespace Elders.Cronus.MessageProcessing
     /// </summary>
     public class DefaultCronusContextFactory
     {
-        private readonly ICronusContextAccessor? _cronusContextAccessor;
+        private readonly ICronusContextAccessor _cronusContextAccessor;
         private readonly ITenantResolver _tenantResolver;
         private readonly IOptionsMonitor<TenantsOptions> tenantsOptions;
 
@@ -25,7 +25,7 @@ namespace Elders.Cronus.MessageProcessing
             tenantsOptions = serviceProvider.GetRequiredService<IOptionsMonitor<TenantsOptions>>();
         }
 
-        internal ICronusContextAccessor? CronusContextAccessor => _cronusContextAccessor;
+        internal ICronusContextAccessor CronusContextAccessor => _cronusContextAccessor;
 
         /// <summary>
         /// Create an <see cref="HttpContext"/> instance given an <paramref name="featureCollection" />.

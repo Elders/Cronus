@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,7 +7,13 @@ namespace Elders.Cronus.Projections.Versioning
 {
     public class ProjectionHasher
     {
-        static readonly char[] padding = { '=' };
+        private static readonly char[] padding = { '=' };
+        private readonly ConcurrentDictionary<Type, string> hashCache;
+
+        public ProjectionHasher()
+        {
+            hashCache = new ConcurrentDictionary<Type, string>();
+        }
 
         public string CalculateHash(string projectionName)
         {
@@ -16,18 +23,26 @@ namespace Elders.Cronus.Projections.Versioning
 
         public string CalculateHash(Type projectionType)
         {
-            if (typeof(INonVersionableProjection).IsAssignableFrom(projectionType))
+            if (hashCache.TryGetValue(projectionType, out string hash) == false)
             {
-                return ((INonVersionableProjection)Activator.CreateInstance(projectionType)).GetHash();
+                if (typeof(INonVersionableProjection).IsAssignableFrom(projectionType))
+                {
+                    hash = ((INonVersionableProjection)Activator.CreateInstance(projectionType)).GetHash();
+                }
+                else
+                {
+                    Type ieventHandler = typeof(IEventHandler<>).GetGenericTypeDefinition();
+                    List<string> allEvents = projectionType
+                        .GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler)
+                        .Select(x => x.GetGenericArguments().First().GetContractId())
+                        .ToList();
+
+                    hash = CalculateHash(allEvents);
+                }
+
+                hashCache.TryAdd(projectionType, hash);
             }
-
-            var ieventHandler = typeof(IEventHandler<>).GetGenericTypeDefinition();
-            var allEvents = projectionType
-                .GetInterfaces().Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == ieventHandler)
-                .Select(x => x.GetGenericArguments().First().GetContractId())
-                .ToList();
-
-            return CalculateHash(allEvents);
+            return hash;
         }
 
         string CalculateHash(List<string> contractIds)

@@ -24,7 +24,7 @@ namespace Elders.Cronus.Migrations.TestMigration
         {
             if (ShouldApply(current))
             {
-                var urnRaw = Urn.Parse(Encoding.UTF8.GetString(current.AggregateRootId));
+                var urnRaw = new Urn(Encoding.UTF8.GetString(current.AggregateRootId));
                 var urn = AggregateRootId.Parse(urnRaw.Value);
                 string currentAggregateName = urn.AggregateRootName;
 
@@ -76,7 +76,7 @@ namespace Elders.Cronus.Migrations.TestMigration
 
         public bool ShouldApply(AggregateCommit current)
         {
-            var urnRaw = Urn.Parse(Encoding.UTF8.GetString(current.AggregateRootId));
+            var urnRaw = new Urn(Encoding.UTF8.GetString(current.AggregateRootId));
             var urn = AggregateRootId.Parse(urnRaw.Value);
             string currentAggregateName = urn.AggregateRootName;
 

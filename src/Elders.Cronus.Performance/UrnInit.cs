@@ -18,7 +18,7 @@ public class UrnInitBench
     [Benchmark]
     public void Parse()
     {
-        var urn = Urn.Parse(urnString);
+        var urn = new Urn(urnString);
     }
 }
 

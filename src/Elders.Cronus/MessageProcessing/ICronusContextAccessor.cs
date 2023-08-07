@@ -2,6 +2,6 @@
 {
     public interface ICronusContextAccessor
     {
-        CronusContext? CronusContext { get; set; }
+        CronusContext CronusContext { get; set; }
     }
 }

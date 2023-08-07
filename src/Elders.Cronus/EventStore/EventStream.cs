@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
 namespace Elders.Cronus.EventStore
 {
-    public class AggregateStream
+    public sealed class AggregateStream
     {
         public AggregateStream(IEnumerable<AggregateEventRaw> events)
         {
@@ -21,9 +20,9 @@ namespace Elders.Cronus.EventStore
         public List<AggregateCommitRaw> Commits { get; init; }
     }
 
-    public class EventStream
+    public sealed class EventStream
     {
-        IList<AggregateCommit> aggregateCommits;
+        private readonly IList<AggregateCommit> aggregateCommits;
 
         public EventStream(IList<AggregateCommit> aggregateCommits)
         {
@@ -41,7 +40,7 @@ namespace Elders.Cronus.EventStore
             {
                 int currentRevision = aggregateCommits.Last().Revision;
                 aggregateRoot = (T)FastActivator.CreateInstance(typeof(T), true);
-                aggregateRoot.ReplayEvents(events.ToList(), currentRevision);
+                aggregateRoot.ReplayEvents(events, currentRevision);
                 return true;
             }
             else
@@ -54,19 +53,18 @@ namespace Elders.Cronus.EventStore
         {
             var performanceCriticalOutputBuilder = new StringBuilder();
             AggregateCommit firstCommit = aggregateCommits.First();
-            string base64AggregateRootId = Convert.ToBase64String(firstCommit.AggregateRootId);
+            string aggregateRootId = Encoding.UTF8.GetString(firstCommit.AggregateRootId);
             string aggregateName = Encoding.UTF8.GetString(firstCommit.AggregateRootId).Split('@')[0];
 
             performanceCriticalOutputBuilder.AppendLine("Aggregate Info");
             performanceCriticalOutputBuilder.AppendLine("==============");
-            performanceCriticalOutputBuilder.AppendLine($"- Aggregate root ID (base64): `{base64AggregateRootId}`");
+            performanceCriticalOutputBuilder.AppendLine($"- Aggregate root ID : `{aggregateRootId}`");
             performanceCriticalOutputBuilder.AppendLine($"- Aggregate name: `{aggregateName}`");
             performanceCriticalOutputBuilder.AppendLine();
             performanceCriticalOutputBuilder.AppendLine("## Commits");
 
             foreach (var commit in aggregateCommits)
             {
-
                 performanceCriticalOutputBuilder.AppendLine();
                 performanceCriticalOutputBuilder.AppendLine($"#### Revision {commit.Revision}");
 
@@ -76,6 +74,7 @@ namespace Elders.Cronus.EventStore
                 }
             }
             performanceCriticalOutputBuilder.AppendLine("-------------------------------------------------------------------------------------------------------------------");
+
             return performanceCriticalOutputBuilder.ToString();
         }
     }

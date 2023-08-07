@@ -71,7 +71,7 @@ namespace Elders.Cronus.Workflow
         {
             if (diagnosticListener.IsEnabled())
             {
-                Activity? activity = null;
+                Activity activity = null;
                 string parentId = string.Empty;
                 context.Message.Headers.TryGetValue("telemetry_traceparent", out parentId);
                 string activityName = $"{context.HandlerType.Name}__{context.Message.Payload.GetType().Name}";
