@@ -1,3 +1,10 @@
+# [9.0.0-preview.56](https://github.com/Elders/Cronus/compare/v9.0.0-preview.55...v9.0.0-preview.56) (2023-08-07)
+
+
+### Bug Fixes
+
+* Updates packages and address breacking changes from DomainModeling ([79be721](https://github.com/Elders/Cronus/commit/79be721d79e09c2151299cd9eb21999d1e78fdc6))
+
 # [9.0.0-preview.55](https://github.com/Elders/Cronus/compare/v9.0.0-preview.54...v9.0.0-preview.55) (2023-07-28)
 
 # [9.0.0-preview.54](https://github.com/Elders/Cronus/compare/v9.0.0-preview.53...v9.0.0-preview.54) (2023-07-20)
