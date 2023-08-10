@@ -48,5 +48,10 @@ namespace Elders.Cronus.EventStore.Index
 
             return string.Empty;
         }
+
+        public bool HasEventId(ReadOnlySpan<byte> data, ReadOnlySpan<byte> eventContract)
+        {
+            return data.IndexOf(eventContract) > -1;
+        }
     }
 }
