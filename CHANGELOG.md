@@ -1,3 +1,10 @@
+# [9.0.0-preview.57](https://github.com/Elders/Cronus/compare/v9.0.0-preview.56...v9.0.0-preview.57) (2023-08-10)
+
+
+### Bug Fixes
+
+* Adds optimized method for checking if an event is of concrete type ([215ab5f](https://github.com/Elders/Cronus/commit/215ab5fd51bc4f86718557a3939f0682fd2727bf))
+
 # [9.0.0-preview.56](https://github.com/Elders/Cronus/compare/v9.0.0-preview.55...v9.0.0-preview.56) (2023-08-07)
 
 
