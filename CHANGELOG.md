@@ -1,3 +1,10 @@
+# [9.0.0-preview.58](https://github.com/Elders/Cronus/compare/v9.0.0-preview.57...v9.0.0-preview.58) (2023-08-11)
+
+
+### Bug Fixes
+
+* Fixes issue with republishing of events ([b1231c1](https://github.com/Elders/Cronus/commit/b1231c1a8d54c923d58a44556be41467cd6e3898))
+
 # [9.0.0-preview.57](https://github.com/Elders/Cronus/compare/v9.0.0-preview.56...v9.0.0-preview.57) (2023-08-10)
 
 
