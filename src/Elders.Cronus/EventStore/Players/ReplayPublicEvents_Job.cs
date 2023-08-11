@@ -44,7 +44,8 @@ namespace Elders.Cronus.EventStore.Players
             {
                 OnLoadAsync = eventRaw =>
                 {
-                    string messageId = $"urn:cronus:{boundedContext}:{contextAccessor.CronusContext.Tenant}:{Guid.NewGuid()}";
+                    string tenant = contextAccessor.CronusContext.Tenant;
+                    string messageId = $"urn:cronus:{boundedContext}:{tenant}:{Guid.NewGuid()}";
                     //TODO: Document which headers are essential or make another ctor for CronusMessage with byte[]
                     var headers = new Dictionary<string, string>()
                     {
@@ -52,12 +53,12 @@ namespace Elders.Cronus.EventStore.Players
                         { MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext },
                         { MessageHeader.RecipientHandlers, Data.RecipientHandlers },
                         { MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString() },
-                        { MessageHeader.Tenant, contextAccessor.CronusContext.Tenant },
+                        { MessageHeader.Tenant, tenant },
                         { MessageHeader.BoundedContext, boundedContext },
                         { "contract_name",  Data.SourceEventTypeId }
                     };
 
-                    publicEventPublisher.Publish(eventRaw.Data, Data.SourceEventTypeId.GetTypeByContract(), headers);
+                    publicEventPublisher.Publish(eventRaw.Data, Data.SourceEventTypeId.GetTypeByContract(), tenant, headers);
 
                     counter++;
                     return Task.CompletedTask;

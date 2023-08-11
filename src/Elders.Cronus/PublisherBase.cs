@@ -243,21 +243,38 @@ namespace Elders.Cronus
             return handlers.First().PublishInternal(cronusMessage);
         }
 
-        public virtual bool Publish(byte[] messageRaw, Type messageType, Dictionary<string, string> messageHeaders)
+        public virtual bool Publish(byte[] messageRaw, Type messageType, string tenant, Dictionary<string, string> messageHeaders)
         {
-            try
-            {
-                if (typeof(TMessage).IsAssignableFrom(messageType) == false)
-                    throw new ArgumentException($"Publisher {this.GetType().Name} cannot publish a message of type {messageType.Name}");
+            if (messageHeaders is null)
+                messageHeaders = new Dictionary<string, string>();
 
-                var cronusMessage = new CronusMessage(messageRaw, messageType, messageHeaders);
+            EnsureValidTenant(tenant, messageHeaders);
 
+            if (typeof(TMessage).IsAssignableFrom(messageType) == false)
+                throw new ArgumentException($"Publisher {this.GetType().Name} cannot publish a message of type {messageType.Name}");
+
+            CronusMessage cronusMessage = new CronusMessage(messageRaw, messageType, messageHeaders);
+
+            IEnumerator<DelegatingPublishHandler> enumerator = handlers.GetEnumerator();
+            bool hasHandlers = enumerator.MoveNext();
+            if (hasHandlers == false)
                 return PublishInternal(cronusMessage);
-            }
-            catch (Exception)
+
+            while (hasHandlers)
             {
-                return false;
+                DelegatingPublishHandler currentHandler = enumerator.Current;
+                hasHandlers = enumerator.MoveNext();
+                if (hasHandlers)
+                {
+                    currentHandler.InnerHandler = enumerator.Current;
+                }
+                else
+                {
+                    currentHandler.InnerHandler = this;
+                }
             }
+
+            return handlers.First().PublishInternal(cronusMessage);
         }
 
         public virtual bool Publish(TMessage message, DateTime publishAt, Dictionary<string, string> messageHeaders = null)
@@ -271,6 +288,23 @@ namespace Elders.Cronus
         {
             DateTime publishAt = DateTime.UtcNow.Add(publishAfter);
             return Publish(message, publishAt, messageHeaders);
+        }
+
+        private void EnsureValidTenant(string tenant, Dictionary<string, string> messageHeaders)
+        {
+            if (string.IsNullOrEmpty(tenant))
+                throw new ArgumentNullException("Unable to publish a message without a specified tenant.");
+
+            bool hasTenantHeader = messageHeaders.ContainsKey(MessageHeader.Tenant);
+            if (hasTenantHeader)
+            {
+                if (tenant.Equals(messageHeaders[MessageHeader.Tenant], StringComparison.OrdinalIgnoreCase) == false)
+                    throw new ArgumentException("Unable to publish a message inconsistency between message headers and the tenant from input parameters.");
+            }
+            else
+            {
+                messageHeaders.Add(MessageHeader.Tenant, tenant);
+            }
         }
     }
 }
