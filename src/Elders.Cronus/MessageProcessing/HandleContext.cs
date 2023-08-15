@@ -14,5 +14,7 @@ namespace Elders.Cronus.MessageProcessing
         public Type HandlerType { get; private set; }
 
         public IServiceProvider ServiceProvider { get; set; }
+
+        internal IDisposable LoggerScope { get; set; }
     }
 }
