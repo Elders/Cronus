@@ -1,9 +1,11 @@
+using System.Threading.Tasks;
+
 namespace Elders.Cronus
 {
     public interface IConsumer<out T> where T : IMessageHandler
     {
-        void Start();
+        Task StartAsync();
 
-        void Stop();
+        Task StopAsync();
     }
 }
