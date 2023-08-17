@@ -1,3 +1,10 @@
+# [9.0.0-preview.60](https://github.com/Elders/Cronus/compare/v9.0.0-preview.59...v9.0.0-preview.60) (2023-08-17)
+
+
+### Bug Fixes
+
+* fixes an issue with CronusContext initialization in the ScopedMessageWorkflow ([3d4c2c3](https://github.com/Elders/Cronus/commit/3d4c2c3006fcc65d09526b39eef75b97e7e89de7))
+
 # [9.0.0-preview.59](https://github.com/Elders/Cronus/compare/v9.0.0-preview.58...v9.0.0-preview.59) (2023-08-16)
 
 # [9.0.0-preview.58](https://github.com/Elders/Cronus/compare/v9.0.0-preview.57...v9.0.0-preview.58) (2023-08-11)
