@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Concurrent;
@@ -43,6 +44,7 @@ namespace Elders.Cronus
             if (container.Stash.TryGetValue(contextAccessor.CronusContext.Tenant, out T instance) == false)
             {
                 instance = contextAccessor.CronusContext.ServiceProvider.GetRequiredService<T>();
+                instance.AssignPropertySafely<IHaveTenant>(x => x.Tenant = contextAccessor.CronusContext.Tenant);
                 container.Stash.TryAdd(contextAccessor.CronusContext.Tenant, instance);
             }
 
