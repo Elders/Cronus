@@ -25,7 +25,7 @@ namespace Elders.Cronus.MessageProcessing
 
         protected override Execution<HandleContext> CreateExecutionContext(HandleContext context)
         {
-            string tenant = context.Message.GetTenant();
+            object tenant = context.Message.GetTenant();
 
             bool hasScopeError = false;
 
@@ -36,7 +36,7 @@ namespace Elders.Cronus.MessageProcessing
                 if (scopes.TryAdd(context, scope) == false)
                     hasScopeError = true;
 
-                var cronusContext = cronusContextFactory.Create(tenant, scope.ServiceProvider);
+                var cronusContext = cronusContextFactory.Create(tenant ?? context.Message, scope.ServiceProvider);
                 foreach (var header in context.Message.Headers)
                 {
                     cronusContext.Trace.Add(header.Key, header.Value);
