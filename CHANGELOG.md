@@ -1,3 +1,10 @@
+# [9.0.0-preview.61](https://github.com/Elders/Cronus/compare/v9.0.0-preview.60...v9.0.0-preview.61) (2023-08-17)
+
+
+### Features
+
+* Adds the tenant value to instances registered as TenantSingleton. You need to inherit IHaveTenant to opt-in for this feature. ([3b508f6](https://github.com/Elders/Cronus/commit/3b508f636495ab505e482cfac994c7b02289bae0))
+
 # [9.0.0-preview.60](https://github.com/Elders/Cronus/compare/v9.0.0-preview.59...v9.0.0-preview.60) (2023-08-17)
 
 
