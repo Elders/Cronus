@@ -282,6 +282,7 @@ namespace Elders.Cronus
             if (container.Stash.TryGetValue(context.Tenant, out T instance) == false)
             {
                 instance = context.ServiceProvider.GetRequiredService<T>();
+                instance.AssignPropertySafely<IHaveTenant>(x => x.Tenant = context.Tenant);
                 container.Stash.TryAdd(context.Tenant, instance);
             }
 
