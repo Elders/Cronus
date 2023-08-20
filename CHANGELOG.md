@@ -1,3 +1,10 @@
+# [9.0.0-preview.62](https://github.com/Elders/Cronus/compare/v9.0.0-preview.61...v9.0.0-preview.62) (2023-08-20)
+
+
+### Bug Fixes
+
+* Fixes copy/paste error ([08bd406](https://github.com/Elders/Cronus/commit/08bd406545e1848227ec9a960a2af618419abd0f))
+
 # [9.0.0-preview.61](https://github.com/Elders/Cronus/compare/v9.0.0-preview.60...v9.0.0-preview.61) (2023-08-17)
 
 
