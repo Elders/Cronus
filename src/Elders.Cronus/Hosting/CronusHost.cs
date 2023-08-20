@@ -163,7 +163,7 @@ namespace Elders.Cronus
         {
             if (hostOptions != newOptions)
             {
-                logger.Debug(() => "Cronus host options re-loaded with {@options}", newOptions);
+                logger.Info(() => "Cronus host options re-loaded with {@options}", newOptions);
 
                 Start(hostOptions, newOptions);
                 Stop(hostOptions, newOptions);
@@ -181,7 +181,7 @@ namespace Elders.Cronus
                 if (oldOptions.ProjectionsEnabled == false && newOptions.ProjectionsEnabled == true) projections.StartAsync();
                 if (oldOptions.PortsEnabled == false && newOptions.PortsEnabled == true) ports.StartAsync();
                 if (oldOptions.GatewaysEnabled == false && newOptions.GatewaysEnabled == true) gateways.StartAsync();
-                if (oldOptions.TriggersEnabled == false && newOptions.TriggersEnabled == true) gateways.StartAsync();
+                if (oldOptions.TriggersEnabled == false && newOptions.TriggersEnabled == true) triggers.StartAsync();
                 if (oldOptions.RpcApiEnabled == false && newOptions.RpcApiEnabled == true) rpcHost.StartAsync();
             }
             catch (Exception ex)
@@ -200,7 +200,7 @@ namespace Elders.Cronus
                 if (oldOptions.ProjectionsEnabled == true && newOptions.ProjectionsEnabled == false) projections.StopAsync();
                 if (oldOptions.PortsEnabled == true && newOptions.PortsEnabled == false) ports.StopAsync();
                 if (oldOptions.GatewaysEnabled == true && newOptions.GatewaysEnabled == false) gateways.StopAsync();
-                if (oldOptions.TriggersEnabled == true && newOptions.TriggersEnabled == false) gateways.StopAsync();
+                if (oldOptions.TriggersEnabled == true && newOptions.TriggersEnabled == false) triggers.StopAsync();
                 if (oldOptions.RpcApiEnabled == true && newOptions.RpcApiEnabled == false) rpcHost.StopAsync();
             }
             catch (Exception ex)
