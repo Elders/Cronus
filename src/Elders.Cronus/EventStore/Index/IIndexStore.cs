@@ -6,9 +6,11 @@ namespace Elders.Cronus.EventStore.Index
 {
     public interface IIndexStore
     {
-        Task ApendAsync(IEnumerable<IndexRecord> indexRecords);
+        Task ApendAsync(IndexRecord indexRecord);
         IAsyncEnumerable<IndexRecord> GetAsync(string indexRecordId);
         Task<LoadIndexRecordsResult> GetAsync(string indexRecordId, string paginationToken, int pageSize);
+
+        Task<long> GetCountAsync(string indexRecordId);
     }
 
     public class LoadIndexRecordsResult

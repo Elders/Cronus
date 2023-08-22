@@ -32,27 +32,33 @@ namespace Elders.Cronus.Projections
         [DataMember(Order = 1)]
         HashSet<ProjectionVersion> versions;
 
+        public string ProjectionName => versions.FirstOrDefault().ProjectionName;
+
         public int Count { get { return versions.Count; } }
 
         public bool IsReadOnly { get { return true; } }
 
-        public void ValidateVersion(ProjectionVersion version)
+        private bool IsValidVersion(ProjectionVersion version)
         {
             if (version is null) throw new ArgumentNullException(nameof(version));
 
             var existingVersion = versions.FirstOrDefault();
-            if (ReferenceEquals(null, existingVersion))
-                return;
+            if (existingVersion is null)
+                return true;
 
             if (existingVersion.ProjectionName.Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
             {
+                return false;
                 throw new ArgumentException("Invalid version. " + version.ToString() + Environment.NewLine + "Expected version for projection: " + existingVersion.ProjectionName, nameof(version));
             }
+
+            return true;
         }
 
         public void Add(ProjectionVersion version)
         {
-            ValidateVersion(version);
+            if (IsValidVersion(version) == false)
+                return;
 
             if (version.Status == ProjectionStatus.NotPresent)
                 return;
@@ -102,9 +108,23 @@ namespace Elders.Cronus.Projections
                 .OrderByDescending(x => x.Revision);
         }
 
-        public bool HasBuildingVersion()
+        public bool IsInProgress()
         {
             return GetBuildingVersions().Any();
+        }
+
+        public bool HasRebuildInProgress()
+        {
+            return versions
+                .Where(ver => ver.Status == ProjectionStatus.Building || ver.Status == ProjectionStatus.Rebuilding)
+                .Any();
+        }
+
+        public bool HasReplayInProgress()
+        {
+            return versions
+                .Where(ver => ver.Status == ProjectionStatus.Replaying)
+                .Any();
         }
 
         public bool Contains(ProjectionVersion item)
@@ -189,7 +209,7 @@ namespace Elders.Cronus.Projections
             return versions.Where(ver => ver == version.WithStatus(ProjectionStatus.Canceled)).Any();
         }
 
-        public bool IsOutdatad(ProjectionVersion version)
+        public bool IsOutdated(ProjectionVersion version)
         {
             if (version is null) throw new ArgumentNullException(nameof(version));
 

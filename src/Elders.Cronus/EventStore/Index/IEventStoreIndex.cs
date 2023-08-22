@@ -2,7 +2,7 @@
 
 namespace Elders.Cronus.EventStore.Index
 {
-    public interface ICronusEventStoreIndex : IEventStoreIndex, ISystemHandler, IMessageHandler
+    public interface ICronusEventStoreIndex : IEventStoreIndex, ISystemHandler
     {
     }
 

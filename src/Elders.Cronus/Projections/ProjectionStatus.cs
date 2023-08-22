@@ -82,7 +82,7 @@ namespace Elders.Cronus.Projections
 
         public static implicit operator string(ProjectionStatus status)
         {
-            if (ReferenceEquals(null, status) == true) throw new ArgumentNullException(nameof(status));
+            if (status is null == true) throw new ArgumentNullException(nameof(status));
             return status.status;
         }
 

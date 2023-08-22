@@ -8,7 +8,7 @@ namespace Elders.Cronus.Projections
     {
         public static bool IsSnapshotable(this Type projectionType)
         {
-            return typeof(Snapshotting.IAmNotSnapshotable).IsAssignableFrom(projectionType) == false;
+            return typeof(Snapshotting.IAmSnapshotable).IsAssignableFrom(projectionType);
         }
 
         public static bool IsProjectionVersionHandler(this string projectionName)

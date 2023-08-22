@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.Projections
 {
     [DataContract(Name = "bb4883b9-c3a5-48e5-8ba1-28fb94d061ac")]
-    public class ProjectionVersion : ValueObject<ProjectionVersion>
+    public sealed class ProjectionVersion : ValueObject<ProjectionVersion>
     {
         private ProjectionVersion() { }
 
@@ -59,7 +59,7 @@ namespace Elders.Cronus.Projections
 
         public override bool Equals(ProjectionVersion other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
 
             return
                 string.Equals(Hash, other.Hash, System.StringComparison.OrdinalIgnoreCase) &&
@@ -88,13 +88,13 @@ namespace Elders.Cronus.Projections
 
         public static bool operator ==(ProjectionVersion left, ProjectionVersion right)
         {
-            if (ReferenceEquals(null, left) && ReferenceEquals(null, right))
+            if (left is null && right is null)
                 return true;
 
-            if (ReferenceEquals(null, left))
+            if (left is null)
                 return false;
 
-            if (ReferenceEquals(null, right))
+            if (right is null)
                 return false;
 
             return left.Equals(right);

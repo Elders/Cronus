@@ -12,10 +12,10 @@ namespace Elders.Cronus.EventStore.Index.Handlers
         ISagaTimeoutHandler<EventStoreIndexRebuildTimedout>
     {
         private readonly ICronusJobRunner jobRunner;
-        private readonly RebuildIndex_EventToAggregateRootId_JobFactory jobFactory;
+        private readonly IRebuildIndex_EventToAggregateRootId_JobFactory jobFactory;
         private readonly RebuildIndex_MessageCounter_JobFactory messageCounterJobFactory;
 
-        public EventStoreIndexBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, RebuildIndex_EventToAggregateRootId_JobFactory jobFactory, RebuildIndex_MessageCounter_JobFactory messageCounterJobFactory)
+        public EventStoreIndexBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, IRebuildIndex_EventToAggregateRootId_JobFactory jobFactory, RebuildIndex_MessageCounter_JobFactory messageCounterJobFactory)
             : base(commandPublisher, timeoutRequestPublisher)
         {
             this.jobRunner = jobRunner;
@@ -29,7 +29,7 @@ namespace Elders.Cronus.EventStore.Index.Handlers
             if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
             {
                 RequestTimeout(new RebuildIndexInternal(@event, @event.Timebox.RequestStartAt));
-                RequestTimeout(new EventStoreIndexRebuildTimedout(@event, @event.Timebox.FinishRequestUntil));
+                //RequestTimeout(new EventStoreIndexRebuildTimedout(@event, @event.Timebox.FinishRequestUntil));
             }
 
             return Task.CompletedTask;
@@ -40,17 +40,14 @@ namespace Elders.Cronus.EventStore.Index.Handlers
             ICronusJob<object> job = null;
             // we need to redesign the job factories
             var theId = sagaTimeout.EventStoreIndexRequest.Id.Id;
-            if (theId.Equals(typeof(EventToAggregateRootId).GetContractId(), StringComparison.OrdinalIgnoreCase))
-            {
-                job = jobFactory.CreateJob(sagaTimeout.EventStoreIndexRequest.Timebox);
-            }
-            else if (theId.Equals(typeof(MessageCounterIndex).GetContractId(), StringComparison.OrdinalIgnoreCase))
+
+            if (theId.Equals(typeof(MessageCounterIndex).GetContractId(), StringComparison.OrdinalIgnoreCase))
             {
                 job = messageCounterJobFactory.CreateJob(sagaTimeout.EventStoreIndexRequest.Timebox);
             }
             else
             {
-                return;
+                job = jobFactory.CreateJob(sagaTimeout.EventStoreIndexRequest.Timebox);
             }
 
             JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);

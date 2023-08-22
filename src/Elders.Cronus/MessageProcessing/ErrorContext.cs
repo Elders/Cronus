@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using System;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -23,5 +24,28 @@ namespace Elders.Cronus.MessageProcessing
         public Type HandlerType { get; private set; }
 
         public IServiceProvider ServiceProvider { get; set; }
+
+        public string MessageAsJson { get; private set; }
+
+        public Exception ToException()
+        {
+            string errorMessage = $"MessageHandleWorkflow execution has failed.{Environment.NewLine}{GetMessageAsJson(ServiceProvider, Message)}";
+            return new WorkflowExecutionException(errorMessage, this, Error);
+        }
+
+        private string GetMessageAsJson(IServiceProvider serviceProvider, CronusMessage message)
+        {
+            if (string.IsNullOrEmpty(MessageAsJson) && ServiceProvider is not null)
+            {
+                try
+                {
+                    var serializer = serviceProvider.GetRequiredService<ISerializer>();
+                    MessageAsJson = serializer.SerializeToString(message);
+                }
+                catch (Exception) { }
+            }
+
+            return MessageAsJson;
+        }
     }
 }

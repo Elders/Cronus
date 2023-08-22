@@ -17,10 +17,10 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             versionService = new InMemoryAggregateRootAtomicAction();
             eventStoreStorage = new InMemoryEventStoreStorage();
             eventStore = new InMemoryEventStore(eventStoreStorage);
-            eventStoreFactory = new EventStoreFactory(eventStore, new NoAggregateCommitTransformer(), null);
+            eventStoreFactory = new EventStoreFactory(eventStore, null);
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
             integrityPpolicy = new EventStreamIntegrityPolicy();
-            aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy);
+            aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy, new EmptyAggregateTransformer());
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
             await aggregateRepository.SaveAsync<TestAggregateRoot>(aggregateRoot);

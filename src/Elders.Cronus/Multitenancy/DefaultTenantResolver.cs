@@ -7,7 +7,7 @@ namespace Elders.Cronus.Multitenancy
 {
     public class DefaultTenantResolver :
         ITenantResolver<string>,
-        ITenantResolver<IAggregateRootId>,
+        ITenantResolver<AggregateRootId>,
         ITenantResolver<AggregateCommit>,
         ITenantResolver<ProjectionCommit>,
         ITenantResolver<IMessage>,
@@ -16,7 +16,7 @@ namespace Elders.Cronus.Multitenancy
     {
         public string Resolve(ProjectionCommit projectionCommit)
         {
-            if (ReferenceEquals(null, projectionCommit) == true) throw new ArgumentNullException(nameof(projectionCommit));
+            if (projectionCommit is null == true) throw new ArgumentNullException(nameof(projectionCommit));
 
             string tenant;
             if (TryResolve(projectionCommit.ProjectionId.RawId, out tenant))
@@ -27,7 +27,7 @@ namespace Elders.Cronus.Multitenancy
 
         public string Resolve(IBlobId id)
         {
-            if (ReferenceEquals(null, id) == true) throw new ArgumentNullException(nameof(id));
+            if (id is null == true) throw new ArgumentNullException(nameof(id));
 
             string tenant;
             if (TryResolve(id.RawId, out tenant))
@@ -36,9 +36,9 @@ namespace Elders.Cronus.Multitenancy
             throw new NotSupportedException($"Unable to resolve tenant for id {id}");
         }
 
-        public string Resolve(IAggregateRootId id)
+        public string Resolve(AggregateRootId id)
         {
-            if (ReferenceEquals(null, id) == true) throw new ArgumentNullException(nameof(id));
+            if (id is null == true) throw new ArgumentNullException(nameof(id));
 
             if (id is AggregateRootId)
                 return ((AggregateRootId)id).Tenant;
@@ -48,7 +48,7 @@ namespace Elders.Cronus.Multitenancy
 
         public string Resolve(AggregateCommit aggregateCommit)
         {
-            if (ReferenceEquals(null, aggregateCommit) == true) throw new ArgumentNullException(nameof(aggregateCommit));
+            if (aggregateCommit is null == true) throw new ArgumentNullException(nameof(aggregateCommit));
 
             string tenant;
             if (TryResolve(aggregateCommit.AggregateRootId, out tenant))
@@ -95,9 +95,9 @@ namespace Elders.Cronus.Multitenancy
         {
             tenant = string.Empty;
             var urn = System.Text.Encoding.UTF8.GetString(id);
-            AggregateUrn aggregateUrn;
+            AggregateRootId aggregateUrn;
 
-            if (AggregateUrn.TryParse(urn, out aggregateUrn))
+            if (AggregateRootId.TryParse(urn, out aggregateUrn))
             {
                 tenant = aggregateUrn.Tenant;
                 return true;

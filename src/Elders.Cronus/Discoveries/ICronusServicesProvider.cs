@@ -1,7 +1,6 @@
-﻿namespace Elders.Cronus.Discoveries
+﻿namespace Elders.Cronus.Discoveries;
+
+public interface ICronusServicesProvider
 {
-    public interface ICronusServicesProvider
-    {
-        void HandleDiscoveredModel(IDiscoveryResult<object> discoveryResult);
-    }
+    void HandleDiscoveredModel(IDiscoveryResult<object> discoveryResult);
 }

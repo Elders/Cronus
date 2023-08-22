@@ -1,11 +1,10 @@
 ﻿using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Elders.Cronus.Projections.Snapshotting;
 
 namespace Elders.Cronus.Projections.Versioning
 {
     [DataContract(Name = ContractId)]
-    public class ProjectionVersionsHandler : ProjectionDefinition<ProjectionVersionsHandlerState, ProjectionVersionManagerId>, IAmNotSnapshotable, ISystemProjection, INonVersionableProjection,
+    public class ProjectionVersionsHandler : ProjectionDefinition<ProjectionVersionsHandlerState, ProjectionVersionManagerId>, ISystemProjection, INonVersionableProjection,
         IEventHandler<ProjectionVersionRequested>,
         IEventHandler<NewProjectionVersionIsNowLive>,
         IEventHandler<ProjectionVersionRequestCanceled>,

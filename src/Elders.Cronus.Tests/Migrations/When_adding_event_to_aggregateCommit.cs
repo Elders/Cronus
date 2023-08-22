@@ -4,6 +4,7 @@ using Machine.Specifications;
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.Migrations.TestMigration;
+using System;
 
 namespace Elders.Cronus.Migrations
 {
@@ -14,7 +15,7 @@ namespace Elders.Cronus.Migrations
         {
             migration = new AddEventMigration();
             var id = new FooId("1234", "elders");
-            aggregateCommitFoo = new AggregateCommit(id.RawId, 0, new List<IEvent> { new TestCreateEventFoo(id) });
+            aggregateCommitFoo = new AggregateCommit(id.RawId, 1, new List<IEvent> { new TestCreateEventFoo(id) }, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
         };
 
         Because of = () => migrationOuput = migration.Apply(aggregateCommitFoo).ToList();

@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Hosting
 {
     public interface IRpcHost : IDisposable
     {
-        void Start();
-        void Stop();
+        Task StartAsync();
+        Task StopAsync();
     }
 }

@@ -1,8 +1,18 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore
 {
+    public class PlayerOperator
+    {
+        public Func<AggregateStream, Task> OnAggregateStreamLoadedAsync { get; set; }
+        public Func<AggregateEventRaw, Task> OnLoadAsync { get; set; }
+        public Func<PlayerOptions, Task> NotifyProgressAsync { get; set; }
+
+        public Func<Task> OnFinish { get; set; }
+    }
+
     public interface IEventStorePlayer<TSettings> : IEventStorePlayer where TSettings : class { }
 
     public interface IEventStorePlayer
@@ -10,20 +20,12 @@ namespace Elders.Cronus.EventStore
         /// <summary>
         /// Loads all aggregate commits. The commits are unordered.
         /// </summary>
+        [Obsolete("Will be removed in v10")]
         IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync(int batchSize = 5000);
 
         /// <summary>
         /// Loads all aggregate commits. The commits are unordered.
         /// </summary>
-        IAsyncEnumerable<AggregateCommitRaw> LoadAggregateCommitsRawAsync(int batchSize = 5000);
-
-        /// <summary>
-        /// Loads all aggregate commits. The commits are unordered.
-        /// </summary>
-        /// <param name="batchSize">Size of the batch.</param>
-        /// <returns></returns>
-        Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(string paginationToken, int batchSize = 5000);
-
-        Task<LoadAggregateCommitsResult> LoadAggregateCommitsAsync(ReplayOptions replayOptions);
+        Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions);
     }
 }

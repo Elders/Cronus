@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Hosting;
 using Elders.Cronus.Migrations;
@@ -70,7 +72,7 @@ namespace Elders.Cronus
             cronusHostOptions.OnChange(Changed);
         }
 
-        public void Start()
+        public async Task StartAsync()
         {
             try
             {
@@ -78,28 +80,34 @@ namespace Elders.Cronus
 
                 booter.BootstrapCronus();
 
-                if (hostOptions.ApplicationServicesEnabled) appServices.Start();
-                if (hostOptions.SagasEnabled) sagas.Start();
-                if (hostOptions.ProjectionsEnabled) projections.Start();
-                if (hostOptions.PortsEnabled) ports.Start();
-                if (hostOptions.GatewaysEnabled) gateways.Start();
-                if (hostOptions.TriggersEnabled) triggers.Start();
-                if (hostOptions.MigrationsEnabled) migrations.Start();
-
                 if (hostOptions.SystemServicesEnabled)
                 {
-                    indices.Start();
-                    systemIndices.Start();
-                    systemAppServices.Start();
-                    systemPorts.Start();
-                    systemProjections.Start();
-                    systemSagas.Start();
-                    systemTriggers.Start();
+                    await systemIndices.StartAsync().ConfigureAwait(false);
+                    await systemAppServices.StartAsync().ConfigureAwait(false);
+                    await systemPorts.StartAsync().ConfigureAwait(false);
+                    await systemProjections.StartAsync().ConfigureAwait(false);
+                    await systemSagas.StartAsync().ConfigureAwait(false);
+                    await systemTriggers.StartAsync().ConfigureAwait(false);
                 }
+
+                await Task.Delay(1000).ConfigureAwait(false); // There is no specific reason to have this. I am just experimenting with it if bootstrapping will be better that way. If you think we can remove it do it.
+
+                if (hostOptions.ApplicationServicesEnabled)
+                {
+                    await appServices.StartAsync().ConfigureAwait(false);
+                    await indices.StartAsync().ConfigureAwait(false);
+                }
+
+                if (hostOptions.SagasEnabled) await sagas.StartAsync().ConfigureAwait(false);
+                if (hostOptions.ProjectionsEnabled) await projections.StartAsync().ConfigureAwait(false);
+                if (hostOptions.PortsEnabled) await ports.StartAsync().ConfigureAwait(false);
+                if (hostOptions.GatewaysEnabled) await gateways.StartAsync().ConfigureAwait(false);
+                if (hostOptions.TriggersEnabled) await triggers.StartAsync().ConfigureAwait(false);
+                if (hostOptions.MigrationsEnabled) await migrations.StartAsync().ConfigureAwait(false);
 
                 if (hostOptions.RpcApiEnabled)
                 {
-                    rpcHost.Start();
+                    await rpcHost.StartAsync();
                 }
 
             }
@@ -110,33 +118,37 @@ namespace Elders.Cronus
             }
         }
 
-        public void Stop()
+        public async Task StopAsync()
         {
             try
             {
-                if (hostOptions.ApplicationServicesEnabled) appServices.Stop();
-                if (hostOptions.SagasEnabled) sagas.Stop();
-                if (hostOptions.ProjectionsEnabled) projections.Stop();
-                if (hostOptions.PortsEnabled) ports.Stop();
-                if (hostOptions.GatewaysEnabled) gateways.Stop();
-                if (hostOptions.TriggersEnabled) triggers.Stop();
-                if (hostOptions.MigrationsEnabled) migrations.Stop();
+                List<Task> stopTasks = new List<Task>();
+
+                if (hostOptions.ApplicationServicesEnabled) stopTasks.Add(appServices.StopAsync());
+                if (hostOptions.SagasEnabled) stopTasks.Add(sagas.StopAsync());
+                if (hostOptions.ProjectionsEnabled) stopTasks.Add(projections.StopAsync());
+                if (hostOptions.PortsEnabled) stopTasks.Add(ports.StopAsync());
+                if (hostOptions.GatewaysEnabled) stopTasks.Add(gateways.StopAsync());
+                if (hostOptions.TriggersEnabled) stopTasks.Add(triggers.StopAsync());
+                if (hostOptions.MigrationsEnabled) stopTasks.Add(migrations.StopAsync());
 
                 if (hostOptions.SystemServicesEnabled)
                 {
-                    systemAppServices.Stop();
-                    systemPorts.Stop();
-                    systemProjections.Stop();
-                    systemSagas.Stop();
-                    systemTriggers.Stop();
-                    systemIndices.Stop();
-                    indices.Stop();
+                    stopTasks.Add(systemAppServices.StopAsync());
+                    stopTasks.Add(systemPorts.StopAsync());
+                    stopTasks.Add(systemProjections.StopAsync());
+                    stopTasks.Add(systemSagas.StopAsync());
+                    stopTasks.Add(systemTriggers.StopAsync());
+                    stopTasks.Add(systemIndices.StopAsync());
+                    stopTasks.Add(indices.StopAsync());
                 }
 
                 if (hostOptions.RpcApiEnabled)
                 {
-                    rpcHost.Stop();
+                    stopTasks.Add(rpcHost.StopAsync());
                 }
+
+                await Task.WhenAll(stopTasks).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -145,13 +157,13 @@ namespace Elders.Cronus
             }
         }
 
-        public void Dispose() => Stop();
+        public void Dispose() => StopAsync().GetAwaiter().GetResult();
 
         private void Changed(CronusHostOptions newOptions)
         {
             if (hostOptions != newOptions)
             {
-                logger.Debug(() => "Cronus host options re-loaded with {@options}", newOptions);
+                logger.Info(() => "Cronus host options re-loaded with {@options}", newOptions);
 
                 Start(hostOptions, newOptions);
                 Stop(hostOptions, newOptions);
@@ -164,13 +176,13 @@ namespace Elders.Cronus
         {
             try
             {
-                if (oldOptions.ApplicationServicesEnabled == false && newOptions.ApplicationServicesEnabled == true) appServices.Start();
-                if (oldOptions.SagasEnabled == false && newOptions.SagasEnabled == true) sagas.Start();
-                if (oldOptions.ProjectionsEnabled == false && newOptions.ProjectionsEnabled == true) projections.Start();
-                if (oldOptions.PortsEnabled == false && newOptions.PortsEnabled == true) ports.Start();
-                if (oldOptions.GatewaysEnabled == false && newOptions.GatewaysEnabled == true) gateways.Start();
-                if (oldOptions.TriggersEnabled == false && newOptions.TriggersEnabled == true) gateways.Start();
-                if (oldOptions.RpcApiEnabled == false && newOptions.RpcApiEnabled == true) rpcHost.Start();
+                if (oldOptions.ApplicationServicesEnabled == false && newOptions.ApplicationServicesEnabled == true) appServices.StartAsync();
+                if (oldOptions.SagasEnabled == false && newOptions.SagasEnabled == true) sagas.StartAsync();
+                if (oldOptions.ProjectionsEnabled == false && newOptions.ProjectionsEnabled == true) projections.StartAsync();
+                if (oldOptions.PortsEnabled == false && newOptions.PortsEnabled == true) ports.StartAsync();
+                if (oldOptions.GatewaysEnabled == false && newOptions.GatewaysEnabled == true) gateways.StartAsync();
+                if (oldOptions.TriggersEnabled == false && newOptions.TriggersEnabled == true) triggers.StartAsync();
+                if (oldOptions.RpcApiEnabled == false && newOptions.RpcApiEnabled == true) rpcHost.StartAsync();
             }
             catch (Exception ex)
             {
@@ -183,13 +195,13 @@ namespace Elders.Cronus
         {
             try
             {
-                if (oldOptions.ApplicationServicesEnabled == true && newOptions.ApplicationServicesEnabled == false) appServices.Stop();
-                if (oldOptions.SagasEnabled == true && newOptions.SagasEnabled == false) sagas.Stop();
-                if (oldOptions.ProjectionsEnabled == true && newOptions.ProjectionsEnabled == false) projections.Stop();
-                if (oldOptions.PortsEnabled == true && newOptions.PortsEnabled == false) ports.Stop();
-                if (oldOptions.GatewaysEnabled == true && newOptions.GatewaysEnabled == false) gateways.Stop();
-                if (oldOptions.TriggersEnabled == true && newOptions.TriggersEnabled == false) gateways.Stop();
-                if (oldOptions.RpcApiEnabled == true && newOptions.RpcApiEnabled == false) rpcHost.Stop();
+                if (oldOptions.ApplicationServicesEnabled == true && newOptions.ApplicationServicesEnabled == false) appServices.StopAsync();
+                if (oldOptions.SagasEnabled == true && newOptions.SagasEnabled == false) sagas.StopAsync();
+                if (oldOptions.ProjectionsEnabled == true && newOptions.ProjectionsEnabled == false) projections.StopAsync();
+                if (oldOptions.PortsEnabled == true && newOptions.PortsEnabled == false) ports.StopAsync();
+                if (oldOptions.GatewaysEnabled == true && newOptions.GatewaysEnabled == false) gateways.StopAsync();
+                if (oldOptions.TriggersEnabled == true && newOptions.TriggersEnabled == false) triggers.StopAsync();
+                if (oldOptions.RpcApiEnabled == true && newOptions.RpcApiEnabled == false) rpcHost.StopAsync();
             }
             catch (Exception ex)
             {

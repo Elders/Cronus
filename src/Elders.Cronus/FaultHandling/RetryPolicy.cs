@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.FaultHandling.Strategies;
+using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.FaultHandling
@@ -11,7 +11,9 @@ namespace Elders.Cronus.FaultHandling
     /// </summary>
     public class RetryPolicy
     {
-        private static ILogger logger = CronusLogger.CreateLogger(typeof(RetryPolicy));
+        // Use this if the ctor with logger does not work for you and remove that ctor
+        // private static ILogger logger = CronusLogger.CreateLogger(typeof(RetryPolicy));
+
         /// <summary>
         /// Returns a default policy that does no retries, it just invokes action exactly once.
         /// </summary>
@@ -34,6 +36,7 @@ namespace Elders.Cronus.FaultHandling
         /// The default retry policy treats all caught exceptions as transient errors.
         /// </summary>
         public static readonly RetryPolicy DefaultExponential = new RetryPolicy(new TransientErrorCatchAllStrategy(), new ExponentialBackoff());
+        private readonly ILogger logger;
 
         /// <summary>
         /// Initializes a new instance of the RetryPolicy class with the specified number of retry attempts and parameters defining the progressive delay between retries.
@@ -53,6 +56,27 @@ namespace Elders.Cronus.FaultHandling
             }
 
             this.RetryStrategy = retryStrategy;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the RetryPolicy class with the specified number of retry attempts and parameters defining the progressive delay between retries.
+        /// </summary>
+        /// <param name="errorDetectionStrategy">The <see cref="ITransientErrorDetectionStrategy"/> that is responsible for detecting transient conditions.</param>
+        /// <param name="retryStrategy">The retry strategy to use for this retry policy.</param>
+        public RetryPolicy(ITransientErrorDetectionStrategy errorDetectionStrategy, RetryStrategy retryStrategy, ILogger logger)
+        {
+            //Guard.ArgumentNotNull(errorDetectionStrategy, "errorDetectionStrategy");
+            //Guard.ArgumentNotNull(retryStrategy, "retryPolicy");
+
+            this.ErrorDetectionStrategy = errorDetectionStrategy;
+
+            if (errorDetectionStrategy == null)
+            {
+                throw new InvalidOperationException("The error detection strategy type must implement the ITransientErrorDetectionStrategy interface.");
+            }
+
+            this.RetryStrategy = retryStrategy;
+            this.logger = logger;
         }
 
         /// <summary>
@@ -122,7 +146,7 @@ namespace Elders.Cronus.FaultHandling
         /// <typeparam name="TResult">The type of result expected from the executable action.</typeparam>
         /// <param name="func">A delegate representing the executable action which returns the result of type R.</param>
         /// <returns>The result from the action.</returns>
-        public virtual async Task<TResult> ExecuteAction<TResult>(Func<Task<TResult>> func)
+        public virtual async Task<TResult> ExecuteActionAsync<TResult>(Func<Task<TResult>> func)
         {
             //Guard.ArgumentNotNull(func, "func");
 
@@ -132,7 +156,7 @@ namespace Elders.Cronus.FaultHandling
 
             var shouldRetry = this.RetryStrategy.GetShouldRetry();
 
-            for (; ; )
+            while (true)
             {
                 lastError = null;
 
@@ -152,31 +176,35 @@ namespace Elders.Cronus.FaultHandling
                     }
                     else
                     {
-                        return default(TResult);
+                        return default;
                     }
                 }
-                catch (Exception ex)
+                catch (WorkflowExecutionException ex) when ((ErrorDetectionStrategy.IsTransient(ex) && shouldRetry(retryCount++, ex, out delay)) && logger.WarnException(ex, () => $"Operation has failed. Retrying - Count: {retryCount}, Delay: {delay.TotalMilliseconds}ms."))
                 {
+                    // Retry
                     lastError = ex;
-
-                    if (!(this.ErrorDetectionStrategy.IsTransient(lastError) && shouldRetry(retryCount++, lastError, out delay)))
-                    {
-                        throw;
-                    }
                 }
+                catch (WorkflowExecutionException ex) when (((ErrorDetectionStrategy.IsTransient(ex) && shouldRetry(retryCount++, ex, out _)) == false) && logger.ErrorException(ex, () => $"Operation has failed."))
+                {
+                    // Error
+                    lastError = ex;
+                    throw;
+                }
+                // If there is another exception we will let it pop because most probably this is non-user exception and there is no need for a retry. (There is a Cronus bug. Figure out how and fix it.): PAFA
 
-                // Perform an extra check in the delay interval. Should prevent from accidentally ending up with the value of -1 that will block a thread indefinitely.
+                // We are here because we should retry. 
+                // However, we will perform an extra check in the delay interval. Should prevent from accidentally ending up with the value of -1 that will block a thread indefinitely.
                 // In addition, any other negative numbers will cause an ArgumentOutOfRangeException fault that will be thrown by Thread.Sleep.
                 if (delay.TotalMilliseconds < 0)
                 {
                     delay = TimeSpan.Zero;
                 }
 
-                this.OnRetrying(retryCount, lastError, delay);
+                OnRetrying(retryCount, lastError, delay);
 
-                if (retryCount > 1 || !this.RetryStrategy.FastFirstRetry)
+                if (retryCount > 1 || RetryStrategy.FastFirstRetry == false)
                 {
-                    Thread.Sleep(delay);
+                    await Task.Delay(delay);
                 }
             }
         }
@@ -189,11 +217,9 @@ namespace Elders.Cronus.FaultHandling
         /// <param name="delay">The delay indicating how long the current thread will be suspended for before the next iteration will be invoked.</param>
         protected virtual void OnRetrying(int retryCount, Exception lastError, TimeSpan delay)
         {
-            if (this.Retrying != null)
+            if (Retrying is not null)
             {
-                logger.Info(() => "Retrying - Count: {0}, Delay: {1}, Exception: {2}", retryCount, delay.TotalMilliseconds, lastError.Message);
-
-                this.Retrying(this, new RetryingEventArgs(retryCount, delay, lastError));
+                Retrying(this, new RetryingEventArgs(retryCount, delay, lastError));
             }
         }
     }

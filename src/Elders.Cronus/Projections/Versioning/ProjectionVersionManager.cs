@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elders.Cronus.EventStore.Players;
+using System;
 using System.Collections.Generic;
 
 namespace Elders.Cronus.Projections.Versioning
@@ -11,8 +12,9 @@ namespace Elders.Cronus.Projections.Versioning
         {
             string projectionName = id.Id;
             var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Replaying, 1, hash);
+            var options = new ReplayEventsOptions();
             var timebox = new VersionRequestTimebox(DateTime.UtcNow);
-            RequestVersion(id, initialVersion, timebox);
+            RequestVersion(id, initialVersion, options, timebox);
         }
 
         public void CancelVersionRequest(ProjectionVersion version, string reason)
@@ -38,7 +40,7 @@ namespace Elders.Cronus.Projections.Versioning
         /// </summary>
         /// <param name="hash"></param>
         /// <param name="policy"></param>
-        public void Replay(string hash, IProjectionVersioningPolicy policy)
+        public void Replay(string hash, IProjectionVersioningPolicy policy, ReplayEventsOptions replayEventsOptions)
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
@@ -46,19 +48,44 @@ namespace Elders.Cronus.Projections.Versioning
             {
                 ProjectionVersion projectionVersion = state.Versions.GetNext(policy, hash);
                 VersionRequestTimebox timebox = GetVersionRequestTimebox(hash);
-                RequestVersion(state.Id, projectionVersion, timebox);
+                RequestVersion(state.Id, projectionVersion, replayEventsOptions, timebox);
             }
         }
 
-        public void Rebuild(string hash)
+        public void Rebuild(string hash, IProjectionVersioningPolicy policy, ReplayEventsOptions replayEventsOptions)
         {
             EnsureThereIsNoOutdatedBuildingVersions();
+
+            // This is a special case so we can recover the projections in case of disaster recovery.
+            if (state.Versions.ProjectionName == ProjectionVersionsHandler.ContractId)
+            {
+                ProjectionVersion currentLiveVersion = state.Versions.GetLive();
+                if (currentLiveVersion is null)
+                {
+                    var initialVersion = new ProjectionVersion(state.Id, ProjectionStatus.Replaying, 1, hash);
+                    RequestVersion(state.Id, initialVersion, replayEventsOptions, new VersionRequestTimebox(DateTime.UtcNow));
+                }
+                else
+                {
+                    RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Rebuilding), replayEventsOptions, new VersionRequestTimebox(DateTime.UtcNow));
+                }
+
+                return;
+            }
 
             if (CanRebuild(hash))
             {
                 ProjectionVersion currentLiveVersion = state.Versions.GetLive();
                 var timebox = GetVersionRequestTimebox(hash);
-                RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Rebuilding), timebox);
+                if (currentLiveVersion is null)
+                {
+                    var asd = state.Versions.GetNext(policy, hash);
+                    RequestVersion(state.Id, asd.WithStatus(ProjectionStatus.Rebuilding), replayEventsOptions, timebox);
+                }
+                else
+                {
+                    RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Rebuilding), replayEventsOptions, timebox);
+                }
             }
         }
 
@@ -76,13 +103,13 @@ namespace Elders.Cronus.Projections.Versioning
             }
         }
 
-        public void NotifyHash(string hash, IProjectionVersioningPolicy policy)
+        public void NotifyHash(string hash, IProjectionVersioningPolicy policy, ReplayEventsOptions replayEventsOptions)
         {
             EnsureThereIsNoOutdatedBuildingVersions();
 
             if (ShouldReplay(hash))
             {
-                Replay(hash, policy);
+                Replay(hash, policy, replayEventsOptions);
             }
         }
 
@@ -101,19 +128,20 @@ namespace Elders.Cronus.Projections.Versioning
         private bool ShouldReplay(string hash)
         {
             bool isNewHashTheLiveOne = state.Versions.IsHashTheLiveOne(hash);
-            bool isInProgress = state.Versions.HasBuildingVersion();
+            bool isInProgress = state.Versions.IsInProgress();
 
             return isInProgress == false && (state.Versions.HasLiveVersion == false || isNewHashTheLiveOne == false);
         }
 
         private bool CanReplay(string hash, IProjectionVersioningPolicy policy)
         {
+            bool isVersionable = state.Versions.IsVersionable(policy);
+            bool replayInProgress = state.Versions.HasReplayInProgress();
             bool isNewHashTheLiveOne = state.Versions.IsHashTheLiveOne(hash);
 
-            bool isVersionable = state.Versions.IsVersionable(policy);
-            bool doesntHaveBuildingVersion = state.Versions.HasBuildingVersion() == false;
+            bool initialProjectionCreation = isVersionable == false && isNewHashTheLiveOne == false && state.Versions.IsInProgress() == false; // This function handles the creation of a new projection when the system is running for the first time, regardless of whether or not the projection is versionable and there is no live version available.
 
-            return (doesntHaveBuildingVersion && isVersionable) || (doesntHaveBuildingVersion && isVersionable == false && isNewHashTheLiveOne == false);
+            return (replayInProgress == false && isVersionable) || initialProjectionCreation;
         }
 
         private bool CanRebuild(string hash)
@@ -171,9 +199,9 @@ namespace Elders.Cronus.Projections.Versioning
             return new VersionRequestTimebox(DateTime.UtcNow);
         }
 
-        private void RequestVersion(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
+        private void RequestVersion(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, ReplayEventsOptions replayEventsOptions, VersionRequestTimebox timebox)
         {
-            var @event = new ProjectionVersionRequested(id, projectionVersion, timebox);
+            var @event = new ProjectionVersionRequested(id, projectionVersion, replayEventsOptions, timebox);
             Apply(@event);
         }
     }

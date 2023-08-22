@@ -12,50 +12,73 @@ namespace Elders.Cronus.MessageProcessing
         private static ConcurrentDictionary<HandleContext, IServiceScope> scopes = new ConcurrentDictionary<HandleContext, IServiceScope>();
         public static IServiceScope GetScope(HandleContext context) => scopes[context];
 
-        private readonly IServiceProvider ioc;
+        private readonly DefaultCronusContextFactory cronusContextFactory;
         readonly Workflow<HandleContext> workflow;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
-        public ScopedMessageWorkflow(IServiceProvider ioc, Workflow<HandleContext> workflow)
+        public ScopedMessageWorkflow(Workflow<HandleContext> workflow, IServiceProvider serviceProvider)
         {
-            this.ioc = ioc;
             this.workflow = workflow;
+            this.cronusContextFactory = serviceProvider.GetRequiredService<DefaultCronusContextFactory>();
+            this.serviceScopeFactory = serviceProvider.GetRequiredService<IServiceScopeFactory>();
         }
-        protected override async Task RunAsync(Execution<HandleContext> execution)
+
+        protected override Execution<HandleContext> CreateExecutionContext(HandleContext context)
         {
-            using (IServiceScope scope = ioc.CreateScope())
+            object tenant = context.Message.GetTenant();
+
+            bool hasScopeError = false;
+
+            IServiceScope scope = default;
+            if (scopes.TryGetValue(context, out scope) == false)
             {
-                execution.Context.AssignPropertySafely<IWorkflowContextWithServiceProvider>(prop => prop.ServiceProvider = scope.ServiceProvider);
-                ILogger<ScopedMessageWorkflow> logger = scope.ServiceProvider.GetRequiredService<ILogger<ScopedMessageWorkflow>>();
-                if (EnsureTenantIsSet(scope, execution.Context.Message))
+                scope = serviceScopeFactory.CreateScope();
+                if (scopes.TryAdd(context, scope) == false)
+                    hasScopeError = true;
+
+                var cronusContext = cronusContextFactory.Create(tenant ?? context.Message, scope.ServiceProvider);
+                foreach (var header in context.Message.Headers)
                 {
-                    using (logger.BeginScope(scope => scope
-                        .AddScope("cronus_tenant", execution.Context.Message.GetTenant())))
-                    {
-                        scopes.AddOrUpdate(execution.Context, scope, (c, s) => scope);
-                        try
-                        {
-                            await workflow.RunAsync(execution.Context).ConfigureAwait(false);
-                        }
-                        finally
-                        {
-                            scopes.TryRemove(execution.Context, out IServiceScope s);
-                        }
-                    }
+                    cronusContext.Trace.Add(header.Key, header.Value);
                 }
             }
-        }
 
-        private bool EnsureTenantIsSet(IServiceScope scope, CronusMessage message)
-        {
-            var cronusContextFactory = scope.ServiceProvider.GetRequiredService<CronusContextFactory>();
-            var context = cronusContextFactory.GetContext(message, scope.ServiceProvider);
+            context.ServiceProvider = scope.ServiceProvider;
 
-            foreach (var header in message.Headers)
+            ILogger<ScopedMessageWorkflow> logger = context.ServiceProvider.GetRequiredService<ILogger<ScopedMessageWorkflow>>();
+            context.LoggerScope = logger.BeginScope(scope => scope.AddScope(Log.Tenant, tenant));
+
+            if (hasScopeError)
             {
-                context.Trace.Add(header.Key, header.Value);
+                string message = "Somehow the IServiceScope has been already created and there will be an unexpected behavior after this message.";
+                logger.Critical(() => message);
+                throw new Exception(message);
             }
 
-            return context.IsInitialized;
+            return base.CreateExecutionContext(context);
+        }
+
+        protected override Task OnRunCompletedAsync(Execution<HandleContext> execution)
+        {
+            if (scopes.TryRemove(execution.Context, out IServiceScope serviceScope))
+            {
+                execution.Context.ServiceProvider = null;
+                serviceScope.Dispose();
+
+                if (execution.Context.ServiceProvider is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            }
+
+            execution.Context.LoggerScope?.Dispose();
+
+            return Task.CompletedTask;
+        }
+
+        protected override Task RunAsync(Execution<HandleContext> execution)
+        {
+            return workflow.RunAsync(execution.Context);
         }
     }
 }

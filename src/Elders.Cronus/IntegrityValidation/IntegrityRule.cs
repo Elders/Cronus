@@ -17,8 +17,8 @@ namespace Elders.Cronus.IntegrityValidation
 
         public bool Equals(IntegrityRule<T> left, IntegrityRule<T> right)
         {
-            if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return true;
-            if (ReferenceEquals(null, left))
+            if (left is null && right is null) return true;
+            if (left is null)
                 return false;
             else
                 return left.Equals(right);
@@ -44,7 +44,7 @@ namespace Elders.Cronus.IntegrityValidation
 
         public bool Equals(IntegrityRule<T> other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
 
             var t = GetType();
@@ -58,15 +58,15 @@ namespace Elders.Cronus.IntegrityValidation
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
+            if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             return Equals(obj as IntegrityRule<T>);
         }
 
         public static bool operator ==(IntegrityRule<T> left, IntegrityRule<T> right)
         {
-            if (ReferenceEquals(null, left) && ReferenceEquals(null, right)) return true;
-            if (ReferenceEquals(null, left))
+            if (left is null && right is null) return true;
+            if (left is null)
                 return false;
             else
                 return left.Equals(right);

@@ -15,7 +15,7 @@ namespace Elders.Cronus.EventStore
             this.logger = logger;
         }
 
-        public async Task<ReadResult<AR>> LoadAsync<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        public async Task<ReadResult<AR>> LoadAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
         {
             using (logger.BeginScope(s => s
                                             .AddScope(Log.AggregateName, id.AggregateRootName)

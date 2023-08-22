@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,8 +13,9 @@ namespace Elders.Cronus.MessageProcessing
     public sealed class SubscriberCollection<T> : ISubscriberCollection<T>
     {
         ConcurrentBag<ISubscriber> subscribers;
+        private readonly ILogger<SubscriberCollection<T>> logger;
 
-        public SubscriberCollection(ISubscriberFinder<T> subscriberFinder, ISubscriberFactory<T> subscriberFactory)
+        public SubscriberCollection(ISubscriberFinder<T> subscriberFinder, ISubscriberFactory<T> subscriberFactory, ILogger<SubscriberCollection<T>> logger)
         {
             subscribers = new ConcurrentBag<ISubscriber>();
 
@@ -22,6 +24,8 @@ namespace Elders.Cronus.MessageProcessing
                 ISubscriber subscriber = subscriberFactory.Create(subscriberType);
                 Subscribe(subscriber);
             }
+
+            this.logger = logger;
         }
 
         /// <summary>
@@ -30,7 +34,7 @@ namespace Elders.Cronus.MessageProcessing
         /// <param name="subscriber">The subscriber.</param>
         public void Subscribe(ISubscriber subscriber)
         {
-            if (ReferenceEquals(null, subscriber)) throw new ArgumentNullException(nameof(subscriber));
+            if (subscriber is null) throw new ArgumentNullException(nameof(subscriber));
             if (subscribers.Any(x => x.Id == subscriber.Id)) throw new ArgumentException($"There is already subscriber with id '{subscriber.Id}'");
 
             subscribers.Add(subscriber);
@@ -40,20 +44,27 @@ namespace Elders.Cronus.MessageProcessing
 
         public IEnumerable<ISubscriber> GetInterestedSubscribers(CronusMessage message)
         {
-            IEnumerable<ISubscriber> result = Subscribers;
-
-            Type payloadType = message.Payload.GetType();
-
-            if (message.RecipientHandlers.Length > 0)
+            try
             {
-                result = result.Where(subscriber => message.RecipientHandlers.Contains(subscriber.Id));
+                IEnumerable<ISubscriber> result = Subscribers;
+
+                Type payloadType = message.GetMessageType();
+
+                if (message.RecipientHandlers.Length > 0)
+                {
+                    result = result.Where(subscriber => message.RecipientHandlers.Contains(subscriber.Id));
+                }
+
+                result = result.Where(subscriber => subscriber.GetInvolvedMessageTypes().Contains(payloadType));
+
+                return result;
+            }
+            catch (Exception ex) when (logger.ErrorException(ex, () => "An error occured while getting subscribers for message."))
+            {
+                return Enumerable.Empty<ISubscriber>();
             }
 
-            result = result.Where(subscriber => subscriber.GetInvolvedMessageTypes().Contains(payloadType));
-
-            return result;
         }
-
         /// <summary>
         /// Removes all subscribers. Probably when shutting down.
         /// </summary>

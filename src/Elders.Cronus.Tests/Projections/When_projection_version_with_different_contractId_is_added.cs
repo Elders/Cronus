@@ -1,5 +1,4 @@
-﻿using System;
-using Elders.Cronus.Projections;
+﻿using Elders.Cronus.Projections;
 using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.Projections
@@ -15,12 +14,11 @@ namespace Elders.Cronus.Tests.Projections
             differentId = new ProjectionVersion("differentId", ProjectionStatus.Replaying, 1, "buildingHash");
         };
 
-        Because of = () => exception = Catch.Exception(() => versions.Add(differentId));
+        Because of = () => versions.Add(differentId);
 
-        It should_throw_an_ArgumentException = () => exception.ShouldNotBeNull();
+        It should_throw_an_ArgumentException = () => versions.Count.ShouldEqual(1);
 
         static ProjectionVersions versions;
         static ProjectionVersion differentId;
-        static Exception exception;
     }
 }

@@ -12,7 +12,7 @@ namespace Elders.Cronus.Tests.ValidatorsAndResolvers
         Establish context = () =>
             {
                 byte[] aggregateId = Guid.NewGuid().ToByteArray();
-                AggregateCommit commit1 = new AggregateCommit(aggregateId, 1, new List<IEvent>());
+                AggregateCommit commit1 = new AggregateCommit(aggregateId, 1, new List<IEvent>(), new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
                 eventStream = new EventStream(new[] { commit1, commit1, commit1 });
                 duplicateRevisionsvalidator = new DuplicateRevisionsValidator();
             };

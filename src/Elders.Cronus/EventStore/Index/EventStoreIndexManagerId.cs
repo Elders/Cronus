@@ -7,7 +7,6 @@ namespace Elders.Cronus.EventStore.Index
     {
         EventStoreIndexManagerId() : base() { }
 
-        public EventStoreIndexManagerId(string indexName, string tenant) : base(indexName, "eventstoreindexmanager", tenant) { }
-        //public EventStoreIndexManagerId(StringTenantUrn urn) : base(urn, "eventstoreindexmanager") { }
+        public EventStoreIndexManagerId(string indexName, string tenant) : base(tenant, "eventstoreindexmanager", indexName) { }
     }
 }

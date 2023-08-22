@@ -1,39 +1,108 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus
 {
-    public abstract class PublisherBase<TMessage> : IPublisher<TMessage> where TMessage : IMessage
+    public abstract class PublisherHandler
+    {
+        protected internal virtual bool PublishInternal(CronusMessage message)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public abstract class DelegatingPublishHandler : PublisherHandler
+    {
+        protected internal override bool PublishInternal(CronusMessage message)
+        {
+            if (InnerHandler is null)
+                throw new InvalidOperationException("The inner publisher handler is not set.");
+
+
+            return InnerHandler.PublishInternal(message);
+
+        }
+
+        internal PublisherHandler InnerHandler { get; set; }
+    }
+
+    internal class CronusHeadersPublishHandler : DelegatingPublishHandler
     {
         private readonly ITenantResolver<IMessage> tenantResolver;
         private readonly BoundedContext boundedContext;
-        private readonly ILogger logger;
 
-        public PublisherBase(ITenantResolver<IMessage> tenantResolver, BoundedContext boundedContext, ILogger logger)
+        public CronusHeadersPublishHandler(ITenantResolver<IMessage> tenantResolver, IOptions<BoundedContext> boundedContextOptions)
         {
             this.tenantResolver = tenantResolver;
-            this.boundedContext = boundedContext;
+            this.boundedContext = boundedContextOptions.Value;
+        }
+
+        protected internal override bool PublishInternal(CronusMessage message)
+        {
+            Type payloadType = message.GetMessageType();
+
+            if (message.Headers.ContainsKey(MessageHeader.PublishTimestamp) == false)
+                message.Headers.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
+
+            if (message.Headers.ContainsKey(MessageHeader.Tenant) == false)
+                message.Headers.Add(MessageHeader.Tenant, tenantResolver.Resolve(message.Payload));
+
+            if (message.Headers.ContainsKey(MessageHeader.BoundedContext))
+            {
+                var bc = payloadType.GetBoundedContext(boundedContext.Name);
+                message.Headers[MessageHeader.BoundedContext] = bc;
+            }
+            else
+            {
+                var bc = payloadType.GetBoundedContext(boundedContext.Name);
+                message.Headers.Add(MessageHeader.BoundedContext, bc);
+            }
+
+            message.Headers.Remove("contract_name");
+            message.Headers.Add("contract_name", payloadType.GetContractId());
+
+            return base.PublishInternal(message);
+        }
+    }
+
+    internal class LoggingPublishHandler : DelegatingPublishHandler
+    {
+        private readonly ILogger<LoggingPublishHandler> logger;
+
+        public LoggingPublishHandler(ILogger<LoggingPublishHandler> logger)
+        {
             this.logger = logger;
         }
 
-        public virtual bool Publish(TMessage message, Dictionary<string, string> messageHeaders)
+        protected internal override bool PublishInternal(CronusMessage message)
         {
             try
             {
-                messageHeaders = BuildHeaders(message, messageHeaders);
-                var cronusMessage = new CronusMessage(message, messageHeaders);
+                bool isPublished = base.PublishInternal(message);
 
-                using (logger.BeginScope(cronusMessage.CorelationId))
+                Type messageType = message.GetMessageType();
+
+                bool isSignal = messageType.IsAssignableFrom(typeof(ISystemSignal));
+                if (isPublished && isSignal == false)
                 {
-                    bool isPublished = PublishInternal(cronusMessage);
-
-                    return isPublished;
+                    logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", messageType.Name, messageType.Name);
                 }
+                else if (isPublished == false)
+                {
+                    logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", messageType.Name, messageType.Name);
+                }
+
+                return isPublished;
             }
+
             catch (Exception ex) when (logger.ErrorException(ex, () => BuildTraceData()))
             {
                 return false;
@@ -45,7 +114,7 @@ namespace Elders.Cronus
                 errorMessage.AppendLine("Failed to publish message!");
 
                 errorMessage.AppendLine("Headers:");
-                foreach (var header in messageHeaders)
+                foreach (var header in message.Headers)
                 {
                     errorMessage.AppendLine($"{header.Key}:{header.Value}");
                 }
@@ -55,6 +124,157 @@ namespace Elders.Cronus
 
                 return errorMessage.ToString();
             }
+        }
+    }
+
+    internal class ActivityPublishHandler : DelegatingPublishHandler
+    {
+        private const string TelemetryTraceParent = "telemetry_traceparent";
+        private readonly DiagnosticListener diagnosticListener;
+        private readonly ActivitySource activitySource;
+
+        public ActivityPublishHandler(DiagnosticListener diagnosticListener, ActivitySource activitySource)
+        {
+            this.diagnosticListener = diagnosticListener;
+            this.activitySource = activitySource;
+        }
+
+        protected internal override bool PublishInternal(CronusMessage message)
+        {
+            Activity activity = StartActivity(message);
+            if (Activity.Current is not null)
+            {
+                message.Headers.Remove(TelemetryTraceParent);
+                message.Headers.Add(TelemetryTraceParent, Activity.Current.Id);
+            }
+            bool result = base.PublishInternal(message);
+            StopActivity(activity);
+
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private Activity StartActivity(CronusMessage message)
+        {
+            var asd = Activity.Current;
+            if (diagnosticListener.IsEnabled())
+            {
+                Activity activity = null;
+                string parentId = string.Empty;
+                message.Headers?.TryGetValue(TelemetryTraceParent, out parentId);
+                string messageTypeName = message.GetMessageType().Name;
+                string activityName = $"Publish {messageTypeName}";
+                if (ActivityContext.TryParse(parentId, null, out ActivityContext ctx))
+                {
+                    activity = activitySource.CreateActivity(activityName, ActivityKind.Server, ctx);
+                }
+                else
+                {
+                    activity = activitySource.CreateActivity(activityName, ActivityKind.Server, parentId);
+                }
+
+                if (activity is null)
+                {
+                    activity = new Activity(activityName);
+                    if (!string.IsNullOrEmpty(parentId))
+                    {
+                        activity.SetParentId(parentId);
+                    }
+                }
+
+                activity.Start();
+
+                return activity;
+            }
+
+            return null;
+        }
+
+        private void StopActivity(Activity activity)
+        {
+            if (activity is null) return;
+
+            // Stop sets the end time if it was unset, but we want it set before we issue the write so we do it now.
+            if (activity.Duration == TimeSpan.Zero)
+                activity.SetEndTime(DateTime.UtcNow);
+
+            diagnosticListener.Write(ActivityName, activity);
+            activity.Stop();    // Resets Activity.Current (we want this after the Write)
+        }
+
+        private const string ActivityName = "Elders.Cronus.Hosting.Workflow";
+    }
+
+    public abstract class PublisherBase<TMessage> : PublisherHandler, IPublisher<TMessage> where TMessage : IMessage
+    {
+        private readonly IEnumerable<DelegatingPublishHandler> handlers;
+
+        public PublisherBase(IEnumerable<DelegatingPublishHandler> handlers)
+        {
+            this.handlers = handlers.Cast<DelegatingPublishHandler>();
+        }
+
+        public virtual bool Publish(TMessage message, Dictionary<string, string> messageHeaders)
+        {
+            if (messageHeaders is null)
+                messageHeaders = new Dictionary<string, string>();
+
+            var cronusMessage = new CronusMessage(message, messageHeaders);
+
+            var enumerator = handlers.GetEnumerator();
+            bool hasHandlers = enumerator.MoveNext();
+            if (hasHandlers == false)
+                return PublishInternal(cronusMessage);
+
+            while (hasHandlers)
+            {
+                DelegatingPublishHandler currentHandler = enumerator.Current;
+                hasHandlers = enumerator.MoveNext();
+                if (hasHandlers)
+                {
+                    currentHandler.InnerHandler = enumerator.Current;
+                }
+                else
+                {
+                    currentHandler.InnerHandler = this;
+                }
+            }
+
+            return handlers.First().PublishInternal(cronusMessage);
+        }
+
+        public virtual bool Publish(byte[] messageRaw, Type messageType, string tenant, Dictionary<string, string> messageHeaders)
+        {
+            if (messageHeaders is null)
+                messageHeaders = new Dictionary<string, string>();
+
+            EnsureValidTenant(tenant, messageHeaders);
+
+            if (typeof(TMessage).IsAssignableFrom(messageType) == false)
+                throw new ArgumentException($"Publisher {this.GetType().Name} cannot publish a message of type {messageType.Name}");
+
+            CronusMessage cronusMessage = new CronusMessage(messageRaw, messageType, messageHeaders);
+
+            IEnumerator<DelegatingPublishHandler> enumerator = handlers.GetEnumerator();
+            bool hasHandlers = enumerator.MoveNext();
+            if (hasHandlers == false)
+                return PublishInternal(cronusMessage);
+
+            while (hasHandlers)
+            {
+                DelegatingPublishHandler currentHandler = enumerator.Current;
+                hasHandlers = enumerator.MoveNext();
+                if (hasHandlers)
+                {
+                    currentHandler.InnerHandler = enumerator.Current;
+                }
+                else
+                {
+                    currentHandler.InnerHandler = this;
+                }
+            }
+
+            return handlers.First().PublishInternal(cronusMessage);
         }
 
         public virtual bool Publish(TMessage message, DateTime publishAt, Dictionary<string, string> messageHeaders = null)
@@ -70,45 +290,21 @@ namespace Elders.Cronus
             return Publish(message, publishAt, messageHeaders);
         }
 
-        protected abstract bool PublishInternal(CronusMessage message);
-
-        protected virtual Dictionary<string, string> BuildHeaders(TMessage message, Dictionary<string, string> messageHeaders)
+        private void EnsureValidTenant(string tenant, Dictionary<string, string> messageHeaders)
         {
-            messageHeaders = messageHeaders ?? new Dictionary<string, string>();
+            if (string.IsNullOrEmpty(tenant))
+                throw new ArgumentNullException("Unable to publish a message without a specified tenant.");
 
-            if (messageHeaders.ContainsKey(MessageHeader.PublishTimestamp) == false)
-                messageHeaders.Add(MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString());
-
-            if (messageHeaders.ContainsKey(MessageHeader.Tenant) == false)
-                messageHeaders.Add(MessageHeader.Tenant, tenantResolver.Resolve(message));
-
-            if (messageHeaders.ContainsKey(MessageHeader.BoundedContext))
+            bool hasTenantHeader = messageHeaders.ContainsKey(MessageHeader.Tenant);
+            if (hasTenantHeader)
             {
-                var bc = message.GetType().GetBoundedContext(boundedContext.Name);
-                messageHeaders[MessageHeader.BoundedContext] = bc;
+                if (tenant.Equals(messageHeaders[MessageHeader.Tenant], StringComparison.OrdinalIgnoreCase) == false)
+                    throw new ArgumentException("Unable to publish a message inconsistency between message headers and the tenant from input parameters.");
             }
             else
             {
-                var bc = message.GetType().GetBoundedContext(boundedContext.Name);
-                messageHeaders.Add(MessageHeader.BoundedContext, bc);
+                messageHeaders.Add(MessageHeader.Tenant, tenant);
             }
-
-            string messageId = string.Empty;
-            if (messageHeaders.ContainsKey(MessageHeader.MessageId) == false)
-            {
-                messageId = $"urn:cronus:{messageHeaders[MessageHeader.BoundedContext]}:{messageHeaders[MessageHeader.Tenant]}:{Guid.NewGuid()}";
-                messageHeaders.Add(MessageHeader.MessageId, messageId);
-            }
-            else
-                messageId = messageHeaders[MessageHeader.MessageId];
-
-            if (messageHeaders.ContainsKey(MessageHeader.CorelationId) == false)
-                messageHeaders.Add(MessageHeader.CorelationId, messageId);
-
-            messageHeaders.Remove("contract_name");
-            messageHeaders.Add("contract_name", message.GetType().GetContractId());
-
-            return messageHeaders;
         }
     }
 }

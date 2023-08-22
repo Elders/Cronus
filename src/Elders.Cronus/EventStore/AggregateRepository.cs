@@ -3,20 +3,18 @@ using System.Linq;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.Userfull;
 using Elders.Cronus.IntegrityValidation;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore
 {
     public sealed class AggregateRepository : IAggregateRepository
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(AggregateRepository));
-
         readonly IAggregateRootAtomicAction atomicAction;
         readonly IEventStore eventStore;
         readonly IIntegrityPolicy<EventStream> integrityPolicy;
+        private readonly IAggregateInterceptor aggregateInterceptor;
 
-        public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy)
+        public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy, IAggregateInterceptor aggregateInterceptor)
         {
             if (eventStoreFactory is null) throw new ArgumentNullException(nameof(eventStoreFactory));
             if (atomicAction is null) throw new ArgumentNullException(nameof(atomicAction));
@@ -25,6 +23,7 @@ namespace Elders.Cronus.EventStore
             this.eventStore = eventStoreFactory.GetEventStore();
             this.atomicAction = atomicAction;
             this.integrityPolicy = integrityPolicy;
+            this.aggregateInterceptor = aggregateInterceptor;
         }
 
         /// <summary>
@@ -44,7 +43,7 @@ namespace Elders.Cronus.EventStore
         /// <typeparam name="AR">The type of the r.</typeparam>
         /// <param name="id">The identifier.</param>
         /// <returns></returns>
-        public async Task<ReadResult<AR>> LoadAsync<AR>(IAggregateRootId id) where AR : IAggregateRoot
+        public async Task<ReadResult<AR>> LoadAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
         {
             EventStream eventStream = await eventStore.LoadAsync(id).ConfigureAwait(false);
             var integrityResult = integrityPolicy.Apply(eventStream);
@@ -52,7 +51,7 @@ namespace Elders.Cronus.EventStore
                 throw new EventStreamIntegrityViolationException($"AR integrity is violated for ID={id.Value}");
             eventStream = integrityResult.Output;
             AR aggregateRoot;
-            if (eventStream.TryRestoreFromHistory(out aggregateRoot) == false) // this should be a sync operation, it's just triggers internal inmemory handlers for aggregate
+            if (eventStream.TryRestoreFromHistory(out aggregateRoot) == false) // this should be a sync operation, it's just triggers internal in-memory handlers for an aggregate
                 return ReadResult<AR>.WithNotFoundHint($"Unable to load AR with ID={id.Value}");
 
             return new ReadResult<AR>(aggregateRoot);
@@ -70,7 +69,9 @@ namespace Elders.Cronus.EventStore
                 return default;
             }
 
-            var arCommit = new AggregateCommit(aggregateRoot.State.Id as IBlobId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList());
+            var arCommit = new AggregateCommit(aggregateRoot.State.Id.RawId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList(), DateTime.UtcNow.ToFileTimeUtc());
+            arCommit = aggregateInterceptor.Transform(arCommit);
+
             var result = await atomicAction.ExecuteAsync(aggregateRoot.State.Id, aggregateRoot.Revision, async () => await eventStore.AppendAsync(arCommit).ConfigureAwait(false)).ConfigureAwait(false);
 
             if (result.IsSuccessful)

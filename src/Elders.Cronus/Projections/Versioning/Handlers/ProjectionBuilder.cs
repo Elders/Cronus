@@ -31,7 +31,7 @@ namespace Elders.Cronus.Projections.Versioning
             if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
             {
                 RequestTimeout(new CreateNewProjectionVersion(@event, @event.Timebox.RequestStartAt));
-                RequestTimeout(new ProjectionVersionRequestHeartbeat(@event, @event.Timebox.FinishRequestUntil));
+                //RequestTimeout(new ProjectionVersionRequestHeartbeat(@event, @event.Timebox.FinishRequestUntil));
             }
 
             return Task.CompletedTask;
@@ -39,7 +39,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public async Task HandleAsync(CreateNewProjectionVersion sagaTimeout)
         {
-            RebuildProjection_Job job = jobFactory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
+            RebuildProjection_Job job = jobFactory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.ReplayEventsOptions, sagaTimeout.ProjectionVersionRequest.Timebox);
             JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
             logger.Debug(() => "Replay projection version {@cronus_projection_rebuild}", result);
 

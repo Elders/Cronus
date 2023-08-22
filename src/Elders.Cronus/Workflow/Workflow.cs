@@ -22,7 +22,7 @@ namespace Elders.Cronus.Workflow
 
         new public async Task<TResult> RunAsync(TContext context)
         {
-            return (TResult)await base.RunAsync(context);
+            return (TResult)await base.RunAsync(context).ConfigureAwait(false);
         }
 
         protected override Execution<TContext> CreateExecutionContext(TContext context)

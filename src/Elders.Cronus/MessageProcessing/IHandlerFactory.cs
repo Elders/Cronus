@@ -46,7 +46,7 @@ namespace Elders.Cronus.MessageProcessing
         public void Dispose()
         {
             var disposeMe = Current as IDisposable;
-            if (ReferenceEquals(null, disposeMe) == false)
+            if (disposeMe is null == false)
                 disposeMe.Dispose();
         }
     }

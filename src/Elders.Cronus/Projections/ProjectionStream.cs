@@ -26,9 +26,9 @@ namespace Elders.Cronus.Projections
 
         public ProjectionStream(IBlobId projectionId, List<ProjectionCommit> commits, Func<ISnapshot> getSnapshot)
         {
-            if (ReferenceEquals(null, projectionId)) throw new ArgumentException(nameof(projectionId));
-            if (ReferenceEquals(null, commits)) throw new ArgumentException(nameof(commits));
-            if (ReferenceEquals(null, getSnapshot)) throw new ArgumentException(nameof(getSnapshot));
+            if (projectionId is null) throw new ArgumentException(nameof(projectionId));
+            if (commits is null) throw new ArgumentException(nameof(commits));
+            if (getSnapshot is null) throw new ArgumentException(nameof(getSnapshot));
 
             this.projectionId = projectionId;
             this.Commits = commits;
@@ -39,7 +39,7 @@ namespace Elders.Cronus.Projections
 
         public Task<IProjectionDefinition> RestoreFromHistoryAsync(Type projectionType)
         {
-            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return Task.FromResult(default(IProjectionDefinition));
+            if (Commits.Count <= 0 && GetSnapshot().State is null) return Task.FromResult(default(IProjectionDefinition));
 
             IProjectionDefinition projection = (IProjectionDefinition)FastActivator.CreateInstance(projectionType, true);
             return RestoreFromHistoryMamamiaAsync(projection);
@@ -47,7 +47,7 @@ namespace Elders.Cronus.Projections
 
         public Task<T> RestoreFromHistoryAsync<T>() where T : IProjectionDefinition
         {
-            if (Commits.Count <= 0 && ReferenceEquals(null, GetSnapshot().State)) return Task.FromResult(default(T));
+            if (Commits.Count <= 0 && GetSnapshot().State is null) return Task.FromResult(default(T));
 
             T projection = (T)FastActivator.CreateInstance(typeof(T), true);
             return RestoreFromHistoryMamamiaAsync<T>(projection);
@@ -55,7 +55,7 @@ namespace Elders.Cronus.Projections
 
         ISnapshot GetSnapshot()
         {
-            if (ReferenceEquals(null, snapshot))
+            if (snapshot is null)
                 snapshot = getSnapshot();
 
             return snapshot;

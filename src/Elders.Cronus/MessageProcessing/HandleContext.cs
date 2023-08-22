@@ -9,10 +9,13 @@ namespace Elders.Cronus.MessageProcessing
             Message = message;
             HandlerType = handlerType;
         }
+
         public CronusMessage Message { get; private set; }
 
         public Type HandlerType { get; private set; }
 
         public IServiceProvider ServiceProvider { get; set; }
+
+        internal IDisposable LoggerScope { get; set; }
     }
 }

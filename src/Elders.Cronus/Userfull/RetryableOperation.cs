@@ -13,7 +13,7 @@ namespace Elders.Cronus
         static readonly ILogger logger = CronusLogger.CreateLogger(typeof(RetryableOperation));
 
         static RetryPolicy defaultExponentialRetryPolicy = RetryPolicyFactory.CreateExponentialRetryPolicy(5, new TimeSpan(0, 0, 3), new TimeSpan(0, 0, 90), new TimeSpan(0, 0, 6));
-        static RetryPolicy defaultLinearRetryPolicy = RetryPolicyFactory.CreateLinearRetryPolicy(5, new TimeSpan(0, 0, 1));
+        static RetryPolicy defaultLinearRetryPolicy = RetryPolicyFactory.CreateLinearRetryPolicy(5, new TimeSpan(0, 0, 0, 0, 500));
 
         /// <summary>
         /// Number of retries: 5;
@@ -39,7 +39,7 @@ namespace Elders.Cronus
             for (int i = 0; i > -1; i++)
             {
                 operationResult = InvokeTryExecuteInternal(operation, out exception);
-                if (ReferenceEquals(null, operationResult) || operationResult.Equals(default(T)))
+                if (operationResult is null || operationResult.Equals(default(T)))
                 {
                     if (retry(i, exception, out delay))
                     {

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.Serialization;
 using System;
+using Elders.Cronus.EventStore.Players;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -8,11 +9,12 @@ namespace Elders.Cronus.Projections.Versioning
     {
         ProjectionVersionRequested() { }
 
-        public ProjectionVersionRequested(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, VersionRequestTimebox timebox)
+        public ProjectionVersionRequested(ProjectionVersionManagerId id, ProjectionVersion projectionVersion, ReplayEventsOptions replayEventsOptions, VersionRequestTimebox timebox)
         {
             Id = id;
             Version = projectionVersion;
             RequestTimestamp = DateTime.UtcNow.ToFileTimeUtc();
+            ReplayEventsOptions = replayEventsOptions;
             Timebox = timebox;
         }
 
@@ -27,6 +29,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 4)]
         public VersionRequestTimebox Timebox { get; private set; }
+
+        [DataMember(Order = 5)]
+        public ReplayEventsOptions ReplayEventsOptions { get; set; }
 
         public override string ToString()
         {

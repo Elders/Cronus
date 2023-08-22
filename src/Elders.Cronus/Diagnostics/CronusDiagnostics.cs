@@ -1,5 +1,4 @@
-﻿using Elders.Cronus.EventStore.Index;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 
@@ -15,7 +14,7 @@ namespace Elders.Cronus.Diagnostics
 
         public static TResult LogElapsedTime<TResult>(Func<TResult> operation, string operationName) where TResult : new()
         {
-            logger ??= CronusLogger.CreateLogger(typeof(EventToAggregateRootId));
+            logger ??= CronusLogger.CreateLogger(typeof(CronusDiagnostics));
             TResult result;
             long startTimestamp = 0;
             double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;

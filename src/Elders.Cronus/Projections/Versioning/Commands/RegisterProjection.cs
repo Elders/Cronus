@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Elders.Cronus.EventStore.Players;
+using System;
 using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
@@ -6,7 +7,7 @@ namespace Elders.Cronus.Projections.Versioning
     [DataContract(Name = "d54d6def-2c33-4d19-9009-26ae357d6fc2")]
     public class RegisterProjection : ISystemCommand
     {
-        RegisterProjection() { }
+        RegisterProjection() { ReplayEventsOptions = new ReplayEventsOptions(); }
 
         public RegisterProjection(ProjectionVersionManagerId id, string hash)
         {
@@ -15,6 +16,7 @@ namespace Elders.Cronus.Projections.Versioning
 
             Id = id;
             Hash = hash;
+            ReplayEventsOptions = new ReplayEventsOptions();
         }
 
         [DataMember(Order = 1)]
@@ -22,6 +24,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 2)]
         public string Hash { get; private set; }
+
+        [DataMember(Order = 3)]
+        public ReplayEventsOptions ReplayEventsOptions { get; private set; }
 
         public override string ToString()
         {

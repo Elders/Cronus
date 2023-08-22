@@ -16,11 +16,6 @@ namespace Elders.Cronus.Projections
 
     public interface IInitializableProjectionStore
     {
-        Task InitializeAsync(ProjectionVersion version);
-    }
-
-    public class NotInitializableProjectionStore : IInitializableProjectionStore
-    {
-        public Task InitializeAsync(ProjectionVersion version) { return Task.CompletedTask; }
+        Task<bool> InitializeAsync(ProjectionVersion version);
     }
 }

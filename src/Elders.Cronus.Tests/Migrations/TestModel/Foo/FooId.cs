@@ -7,8 +7,8 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel.Foo
     {
         FooId() { }
 
-        public FooId(AggregateRootId id) : base(id, "Foo", id.Tenant) { }
+        public FooId(AggregateRootId id) : base(id.Tenant, "Foo", id) { }
 
-        public FooId(string id, string tenant) : base(id, "Foo", tenant) { }
+        public FooId(string id, string tenant) : base(tenant, "Foo", id) { }
     }
 }

@@ -12,5 +12,7 @@ namespace Elders.Cronus.EventStore
         public string PaginationToken { get; set; }
 
         public List<AggregateCommit> Commits { get; set; }
+
+        public bool HasMoreResults { get; set; }
     }
 }

@@ -51,10 +51,6 @@ namespace Elders.Cronus
 
         public string MessageId { get { return GetHeader(MessageHeader.MessageId); } }
 
-        public string CausationId { get { return GetHeader(MessageHeader.CausationId); } }
-
-        public string CorelationId { get { return GetHeader(MessageHeader.CorelationId); } }
-
         public string[] RecipientHandlers
         {
             get
@@ -87,7 +83,7 @@ namespace Elders.Cronus
         {
             string value;
             if (Headers.TryGetValue(key, out value) == false && MessageHeader.MessageId.Equals(key) == false)
-                value = $"Missing {key} for {GetHeader(MessageHeader.MessageId)}";
+                value = string.Empty;
 
             return value;
         }

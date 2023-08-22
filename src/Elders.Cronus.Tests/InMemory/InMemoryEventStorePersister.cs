@@ -1,8 +1,9 @@
+using Elders.Cronus.EventStore.Index;
+using System;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.InMemory
 {
-
     public class InMemoryEventStore : IEventStore
     {
         private InMemoryEventStoreStorage eventStoreStorage;
@@ -21,7 +22,7 @@ namespace Elders.Cronus.EventStore.InMemory
         /// </summary>
         /// <param name="aggregateId">The aggregate identifier.</param>
         /// <returns></returns>
-        public Task<EventStream> LoadAsync(IAggregateRootId aggregateId)
+        public Task<EventStream> LoadAsync(IBlobId aggregateId)
         {
             return Task.FromResult(new EventStream(eventStoreStorage.Seek(aggregateId)));
         }
@@ -37,9 +38,23 @@ namespace Elders.Cronus.EventStore.InMemory
             return Task.CompletedTask;
         }
 
-        public Task AppendAsync(AggregateCommitRaw aggregateCommitRaw)
+        public Task AppendAsync(AggregateEventRaw aggregateCommitRaw)
         {
             return Task.FromException(new System.NotImplementedException());
+        }
+
+        public Task<bool> DeleteAsync(AggregateEventRaw eventRaw)
+        {
+            throw new System.NotImplementedException();
+        }
+        public Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingDescendingAsync(IBlobId aggregateId, PagingOptions pagingOptions)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord)
+        {
+            throw new NotImplementedException();
         }
     }
 }

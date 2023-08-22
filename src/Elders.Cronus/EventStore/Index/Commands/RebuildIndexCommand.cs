@@ -10,7 +10,7 @@ namespace Elders.Cronus.EventStore.Index
 
         public RebuildIndexCommand(EventStoreIndexManagerId id)
         {
-            if (ReferenceEquals(null, id)) throw new ArgumentNullException(nameof(id));
+            if (id is null) throw new ArgumentNullException(nameof(id));
 
             Id = id;
         }

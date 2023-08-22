@@ -1,5 +1,4 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -26,19 +25,9 @@ namespace Elders.Cronus.MessageProcessing
         protected override Task RunAsync(Execution<ErrorContext> execution)
         {
             var serializer = execution.Context.ServiceProvider.GetRequiredService<ISerializer>();
-            logger.ErrorException(execution.Context.Error, () => $"There was an error in {execution.Context.HandlerType.Name} while handling message {MessageAsString(serializer, execution.Context.Message)}");
-            return Task.CompletedTask;
-        }
+            logger.ErrorException(execution.Context.Error, () => $"There was an error in {execution.Context.HandlerType.Name} while handling message {serializer.SerializeToString(execution.Context.Message)}");
 
-        private string MessageAsString(ISerializer serializer, CronusMessage message)
-        {
-            using (var stream = new MemoryStream())
-            using (StreamReader reader = new StreamReader(stream))
-            {
-                serializer.Serialize(stream, message);
-                stream.Position = 0;
-                return reader.ReadToEnd();
-            }
+            return Task.CompletedTask;
         }
     }
 }

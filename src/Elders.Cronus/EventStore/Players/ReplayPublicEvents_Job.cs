@@ -1,11 +1,9 @@
 ﻿using Elders.Cronus.Cluster.Job;
-using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,84 +12,73 @@ namespace Elders.Cronus.EventStore.Players
     public class ReplayPublicEvents_Job : CronusJob<ReplayPublicEvents_JobData>
     {
         private readonly IPublisher<IPublicEvent> publicEventPublisher;
-        private readonly IEventStorePlayer eventStorePlayer;
-        private readonly EventToAggregateRootId eventToAggregateIndex;
+        private readonly ICronusContextAccessor contextAccessor;
+        private readonly IEventStorePlayer player;
 
-        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, IEventStorePlayer eventStorePlayer, EventToAggregateRootId eventToAggregateIndex, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
+        public ReplayPublicEvents_Job(IPublisher<IPublicEvent> publicEventPublisher, ICronusContextAccessor contextAccessor, IEventStorePlayer eventStorePlayer, ILogger<ReplayPublicEvents_Job> logger) : base(logger)
         {
             this.publicEventPublisher = publicEventPublisher;
-            this.eventStorePlayer = eventStorePlayer;
-            this.eventToAggregateIndex = eventToAggregateIndex;
+            this.contextAccessor = contextAccessor;
+            this.player = eventStorePlayer;
         }
         public override string Name { get; set; } = "c0e0f5fc-1f22-4022-96d0-bf02590951d6";
 
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
-            Dictionary<int, string> processedAggregates = new Dictionary<int, string>();
+            if (Data.IsCompleted)
+                return JobExecutionStatus.Completed;
 
-            string eventTypeId = Data.SourceEventTypeId;
-            bool hasMoreRecords = true;
-            while (hasMoreRecords && Data.IsCompleted == false)
+            PlayerOptions opt = new PlayerOptions()
             {
-                string paginationToken = Data.EventTypePaging?.PaginationToken;
-                LoadIndexRecordsResult indexRecordsResult = await eventToAggregateIndex.EnumerateRecordsAsync(eventTypeId, paginationToken).ConfigureAwait(false);
-                IEnumerable<IndexRecord> indexRecords = indexRecordsResult.Records;
-                Type publicEventType = typeof(IPublicEvent);
-                ReplayOptions opt = new ReplayOptions()
+                EventTypeId = Data.SourceEventTypeId,
+                PaginationToken = Data.EventTypePaging?.PaginationToken,
+                After = Data.After,
+                Before = Data.Before ?? DateTimeOffset.UtcNow
+            };
+
+            Type messageType = Data.SourceEventTypeId.GetTypeByContract();
+            string boundedContext = messageType.GetBoundedContext();
+
+            ulong counter = Data.EventTypePaging is null ? 0 : Data.EventTypePaging.ProcessedCount;
+            PlayerOperator @operator = new PlayerOperator()
+            {
+                OnLoadAsync = eventRaw =>
                 {
-                    AggregateIds = indexRecordsResult.Records.Select(indexRecord => AggregateUrn.Parse(Convert.ToBase64String(indexRecord.AggregateRootId), Urn.Base64)),
-                    ShouldSelect = commit =>
+                    string tenant = contextAccessor.CronusContext.Tenant;
+                    string messageId = $"urn:cronus:{boundedContext}:{tenant}:{Guid.NewGuid()}";
+                    //TODO: Document which headers are essential or make another ctor for CronusMessage with byte[]
+                    var headers = new Dictionary<string, string>()
                     {
-                        bool result = (from publicEvent in commit.PublicEvents
-                                       let eventType = publicEvent.GetType()
-                                       where publicEventType.IsAssignableFrom(eventType)
-                                       where eventType.GetContractId().Equals(eventTypeId)
-                                       select publicEvent)
-                                       .Any();
+                        { MessageHeader.MessageId, messageId },
+                        { MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext },
+                        { MessageHeader.RecipientHandlers, Data.RecipientHandlers },
+                        { MessageHeader.PublishTimestamp, DateTime.UtcNow.ToFileTimeUtc().ToString() },
+                        { MessageHeader.Tenant, tenant },
+                        { MessageHeader.BoundedContext, boundedContext },
+                        { "contract_name",  Data.SourceEventTypeId }
+                    };
 
-                        return result;
-                    },
-                    After = Data.After,
-                    Before = Data.Before
-                };
-                LoadAggregateCommitsResult foundAggregateCommits = await eventStorePlayer.LoadAggregateCommitsAsync(opt).ConfigureAwait(false);
+                    publicEventPublisher.Publish(eventRaw.Data, Data.SourceEventTypeId.GetTypeByContract(), tenant, headers);
 
-                foreach (AggregateCommit arCommit in foundAggregateCommits.Commits)
+                    counter++;
+                    return Task.CompletedTask;
+                },
+                NotifyProgressAsync = async options =>
                 {
-                    if (cancellationToken.IsCancellationRequested)
-                    {
-                        logger.Info(() => $"Job has been cancelled.");
-                        return JobExecutionStatus.Running;
-                    }
-
-                    foreach (IPublicEvent publicEvent in arCommit.PublicEvents)
-                    {
-                        if (publicEvent.GetType().GetContractId().Equals(eventTypeId))
-                        {
-                            var headers = new Dictionary<string, string>()
-                            {
-                                {MessageHeader.RecipientBoundedContext, Data.RecipientBoundedContext},
-                                {MessageHeader.RecipientHandlers, Data.RecipientHandlers}
-                            };
-                            publicEventPublisher.Publish(publicEvent, headers);
-                        }
-                    }
+                    var progress = new ReplayPublicEvents_JobData.EventPaging(options.EventTypeId, options.PaginationToken, options.After, options.Before, counter, 0);
+                    Data.EventTypePaging = progress;
+                    Data.Timestamp = DateTimeOffset.UtcNow;
+                    Data = await cluster.PingAsync(Data);
                 }
+            };
 
-                var progress = new ReplayPublicEvents_JobData.EventTypePagingProgress(eventTypeId, indexRecordsResult.PaginationToken, 0, 0);
-                Data.MarkEventTypeProgress(progress);
-                Data.Timestamp = DateTimeOffset.UtcNow;
-                Data = await cluster.PingAsync(Data, cancellationToken).ConfigureAwait(false);
-
-                hasMoreRecords = indexRecordsResult.Records.Any();
-            }
+            await player.EnumerateEventStore(@operator, opt).ConfigureAwait(false);
 
             Data.IsCompleted = true;
             Data.Timestamp = DateTimeOffset.UtcNow;
-
             Data = await cluster.PingAsync(Data).ConfigureAwait(false);
-            logger.Info(() => $"The job has been completed.");
 
+            logger.Info(() => $"The job has been completed.");
             return JobExecutionStatus.Completed;
         }
     }
@@ -99,19 +86,19 @@ namespace Elders.Cronus.EventStore.Players
     public class ReplayPublicEvents_JobFactory
     {
         private readonly ReplayPublicEvents_Job job;
-        private readonly CronusContext context;
+        private readonly ICronusContextAccessor contextAccessor;
         private readonly BoundedContext boundedContext;
 
-        public ReplayPublicEvents_JobFactory(ReplayPublicEvents_Job job, IOptions<BoundedContext> boundedContext, CronusContext context)
+        public ReplayPublicEvents_JobFactory(ReplayPublicEvents_Job job, IOptions<BoundedContext> boundedContext, ICronusContextAccessor contextAccessor)
         {
             this.job = job;
-            this.context = context;
+            this.contextAccessor = contextAccessor;
             this.boundedContext = boundedContext.Value;
         }
 
         public ReplayPublicEvents_Job CreateJob(ReplayPublicEventsRequested signal)
         {
-            job.Name = $"urn:{boundedContext.Name}:{context.Tenant}:{job.Name}:{signal.RecipientBoundedContext}:{signal.RecipientHandlers}:{signal.SourceEventTypeId}";
+            job.Name = $"urn:{boundedContext.Name}:{contextAccessor.CronusContext.Tenant}:{job.Name}:{signal.RecipientBoundedContext}:{signal.RecipientHandlers}:{signal.SourceEventTypeId}";
 
             job.BuildInitialData(() => new ReplayPublicEvents_JobData()
             {
@@ -137,7 +124,7 @@ namespace Elders.Cronus.EventStore.Players
 
         public bool IsCompleted { get; set; }
 
-        public EventTypePagingProgress EventTypePaging { get; set; }
+        public EventPaging EventTypePaging { get; set; }
 
         public DateTimeOffset Timestamp { get; set; }
 
@@ -149,12 +136,14 @@ namespace Elders.Cronus.EventStore.Players
         public string RecipientHandlers { get; set; }
         public string SourceEventTypeId { get; set; }
 
-        public class EventTypePagingProgress
+        public class EventPaging
         {
-            public EventTypePagingProgress(string eventTypeId, string paginationToken, long processedCount, long totalCount)
+            public EventPaging(string eventTypeId, string paginationToken, DateTimeOffset? after, DateTimeOffset? before, ulong processedCount, ulong totalCount)
             {
                 Type = eventTypeId;
                 PaginationToken = paginationToken;
+                After = after;
+                Before = before;
                 ProcessedCount = processedCount;
                 TotalCount = totalCount;
             }
@@ -163,23 +152,12 @@ namespace Elders.Cronus.EventStore.Players
 
             public string PaginationToken { get; set; }
 
-            public long ProcessedCount { get; set; }
+            public DateTimeOffset? After { get; set; }
+            public DateTimeOffset? Before { get; set; }
 
-            public long TotalCount { get; set; }
-        }
+            public ulong ProcessedCount { get; set; }
 
-        public void MarkEventTypeProgress(EventTypePagingProgress progress)
-        {
-            if (EventTypePaging is null)
-            {
-                EventTypePaging = progress;
-            }
-            else
-            {
-                EventTypePaging.PaginationToken = progress.PaginationToken;
-                EventTypePaging.ProcessedCount += progress.ProcessedCount;
-                EventTypePaging.TotalCount = progress.TotalCount;
-            }
+            public ulong TotalCount { get; set; }
         }
     }
 }
