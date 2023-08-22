@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.EventStore;
-using System.IO;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;

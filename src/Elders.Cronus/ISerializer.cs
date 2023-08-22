@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Elders.Cronus
+﻿namespace Elders.Cronus
 {
     public interface ISerializer
     {
