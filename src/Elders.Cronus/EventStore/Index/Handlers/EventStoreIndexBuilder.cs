@@ -29,7 +29,7 @@ namespace Elders.Cronus.EventStore.Index.Handlers
             if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
             {
                 RequestTimeout(new RebuildIndexInternal(@event, @event.Timebox.RequestStartAt));
-                RequestTimeout(new EventStoreIndexRebuildTimedout(@event, @event.Timebox.FinishRequestUntil));
+                //RequestTimeout(new EventStoreIndexRebuildTimedout(@event, @event.Timebox.FinishRequestUntil));
             }
 
             return Task.CompletedTask;

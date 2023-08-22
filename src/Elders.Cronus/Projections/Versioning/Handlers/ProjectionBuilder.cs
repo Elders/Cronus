@@ -31,7 +31,7 @@ namespace Elders.Cronus.Projections.Versioning
             if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
             {
                 RequestTimeout(new CreateNewProjectionVersion(@event, @event.Timebox.RequestStartAt));
-                RequestTimeout(new ProjectionVersionRequestHeartbeat(@event, @event.Timebox.FinishRequestUntil));
+                //RequestTimeout(new ProjectionVersionRequestHeartbeat(@event, @event.Timebox.FinishRequestUntil));
             }
 
             return Task.CompletedTask;
