@@ -1,3 +1,10 @@
+## [9.0.1](https://github.com/Elders/Cronus/compare/v9.0.0...v9.0.1) (2023-08-22)
+
+
+### Bug Fixes
+
+* Artificial release to fix nuget package issue ([0e1b112](https://github.com/Elders/Cronus/commit/0e1b11254f0c443aec8444f0c36e38b1b3195a55))
+
 # [9.0.0](https://github.com/Elders/Cronus/compare/v8.9.0...v9.0.0) (2023-08-22)
 
 
