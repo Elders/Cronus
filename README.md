@@ -1,4 +1,4 @@
-# Cronus is a lightweight framework for building event driven systems with DDD/CQRS in mind
+# Cronus is a lightweight framework for building event driven systems with DDD/CQRS in mind.
 
 [![NuGet](https://img.shields.io/nuget/v/Cronus.svg)](https://www.nuget.org/packages/Cronus)
 [![GitHub issues](https://img.shields.io/github/issues/Elders/Cronus/shields.svg)](https://github.com/Elders/Cronus/issues)
