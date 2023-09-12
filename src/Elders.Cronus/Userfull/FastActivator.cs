@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -68,8 +69,8 @@ namespace Elders.Cronus
             ObjectActivator activator;
             if (!activators.TryGetValue(type, out activator))
             {
-                var constructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic);
-                if (constructors.Length == 1)
+                IEnumerable<ConstructorInfo> constructors = type.GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic).Where(ctor => ctor.GetParameters().Length == 0);
+                if (constructors.Any())
                 {
                     ConstructorInfo ctor = constructors.First();
                     activator = GetActivator(ctor);
