@@ -11,6 +11,7 @@ using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
+using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
@@ -24,6 +25,14 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly IProjectionWriter projectionWriter;
         private readonly ProgressTracker progressTracker;
         private readonly ProjectionVersionHelper projectionVersionHelper;
+        private static readonly Action<ILogger, string, uint, Exception> LogProjectionProgress =
+            LoggerMessage.Define<string, uint>(LogLevel.Information, CronusLogEvent.CronusJobOk, "Rebuild projection job progress for version {cronus_projection_version}: {counter}");
+
+        private static readonly Action<ILogger, string, Exception> LogRebuildProjectionCanceled =
+            LoggerMessage.Define<string>(LogLevel.Information, CronusLogEvent.CronusJobError, "The rebuild job for version {cronus_projection_version} was cancelled.");
+
+        private static readonly Action<ILogger, string, uint, Exception> LogRebuildProjectionCompleted =
+            LoggerMessage.Define<string, uint>(LogLevel.Information, CronusLogEvent.CronusJobOk, "The rebuild job for version {cronus_projection_version} has completed. Total events: {counter}");
 
         public RebuildProjection_Job(
             IInitializableProjectionStore projectionStoreInitializer,
@@ -126,7 +135,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                         Data = await cluster.PingAsync(Data);
                     }
 
-                    logger.Info(() => "Rebuild projection job progress for version {version}: {counter}", version, counter);
+                    LogProjectionProgress(logger, version.ToString(), counter, null);
                 }
             };
 
@@ -139,7 +148,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                     if (Data.IsCanceled == false)
                         await CancelJobAsync(cluster).ConfigureAwait(false);
 
-                    logger.Info(() => "The rebuild job for version {version} was cancelled.", version);
+                    LogRebuildProjectionCanceled(logger, version.ToString(), null);
                     return JobExecutionStatus.Canceled;
                 }
 
@@ -175,7 +184,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             var finishSignal = progressTracker.GetProgressFinishedSignal();
             signalPublisher.Publish(finishSignal);
 
-            logger.Info(() => "The rebuild job for version {version} has completed.", version);
+            LogRebuildProjectionCompleted(logger, version.ToString(), counter, null);
             return JobExecutionStatus.Completed;
         }
 
