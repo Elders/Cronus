@@ -17,6 +17,8 @@ namespace Elders.Cronus.Workflow
         public static EventId CronusWorkflowHandle = new EventId(74001, "CronusWorkflowHandle");
         public static EventId CronusProjectionRead = new EventId(74020, "CronusProjectionRead");
         public static EventId CronusProjectionWrite = new EventId(74021, "CronusProjectionWrite");
+        public static EventId CronusJobOk = new EventId(74100, "CronusJobOk");
+        public static EventId CronusJobError = new EventId(74101, "CronusJobError");
     }
 
     public class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext : HandleContext
