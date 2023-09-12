@@ -1,3 +1,11 @@
+## [9.0.3](https://github.com/Elders/Cronus/compare/v9.0.2...v9.0.3) (2023-09-12)
+
+
+### Bug Fixes
+
+* doing logging the right way ([aff0b6a](https://github.com/Elders/Cronus/commit/aff0b6af7dc6c763a5a16828e6fb80f5a7246c00))
+* improve logging messages for the rebuild projection job ([8eb0d98](https://github.com/Elders/Cronus/commit/8eb0d988b8ab0476bfa43cddaac6b4bec7edad77))
+
 ## [9.0.2](https://github.com/Elders/Cronus/compare/v9.0.1...v9.0.2) (2023-09-12)
 
 
