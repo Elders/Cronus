@@ -1,3 +1,10 @@
+## [9.0.2](https://github.com/Elders/Cronus/compare/v9.0.1...v9.0.2) (2023-09-12)
+
+
+### Bug Fixes
+
+* Fixes check for private ctor during instance creation ([bb7aaa0](https://github.com/Elders/Cronus/commit/bb7aaa0e6bcb504cd728f9b3e26efab40d944f95))
+
 ## [9.0.1](https://github.com/Elders/Cronus/compare/v9.0.0...v9.0.1) (2023-08-22)
 
 
