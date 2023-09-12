@@ -126,7 +126,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                         Data = await cluster.PingAsync(Data);
                     }
 
-                    logger.Info(() => $"RebuildProjection_Job progress: {counter}");
+                    logger.Info(() => "Rebuild projection job progress for version {version}: {counter}", version, counter);
                 }
             };
 
@@ -139,7 +139,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                     if (Data.IsCanceled == false)
                         await CancelJobAsync(cluster).ConfigureAwait(false);
 
-                    logger.Info(() => $"The job {version} has been cancelled.");
+                    logger.Info(() => "The rebuild job for version {version} was cancelled.", version);
                     return JobExecutionStatus.Canceled;
                 }
 
@@ -175,7 +175,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             var finishSignal = progressTracker.GetProgressFinishedSignal();
             signalPublisher.Publish(finishSignal);
 
-            logger.Info(() => $"The job has been completed.");
+            logger.Info(() => "The rebuild job for version {version} has completed.", version);
             return JobExecutionStatus.Completed;
         }
 
