@@ -1,3 +1,15 @@
+# [9.1.0](https://github.com/Elders/Cronus/compare/v9.0.3...v9.1.0) (2023-09-25)
+
+
+### Bug Fixes
+
+* Updates packages ([82f845f](https://github.com/Elders/Cronus/commit/82f845f8c27bb2403ff06f41df3333d67fa1f537))
+
+
+### Features
+
+* New way of bootstrapping projections ([b40d2df](https://github.com/Elders/Cronus/commit/b40d2dfd10cf9f9608be028bc31b9f5a198d7020))
+
 ## [9.0.3](https://github.com/Elders/Cronus/compare/v9.0.2...v9.0.3) (2023-09-12)
 
 
