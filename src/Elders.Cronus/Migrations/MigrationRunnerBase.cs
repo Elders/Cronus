@@ -23,6 +23,5 @@ namespace Elders.Cronus.Migrations
         /// </summary>
         /// <param name="migrations"></param>
         public abstract Task RunAsync(IEnumerable<IMigration<TDataFormat>> migrations);
-
     }
 }

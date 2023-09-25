@@ -1,43 +1,20 @@
-﻿using Elders.Cronus.Multitenancy;
-using Elders.Cronus.Projections.Versioning;
-using Microsoft.Extensions.Options;
-using System.Linq;
+﻿using Elders.Cronus.Projections;
 
 namespace Elders.Cronus
 {
     [CronusStartup(Bootstraps.Projections)]
-    public class ProjectionsStartup : ICronusStartup
+    internal class ProjectionsStartup : ICronusStartup
     {
-        private readonly TenantsOptions tenants;
-        private readonly ProjectionHasher hasher;
-        private readonly IPublisher<ICommand> publisher;
-        private readonly TypeContainer<IProjection> handlerTypeContainer;
-        private readonly CronusHostOptions cronusHostOptions;
+        private readonly CronusProjectionBootstrapper projectionsBootstrapper;
 
-        public ProjectionsStartup(TypeContainer<IProjection> handlerTypeContainer, IOptions<CronusHostOptions> cronusHostOptions, IOptions<TenantsOptions> tenantsOptions, ProjectionHasher hasher, IPublisher<ICommand> publisher)
+        public ProjectionsStartup(CronusProjectionBootstrapper projectionsBootstrapper)
         {
-            this.tenants = tenantsOptions.Value;
-            this.hasher = hasher;
-            this.publisher = publisher;
-            this.handlerTypeContainer = handlerTypeContainer;
-            this.cronusHostOptions = cronusHostOptions.Value;
+            this.projectionsBootstrapper = projectionsBootstrapper;
         }
 
         public void Bootstrap()
         {
-            if (cronusHostOptions.SystemServicesEnabled)
-            {
-                var systemProjection = typeof(ISystemProjection);
-                foreach (var handler in handlerTypeContainer.Items.OrderByDescending(x => systemProjection.IsAssignableFrom(x)))
-                {
-                    foreach (var tenant in tenants.Tenants)
-                    {
-                        var id = new ProjectionVersionManagerId(handler.GetContractId(), tenant);
-                        var command = new RegisterProjection(id, hasher.CalculateHash(handler));
-                        publisher.Publish(command);
-                    }
-                }
-            }
+            projectionsBootstrapper.BootstrapAsync().GetAwaiter().GetResult();
         }
     }
 }
