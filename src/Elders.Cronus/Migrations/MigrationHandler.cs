@@ -2,8 +2,6 @@
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Projections;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
