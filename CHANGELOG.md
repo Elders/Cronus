@@ -1,3 +1,10 @@
+## [9.1.1](https://github.com/Elders/Cronus/compare/v9.1.0...v9.1.1) (2023-09-29)
+
+
+### Bug Fixes
+
+* Fixes the CronusMigrator registry to the IServiceCollection ([89d4027](https://github.com/Elders/Cronus/commit/89d40274e548069551bdbee96101872eaf769b0b))
+
 # [9.1.0](https://github.com/Elders/Cronus/compare/v9.0.3...v9.1.0) (2023-09-25)
 
 
