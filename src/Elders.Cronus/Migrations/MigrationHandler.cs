@@ -15,9 +15,9 @@ namespace Elders.Cronus.Migrations
     public sealed class MigrationHandler : IMigrationHandler,
         IAggregateCommitHandle<AggregateCommit>
     {
-        private readonly CronusMigrator cronusMigrator;
+        private readonly ICronusMigrator cronusMigrator;
 
-        public MigrationHandler(CronusMigrator cronusMigrator)
+        public MigrationHandler(ICronusMigrator cronusMigrator)
         {
             this.cronusMigrator = cronusMigrator;
         }
@@ -33,7 +33,20 @@ namespace Elders.Cronus.Migrations
         Task OnAggregateCommitAsync(AggregateCommit migratedAggregateCommit);
     }
 
-    public sealed class CronusMigrator
+    public interface ICronusMigrator
+    {
+        Task MigrateAsync(AggregateCommit aggregateCommit);
+    }
+
+    public sealed class NoCronusMigrator : ICronusMigrator
+    {
+        public Task MigrateAsync(AggregateCommit aggregateCommit)
+        {
+            return Task.CompletedTask;
+        }
+    }
+
+    public sealed class CronusMigrator : ICronusMigrator
     {
         private readonly IEnumerable<IMigration<AggregateCommit>> migrations;
         private readonly IMigrationCustomLogic theLogic;

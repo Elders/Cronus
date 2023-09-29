@@ -22,5 +22,15 @@ public class MigrationsDiscovery : HandlersDiscovery<IMigrationHandler>
         {
             CanOverrideDefaults = true
         };
+
+        yield return new DiscoveredModel(typeof(ICronusMigrator), typeof(NoCronusMigrator), ServiceLifetime.Transient)
+        {
+            CanOverrideDefaults = true
+        };
+
+        yield return new DiscoveredModel(typeof(CronusMigrator), typeof(CronusMigrator), ServiceLifetime.Transient)
+        {
+            CanOverrideDefaults = true
+        };
     }
 }
