@@ -1,3 +1,10 @@
+## [9.1.2](https://github.com/Elders/Cronus/compare/v9.1.1...v9.1.2) (2023-10-05)
+
+
+### Bug Fixes
+
+* Adds error handling while saving events in projection during migration ([46b9e3c](https://github.com/Elders/Cronus/commit/46b9e3c20c74bca83b37a6ba2726c9c59502af45))
+
 ## [9.1.1](https://github.com/Elders/Cronus/compare/v9.1.0...v9.1.1) (2023-09-29)
 
 
