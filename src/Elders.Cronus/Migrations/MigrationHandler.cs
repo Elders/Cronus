@@ -99,7 +99,7 @@ namespace Elders.Cronus.Migrations
             this.logger = logger;
         }
 
-        List<ProjectionVersion> allProjectionVersions = null;
+        List<ProjectionVersion> liveOnlyProjections = null;
 
         public async Task OnAggregateCommitAsync(AggregateCommit migratedAggregateCommit)
         {
@@ -124,9 +124,20 @@ namespace Elders.Cronus.Migrations
             }
 
             // projection
-            if (allProjectionVersions is null || allProjectionVersions.Count == 0)
+            if (liveOnlyProjections is null || liveOnlyProjections.Count == 0)
             {
-                allProjectionVersions = projectionFinder.GetProjectionVersionsToBootstrap().ToList();
+                var allProjections = projectionFinder.GetProjectionVersionsToBootstrap();
+                liveOnlyProjections = allProjections.Where(ver => ver.Status == ProjectionStatus.Live).ToList();
+
+                var nonLiveProjections = allProjections.Except(liveOnlyProjections);
+
+                StringBuilder reporter = new StringBuilder();
+                reporter.AppendLine("The following projection versions will not be migrated because their status is not live. Please handle them manually.");
+                foreach (var projection in nonLiveProjections)
+                {
+                    reporter.AppendLine(projection.ToString());
+                }
+                logger.Warn(() => reporter.ToString());
             }
 
             IEnumerable<Type> projectionTypes = projectionsContainer.Items;
@@ -141,12 +152,11 @@ namespace Elders.Cronus.Migrations
                     if (isInterested)
                     {
                         EventOrigin origin = new EventOrigin(migratedAggregateCommit.AggregateRootId, migratedAggregateCommit.Revision, pos, migratedAggregateCommit.Timestamp);
-                        ProjectionVersion version = allProjectionVersions.Where(ver => ver.ProjectionName.Equals(projectionType.GetContractId())).Single();
-                        Task projectionTask = GetProjectionTask(projectionType, migratedAggregateCommit.Events[pos], origin, version);
+                        ProjectionVersion version = liveOnlyProjections.Where(ver => ver.ProjectionName.Equals(projectionType.GetContractId())).Single();
+                        Task projectionTask = projection.SaveAsync(projectionType, migratedAggregateCommit.Events[pos], origin, version);
                         tasks.Add(projectionTask);
                     }
                 }
-
             }
 
             await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -155,24 +165,6 @@ namespace Elders.Cronus.Migrations
         public AggregateCommit Apply(AggregateCommit current) => current;
 
         public bool ShouldApply(AggregateCommit current) => true;
-
-        private Task GetProjectionTask(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
-        {
-            using (logger.BeginScope(x => x.AddScope(Log.ProjectionVersion, version.Status)
-                                           .AddScope(Log.ProjectionName, version.ProjectionName)
-                                           .AddScope(Log.AggregateId, Encoding.UTF8.GetString(eventOrigin.AggregateRootId))))
-            {
-                try
-                {
-                    Task projectionTask = projection.SaveAsync(projectionType, @event, eventOrigin, version);
-                    return projectionTask;
-                }
-                catch (Exception ex) when (logger.ErrorException(ex, () => $"Error while saving event in projection during Migration."))
-                {
-                    return Task.CompletedTask;
-                }
-            }
-        }
 
         private static bool IsInterested(Type handlerInterfaces, Type messagePayloadType)
         {
