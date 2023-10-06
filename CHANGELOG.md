@@ -1,3 +1,10 @@
+## [9.1.4](https://github.com/Elders/Cronus/compare/v9.1.3...v9.1.4) (2023-10-06)
+
+
+### Bug Fixes
+
+* Fixes issue while migrating events ([84f052a](https://github.com/Elders/Cronus/commit/84f052ac7e98c4d6747a7859f9564523ce6e39bb))
+
 ## [9.1.3](https://github.com/Elders/Cronus/compare/v9.1.2...v9.1.3) (2023-10-06)
 
 
