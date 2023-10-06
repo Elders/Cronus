@@ -152,9 +152,12 @@ namespace Elders.Cronus.Migrations
                     if (isInterested)
                     {
                         EventOrigin origin = new EventOrigin(migratedAggregateCommit.AggregateRootId, migratedAggregateCommit.Revision, pos, migratedAggregateCommit.Timestamp);
-                        ProjectionVersion version = liveOnlyProjections.Where(ver => ver.ProjectionName.Equals(projectionType.GetContractId())).Single();
-                        Task projectionTask = projection.SaveAsync(projectionType, migratedAggregateCommit.Events[pos], origin, version);
-                        tasks.Add(projectionTask);
+                        ProjectionVersion version = liveOnlyProjections.Where(ver => ver.ProjectionName.Equals(projectionType.GetContractId())).SingleOrDefault();
+                        if (version is not null)
+                        {
+                            Task projectionTask = projection.SaveAsync(projectionType, migratedAggregateCommit.Events[pos], origin, version);
+                            tasks.Add(projectionTask);
+                        }
                     }
                 }
             }
