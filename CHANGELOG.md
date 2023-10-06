@@ -1,3 +1,10 @@
+## [9.1.3](https://github.com/Elders/Cronus/compare/v9.1.2...v9.1.3) (2023-10-06)
+
+
+### Bug Fixes
+
+* Migrate only 'live' projection versions ([0f99348](https://github.com/Elders/Cronus/commit/0f99348c25248388f4ea48d78b6bd17df125eaa7))
+
 ## [9.1.2](https://github.com/Elders/Cronus/compare/v9.1.1...v9.1.2) (2023-10-05)
 
 
