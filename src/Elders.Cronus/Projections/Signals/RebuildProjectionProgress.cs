@@ -1,13 +1,17 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections
 {
-    [DataContract(Name = "373f4ff0-cb6f-499e-9fa5-1666ccc00689")]
-    public class RebuildProjectionProgress : ISystemSignal
+    [DataContract(Namespace = "cronus", Name = "373f4ff0-cb6f-499e-9fa5-1666ccc00689")]
+    public sealed class RebuildProjectionProgress : ISystemSignal
     {
-        public RebuildProjectionProgress() { }
+        RebuildProjectionProgress()
+        {
+            Timestamp = DateTimeOffset.UtcNow;
+        }
 
-        public RebuildProjectionProgress(string tenant, string projectionTypeId, ulong processedCount, ulong totalCount)
+        public RebuildProjectionProgress(string tenant, string projectionTypeId, ulong processedCount, ulong totalCount) : this()
         {
             Tenant = tenant;
             ProjectionTypeId = projectionTypeId;
@@ -26,5 +30,8 @@ namespace Elders.Cronus.Projections
 
         [DataMember(Order = 3)]
         public ulong TotalCount { get; set; }
+
+        [DataMember(Order = 4)]
+        public DateTimeOffset Timestamp { get; set; }
     }
 }

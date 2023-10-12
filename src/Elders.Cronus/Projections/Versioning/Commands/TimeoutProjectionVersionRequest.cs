@@ -3,12 +3,15 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Name = "d661a3e9-f6d0-4ea7-9bd9-435d3c3b8712")]
-    public class TimeoutProjectionVersionRequest : ISystemCommand
+    [DataContract(Namespace = "cronus", Name = "d661a3e9-f6d0-4ea7-9bd9-435d3c3b8712")]
+    public sealed class TimeoutProjectionVersionRequest : ISystemCommand
     {
-        TimeoutProjectionVersionRequest() { }
+        TimeoutProjectionVersionRequest()
+        {
+            Timestamp = DateTimeOffset.UtcNow;
+        }
 
-        public TimeoutProjectionVersionRequest(ProjectionVersionManagerId id, ProjectionVersion version, VersionRequestTimebox timebox)
+        public TimeoutProjectionVersionRequest(ProjectionVersionManagerId id, ProjectionVersion version, VersionRequestTimebox timebox) : this()
         {
             Id = id;
             Version = version;
@@ -23,6 +26,8 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 3)]
         public VersionRequestTimebox Timebox { get; private set; }
+
+        public DateTimeOffset Timestamp { get; private set; }
 
         public override string ToString()
         {

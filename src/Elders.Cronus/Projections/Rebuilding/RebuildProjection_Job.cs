@@ -115,9 +115,8 @@ namespace Elders.Cronus.Projections.Rebuilding
                         projectionInstancesToReplay.TryAdd(projectionType, instance);
                     }
 
-                    EventOrigin origin = new EventOrigin(eventRaw.AggregateRootId, eventRaw.Revision, eventRaw.Position, eventRaw.Timestamp);
                     await projectionWriter
-                        .SaveAsync(projectionType, @event, origin, version)
+                        .SaveAsync(projectionType, @event, version)
                         .ContinueWith(t => { instance?.ReplayEventAsync(@event); })
                         .ConfigureAwait(false);
 

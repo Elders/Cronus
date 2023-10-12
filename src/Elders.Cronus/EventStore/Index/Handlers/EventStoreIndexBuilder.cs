@@ -77,11 +77,14 @@ namespace Elders.Cronus.EventStore.Index.Handlers
     }
 
     [DataContract(Name = "09d3f870-66f5-4f00-aedd-659b719791fe")]
-    public class RebuildIndexInternal : ISystemScheduledMessage
+    public sealed class RebuildIndexInternal : ISystemScheduledMessage
     {
-        RebuildIndexInternal() { }
+        RebuildIndexInternal()
+        {
+            Timestamp = DateTimeOffset.UtcNow;
+        }
 
-        public RebuildIndexInternal(EventStoreIndexRequested indexRequest, DateTime publishAt)
+        public RebuildIndexInternal(EventStoreIndexRequested indexRequest, DateTime publishAt) : this()
         {
             EventStoreIndexRequest = indexRequest;
             PublishAt = publishAt;
@@ -93,15 +96,21 @@ namespace Elders.Cronus.EventStore.Index.Handlers
         [DataMember(Order = 2)]
         public DateTime PublishAt { get; set; }
 
+        [DataMember(Order = 3)]
+        public DateTimeOffset Timestamp { get; private set; }
+
         public string Tenant { get { return EventStoreIndexRequest.Id.Tenant; } }
     }
 
     [DataContract(Name = "4f6c585f-31c7-4bcb-867c-2c38071c29f3")]
-    public class EventStoreIndexRebuildTimedout : ISystemScheduledMessage
+    public sealed class EventStoreIndexRebuildTimedout : ISystemScheduledMessage
     {
-        EventStoreIndexRebuildTimedout() { }
+        EventStoreIndexRebuildTimedout()
+        {
+            Timestamp = DateTimeOffset.UtcNow;
+        }
 
-        public EventStoreIndexRebuildTimedout(EventStoreIndexRequested eventStoreIndexRequest, DateTime publishAt)
+        public EventStoreIndexRebuildTimedout(EventStoreIndexRequested eventStoreIndexRequest, DateTime publishAt) : this()
         {
             EventStoreIndexRequest = eventStoreIndexRequest;
             PublishAt = publishAt;
@@ -112,6 +121,9 @@ namespace Elders.Cronus.EventStore.Index.Handlers
 
         [DataMember(Order = 2)]
         public DateTime PublishAt { get; set; }
+
+        [DataMember(Order = 2)]
+        public DateTimeOffset Timestamp { get; private set; }
 
         public string Tenant { get { return EventStoreIndexRequest.Id.Tenant; } }
     }

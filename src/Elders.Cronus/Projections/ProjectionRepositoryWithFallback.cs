@@ -54,18 +54,13 @@ namespace Elders.Cronus.Projections
             return ExecuteWithFallbackAsync(repo => repo.GetAsync<T>(projectionId));
         }
 
-        public Task<ReadResult<IProjectionDefinition>> GetAsync(IBlobId projectionId, Type projectionType)
-        {
-            return ExecuteWithFallbackAsync(repo => repo.GetAsync(projectionId, projectionType));
-        }
-
         public async Task SaveAsync(Type projectionType, CronusMessage cronusMessage)
         {
             var reporter = new FallbackReporter(this, projectionType);
 
             try
             {
-                await primary.SaveAsync(projectionType, cronusMessage).ConfigureAwait(false);
+                await primary.SaveAsync(projectionType, cronusMessage.Payload as IEvent).ConfigureAwait(false);
                 reporter.PrimaryWriteOK();
             }
             catch (Exception ex)
@@ -77,7 +72,7 @@ namespace Elders.Cronus.Projections
             {
                 try
                 {
-                    await fallback.SaveAsync(projectionType, cronusMessage).ConfigureAwait(false);
+                    await fallback.SaveAsync(projectionType, cronusMessage.Payload as IEvent).ConfigureAwait(false);
                     reporter.FallbackWriteOK();
                 }
                 catch (Exception ex)
@@ -89,13 +84,13 @@ namespace Elders.Cronus.Projections
             reporter.ReportAndThrowIfError();
         }
 
-        public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin)
+        public async Task SaveAsync(Type projectionType, IEvent @event)
         {
             var reporter = new FallbackReporter(this, projectionType);
 
             try
             {
-                await primary.SaveAsync(projectionType, @event, eventOrigin).ConfigureAwait(false);
+                await primary.SaveAsync(projectionType, @event).ConfigureAwait(false);
                 reporter.PrimaryWriteOK();
             }
             catch (Exception ex)
@@ -106,7 +101,7 @@ namespace Elders.Cronus.Projections
             {
                 try
                 {
-                    await fallback.SaveAsync(projectionType, @event, eventOrigin).ConfigureAwait(false);
+                    await fallback.SaveAsync(projectionType, @event).ConfigureAwait(false);
                     reporter.FallbackWriteOK();
                 }
                 catch (Exception ex)
@@ -118,9 +113,9 @@ namespace Elders.Cronus.Projections
             reporter.ReportAndThrowIfError();
         }
 
-        public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
+        public async Task SaveAsync(Type projectionType, IEvent @event, ProjectionVersion version)
         {
-            await primary.SaveAsync(projectionType, @event, eventOrigin, version).ConfigureAwait(false);
+            await primary.SaveAsync(projectionType, @event, version).ConfigureAwait(false);
             // this method is specific for the ProjectionsPlayer and it does not make sense to execute the fallback. We need to rethink this
         }
 

@@ -1,3 +1,5 @@
+using System;
+
 namespace Elders.Cronus.Tests.TestModel
 {
     public class TestCreatePublicEvent : IPublicEvent
@@ -11,6 +13,8 @@ namespace Elders.Cronus.Tests.TestModel
         public TestAggregateId Id { get; set; }
 
         public string Tenant { get; set; }
+
+        public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
     }
 
     public class TestCreateEntityPublicEvent : IPublicEvent
@@ -24,5 +28,7 @@ namespace Elders.Cronus.Tests.TestModel
         public TestEntityId EntityId { get; set; }
 
         public string Tenant { get; set; }
+
+        public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
     }
 }

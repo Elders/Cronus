@@ -2,11 +2,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
-using Elders.Cronus.Projections.Snapshotting;
 using Elders.Cronus.Projections.Versioning;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
-
 
 namespace Elders.Cronus.Projections
 {
@@ -20,42 +18,24 @@ namespace Elders.Cronus.Projections
 
         private readonly ICronusContextAccessor contextAccessor;
         readonly IProjectionStore projectionStore;
-        readonly ISnapshotStore snapshotStore;
-        readonly ISnapshotStrategy snapshotStrategy;
         private readonly IHandlerFactory handlerFactory;
         private readonly ProjectionHasher projectionHasher;
 
-        public ProjectionRepository(ICronusContextAccessor contextAccessor, IProjectionStore projectionStore, ISnapshotStore snapshotStore, ISnapshotStrategy snapshotStrategy, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
+        public ProjectionRepository(ICronusContextAccessor contextAccessor, IProjectionStore projectionStore, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
         {
             if (contextAccessor is null) throw new ArgumentException(nameof(contextAccessor));
             if (projectionStore is null) throw new ArgumentException(nameof(projectionStore));
-            if (snapshotStore is null) throw new ArgumentException(nameof(snapshotStore));
-            if (snapshotStrategy is null) throw new ArgumentException(nameof(snapshotStrategy));
 
             this.contextAccessor = contextAccessor;
             this.projectionStore = projectionStore;
-            this.snapshotStore = snapshotStore;
-            this.snapshotStrategy = snapshotStrategy;
             this.handlerFactory = handlerFactory;
             this.projectionHasher = projectionHasher;
         }
 
-        public async Task SaveAsync(Type projectionType, CronusMessage cronusMessage)
-        {
-            if (projectionType is null) throw new ArgumentNullException(nameof(projectionType));
-            if (cronusMessage is null) throw new ArgumentNullException(nameof(cronusMessage));
-
-            EventOrigin eventOrigin = cronusMessage.GetEventOrigin();
-            IEvent @event = cronusMessage.Payload as IEvent;
-
-            await SaveAsync(projectionType, @event, eventOrigin).ConfigureAwait(false); ;
-        }
-
-        public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin)
+        public async Task SaveAsync(Type projectionType, IEvent @event)
         {
             if (projectionType is null) throw new ArgumentNullException(nameof(projectionType));
             if (@event is null) throw new ArgumentNullException(nameof(@event));
-            if (eventOrigin is null) throw new ArgumentNullException(nameof(eventOrigin));
 
             string projectionName = projectionType.GetContractId();
             IHandlerInstance handlerInstance = handlerFactory.Create(projectionType);
@@ -79,7 +59,7 @@ namespace Elders.Cronus.Projections
                                 {
                                     if (ShouldSaveEventForVersion(version))
                                     {
-                                        Task task = PersistAsync(projectionType, projectionName, projectionId, version, @event, eventOrigin);
+                                        Task task = PersistAsync(projectionId, version, @event);
                                         tasks.Add(task);
                                     }
                                 }
@@ -96,7 +76,7 @@ namespace Elders.Cronus.Projections
         }
 
         // Used by replay projections only
-        public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
+        public async Task SaveAsync(Type projectionType, IEvent @event, ProjectionVersion version)
         {
             if (projectionType is null) throw new ArgumentNullException(nameof(projectionType));
             if (@event is null) throw new ArgumentNullException(nameof(@event));
@@ -121,7 +101,7 @@ namespace Elders.Cronus.Projections
                 List<Task> tasks = new List<Task>();
                 foreach (var projectionId in projectionIds)
                 {
-                    Task task = PersistAsync(projectionType, projectionName, projectionId, version, @event, eventOrigin);
+                    Task task = PersistAsync(projectionId, version, @event);
                     tasks.Add(task);
                 }
                 await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -132,7 +112,7 @@ namespace Elders.Cronus.Projections
                 {
                     var projectionId = new Urn($"urn:cronus:{projectionName}");
 
-                    var commit = new ProjectionCommit(projectionId, version, @event, 1, eventOrigin, DateTime.FromFileTime(eventOrigin.Timestamp)); // Snapshotting is disable till we test it => hardcoded 1
+                    var commit = new ProjectionCommitPreview(projectionId, version, @event);
                     await projectionStore.SaveAsync(commit).ConfigureAwait(false);
                 }
                 catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex))) { }
@@ -152,7 +132,7 @@ namespace Elders.Cronus.Projections
 
                 try
                 {
-                    ProjectionStream stream = await LoadProjectionStreamAsync(projectionType, projectionId).ConfigureAwait(false);
+                    ProjectionStream stream = await LoadProjectionStreamAsync(projectionId, projectionType).ConfigureAwait(false);
                     var readResult = new ReadResult<T>(await stream.RestoreFromHistoryAsync<T>().ConfigureAwait(false));
                     if (readResult.NotFound)
                         LogProjectionInstanceNotFound(log, null);
@@ -162,31 +142,6 @@ namespace Elders.Cronus.Projections
                 catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionLoadError(log, ex)))
                 {
                     return ReadResult<T>.WithError(ex);
-                }
-            }
-        }
-
-        public async Task<ReadResult<IProjectionDefinition>> GetAsync(IBlobId projectionId, Type projectionType)
-        {
-            if (projectionId is null) throw new ArgumentNullException(nameof(projectionId));
-
-            using (log.BeginScope(s => s
-                       .AddScope(Log.ProjectionName, projectionType.GetContractId())
-                       .AddScope(Log.ProjectionType, projectionType.Name)
-                       .AddScope(Log.ProjectionInstanceId, projectionId.RawId)))
-            {
-                try
-                {
-                    ProjectionStream stream = await LoadProjectionStreamAsync(projectionType, projectionId);
-                    var readResult = new ReadResult<IProjectionDefinition>(await stream.RestoreFromHistoryAsync(projectionType).ConfigureAwait(false));
-                    if (readResult.NotFound)
-                        LogProjectionInstanceNotFound(log, null);
-
-                    return readResult;
-                }
-                catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionLoadError(log, ex)))
-                {
-                    return ReadResult<IProjectionDefinition>.WithError(ex);
                 }
             }
         }
@@ -202,14 +157,11 @@ namespace Elders.Cronus.Projections
             return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
         }
 
-        private async Task PersistAsync(Type projectionType, string projectionName, IBlobId projectionId, ProjectionVersion version, IEvent @event, EventOrigin eventOrigin)
+        private async Task PersistAsync(IBlobId projectionId, ProjectionVersion version, IEvent @event)
         {
             try
             {
-                SnapshotMeta snapshotMeta = await GetSnapshotMeta(projectionType, projectionName, projectionId, version).ConfigureAwait(false);
-                int snapshotMarker = snapshotMeta.Revision == 0 ? 1 : snapshotMeta.Revision + 2;
-
-                var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.FromFileTime(eventOrigin.Timestamp));
+                var commit = new ProjectionCommitPreview(projectionId, version, @event);
                 await projectionStore.SaveAsync(commit).ConfigureAwait(false);
             }
             catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex))) { }
@@ -224,7 +176,7 @@ namespace Elders.Cronus.Projections
 
                 ProjectionVersionManagerId versionId = new ProjectionVersionManagerId(projectionName, contextAccessor.CronusContext.Tenant);
                 ProjectionVersion persistentVersion = new ProjectionVersion(projectionVersions_ProjectionName, ProjectionStatus.Live, 1, projectionHasher.CalculateHash(persistentVersionType));
-                ProjectionStream stream = await LoadProjectionStreamAsync(persistentVersionType, persistentVersion, versionId, new NoSnapshot(versionId, projectionVersions_ProjectionName).GetMeta()).ConfigureAwait(false);
+                ProjectionStream stream = await LoadProjectionStreamAsync(versionId, persistentVersion).ConfigureAwait(false);
                 ProjectionVersionsHandler queryResult = await stream.RestoreFromHistoryAsync<ProjectionVersionsHandler>().ConfigureAwait(false);
 
                 return new ReadResult<ProjectionVersionsHandler>(queryResult);
@@ -235,63 +187,21 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        private async Task<ProjectionStream> LoadProjectionStreamAsync(Type projectionType, ProjectionVersion version, IBlobId projectionId, SnapshotMeta snapshotMeta)
+        private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, ProjectionVersion version)
         {
-            ISnapshot loadedSnapshot = await snapshotStore.LoadAsync(version.ProjectionName, projectionId, version).ConfigureAwait(false);
+            List<ProjectionCommitPreview> projectionCommits = new List<ProjectionCommitPreview>();
 
-            Func<ISnapshot> loadSnapshot = () => projectionType.IsSnapshotable()
-                ? loadedSnapshot
-                : new NoSnapshot(projectionId, version.ProjectionName);
-
-            return await LoadProjectionStreamAsync(version, projectionId, snapshotMeta, loadSnapshot).ConfigureAwait(false);
-        }
-
-        private async Task<ProjectionStream> LoadProjectionStreamAsync(ProjectionVersion version, IBlobId projectionId, SnapshotMeta snapshotMeta, Func<ISnapshot> loadSnapshot)
-        {
-            List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
-            int snapshotMarker = snapshotMeta.Revision;
-
-            bool shouldLoadMore = true;
-            while (shouldLoadMore)
+            var loadedCommits = projectionStore.LoadAsync(version, projectionId).ConfigureAwait(false);
+            await foreach (var commit in loadedCommits)
             {
-                snapshotMarker++;
-                var loadedCommits = projectionStore.LoadAsync(version, projectionId, snapshotMarker).ConfigureAwait(false);
-                await foreach (var commit in loadedCommits)
-                {
-                    projectionCommits.Add(commit);
-                }
-
-                shouldLoadMore = await projectionStore.HasSnapshotMarkerAsync(version, projectionId, snapshotMarker + 1).ConfigureAwait(false);
+                projectionCommits.Add(commit);
             }
 
-            ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
+            ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits);
             return stream;
         }
 
-        private async Task<ProjectionStream> LoadProjectionStreamAsync(ProjectionVersion version, IBlobId projectionId, ISnapshot snapshot)
-        {
-            bool shouldLoadMore = true;
-            Func<ISnapshot> loadSnapshot = () => snapshot;
-
-            List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
-            int snapshotMarker = snapshot.Revision;
-            while (shouldLoadMore)
-            {
-                snapshotMarker++;
-
-                var loadProjectionCommits = projectionStore.LoadAsync(version, projectionId, snapshotMarker).ConfigureAwait(false);
-                bool checkNextSnapshotMarker = await projectionStore.HasSnapshotMarkerAsync(version, projectionId, snapshotMarker + 1).ConfigureAwait(false);
-                shouldLoadMore = checkNextSnapshotMarker;
-
-                await foreach (var commit in loadProjectionCommits)
-                    projectionCommits.Add(commit);
-            }
-
-            ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits, loadSnapshot);
-            return stream;
-        }
-
-        private async Task<ProjectionStream> LoadProjectionStreamAsync(Type projectionType, IBlobId projectionId)
+        private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, Type projectionType)
         {
             string projectionName = projectionType.GetContractId();
 
@@ -305,11 +215,7 @@ namespace Elders.Cronus.Projections
                     return ProjectionStream.Empty();
                 }
 
-                ISnapshot snapshot = projectionType.IsSnapshotable()
-                    ? await snapshotStore.LoadAsync(projectionName, projectionId, liveVersion).ConfigureAwait(false)
-                    : new NoSnapshot(projectionId, projectionName);
-
-                return await LoadProjectionStreamAsync(liveVersion, projectionId, snapshot).ConfigureAwait(false);
+                return await LoadProjectionStreamAsync(projectionId, liveVersion).ConfigureAwait(false);
             }
             else if (result.NotFound)
             {
@@ -326,17 +232,6 @@ namespace Elders.Cronus.Projections
         private bool ShouldSaveEventForVersion(ProjectionVersion version)
         {
             return version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Replaying || version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Live;
-        }
-
-        private async Task<SnapshotMeta> GetSnapshotMeta(Type projectionType, string projectionName, IBlobId projectionId, ProjectionVersion version)
-        {
-            SnapshotMeta snapshotMeta;
-            if (projectionType.IsSnapshotable())
-                snapshotMeta = await snapshotStore.LoadMetaAsync(projectionName, projectionId, version).ConfigureAwait(false);
-            else
-                snapshotMeta = new NoSnapshot(projectionId, projectionName).GetMeta();
-
-            return snapshotMeta;
         }
     }
 }

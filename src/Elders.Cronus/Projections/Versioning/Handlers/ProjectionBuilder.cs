@@ -68,12 +68,15 @@ namespace Elders.Cronus.Projections.Versioning
         }
     }
 
-    [DataContract(Name = "029602fa-db90-47a4-9c8b-c304d5ee177a")]
-    public class CreateNewProjectionVersion : ISystemScheduledMessage
+    [DataContract(Namespace = "cronus", Name = "029602fa-db90-47a4-9c8b-c304d5ee177a")]
+    public sealed class CreateNewProjectionVersion : ISystemScheduledMessage
     {
-        CreateNewProjectionVersion() { }
+        CreateNewProjectionVersion()
+        {
+            Timestamp = DateTimeOffset.UtcNow;
+        }
 
-        public CreateNewProjectionVersion(ProjectionVersionRequested projectionVersionRequest, DateTime publishAt)
+        public CreateNewProjectionVersion(ProjectionVersionRequested projectionVersionRequest, DateTime publishAt) : this()
         {
             ProjectionVersionRequest = projectionVersionRequest;
             PublishAt = publishAt;
@@ -84,16 +87,22 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 2)]
         public DateTime PublishAt { get; set; }
+
+        [DataMember(Order = 3)]
+        public DateTimeOffset Timestamp { get; private set; }
 
         public string Tenant { get { return ProjectionVersionRequest.Id.Tenant; } }
     }
 
-    [DataContract(Name = "11c1ae7d-04f4-4266-a21e-78ddc440d68b")]
-    public class ProjectionVersionRequestHeartbeat : ISystemScheduledMessage
+    [DataContract(Namespace = "cronus", Name = "11c1ae7d-04f4-4266-a21e-78ddc440d68b")]
+    public sealed class ProjectionVersionRequestHeartbeat : ISystemScheduledMessage
     {
-        ProjectionVersionRequestHeartbeat() { }
+        ProjectionVersionRequestHeartbeat()
+        {
+            Timestamp = DateTimeOffset.UtcNow;
+        }
 
-        public ProjectionVersionRequestHeartbeat(ProjectionVersionRequested projectionVersionRequest, DateTime publishAt)
+        public ProjectionVersionRequestHeartbeat(ProjectionVersionRequested projectionVersionRequest, DateTime publishAt) : this()
         {
             ProjectionVersionRequest = projectionVersionRequest;
             PublishAt = publishAt;
@@ -104,6 +113,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 2)]
         public DateTime PublishAt { get; set; }
+
+        [DataMember(Order = 2)]
+        public DateTimeOffset Timestamp { get; private set; }
 
         public string Tenant { get { return ProjectionVersionRequest.Id.Tenant; } }
     }
