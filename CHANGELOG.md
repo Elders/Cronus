@@ -1,3 +1,10 @@
+## [9.1.5](https://github.com/Elders/Cronus/compare/v9.1.4...v9.1.5) (2023-10-19)
+
+
+### Bug Fixes
+
+* Changes the life time for migration classes from transient to singleton. Hope this helps with some memory leaks ([f17475c](https://github.com/Elders/Cronus/commit/f17475ca95a40c53b0d0ee824132cda919fa794b))
+
 ## [9.1.4](https://github.com/Elders/Cronus/compare/v9.1.3...v9.1.4) (2023-10-06)
 
 
