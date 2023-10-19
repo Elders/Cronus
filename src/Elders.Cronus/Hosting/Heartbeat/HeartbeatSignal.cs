@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.Hosting.Heartbeat
 {
     [DataContract(Namespace = "cronus", Name = "c80739a6-b5dc-483e-8c11-06a85542416e")]
-    public class HeartbeatSignal : ISignal
+    public sealed class HeartbeatSignal : ISignal
     {
         HeartbeatSignal() { }
 
@@ -20,7 +20,6 @@ namespace Elders.Cronus.Hosting.Heartbeat
         }
 
         [DataMember(Order = 0)]
-
         public string Tenant { get; private set; }
 
         [DataMember(Order = 1)]
