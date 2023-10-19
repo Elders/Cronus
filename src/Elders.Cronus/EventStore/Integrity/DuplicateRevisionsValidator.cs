@@ -2,11 +2,11 @@
 using System.Linq;
 using Elders.Cronus.IntegrityValidation;
 
-namespace Elders.Cronus.EventStore
+namespace Elders.Cronus.EventStore.Integrity
 {
-    public class DuplicateRevisionsValidator : IValidator<EventStream>
+    public sealed class DuplicateRevisionsValidator : IValidator<EventStream>
     {
-        public uint PriorityLevel { get { return 100; } }
+        public uint PriorityLevel => 100;
 
         public int CompareTo(IValidator<EventStream> other)
         {
@@ -16,7 +16,7 @@ namespace Elders.Cronus.EventStore
         public IValidatorResult Validate(EventStream candidate)
         {
             var possibleConflicts = candidate.Commits
-                .GroupBy(x => x.Revision).ToList()
+                .GroupBy(x => x.Revision)
                 .Where(g => g.Count() > 1);
 
             return new ValidatorResult(GetErrorMessages(possibleConflicts), nameof(DuplicateRevisionsValidator));

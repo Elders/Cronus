@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Integrity;
 using Elders.Cronus.IntegrityValidation;
 using Machine.Specifications;
 
@@ -16,11 +17,8 @@ namespace Elders.Cronus.Tests.ValidatorsAndResolvers
                 AggregateCommit commit2 = new AggregateCommit(aggregateId, 2, new List<Cronus.IEvent>(), new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
                 AggregateCommit commit3 = new AggregateCommit(aggregateId, 3, new List<Cronus.IEvent>(), new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
                 eventStream = new EventStream(new[] { commit1, commit3, commit2 });
-                duplicateRevisionsvalidator = new DuplicateRevisionsValidator();
 
                 integrityPolicy = new EventStreamIntegrityPolicy();
-                integrityPolicy.RegisterRule(new IntegrityRule<EventStream>(new MissingRevisionsValidator(), new EmptyResolver()));
-                integrityPolicy.RegisterRule(new IntegrityRule<EventStream>(new OrderedRevisionsValidator(), new UnorderedRevisionsResolver()));
             };
 
         Because of = () => integrityResult = integrityPolicy.Apply(eventStream);
@@ -28,7 +26,6 @@ namespace Elders.Cronus.Tests.ValidatorsAndResolvers
         It should_report_ = () => integrityResult.IsIntegrityViolated.ShouldBeFalse();
 
         static EventStream eventStream;
-        static DuplicateRevisionsValidator duplicateRevisionsvalidator;
         static EventStreamIntegrityPolicy integrityPolicy;
         static IntegrityResult<EventStream> integrityResult;
     }

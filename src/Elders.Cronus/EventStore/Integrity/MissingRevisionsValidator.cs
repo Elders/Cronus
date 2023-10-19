@@ -2,11 +2,11 @@
 using System.Linq;
 using Elders.Cronus.IntegrityValidation;
 
-namespace Elders.Cronus.EventStore
+namespace Elders.Cronus.EventStore.Integrity
 {
-    public class MissingRevisionsValidator : IValidator<EventStream>
+    public sealed class MissingRevisionsValidator : IValidator<EventStream>
     {
-        public uint PriorityLevel { get { return 300; } }
+        public uint PriorityLevel => 300;
 
         public int CompareTo(IValidator<EventStream> other)
         {

@@ -1,15 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.IntegrityValidation;
-using Microsoft.Extensions.Logging;
 
-namespace Elders.Cronus.EventStore
+namespace Elders.Cronus.EventStore.Integrity
 {
-    public class OrderedRevisionsValidator : IValidator<EventStream>
+    public sealed class OrderedRevisionsValidator : IValidator<EventStream>
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(OrderedRevisionsValidator));
-
-        public uint PriorityLevel { get { return 200; } }
+        public uint PriorityLevel => 200;
 
         public int CompareTo(IValidator<EventStream> other)
         {
@@ -24,27 +21,17 @@ namespace Elders.Cronus.EventStore
         private IEnumerable<string> GetErrorMessages(EventStream eventStream)
         {
             int previousRevision = 0;
-            foreach (var current in eventStream.Commits)
+            foreach (AggregateCommit current in eventStream.Commits)
             {
                 if (previousRevision > current.Revision)
-                {
-                    if (logger.IsDebugEnabled())
-                    {
-                        yield return $"Unordered event stream. Expected revision `{previousRevision}` but received revision `{current.Revision}`";
-                    }
-                    else
-                    {
-                        yield return "DEBUG logging is turned off. In order to see detailed messages please enable DEBUG log level.";
-                        break;
-                    }
-                }
+                    yield return $"Unordered event stream. Expected revision `{previousRevision}` but received revision `{current.Revision}`";
 
                 previousRevision = current.Revision;
             }
         }
     }
 
-    public class UnorderedRevisionsResolver : IResolver<EventStream>
+    public sealed class UnorderedRevisionsResolver : IResolver<EventStream>
     {
         public uint PriorityLevel { get { return 100; } }
 

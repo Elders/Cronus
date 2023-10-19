@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Integrity;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.DependencyInjection;
@@ -58,7 +59,7 @@ namespace Elders.Cronus.Discoveries
 
         protected virtual IEnumerable<DiscoveredModel> DiscoverEventStreamIntegrityPolicy<TIntegrityPolicy>(DiscoveryContext context) where TIntegrityPolicy : IIntegrityPolicy<EventStream>
         {
-            return DiscoverModel<IIntegrityPolicy<EventStream>, TIntegrityPolicy>(ServiceLifetime.Transient);
+            return DiscoverModel<IIntegrityPolicy<EventStream>, TIntegrityPolicy>(ServiceLifetime.Singleton);
         }
     }
 }

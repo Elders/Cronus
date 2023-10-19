@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Integrity;
 using Elders.Cronus.IntegrityValidation;
 using Machine.Specifications;
 
