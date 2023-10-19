@@ -18,17 +18,17 @@ public class MigrationsDiscovery : HandlersDiscovery<IMigrationHandler>
 
     protected virtual IEnumerable<DiscoveredModel> DiscoverCustomLogic(DiscoveryContext context)
     {
-        yield return new DiscoveredModel(typeof(IMigrationCustomLogic), typeof(NoCustomLogic), ServiceLifetime.Transient)
+        yield return new DiscoveredModel(typeof(IMigrationCustomLogic), typeof(NoCustomLogic), ServiceLifetime.Singleton)
         {
             CanOverrideDefaults = true
         };
 
-        yield return new DiscoveredModel(typeof(ICronusMigrator), typeof(NoCronusMigrator), ServiceLifetime.Transient)
+        yield return new DiscoveredModel(typeof(ICronusMigrator), typeof(NoCronusMigrator), ServiceLifetime.Singleton)
         {
             CanOverrideDefaults = true
         };
 
-        yield return new DiscoveredModel(typeof(CronusMigrator), typeof(CronusMigrator), ServiceLifetime.Transient)
+        yield return new DiscoveredModel(typeof(CronusMigrator), typeof(CronusMigrator), ServiceLifetime.Singleton)
         {
             CanOverrideDefaults = true
         };
