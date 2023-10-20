@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore
@@ -17,12 +16,6 @@ namespace Elders.Cronus.EventStore
 
     public interface IEventStorePlayer
     {
-        /// <summary>
-        /// Loads all aggregate commits. The commits are unordered.
-        /// </summary>
-        [Obsolete("Will be removed in v10")]
-        IAsyncEnumerable<AggregateCommit> LoadAggregateCommitsAsync(int batchSize = 5000);
-
         /// <summary>
         /// Loads all aggregate commits. The commits are unordered.
         /// </summary>

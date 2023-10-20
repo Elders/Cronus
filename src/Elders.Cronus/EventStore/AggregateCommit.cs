@@ -42,7 +42,7 @@ namespace Elders.Cronus.EventStore
         [DataMember(Order = 1)]
         public byte[] AggregateRootId { get; private set; }
 
-        [Obsolete]
+        [Obsolete("Do not use this.", true)]
         [DataMember(Order = 2)]
         string BoundedContext { get; set; }
 
