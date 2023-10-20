@@ -1,3 +1,5 @@
+# [10.0.0-preview.2](https://github.com/Elders/Cronus/compare/v10.0.0-preview.1...v10.0.0-preview.2) (2023-10-20)
+
 # [10.0.0-preview.1](https://github.com/Elders/Cronus/compare/v9.1.5...v10.0.0-preview.1) (2023-10-20)
 
 
