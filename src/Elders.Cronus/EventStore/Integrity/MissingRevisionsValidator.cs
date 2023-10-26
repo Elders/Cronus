@@ -20,7 +20,7 @@ namespace Elders.Cronus.EventStore.Integrity
 
         private IEnumerable<string> GetErrorMessages(EventStream eventStream)
         {
-            int maxRevision = eventStream.Commits.Max(r => r.Revision);
+            int maxRevision = eventStream.Commits.Any() ? eventStream.Commits.Max(r => r.Revision) : 0;
 
             for (int expectedRevision = 1; expectedRevision <= maxRevision; expectedRevision++)
             {
