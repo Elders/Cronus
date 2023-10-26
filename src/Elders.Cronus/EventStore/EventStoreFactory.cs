@@ -2,11 +2,6 @@
 
 namespace Elders.Cronus.EventStore
 {
-    public interface IEventStoreFactory
-    {
-        IEventStore GetEventStore();
-    }
-
     public sealed class EventStoreFactory
     {
         private readonly IEventStore eventStore;
