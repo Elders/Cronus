@@ -1,3 +1,10 @@
+# [10.0.0-preview.3](https://github.com/Elders/Cronus/compare/v10.0.0-preview.2...v10.0.0-preview.3) (2023-10-26)
+
+
+### Bug Fixes
+
+* Removes the IEventStoreFactory ([bcd94ae](https://github.com/Elders/Cronus/commit/bcd94ae5f3bae348257c5f70cb26d15c7b1f8506))
+
 # [10.0.0-preview.2](https://github.com/Elders/Cronus/compare/v10.0.0-preview.1...v10.0.0-preview.2) (2023-10-20)
 
 # [10.0.0-preview.1](https://github.com/Elders/Cronus/compare/v9.1.5...v10.0.0-preview.1) (2023-10-20)
