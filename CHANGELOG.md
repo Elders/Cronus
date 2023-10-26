@@ -1,3 +1,10 @@
+# [10.0.0-preview.4](https://github.com/Elders/Cronus/compare/v10.0.0-preview.3...v10.0.0-preview.4) (2023-10-26)
+
+
+### Bug Fixes
+
+* Fixes revision check when generating error log ([0a5016d](https://github.com/Elders/Cronus/commit/0a5016ddcfd72c885e2f8c81eea8a61f77873c21))
+
 # [10.0.0-preview.3](https://github.com/Elders/Cronus/compare/v10.0.0-preview.2...v10.0.0-preview.3) (2023-10-26)
 
 
