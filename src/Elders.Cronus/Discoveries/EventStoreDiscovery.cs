@@ -14,7 +14,7 @@ public class EventStoreDiscovery : DiscoveryBase<IEventStore>
            .Concat(new[] {
                 new DiscoveredModel(typeof(IAggregateInterceptor), typeof(EmptyAggregateTransformer), ServiceLifetime.Singleton),
                 new DiscoveredModel(typeof(EmptyAggregateTransformer), typeof(EmptyAggregateTransformer), ServiceLifetime.Singleton),
-                new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Scoped),
+                new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Transient),
                 new DiscoveredModel(typeof(EventLookupInByteArray), typeof(EventLookupInByteArray), ServiceLifetime.Singleton)
            });
 
