@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections
 {
-    public interface IAmCanExecuteFallback
+    public interface ICanExecuteFallback
     {
         bool IsFallbackNested { get; set; }
     }
@@ -20,7 +20,7 @@ namespace Elders.Cronus.Projections
             : base(configuration, main, fallback) { }
     }
 
-    public class ProjectionRepositoryWithFallback<TPrimary, TFallback> : IProjectionReader, IProjectionWriter, IAmCanExecuteFallback
+    public class ProjectionRepositoryWithFallback<TPrimary, TFallback> : IProjectionReader, IProjectionWriter, ICanExecuteFallback
         where TPrimary : class, IProjectionReader, IProjectionWriter
         where TFallback : class, IProjectionReader, IProjectionWriter
     {
@@ -43,9 +43,9 @@ namespace Elders.Cronus.Projections
 
         void CheckAndMarkIfFallbackIsNested(TFallback fallback)
         {
-            if (typeof(IAmCanExecuteFallback).IsAssignableFrom(fallback.GetType()))
+            if (typeof(ICanExecuteFallback).IsAssignableFrom(fallback.GetType()))
             {
-                (fallback as IAmCanExecuteFallback).IsFallbackNested = true;
+                (fallback as ICanExecuteFallback).IsFallbackNested = true;
             }
         }
 
@@ -54,34 +54,9 @@ namespace Elders.Cronus.Projections
             return ExecuteWithFallbackAsync(repo => repo.GetAsync<T>(projectionId));
         }
 
-        public async Task SaveAsync(Type projectionType, CronusMessage cronusMessage)
+        public Task<ReadResult<IProjectionDefinition>> GetAsync(IBlobId projectionId, Type projectionType)
         {
-            var reporter = new FallbackReporter(this, projectionType);
-
-            try
-            {
-                await primary.SaveAsync(projectionType, cronusMessage.Payload as IEvent).ConfigureAwait(false);
-                reporter.PrimaryWriteOK();
-            }
-            catch (Exception ex)
-            {
-                reporter.PrimaryWriteFailed(ex, cronusMessage.Payload);
-            }
-
-            if (isFallbackEnabled)
-            {
-                try
-                {
-                    await fallback.SaveAsync(projectionType, cronusMessage.Payload as IEvent).ConfigureAwait(false);
-                    reporter.FallbackWriteOK();
-                }
-                catch (Exception ex)
-                {
-                    reporter.FallbackWriteFailed(ex, cronusMessage.Payload);
-                }
-            }
-
-            reporter.ReportAndThrowIfError();
+            return ExecuteWithFallbackAsync(repo => repo.GetAsync(projectionId, projectionType));
         }
 
         public async Task SaveAsync(Type projectionType, IEvent @event)

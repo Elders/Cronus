@@ -30,26 +30,11 @@ namespace Elders.Cronus.Projections
 
         public List<ProjectionCommitPreview> Commits { get; private set; }
 
-        public Task<IProjectionDefinition> RestoreFromHistoryAsync(Type projectionType)
+        public async Task<T> RestoreFromHistoryAsync<T>(T projection) where T : IProjectionDefinition
         {
             if (Commits.Count <= 0)
-                return Task.FromResult(default(IProjectionDefinition));
+                return default(T);
 
-            IProjectionDefinition projection = (IProjectionDefinition)FastActivator.CreateInstance(projectionType, true);
-            return RestoreFromHistoryMamamiaAsync(projection);
-        }
-
-        public Task<T> RestoreFromHistoryAsync<T>() where T : IProjectionDefinition
-        {
-            if (Commits.Count <= 0)
-                return Task.FromResult(default(T));
-
-            T projection = (T)FastActivator.CreateInstance(typeof(T), true);
-            return RestoreFromHistoryMamamiaAsync<T>(projection);
-        }
-
-        async Task<T> RestoreFromHistoryMamamiaAsync<T>(T projection) where T : IProjectionDefinition
-        {
             IEnumerable<IEvent> events = Commits
                 .Select(commit => commit.Event)
                 .OrderBy(@event => @event.Timestamp);

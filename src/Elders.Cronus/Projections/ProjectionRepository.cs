@@ -119,10 +119,18 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        public async Task<ReadResult<T>> GetAsync<T>(IBlobId projectionId) where T : IProjectionDefinition
+        public Task<ReadResult<T>> GetAsync<T>(IBlobId projectionId) where T : IProjectionDefinition
         {
-            Type projectionType = typeof(T);
+            return GetInternalAsync<T>(projectionId, typeof(T));
+        }
 
+        public Task<ReadResult<IProjectionDefinition>> GetAsync(IBlobId projectionId, Type projectionType)
+        {
+            return GetInternalAsync<IProjectionDefinition>(projectionId, projectionType);
+        }
+
+        private async Task<ReadResult<T>> GetInternalAsync<T>(IBlobId projectionId, Type projectionType) where T : IProjectionDefinition
+        {
             using (log.BeginScope(s => s
                        .AddScope(Log.ProjectionName, projectionType.GetContractId())
                        .AddScope(Log.ProjectionType, projectionType.Name)
@@ -133,7 +141,8 @@ namespace Elders.Cronus.Projections
                 try
                 {
                     ProjectionStream stream = await LoadProjectionStreamAsync(projectionId, projectionType).ConfigureAwait(false);
-                    var readResult = new ReadResult<T>(await stream.RestoreFromHistoryAsync<T>().ConfigureAwait(false));
+                    T projectionInstance = (T)FastActivator.CreateInstance(projectionType);
+                    var readResult = new ReadResult<T>(await stream.RestoreFromHistoryAsync(projectionInstance).ConfigureAwait(false));
                     if (readResult.NotFound)
                         LogProjectionInstanceNotFound(log, null);
 
@@ -177,9 +186,10 @@ namespace Elders.Cronus.Projections
                 ProjectionVersionManagerId versionId = new ProjectionVersionManagerId(projectionName, contextAccessor.CronusContext.Tenant);
                 ProjectionVersion persistentVersion = new ProjectionVersion(projectionVersions_ProjectionName, ProjectionStatus.Live, 1, projectionHasher.CalculateHash(persistentVersionType));
                 ProjectionStream stream = await LoadProjectionStreamAsync(versionId, persistentVersion).ConfigureAwait(false);
-                ProjectionVersionsHandler queryResult = await stream.RestoreFromHistoryAsync<ProjectionVersionsHandler>().ConfigureAwait(false);
+                ProjectionVersionsHandler projectionInstance = new ProjectionVersionsHandler();
+                projectionInstance = await stream.RestoreFromHistoryAsync(projectionInstance).ConfigureAwait(false);
 
-                return new ReadResult<ProjectionVersionsHandler>(queryResult);
+                return new ReadResult<ProjectionVersionsHandler>(projectionInstance);
             }
             catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionLoadError(log, ex)))
             {
