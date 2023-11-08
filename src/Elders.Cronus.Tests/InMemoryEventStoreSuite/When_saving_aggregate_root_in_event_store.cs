@@ -5,6 +5,7 @@ using Elders.Cronus.EventStore;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.AtomicAction.InMemory;
 using Elders.Cronus.IntegrityValidation;
+using System.Collections.Generic;
 
 namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 {
@@ -19,7 +20,7 @@ namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
             eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
             integrityPpolicy = new EventStreamIntegrityPolicy();
             eventStoreFactory = new EventStoreFactory(eventStore, null);
-            aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy, new EmptyAggregateTransformer());
+            aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy, new CronusAggregateCommitInterceptor(new List<EmptyAggregateTransformer>()));
             id = new TestAggregateId();
             aggregateRoot = new TestAggregateRoot(id);
         };

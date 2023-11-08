@@ -25,6 +25,10 @@ namespace Elders.Cronus.EventStore
             PublicEvents = new List<IPublicEvent>();
         }
 
+        public AggregateCommit(AggregateCommit sourceToCopy) : this(sourceToCopy.AggregateRootId,sourceToCopy.Revision,sourceToCopy.Events, sourceToCopy.PublicEvents,sourceToCopy.Timestamp)
+        {
+        }
+
         public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents, long timestamp)
         {
             if (revision < 1) throw new ArgumentOutOfRangeException(nameof(revision), revision, "Aggregate commit revision is out of range.");

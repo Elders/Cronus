@@ -12,9 +12,9 @@ namespace Elders.Cronus.EventStore
         readonly IAggregateRootAtomicAction atomicAction;
         readonly IEventStore eventStore;
         readonly IIntegrityPolicy<EventStream> integrityPolicy;
-        private readonly IAggregateInterceptor aggregateInterceptor;
+        private readonly CronusAggregateCommitInterceptor aggregateInterceptor;
 
-        public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy, IAggregateInterceptor aggregateInterceptor)
+        public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy, CronusAggregateCommitInterceptor aggregateInterceptor)
         {
             if (eventStoreFactory is null) throw new ArgumentNullException(nameof(eventStoreFactory));
             if (atomicAction is null) throw new ArgumentNullException(nameof(atomicAction));
@@ -70,7 +70,7 @@ namespace Elders.Cronus.EventStore
             }
 
             var arCommit = new AggregateCommit(aggregateRoot.State.Id.RawId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList(), DateTime.UtcNow.ToFileTimeUtc());
-            arCommit = aggregateInterceptor.Transform(arCommit);
+            arCommit = await aggregateInterceptor.OnAppendingAsync(arCommit).ConfigureAwait(false);
 
             var result = await atomicAction.ExecuteAsync(aggregateRoot.State.Id, aggregateRoot.Revision, async () => await eventStore.AppendAsync(arCommit).ConfigureAwait(false)).ConfigureAwait(false);
 
@@ -79,6 +79,8 @@ namespace Elders.Cronus.EventStore
                 // #prodalzavameNapred
                 // #bravoKobra
                 // https://www.youtube.com/watch?v=2wWusHu_3w8
+
+                await aggregateInterceptor.OnAppendAsync(arCommit).ConfigureAwait(false);
 
                 return arCommit;
             }
