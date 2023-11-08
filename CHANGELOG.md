@@ -1,3 +1,11 @@
+# [9.2.0](https://github.com/Elders/Cronus/compare/v9.1.5...v9.2.0) (2023-11-08)
+
+
+### Features
+
+* Adds ability to have multiple aggregate commit interceptors ([5fe1e07](https://github.com/Elders/Cronus/commit/5fe1e071aa5e2052213d68dc21bdf18a3a3899f3))
+* Adds sorting order to paging options ([602ab16](https://github.com/Elders/Cronus/commit/602ab16ce056ea1ee2ace05633d92e2b067e232e))
+
 ## [9.1.5](https://github.com/Elders/Cronus/compare/v9.1.4...v9.1.5) (2023-10-19)
 
 
