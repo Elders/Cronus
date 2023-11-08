@@ -9,7 +9,7 @@ namespace Elders.Cronus.EventStore
         Task AppendAsync(AggregateEventRaw eventRaw);
         Task<EventStream> LoadAsync(IBlobId aggregateId);
         Task<bool> DeleteAsync(AggregateEventRaw eventRaw);
-        Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingDescendingAsync(IBlobId aggregateId, PagingOptions pagingOptions);
+        Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingAsync(IBlobId aggregateId, PagingOptions pagingOptions);
         Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord);
     }
 

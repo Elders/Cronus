@@ -37,7 +37,7 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
         {
             throw new System.NotImplementedException();
         }
-        public Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingDescendingAsync(IBlobId aggregateId, PagingOptions pagingOptions)
+        public Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingAsync(IBlobId aggregateId, PagingOptions pagingOptions)
         {
             throw new System.NotImplementedException();
         }

@@ -76,11 +76,11 @@ namespace Elders.Cronus.EventStore
             }
         }
 
-        public async Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingDescendingAsync(IBlobId aggregateId, PagingOptions pagingOptions)
+        public async Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingAsync(IBlobId aggregateId, PagingOptions pagingOptions)
         {
             try
             {
-                return await eventStore.LoadWithPagingDescendingAsync(aggregateId, pagingOptions).ConfigureAwait(false);
+                return await eventStore.LoadWithPagingAsync(aggregateId, pagingOptions).ConfigureAwait(false);
             }
             catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId} and Paging options {pagingOptions}. \n Exception: {ex.Message}"))
             {
