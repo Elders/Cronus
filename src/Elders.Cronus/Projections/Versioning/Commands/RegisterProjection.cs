@@ -4,12 +4,16 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Name = "d54d6def-2c33-4d19-9009-26ae357d6fc2")]
-    public class RegisterProjection : ISystemCommand
+    [DataContract(Namespace = "cronus", Name = "d54d6def-2c33-4d19-9009-26ae357d6fc2")]
+    public sealed class RegisterProjection : ISystemCommand
     {
-        RegisterProjection() { ReplayEventsOptions = new ReplayEventsOptions(); }
+        RegisterProjection()
+        {
+            ReplayEventsOptions = new ReplayEventsOptions();
+            Timestamp = DateTimeOffset.UtcNow;
+        }
 
-        public RegisterProjection(ProjectionVersionManagerId id, string hash)
+        public RegisterProjection(ProjectionVersionManagerId id, string hash) : this()
         {
             if (id is null) throw new ArgumentNullException(nameof(id));
             // if (string.IsNullOrEmpty(hash)) throw new ArgumentNullException(nameof(hash));
@@ -27,6 +31,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 3)]
         public ReplayEventsOptions ReplayEventsOptions { get; private set; }
+
+        [DataMember(Order = 4)]
+        public DateTimeOffset Timestamp { get; private set; }
 
         public override string ToString()
         {

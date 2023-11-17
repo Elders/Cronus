@@ -1,6 +1,6 @@
 ﻿namespace Elders.Cronus.IntegrityValidation
 {
-    public class IntegrityResult<T>
+    public sealed class IntegrityResult<T>
     {
         public IntegrityResult(T output, bool isIntegrityViolated)
         {

@@ -28,13 +28,13 @@ namespace Elders.Cronus.EventStore
             }
         }
 
-        public async Task AppendAsync(AggregateEventRaw aggregateCommitRaw)
+        public async Task AppendAsync(AggregateEventRaw aggregateEventRaw)
         {
             try
             {
-                await eventStore.AppendAsync(aggregateCommitRaw).ConfigureAwait(false);
+                await eventStore.AppendAsync(aggregateEventRaw).ConfigureAwait(false);
             }
-            catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to append aggregate with id = {aggregateCommitRaw.AggregateRootId}. \n Exception: {ex.Message}"))
+            catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to append aggregate with id = {aggregateEventRaw.AggregateRootId}. \n Exception: {ex.Message}"))
             {
                 throw;
             }

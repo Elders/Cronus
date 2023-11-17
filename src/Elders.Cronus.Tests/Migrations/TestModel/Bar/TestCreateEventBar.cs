@@ -1,4 +1,5 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Migration.Middleware.Tests.TestModel.Bar
 {
@@ -12,5 +13,7 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel.Bar
 
         [DataMember(Order = 1)]
         public BarId Id { get; set; }
+
+        public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
     }
 }

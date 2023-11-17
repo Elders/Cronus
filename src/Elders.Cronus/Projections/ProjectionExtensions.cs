@@ -6,11 +6,6 @@ namespace Elders.Cronus.Projections
 {
     public static class ProjectionExtensions
     {
-        public static bool IsSnapshotable(this Type projectionType)
-        {
-            return typeof(Snapshotting.IAmSnapshotable).IsAssignableFrom(projectionType);
-        }
-
         public static bool IsProjectionVersionHandler(this string projectionName)
         {
             return projectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase);

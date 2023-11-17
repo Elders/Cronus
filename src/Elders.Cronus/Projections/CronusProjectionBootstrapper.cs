@@ -3,67 +3,10 @@ using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections
 {
-    public interface IProjectionVersionFinder
-    {
-        IEnumerable<ProjectionVersion> GetProjectionVersionsToBootstrap();
-    }
-
-    internal class ProjectionFinderViaReflection : IProjectionVersionFinder
-    {
-        private readonly TypeContainer<IProjection> allProjections;
-        private readonly ProjectionHasher hasher;
-
-        public ProjectionFinderViaReflection(TypeContainer<IProjection> allProjections, ProjectionHasher hasher)
-        {
-            this.allProjections = allProjections;
-            this.hasher = hasher;
-        }
-
-        public IEnumerable<ProjectionVersion> GetProjectionVersionsToBootstrap()
-        {
-            foreach (Type projectionType in allProjections.Items)
-            {
-                if (typeof(IAmEventSourcedProjection).IsAssignableFrom(projectionType))
-                {
-                    string name = projectionType.GetContractId();
-                    string hash = hasher.CalculateHash(projectionType);
-
-                    yield return new ProjectionVersion(name, ProjectionStatus.NotPresent, 1, hash);
-                }
-            }
-        }
-    }
-
-    public class LatestProjectionVersionFinder
-    {
-        private readonly IEnumerable<IProjectionVersionFinder> projectionFinders;
-
-        public LatestProjectionVersionFinder(IEnumerable<IProjectionVersionFinder> projectionFinders)
-        {
-            this.projectionFinders = projectionFinders;
-        }
-
-        public IEnumerable<ProjectionVersion> GetProjectionVersionsToBootstrap()
-        {
-            var allPossibleVersions = projectionFinders.SelectMany(finder => finder.GetProjectionVersionsToBootstrap()).GroupBy(ver => ver.ProjectionName);
-
-            foreach (var versionGroup in allPossibleVersions)
-            {
-                ProjectionVersion lastLiveVersion = versionGroup.Where(ver => ver.Status == ProjectionStatus.Live).MaxBy(ver => ver.Revision);
-                if (lastLiveVersion is not null)
-                    yield return lastLiveVersion;
-                else
-                    yield return versionGroup.First();
-            }
-        }
-    }
-
     internal class CronusProjectionBootstrapper
     {
         private readonly IServiceProvider serviceProvider;

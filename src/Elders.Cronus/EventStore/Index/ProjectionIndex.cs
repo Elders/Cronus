@@ -35,7 +35,7 @@ namespace Elders.Cronus.EventStore.Index
 
                 if (isInterested)
                 {
-                    var task = projection.SaveAsync(projectionType, message);
+                    var task = projection.SaveAsync(projectionType, message.Payload as IEvent);
                     tasks.Add(task);
                 }
             }

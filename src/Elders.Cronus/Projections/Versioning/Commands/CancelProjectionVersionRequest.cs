@@ -1,13 +1,17 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Name = "633bc496-7efb-4bfb-9eb2-cccceea09a21")]
-    public class CancelProjectionVersionRequest : ISystemCommand
+    [DataContract(Namespace = "cronus", Name = "633bc496-7efb-4bfb-9eb2-cccceea09a21")]
+    public sealed class CancelProjectionVersionRequest : ISystemCommand
     {
-        CancelProjectionVersionRequest() { }
+        CancelProjectionVersionRequest()
+        {
+            Timestamp = DateTimeOffset.UtcNow;
+        }
 
-        public CancelProjectionVersionRequest(ProjectionVersionManagerId id, ProjectionVersion version, string reason)
+        public CancelProjectionVersionRequest(ProjectionVersionManagerId id, ProjectionVersion version, string reason) : this()
         {
             Id = id;
             Version = version;
@@ -22,6 +26,9 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 3)]
         public string Reason { get; private set; }
+
+        [DataMember(Order = 4)]
+        public DateTimeOffset Timestamp { get; private set; }
 
         public override string ToString()
         {

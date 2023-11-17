@@ -22,9 +22,6 @@ module.exports={
             echo "##vso[task.setvariable variable=newVer;]yes"
         `,
     }],
-
-    "@semantic-release/release-notes-generator",
-    "@semantic-release/changelog",
     "@semantic-release/git"
   ],
 

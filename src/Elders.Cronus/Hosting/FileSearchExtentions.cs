@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Elders.Cronus
 {
-    internal static class FileSearchExtentions
+    internal static class FileSearchExtensions
     {
         public static IEnumerable<string> GetFiles(this string path, string regexPattern = "", SearchOption searchOption = SearchOption.TopDirectoryOnly)
         {

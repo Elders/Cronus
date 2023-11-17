@@ -12,7 +12,7 @@ public class EventStoreDiscovery : DiscoveryBase<IEventStore>
     {
         IEnumerable<DiscoveredModel> models = DiscoverIndices(context)
            .Concat(new[] {
-                new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Scoped),
+                new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Transient),
                 new DiscoveredModel(typeof(EventLookupInByteArray), typeof(EventLookupInByteArray), ServiceLifetime.Singleton)
            });
 

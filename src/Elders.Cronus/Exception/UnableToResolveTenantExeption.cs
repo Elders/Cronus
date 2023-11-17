@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Elders.Cronus.AspNetCore.Exeptions
+namespace Elders.Cronus.AspNetCore.Exceptions
 {
     [Serializable]
     // Important: This attribute is NOT inherited from Exception, and MUST be specified 

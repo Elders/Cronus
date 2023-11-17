@@ -24,4 +24,19 @@ namespace Elders.Cronus.IntegrityValidation
             return new IntegrityResult<EventStream>(eventStream, true);
         }
     }
+
+    public class EmptyResolver<T> : IResolver<T>
+    {
+        public uint PriorityLevel { get { return uint.MaxValue; } }
+
+        public int CompareTo(IResolver<T> other)
+        {
+            return PriorityLevel.CompareTo(other.PriorityLevel);
+        }
+
+        public IntegrityResult<T> Resolve(T input, IValidatorResult validatorResult)
+        {
+            return new IntegrityResult<T>(input, true);
+        }
+    }
 }

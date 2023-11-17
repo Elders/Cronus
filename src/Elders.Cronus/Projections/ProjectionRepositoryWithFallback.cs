@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections
 {
-    public interface IAmCanExecuteFallback
+    public interface ICanExecuteFallback
     {
         bool IsFallbackNested { get; set; }
     }
@@ -20,7 +20,7 @@ namespace Elders.Cronus.Projections
             : base(configuration, main, fallback) { }
     }
 
-    public class ProjectionRepositoryWithFallback<TPrimary, TFallback> : IProjectionReader, IProjectionWriter, IAmCanExecuteFallback
+    public class ProjectionRepositoryWithFallback<TPrimary, TFallback> : IProjectionReader, IProjectionWriter, ICanExecuteFallback
         where TPrimary : class, IProjectionReader, IProjectionWriter
         where TFallback : class, IProjectionReader, IProjectionWriter
     {
@@ -43,9 +43,9 @@ namespace Elders.Cronus.Projections
 
         void CheckAndMarkIfFallbackIsNested(TFallback fallback)
         {
-            if (typeof(IAmCanExecuteFallback).IsAssignableFrom(fallback.GetType()))
+            if (typeof(ICanExecuteFallback).IsAssignableFrom(fallback.GetType()))
             {
-                (fallback as IAmCanExecuteFallback).IsFallbackNested = true;
+                (fallback as ICanExecuteFallback).IsFallbackNested = true;
             }
         }
 
@@ -59,43 +59,13 @@ namespace Elders.Cronus.Projections
             return ExecuteWithFallbackAsync(repo => repo.GetAsync(projectionId, projectionType));
         }
 
-        public async Task SaveAsync(Type projectionType, CronusMessage cronusMessage)
+        public async Task SaveAsync(Type projectionType, IEvent @event)
         {
             var reporter = new FallbackReporter(this, projectionType);
 
             try
             {
-                await primary.SaveAsync(projectionType, cronusMessage).ConfigureAwait(false);
-                reporter.PrimaryWriteOK();
-            }
-            catch (Exception ex)
-            {
-                reporter.PrimaryWriteFailed(ex, cronusMessage.Payload);
-            }
-
-            if (isFallbackEnabled)
-            {
-                try
-                {
-                    await fallback.SaveAsync(projectionType, cronusMessage).ConfigureAwait(false);
-                    reporter.FallbackWriteOK();
-                }
-                catch (Exception ex)
-                {
-                    reporter.FallbackWriteFailed(ex, cronusMessage.Payload);
-                }
-            }
-
-            reporter.ReportAndThrowIfError();
-        }
-
-        public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin)
-        {
-            var reporter = new FallbackReporter(this, projectionType);
-
-            try
-            {
-                await primary.SaveAsync(projectionType, @event, eventOrigin).ConfigureAwait(false);
+                await primary.SaveAsync(projectionType, @event).ConfigureAwait(false);
                 reporter.PrimaryWriteOK();
             }
             catch (Exception ex)
@@ -106,7 +76,7 @@ namespace Elders.Cronus.Projections
             {
                 try
                 {
-                    await fallback.SaveAsync(projectionType, @event, eventOrigin).ConfigureAwait(false);
+                    await fallback.SaveAsync(projectionType, @event).ConfigureAwait(false);
                     reporter.FallbackWriteOK();
                 }
                 catch (Exception ex)
@@ -118,9 +88,9 @@ namespace Elders.Cronus.Projections
             reporter.ReportAndThrowIfError();
         }
 
-        public async Task SaveAsync(Type projectionType, IEvent @event, EventOrigin eventOrigin, ProjectionVersion version)
+        public async Task SaveAsync(Type projectionType, IEvent @event, ProjectionVersion version)
         {
-            await primary.SaveAsync(projectionType, @event, eventOrigin, version).ConfigureAwait(false);
+            await primary.SaveAsync(projectionType, @event, version).ConfigureAwait(false);
             // this method is specific for the ProjectionsPlayer and it does not make sense to execute the fallback. We need to rethink this
         }
 

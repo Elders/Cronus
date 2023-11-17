@@ -1,10 +1,16 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Elders.Cronus.EventStore.Players
 {
     [DataContract(Name = "6574cff5-9195-4183-9f98-83e80da842cb")]
-    public class ReplayPublicEventsRequested : ISystemSignal
+    public sealed class ReplayPublicEventsRequested : ISystemSignal
     {
+        public ReplayPublicEventsRequested()
+        {
+            Timestamp = DateTime.Now;
+        }
+
         [DataMember(Order = 0)]
         public string Tenant { get; set; }
 
@@ -19,5 +25,8 @@ namespace Elders.Cronus.EventStore.Players
 
         [DataMember(Order = 4)]
         public ReplayEventsOptions ReplayOptions { get; set; }
+
+        [DataMember(Order = 5)]
+        public DateTimeOffset Timestamp { get; private set; }
     }
 }

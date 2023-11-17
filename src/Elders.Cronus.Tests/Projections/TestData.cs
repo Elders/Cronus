@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.Projections;
+using System;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
@@ -60,13 +61,22 @@ namespace Elders.Cronus.Tests.Projections
     }
 
     [DataContract(Name = "25061980-5057-475f-b734-2c4a6b52286f")]
-    public class TestEvent1 : IEvent { }
+    public class TestEvent1 : IEvent
+    {
+        public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
+    }
 
     [DataContract(Name = "833bedee-0109-402b-81de-29986bd46221")]
-    public class TestEvent2 : IEvent { }
+    public class TestEvent2 : IEvent
+    {
+        public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
+    }
 
     [DataContract(Name = "7898a318-c8e5-4be5-b1e3-13c4f5da28d5")]
-    public class TestEvent3 : IEvent { }
+    public class TestEvent3 : IEvent
+    {
+        public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
+    }
 
     [DataContract(Name = "NonVersionableProjection")]
     public class NonVersionableProjection : IProjection, INonVersionableProjection { }

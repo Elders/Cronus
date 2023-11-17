@@ -4,11 +4,14 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.EventStore.Index
 {
     [DataContract(Name = "f9c1c15b-ed60-4fa8-ab5f-251403aa8681")]
-    public class RebuildIndexCommand : ISystemCommand
+    public sealed class RebuildIndexCommand : ISystemCommand
     {
-        RebuildIndexCommand() { }
+        RebuildIndexCommand()
+        {
+            Timestamp = DateTimeOffset.UtcNow;
+        }
 
-        public RebuildIndexCommand(EventStoreIndexManagerId id)
+        public RebuildIndexCommand(EventStoreIndexManagerId id) : this()
         {
             if (id is null) throw new ArgumentNullException(nameof(id));
 
@@ -17,5 +20,8 @@ namespace Elders.Cronus.EventStore.Index
 
         [DataMember(Order = 1)]
         public EventStoreIndexManagerId Id { get; private set; }
+
+        [DataMember(Order = 2)]
+        public DateTimeOffset Timestamp { get; private set; }
     }
 }

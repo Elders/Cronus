@@ -1,3 +1,5 @@
+using System;
+
 namespace Elders.Cronus.Tests.TestModel
 {
     public class TestUpdateCommand : ICommand
@@ -10,5 +12,7 @@ namespace Elders.Cronus.Tests.TestModel
         }
 
         public TestAggregateId Id { get; set; }
+
+        public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
     }
 }

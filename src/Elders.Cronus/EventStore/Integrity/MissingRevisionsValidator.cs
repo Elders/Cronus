@@ -2,11 +2,11 @@
 using System.Linq;
 using Elders.Cronus.IntegrityValidation;
 
-namespace Elders.Cronus.EventStore
+namespace Elders.Cronus.EventStore.Integrity
 {
-    public class MissingRevisionsValidator : IValidator<EventStream>
+    public sealed class MissingRevisionsValidator : IValidator<EventStream>
     {
-        public uint PriorityLevel { get { return 300; } }
+        public uint PriorityLevel => 300;
 
         public int CompareTo(IValidator<EventStream> other)
         {
@@ -20,7 +20,7 @@ namespace Elders.Cronus.EventStore
 
         private IEnumerable<string> GetErrorMessages(EventStream eventStream)
         {
-            int maxRevision = eventStream.Commits.Max(r => r.Revision);
+            int maxRevision = eventStream.Commits.Any() ? eventStream.Commits.Max(r => r.Revision) : 0;
 
             for (int expectedRevision = 1; expectedRevision <= maxRevision; expectedRevision++)
             {

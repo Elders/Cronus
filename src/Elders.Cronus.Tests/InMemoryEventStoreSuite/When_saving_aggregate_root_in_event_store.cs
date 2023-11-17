@@ -6,6 +6,7 @@ using Elders.Cronus.AtomicAction;
 using Elders.Cronus.AtomicAction.InMemory;
 using Elders.Cronus.IntegrityValidation;
 using System.Collections.Generic;
+using Elders.Cronus.EventStore.Integrity;
 
 namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
 {

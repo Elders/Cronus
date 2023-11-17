@@ -3,15 +3,15 @@ using System;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Name = "9c0c789f-1605-460b-b179-cfdf2a697a1c")]
-    public class NewProjectionVersionIsNowLive : ISystemEvent
+    [DataContract(Namespace = "cronus", Name = "9c0c789f-1605-460b-b179-cfdf2a697a1c")]
+    public sealed class NewProjectionVersionIsNowLive : ISystemEvent
     {
         NewProjectionVersionIsNowLive() { }
 
         public NewProjectionVersionIsNowLive(ProjectionVersionManagerId id, ProjectionVersion projectionVersion)
         {
             Id = id;
-            Timestamp = DateTime.UtcNow.ToFileTimeUtc();
+            Timestamp = DateTimeOffset.UtcNow.ToFileTime();
             ProjectionVersion = projectionVersion;
         }
 
@@ -23,6 +23,8 @@ namespace Elders.Cronus.Projections.Versioning
 
         [DataMember(Order = 3)]
         public long Timestamp { get; private set; }
+
+        DateTimeOffset IMessage.Timestamp => DateTimeOffset.FromFileTime(Timestamp);
 
         public override string ToString()
         {

@@ -80,16 +80,18 @@ namespace Elders.Cronus.Migrations
         }
     }
 
-    public sealed class MigrateAggregateCommitFrom_Cronus_v8_to_v9 : IMigrationCustomLogic, IMigration<AggregateCommit>
+    public sealed class MigrateAggregateCommitFrom_Cronus_v8_to_v10 : IMigrationCustomLogic, IMigration<AggregateCommit>
     {
+        const string TimestampPropertyName = "Timestamp";
+
         private readonly EventStoreFactory eventStoreFactory;
         private readonly IIndexStore indexStore;
         private readonly IProjectionWriter projection;
         private readonly TypeContainer<IProjection> projectionsContainer;
         private readonly LatestProjectionVersionFinder projectionFinder;
-        private readonly ILogger<MigrateAggregateCommitFrom_Cronus_v8_to_v9> logger;
+        private readonly ILogger<MigrateAggregateCommitFrom_Cronus_v8_to_v10> logger;
 
-        public MigrateAggregateCommitFrom_Cronus_v8_to_v9(EventStoreFactory eventStoreFactory, IIndexStore indexStore, IProjectionWriter projection, TypeContainer<IProjection> projectionsContainer, LatestProjectionVersionFinder projectionFinder, ILogger<MigrateAggregateCommitFrom_Cronus_v8_to_v9> logger)
+        public MigrateAggregateCommitFrom_Cronus_v8_to_v10(EventStoreFactory eventStoreFactory, IIndexStore indexStore, IProjectionWriter projection, TypeContainer<IProjection> projectionsContainer, LatestProjectionVersionFinder projectionFinder, ILogger<MigrateAggregateCommitFrom_Cronus_v8_to_v10> logger)
         {
             this.eventStoreFactory = eventStoreFactory;
             this.indexStore = indexStore;
@@ -101,9 +103,36 @@ namespace Elders.Cronus.Migrations
 
         List<ProjectionVersion> liveOnlyProjections = null;
 
+        public static DateTimeOffset MinValue = DateTimeOffset.FromFileTime(0).AddYears(5);
+
         public async Task OnAggregateCommitAsync(AggregateCommit migratedAggregateCommit)
         {
             List<Task> tasks = new List<Task>();
+
+            // fix timestamp
+            foreach (IEvent @event in migratedAggregateCommit.Events)
+            {
+                if (@event.Timestamp <= MinValue)
+                {
+                    var propInfo = @event.GetType().GetProperty(TimestampPropertyName);
+                    if (propInfo is not null)
+                    {
+                        propInfo.SetValue(@event, DateTimeOffset.FromFileTime(migratedAggregateCommit.Timestamp));
+                    }
+                }
+            }
+
+            foreach (IPublicEvent publicEvent in migratedAggregateCommit.PublicEvents)
+            {
+                if (publicEvent.Timestamp <= MinValue)
+                {
+                    var propInfo = publicEvent.GetType().GetProperty(TimestampPropertyName);
+                    if (propInfo is not null)
+                    {
+                        propInfo.SetValue(publicEvent, DateTimeOffset.FromFileTime(migratedAggregateCommit.Timestamp));
+                    }
+                }
+            }
 
             // EventStore
             Task task = eventStoreFactory.GetEventStore().AppendAsync(migratedAggregateCommit);
@@ -151,11 +180,11 @@ namespace Elders.Cronus.Migrations
 
                     if (isInterested)
                     {
-                        EventOrigin origin = new EventOrigin(migratedAggregateCommit.AggregateRootId, migratedAggregateCommit.Revision, pos, migratedAggregateCommit.Timestamp);
+                        EventOrigin origin = new EventOrigin(migratedAggregateCommit.AggregateRootId, migratedAggregateCommit.Revision, pos, migratedAggregateCommit.Events[pos].Timestamp.ToFileTime());
                         ProjectionVersion version = liveOnlyProjections.Where(ver => ver.ProjectionName.Equals(projectionType.GetContractId())).SingleOrDefault();
                         if (version is not null)
                         {
-                            Task projectionTask = projection.SaveAsync(projectionType, migratedAggregateCommit.Events[pos], origin, version);
+                            Task projectionTask = projection.SaveAsync(projectionType, migratedAggregateCommit.Events[pos], version);
                             tasks.Add(projectionTask);
                         }
                     }

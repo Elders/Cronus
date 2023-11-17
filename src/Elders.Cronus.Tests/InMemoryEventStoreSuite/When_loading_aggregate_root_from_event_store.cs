@@ -2,6 +2,7 @@
 using Elders.Cronus.AtomicAction.InMemory;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.InMemory;
+using Elders.Cronus.EventStore.Integrity;
 using Elders.Cronus.IntegrityValidation;
 using Elders.Cronus.Tests.TestModel;
 using Machine.Specifications;

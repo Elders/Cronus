@@ -9,21 +9,20 @@ namespace Elders.Cronus.Multitenancy
         ITenantResolver<string>,
         ITenantResolver<AggregateRootId>,
         ITenantResolver<AggregateCommit>,
-        ITenantResolver<ProjectionCommit>,
         ITenantResolver<IMessage>,
         ITenantResolver<IBlobId>,
         ITenantResolver<CronusMessage>
     {
-        public string Resolve(ProjectionCommit projectionCommit)
-        {
-            if (projectionCommit is null == true) throw new ArgumentNullException(nameof(projectionCommit));
+        //public string Resolve(ProjectionCommit projectionCommit)
+        //{
+        //    if (projectionCommit is null == true) throw new ArgumentNullException(nameof(projectionCommit));
 
-            string tenant;
-            if (TryResolve(projectionCommit.ProjectionId.RawId, out tenant))
-                return tenant;
+        //    string tenant;
+        //    if (TryResolve(projectionCommit.ProjectionId.RawId, out tenant))
+        //        return tenant;
 
-            throw new NotSupportedException($"Unable to resolve tenant for id {projectionCommit.ProjectionId}");
-        }
+        //    throw new NotSupportedException($"Unable to resolve tenant for id {projectionCommit.ProjectionId}");
+        //}
 
         public string Resolve(IBlobId id)
         {

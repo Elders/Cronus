@@ -1,3 +1,5 @@
+using System;
+
 namespace Elders.Cronus.Tests.TestModel
 {
     public class TestUpdateEvent : IEvent
@@ -11,5 +13,7 @@ namespace Elders.Cronus.Tests.TestModel
         public TestAggregateId Id { get; set; }
 
         public string UpdatedFieldValue { get; set; }
+
+        public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
     }
 }

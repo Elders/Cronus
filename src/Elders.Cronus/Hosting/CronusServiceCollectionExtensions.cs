@@ -75,7 +75,7 @@ namespace Elders.Cronus
             {
                 services.AddSingleton<DiagnosticListener>(new DiagnosticListener("cronus"));
 
-                services.AddSingleton<ActivitySource>(new ActivitySource("Elders.Cronus", "9.0.0"));
+                services.AddSingleton<ActivitySource>(new ActivitySource("Elders.Cronus", "10.0.0"));
             }
 
             return services;

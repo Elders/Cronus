@@ -5,6 +5,8 @@ namespace Elders.Cronus.IntegrityValidation
 {
     public class IntegrityRule<T> : IEqualityComparer<IntegrityRule<T>>, IEquatable<IntegrityRule<T>>
     {
+        public IntegrityRule(IValidator<T> validator) : this(validator, new EmptyResolver<T>()) { }
+
         public IntegrityRule(IValidator<T> validator, IResolver<T> resolver)
         {
             Resolver = resolver;
@@ -75,7 +77,6 @@ namespace Elders.Cronus.IntegrityValidation
         public static bool operator !=(IntegrityRule<T> left, IntegrityRule<T> right)
         {
             return !(left == right);
-
         }
     }
 }
