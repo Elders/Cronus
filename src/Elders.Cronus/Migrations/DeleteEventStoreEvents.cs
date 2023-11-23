@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {
-    public class DeleteEventStoreEvents<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateEventRaw, TSourceEventStorePlayer, IEventStore>
+    public sealed class DeleteEventStoreEvents<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateEventRaw, TSourceEventStorePlayer, IEventStore>
         where TSourceEventStorePlayer : IMigrationEventStorePlayer
     {
         private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DeleteEventStoreEvents<,>));
@@ -41,10 +41,6 @@ namespace Elders.Cronus.Migrations
                 logger.ErrorException(ex, () => $"Something boom bam while runnning migration.");
             }
 
-        }
-        private static bool ForSomeReasonTheAggregateCommitHasBeenDeleted(AggregateCommit aggregateCommit)
-        {
-            return aggregateCommit is null || aggregateCommit.Events.Any() == false;
         }
     }
 }

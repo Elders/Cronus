@@ -32,7 +32,7 @@ namespace Elders.Cronus.Migrations
                 logger.ErrorException(ex, () => "Error while applying migration");
             }
 
-           return Task.FromResult(newCommits);
+            return Task.FromResult(newCommits);
         }
     }
 }

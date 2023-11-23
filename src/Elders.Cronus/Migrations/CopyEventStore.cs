@@ -9,18 +9,15 @@ namespace Elders.Cronus.Migrations
         where TSourceEventStorePlayer : IEventStorePlayer
         where TTargetEventStore : IEventStore
     {
-        private readonly ILogger logger;
-
         public CopyEventStore(TSourceEventStorePlayer source, TTargetEventStore target, ILogger logger) : base(source, target)
         {
-            this.logger = logger;
         }
 
         public override async Task RunAsync(IEnumerable<IMigration<AggregateEventRaw>> migrations)
         {
             PlayerOperator @operator = new PlayerOperator()
             {
-                OnLoadAsync = raw => target.AppendAsync(raw)
+                OnLoadAsync = target.AppendAsync
             };
 
             PlayerOptions playerOptions = new PlayerOptions();
