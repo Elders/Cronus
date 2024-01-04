@@ -23,14 +23,7 @@ public class MigrationsDiscovery : HandlersDiscovery<IMigrationHandler>
             CanOverrideDefaults = true
         };
 
-        yield return new DiscoveredModel(typeof(ICronusMigrator), typeof(NoCronusMigrator), ServiceLifetime.Singleton)
-        {
-            CanOverrideDefaults = true
-        };
-
-        yield return new DiscoveredModel(typeof(CronusMigrator), typeof(CronusMigrator), ServiceLifetime.Singleton)
-        {
-            CanOverrideDefaults = true
-        };
+        yield return new DiscoveredModel(typeof(CronusMigrator), typeof(CronusMigrator), ServiceLifetime.Transient);
+        yield return new DiscoveredModel(typeof(ICronusMigrator), provider => provider.GetRequiredService<SingletonPerTenant<CronusMigrator>>().Get(), ServiceLifetime.Transient);
     }
 }
