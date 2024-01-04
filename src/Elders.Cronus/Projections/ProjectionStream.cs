@@ -39,6 +39,7 @@ namespace Elders.Cronus.Projections
                 .Select(commit => commit.Event)
                 .OrderBy(@event => @event.Timestamp);
 
+            projection.InitializeState(projectionId, null);
             foreach (IEvent @event in events)
             {
                 await projection.ReplayEventAsync(@event).ConfigureAwait(false);
