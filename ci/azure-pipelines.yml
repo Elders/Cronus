@@ -4,7 +4,7 @@ variables:
 
 trigger:
   branches:
-    include: [master,beta,preview]
+    include: [master,beta,preview,"*.x"]
   paths:
     exclude: [CHANGELOG.md]
 
