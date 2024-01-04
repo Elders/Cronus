@@ -1,13 +1,13 @@
-﻿using Elders.Cronus.EventStore;
-using Elders.Cronus.EventStore.Index;
-using Elders.Cronus.Projections;
-using Elders.Cronus.Projections.Cassandra.EventSourcing;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.Projections;
+using Elders.Cronus.Projections.Cassandra.EventSourcing;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {
@@ -17,15 +17,17 @@ namespace Elders.Cronus.Migrations
 
         private readonly EventStoreFactory eventStoreFactory;
         private readonly IIndexStore indexStore;
+        private readonly IInitializableProjectionStore initializableProjectionStore;
         private readonly IProjectionWriter projection;
         private readonly TypeContainer<IProjection> projectionsContainer;
         private readonly LatestProjectionVersionFinder projectionFinder;
         private readonly ILogger<Migrate_v9_to_v10> logger;
 
-        public Migrate_v9_to_v10(EventStoreFactory eventStoreFactory, IIndexStore indexStore, IProjectionWriter projection, TypeContainer<IProjection> projectionsContainer, LatestProjectionVersionFinder projectionFinder, ILogger<Migrate_v9_to_v10> logger)
+        public Migrate_v9_to_v10(EventStoreFactory eventStoreFactory, IIndexStore indexStore, IInitializableProjectionStore initializableProjectionStore, IProjectionWriter projection, TypeContainer<IProjection> projectionsContainer, LatestProjectionVersionFinder projectionFinder, ILogger<Migrate_v9_to_v10> logger)
         {
             this.eventStoreFactory = eventStoreFactory;
             this.indexStore = indexStore;
+            this.initializableProjectionStore = initializableProjectionStore;
             this.projection = projection;
             this.projectionsContainer = projectionsContainer;
             this.projectionFinder = projectionFinder;
@@ -98,6 +100,11 @@ namespace Elders.Cronus.Migrations
                     reporter.AppendLine(projection.ToString());
                 }
                 logger.Warn(() => reporter.ToString());
+
+                foreach (ProjectionVersion liveVersion in liveOnlyProjections)
+                {
+                    await initializableProjectionStore.InitializeAsync(liveVersion).ConfigureAwait(false);
+                }
             }
 
             IEnumerable<Type> projectionTypes = projectionsContainer.Items;
