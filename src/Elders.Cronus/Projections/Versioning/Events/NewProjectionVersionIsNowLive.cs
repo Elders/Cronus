@@ -1,5 +1,5 @@
-﻿using System.Runtime.Serialization;
-using System;
+﻿using System;
+using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -24,7 +24,7 @@ namespace Elders.Cronus.Projections.Versioning
         [DataMember(Order = 3)]
         public long Timestamp { get; private set; }
 
-        DateTimeOffset IMessage.Timestamp => DateTimeOffset.FromFileTime(Timestamp);
+        DateTimeOffset IMessage.Timestamp => Timestamp.ToDateTimeOffsetUtc();
 
         public override string ToString()
         {
