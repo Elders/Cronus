@@ -1,5 +1,5 @@
-﻿using System.Runtime.Serialization;
-using System;
+﻿using System;
+using System.Runtime.Serialization;
 using Elders.Cronus.EventStore.Players;
 
 namespace Elders.Cronus.Projections.Versioning
@@ -33,7 +33,7 @@ namespace Elders.Cronus.Projections.Versioning
         [DataMember(Order = 5)]
         public ReplayEventsOptions ReplayEventsOptions { get; set; }
 
-        public DateTimeOffset Timestamp => DateTimeOffset.FromFileTime(RequestTimestamp);
+        public DateTimeOffset Timestamp => RequestTimestamp.ToDateTimeOffsetUtc();
 
         public override string ToString()
         {

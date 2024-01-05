@@ -36,8 +36,6 @@ namespace Elders.Cronus.Migrations
 
         List<ProjectionVersion> liveOnlyProjections = null;
 
-        public static DateTimeOffset MinValue = DateTimeOffset.FromFileTime(0).AddYears(5);
-
         public async Task OnAggregateCommitAsync(AggregateCommit migratedAggregateCommit)
         {
             List<Task> tasks = new List<Task>();
@@ -45,24 +43,24 @@ namespace Elders.Cronus.Migrations
             // fix timestamp
             foreach (IEvent @event in migratedAggregateCommit.Events)
             {
-                if (@event.Timestamp <= MinValue)
+                if (@event.Timestamp == DateTimeOffset.MinValue)
                 {
                     var propInfo = @event.GetType().GetProperty(TimestampPropertyName);
                     if (propInfo is not null)
                     {
-                        propInfo.SetValue(@event, DateTimeOffset.FromFileTime(migratedAggregateCommit.Timestamp));
+                        propInfo.SetValue(@event, migratedAggregateCommit.Timestamp.ToDateTimeOffsetUtc());
                     }
                 }
             }
 
             foreach (IPublicEvent publicEvent in migratedAggregateCommit.PublicEvents)
             {
-                if (publicEvent.Timestamp <= MinValue)
+                if (publicEvent.Timestamp == DateTimeOffset.MinValue)
                 {
                     var propInfo = publicEvent.GetType().GetProperty(TimestampPropertyName);
                     if (propInfo is not null)
                     {
-                        propInfo.SetValue(publicEvent, DateTimeOffset.FromFileTime(migratedAggregateCommit.Timestamp));
+                        propInfo.SetValue(publicEvent, migratedAggregateCommit.Timestamp.ToDateTimeOffsetUtc());
                     }
                 }
             }

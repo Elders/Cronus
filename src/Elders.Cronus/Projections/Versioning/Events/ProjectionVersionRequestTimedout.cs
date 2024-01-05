@@ -28,7 +28,7 @@ namespace Elders.Cronus.Projections.Versioning
         [DataMember(Order = 4)]
         public VersionRequestTimebox Timebox { get; private set; }
 
-        public DateTimeOffset Timestamp => DateTimeOffset.FromFileTime(RequestTimestamp);
+        public DateTimeOffset Timestamp => RequestTimestamp.ToDateTimeOffsetUtc();
 
         public override string ToString()
         {
