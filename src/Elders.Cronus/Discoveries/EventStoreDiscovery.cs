@@ -1,8 +1,8 @@
-﻿using Elders.Cronus.EventStore;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Elders.Cronus.Discoveries;
 
@@ -12,7 +12,7 @@ public class EventStoreDiscovery : DiscoveryBase<IEventStore>
     {
         IEnumerable<DiscoveredModel> models = DiscoverIndices(context)
            .Concat(new[] {
-                new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Scoped),
+                new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Transient),
                 new DiscoveredModel(typeof(EventLookupInByteArray), typeof(EventLookupInByteArray), ServiceLifetime.Singleton)
            });
 
