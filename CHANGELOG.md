@@ -1,3 +1,10 @@
+## [9.2.1](https://github.com/Elders/Cronus/compare/v9.2.0...v9.2.1) (2024-01-05)
+
+
+### Bug Fixes
+
+* register EventStoreFactory as transient ([e0f0657](https://github.com/Elders/Cronus/commit/e0f06572f04bd447597ff8ac1261882f46bc6778))
+
 # [9.2.0](https://github.com/Elders/Cronus/compare/v9.1.5...v9.2.0) (2023-11-08)
 
 
