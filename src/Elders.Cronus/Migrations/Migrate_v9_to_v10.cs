@@ -92,14 +92,16 @@ namespace Elders.Cronus.Migrations
                 liveOnlyProjections = allProjections.Where(ver => ver.Status == ProjectionStatus.Live).ToList();
 
                 var nonLiveProjections = allProjections.Except(liveOnlyProjections);
-
-                StringBuilder reporter = new StringBuilder();
-                reporter.AppendLine("The following projection versions will not be migrated because their status is not live. Please handle them manually.");
-                foreach (var projection in nonLiveProjections)
+                if (nonLiveProjections.Any())
                 {
-                    reporter.AppendLine(projection.ToString());
+                    StringBuilder reporter = new StringBuilder();
+                    reporter.AppendLine("The following projection versions will not be migrated because their status is not live. Please handle them manually.");
+                    foreach (var projection in nonLiveProjections)
+                    {
+                        reporter.AppendLine(projection.ToString());
+                    }
+                    logger.Warn(() => reporter.ToString());
                 }
-                logger.Warn(() => reporter.ToString());
 
                 foreach (ProjectionVersion liveVersion in liveOnlyProjections)
                 {
