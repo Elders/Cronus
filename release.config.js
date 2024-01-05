@@ -23,8 +23,6 @@ module.exports={
         `,
     }],
 
-    "@semantic-release/release-notes-generator",
-    "@semantic-release/changelog",
     "@semantic-release/git"
   ],
 
