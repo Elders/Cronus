@@ -1,8 +1,8 @@
-﻿using Elders.Cronus.EventStore;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {

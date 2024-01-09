@@ -1,7 +1,7 @@
-﻿using Elders.Cronus.EventStore;
-using Elders.Cronus.EventStore.Index;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Index;
 
 namespace Elders.Cronus.Migrations
 {

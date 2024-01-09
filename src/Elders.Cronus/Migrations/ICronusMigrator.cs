@@ -1,5 +1,5 @@
-﻿using Elders.Cronus.EventStore;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
 
 namespace Elders.Cronus.Migrations
 {
@@ -7,4 +7,6 @@ namespace Elders.Cronus.Migrations
     {
         Task MigrateAsync(AggregateCommit aggregateCommit);
     }
+
+    public interface ICronusMigratorManual : ICronusMigrator { }
 }
