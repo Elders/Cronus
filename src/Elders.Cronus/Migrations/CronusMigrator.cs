@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations
 {
-    public sealed class CronusMigrator : ICronusMigrator
+    public sealed class CronusMigrator : ICronusMigrator, ICronusMigratorManual
     {
         private readonly IEnumerable<IMigration<AggregateCommit>> migrations;
         private readonly IMigrationCustomLogic theLogic;
