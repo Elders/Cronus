@@ -75,7 +75,9 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        // Used by replay projections only
+        /// <Remarks>
+        /// Used by replay projections only.
+        /// </Remarks>
         public async Task SaveAsync(Type projectionType, IEvent @event, ProjectionVersion version)
         {
             if (projectionType is null) throw new ArgumentNullException(nameof(projectionType));
@@ -112,7 +114,7 @@ namespace Elders.Cronus.Projections
                 {
                     var projectionId = new Urn($"urn:cronus:{projectionName}");
 
-                    var commit = new ProjectionCommitPreview(projectionId, version, @event);
+                    var commit = new ProjectionCommit(projectionId, version, @event);
                     await projectionStore.SaveAsync(commit).ConfigureAwait(false);
                 }
                 catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex))) { }
@@ -170,7 +172,7 @@ namespace Elders.Cronus.Projections
         {
             try
             {
-                var commit = new ProjectionCommitPreview(projectionId, version, @event);
+                var commit = new ProjectionCommit(projectionId, version, @event);
                 await projectionStore.SaveAsync(commit).ConfigureAwait(false);
             }
             catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex))) { }
@@ -199,7 +201,7 @@ namespace Elders.Cronus.Projections
 
         private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, ProjectionVersion version)
         {
-            List<ProjectionCommitPreview> projectionCommits = new List<ProjectionCommitPreview>();
+            List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
 
             var loadedCommits = projectionStore.LoadAsync(version, projectionId).ConfigureAwait(false);
             await foreach (var commit in loadedCommits)

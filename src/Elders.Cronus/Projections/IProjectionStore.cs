@@ -5,9 +5,9 @@ namespace Elders.Cronus.Projections
 {
     public interface IProjectionStore
     {
-        IAsyncEnumerable<ProjectionCommitPreview> LoadAsync(ProjectionVersion version, IBlobId projectionId);
+        IAsyncEnumerable<ProjectionCommit> LoadAsync(ProjectionVersion version, IBlobId projectionId);
 
-        Task SaveAsync(ProjectionCommitPreview commit);
+        Task SaveAsync(ProjectionCommit commit);
     }
 
     public interface IInitializableProjectionStore
