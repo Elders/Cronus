@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Projections.Cassandra;
 using Elders.Cronus.Projections.Versioning;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
@@ -131,6 +133,22 @@ namespace Elders.Cronus.Projections
             return GetInternalAsync<IProjectionDefinition>(projectionId, projectionType);
         }
 
+        public Task<ReadResult<T>> GetAsOfAsync<T>(IBlobId projectionId, DateTimeOffset timestamp) where T : IProjectionDefinition
+        {
+            return GetAsOfInternalAsync<T>(projectionId, typeof(T), timestamp);
+        }
+
+        protected async virtual Task<ReadResult<ProjectionVersions>> GetProjectionVersionsAsync(string projectionName)
+        {
+            if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
+
+            var queryResult = await GetProjectionVersionsFromStoreAsync(projectionName).ConfigureAwait(false);
+            if (queryResult.IsSuccess)
+                return new ReadResult<ProjectionVersions>(queryResult.Data.State.AllVersions);
+
+            return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
+        }
+
         private async Task<ReadResult<T>> GetInternalAsync<T>(IBlobId projectionId, Type projectionType) where T : IProjectionDefinition
         {
             using (log.BeginScope(s => s
@@ -157,15 +175,47 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        protected async virtual Task<ReadResult<ProjectionVersions>> GetProjectionVersionsAsync(string projectionName)
+        async Task<ReadResult<T>> GetAsOfInternalAsync<T>(IBlobId projectionId, Type projectionType, DateTimeOffset timestamp) where T : IProjectionDefinition
         {
-            if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
+            using (log.BeginScope(s => s
+                       .AddScope(Log.ProjectionName, projectionType.GetContractId())
+                       .AddScope(Log.ProjectionType, projectionType.Name)
+                       .AddScope(Log.ProjectionInstanceId, projectionId.RawId)))
+            {
+                if (projectionId is null) throw new ArgumentNullException(nameof(projectionId));
 
-            var queryResult = await GetProjectionVersionsFromStoreAsync(projectionName).ConfigureAwait(false);
-            if (queryResult.IsSuccess)
-                return new ReadResult<ProjectionVersions>(queryResult.Data.State.AllVersions);
+                ProjectionStream stream = ProjectionStream.Empty();
+                try
+                {
+                    ProjectionVersion liveVersion = await LoadLiveProjectionVersion(projectionType).ConfigureAwait(false);
+                    if (liveVersion is not null)
+                    {
+                        ProjectionQueryOptions options = new ProjectionQueryOptions(projectionId, liveVersion, timestamp);
+                        ProjectionsOperator @operator = new ProjectionsOperator()
+                        {
+                            OnProjectionStreamLoadedAsync = projectionStream =>
+                            {
+                                stream = projectionStream;
 
-            return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
+                                return Task.CompletedTask;
+                            }
+                        };
+                        await projectionStore.EnumerateProjectionsAsync(@operator, options).ConfigureAwait(false);
+                    }
+
+                    T projectionInstance = (T)FastActivator.CreateInstance(projectionType);
+                    var readResult = new ReadResult<T>(await stream.RestoreFromHistoryAsync(projectionInstance).ConfigureAwait(false));
+                    if (readResult.NotFound)
+                        LogProjectionInstanceNotFound(log, null);
+
+                    return readResult;
+                }
+
+                catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionLoadError(log, ex)))
+                {
+                    return ReadResult<T>.WithError(ex);
+                }
+            }
         }
 
         private async Task PersistAsync(IBlobId projectionId, ProjectionVersion version, IEvent @event)
@@ -209,11 +259,21 @@ namespace Elders.Cronus.Projections
                 projectionCommits.Add(commit);
             }
 
-            ProjectionStream stream = new ProjectionStream(projectionId, projectionCommits);
+            ProjectionStream stream = new ProjectionStream(version, projectionId, projectionCommits.Select(c => c.Event));
             return stream;
         }
 
         private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, Type projectionType)
+        {
+            ProjectionVersion liveVersion = await LoadLiveProjectionVersion(projectionType).ConfigureAwait(false);
+            if (liveVersion is not null)
+                return await LoadProjectionStreamAsync(projectionId, liveVersion).ConfigureAwait(false);
+
+            else
+                return ProjectionStream.Empty();
+        }
+
+        private async Task<ProjectionVersion> LoadLiveProjectionVersion(Type projectionType)
         {
             string projectionName = projectionType.GetContractId();
 
@@ -224,10 +284,9 @@ namespace Elders.Cronus.Projections
                 if (liveVersion is null)
                 {
                     LogProjectionLiveVersionMissing(log, null);
-                    return ProjectionStream.Empty();
                 }
 
-                return await LoadProjectionStreamAsync(projectionId, liveVersion).ConfigureAwait(false);
+                return liveVersion;
             }
             else if (result.NotFound)
             {
@@ -238,7 +297,7 @@ namespace Elders.Cronus.Projections
                 LogProjectionLoadError(log, null);
             }
 
-            return ProjectionStream.Empty();
+            return null;
         }
 
         private bool ShouldSaveEventForVersion(ProjectionVersion version)

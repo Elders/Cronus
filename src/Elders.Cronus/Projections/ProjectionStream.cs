@@ -2,47 +2,42 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections
 {
-    internal sealed class ProjectionStream
+    public sealed class ProjectionStream
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(ProjectionStream));
-
-        private static readonly List<ProjectionCommitPreview> _empty = new List<ProjectionCommitPreview>();
-
+        private readonly ProjectionVersion version;
         private readonly IBlobId projectionId;
+        private readonly IEnumerable<IEvent> events;
 
         ProjectionStream()
         {
-            this.Commits = _empty;
+            events = new List<IEvent>();
         }
 
-        public ProjectionStream(IBlobId projectionId, List<ProjectionCommitPreview> commits)
+        public ProjectionStream(ProjectionVersion version, IBlobId projectionId, IEnumerable<IEvent> events)
         {
+            if (version is null) throw new ArgumentException(nameof(version));
             if (projectionId is null) throw new ArgumentException(nameof(projectionId));
-            if (commits is null) throw new ArgumentException(nameof(commits));
+            if (events is null) throw new ArgumentException(nameof(events));
 
+            this.version = version;
             this.projectionId = projectionId;
-            this.Commits = commits;
+            this.events = events;
         }
-
-        public List<ProjectionCommitPreview> Commits { get; private set; }
 
         public async Task<T> RestoreFromHistoryAsync<T>(T projection) where T : IProjectionDefinition
         {
-            if (Commits.Count <= 0)
+            if (events.Any() == false)
                 return default(T);
 
-            IEnumerable<IEvent> events = Commits
-                .Select(commit => commit.Event)
-                .OrderBy(@event => @event.Timestamp);
+            IEnumerable<IEvent> eventsOrderedByTimestamp = events.OrderBy(@event => @event.Timestamp);
 
             projection.InitializeState(projectionId, null);
-            foreach (IEvent @event in events)
+            foreach (IEvent @event in eventsOrderedByTimestamp)
             {
-                await projection.ReplayEventAsync(@event).ConfigureAwait(false);
+                await projection.ReplayEventAsync(@event).ConfigureAwait(false);    // Because of the order we need to await each event before replaying the next one.
             }
 
             return projection;
