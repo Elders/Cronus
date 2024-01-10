@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Elders.Cronus.EventStore;
-using Elders.Cronus.Projections;
 
 namespace Elders.Cronus.Multitenancy
 {

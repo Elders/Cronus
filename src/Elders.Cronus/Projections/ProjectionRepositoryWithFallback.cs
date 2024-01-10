@@ -59,6 +59,11 @@ namespace Elders.Cronus.Projections
             return ExecuteWithFallbackAsync(repo => repo.GetAsync(projectionId, projectionType));
         }
 
+        public Task<ReadResult<T>> GetAsOfAsync<T>(IBlobId projectionId, DateTimeOffset timestamp) where T : IProjectionDefinition
+        {
+            return ExecuteWithFallbackAsync(repo => repo.GetAsOfAsync<T>(projectionId, timestamp));
+        }
+
         public async Task SaveAsync(Type projectionType, IEvent @event)
         {
             var reporter = new FallbackReporter(this, projectionType);

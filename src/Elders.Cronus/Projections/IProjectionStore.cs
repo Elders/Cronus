@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using Elders.Cronus.Projections.Cassandra;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections
 {
     public interface IProjectionStore
     {
-        IAsyncEnumerable<ProjectionCommitPreview> LoadAsync(ProjectionVersion version, IBlobId projectionId);
+        IAsyncEnumerable<ProjectionCommit> LoadAsync(ProjectionVersion version, IBlobId projectionId);
 
-        Task SaveAsync(ProjectionCommitPreview commit);
+        Task EnumerateProjectionsAsync(ProjectionsOperator @operator, ProjectionQueryOptions options);
+
+        Task SaveAsync(ProjectionCommit commit);
     }
 
     public interface IInitializableProjectionStore
