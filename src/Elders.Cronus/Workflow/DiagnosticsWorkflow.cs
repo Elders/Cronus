@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
@@ -45,27 +46,31 @@ namespace Elders.Cronus.Workflow
         {
             if (execution is null) throw new ArgumentNullException(nameof(execution));
 
-            Activity activity = StartActivity(execution.Context);
-
-            Type msgType = execution.Context.Message.Payload.GetType();
-
-            if (logger.IsInfoEnabled())
+            string tenant = execution.Context.Message.GetTenant();
+            using (logger.BeginScope(scope => scope.AddScope(Log.Tenant, tenant)))
             {
-                long startTimestamp = 0;
-                startTimestamp = Stopwatch.GetTimestamp();
+                Activity activity = StartActivity(execution.Context);
 
-                await workflow.RunAsync(execution.Context).ConfigureAwait(false);
+                Type msgType = execution.Context.Message.Payload.GetType();
 
-                TimeSpan elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
+                if (logger.IsInfoEnabled())
+                {
+                    long startTimestamp = 0;
+                    startTimestamp = Stopwatch.GetTimestamp();
 
-                LogHandleSuccess(logger, execution.Context.HandlerType.Name, msgType.Name, elapsed.TotalMilliseconds, null);
+                    await workflow.RunAsync(execution.Context).ConfigureAwait(false);
+
+                    TimeSpan elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
+
+                    LogHandleSuccess(logger, execution.Context.HandlerType.Name, msgType.Name, elapsed.TotalMilliseconds, null);
+                }
+                else
+                {
+                    await workflow.RunAsync(execution.Context).ConfigureAwait(false);
+                }
+
+                StopActivity(activity);
             }
-            else
-            {
-                await workflow.RunAsync(execution.Context).ConfigureAwait(false);
-            }
-
-            StopActivity(activity);
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
