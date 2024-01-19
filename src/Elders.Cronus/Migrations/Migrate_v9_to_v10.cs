@@ -13,6 +13,8 @@ namespace Elders.Cronus.Migrations
 {
     public sealed class Migrate_v9_to_v10 : IMigrationCustomLogic, IMigration<AggregateCommit>
     {
+        private static DateTimeOffset MinFiletimeAsDateTimeOffset = new DateTimeOffset(1601, 2, 1, 0, 0, 0, 0, TimeSpan.Zero);
+
         const string TimestampPropertyName = "Timestamp";
 
         private readonly EventStoreFactory eventStoreFactory;
@@ -43,7 +45,7 @@ namespace Elders.Cronus.Migrations
             // fix timestamp
             foreach (IEvent @event in migratedAggregateCommit.Events)
             {
-                if (@event.Timestamp == DateTimeOffset.MinValue)
+                if (@event.Timestamp <= MinFiletimeAsDateTimeOffset)
                 {
                     var propInfo = @event.GetType().GetProperty(TimestampPropertyName);
                     if (propInfo is not null)
@@ -55,7 +57,7 @@ namespace Elders.Cronus.Migrations
 
             foreach (IPublicEvent publicEvent in migratedAggregateCommit.PublicEvents)
             {
-                if (publicEvent.Timestamp == DateTimeOffset.MinValue)
+                if (publicEvent.Timestamp <= MinFiletimeAsDateTimeOffset)
                 {
                     var propInfo = publicEvent.GetType().GetProperty(TimestampPropertyName);
                     if (propInfo is not null)
