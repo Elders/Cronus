@@ -9,9 +9,9 @@ namespace Elders.Cronus.Migrations
     public sealed class MigrationHandler : IMigrationHandler,
         IAggregateCommitHandle<AggregateCommit>
     {
-        private readonly ICronusMigrator cronusMigrator;
+        private readonly ICronusMigratorManual cronusMigrator;
 
-        public MigrationHandler(ICronusMigrator cronusMigrator)
+        public MigrationHandler(ICronusMigratorManual cronusMigrator)
         {
             this.cronusMigrator = cronusMigrator;
         }
