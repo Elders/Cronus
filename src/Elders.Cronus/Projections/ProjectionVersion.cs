@@ -151,7 +151,7 @@ namespace Elders.Cronus.Projections
 
         public override string ToString()
         {
-            return ProjectionName + "_" + Hash + "_" + Revision + "_" + Status;
+            return $"{ProjectionName}_{Hash}_{Revision}_{Status}";
         }
     }
 }
