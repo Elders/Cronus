@@ -32,7 +32,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public override string ToString()
         {
-            return $"Cancel projection replaying for version `{Version}`. {nameof(ProjectionVersionManagerId)}: `{Id}`. Reason: `{Reason}`.";
+            return $"Cancel projection version {Version}. {nameof(ProjectionVersionManagerId)}: {Id}. Reason: {Reason}.";
         }
     }
 }

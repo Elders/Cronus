@@ -36,7 +36,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public override string ToString()
         {
-            return $"Rebuild projection with hash `{Hash}`. {nameof(ProjectionVersionManagerId)}: `{Id}`";
+            return $"New projection version with hash `{Hash}`. {nameof(ProjectionVersionManagerId)}: {Id}";
         }
     }
 }

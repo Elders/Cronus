@@ -28,7 +28,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public override string ToString()
         {
-            return $"Finalize projection rebuilding for version '{Version}'. {nameof(ProjectionVersionManagerId)}: `{Id}`";
+            return $"Finalize projection version {Version}. {nameof(ProjectionVersionManagerId)}: {Id}";
         }
     }
 }

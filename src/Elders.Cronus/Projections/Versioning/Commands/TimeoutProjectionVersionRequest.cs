@@ -31,7 +31,7 @@ namespace Elders.Cronus.Projections.Versioning
 
         public override string ToString()
         {
-            return $"Timeout projection rebuilding for version `{Version}`. {Environment.NewLine}{nameof(ProjectionVersionManagerId)}: `{Id}`. {Environment.NewLine}Timebox: `{Timebox}`.";
+            return $"Timeout for projection version {Version}. {Environment.NewLine}{nameof(ProjectionVersionManagerId)}: {Id} {Environment.NewLine}Timebox: {Timebox}.";
         }
     }
 }
