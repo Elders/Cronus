@@ -175,7 +175,7 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        async Task<ReadResult<T>> GetAsOfInternalAsync<T>(IBlobId projectionId, Type projectionType, DateTimeOffset timestamp) where T : IProjectionDefinition
+        private async Task<ReadResult<T>> GetAsOfInternalAsync<T>(IBlobId projectionId, Type projectionType, DateTimeOffset timestamp) where T : IProjectionDefinition
         {
             using (log.BeginScope(s => s
                        .AddScope(Log.ProjectionName, projectionType.GetContractId())
