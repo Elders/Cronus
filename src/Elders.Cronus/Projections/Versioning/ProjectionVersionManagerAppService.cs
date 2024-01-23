@@ -6,11 +6,11 @@ namespace Elders.Cronus.Projections.Versioning
     [DataContract(Name = "28345d27-0ccf-48dc-88dc-2d10bed829cf")]
     public class ProjectionVersionManagerAppService : ApplicationService<ProjectionVersionManager>, ISystemAppService,
         ICommandHandler<RegisterProjection>,
-        ICommandHandler<ReplayProjection>,
+        ICommandHandler<NewProjectionVersion>,
         ICommandHandler<FinalizeProjectionVersionRequest>,
         ICommandHandler<CancelProjectionVersionRequest>,
         ICommandHandler<TimeoutProjectionVersionRequest>,
-        ICommandHandler<RebuildProjectionCommand>
+        ICommandHandler<FixProjectionVersion>
     {
         private readonly IProjectionVersioningPolicy projectionVersioningPolicy;
         private readonly IProjectionReader projectionReader;
@@ -42,12 +42,12 @@ namespace Elders.Cronus.Projections.Versioning
             await repository.SaveAsync(ar).ConfigureAwait(false);
         }
 
-        public Task HandleAsync(ReplayProjection command)
+        public Task HandleAsync(NewProjectionVersion command)
         {
             return UpdateAsync(command.Id, ar => ar.Replay(command.Hash, projectionVersioningPolicy, command.ReplayEventsOptions));
         }
 
-        public Task HandleAsync(RebuildProjectionCommand command)
+        public Task HandleAsync(FixProjectionVersion command)
         {
             return UpdateAsync(command.Id, ar => ar.Rebuild(command.Hash, projectionVersioningPolicy, command.ReplayEventsOptions));
         }

@@ -4,15 +4,15 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Namespace = "cronus", Name = "9b309ab7-3fac-4cf8-97e2-d2e74fbaa623")]
-    public sealed class ReplayProjection : ISystemCommand
+    [DataContract(Namespace = "cronus", Name = "25e39039-8b05-411e-b62b-161e5ea91902")]
+    public sealed class FixProjectionVersion : ISystemCommand
     {
-        ReplayProjection()
+        FixProjectionVersion()
         {
-            Timestamp = DateTimeOffset.Now;
+            Timestamp = DateTimeOffset.UtcNow;
         }
 
-        public ReplayProjection(ProjectionVersionManagerId id, string hash, ReplayEventsOptions replayEventsOptions) : this()
+        public FixProjectionVersion(ProjectionVersionManagerId id, string hash, ReplayEventsOptions replayEventsOptions) : this()
         {
             if (id is null) throw new ArgumentNullException(nameof(id));
             if (string.IsNullOrEmpty(hash)) throw new ArgumentNullException(nameof(hash));
