@@ -11,7 +11,7 @@ namespace Elders.Cronus.MessageProcessing
 
     public class DefaultHandlerFactory : IHandlerFactory
     {
-        public static Workflow<HandleContext, IHandlerInstance> FactoryWrokflow = WorkflowExtensions.Lambda<HandleContext, IHandlerInstance>((exec) =>
+        public static Workflow<HandleContext, IHandlerInstance> FactoryWrokflow = WorkflowExtensions.Lambda<HandleContext, IHandlerInstance>(exec =>
         { return Task.FromResult(factory.Create(exec.Context.HandlerType)); });
 
         readonly Func<Type, object> handlerFctory;

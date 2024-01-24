@@ -38,7 +38,7 @@ namespace Elders.Cronus.Cluster.Job
             return BuildInitialData();
         }
 
-        public Task<JobExecutionStatus> RunAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
+        public async Task<JobExecutionStatus> RunAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -46,17 +46,15 @@ namespace Elders.Cronus.Cluster.Job
                 {
                     logger.Info(() => "Initializing job...");
 
-                    return Task.Factory
-                        .ContinueWhenAll(new Task[] { SyncInitialStateAsync(cluster, cancellationToken) }, _ => Task.CompletedTask)
-                        .ContinueWith(x => RunJobWithLoggerAsync(cluster, cancellationToken))
-                        .Result;
+                    await SyncInitialStateAsync(cluster, cancellationToken).ConfigureAwait(false);
+                    return await RunJobWithLoggerAsync(cluster, cancellationToken).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
             {
                 logger.ErrorException(ex, () => "Job run has failed.");
 
-                return Task.FromResult(JobExecutionStatus.Failed);
+                return JobExecutionStatus.Failed;
             }
         }
 

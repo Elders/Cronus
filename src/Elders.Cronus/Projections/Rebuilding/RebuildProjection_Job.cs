@@ -115,10 +115,9 @@ namespace Elders.Cronus.Projections.Rebuilding
                         projectionInstancesToReplay.TryAdd(projectionType, instance);
                     }
 
-                    await projectionWriter
-                        .SaveAsync(projectionType, @event, version)
-                        .ContinueWith(t => { instance?.ReplayEventAsync(@event); })
-                        .ConfigureAwait(false);
+                    await projectionWriter.SaveAsync(projectionType, @event, version).ConfigureAwait(false);
+                    if (instance is not null)
+                        await instance.ReplayEventAsync(@event).ConfigureAwait(false);
 
                     progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
                 },

@@ -17,7 +17,7 @@ namespace Elders.Cronus.EventStore
 
         public DateTimeOffset? Before { get; set; } = MaxAfterTimestamp;
 
-        public int MaxDegreeOfParallelism { get; set; }
+        public int MaxDegreeOfParallelism { get; set; } = Environment.ProcessorCount * 100;
 
         public PlayerOptions WithPaginationToken(string token)
         {
@@ -27,7 +27,8 @@ namespace Elders.Cronus.EventStore
                 After = this.After,
                 Before = this.Before,
                 PaginationToken = token,
-                BatchSize = this.BatchSize
+                BatchSize = this.BatchSize,
+                MaxDegreeOfParallelism = this.MaxDegreeOfParallelism
             };
         }
     }
