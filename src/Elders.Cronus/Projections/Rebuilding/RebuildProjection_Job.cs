@@ -1,17 +1,17 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
 using Elders.Cronus.Cluster.Job;
-using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Concurrent;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using Elders.Cronus.Workflow;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections.Rebuilding
 {
@@ -130,7 +130,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                         Data.Before = options.Before;
                         Data.MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
                         Data.Timestamp = DateTimeOffset.UtcNow;
-                        Data = await cluster.PingAsync(Data);
+                        Data = await cluster.PingAsync(Data).ConfigureAwait(false);
                     }
 
                     LogProjectionProgress(logger, version.ToString(), counter, null);

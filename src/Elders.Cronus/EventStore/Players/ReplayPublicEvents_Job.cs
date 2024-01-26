@@ -1,11 +1,11 @@
-﻿using Elders.Cronus.Cluster.Job;
-using Elders.Cronus.MessageProcessing;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Elders.Cronus.Cluster.Job;
+using Elders.Cronus.MessageProcessing;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.EventStore.Players
 {
@@ -68,7 +68,7 @@ namespace Elders.Cronus.EventStore.Players
                     var progress = new ReplayPublicEvents_JobData.EventPaging(options.EventTypeId, options.PaginationToken, options.After, options.Before, counter, 0);
                     Data.EventTypePaging = progress;
                     Data.Timestamp = DateTimeOffset.UtcNow;
-                    Data = await cluster.PingAsync(Data);
+                    Data = await cluster.PingAsync(Data).ConfigureAwait(false);
                 }
             };
 
