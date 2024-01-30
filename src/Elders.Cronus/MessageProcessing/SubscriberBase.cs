@@ -11,9 +11,9 @@ namespace Elders.Cronus.MessageProcessing
     {
         protected readonly Type handlerType;
         protected readonly Workflow<HandleContext> handlerWorkflow;
-        private readonly ILogger<ISubscriber> logger;
+        private readonly ILogger logger;
 
-        public SubscriberBase(Type handlerType, Workflow<HandleContext> handlerWorkflow, ILogger<ISubscriber> logger)
+        public SubscriberBase(Type handlerType, Workflow<HandleContext> handlerWorkflow, ILogger logger)
         {
             this.handlerType = handlerType;
             this.handlerWorkflow = handlerWorkflow;
@@ -24,18 +24,18 @@ namespace Elders.Cronus.MessageProcessing
 
         public string Id { get; protected set; }
 
-        public async Task ProcessAsync(CronusMessage message)
+        public Task ProcessAsync(CronusMessage message)
         {
             try
             {
                 var context = new HandleContext(message, handlerType);
-                await handlerWorkflow.RunAsync(context).ConfigureAwait(false);
+                return handlerWorkflow.RunAsync(context);
             }
             catch (Exception ex)
             {
                 logger.LogCritical(ex, "Subscriber crashed!");
 
-                throw;
+                return Task.FromException(ex);
             }
         }
 

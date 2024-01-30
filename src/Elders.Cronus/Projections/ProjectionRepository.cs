@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Cassandra;
@@ -73,7 +74,26 @@ namespace Elders.Cronus.Projections
                         }
                     }
                 }
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+                try
+                {
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    StringBuilder taskErrors = new StringBuilder();
+                    foreach (Task task in tasks)
+                    {
+                        if (task.IsFaulted)
+                        {
+                            taskErrors.AppendLine(task.Exception.ToString());
+                        }
+                    }
+
+                    log.LogWarning(ex, "Failed to save event {event} in projection {projection}.", @event.GetType().Name, projectionType.Name);
+
+                    throw;
+                }
             }
         }
 
@@ -108,7 +128,26 @@ namespace Elders.Cronus.Projections
                     Task task = PersistAsync(projectionId, version, @event);
                     tasks.Add(task);
                 }
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+                try
+                {
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    StringBuilder taskErrors = new StringBuilder();
+                    foreach (Task task in tasks)
+                    {
+                        if (task.IsFaulted)
+                        {
+                            taskErrors.AppendLine(task.Exception.ToString());
+                        }
+                    }
+
+                    log.LogWarning(ex, "Failed to save event {event} in projection {projection}.", @event.GetType().Name, projectionType.Name);
+
+                    throw;
+                }
             }
             else if (isEventSourcedType)
             {
@@ -210,7 +249,6 @@ namespace Elders.Cronus.Projections
 
                     return readResult;
                 }
-
                 catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionLoadError(log, ex)))
                 {
                     return ReadResult<T>.WithError(ex);
@@ -218,14 +256,17 @@ namespace Elders.Cronus.Projections
             }
         }
 
-        private async Task PersistAsync(IBlobId projectionId, ProjectionVersion version, IEvent @event)
+        private Task PersistAsync(IBlobId projectionId, ProjectionVersion version, IEvent @event)
         {
             try
             {
                 var commit = new ProjectionCommit(projectionId, version, @event);
-                await projectionStore.SaveAsync(commit).ConfigureAwait(false);
+                return projectionStore.SaveAsync(commit);
             }
-            catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex))) { }
+            catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex)))
+            {
+                return Task.FromException(ex);
+            }
         }
 
         private async Task<ReadResult<ProjectionVersionsHandler>> GetProjectionVersionsFromStoreAsync(string projectionName)
