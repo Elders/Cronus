@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
@@ -48,7 +47,12 @@ namespace Elders.Cronus.Workflow
             if (execution is null) throw new ArgumentNullException(nameof(execution));
 
             string tenant = execution.Context.Message.GetTenant();
-            using (logger.BeginScope(scope => scope.AddScope(Log.Tenant, tenant)))
+            using (logger.BeginScope(scope =>
+            {
+                scope.AddScope(Log.Tenant, tenant);
+                if (execution.Context.Message.TryGetRootId(out var rootId))
+                    scope.AddScope(Log.AggregateId, rootId);
+            }))
             {
                 Activity activity = StartActivity(execution.Context);
 

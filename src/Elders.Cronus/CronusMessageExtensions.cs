@@ -68,5 +68,13 @@ namespace Elders.Cronus
 
             throw new ArgumentException("Cronus message does not contain a valid AggregateRootId");
         }
+
+        public static bool TryGetRootId(this CronusMessage message, out string aggregateRootId)
+        {
+            if (message.Headers.TryGetValue(MessageHeader.AggregateRootId, out aggregateRootId))
+                return true;
+
+            return false;
+        }
     }
 }
