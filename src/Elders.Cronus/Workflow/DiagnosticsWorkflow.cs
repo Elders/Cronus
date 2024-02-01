@@ -106,7 +106,7 @@ namespace Elders.Cronus.Workflow
                         activity.SetParentId(parentId);
                 }
 
-                activity.SetTag("cronus_messageid", context.Message.Id);
+                activity.SetTag("cronus_messageid", context.Message.Id.ToString());
                 activity.Start();
 
                 return activity;

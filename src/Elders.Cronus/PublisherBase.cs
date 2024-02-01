@@ -84,7 +84,7 @@ namespace Elders.Cronus
 
         protected internal override bool PublishInternal(CronusMessage message)
         {
-            using (logger.BeginScope(s => s.AddScope("cronus_messageid", message.Id)))
+            using (logger.BeginScope(s => s.AddScope("cronus_messageid", message.Id.ToString())))
             {
                 try
                 {
@@ -185,7 +185,7 @@ namespace Elders.Cronus
                     }
                 }
 
-                activity.SetTag("cronus_messageid", message.Id);
+                activity.SetTag("cronus_messageid", message.Id.ToString());
 
                 activity.Start();
 
