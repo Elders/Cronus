@@ -15,17 +15,19 @@ namespace Elders.Cronus
 
         public CronusMessage(byte[] message, Type messageType, IDictionary<string, string> headers) : this()
         {
+            if (messageType is null) throw new ArgumentNullException(nameof(messageType));
+
             Id = Guid.NewGuid();
-            PayloadRaw = message;
-            Headers = headers;
+            PayloadRaw = message ?? throw new ArgumentNullException(nameof(message));
+            Headers = headers ?? throw new ArgumentNullException(nameof(headers));
             Headers.TryAdd(MessageHeader.MessageType, messageType.GetContractId());
         }
 
         public CronusMessage(IMessage message, IDictionary<string, string> headers) : this()
         {
             Id = Guid.NewGuid();
-            Payload = message;
-            Headers = headers;
+            Payload = message ?? throw new ArgumentNullException(nameof(message));
+            Headers = headers ?? throw new ArgumentNullException(nameof(headers));
         }
 
         [DataMember(Order = 1)]
@@ -48,8 +50,6 @@ namespace Elders.Cronus
 
             return messageType;
         }
-
-        public string MessageId { get { return GetHeader(MessageHeader.MessageId); } }
 
         public string[] RecipientHandlers
         {
@@ -82,7 +82,7 @@ namespace Elders.Cronus
         string GetHeader(string key)
         {
             string value;
-            if (Headers.TryGetValue(key, out value) == false && MessageHeader.MessageId.Equals(key) == false)
+            if (Headers.TryGetValue(key, out value) == false)
                 value = string.Empty;
 
             return value;

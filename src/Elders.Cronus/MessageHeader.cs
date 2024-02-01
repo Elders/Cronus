@@ -10,8 +10,6 @@
 
         public const string AggregateRootEventPosition = "event_position";
 
-        public const string MessageId = "messageid";
-
         public const string MessageType = "messagetype";
 
         public const string Tenant = "tenant";

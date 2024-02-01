@@ -84,28 +84,31 @@ namespace Elders.Cronus
 
         protected internal override bool PublishInternal(CronusMessage message)
         {
-            try
+            using (logger.BeginScope(s => s.AddScope("cronus_messageid", message.Id)))
             {
-                bool isPublished = base.PublishInternal(message);
-
-                Type messageType = message.GetMessageType();
-
-                bool isSignal = messageType.IsAssignableFrom(typeof(ISystemSignal));
-                if (isPublished && isSignal == false)
+                try
                 {
-                    logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", messageType.Name, messageType.Name);
+                    bool isPublished = base.PublishInternal(message);
+
+                    Type messageType = message.GetMessageType();
+
+                    bool isSignal = messageType.IsAssignableFrom(typeof(ISystemSignal));
+                    if (isPublished && isSignal == false)
+                    {
+                        logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", messageType.Name, messageType.Name);
+                    }
+                    else if (isPublished == false)
+                    {
+                        logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", messageType.Name, messageType.Name);
+                    }
+
+                    return isPublished;
                 }
-                else if (isPublished == false)
+
+                catch (Exception ex) when (logger.ErrorException(ex, () => BuildTraceData()))
                 {
-                    logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", messageType.Name, messageType.Name);
+                    return false;
                 }
-
-                return isPublished;
-            }
-
-            catch (Exception ex) when (logger.ErrorException(ex, () => BuildTraceData()))
-            {
-                return false;
             }
 
             string BuildTraceData()
@@ -181,6 +184,8 @@ namespace Elders.Cronus
                         activity.SetParentId(parentId);
                     }
                 }
+
+                activity.SetTag("cronus_messageid", message.Id);
 
                 activity.Start();
 
