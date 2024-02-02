@@ -119,7 +119,7 @@ namespace Elders.Cronus.Migrations
             for (int ppos = 0; ppos < migratedAggregateCommit.PublicEvents.Count; ppos++)
             {
                 int publicEventPosition = (migratedAggregateCommit.Events.Count - 1) + 5 + ppos;
-                var record = new IndexRecord(migratedAggregateCommit.Events[ppos].Unwrap().GetType().GetContractId(), migratedAggregateCommit.AggregateRootId, migratedAggregateCommit.Revision, publicEventPosition, migratedAggregateCommit.Timestamp);
+                var record = new IndexRecord(migratedAggregateCommit.PublicEvents[ppos].GetType().GetContractId(), migratedAggregateCommit.AggregateRootId, migratedAggregateCommit.Revision, publicEventPosition, migratedAggregateCommit.Timestamp);
                 tasks.Add(indexStore.ApendAsync(record));
             }
 
