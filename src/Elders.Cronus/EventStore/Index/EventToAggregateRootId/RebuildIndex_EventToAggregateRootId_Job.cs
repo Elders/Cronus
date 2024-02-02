@@ -57,9 +57,6 @@ namespace Elders.Cronus.EventStore.Index
 
             logger.Info(() => $"MaxDegreeOfParallelism is {options.MaxDegreeOfParallelism}");
 
-            if(options.MaxDegreeOfParallelism < 50)
-                options.MaxDegreeOfParallelism = 100; // TODO: mynkow fix this!
-
             await eventStorePlayer.EnumerateEventStore(@operator, options).ConfigureAwait(false);
 
             Data.IsCompleted = true;

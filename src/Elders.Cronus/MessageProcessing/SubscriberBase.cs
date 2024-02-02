@@ -24,8 +24,15 @@ namespace Elders.Cronus.MessageProcessing
 
         public virtual Task ProcessAsync(CronusMessage message)
         {
-            var context = new HandleContext(message, handlerType);
-            return handlerWorkflow.RunAsync(context);
+            try
+            {
+                var context = new HandleContext(message, handlerType);
+                return handlerWorkflow.RunAsync(context);
+            }
+            catch (Exception ex)
+            {
+                return Task.FromException(ex);
+            }
         }
 
         /// <summary>

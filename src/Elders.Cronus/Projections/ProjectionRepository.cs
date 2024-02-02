@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Snapshotting;
@@ -91,7 +92,26 @@ namespace Elders.Cronus.Projections
                         }
                     }
                 }
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+                try
+                {
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    StringBuilder taskErrors = new StringBuilder();
+                    foreach (Task task in tasks)
+                    {
+                        if (task.IsFaulted)
+                        {
+                            taskErrors.AppendLine(task.Exception.ToString());
+                        }
+                    }
+
+                    log.LogWarning(ex, "Failed to save event {event} in projection {projection}.", @event.GetType().Name, projectionType.Name);
+
+                    throw;
+                }
             }
         }
 
@@ -124,7 +144,26 @@ namespace Elders.Cronus.Projections
                     Task task = PersistAsync(projectionType, projectionName, projectionId, version, @event, eventOrigin);
                     tasks.Add(task);
                 }
-                await Task.WhenAll(tasks).ConfigureAwait(false);
+
+                try
+                {
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    StringBuilder taskErrors = new StringBuilder();
+                    foreach (Task task in tasks)
+                    {
+                        if (task.IsFaulted)
+                        {
+                            taskErrors.AppendLine(task.Exception.ToString());
+                        }
+                    }
+
+                    log.LogWarning(ex, "Failed to save event {event} in projection {projection}.", @event.GetType().Name, projectionType.Name);
+
+                    throw;
+                }
             }
             else if (isEventSourcedType)
             {
@@ -212,7 +251,10 @@ namespace Elders.Cronus.Projections
                 var commit = new ProjectionCommit(projectionId, version, @event, snapshotMarker, eventOrigin, DateTime.FromFileTime(eventOrigin.Timestamp));
                 await projectionStore.SaveAsync(commit).ConfigureAwait(false);
             }
-            catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex))) { }
+            catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex)))
+            {
+                throw;
+            }
         }
 
         private async Task<ReadResult<ProjectionVersionsHandler>> GetProjectionVersionsFromStoreAsync(string projectionName)

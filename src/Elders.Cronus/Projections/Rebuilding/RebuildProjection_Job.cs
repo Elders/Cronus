@@ -116,10 +116,9 @@ namespace Elders.Cronus.Projections.Rebuilding
                     }
 
                     EventOrigin origin = new EventOrigin(eventRaw.AggregateRootId, eventRaw.Revision, eventRaw.Position, eventRaw.Timestamp);
-                    await projectionWriter
-                        .SaveAsync(projectionType, @event, origin, version)
-                        .ContinueWith(t => { instance?.ReplayEventAsync(@event); })
-                        .ConfigureAwait(false);
+                    await projectionWriter.SaveAsync(projectionType, @event, origin, version).ConfigureAwait(false);
+                    if (instance is not null)
+                        await instance.ReplayEventAsync(@event).ConfigureAwait(false);
 
                     progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
                 },
@@ -132,7 +131,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                         Data.Before = options.Before;
                         Data.MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
                         Data.Timestamp = DateTimeOffset.UtcNow;
-                        Data = await cluster.PingAsync(Data);
+                        Data = await cluster.PingAsync(Data).ConfigureAwait(false);
                     }
 
                     LogProjectionProgress(logger, version.ToString(), counter, null);
