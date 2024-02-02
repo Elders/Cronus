@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.Workflow;
-using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.MessageProcessing
 {
     public class HandlerSubscriber : SubscriberBase
     {
-        public HandlerSubscriber(Type handlerType, Workflow<HandleContext> handlerWorkflow, ILogger<HandlerSubscriber> logger) : base(handlerType, handlerWorkflow, logger) { }
+        public HandlerSubscriber(Type handlerType, Workflow<HandleContext> handlerWorkflow) : base(handlerType, handlerWorkflow) { }
 
         public override IEnumerable<Type> GetInvolvedMessageTypes()
         {

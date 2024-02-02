@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
-using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.MessageProcessing
 {
@@ -11,13 +10,11 @@ namespace Elders.Cronus.MessageProcessing
     {
         protected readonly Type handlerType;
         protected readonly Workflow<HandleContext> handlerWorkflow;
-        private readonly ILogger logger;
 
-        public SubscriberBase(Type handlerType, Workflow<HandleContext> handlerWorkflow, ILogger logger)
+        public SubscriberBase(Type handlerType, Workflow<HandleContext> handlerWorkflow)
         {
             this.handlerType = handlerType;
             this.handlerWorkflow = handlerWorkflow;
-            this.logger = logger;
             bool hasDataContract = handlerType.HasAttribute<DataContractAttribute>();
             Id = hasDataContract ? handlerType.GetContractId() : handlerType.FullName;
         }
@@ -26,17 +23,8 @@ namespace Elders.Cronus.MessageProcessing
 
         public Task ProcessAsync(CronusMessage message)
         {
-            try
-            {
-                var context = new HandleContext(message, handlerType);
-                return handlerWorkflow.RunAsync(context);
-            }
-            catch (Exception ex)
-            {
-                logger.LogCritical(ex, "Subscriber crashed!");
-
-                return Task.FromException(ex);
-            }
+            var context = new HandleContext(message, handlerType);
+            return handlerWorkflow.RunAsync(context);
         }
 
         /// <summary>

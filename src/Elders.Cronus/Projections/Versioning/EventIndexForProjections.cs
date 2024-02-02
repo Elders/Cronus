@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Workflow;
-using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections.Versioning
 {
@@ -16,7 +15,7 @@ namespace Elders.Cronus.Projections.Versioning
         private readonly TypeContainer<IEvent> allEventTypesInTheSystem;
         private readonly TypeContainer<IPublicEvent> allPublicEventTypesInTheSystem;
 
-        public EventStoreIndexSubscriber(Type indexType, Workflow<HandleContext> indexWorkflow, TypeContainer<IEvent> allEventTypesInTheSystem, TypeContainer<IPublicEvent> allPublicEventTypesInTheSystem, ILogger<EventStoreIndexSubscriber> logger) : base(indexType, indexWorkflow, logger)
+        public EventStoreIndexSubscriber(Type indexType, Workflow<HandleContext> indexWorkflow, TypeContainer<IEvent> allEventTypesInTheSystem, TypeContainer<IPublicEvent> allPublicEventTypesInTheSystem) : base(indexType, indexWorkflow)
         {
             this.allEventTypesInTheSystem = allEventTypesInTheSystem;
             this.allPublicEventTypesInTheSystem = allPublicEventTypesInTheSystem;

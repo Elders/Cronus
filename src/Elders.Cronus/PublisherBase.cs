@@ -26,9 +26,7 @@ namespace Elders.Cronus
             if (InnerHandler is null)
                 throw new InvalidOperationException("The inner publisher handler is not set.");
 
-
             return InnerHandler.PublishInternal(message);
-
         }
 
         internal PublisherHandler InnerHandler { get; set; }
@@ -104,7 +102,6 @@ namespace Elders.Cronus
 
                     return isPublished;
                 }
-
                 catch (Exception ex) when (logger.ErrorException(ex, () => BuildTraceData()))
                 {
                     return false;
@@ -135,11 +132,13 @@ namespace Elders.Cronus
         private const string TelemetryTraceParent = "telemetry_traceparent";
         private readonly DiagnosticListener diagnosticListener;
         private readonly ActivitySource activitySource;
+        private readonly ILogger<ActivityPublishHandler> logger;
 
-        public ActivityPublishHandler(DiagnosticListener diagnosticListener, ActivitySource activitySource)
+        public ActivityPublishHandler(DiagnosticListener diagnosticListener, ActivitySource activitySource, ILogger<ActivityPublishHandler> logger)
         {
             this.diagnosticListener = diagnosticListener;
             this.activitySource = activitySource;
+            this.logger = logger;
         }
 
         protected internal override bool PublishInternal(CronusMessage message)
@@ -150,10 +149,11 @@ namespace Elders.Cronus
                 message.Headers.Remove(TelemetryTraceParent);
                 message.Headers.Add(TelemetryTraceParent, Activity.Current.Id);
             }
-            bool result = base.PublishInternal(message);
+
+            bool published = base.PublishInternal(message);
             StopActivity(activity);
 
-            return result;
+            return published;
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -199,12 +199,20 @@ namespace Elders.Cronus
         {
             if (activity is null) return;
 
-            // Stop sets the end time if it was unset, but we want it set before we issue the write so we do it now.
-            if (activity.Duration == TimeSpan.Zero)
-                activity.SetEndTime(DateTime.UtcNow);
+            try
+            {
+                // Stop sets the end time if it was unset, but we want it set before we issue the write so we do it now.
+                if (activity.Duration == TimeSpan.Zero)
+                    activity.SetEndTime(DateTime.UtcNow);
 
-            diagnosticListener.Write(ActivityName, activity);
-            activity.Stop();    // Resets Activity.Current (we want this after the Write)
+
+                diagnosticListener.Write(ActivityName, activity);
+                activity.Stop();    // Resets Activity.Current (we want this after the Write)
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Stopping activity failed.");
+            }
         }
 
         private const string ActivityName = "Elders.Cronus.Hosting.Workflow";
