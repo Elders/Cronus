@@ -107,6 +107,11 @@ namespace Elders.Cronus.Projections.Rebuilding
                             {
                                 IEvent @event = serializer.DeserializeFromBytes<IEvent>(eventRaw);
                                 @event = @event.Unwrap();
+                                if (@event is null)
+                                {
+                                    logger.LogError("Failed to deserialize event from data {data}.", eventRaw);
+                                    return;
+                                }
 
                                 Task projectionStoreTask = projectionWriter.SaveAsync(projectionType, @event, version);
                                 Task replayTask = eventSourcedProjection.ReplayEventAsync(@event);

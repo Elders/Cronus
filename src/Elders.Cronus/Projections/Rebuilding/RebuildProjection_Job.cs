@@ -110,6 +110,11 @@ namespace Elders.Cronus.Projections.Rebuilding
                     {
                         IEvent @event = serializer.DeserializeFromBytes<IEvent>(eventRaw.Data);
                         @event = @event.Unwrap();
+                        if (@event is null)
+                        {
+                            logger.LogError("Failed to deserialize event from data {data}.", eventRaw.Data);
+                            return;
+                        }
 
                         await projectionWriter.SaveAsync(projectionType, @event, version).ConfigureAwait(false);
                         if (projectionInstance is not null)
