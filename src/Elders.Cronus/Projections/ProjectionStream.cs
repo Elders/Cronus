@@ -37,7 +37,7 @@ namespace Elders.Cronus.Projections
             projection.InitializeState(projectionId, null);
             foreach (IEvent @event in eventsOrderedByTimestamp)
             {
-                await projection.ReplayEventAsync(@event).ConfigureAwait(false);    // Because of the order we need to await each event before replaying the next one.
+                await projection.ApplyAsync(@event).ConfigureAwait(false);    // Because of the order we need to await each event before replaying the next one.
             }
 
             return projection;

@@ -12,6 +12,7 @@ namespace Elders.Cronus.EventStore
         public string PaginationToken { get; set; }
 
         public int BatchSize { get; set; } = 1000;
+        public int Loaded { get; set; }
 
         public DateTimeOffset? After { get; set; } = MinAfterTimestamp;
 
@@ -29,6 +30,20 @@ namespace Elders.Cronus.EventStore
                 PaginationToken = token,
                 BatchSize = this.BatchSize,
                 MaxDegreeOfParallelism = this.MaxDegreeOfParallelism
+            };
+        }
+
+        public PlayerOptions WithLoaded(int loaded)
+        {
+            return new PlayerOptions()
+            {
+                EventTypeId = this.EventTypeId,
+                After = this.After,
+                Before = this.Before,
+                PaginationToken = this.PaginationToken,
+                BatchSize = this.BatchSize,
+                MaxDegreeOfParallelism = this.MaxDegreeOfParallelism,
+                Loaded = loaded
             };
         }
     }

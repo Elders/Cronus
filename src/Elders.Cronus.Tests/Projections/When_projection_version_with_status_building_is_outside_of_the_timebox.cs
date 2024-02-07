@@ -1,10 +1,10 @@
-﻿using Elders.Cronus.EventStore.Players;
-using Elders.Cronus.Projections.Versioning;
-using Machine.Specifications;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Elders.Cronus.EventStore.Players;
+using Elders.Cronus.Projections.Versioning;
+using Machine.Specifications;
 
 namespace Elders.Cronus.Projections
 {
@@ -65,7 +65,7 @@ namespace Elders.Cronus.Projections
             public Task<T> BuildAsync()
             {
                 var instance = (T)Activator.CreateInstance(typeof(T), true);
-                Events.Select(async e => await instance.ReplayEventAsync(e).ConfigureAwait(false));
+                Events.Select(async e => await instance.ApplyAsync(e).ConfigureAwait(false));
                 return Task.FromResult(instance);
             }
         }

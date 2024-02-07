@@ -64,7 +64,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             }
         }
 
-        public partial class EventPaging
+        public class EventPaging
         {
             public EventPaging(string eventTypeId, string paginationToken, DateTimeOffset? after, DateTimeOffset? before, ulong processedCount, ulong totalCount)
             {

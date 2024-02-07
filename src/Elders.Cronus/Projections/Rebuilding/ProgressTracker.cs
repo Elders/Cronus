@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
@@ -18,12 +19,12 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly ILogger<ProgressTracker> logger;
 
         public string ProjectionName { get; set; }
-        public Dictionary<string, ulong> EventTypeProcessed { get; set; }
+        public Dictionary<string, StrongBox<ulong>> EventTypeProcessed { get; set; }
         public ulong TotalEvents { get; set; }
 
         public ProgressTracker(IMessageCounter messageCounter, ICronusContextAccessor contextAccessor, IPublisher<ISystemSignal> signalPublisher, ProjectionVersionHelper projectionVersionHelper, ILogger<ProgressTracker> logger)
         {
-            EventTypeProcessed = new Dictionary<string, ulong>();
+            EventTypeProcessed = new Dictionary<string, StrongBox<ulong>>();
             tenant = contextAccessor.CronusContext.Tenant;
             this.messageCounter = messageCounter;
             this.signalPublisher = signalPublisher;
@@ -37,7 +38,7 @@ namespace Elders.Cronus.Projections.Rebuilding
         /// <param name="version">Projection version that should be initialized</param>
         public async Task InitializeAsync(ProjectionVersion version)
         {
-            EventTypeProcessed = new Dictionary<string, ulong>();
+            EventTypeProcessed = new Dictionary<string, StrongBox<ulong>>();
             TotalEvents = 0;
 
             ProjectionName = version.ProjectionName;
@@ -45,7 +46,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             foreach (var eventType in projectionHandledEventTypes)
             {
                 TotalEvents += (ulong)await messageCounter.GetCountAsync(eventType).ConfigureAwait(false);
-                EventTypeProcessed.Add(eventType.GetContractId(), 0);
+                EventTypeProcessed.Add(eventType.GetContractId(), new StrongBox<ulong>(0));
             }
         }
 
@@ -81,16 +82,15 @@ namespace Elders.Cronus.Projections.Rebuilding
             ulong totalProcessed = 0;
             foreach (var typeProcessed in EventTypeProcessed)
             {
-                totalProcessed += typeProcessed.Value;
+                totalProcessed += typeProcessed.Value.Value;
             }
             return totalProcessed;
         }
 
         public ulong GetTotalProcessedCount(string executionId)
         {
-            ulong totalProcessed = 0;
-            EventTypeProcessed.TryGetValue(executionId, out totalProcessed);
-            return totalProcessed;
+            EventTypeProcessed.TryGetValue(executionId, out var totalProcessed);
+            return totalProcessed.Value;
         }
 
         public ulong CountTotalProcessedEvents()
@@ -98,7 +98,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             ulong totalProcessed = 0;
             foreach (var typeProcessed in EventTypeProcessed)
             {
-                totalProcessed += typeProcessed.Value;
+                totalProcessed += typeProcessed.Value.Value;
             }
             return totalProcessed;
         }
@@ -107,8 +107,8 @@ namespace Elders.Cronus.Projections.Rebuilding
         {
             try
             {
-                EventTypeProcessed.TryGetValue(executionId, out ulong processed);
-                EventTypeProcessed[executionId] = ++processed;
+                if (EventTypeProcessed.ContainsKey(executionId))
+                    Interlocked.Increment(ref EventTypeProcessed[executionId].Value);
 
             }
             catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }

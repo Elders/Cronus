@@ -1,9 +1,9 @@
-﻿using Elders.Cronus.Discoveries;
+﻿using System.Collections.Generic;
+using Elders.Cronus.Discoveries;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.EventStore.Players;
 using Elders.Cronus.Projections.Rebuilding;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
 
 namespace Elders.Cronus.Cluster.Job.InMemory
 {
@@ -32,7 +32,8 @@ namespace Elders.Cronus.Cluster.Job.InMemory
             yield return new DiscoveredModel(typeof(DefaultJobNameBuilder), typeof(DefaultJobNameBuilder), ServiceLifetime.Singleton);
 
             yield return new DiscoveredModel(typeof(IRebuildIndex_EventToAggregateRootId_JobFactory), typeof(RebuildIndex_EventToAggregateRootId_JobFactory), ServiceLifetime.Transient);
-            yield return new DiscoveredModel(typeof(Projection_JobFactory), typeof(Projection_JobFactory), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(RebuildProjection_JobFactory), typeof(RebuildProjection_JobFactory), ServiceLifetime.Transient);
+            yield return new DiscoveredModel(typeof(RebuildProjectionSequentially_JobFactory), typeof(RebuildProjectionSequentially_JobFactory), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(RebuildIndex_MessageCounter_JobFactory), typeof(RebuildIndex_MessageCounter_JobFactory), ServiceLifetime.Transient);
             yield return new DiscoveredModel(typeof(ReplayPublicEvents_JobFactory), typeof(ReplayPublicEvents_JobFactory), ServiceLifetime.Transient);
 

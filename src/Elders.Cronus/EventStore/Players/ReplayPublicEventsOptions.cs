@@ -13,6 +13,6 @@ namespace Elders.Cronus.EventStore.Players
         public DateTimeOffset? Before { get; set; }
 
         [DataMember(Order = 3)]
-        public int MaxDegreeOfParallelism { get; set; } = Environment.ProcessorCount * 100;
+        public int MaxDegreeOfParallelism { get; set; } = 2;
     }
 }

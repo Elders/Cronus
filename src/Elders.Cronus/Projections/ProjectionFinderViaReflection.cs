@@ -1,6 +1,6 @@
-﻿using Elders.Cronus.Projections.Versioning;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Elders.Cronus.Projections.Versioning;
 
 namespace Elders.Cronus.Projections
 {
@@ -19,7 +19,7 @@ namespace Elders.Cronus.Projections
         {
             foreach (Type projectionType in allProjections.Items)
             {
-                if (typeof(IAmEventSourcedProjection).IsAssignableFrom(projectionType))
+                if (typeof(IProjectionDefinition).IsAssignableFrom(projectionType) || typeof(IAmEventSourcedProjection).IsAssignableFrom(projectionType))
                 {
                     string name = projectionType.GetContractId();
                     string hash = hasher.CalculateHash(projectionType);

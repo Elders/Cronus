@@ -41,6 +41,7 @@ namespace Elders.Cronus.Projections
             if (@event is null) throw new ArgumentNullException(nameof(@event));
 
             string projectionName = projectionType.GetContractId();
+            // TODO: inspect the type if it implements IProjectionDefinition
             IHandlerInstance handlerInstance = handlerFactory.Create(projectionType);
             IProjectionDefinition projection = handlerInstance.Current as IProjectionDefinition;
 

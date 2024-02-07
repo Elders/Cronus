@@ -1,9 +1,9 @@
-﻿using Elders.Cronus.Multitenancy;
+﻿using System;
+using System.Threading.Tasks;
+using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using System;
-using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections
 {
