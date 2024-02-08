@@ -9,6 +9,8 @@ namespace Elders.Cronus.EventStore.Index
 
         public string PaginationToken { get; set; }
 
+        public uint ProcessedCount { get; set; }
         public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+        public int MaxDegreeOfParallelism { get; set; }
     }
 }

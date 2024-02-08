@@ -1,9 +1,9 @@
-﻿using Elders.Cronus.Cluster.Job;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Elders.Cronus.Cluster.Job;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore.Index
 {
@@ -42,27 +42,31 @@ namespace Elders.Cronus.EventStore.Index
                     IndexRecord indexRecord = new IndexRecord(eventContractId, @event.AggregateRootId, @event.Revision, @event.Position, @event.Timestamp);
                     await indexStore.ApendAsync(indexRecord);
 
-                    counter++;
+                    Interlocked.Increment(ref counter);
                 },
                 NotifyProgressAsync = async options =>
                 {
                     Data.PaginationToken = options.PaginationToken;
+                    Data.MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
+                    Data.Timestamp = DateTimeOffset.UtcNow;
+                    Data.ProcessedCount = counter;
+
                     Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-                    logger.Info(() => $"RebuildIndex_EventToAggregateRootId_Job progress: {counter}");
+                    logger.LogInformation("RebuildIndex_EventToAggregateRootId_Job progress: {counter}", counter);
                 }
             };
 
             PlayerOptions options = new PlayerOptions().WithPaginationToken(Data.PaginationToken);
 
-            logger.Info(() => $"MaxDegreeOfParallelism is {options.MaxDegreeOfParallelism}");
+            logger.LogInformation("Max degree of parallelism is {max_dop}.", options.MaxDegreeOfParallelism);
 
             await eventStorePlayer.EnumerateEventStore(@operator, options).ConfigureAwait(false);
 
             Data.IsCompleted = true;
             Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-            logger.Info(() => $"The job has been completed.");
+            logger.LogInformation("The job has been completed. Processed {counter}", counter);
 
             return JobExecutionStatus.Completed;
         }
