@@ -26,14 +26,14 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly IProjectionWriter projectionWriter;
         private readonly ProgressTracker progressTracker;
         private readonly ProjectionVersionHelper projectionVersionHelper;
-        private static readonly Action<ILogger, string, ulong, Exception> LogProjectionProgress =
-            LoggerMessage.Define<string, ulong>(LogLevel.Information, CronusLogEvent.CronusJobOk, "Rebuild projection job progress for version {cronus_projection_version}: {counter}");
+        private static readonly Action<ILogger, string, ulong, double, Exception> LogProjectionProgress =
+            LoggerMessage.Define<string, ulong, double>(LogLevel.Information, CronusLogEvent.CronusJobOk, "Rebuild projection job progress for version {cronus_projection_version}: {counter}. Average speed: {speed} events/s.");
 
         private static readonly Action<ILogger, string, Exception> LogRebuildProjectionCanceled =
             LoggerMessage.Define<string>(LogLevel.Information, CronusLogEvent.CronusJobError, "The rebuild job for version {cronus_projection_version} was cancelled.");
 
-        private static readonly Action<ILogger, string, ulong, Exception> LogRebuildProjectionCompleted =
-            LoggerMessage.Define<string, ulong>(LogLevel.Information, CronusLogEvent.CronusJobOk, "The rebuild job for version {cronus_projection_version} has completed. Total events: {counter}");
+        private static readonly Action<ILogger, string, double, ulong, double, Exception> LogRebuildProjectionCompleted =
+            LoggerMessage.Define<string, double, ulong, double>(LogLevel.Information, CronusLogEvent.CronusJobOk, "The rebuild job for version {cronus_projection_version} has completed in {Elapsed:0.0000} ms. Total events: {counter}. Average speed: {speed} events/s.");
 
         public RebuildProjectionSequentially_Job(
             IInitializableProjectionStore projectionStoreInitializer,
@@ -89,6 +89,8 @@ namespace Elders.Cronus.Projections.Rebuilding
             var projectionInstance = contextAccessor.CronusContext.ServiceProvider.GetRequiredService(projectionType);
 
             var pingSource = new CancellationTokenSource();
+            TimeSpan elapsed;
+
             CancellationToken ct = pingSource.Token;
             if (projectionInstance is IAmEventSourcedProjection eventSourcedProjection)
             {
@@ -137,12 +139,14 @@ namespace Elders.Cronus.Projections.Rebuilding
                     },
                     NotifyProgressAsync = async options =>
                     {
-                        Data.ProcessedCount = progressTracker.GetTotalProcessedCount();
+                        var totalCount = progressTracker.GetTotalProcessedCount();
+                        Data.ProcessedCount = totalCount;
                         Data.PaginationToken = options.PaginationToken;
                         Data.MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
                         Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-                        LogProjectionProgress(logger, version.ToString(), progressTracker.GetTotalProcessedCount(), null);
+                        var avgSpeed = progressTracker.GetProcessedPerSecond();
+                        LogProjectionProgress(logger, version.ToString(), totalCount, avgSpeed, null);
                     }
                 };
 
@@ -163,9 +167,11 @@ namespace Elders.Cronus.Projections.Rebuilding
                     MaxDegreeOfParallelism = Data.MaxDegreeOfParallelism
                 };
 
+                progressTracker.MarkProcessStart();
                 await player.EnumerateEventStore(playerOperator, opt).ConfigureAwait(false);
 
                 await eventSourcedProjection.OnReplayCompletedAsync().ConfigureAwait(false);
+                elapsed = progressTracker.GetElapsed();
             }
             else
             {
@@ -186,7 +192,10 @@ namespace Elders.Cronus.Projections.Rebuilding
             var finishSignal = progressTracker.GetProgressFinishedSignal();
             signalPublisher.Publish(finishSignal);
 
-            LogRebuildProjectionCompleted(logger, version.ToString(), progressTracker.GetTotalProcessedCount(), null);
+            var totalCount = progressTracker.GetTotalProcessedCount();
+            var avgSpeed = progressTracker.GetProcessedPerSecond();
+
+            LogRebuildProjectionCompleted(logger, version.ToString(), elapsed.TotalMilliseconds, totalCount, avgSpeed, null);
 
             return JobExecutionStatus.Completed;
         }

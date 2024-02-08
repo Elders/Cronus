@@ -24,14 +24,14 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly IProjectionWriter projectionWriter;
         private readonly ProgressTracker progressTracker;
         private readonly ProjectionVersionHelper projectionVersionHelper;
-        private static readonly Action<ILogger, string, ulong, Exception> LogProjectionProgress =
-            LoggerMessage.Define<string, ulong>(LogLevel.Information, CronusLogEvent.CronusJobOk, "Rebuild projection job progress for version {cronus_projection_version}: {counter}");
+        private static readonly Action<ILogger, string, ulong, double, Exception> LogProjectionProgress =
+            LoggerMessage.Define<string, ulong, double>(LogLevel.Information, CronusLogEvent.CronusJobOk, "Rebuild projection job progress for version {cronus_projection_version}: {counter}. Average speed: {speed} events/s.");
 
         private static readonly Action<ILogger, string, Exception> LogRebuildProjectionCanceled =
             LoggerMessage.Define<string>(LogLevel.Information, CronusLogEvent.CronusJobError, "The rebuild job for version {cronus_projection_version} was cancelled.");
 
-        private static readonly Action<ILogger, string, ulong, Exception> LogRebuildProjectionCompleted =
-            LoggerMessage.Define<string, ulong>(LogLevel.Information, CronusLogEvent.CronusJobOk, "The rebuild job for version {cronus_projection_version} has completed. Total events: {counter}");
+        private static readonly Action<ILogger, string, double, ulong, double, Exception> LogRebuildProjectionCompleted =
+            LoggerMessage.Define<string, double, ulong, double>(LogLevel.Information, CronusLogEvent.CronusJobOk, "The rebuild job for version {cronus_projection_version} has completed in {Elapsed:0.0000} ms. Total events: {counter}. Average speed: {speed} events/s.");
 
         public RebuildProjection_Job(
             IInitializableProjectionStore projectionStoreInitializer,
@@ -92,7 +92,7 @@ namespace Elders.Cronus.Projections.Rebuilding
 
             var pingSource = new CancellationTokenSource();
             CancellationToken ct = pingSource.Token;
-
+            progressTracker.MarkProcessStart();
             foreach (string eventTypeId in projectionHandledEventTypes)
             {
                 if (Data.IsCanceled || cancellationToken.IsCancellationRequested || await projectionVersionHelper.ShouldBeCanceledAsync(version, Data.DueDate).ConfigureAwait(false))
@@ -124,6 +124,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                     },
                     NotifyProgressAsync = async options =>
                     {
+                        var totalCount = progressTracker.GetTotalProcessedCount();
                         var progress = new RebuildProjection_JobData.EventPaging(options.EventTypeId, options.PaginationToken, options.After, options.Before, progressTracker.GetTotalProcessedCount(options.EventTypeId), 0);
                         if (Data.MarkEventTypeProgress(progress))
                         {
@@ -134,7 +135,8 @@ namespace Elders.Cronus.Projections.Rebuilding
                             Data = await cluster.PingAsync(Data).ConfigureAwait(false);
                         }
 
-                        LogProjectionProgress(logger, version.ToString(), progressTracker.GetTotalProcessedCount(), null);
+                        var avgSpeed = progressTracker.GetProcessedPerSecond();
+                        LogProjectionProgress(logger, version.ToString(), totalCount, avgSpeed, null);
                     }
                 };
 
@@ -162,7 +164,10 @@ namespace Elders.Cronus.Projections.Rebuilding
             var finishSignal = progressTracker.GetProgressFinishedSignal();
             signalPublisher.Publish(finishSignal);
 
-            LogRebuildProjectionCompleted(logger, version.ToString(), progressTracker.GetTotalProcessedCount(), null);
+            var totalCount = progressTracker.GetTotalProcessedCount();
+            var avgSpeed = progressTracker.GetProcessedPerSecond();
+
+            LogRebuildProjectionCompleted(logger, version.ToString(), progressTracker.GetElapsed().TotalMilliseconds, totalCount, avgSpeed, null);
 
             return JobExecutionStatus.Completed;
         }

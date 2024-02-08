@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +31,8 @@ namespace Elders.Cronus.EventStore.Index
                 return JobExecutionStatus.Running;
             }
 
-            uint counter = 0;
+            long startTimestamp = 0L;
+            uint counter = 0u;
             PlayerOperator @operator = new PlayerOperator()
             {
                 OnLoadAsync = async @event =>
@@ -46,6 +48,7 @@ namespace Elders.Cronus.EventStore.Index
                 },
                 NotifyProgressAsync = async options =>
                 {
+                    var elapsed = Stopwatch.GetElapsedTime(startTimestamp);
                     Data.PaginationToken = options.PaginationToken;
                     Data.MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
                     Data.Timestamp = DateTimeOffset.UtcNow;
@@ -53,7 +56,8 @@ namespace Elders.Cronus.EventStore.Index
 
                     Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-                    logger.LogInformation("RebuildIndex_EventToAggregateRootId_Job progress: {counter}", counter);
+                    var avgSpeed = Math.Round(counter / elapsed.TotalSeconds, 1); // no need to check for division by 0. double.PositiveInfinity is a thing
+                    logger.LogInformation("RebuildIndex_EventToAggregateRootId_Job progress: {counter}. Average speed {speed} events/s.", counter, avgSpeed);
                 }
             };
 
@@ -61,12 +65,16 @@ namespace Elders.Cronus.EventStore.Index
 
             logger.LogInformation("Max degree of parallelism is {max_dop}.", options.MaxDegreeOfParallelism);
 
+            startTimestamp = Stopwatch.GetTimestamp();
             await eventStorePlayer.EnumerateEventStore(@operator, options).ConfigureAwait(false);
+            var elapsed = Stopwatch.GetElapsedTime(startTimestamp);
 
             Data.IsCompleted = true;
             Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-            logger.LogInformation("The job has been completed. Processed {counter}", counter);
+            var avgSpeed = Math.Round(counter / elapsed.TotalSeconds, 1); // no need to check for division by 0. double.PositiveInfinity is a thing
+
+            logger.LogInformation("The job has been completed. Processed {counter}. Average speed {speed} events/s.", counter, avgSpeed);
 
             return JobExecutionStatus.Completed;
         }

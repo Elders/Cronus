@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace Elders.Cronus.Projections.Rebuilding
         private readonly IPublisher<ISystemSignal> signalPublisher;
         private readonly ProjectionVersionHelper projectionVersionHelper;
         private readonly ILogger<ProgressTracker> logger;
+        private long startingTimestamp;
 
         public string ProjectionName { get; set; }
         public Dictionary<string, StrongBox<ulong>> EventTypeProcessed { get; set; }
@@ -77,6 +79,16 @@ namespace Elders.Cronus.Projections.Rebuilding
             return new RebuildProjectionStarted(tenant, ProjectionName);
         }
 
+        public void MarkProcessStart()
+        {
+            startingTimestamp = Stopwatch.GetTimestamp();
+        }
+
+        public TimeSpan GetElapsed()
+        {
+            return Stopwatch.GetElapsedTime(startingTimestamp);
+        }
+
         public ulong GetTotalProcessedCount()
         {
             ulong totalProcessed = 0;
@@ -85,6 +97,22 @@ namespace Elders.Cronus.Projections.Rebuilding
                 totalProcessed += typeProcessed.Value.Value;
             }
             return totalProcessed;
+        }
+
+        public double GetProcessedPerSecond()
+        {
+            if (startingTimestamp > 0)
+                return GetProcessedPerSecond(startingTimestamp);
+
+            return 0;
+        }
+
+        public double GetProcessedPerSecond(long startingTimestamp)
+        {
+            var totalCount = GetTotalProcessedCount();
+            var elapsed = Stopwatch.GetElapsedTime(startingTimestamp);
+
+            return Math.Round(totalCount / elapsed.TotalSeconds, 1); // no need to check for division by 0. double.PositiveInfinity is a thing
         }
 
         public ulong GetTotalProcessedCount(string executionId)
@@ -132,10 +160,14 @@ namespace Elders.Cronus.Projections.Rebuilding
                                     RebuildProjectionProgress progressSignalche = GetProgressSignal();
                                     signalPublisher.Publish(progressSignalche);
 
-                                    await Task.Delay(1000, cancellationToken);
+                                    if (cancellationToken.IsCancellationRequested)
+                                        break;
+
+                                    await Task.Delay(1000, cancellationToken).ConfigureAwait(false);
                                 }
                             }
-                            catch (Exception)
+                            catch (Exception) { }
+                            finally
                             {
                                 notifier = null;
                             }
