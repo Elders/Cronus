@@ -14,12 +14,13 @@ namespace Elders.Cronus.EventStore.Index
             this.jobNameBuilder = jobNameBuilder;
         }
 
-        public ICronusJob<object> CreateJob(VersionRequestTimebox timebox)
+        public ICronusJob<object> CreateJob(VersionRequestTimebox timebox, int maxDegreeOfParallelism)
         {
             job.Name = jobNameBuilder.GetJobName(job.Name);
             job.BuildInitialData(() => new RebuildIndex_JobData()
             {
-                Timestamp = timebox.RequestStartAt
+                Timestamp = timebox.RequestStartAt,
+                MaxDegreeOfParallelism = maxDegreeOfParallelism
             });
 
             return job;

@@ -61,7 +61,11 @@ namespace Elders.Cronus.EventStore.Index
                 }
             };
 
-            PlayerOptions options = new PlayerOptions().WithPaginationToken(Data.PaginationToken);
+            PlayerOptions options = new PlayerOptions
+            {
+                PaginationToken = Data.PaginationToken,
+                MaxDegreeOfParallelism = Data.MaxDegreeOfParallelism
+            };
 
             logger.LogInformation("Max degree of parallelism is {max_dop}.", options.MaxDegreeOfParallelism);
 

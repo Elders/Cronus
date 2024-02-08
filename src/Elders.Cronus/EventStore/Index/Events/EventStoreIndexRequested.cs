@@ -1,6 +1,6 @@
-﻿using Elders.Cronus.Projections.Versioning;
-using System;
+﻿using System;
 using System.Runtime.Serialization;
+using Elders.Cronus.Projections.Versioning;
 
 namespace Elders.Cronus.EventStore.Index
 {
@@ -9,20 +9,24 @@ namespace Elders.Cronus.EventStore.Index
     {
         EventStoreIndexRequested() { }
 
-        public EventStoreIndexRequested(EventStoreIndexManagerId id, DateTimeOffset requestTimestamp, VersionRequestTimebox timebox)
+        public EventStoreIndexRequested(EventStoreIndexManagerId id, DateTimeOffset requestTimestamp, VersionRequestTimebox timebox, int maxDegreeOfParallelism)
         {
-            Id = id;
+            Id = id ?? throw new ArgumentNullException(nameof(id));
             Timestamp = requestTimestamp;
-            Timebox = timebox;
+            Timebox = timebox ?? throw new ArgumentNullException(nameof(timebox));
+            MaxDegreeOfParallelism = maxDegreeOfParallelism;
         }
 
         [DataMember(Order = 1)]
-        public EventStoreIndexManagerId Id { get; set; }
+        public EventStoreIndexManagerId Id { get; private set; }
 
         [DataMember(Order = 2)]
         public DateTimeOffset Timestamp { get; private set; }
 
         [DataMember(Order = 3)]
         public VersionRequestTimebox Timebox { get; private set; }
+
+        [DataMember(Order = 4)]
+        public int MaxDegreeOfParallelism { get; private set; }
     }
 }

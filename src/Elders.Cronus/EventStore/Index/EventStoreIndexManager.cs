@@ -1,5 +1,5 @@
-﻿using Elders.Cronus.Projections.Versioning;
-using System;
+﻿using System;
+using Elders.Cronus.Projections.Versioning;
 
 namespace Elders.Cronus.EventStore.Index
 {
@@ -10,7 +10,7 @@ namespace Elders.Cronus.EventStore.Index
         public EventStoreIndexManager(EventStoreIndexManagerId id)
         {
             var timebox = new VersionRequestTimebox(DateTime.UtcNow);
-            BuildIndex(id, timebox);
+            BuildIndex(id, timebox, 2);
         }
 
         public void Register()
@@ -25,22 +25,24 @@ namespace Elders.Cronus.EventStore.Index
                 if (state.LastVersionRequestTimebox.HasExpired)
                 {
                     // TOOD: May be we need to signal a cancel for the prev run
-                    BuildIndex(state.Id, new VersionRequestTimebox(DateTime.UtcNow));
+                    BuildIndex(state.Id, new VersionRequestTimebox(DateTime.UtcNow), 2);
                 }
             }
         }
 
-        public void Rebuild()
+        public void Rebuild() => Rebuild(2);
+
+        public void Rebuild(int maxDegreeOfParallelism)
         {
             if (state.IsBuilding)
                 return;
 
-            BuildIndex(state.Id, new VersionRequestTimebox(DateTime.UtcNow));
+            BuildIndex(state.Id, new VersionRequestTimebox(DateTime.UtcNow), maxDegreeOfParallelism);
         }
 
-        private void BuildIndex(EventStoreIndexManagerId id, VersionRequestTimebox timebox)
+        private void BuildIndex(EventStoreIndexManagerId id, VersionRequestTimebox timebox, int maxDegreeOfParallelism)
         {
-            var @event = new EventStoreIndexRequested(id, DateTimeOffset.UtcNow, timebox);
+            var @event = new EventStoreIndexRequested(id, DateTimeOffset.UtcNow, timebox, maxDegreeOfParallelism);
             Apply(@event);
         }
 

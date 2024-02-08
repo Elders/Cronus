@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Threading.Tasks;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
 
 namespace Elders.Cronus.EventStore.Index.Handlers
@@ -28,7 +28,7 @@ namespace Elders.Cronus.EventStore.Index.Handlers
             var startRebuildAt = @event.Timebox.RequestStartAt;
             if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
             {
-                RequestTimeout(new RebuildIndexInternal(@event, @event.Timebox.RequestStartAt));
+                RequestTimeout(new RebuildIndexInternal(@event, @event.Timebox.RequestStartAt, @event.MaxDegreeOfParallelism));
                 //RequestTimeout(new EventStoreIndexRebuildTimedout(@event, @event.Timebox.FinishRequestUntil));
             }
 
@@ -47,19 +47,19 @@ namespace Elders.Cronus.EventStore.Index.Handlers
             }
             else
             {
-                job = jobFactory.CreateJob(sagaTimeout.EventStoreIndexRequest.Timebox);
+                job = jobFactory.CreateJob(sagaTimeout.EventStoreIndexRequest.Timebox, sagaTimeout.MaxDegreeOfParallelism);
             }
 
             JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
 
             if (result == JobExecutionStatus.Running)
             {
-                RequestTimeout(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(30)));
+                RequestTimeout(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(30), sagaTimeout.MaxDegreeOfParallelism));
             }
             else if (result == JobExecutionStatus.Failed)
             {
                 // log error
-                RequestTimeout(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(30)));
+                RequestTimeout(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(30), sagaTimeout.MaxDegreeOfParallelism));
             }
             else if (result == JobExecutionStatus.Completed)
             {
@@ -84,10 +84,11 @@ namespace Elders.Cronus.EventStore.Index.Handlers
             Timestamp = DateTimeOffset.UtcNow;
         }
 
-        public RebuildIndexInternal(EventStoreIndexRequested indexRequest, DateTime publishAt) : this()
+        public RebuildIndexInternal(EventStoreIndexRequested indexRequest, DateTime publishAt, int maxDegreeOfParallelism) : this()
         {
             EventStoreIndexRequest = indexRequest;
             PublishAt = publishAt;
+            MaxDegreeOfParallelism = maxDegreeOfParallelism;
         }
 
         [DataMember(Order = 1)]
@@ -98,6 +99,9 @@ namespace Elders.Cronus.EventStore.Index.Handlers
 
         [DataMember(Order = 3)]
         public DateTimeOffset Timestamp { get; private set; }
+
+        [DataMember(Order = 4)]
+        public int MaxDegreeOfParallelism { get; private set; }
 
         public string Tenant { get { return EventStoreIndexRequest.Id.Tenant; } }
     }

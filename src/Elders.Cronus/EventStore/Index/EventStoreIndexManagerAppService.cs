@@ -42,7 +42,10 @@ namespace Elders.Cronus.EventStore.Index
                 ar = result.Data;
             }
 
-            ar.Rebuild();
+            if (command.MaxDegreeOfParallelism.HasValue)
+                ar.Rebuild(command.MaxDegreeOfParallelism.Value);
+            else
+                ar.Rebuild();
 
             await repository.SaveAsync(ar).ConfigureAwait(false);
         }

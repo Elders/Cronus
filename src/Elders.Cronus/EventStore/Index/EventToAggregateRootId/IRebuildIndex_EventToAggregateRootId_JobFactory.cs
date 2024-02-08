@@ -5,7 +5,7 @@ namespace Elders.Cronus.EventStore.Index
 {
     public interface IRebuildIndex_EventToAggregateRootId_JobFactory
     {
-        ICronusJob<object> CreateJob(VersionRequestTimebox timebox);
+        ICronusJob<object> CreateJob(VersionRequestTimebox timebox, int maxDegreeOfParallelism);
         string GetJobName();
     }
 }
