@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using Elders.Cronus.AtomicAction;
+using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.Hosting.Heartbeat;
 using Elders.Cronus.MessageProcessing;
@@ -33,6 +34,7 @@ namespace Elders.Cronus
             services.AddCronusHostOptions();
             services.AddDefaultSubscribers();
             services.AddInMemoryLock();
+            services.AddJobManager();
 
             var discoveryFinder = new DiscoveryScanner();
             var discoveryContext = new DiscoveryContext(AssemblyLoader.Assemblies.Values, cronusServicesProvider.Configuration);
@@ -40,6 +42,13 @@ namespace Elders.Cronus
 
             foreach (var result in discoveryResults)
                 cronusServicesProvider.HandleDiscoveredModel(result);
+
+            return services;
+        }
+
+        internal static IServiceCollection AddJobManager(this IServiceCollection services)
+        {
+            services.AddSingleton<JobManager>();
 
             return services;
         }

@@ -9,7 +9,7 @@ namespace Elders.Cronus.Projections
         Establish context = () =>
         {
             version = new ProjectionVersion("projectionName", ProjectionStatus.Timedout, 1, "hash");
-            nextVersion = new ProjectionVersion("projectionName", ProjectionStatus.Replaying, 2, "hash");
+            nextVersion = new ProjectionVersion("projectionName", ProjectionStatus.New, 2, "hash");
         };
 
         Because of = () => versions = new ProjectionVersions(version);

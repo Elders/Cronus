@@ -1,6 +1,7 @@
 ﻿using Elders.Cronus.EventStore;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
@@ -12,6 +13,11 @@ namespace Elders.Cronus.Migration.Middleware.Tests.TestModel
         {
             if (eventStore is null == true) throw new ArgumentNullException(nameof(eventStore));
             this.eventStore = eventStore;
+        }
+
+        public Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
 
         public Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions)

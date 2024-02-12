@@ -8,8 +8,8 @@ namespace Elders.Cronus.Projections.Versioning
         IEventHandler<ProjectionVersionRequested>,
         IEventHandler<NewProjectionVersionIsNowLive>,
         IEventHandler<ProjectionVersionRequestCanceled>,
-        IEventHandler<ProjectionVersionRequestTimedout>
-
+        IEventHandler<ProjectionVersionRequestTimedout>,
+        IEventHandler<ProjectionVersionRequestPaused>
     {
         public const string ContractId = "f1469a8e-9fc8-47f5-b057-d5394ed33b4c";
 
@@ -19,6 +19,7 @@ namespace Elders.Cronus.Projections.Versioning
             Subscribe<NewProjectionVersionIsNowLive>(x => x.Id);
             Subscribe<ProjectionVersionRequestCanceled>(x => x.Id);
             Subscribe<ProjectionVersionRequestTimedout>(x => x.Id);
+            Subscribe<ProjectionVersionRequestPaused>(x => x.Id);
         }
 
         public Task HandleAsync(ProjectionVersionRequested @event)
@@ -43,6 +44,13 @@ namespace Elders.Cronus.Projections.Versioning
         }
 
         public Task HandleAsync(ProjectionVersionRequestTimedout @event)
+        {
+            State.Id = @event.Id;
+            State.AllVersions.Add(@event.Version);
+            return Task.CompletedTask;
+        }
+
+        public Task HandleAsync(ProjectionVersionRequestPaused @event)
         {
             State.Id = @event.Id;
             State.AllVersions.Add(@event.Version);

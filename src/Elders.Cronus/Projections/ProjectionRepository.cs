@@ -344,7 +344,7 @@ namespace Elders.Cronus.Projections
 
         private bool ShouldSaveEventForVersion(ProjectionVersion version)
         {
-            return version.Status == ProjectionStatus.Building || version.Status == ProjectionStatus.Replaying || version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Live;
+            return version.Status == ProjectionStatus.New || version.Status == ProjectionStatus.Fixing || version.Status == ProjectionStatus.Live;
         }
     }
 }

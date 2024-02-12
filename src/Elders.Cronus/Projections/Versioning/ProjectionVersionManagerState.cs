@@ -25,6 +25,13 @@ namespace Elders.Cronus.Projections.Versioning
             LastVersionRequestTimebox = e.Timebox;
         }
 
+        public void When(ProjectionVersionRequestPaused e)
+        {
+            Id = e.Id;
+            Versions.Add(e.Version);
+            LastVersionRequestTimebox = LastVersionRequestTimebox.Reset();
+        }
+
         public void When(NewProjectionVersionIsNowLive e)
         {
             Id = e.Id;

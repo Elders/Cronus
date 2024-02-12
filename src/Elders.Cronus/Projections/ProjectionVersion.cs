@@ -39,17 +39,17 @@ namespace Elders.Cronus.Projections
         //}
 
         /// <summary>
-        /// Gets the next <see cref="ProjectionVersion"/> which is always with <see cref="ProjectionStatus"/> <see cref="ProjectionStatus.Replaying"/> and increased Revision.
+        /// Gets the next <see cref="ProjectionVersion"/> which is always with <see cref="ProjectionStatus"/> <see cref="ProjectionStatus.New"/> and increased Revision.
         /// </summary>
         /// <returns>Returns a <see cref="ProjectionVersion"/></returns>
         public ProjectionVersion NextRevision(string hash)
         {
-            return new ProjectionVersion(ProjectionName, ProjectionStatus.Replaying, Revision + 1, hash);
+            return new ProjectionVersion(ProjectionName, ProjectionStatus.New, Revision + 1, hash);
         }
 
         public ProjectionVersion NonVersionableRevision(string hash)
         {
-            return new ProjectionVersion(ProjectionName, ProjectionStatus.Replaying, Revision, hash);
+            return new ProjectionVersion(ProjectionName, ProjectionStatus.New, Revision, hash);
         }
 
         internal bool MaybeIsBroken()

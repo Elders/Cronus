@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.InMemory
@@ -11,6 +12,11 @@ namespace Elders.Cronus.EventStore.InMemory
         public InMemoryEventStorePlayer(InMemoryEventStoreStorage eventStoreStorage)
         {
             this.eventStoreStorage = eventStoreStorage;
+        }
+
+        public Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
 
         public Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions)

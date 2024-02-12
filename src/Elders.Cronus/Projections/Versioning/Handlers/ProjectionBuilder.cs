@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
+using Elders.Cronus.EventStore.Players;
 using Elders.Cronus.Projections.Rebuilding;
 using Microsoft.Extensions.Logging;
 
@@ -10,6 +13,7 @@ namespace Elders.Cronus.Projections.Versioning
     [DataContract(Name = "d0dc548e-cbb1-4cb8-861b-e5f6bef68116")]
     public class ProjectionBuilder : Saga, ISystemSaga,
         IEventHandler<ProjectionVersionRequested>,
+        IEventHandler<ProjectionVersionRequestPaused>,
         ISagaTimeoutHandler<CreateNewProjectionVersion>,
         ISagaTimeoutHandler<ProjectionVersionRequestHeartbeat>
     {
@@ -39,16 +43,30 @@ namespace Elders.Cronus.Projections.Versioning
             return Task.CompletedTask;
         }
 
-        public async Task HandleAsync(CreateNewProjectionVersion sagaTimeout)
+        public Task HandleAsync(ProjectionVersionRequestPaused @event)
+        {
+            var job = GetJob(@event.Version, new ReplayEventsOptions(), new VersionRequestTimebox(@event.Timestamp.DateTime));
+
+            return jobRunner.JobManager.CancelAsync(job.Name);
+        }
+
+        private ICronusJob<object> GetJob(ProjectionVersion version, ReplayEventsOptions replayEventsOptions, VersionRequestTimebox requestTimebox)
         {
             IProjection_JobFactory factory;
-            var projectionType = sagaTimeout.ProjectionVersionRequest.Version.ProjectionName.GetTypeByContract();
+            var projectionType = version.ProjectionName.GetTypeByContract();
             if (projectionType.IsAssignableTo(typeof(IAmEventSourcedProjectionFast)) || projectionType.IsAssignableTo(typeof(IProjectionDefinition)))
                 factory = fastJobFactory;
             else
                 factory = sequentialJobFactory;
 
-            var job = factory.CreateJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.ReplayEventsOptions, sagaTimeout.ProjectionVersionRequest.Timebox);
+            ICronusJob<object> job = factory.CreateJob(version, replayEventsOptions, requestTimebox);
+
+            return job;
+        }
+
+        public async Task HandleAsync(CreateNewProjectionVersion sagaTimeout)
+        {
+            ICronusJob<object> job = GetJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.ReplayEventsOptions, sagaTimeout.ProjectionVersionRequest.Timebox);
             JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
             logger.Debug(() => "Replay projection version {@cronus_projection_rebuild}", result);
 

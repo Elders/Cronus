@@ -7,6 +7,8 @@ namespace Elders.Cronus.Cluster.Job.InMemory
     {
         static NoClusterOperations clusterOperations = new NoClusterOperations();
 
+        public JobManager JobManager => throw new System.NotImplementedException();
+
         public void Dispose()
         {
 

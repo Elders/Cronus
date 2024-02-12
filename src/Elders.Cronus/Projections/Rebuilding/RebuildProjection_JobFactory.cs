@@ -21,7 +21,7 @@ namespace Elders.Cronus.Projections.Rebuilding
 
         public ICronusJob<object> CreateJob(ProjectionVersion version, ReplayEventsOptions replayEventsOptions, VersionRequestTimebox timebox)
         {
-            job.Name = $"urn:{boundedContext.Name}:{contextAccessor.CronusContext.Tenant}:{job.Name}:{version.ProjectionName}_{version.Hash}_{version.Revision}";
+            job.Name = $"urn:{contextAccessor.CronusContext.Tenant}:{boundedContext.Name}:{job.Name}:{version.ProjectionName}_{version.Hash}_{version.Revision}";
 
             job.BuildInitialData(() => new RebuildProjection_JobData()
             {

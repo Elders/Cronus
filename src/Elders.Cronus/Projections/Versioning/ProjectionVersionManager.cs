@@ -11,7 +11,7 @@ namespace Elders.Cronus.Projections.Versioning
         public ProjectionVersionManager(ProjectionVersionManagerId id, string hash)
         {
             string projectionName = id.Id;
-            var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.Replaying, 1, hash);
+            var initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.New, 1, hash);
             var options = new ReplayEventsOptions();
             var timebox = new VersionRequestTimebox(DateTime.UtcNow);
             RequestVersion(id, initialVersion, options, timebox);
@@ -62,12 +62,12 @@ namespace Elders.Cronus.Projections.Versioning
                 ProjectionVersion currentLiveVersion = state.Versions.GetLive();
                 if (currentLiveVersion is null)
                 {
-                    var initialVersion = new ProjectionVersion(state.Id.Id, ProjectionStatus.Replaying, 1, hash);
+                    var initialVersion = new ProjectionVersion(state.Id.Id, ProjectionStatus.New, 1, hash);
                     RequestVersion(state.Id, initialVersion, replayEventsOptions, new VersionRequestTimebox(DateTime.UtcNow));
                 }
                 else
                 {
-                    RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Rebuilding), replayEventsOptions, new VersionRequestTimebox(DateTime.UtcNow));
+                    RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Fixing), replayEventsOptions, new VersionRequestTimebox(DateTime.UtcNow));
                 }
 
                 return;
@@ -80,11 +80,11 @@ namespace Elders.Cronus.Projections.Versioning
                 if (currentLiveVersion is null)
                 {
                     var asd = state.Versions.GetNext(policy, hash);
-                    RequestVersion(state.Id, asd.WithStatus(ProjectionStatus.Rebuilding), replayEventsOptions, timebox);
+                    RequestVersion(state.Id, asd.WithStatus(ProjectionStatus.Fixing), replayEventsOptions, timebox);
                 }
                 else
                 {
-                    RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Rebuilding), replayEventsOptions, timebox);
+                    RequestVersion(state.Id, currentLiveVersion.WithStatus(ProjectionStatus.Fixing), replayEventsOptions, timebox);
                 }
             }
         }
@@ -96,9 +96,21 @@ namespace Elders.Cronus.Projections.Versioning
             bool foundVersion = state.Versions.Contains(version);
             if (foundVersion == false) return;
 
-            if (version.Status == ProjectionStatus.Rebuilding || version.Status == ProjectionStatus.Replaying || version.Status == ProjectionStatus.Building)
+            if (version.Status == ProjectionStatus.Fixing || version.Status == ProjectionStatus.New)
             {
                 var @event = new ProjectionVersionRequestTimedout(state.Id, version.WithStatus(ProjectionStatus.Timedout), timebox);
+                Apply(@event);
+            }
+        }
+
+        public void PauseVersionRequest(ProjectionVersion version)
+        {
+            bool foundVersion = state.Versions.Contains(version);
+            if (foundVersion == false) return;
+
+            if (version.Status == ProjectionStatus.Fixing || version.Status == ProjectionStatus.New)
+            {
+                var @event = new ProjectionVersionRequestPaused(state.Id, version.WithStatus(ProjectionStatus.Timedout), DateTimeOffset.UtcNow);
                 Apply(@event);
             }
         }
@@ -175,7 +187,7 @@ namespace Elders.Cronus.Projections.Versioning
             if (version.MaybeIsBroken())
                 return true;
 
-            if (version.Status != ProjectionStatus.Replaying && version.Status != ProjectionStatus.Rebuilding)
+            if (version.Status != ProjectionStatus.New && version.Status != ProjectionStatus.Fixing)
                 return false;
 
             return state.Versions.Contains(version);

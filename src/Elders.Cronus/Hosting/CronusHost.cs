@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Hosting;
 using Elders.Cronus.Migrations;
@@ -29,6 +30,7 @@ namespace Elders.Cronus
         private readonly IConsumer<ISystemProjection> systemProjections;
         private readonly IConsumer<IMigrationHandler> migrations;
         private readonly IRpcHost rpcHost;
+        private readonly JobManager jobManager;
         private readonly IServiceProvider serviceProvider;
         private CronusHostOptions hostOptions;
 
@@ -49,7 +51,9 @@ namespace Elders.Cronus
             IConsumer<ISystemProjection> systemProjections,
             IConsumer<IMigrationHandler> migrations,
             IOptionsMonitor<CronusHostOptions> cronusHostOptions,
-            IServiceProvider serviceProvider, IRpcHost rpcHost)
+            IServiceProvider serviceProvider,
+            IRpcHost rpcHost,
+            JobManager jobManager)
         {
             this.booter = booter;
             this.appServices = appServices ?? throw new ArgumentNullException(nameof(appServices));
@@ -68,6 +72,7 @@ namespace Elders.Cronus
             this.migrations = migrations;
             this.serviceProvider = serviceProvider;
             this.rpcHost = rpcHost;
+            this.jobManager = jobManager;
             this.hostOptions = cronusHostOptions.CurrentValue;
             cronusHostOptions.OnChange(Changed);
         }
@@ -147,6 +152,8 @@ namespace Elders.Cronus
                 {
                     stopTasks.Add(rpcHost.StopAsync());
                 }
+
+                stopTasks.Add(jobManager.CancelAllAsync());
 
                 await Task.WhenAll(stopTasks).ConfigureAwait(false);
             }

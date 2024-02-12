@@ -9,11 +9,11 @@ namespace Elders.Cronus.Projections
     {
         Establish context = () =>
         {
-            var buildingVersion = new ProjectionVersion("projectionName", ProjectionStatus.Replaying, 1, "hash");
+            var buildingVersion = new ProjectionVersion("projectionName", ProjectionStatus.New, 1, "hash");
             versions = new ProjectionVersions(buildingVersion);
 
-            buildingVersion2 = new ProjectionVersion("projectionName", ProjectionStatus.Replaying, 2, "hash");
-            nextVersion = new ProjectionVersion("projectionName", ProjectionStatus.Replaying, 3, "hash");
+            buildingVersion2 = new ProjectionVersion("projectionName", ProjectionStatus.New, 2, "hash");
+            nextVersion = new ProjectionVersion("projectionName", ProjectionStatus.New, 3, "hash");
         };
 
         Because of = () => versions.Add(buildingVersion2);

@@ -168,7 +168,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                 };
 
                 progressTracker.MarkProcessStart();
-                await player.EnumerateEventStore(playerOperator, opt).ConfigureAwait(false);
+                await player.EnumerateEventStore(playerOperator, opt, cancellationToken).ConfigureAwait(false);
 
                 await eventSourcedProjection.OnReplayCompletedAsync().ConfigureAwait(false);
                 elapsed = progressTracker.GetElapsed();

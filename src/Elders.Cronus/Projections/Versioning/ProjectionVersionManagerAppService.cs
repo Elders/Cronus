@@ -10,7 +10,8 @@ namespace Elders.Cronus.Projections.Versioning
         ICommandHandler<FinalizeProjectionVersionRequest>,
         ICommandHandler<CancelProjectionVersionRequest>,
         ICommandHandler<TimeoutProjectionVersionRequest>,
-        ICommandHandler<FixProjectionVersion>
+        ICommandHandler<FixProjectionVersion>,
+        ICommandHandler<PauseProjectionVersion>
     {
         private readonly IProjectionVersioningPolicy projectionVersioningPolicy;
         private readonly IProjectionReader projectionReader;
@@ -65,6 +66,11 @@ namespace Elders.Cronus.Projections.Versioning
         public Task HandleAsync(TimeoutProjectionVersionRequest command)
         {
             return UpdateAsync(command.Id, ar => ar.VersionRequestTimedout(command.Version, command.Timebox));
+        }
+
+        public Task HandleAsync(PauseProjectionVersion command)
+        {
+            return UpdateAsync(command.Id, ar => ar.PauseVersionRequest(command.Version));
         }
 
         private async Task<bool> ShouldRebuildMissingSystemProjectionsAsync(ProjectionVersionManagerId projectionId, IProjectionReader projectionReader)

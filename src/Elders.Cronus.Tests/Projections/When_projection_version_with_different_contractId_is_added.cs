@@ -8,10 +8,10 @@ namespace Elders.Cronus.Tests.Projections
     {
         Establish context = () =>
         {
-            var building = new ProjectionVersion("buildingId", ProjectionStatus.Replaying, 1, "buildingHash");
+            var building = new ProjectionVersion("buildingId", ProjectionStatus.New, 1, "buildingHash");
             versions = new ProjectionVersions(building);
 
-            differentId = new ProjectionVersion("differentId", ProjectionStatus.Replaying, 1, "buildingHash");
+            differentId = new ProjectionVersion("differentId", ProjectionStatus.New, 1, "buildingHash");
         };
 
         Because of = () => versions.Add(differentId);

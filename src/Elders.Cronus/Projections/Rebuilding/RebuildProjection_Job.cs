@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.EventStore;
-using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
 using Elders.Cronus.Workflow;
@@ -55,7 +54,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             this.projectionWriter = projectionWriter;
         }
 
-        public override string Name { get; set; } = typeof(ProjectionIndex).GetContractId();
+        public override string Name { get; set; } = nameof(RebuildProjection_Job);
 
         protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
         {
@@ -90,8 +89,7 @@ namespace Elders.Cronus.Projections.Rebuilding
             List<string> projectionHandledEventTypes = projectionVersionHelper.GetInvolvedEventTypes(projectionType).Select(x => x.GetContractId()).ToList();
             var projectionInstance = contextAccessor.CronusContext.ServiceProvider.GetRequiredService(projectionType) as IAmEventSourcedProjectionFast;
 
-            var pingSource = new CancellationTokenSource();
-            CancellationToken ct = pingSource.Token;
+            var pingSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             progressTracker.MarkProcessStart();
             foreach (string eventTypeId in projectionHandledEventTypes)
             {
@@ -120,7 +118,7 @@ namespace Elders.Cronus.Projections.Rebuilding
                         if (projectionInstance is not null)
                             await projectionInstance.ReplayEventAsync(@event).ConfigureAwait(false);
 
-                        progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
+                        progressTracker.TrackAndNotify(@event.GetType().GetContractId(), pingSource.Token);
                     },
                     NotifyProgressAsync = async options =>
                     {
@@ -150,7 +148,16 @@ namespace Elders.Cronus.Projections.Rebuilding
                     MaxDegreeOfParallelism = Data.MaxDegreeOfParallelism
                 };
 
-                await player.EnumerateEventStore(playerOperator, opt).ConfigureAwait(false);
+                await player.EnumerateEventStore(playerOperator, opt, cancellationToken).ConfigureAwait(false);
+
+                if (cancellationToken.IsCancellationRequested)
+                    break;
+            }
+
+            if (cancellationToken.IsCancellationRequested)
+            {
+                //progressTracker.SayAnyFinalWords();
+                return JobExecutionStatus.Canceled;
             }
 
             if (projectionInstance is not null)

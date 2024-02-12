@@ -19,6 +19,7 @@ namespace Elders.Cronus.Cluster.Job
         }
 
         public abstract string Name { get; set; }
+
         /// <summary>
         /// Initializes a default state for the job
         /// </summary>

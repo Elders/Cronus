@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore
@@ -19,6 +20,12 @@ namespace Elders.Cronus.EventStore
         /// <summary>
         /// Loads all aggregate commits. The commits are unordered.
         /// </summary>
+        [Obsolete("Will be removed in v11")]
         Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions);
+
+        /// <summary>
+        /// Loads all aggregate commits. The commits are unordered.
+        /// </summary>
+        Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions, CancellationToken cancellationToken = default) => EnumerateEventStore(@operator, replayOptions);
     }
 }
