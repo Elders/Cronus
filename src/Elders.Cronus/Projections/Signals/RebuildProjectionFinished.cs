@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections
 {
-    [DataContract(Namespace = "cronus", Name = "b248432b-451c-4894-84f2-c5ac5bc35139")]
+    [DataContract(Name = "b248432b-451c-4894-84f2-c5ac5bc35139")]
     public sealed class RebuildProjectionFinished : ISystemSignal
     {
         RebuildProjectionFinished()

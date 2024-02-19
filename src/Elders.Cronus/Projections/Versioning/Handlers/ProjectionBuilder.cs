@@ -95,7 +95,7 @@ namespace Elders.Cronus.Projections.Versioning
         }
     }
 
-    [DataContract(Namespace = "cronus", Name = "029602fa-db90-47a4-9c8b-c304d5ee177a")]
+    [DataContract(Name = "029602fa-db90-47a4-9c8b-c304d5ee177a")]
     public sealed class CreateNewProjectionVersion : ISystemScheduledMessage
     {
         CreateNewProjectionVersion()
@@ -121,7 +121,7 @@ namespace Elders.Cronus.Projections.Versioning
         public string Tenant { get { return ProjectionVersionRequest.Id.Tenant; } }
     }
 
-    [DataContract(Namespace = "cronus", Name = "11c1ae7d-04f4-4266-a21e-78ddc440d68b")]
+    [DataContract(Name = "11c1ae7d-04f4-4266-a21e-78ddc440d68b")]
     public sealed class ProjectionVersionRequestHeartbeat : ISystemScheduledMessage
     {
         ProjectionVersionRequestHeartbeat()

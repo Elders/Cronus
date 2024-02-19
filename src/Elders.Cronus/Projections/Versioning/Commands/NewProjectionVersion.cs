@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Namespace = "cronus", Name = "9b309ab7-3fac-4cf8-97e2-d2e74fbaa623")]
+    [DataContract(Name = "9b309ab7-3fac-4cf8-97e2-d2e74fbaa623")]
     public sealed class NewProjectionVersion : ISystemCommand
     {
         NewProjectionVersion()

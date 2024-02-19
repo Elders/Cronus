@@ -4,7 +4,7 @@ using Elders.Cronus.EventStore.Players;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Namespace = "cronus", Name = "5788a757-5dd6-4680-8f24-add1dfa7539b")]
+    [DataContract(Name = "5788a757-5dd6-4680-8f24-add1dfa7539b")]
     public sealed class ProjectionVersionRequested : ISystemEvent
     {
         ProjectionVersionRequested() { }

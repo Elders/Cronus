@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Namespace = "cronus", Name = "1d249c16-555c-4463-92dc-54218d9a3245")]
+    [DataContract(Name = "1d249c16-555c-4463-92dc-54218d9a3245")]
     public sealed class ProjectionVersionRequestTimedout : ISystemEvent
     {
         ProjectionVersionRequestTimedout() { }
@@ -36,7 +36,7 @@ namespace Elders.Cronus.Projections.Versioning
         }
     }
 
-    [DataContract(Namespace = "cronus", Name = "20ca3662-e377-43d4-b0ce-f6419c4c185a")]
+    [DataContract(Name = "20ca3662-e377-43d4-b0ce-f6419c4c185a")]
     public sealed class ProjectionVersionRequestPaused : ISystemEvent
     {
         ProjectionVersionRequestPaused() { }

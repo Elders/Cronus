@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections.Versioning
 {
-    [DataContract(Namespace = "cronus", Name = "e78cc312-23d8-49b4-b06e-cb86661634c7")]
+    [DataContract(Name = "e78cc312-23d8-49b4-b06e-cb86661634c7")]
     public sealed class PauseProjectionVersion : ISystemCommand
     {
         PauseProjectionVersion()

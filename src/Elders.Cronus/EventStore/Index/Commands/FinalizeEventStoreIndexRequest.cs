@@ -3,7 +3,7 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.EventStore.Index
 {
-    [DataContract(Namespace = "cronus", Name = "4f44a246-33a0-4314-aea2-80cd3b428b16")]
+    [DataContract(Name = "4f44a246-33a0-4314-aea2-80cd3b428b16")]
     public sealed class FinalizeEventStoreIndexRequest : ISystemCommand
     {
         FinalizeEventStoreIndexRequest()

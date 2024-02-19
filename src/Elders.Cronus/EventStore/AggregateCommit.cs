@@ -18,7 +18,7 @@ namespace Elders.Cronus.EventStore
         public DateTimeOffset Timestamp { get; private set; }
     }
 
-    [DataContract(Namespace = "cronus", Name = "f69daa12-171c-43a1-b049-be8a93ff137f")]
+    [DataContract(Name = "f69daa12-171c-43a1-b049-be8a93ff137f")]
     public class AggregateCommit : IMessage
     {
         AggregateCommit()
@@ -27,7 +27,7 @@ namespace Elders.Cronus.EventStore
             PublicEvents = new List<IPublicEvent>();
         }
 
-        public AggregateCommit(AggregateCommit sourceToCopy) : this(sourceToCopy.AggregateRootId,sourceToCopy.Revision,sourceToCopy.Events, sourceToCopy.PublicEvents,sourceToCopy.Timestamp)
+        public AggregateCommit(AggregateCommit sourceToCopy) : this(sourceToCopy.AggregateRootId, sourceToCopy.Revision, sourceToCopy.Events, sourceToCopy.PublicEvents, sourceToCopy.Timestamp)
         {
         }
 
