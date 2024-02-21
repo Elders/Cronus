@@ -6,7 +6,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus
 {
     [DataContract(Name = "71a0dc2e-1d59-4818-af05-222b334fffbe")]
-    public class CronusMessage : IEquatable<CronusMessage>
+    public sealed class CronusMessage : IEquatable<CronusMessage>
     {
         CronusMessage()
         {
@@ -67,6 +67,8 @@ namespace Elders.Cronus
 
         public string BoundedContext => GetHeader(MessageHeader.BoundedContext);
 
+        public string Tenant => GetHeader(MessageHeader.Tenant);
+
         public string RecipientBoundedContext
         {
             get
@@ -101,7 +103,7 @@ namespace Elders.Cronus
             return Equals((CronusMessage)obj);
         }
 
-        public virtual bool Equals(CronusMessage other)
+        public bool Equals(CronusMessage other)
         {
             if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;

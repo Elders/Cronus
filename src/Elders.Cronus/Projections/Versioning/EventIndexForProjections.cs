@@ -12,18 +12,18 @@ namespace Elders.Cronus.Projections.Versioning
     {
         public const string ContractId = "c8091ae7-a75a-4d66-a66b-de740f6bf9fd";
 
-        private readonly TypeContainer<IEvent> allEventTypesInTheSystem;
-        private readonly TypeContainer<IPublicEvent> allPublicEventTypesInTheSystem;
+        private readonly IEnumerable<Type> events;
+        private readonly IEnumerable<Type> publicEvents;
 
-        public EventStoreIndexSubscriber(Type indexType, Workflow<HandleContext> indexWorkflow, TypeContainer<IEvent> allEventTypesInTheSystem, TypeContainer<IPublicEvent> allPublicEventTypesInTheSystem) : base(indexType, indexWorkflow)
+        public EventStoreIndexSubscriber(Type indexType, Workflow<HandleContext> indexWorkflow, IEnumerable<Type> events, IEnumerable<Type> publicEvents) : base(indexType, indexWorkflow)
         {
-            this.allEventTypesInTheSystem = allEventTypesInTheSystem;
-            this.allPublicEventTypesInTheSystem = allPublicEventTypesInTheSystem;
+            this.events = events;
+            this.publicEvents = publicEvents;
         }
 
         public override IEnumerable<Type> GetInvolvedMessageTypes()
         {
-            return allEventTypesInTheSystem.Items.Concat(allPublicEventTypesInTheSystem.Items);
+            return events.Concat(publicEvents);
         }
     }
 }
