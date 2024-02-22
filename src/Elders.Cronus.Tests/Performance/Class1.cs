@@ -1,6 +1,5 @@
-﻿namespace Elders.Cronus.Performance
+﻿namespace Elders.Cronus.Performance;
+
+internal class Class1
 {
-    internal class Class1
-    {
-    }
 }

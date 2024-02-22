@@ -1,8 +1,7 @@
-﻿namespace Elders.Cronus.EventStore.Index
+﻿namespace Elders.Cronus.EventStore.Index;
+
+public interface IIndexStatusStore
 {
-    public interface IIndexStatusStore
-    {
-        void Save(string indexId, IndexStatus status);
-        IndexStatus Get(string indexId);
-    }
+    void Save(string indexId, IndexStatus status);
+    IndexStatus Get(string indexId);
 }

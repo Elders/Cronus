@@ -1,20 +1,19 @@
-﻿namespace Elders.Cronus.Tests.Middleware
+﻿namespace Elders.Cronus.Tests.Middleware;
+
+public class ExecutionToken
 {
-    public class ExecutionToken
+    TestExecutionChain chain;
+
+    public string Name { get; private set; }
+
+    public ExecutionToken(string name, TestExecutionChain chain)
     {
-        TestExecutionChain chain;
+        Name = name;
+        this.chain = chain;
+    }
 
-        public string Name { get; private set; }
-
-        public ExecutionToken(string name, TestExecutionChain chain)
-        {
-            Name = name;
-            this.chain = chain;
-        }
-
-        public void Notify()
-        {
-            chain.AddToken(this);
-        }
+    public void Notify()
+    {
+        chain.AddToken(this);
     }
 }

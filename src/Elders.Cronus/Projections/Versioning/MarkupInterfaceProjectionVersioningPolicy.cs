@@ -1,19 +1,18 @@
 ﻿using System;
 
-namespace Elders.Cronus.Projections.Versioning
+namespace Elders.Cronus.Projections.Versioning;
+
+public class MarkupInterfaceProjectionVersioningPolicy : IProjectionVersioningPolicy
 {
-    public class MarkupInterfaceProjectionVersioningPolicy : IProjectionVersioningPolicy
+    public bool IsVersionable(string projectionName)
     {
-        public bool IsVersionable(string projectionName)
+        try
         {
-            try
-            {
-                return typeof(INonVersionableProjection).IsAssignableFrom(MessageInfo.GetTypeByContract(projectionName)) == false;
-            }
-            catch (Exception)
-            {
-                return true;
-            }
+            return typeof(INonVersionableProjection).IsAssignableFrom(MessageInfo.GetTypeByContract(projectionName)) == false;
+        }
+        catch (Exception)
+        {
+            return true;
         }
     }
 }

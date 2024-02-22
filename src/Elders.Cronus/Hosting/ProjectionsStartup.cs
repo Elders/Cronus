@@ -1,20 +1,19 @@
 ﻿using Elders.Cronus.Projections;
 
-namespace Elders.Cronus
+namespace Elders.Cronus;
+
+[CronusStartup(Bootstraps.Projections)]
+internal class ProjectionsStartup : ICronusStartup
 {
-    [CronusStartup(Bootstraps.Projections)]
-    internal class ProjectionsStartup : ICronusStartup
+    private readonly CronusProjectionBootstrapper projectionsBootstrapper;
+
+    public ProjectionsStartup(CronusProjectionBootstrapper projectionsBootstrapper)
     {
-        private readonly CronusProjectionBootstrapper projectionsBootstrapper;
+        this.projectionsBootstrapper = projectionsBootstrapper;
+    }
 
-        public ProjectionsStartup(CronusProjectionBootstrapper projectionsBootstrapper)
-        {
-            this.projectionsBootstrapper = projectionsBootstrapper;
-        }
-
-        public void Bootstrap()
-        {
-            projectionsBootstrapper.BootstrapAsync().GetAwaiter().GetResult();
-        }
+    public void Bootstrap()
+    {
+        projectionsBootstrapper.BootstrapAsync().GetAwaiter().GetResult();
     }
 }

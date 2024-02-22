@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.Projections
+namespace Elders.Cronus.Projections;
+
+public interface IProjectionStore
 {
-    public interface IProjectionStore
-    {
-        IAsyncEnumerable<ProjectionCommit> LoadAsync(ProjectionVersion version, IBlobId projectionId);
+    IAsyncEnumerable<ProjectionCommit> LoadAsync(ProjectionVersion version, IBlobId projectionId);
 
-        Task EnumerateProjectionsAsync(ProjectionsOperator @operator, ProjectionQueryOptions options);
+    Task EnumerateProjectionsAsync(ProjectionsOperator @operator, ProjectionQueryOptions options);
 
-        Task SaveAsync(ProjectionCommit commit);
-    }
+    Task SaveAsync(ProjectionCommit commit);
+}
 
-    public interface IInitializableProjectionStore
-    {
-        Task<bool> InitializeAsync(ProjectionVersion version);
-    }
+public interface IInitializableProjectionStore
+{
+    Task<bool> InitializeAsync(ProjectionVersion version);
 }

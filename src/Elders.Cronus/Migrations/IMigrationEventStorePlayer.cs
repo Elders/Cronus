@@ -1,6 +1,5 @@
 ﻿using Elders.Cronus.EventStore;
 
-namespace Elders.Cronus.Migrations
-{
-    public interface IMigrationEventStorePlayer : IEventStorePlayer { }
-}
+namespace Elders.Cronus.Migrations;
+
+public interface IMigrationEventStorePlayer : IEventStorePlayer { }

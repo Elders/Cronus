@@ -3,43 +3,42 @@ using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Microsoft.Extensions.Logging;
 
-namespace Elders.Cronus.Migrations
+namespace Elders.Cronus.Migrations;
+
+public sealed class DeleteEventStoreEvents<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateEventRaw, TSourceEventStorePlayer, IEventStore>
+    where TSourceEventStorePlayer : IMigrationEventStorePlayer
 {
-    public sealed class DeleteEventStoreEvents<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateEventRaw, TSourceEventStorePlayer, IEventStore>
-        where TSourceEventStorePlayer : IMigrationEventStorePlayer
+    private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DeleteEventStoreEvents<,>));
+
+    public DeleteEventStoreEvents(TSourceEventStorePlayer source, EventStoreFactory factory) : base(source, factory.GetEventStore()) { }
+
+    public override async Task RunAsync(IEnumerable<IMigration<AggregateEventRaw>> migrations)
     {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DeleteEventStoreEvents<,>));
-
-        public DeleteEventStoreEvents(TSourceEventStorePlayer source, EventStoreFactory factory) : base(source, factory.GetEventStore()) { }
-
-        public override async Task RunAsync(IEnumerable<IMigration<AggregateEventRaw>> migrations)
+        try
         {
-            try
+            PlayerOperator @operator = new PlayerOperator()
             {
-                PlayerOperator @operator = new PlayerOperator()
+                OnLoadAsync = async @event =>
                 {
-                    OnLoadAsync = async @event =>
+                    foreach (IMigration<AggregateEventRaw> migration in migrations)
                     {
-                        foreach (IMigration<AggregateEventRaw> migration in migrations)
+                        if (migration.ShouldApply(@event))
                         {
-                            if (migration.ShouldApply(@event))
-                            {
-                                await target.DeleteAsync(@event).ConfigureAwait(false);
-                            }
+                            await target.DeleteAsync(@event).ConfigureAwait(false);
                         }
                     }
-                };
+                }
+            };
 
-                PlayerOptions options = options = new PlayerOptions();
+            PlayerOptions options = options = new PlayerOptions();
 
-                await source.EnumerateEventStore(@operator, options).ConfigureAwait(false);
-
-            }
-            catch (System.Exception ex)
-            {
-                logger.ErrorException(ex, () => $"Something boom bam while runnning migration.");
-            }
+            await source.EnumerateEventStore(@operator, options).ConfigureAwait(false);
 
         }
+        catch (System.Exception ex)
+        {
+            logger.ErrorException(ex, () => $"Something boom bam while runnning migration.");
+        }
+
     }
 }

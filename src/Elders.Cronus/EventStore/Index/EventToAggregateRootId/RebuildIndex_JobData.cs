@@ -1,16 +1,15 @@
 ﻿using System;
 using Elders.Cronus.Cluster.Job;
 
-namespace Elders.Cronus.EventStore.Index
+namespace Elders.Cronus.EventStore.Index;
+
+public class RebuildIndex_JobData : IJobData
 {
-    public class RebuildIndex_JobData : IJobData
-    {
-        public bool IsCompleted { get; set; } = false;
+    public bool IsCompleted { get; set; } = false;
 
-        public string PaginationToken { get; set; }
+    public string PaginationToken { get; set; }
 
-        public uint ProcessedCount { get; set; }
-        public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
-        public int MaxDegreeOfParallelism { get; set; }
-    }
+    public uint ProcessedCount { get; set; }
+    public DateTimeOffset Timestamp { get; set; } = DateTimeOffset.UtcNow;
+    public int MaxDegreeOfParallelism { get; set; }
 }

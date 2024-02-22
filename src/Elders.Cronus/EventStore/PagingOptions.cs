@@ -1,51 +1,50 @@
 ﻿using System;
 
-namespace Elders.Cronus.EventStore
+namespace Elders.Cronus.EventStore;
+
+public class PagingOptions
 {
-    public class PagingOptions
+    PagingOptions() { }
+
+    public PagingOptions(int pageSize, byte[] token, Order order)
     {
-        PagingOptions() { }
-
-        public PagingOptions(int pageSize, byte[] token, Order order)
-        {
-            Take = pageSize;
-            PaginationToken = token;
-            Order = order;
-        }
-
-        public int Take { get; init; }
-
-        public byte[] PaginationToken { get; init; }
-
-        public Order Order { get; init; }
-
-        public static PagingOptions Empty() => new PagingOptions();
-
-        public override string ToString()
-        {
-            return $"\n Records taken: {Take}\n Token: {PaginationToken}";
-        }
+        Take = pageSize;
+        PaginationToken = token;
+        Order = order;
     }
 
-    public class Order : ValueObject<Order>
+    public int Take { get; init; }
+
+    public byte[] PaginationToken { get; init; }
+
+    public Order Order { get; init; }
+
+    public static PagingOptions Empty() => new PagingOptions();
+
+    public override string ToString()
     {
-        Order() { }
+        return $"\n Records taken: {Take}\n Token: {PaginationToken}";
+    }
+}
 
-        Order(string order)
-        {
-            this.order = order;
-        }
+public class Order : ValueObject<Order>
+{
+    Order() { }
 
-        private readonly string order;
+    Order(string order)
+    {
+        this.order = order;
+    }
 
-        public static Order Ascending = new Order("ascending");
+    private readonly string order;
 
-        public static Order Descending = new Order("descending");
+    public static Order Ascending = new Order("ascending");
 
-        public static implicit operator string(Order order)
-        {
-            if (order is null == true) throw new ArgumentNullException(nameof(order));
-            return order.order;
-        }
+    public static Order Descending = new Order("descending");
+
+    public static implicit operator string(Order order)
+    {
+        if (order is null == true) throw new ArgumentNullException(nameof(order));
+        return order.order;
     }
 }

@@ -1,48 +1,47 @@
 ﻿using System;
 
-namespace Elders.Cronus.FaultHandling
+namespace Elders.Cronus.FaultHandling;
+
+/// <summary>
+/// Defines an interface which must be implemented by custom components responsible for detecting specific transient conditions.
+/// </summary>
+public interface ITransientErrorDetectionStrategy
 {
     /// <summary>
-    /// Defines an interface which must be implemented by custom components responsible for detecting specific transient conditions.
+    /// Determines whether the specified exception represents a transient failure that can be compensated by a retry.
     /// </summary>
-    public interface ITransientErrorDetectionStrategy
-    {
-        /// <summary>
-        /// Determines whether the specified exception represents a transient failure that can be compensated by a retry.
-        /// </summary>
-        /// <param name="ex">The exception object to be verified.</param>
-        /// <returns>True if the specified exception is considered as transient, otherwise false.</returns>
-        bool IsTransient(Exception ex);
-    }
+    /// <param name="ex">The exception object to be verified.</param>
+    /// <returns>True if the specified exception is considered as transient, otherwise false.</returns>
+    bool IsTransient(Exception ex);
+}
+/// <summary>
+/// Implements a strategy that ignores any transient errors.
+/// </summary>
+public sealed class TransientErrorIgnoreStrategy : ITransientErrorDetectionStrategy
+{
     /// <summary>
-    /// Implements a strategy that ignores any transient errors.
+    /// Always return false.
     /// </summary>
-    public sealed class TransientErrorIgnoreStrategy : ITransientErrorDetectionStrategy
+    /// <param name="ex">The exception.</param>
+    /// <returns>Returns false.</returns>
+    public bool IsTransient(Exception ex)
     {
-        /// <summary>
-        /// Always return false.
-        /// </summary>
-        /// <param name="ex">The exception.</param>
-        /// <returns>Returns false.</returns>
-        public bool IsTransient(Exception ex)
-        {
-            return false;
-        }
+        return false;
     }
+}
 
+/// <summary>
+/// Implements a strategy that treats all exceptions as transient errors.
+/// </summary>
+public sealed class TransientErrorCatchAllStrategy : ITransientErrorDetectionStrategy
+{
     /// <summary>
-    /// Implements a strategy that treats all exceptions as transient errors.
+    /// Always return true.
     /// </summary>
-    public sealed class TransientErrorCatchAllStrategy : ITransientErrorDetectionStrategy
+    /// <param name="ex">The exception.</param>
+    /// <returns>Returns true.</returns>
+    public bool IsTransient(Exception ex)
     {
-        /// <summary>
-        /// Always return true.
-        /// </summary>
-        /// <param name="ex">The exception.</param>
-        /// <returns>Returns true.</returns>
-        public bool IsTransient(Exception ex)
-        {
-            return true;
-        }
+        return true;
     }
 }

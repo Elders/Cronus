@@ -3,89 +3,88 @@ using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.Cluster.Job;
 
-namespace Elders.Cronus.Projections.Rebuilding
+namespace Elders.Cronus.Projections.Rebuilding;
+
+public class RebuildProjection_JobData : IJobData
 {
-    public class RebuildProjection_JobData : IJobData
+    public RebuildProjection_JobData()
     {
-        public RebuildProjection_JobData()
+        IsCompleted = false;
+        IsCanceled = false;
+        EventTypePaging = new List<EventPaging>();
+        Timestamp = DateTimeOffset.UtcNow;
+        DueDate = DateTimeOffset.MaxValue;
+    }
+
+    public bool IsCompleted { get; set; }
+
+    public bool IsCanceled { get; set; }
+
+    public List<EventPaging> EventTypePaging { get; set; }
+
+    public ProjectionVersion Version { get; set; }
+
+    public DateTimeOffset Timestamp { get; set; }
+
+    public DateTimeOffset DueDate { get; set; }
+
+    public DateTimeOffset? After { get; set; }
+    public DateTimeOffset? Before { get; set; }
+    public int MaxDegreeOfParallelism { get; set; }
+
+    public bool MarkEventTypeProgress(EventPaging progress)
+    {
+        EventPaging existing = EventTypePaging.Where(et => et.Type.Equals(progress.Type, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+        if (existing is null)
         {
-            IsCompleted = false;
-            IsCanceled = false;
-            EventTypePaging = new List<EventPaging>();
-            Timestamp = DateTimeOffset.UtcNow;
-            DueDate = DateTimeOffset.MaxValue;
+            EventTypePaging.Add(progress);
+            return true;
+        }
+        else
+        {
+            if (existing.PaginationToken.Equals(progress.PaginationToken) == false)
+            {
+                existing.PaginationToken = progress.PaginationToken;
+                existing.ProcessedCount = progress.ProcessedCount;
+                existing.TotalCount = progress.TotalCount;
+
+                return true;
+            }
         }
 
-        public bool IsCompleted { get; set; }
+        return false;
+    }
 
-        public bool IsCanceled { get; set; }
+    public void Init(EventPaging progress)
+    {
+        EventPaging existing = EventTypePaging.Where(et => et.Type.Equals(progress.Type, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+        if (existing is null)
+        {
+            EventTypePaging.Add(progress);
+        }
+    }
 
-        public List<EventPaging> EventTypePaging { get; set; }
+    public class EventPaging
+    {
+        public EventPaging(string eventTypeId, string paginationToken, DateTimeOffset? after, DateTimeOffset? before, ulong processedCount, ulong totalCount)
+        {
+            Type = eventTypeId;
+            PaginationToken = paginationToken;
+            After = after;
+            Before = before;
+            ProcessedCount = processedCount;
+            TotalCount = totalCount;
+        }
 
-        public ProjectionVersion Version { get; set; }
+        public string Type { get; set; }
 
-        public DateTimeOffset Timestamp { get; set; }
-
-        public DateTimeOffset DueDate { get; set; }
+        public string PaginationToken { get; set; }
 
         public DateTimeOffset? After { get; set; }
         public DateTimeOffset? Before { get; set; }
-        public int MaxDegreeOfParallelism { get; set; }
 
-        public bool MarkEventTypeProgress(EventPaging progress)
-        {
-            EventPaging existing = EventTypePaging.Where(et => et.Type.Equals(progress.Type, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-            if (existing is null)
-            {
-                EventTypePaging.Add(progress);
-                return true;
-            }
-            else
-            {
-                if (existing.PaginationToken.Equals(progress.PaginationToken) == false)
-                {
-                    existing.PaginationToken = progress.PaginationToken;
-                    existing.ProcessedCount = progress.ProcessedCount;
-                    existing.TotalCount = progress.TotalCount;
+        public ulong ProcessedCount { get; set; }
 
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public void Init(EventPaging progress)
-        {
-            EventPaging existing = EventTypePaging.Where(et => et.Type.Equals(progress.Type, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
-            if (existing is null)
-            {
-                EventTypePaging.Add(progress);
-            }
-        }
-
-        public class EventPaging
-        {
-            public EventPaging(string eventTypeId, string paginationToken, DateTimeOffset? after, DateTimeOffset? before, ulong processedCount, ulong totalCount)
-            {
-                Type = eventTypeId;
-                PaginationToken = paginationToken;
-                After = after;
-                Before = before;
-                ProcessedCount = processedCount;
-                TotalCount = totalCount;
-            }
-
-            public string Type { get; set; }
-
-            public string PaginationToken { get; set; }
-
-            public DateTimeOffset? After { get; set; }
-            public DateTimeOffset? Before { get; set; }
-
-            public ulong ProcessedCount { get; set; }
-
-            public ulong TotalCount { get; set; }
-        }
+        public ulong TotalCount { get; set; }
     }
 }

@@ -5,61 +5,60 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Elders.Cronus.Tests.InMemoryEventStoreSuite
+namespace Elders.Cronus.Tests.InMemoryEventStoreSuite;
+
+[Subject("Discoveries")]
+public class When_service_is_registered_via_discovery
 {
-    [Subject("Discoveries")]
-    public class When_service_is_registered_via_discovery
+    Establish context = () =>
     {
-        Establish context = () =>
-        {
-            services = new ServiceCollectionMock();
-            IConfiguration configuration = new ConfigurationMock();
-            provider = new CronusServicesProviderTest(services, configuration);
+        services = new ServiceCollectionMock();
+        IConfiguration configuration = new ConfigurationMock();
+        provider = new CronusServicesProviderTest(services, configuration);
 
-            defaulServiceDiscoveryResult = new DiscoveryResult<ITestService>(
-                new List<DiscoveredModel>()
-                {
-                    new DiscoveredModel(typeof(ITestService), typeof(DefaultService), ServiceLifetime.Transient)
-                });
-        };
+        defaulServiceDiscoveryResult = new DiscoveryResult<ITestService>(
+            new List<DiscoveredModel>()
+            {
+                new DiscoveredModel(typeof(ITestService), typeof(DefaultService), ServiceLifetime.Transient)
+            });
+    };
 
-        Because of = () => provider.HandleDiscoveredModel(defaulServiceDiscoveryResult);
+    Because of = () => provider.HandleDiscoveredModel(defaulServiceDiscoveryResult);
 
-        It should_have_service_registered = () => services.Count.ShouldEqual(1);
+    It should_have_service_registered = () => services.Count.ShouldEqual(1);
 
-        It should_have_correct_descriptor_service_type_registered = () => services.SingleOrDefault().ServiceType.ShouldEqual(typeof(ITestService));
+    It should_have_correct_descriptor_service_type_registered = () => services.SingleOrDefault().ServiceType.ShouldEqual(typeof(ITestService));
 
-        It should_have_correct_descriptor_implementation_type_registered = () => services.SingleOrDefault().ImplementationType.ShouldEqual(typeof(DefaultService));
+    It should_have_correct_descriptor_implementation_type_registered = () => services.SingleOrDefault().ImplementationType.ShouldEqual(typeof(DefaultService));
 
-        static ICronusServicesProvider provider;
-        static IServiceCollection services;
-        static IDiscoveryResult<ITestService> defaulServiceDiscoveryResult;
-    }
+    static ICronusServicesProvider provider;
+    static IServiceCollection services;
+    static IDiscoveryResult<ITestService> defaulServiceDiscoveryResult;
+}
 
-    [Subject("Discoveries")]
-    public class When_service_is_registered_via_discovery_action
+[Subject("Discoveries")]
+public class When_service_is_registered_via_discovery_action
+{
+    Establish context = () =>
     {
-        Establish context = () =>
-        {
-            services = new ServiceCollectionMock();
-            IConfiguration configuration = new ConfigurationMock();
-            provider = new CronusServicesProviderTest(services, configuration);
+        services = new ServiceCollectionMock();
+        IConfiguration configuration = new ConfigurationMock();
+        provider = new CronusServicesProviderTest(services, configuration);
 
-            defaulServiceDiscoveryResult = new DiscoveryResult<ITestService>(
-                new List<DiscoveredModel>(),
-                services => services.AddTransient<ITestService, DefaultService>());
-        };
+        defaulServiceDiscoveryResult = new DiscoveryResult<ITestService>(
+            new List<DiscoveredModel>(),
+            services => services.AddTransient<ITestService, DefaultService>());
+    };
 
-        Because of = () => provider.HandleDiscoveredModel(defaulServiceDiscoveryResult);
+    Because of = () => provider.HandleDiscoveredModel(defaulServiceDiscoveryResult);
 
-        It should_have_service_registered = () => services.Count.ShouldEqual(1);
+    It should_have_service_registered = () => services.Count.ShouldEqual(1);
 
-        It should_have_correct_descriptor_service_type_registered = () => services.SingleOrDefault().ServiceType.ShouldEqual(typeof(ITestService));
+    It should_have_correct_descriptor_service_type_registered = () => services.SingleOrDefault().ServiceType.ShouldEqual(typeof(ITestService));
 
-        It should_have_correct_descriptor_implementation_type_registered = () => services.SingleOrDefault().ImplementationType.ShouldEqual(typeof(DefaultService));
+    It should_have_correct_descriptor_implementation_type_registered = () => services.SingleOrDefault().ImplementationType.ShouldEqual(typeof(DefaultService));
 
-        static ICronusServicesProvider provider;
-        static IServiceCollection services;
-        static IDiscoveryResult<ITestService> defaulServiceDiscoveryResult;
-    }
+    static ICronusServicesProvider provider;
+    static IServiceCollection services;
+    static IDiscoveryResult<ITestService> defaulServiceDiscoveryResult;
 }

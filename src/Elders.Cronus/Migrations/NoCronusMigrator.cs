@@ -1,13 +1,12 @@
 ﻿using Elders.Cronus.EventStore;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.Migrations
+namespace Elders.Cronus.Migrations;
+
+public sealed class NoCronusMigrator : ICronusMigrator
 {
-    public sealed class NoCronusMigrator : ICronusMigrator
+    public Task MigrateAsync(AggregateCommit aggregateCommit)
     {
-        public Task MigrateAsync(AggregateCommit aggregateCommit)
-        {
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

@@ -1,7 +1,6 @@
-﻿namespace Elders.Cronus.Projections.Versioning
+﻿namespace Elders.Cronus.Projections.Versioning;
+
+public interface IProjectionVersioningPolicy
 {
-    public interface IProjectionVersioningPolicy
-    {
-        bool IsVersionable(string projectionName);
-    }
+    bool IsVersionable(string projectionName);
 }

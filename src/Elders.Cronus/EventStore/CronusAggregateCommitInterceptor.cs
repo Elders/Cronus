@@ -1,35 +1,34 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.EventStore
+namespace Elders.Cronus.EventStore;
+
+public sealed class CronusAggregateCommitInterceptor : IAggregateCommitInterceptor
 {
-    public sealed class CronusAggregateCommitInterceptor : IAggregateCommitInterceptor
+    private readonly IEnumerable<IAggregateCommitInterceptor> interceptors;
+
+    public CronusAggregateCommitInterceptor(IEnumerable<IAggregateCommitInterceptor> interceptor)
     {
-        private readonly IEnumerable<IAggregateCommitInterceptor> interceptors;
+        this.interceptors = interceptor;
+    }
 
-        public CronusAggregateCommitInterceptor(IEnumerable<IAggregateCommitInterceptor> interceptor)
+    public async Task OnAppendAsync(AggregateCommit origin)
+    {
+        foreach (var interceptor in interceptors)
         {
-            this.interceptors = interceptor;
+            await interceptor.OnAppendAsync(origin).ConfigureAwait(false);
+        }
+    }
+
+    public async Task<AggregateCommit> OnAppendingAsync(AggregateCommit origin)
+    {
+        AggregateCommit transformedCommit = new AggregateCommit(origin);
+
+        foreach (var interceptor in interceptors)
+        {
+            transformedCommit = await interceptor.OnAppendingAsync(transformedCommit).ConfigureAwait(false);
         }
 
-        public async Task OnAppendAsync(AggregateCommit origin)
-        {
-            foreach (var interceptor in interceptors)
-            {
-                await interceptor.OnAppendAsync(origin).ConfigureAwait(false);
-            }
-        }
-
-        public async Task<AggregateCommit> OnAppendingAsync(AggregateCommit origin)
-        {
-            AggregateCommit transformedCommit = new AggregateCommit(origin);
-
-            foreach (var interceptor in interceptors)
-            {
-                transformedCommit = await interceptor.OnAppendingAsync(transformedCommit).ConfigureAwait(false);
-            }
-
-            return transformedCommit;
-        }
+        return transformedCommit;
     }
 }

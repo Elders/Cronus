@@ -2,26 +2,25 @@
 using System;
 using System.Collections.Generic;
 
-namespace Elders.Cronus
+namespace Elders.Cronus;
+
+public sealed class CronusBooter
 {
-    public sealed class CronusBooter
+    private readonly IServiceProvider serviceProvider;
+
+    public CronusBooter(IServiceProvider serviceProvider)
     {
-        private readonly IServiceProvider serviceProvider;
+        this.serviceProvider = serviceProvider;
+    }
 
-        public CronusBooter(IServiceProvider serviceProvider)
+    public void BootstrapCronus()
+    {
+        var scanner = new CronusStartupScanner(new DefaulAssemblyScanner());
+        IEnumerable<Type> startups = scanner.Scan();
+        foreach (var startupType in startups)
         {
-            this.serviceProvider = serviceProvider;
-        }
-
-        public void BootstrapCronus()
-        {
-            var scanner = new CronusStartupScanner(new DefaulAssemblyScanner());
-            IEnumerable<Type> startups = scanner.Scan();
-            foreach (var startupType in startups)
-            {
-                ICronusStartup startup = (ICronusStartup)serviceProvider.GetRequiredService(startupType);
-                startup.Bootstrap();
-            }
+            ICronusStartup startup = (ICronusStartup)serviceProvider.GetRequiredService(startupType);
+            startup.Bootstrap();
         }
     }
 }

@@ -1,4 +1,3 @@
-﻿namespace Elders.Cronus.Workflow
-{
-    public interface IWorkflow { }
-}
+﻿namespace Elders.Cronus.Workflow;
+
+public interface IWorkflow { }

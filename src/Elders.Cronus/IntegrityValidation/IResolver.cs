@@ -1,42 +1,41 @@
 ﻿using System;
 using Elders.Cronus.EventStore;
 
-namespace Elders.Cronus.IntegrityValidation
+namespace Elders.Cronus.IntegrityValidation;
+
+public interface IResolver<T> : IComparable<IResolver<T>>
 {
-    public interface IResolver<T> : IComparable<IResolver<T>>
-    {
-        IntegrityResult<T> Resolve(T eventStream, IValidatorResult validatorResult);
+    IntegrityResult<T> Resolve(T eventStream, IValidatorResult validatorResult);
 
-        uint PriorityLevel { get; }
+    uint PriorityLevel { get; }
+}
+
+public class EmptyResolver : IResolver<EventStream>
+{
+    public uint PriorityLevel { get { return uint.MaxValue; } }
+
+    public int CompareTo(IResolver<EventStream> other)
+    {
+        return PriorityLevel.CompareTo(other.PriorityLevel);
     }
 
-    public class EmptyResolver : IResolver<EventStream>
+    public IntegrityResult<EventStream> Resolve(EventStream eventStream, IValidatorResult validatorResult)
     {
-        public uint PriorityLevel { get { return uint.MaxValue; } }
+        return new IntegrityResult<EventStream>(eventStream, true);
+    }
+}
 
-        public int CompareTo(IResolver<EventStream> other)
-        {
-            return PriorityLevel.CompareTo(other.PriorityLevel);
-        }
+public class EmptyResolver<T> : IResolver<T>
+{
+    public uint PriorityLevel { get { return uint.MaxValue; } }
 
-        public IntegrityResult<EventStream> Resolve(EventStream eventStream, IValidatorResult validatorResult)
-        {
-            return new IntegrityResult<EventStream>(eventStream, true);
-        }
+    public int CompareTo(IResolver<T> other)
+    {
+        return PriorityLevel.CompareTo(other.PriorityLevel);
     }
 
-    public class EmptyResolver<T> : IResolver<T>
+    public IntegrityResult<T> Resolve(T input, IValidatorResult validatorResult)
     {
-        public uint PriorityLevel { get { return uint.MaxValue; } }
-
-        public int CompareTo(IResolver<T> other)
-        {
-            return PriorityLevel.CompareTo(other.PriorityLevel);
-        }
-
-        public IntegrityResult<T> Resolve(T input, IValidatorResult validatorResult)
-        {
-            return new IntegrityResult<T>(input, true);
-        }
+        return new IntegrityResult<T>(input, true);
     }
 }

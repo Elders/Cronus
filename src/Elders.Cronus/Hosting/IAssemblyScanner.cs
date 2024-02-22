@@ -3,18 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Elders.Cronus
-{
-    public interface IAssemblyScanner
-    {
-        IEnumerable<Type> Scan();
-    }
+namespace Elders.Cronus;
 
-    public class DefaulAssemblyScanner : IAssemblyScanner
+public interface IAssemblyScanner
+{
+    IEnumerable<Type> Scan();
+}
+
+public class DefaulAssemblyScanner : IAssemblyScanner
+{
+    public IEnumerable<Type> Scan()
     {
-        public IEnumerable<Type> Scan()
-        {
-            return AssemblyLoader.Assemblies.SelectMany(asm => asm.Value.GetLoadableTypes());
-        }
+        return AssemblyLoader.Assemblies.SelectMany(asm => asm.Value.GetLoadableTypes());
     }
 }

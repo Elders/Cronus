@@ -1,10 +1,9 @@
 ﻿using Elders.Cronus.EventStore;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.Migrations
+namespace Elders.Cronus.Migrations;
+
+public interface IMigrationCustomLogic
 {
-    public interface IMigrationCustomLogic
-    {
-        Task OnAggregateCommitAsync(AggregateCommit migratedAggregateCommit);
-    }
+    Task OnAggregateCommitAsync(AggregateCommit migratedAggregateCommit);
 }

@@ -2,26 +2,25 @@
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.EventStore.Index
+namespace Elders.Cronus.EventStore.Index;
+
+[DataContract(Name = "f8c532eb-57ad-469f-9002-6c286bdd88f2")]
+public class MessageCounterIndex : ICronusEventStoreIndex
 {
-    [DataContract(Name = "f8c532eb-57ad-469f-9002-6c286bdd88f2")]
-    public class MessageCounterIndex : ICronusEventStoreIndex
+    private readonly IMessageCounter eventCounter;
+
+    public MessageCounterIndex(IMessageCounter eventCounter)
     {
-        private readonly IMessageCounter eventCounter;
+        this.eventCounter = eventCounter;
+    }
 
-        public MessageCounterIndex(IMessageCounter eventCounter)
+    public Task IndexAsync(CronusMessage message)
+    {
+        if (message.Payload is IEvent @event)
         {
-            this.eventCounter = eventCounter;
+            return eventCounter.IncrementAsync(@event.Unwrap().GetType());
         }
 
-        public Task IndexAsync(CronusMessage message)
-        {
-            if (message.Payload is IEvent @event)
-            {
-                return eventCounter.IncrementAsync(@event.Unwrap().GetType());
-            }
-
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 }

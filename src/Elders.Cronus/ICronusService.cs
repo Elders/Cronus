@@ -1,4 +1,3 @@
-﻿namespace Elders.Cronus
-{
-    public interface ICronusService { }
-}
+﻿namespace Elders.Cronus;
+
+public interface ICronusService { }

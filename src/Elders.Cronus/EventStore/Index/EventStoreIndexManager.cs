@@ -1,58 +1,57 @@
 ﻿using System;
 using Elders.Cronus.Projections.Versioning;
 
-namespace Elders.Cronus.EventStore.Index
+namespace Elders.Cronus.EventStore.Index;
+
+public class EventStoreIndexManager : AggregateRoot<EventStoreIndexManagerState>
 {
-    public class EventStoreIndexManager : AggregateRoot<EventStoreIndexManagerState>
+    EventStoreIndexManager() { }
+
+    public EventStoreIndexManager(EventStoreIndexManagerId id)
     {
-        EventStoreIndexManager() { }
+        var timebox = new VersionRequestTimebox(DateTime.UtcNow);
+        BuildIndex(id, timebox, 2);
+    }
 
-        public EventStoreIndexManager(EventStoreIndexManagerId id)
+    public void Register()
+    {
+        if (state.IndexExists == false)
         {
-            var timebox = new VersionRequestTimebox(DateTime.UtcNow);
-            BuildIndex(id, timebox, 2);
+            Rebuild();
         }
 
-        public void Register()
+        if (state.IsBuilding)
         {
-            if (state.IndexExists == false)
+            if (state.LastVersionRequestTimebox.HasExpired)
             {
-                Rebuild();
-            }
-
-            if (state.IsBuilding)
-            {
-                if (state.LastVersionRequestTimebox.HasExpired)
-                {
-                    // TOOD: May be we need to signal a cancel for the prev run
-                    BuildIndex(state.Id, new VersionRequestTimebox(DateTime.UtcNow), 2);
-                }
+                // TOOD: May be we need to signal a cancel for the prev run
+                BuildIndex(state.Id, new VersionRequestTimebox(DateTime.UtcNow), 2);
             }
         }
+    }
 
-        public void Rebuild() => Rebuild(2);
+    public void Rebuild() => Rebuild(2);
 
-        public void Rebuild(int maxDegreeOfParallelism)
+    public void Rebuild(int maxDegreeOfParallelism)
+    {
+        if (state.IsBuilding)
+            return;
+
+        BuildIndex(state.Id, new VersionRequestTimebox(DateTime.UtcNow), maxDegreeOfParallelism);
+    }
+
+    private void BuildIndex(EventStoreIndexManagerId id, VersionRequestTimebox timebox, int maxDegreeOfParallelism)
+    {
+        var @event = new EventStoreIndexRequested(id, DateTimeOffset.UtcNow, timebox, maxDegreeOfParallelism);
+        Apply(@event);
+    }
+
+    public void FinalizeRequest()
+    {
+        if (state.IsBuilding)
         {
-            if (state.IsBuilding)
-                return;
-
-            BuildIndex(state.Id, new VersionRequestTimebox(DateTime.UtcNow), maxDegreeOfParallelism);
-        }
-
-        private void BuildIndex(EventStoreIndexManagerId id, VersionRequestTimebox timebox, int maxDegreeOfParallelism)
-        {
-            var @event = new EventStoreIndexRequested(id, DateTimeOffset.UtcNow, timebox, maxDegreeOfParallelism);
+            var @event = new EventStoreIndexIsNowPresent(state.Id);
             Apply(@event);
-        }
-
-        public void FinalizeRequest()
-        {
-            if (state.IsBuilding)
-            {
-                var @event = new EventStoreIndexIsNowPresent(state.Id);
-                Apply(@event);
-            }
         }
     }
 }

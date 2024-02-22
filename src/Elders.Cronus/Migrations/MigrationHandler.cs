@@ -3,22 +3,21 @@ using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
 
-namespace Elders.Cronus.Migrations
+namespace Elders.Cronus.Migrations;
+
+[DataContract(Name = "2f26cd18-0db8-425f-8ada-5e3bf06a57b5")]
+public sealed class MigrationHandler : IMigrationHandler,
+    IAggregateCommitHandle<AggregateCommit>
 {
-    [DataContract(Name = "2f26cd18-0db8-425f-8ada-5e3bf06a57b5")]
-    public sealed class MigrationHandler : IMigrationHandler,
-        IAggregateCommitHandle<AggregateCommit>
+    private readonly ICronusMigrator cronusMigrator;
+
+    public MigrationHandler(ICronusMigrator cronusMigrator)
     {
-        private readonly ICronusMigrator cronusMigrator;
+        this.cronusMigrator = cronusMigrator;
+    }
 
-        public MigrationHandler(ICronusMigrator cronusMigrator)
-        {
-            this.cronusMigrator = cronusMigrator;
-        }
-
-        public Task HandleAsync(AggregateCommit aggregateCommit)
-        {
-            return cronusMigrator.MigrateAsync(aggregateCommit);
-        }
+    public Task HandleAsync(AggregateCommit aggregateCommit)
+    {
+        return cronusMigrator.MigrateAsync(aggregateCommit);
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace Elders.Cronus.Cluster.Job
+﻿namespace Elders.Cronus.Cluster.Job;
+
+public enum CronusJobState
 {
-    public enum CronusJobState
-    {
-        UpForGrab,
-        Running,
-        Completed
-    }
+    UpForGrab,
+    Running,
+    Completed
 }

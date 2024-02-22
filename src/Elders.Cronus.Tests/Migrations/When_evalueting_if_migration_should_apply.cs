@@ -6,27 +6,26 @@ using System.Collections.Generic;
 using Elders.Cronus.Migrations.TestMigration;
 using System;
 
-namespace Elders.Cronus.Migrations
+namespace Elders.Cronus.Migrations;
+
+[Subject("Migration")]
+public class When_evalueting_if_migration_should_apply
 {
-    [Subject("Migration")]
-    public class When_evalueting_if_migration_should_apply
+    Establish context = () =>
     {
-        Establish context = () =>
-        {
-            migration = new SimpleMigration();
-            var fooId = new FooId("1234", "elders");
-            var barId = new BarId("1234", "elders");
-            aggregateCommitFoo = new AggregateCommit(fooId.RawId, 1, new List<IEvent>(), new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
-            aggregateCommitBar = new AggregateCommit(barId.RawId, 1, new List<IEvent>(), new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
-        };
+        migration = new SimpleMigration();
+        var fooId = new FooId("1234", "elders");
+        var barId = new BarId("1234", "elders");
+        aggregateCommitFoo = new AggregateCommit(fooId.RawId, 1, new List<IEvent>(), new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
+        aggregateCommitBar = new AggregateCommit(barId.RawId, 1, new List<IEvent>(), new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
+    };
 
-        Because of = () => { };
+    Because of = () => { };
 
-        It the_evaluation_should_be_true = () => migration.ShouldApply(aggregateCommitFoo).ShouldBeTrue();
-        It the_should_apply_should_be_false = () => migration.ShouldApply(aggregateCommitBar).ShouldBeFalse();
+    It the_evaluation_should_be_true = () => migration.ShouldApply(aggregateCommitFoo).ShouldBeTrue();
+    It the_should_apply_should_be_false = () => migration.ShouldApply(aggregateCommitBar).ShouldBeFalse();
 
-        static IMigration<AggregateCommit, IEnumerable<AggregateCommit>> migration;
-        static AggregateCommit aggregateCommitFoo;
-        static AggregateCommit aggregateCommitBar;
-    }
+    static IMigration<AggregateCommit, IEnumerable<AggregateCommit>> migration;
+    static AggregateCommit aggregateCommitFoo;
+    static AggregateCommit aggregateCommitBar;
 }

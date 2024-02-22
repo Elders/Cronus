@@ -3,25 +3,24 @@ using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Microsoft.Extensions.Logging;
 
-namespace Elders.Cronus.Migrations
+namespace Elders.Cronus.Migrations;
+
+public class CopyEventStore<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateEventRaw, TSourceEventStorePlayer, TTargetEventStore>
+    where TSourceEventStorePlayer : IEventStorePlayer
+    where TTargetEventStore : IEventStore
 {
-    public class CopyEventStore<TSourceEventStorePlayer, TTargetEventStore> : MigrationRunnerBase<AggregateEventRaw, TSourceEventStorePlayer, TTargetEventStore>
-        where TSourceEventStorePlayer : IEventStorePlayer
-        where TTargetEventStore : IEventStore
+    public CopyEventStore(TSourceEventStorePlayer source, TTargetEventStore target, ILogger logger) : base(source, target)
     {
-        public CopyEventStore(TSourceEventStorePlayer source, TTargetEventStore target, ILogger logger) : base(source, target)
-        {
-        }
+    }
 
-        public override async Task RunAsync(IEnumerable<IMigration<AggregateEventRaw>> migrations)
+    public override async Task RunAsync(IEnumerable<IMigration<AggregateEventRaw>> migrations)
+    {
+        PlayerOperator @operator = new PlayerOperator()
         {
-            PlayerOperator @operator = new PlayerOperator()
-            {
-                OnLoadAsync = target.AppendAsync
-            };
+            OnLoadAsync = target.AppendAsync
+        };
 
-            PlayerOptions playerOptions = new PlayerOptions();
-            await source.EnumerateEventStore(@operator, playerOptions);
-        }
+        PlayerOptions playerOptions = new PlayerOptions();
+        await source.EnumerateEventStore(@operator, playerOptions);
     }
 }

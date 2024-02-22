@@ -1,9 +1,8 @@
 ﻿using Elders.Cronus.Workflow;
 
-namespace Elders.Cronus.MessageProcessing
+namespace Elders.Cronus.MessageProcessing;
+
+public interface ISubscriberWorkflowFactory<T>
 {
-    public interface ISubscriberWorkflowFactory<T>
-    {
-        IWorkflow GetWorkflow();
-    }
+    IWorkflow GetWorkflow();
 }

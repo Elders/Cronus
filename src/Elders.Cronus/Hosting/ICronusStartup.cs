@@ -1,8 +1,7 @@
-﻿namespace Elders.Cronus
+﻿namespace Elders.Cronus;
+
+public interface ICronusStartup
 {
-    public interface ICronusStartup
-    {
-        // TODO: Make this async
-        void Bootstrap();
-    }
+    // TODO: Make this async
+    void Bootstrap();
 }

@@ -1,4 +1,3 @@
-﻿namespace Elders.Cronus.Migrations
-{
-    public interface IMigrationHandler : IMessageHandler { }
-}
+﻿namespace Elders.Cronus.Migrations;
+
+public interface IMigrationHandler : IMessageHandler { }

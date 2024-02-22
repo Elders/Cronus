@@ -1,7 +1,6 @@
-﻿namespace Elders.Cronus.MessageProcessing
+﻿namespace Elders.Cronus.MessageProcessing;
+
+public interface ICronusContextAccessor
 {
-    public interface ICronusContextAccessor
-    {
-        CronusContext CronusContext { get; set; }
-    }
+    CronusContext CronusContext { get; set; }
 }

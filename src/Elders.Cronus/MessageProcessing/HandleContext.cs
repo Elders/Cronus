@@ -1,21 +1,20 @@
 using System;
 
-namespace Elders.Cronus.MessageProcessing
+namespace Elders.Cronus.MessageProcessing;
+
+public class HandleContext : IWorkflowContextWithServiceProvider
 {
-    public class HandleContext : IWorkflowContextWithServiceProvider
+    public HandleContext(CronusMessage message, Type handlerType)
     {
-        public HandleContext(CronusMessage message, Type handlerType)
-        {
-            Message = message;
-            HandlerType = handlerType;
-        }
-
-        public CronusMessage Message { get; private set; }
-
-        public Type HandlerType { get; private set; }
-
-        public IServiceProvider ServiceProvider { get; set; }
-
-        internal IDisposable LoggerScope { get; set; }
+        Message = message;
+        HandlerType = handlerType;
     }
+
+    public CronusMessage Message { get; private set; }
+
+    public Type HandlerType { get; private set; }
+
+    public IServiceProvider ServiceProvider { get; set; }
+
+    internal IDisposable LoggerScope { get; set; }
 }

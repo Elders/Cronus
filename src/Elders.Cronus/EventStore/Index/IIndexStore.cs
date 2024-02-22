@@ -3,37 +3,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.EventStore.Index
-{
-    public interface IIndexStore
-    {
-        Task ApendAsync(IndexRecord indexRecord);
-        Task DeleteAsync(IndexRecord indexRecord);
-        IAsyncEnumerable<IndexRecord> GetAsync(string indexRecordId);
-        [Obsolete("Will be removed in v11!")]
-        Task<LoadIndexRecordsResult> GetAsync(string indexRecordId, string paginationToken, int pageSize);
+namespace Elders.Cronus.EventStore.Index;
 
-        Task<long> GetCountAsync(string indexRecordId);
+public interface IIndexStore
+{
+    Task ApendAsync(IndexRecord indexRecord);
+    Task DeleteAsync(IndexRecord indexRecord);
+    IAsyncEnumerable<IndexRecord> GetAsync(string indexRecordId);
+    [Obsolete("Will be removed in v11!")]
+    Task<LoadIndexRecordsResult> GetAsync(string indexRecordId, string paginationToken, int pageSize);
+
+    Task<long> GetCountAsync(string indexRecordId);
+}
+
+public class LoadIndexRecordsResult
+{
+    public LoadIndexRecordsResult()
+    {
+        Records = new List<IndexRecord>();
     }
 
-    public class LoadIndexRecordsResult
+    public string PaginationToken { get; set; }
+
+    public IEnumerable<IndexRecord> Records { get; set; }
+
+    public static LoadIndexRecordsResult Empty(string paginationToken)
     {
-        public LoadIndexRecordsResult()
+        return new LoadIndexRecordsResult()
         {
-            Records = new List<IndexRecord>();
-        }
-
-        public string PaginationToken { get; set; }
-
-        public IEnumerable<IndexRecord> Records { get; set; }
-
-        public static LoadIndexRecordsResult Empty(string paginationToken)
-        {
-            return new LoadIndexRecordsResult()
-            {
-                Records = Enumerable.Empty<IndexRecord>(),
-                PaginationToken = paginationToken
-            };
-        }
+            Records = Enumerable.Empty<IndexRecord>(),
+            PaginationToken = paginationToken
+        };
     }
 }

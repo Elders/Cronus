@@ -3,43 +3,42 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Elders.Cronus.Tests.Middleware
+namespace Elders.Cronus.Tests.Middleware;
+
+public class TestExecutionChain
 {
-    public class TestExecutionChain
+    Queue<ExecutionToken> executionChain;
+
+    public TestExecutionChain()
     {
-        Queue<ExecutionToken> executionChain;
+        executionChain = new Queue<ExecutionToken>();
+    }
 
-        public TestExecutionChain()
+    public void AddToken(ExecutionToken token)
+    {
+        executionChain.Enqueue(token);
+    }
+
+    public ExecutionToken CreateToken(string name = null)
+    {
+        if (name == null)
+            name = Guid.NewGuid().ToString();
+
+        return new ExecutionToken(name, this);
+    }
+
+    public List<ExecutionToken> GetTokens()
+    {
+        return executionChain.ToList();
+    }
+
+    public void ShouldMatch(List<ExecutionToken> chain)
+    {
+        var actualExecution = this.GetTokens();
+        actualExecution.Count.ShouldEqual(chain.Count);
+        for (int i = 0; i < actualExecution.Count; i++)
         {
-            executionChain = new Queue<ExecutionToken>();
-        }
-
-        public void AddToken(ExecutionToken token)
-        {
-            executionChain.Enqueue(token);
-        }
-
-        public ExecutionToken CreateToken(string name = null)
-        {
-            if (name == null)
-                name = Guid.NewGuid().ToString();
-
-            return new ExecutionToken(name, this);
-        }
-
-        public List<ExecutionToken> GetTokens()
-        {
-            return executionChain.ToList();
-        }
-
-        public void ShouldMatch(List<ExecutionToken> chain)
-        {
-            var actualExecution = this.GetTokens();
-            actualExecution.Count.ShouldEqual(chain.Count);
-            for (int i = 0; i < actualExecution.Count; i++)
-            {
-                actualExecution[i].ShouldEqual(chain[i]);
-            }
+            actualExecution[i].ShouldEqual(chain[i]);
         }
     }
 }

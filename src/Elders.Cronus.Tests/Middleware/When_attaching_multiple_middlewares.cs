@@ -2,43 +2,42 @@
 using System;
 using System.Collections.Generic;
 
-namespace Elders.Cronus.Tests.Middleware
+namespace Elders.Cronus.Tests.Middleware;
+
+[Subject("Elders.Cronus.Middleware")]
+public class When_attaching_multiple_middlewares
 {
-    [Subject("Elders.Cronus.Middleware")]
-    public class When_attaching_multiple_middlewares
+    Establish context = () =>
     {
-        Establish context = () =>
+        executionChain = new TestExecutionChain();
+        expectedExecution = new List<ExecutionToken>();
+        var firstToken = executionChain.CreateToken();
+        mainMiddleware = new TestMiddleware(firstToken);
+        expectedExecution.Add(firstToken);
+        for (int i = 0; i < new Random().Next(5, 20); i++)
         {
-            executionChain = new TestExecutionChain();
-            expectedExecution = new List<ExecutionToken>();
-            var firstToken = executionChain.CreateToken();
-            mainMiddleware = new TestMiddleware(firstToken);
-            expectedExecution.Add(firstToken);
-            for (int i = 0; i < new Random().Next(5, 20); i++)
-            {
-                var nextToken = executionChain.CreateToken();
-                var nextMiddleware = new TestMiddleware(nextToken);
-                expectedExecution.Add(nextToken);
-                mainMiddleware.Use(nextMiddleware);
-            }
-        };
+            var nextToken = executionChain.CreateToken();
+            var nextMiddleware = new TestMiddleware(nextToken);
+            expectedExecution.Add(nextToken);
+            mainMiddleware.Use(nextMiddleware);
+        }
+    };
 
-        Because of = async () => await mainMiddleware.RunAsync(invocationContext).ConfigureAwait(false);
+    Because of = async () => await mainMiddleware.RunAsync(invocationContext).ConfigureAwait(false);
 
-        It the_execution_chain_should_not_be_empty = () => executionChain.GetTokens().ShouldNotBeEmpty();
+    It the_execution_chain_should_not_be_empty = () => executionChain.GetTokens().ShouldNotBeEmpty();
 
-        It should_have_multiple_execution_tokens = () => executionChain.GetTokens().Count.ShouldEqual(expectedExecution.Count);
+    It should_have_multiple_execution_tokens = () => executionChain.GetTokens().Count.ShouldEqual(expectedExecution.Count);
 
-        It should_have_the_expected_execution = () => executionChain.ShouldMatch(expectedExecution);
+    It should_have_the_expected_execution = () => executionChain.ShouldMatch(expectedExecution);
 
 
-        static TestMiddleware mainMiddleware;
+    static TestMiddleware mainMiddleware;
 
-        static TestExecutionChain executionChain;
+    static TestExecutionChain executionChain;
 
-        static List<ExecutionToken> expectedExecution;
+    static List<ExecutionToken> expectedExecution;
 
-        static string invocationContext = "Test context";
+    static string invocationContext = "Test context";
 
-    }
 }

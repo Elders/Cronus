@@ -1,45 +1,44 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.Workflow
+namespace Elders.Cronus.Workflow;
+
+public class ActionWorkflow<TContext> : Workflow<TContext> where TContext : class
 {
-    public class ActionWorkflow<TContext> : Workflow<TContext> where TContext : class
+    Func<Execution<TContext>, Task> implementation;
+
+    public ActionWorkflow(Func<Execution<TContext>, Task> action = null)
     {
-        Func<Execution<TContext>, Task> implementation;
-
-        public ActionWorkflow(Func<Execution<TContext>, Task> action = null)
-        {
-            this.implementation = action;
-        }
-
-        protected override Task RunAsync(Execution<TContext> execution)
-        {
-            if (execution is null) throw new ArgumentNullException(nameof(execution));
-
-            if (implementation != null)
-                return implementation(execution);
-
-            return Task.CompletedTask;
-        }
+        this.implementation = action;
     }
 
-    public class ActionWorkflow<TContext, TResult> : Workflow<TContext, TResult> where TContext : class
+    protected override Task RunAsync(Execution<TContext> execution)
     {
-        Func<Execution<TContext>, Task<TResult>> implementation;
+        if (execution is null) throw new ArgumentNullException(nameof(execution));
 
-        public ActionWorkflow(Func<Execution<TContext>, Task<TResult>> action = null)
-        {
-            this.implementation = action;
-        }
+        if (implementation != null)
+            return implementation(execution);
 
-        protected override Task<TResult> RunAsync(Execution<TContext, TResult> execution)
-        {
-            if (execution is null) throw new ArgumentNullException(nameof(execution));
+        return Task.CompletedTask;
+    }
+}
 
-            if (implementation != null)
-                return implementation(execution);
-            else
-                return Task.FromResult(default(TResult));
-        }
+public class ActionWorkflow<TContext, TResult> : Workflow<TContext, TResult> where TContext : class
+{
+    Func<Execution<TContext>, Task<TResult>> implementation;
+
+    public ActionWorkflow(Func<Execution<TContext>, Task<TResult>> action = null)
+    {
+        this.implementation = action;
+    }
+
+    protected override Task<TResult> RunAsync(Execution<TContext, TResult> execution)
+    {
+        if (execution is null) throw new ArgumentNullException(nameof(execution));
+
+        if (implementation != null)
+            return implementation(execution);
+        else
+            return Task.FromResult(default(TResult));
     }
 }

@@ -1,19 +1,18 @@
 using System;
 
-namespace Elders.Cronus.Tests.TestModel
+namespace Elders.Cronus.Tests.TestModel;
+
+public class TestUpdateEvent : IEvent
 {
-    public class TestUpdateEvent : IEvent
+    public TestUpdateEvent(TestAggregateId id, string updatedFieldValue)
     {
-        public TestUpdateEvent(TestAggregateId id, string updatedFieldValue)
-        {
-            Id = id;
-            UpdatedFieldValue = updatedFieldValue;
-        }
-
-        public TestAggregateId Id { get; set; }
-
-        public string UpdatedFieldValue { get; set; }
-
-        public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
+        Id = id;
+        UpdatedFieldValue = updatedFieldValue;
     }
+
+    public TestAggregateId Id { get; set; }
+
+    public string UpdatedFieldValue { get; set; }
+
+    public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
 }

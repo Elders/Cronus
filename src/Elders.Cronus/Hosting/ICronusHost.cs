@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus
+namespace Elders.Cronus;
+
+public interface ICronusHost : IDisposable
 {
-    public interface ICronusHost : IDisposable
-    {
-        Task StartAsync();
-        Task StopAsync();
-    }
+    Task StartAsync();
+    Task StopAsync();
 }

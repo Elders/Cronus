@@ -4,37 +4,36 @@ using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.Options;
 
-namespace Elders.Cronus.Projections.Rebuilding
+namespace Elders.Cronus.Projections.Rebuilding;
+
+public class RebuildProjectionSequentially_JobFactory : IProjection_JobFactory
 {
-    public class RebuildProjectionSequentially_JobFactory : IProjection_JobFactory
+    private readonly RebuildProjectionSequentially_Job job;
+    private readonly ICronusContextAccessor contextAccessor;
+    private readonly BoundedContext boundedContext;
+
+    public RebuildProjectionSequentially_JobFactory(RebuildProjectionSequentially_Job job, IOptions<BoundedContext> boundedContext, ICronusContextAccessor contextAccessor)
     {
-        private readonly RebuildProjectionSequentially_Job job;
-        private readonly ICronusContextAccessor contextAccessor;
-        private readonly BoundedContext boundedContext;
+        this.job = job;
+        this.contextAccessor = contextAccessor;
+        this.boundedContext = boundedContext.Value;
+    }
 
-        public RebuildProjectionSequentially_JobFactory(RebuildProjectionSequentially_Job job, IOptions<BoundedContext> boundedContext, ICronusContextAccessor contextAccessor)
+    public ICronusJob<object> CreateJob(ProjectionVersion version, ReplayEventsOptions replayEventsOptions, VersionRequestTimebox timebox)
+    {
+        job.Name = $"urn:{boundedContext.Name}:{contextAccessor.CronusContext.Tenant}:{job.Name}:{version.ProjectionName}_{version.Hash}_{version.Revision}";
+
+        job.BuildInitialData(() => new RebuildProjectionSequentially_JobData()
         {
-            this.job = job;
-            this.contextAccessor = contextAccessor;
-            this.boundedContext = boundedContext.Value;
-        }
+            After = replayEventsOptions.After,
+            Before = replayEventsOptions.Before,
+            MaxDegreeOfParallelism = replayEventsOptions.MaxDegreeOfParallelism,
+            Timestamp = timebox.RequestStartAt,
+            DueDate = timebox.FinishRequestUntil,
+            Version = version
 
-        public ICronusJob<object> CreateJob(ProjectionVersion version, ReplayEventsOptions replayEventsOptions, VersionRequestTimebox timebox)
-        {
-            job.Name = $"urn:{boundedContext.Name}:{contextAccessor.CronusContext.Tenant}:{job.Name}:{version.ProjectionName}_{version.Hash}_{version.Revision}";
+        });
 
-            job.BuildInitialData(() => new RebuildProjectionSequentially_JobData()
-            {
-                After = replayEventsOptions.After,
-                Before = replayEventsOptions.Before,
-                MaxDegreeOfParallelism = replayEventsOptions.MaxDegreeOfParallelism,
-                Timestamp = timebox.RequestStartAt,
-                DueDate = timebox.FinishRequestUntil,
-                Version = version
-
-            });
-
-            return job;
-        }
+        return job;
     }
 }

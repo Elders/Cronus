@@ -1,7 +1,6 @@
-﻿namespace Elders.Cronus.Multitenancy
+﻿namespace Elders.Cronus.Multitenancy;
+
+public interface IHaveTenant
 {
-    public interface IHaveTenant
-    {
-        string Tenant { get; set; }
-    }
+    string Tenant { get; set; }
 }

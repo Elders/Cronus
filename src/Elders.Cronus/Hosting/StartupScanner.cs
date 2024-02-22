@@ -2,39 +2,38 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Elders.Cronus
+namespace Elders.Cronus;
+
+public class CronusStartupScanner
 {
-    public class CronusStartupScanner
+    private readonly IAssemblyScanner assemblyScanner;
+
+    public CronusStartupScanner(IAssemblyScanner assemblyScanner)
     {
-        private readonly IAssemblyScanner assemblyScanner;
+        this.assemblyScanner = assemblyScanner;
+    }
 
-        public CronusStartupScanner(IAssemblyScanner assemblyScanner)
-        {
-            this.assemblyScanner = assemblyScanner;
-        }
+    public IEnumerable<Type> Scan()
+    {
+        var startups = assemblyScanner
+            .Scan()
+            .Where(type => type.IsAbstract == false && type.IsClass && typeof(ICronusStartup).IsAssignableFrom(type))
+            .OrderBy(type => GetCronusStartupRank(type));
 
-        public IEnumerable<Type> Scan()
-        {
-            var startups = assemblyScanner
-                .Scan()
-                .Where(type => type.IsAbstract == false && type.IsClass && typeof(ICronusStartup).IsAssignableFrom(type))
-                .OrderBy(type => GetCronusStartupRank(type));
+        return startups;
+    }
 
-            return startups;
-        }
+    private int GetCronusStartupRank(Type type)
+    {
+        CronusStartupAttribute cronusStartupAttribute = type
+            .GetCustomAttributes(typeof(CronusStartupAttribute), false)
+            .SingleOrDefault() as CronusStartupAttribute;
 
-        private int GetCronusStartupRank(Type type)
-        {
-            CronusStartupAttribute cronusStartupAttribute = type
-                .GetCustomAttributes(typeof(CronusStartupAttribute), false)
-                .SingleOrDefault() as CronusStartupAttribute;
+        Bootstraps rank = Bootstraps.Runtime;
 
-            Bootstraps rank = Bootstraps.Runtime;
+        if (cronusStartupAttribute is null == false)
+            rank = cronusStartupAttribute.Bootstraps;
 
-            if (cronusStartupAttribute is null == false)
-                rank = cronusStartupAttribute.Bootstraps;
-
-            return (int)rank;
-        }
+        return (int)rank;
     }
 }

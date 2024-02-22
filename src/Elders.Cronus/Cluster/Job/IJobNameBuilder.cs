@@ -1,7 +1,6 @@
-﻿namespace Elders.Cronus.Cluster.Job
+﻿namespace Elders.Cronus.Cluster.Job;
+
+public interface IJobNameBuilder
 {
-    public interface IJobNameBuilder
-    {
-        string GetJobName(string defaultName);
-    }
+    string GetJobName(string defaultName);
 }

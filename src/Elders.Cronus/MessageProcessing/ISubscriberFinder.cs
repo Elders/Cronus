@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Elders.Cronus.MessageProcessing
+namespace Elders.Cronus.MessageProcessing;
+
+public interface ISubscriberFinder<T>
 {
-    public interface ISubscriberFinder<T>
-    {
-        IEnumerable<Type> Find();
-    }
+    IEnumerable<Type> Find();
 }

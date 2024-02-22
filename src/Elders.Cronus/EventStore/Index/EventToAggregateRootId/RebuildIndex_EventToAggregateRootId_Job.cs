@@ -6,81 +6,80 @@ using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
 using Microsoft.Extensions.Logging;
 
-namespace Elders.Cronus.EventStore.Index
+namespace Elders.Cronus.EventStore.Index;
+
+public class RebuildIndex_EventToAggregateRootId_Job : CronusJob<RebuildIndex_JobData>
 {
-    public class RebuildIndex_EventToAggregateRootId_Job : CronusJob<RebuildIndex_JobData>
+    private readonly IEventStorePlayer eventStorePlayer;
+    private readonly EventLookupInByteArray eventFinder;
+    private readonly IIndexStore indexStore;
+
+    public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, EventLookupInByteArray eventFinder, IIndexStore indexStore, ILogger<RebuildIndex_EventToAggregateRootId_Job> logger) : base(logger)
     {
-        private readonly IEventStorePlayer eventStorePlayer;
-        private readonly EventLookupInByteArray eventFinder;
-        private readonly IIndexStore indexStore;
+        this.eventStorePlayer = eventStorePlayer;
+        this.eventFinder = eventFinder;
+        this.indexStore = indexStore;
+    }
 
-        public RebuildIndex_EventToAggregateRootId_Job(IEventStorePlayer eventStorePlayer, EventLookupInByteArray eventFinder, IIndexStore indexStore, ILogger<RebuildIndex_EventToAggregateRootId_Job> logger) : base(logger)
+    public override string Name { get; set; } = typeof(EventToAggregateRootId).GetContractId();
+
+    protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
+    {
+        if (cancellationToken.IsCancellationRequested)
         {
-            this.eventStorePlayer = eventStorePlayer;
-            this.eventFinder = eventFinder;
-            this.indexStore = indexStore;
+            logger.Info(() => $"The job has been cancelled.");
+            return JobExecutionStatus.Running;
         }
 
-        public override string Name { get; set; } = typeof(EventToAggregateRootId).GetContractId();
-
-        protected override async Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
+        long startTimestamp = 0L;
+        uint counter = 0u;
+        PlayerOperator @operator = new PlayerOperator()
         {
-            if (cancellationToken.IsCancellationRequested)
+            OnLoadAsync = async @event =>
             {
-                logger.Info(() => $"The job has been cancelled.");
-                return JobExecutionStatus.Running;
+                string eventContractId = eventFinder.FindEventId(@event.Data.AsSpan());
+                if (string.IsNullOrEmpty(eventContractId))
+                    logger.Error(() => $"Unable to find a valid event in the data : {Encoding.UTF8.GetString(@event.Data)}");
+
+                IndexRecord indexRecord = new IndexRecord(eventContractId, @event.AggregateRootId, @event.Revision, @event.Position, @event.Timestamp);
+                await indexStore.ApendAsync(indexRecord);
+
+                Interlocked.Increment(ref counter);
+            },
+            NotifyProgressAsync = async options =>
+            {
+                var elapsed = Stopwatch.GetElapsedTime(startTimestamp);
+                Data.PaginationToken = options.PaginationToken;
+                Data.MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
+                Data.Timestamp = DateTimeOffset.UtcNow;
+                Data.ProcessedCount = counter;
+
+                Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+
+                var avgSpeed = Math.Round(counter / elapsed.TotalSeconds, 1); // no need to check for division by 0. double.PositiveInfinity is a thing
+                logger.LogInformation("RebuildIndex_EventToAggregateRootId_Job progress: {counter}. Average speed {speed} events/s.", counter, avgSpeed);
             }
+        };
 
-            long startTimestamp = 0L;
-            uint counter = 0u;
-            PlayerOperator @operator = new PlayerOperator()
-            {
-                OnLoadAsync = async @event =>
-                {
-                    string eventContractId = eventFinder.FindEventId(@event.Data.AsSpan());
-                    if (string.IsNullOrEmpty(eventContractId))
-                        logger.Error(() => $"Unable to find a valid event in the data : {Encoding.UTF8.GetString(@event.Data)}");
+        PlayerOptions options = new PlayerOptions
+        {
+            PaginationToken = Data.PaginationToken,
+            MaxDegreeOfParallelism = Data.MaxDegreeOfParallelism
+        };
 
-                    IndexRecord indexRecord = new IndexRecord(eventContractId, @event.AggregateRootId, @event.Revision, @event.Position, @event.Timestamp);
-                    await indexStore.ApendAsync(indexRecord);
+        logger.LogInformation("Max degree of parallelism is {max_dop}.", options.MaxDegreeOfParallelism);
 
-                    Interlocked.Increment(ref counter);
-                },
-                NotifyProgressAsync = async options =>
-                {
-                    var elapsed = Stopwatch.GetElapsedTime(startTimestamp);
-                    Data.PaginationToken = options.PaginationToken;
-                    Data.MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
-                    Data.Timestamp = DateTimeOffset.UtcNow;
-                    Data.ProcessedCount = counter;
+        startTimestamp = Stopwatch.GetTimestamp();
+        await eventStorePlayer.EnumerateEventStore(@operator, options).ConfigureAwait(false);
+        var elapsed = Stopwatch.GetElapsedTime(startTimestamp);
 
-                    Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+        Data.IsCompleted = true;
+        Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-                    var avgSpeed = Math.Round(counter / elapsed.TotalSeconds, 1); // no need to check for division by 0. double.PositiveInfinity is a thing
-                    logger.LogInformation("RebuildIndex_EventToAggregateRootId_Job progress: {counter}. Average speed {speed} events/s.", counter, avgSpeed);
-                }
-            };
+        var avgSpeed = Math.Round(counter / elapsed.TotalSeconds, 1); // no need to check for division by 0. double.PositiveInfinity is a thing
 
-            PlayerOptions options = new PlayerOptions
-            {
-                PaginationToken = Data.PaginationToken,
-                MaxDegreeOfParallelism = Data.MaxDegreeOfParallelism
-            };
+        logger.LogInformation("The job has been completed. Processed {counter}. Average speed {speed} events/s.", counter, avgSpeed);
 
-            logger.LogInformation("Max degree of parallelism is {max_dop}.", options.MaxDegreeOfParallelism);
-
-            startTimestamp = Stopwatch.GetTimestamp();
-            await eventStorePlayer.EnumerateEventStore(@operator, options).ConfigureAwait(false);
-            var elapsed = Stopwatch.GetElapsedTime(startTimestamp);
-
-            Data.IsCompleted = true;
-            Data = await cluster.PingAsync(Data).ConfigureAwait(false);
-
-            var avgSpeed = Math.Round(counter / elapsed.TotalSeconds, 1); // no need to check for division by 0. double.PositiveInfinity is a thing
-
-            logger.LogInformation("The job has been completed. Processed {counter}. Average speed {speed} events/s.", counter, avgSpeed);
-
-            return JobExecutionStatus.Completed;
-        }
+        return JobExecutionStatus.Completed;
     }
 }

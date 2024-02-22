@@ -4,56 +4,55 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.MessageProcessing
+namespace Elders.Cronus.MessageProcessing;
+
+/// <summary>
+/// Publishes live aggregate commits
+/// </summary>
+internal sealed class AggregateCommitPublisher : IAggregateCommitInterceptor
 {
-    /// <summary>
-    /// Publishes live aggregate commits
-    /// </summary>
-    internal sealed class AggregateCommitPublisher : IAggregateCommitInterceptor
+    private readonly ICronusContextAccessor contextAccessor;
+    private readonly IPublisher<AggregateCommit> publisher;
+    private readonly ILogger<AggregateCommitPublisher> logger;
+
+    public AggregateCommitPublisher(IPublisher<AggregateCommit> publisher, ICronusContextAccessor contextAccessor, ILogger<AggregateCommitPublisher> logger)
     {
-        private readonly ICronusContextAccessor contextAccessor;
-        private readonly IPublisher<AggregateCommit> publisher;
-        private readonly ILogger<AggregateCommitPublisher> logger;
+        this.publisher = publisher;
+        this.contextAccessor = contextAccessor;
+        this.logger = logger;
+    }
 
-        public AggregateCommitPublisher(IPublisher<AggregateCommit> publisher, ICronusContextAccessor contextAccessor, ILogger<AggregateCommitPublisher> logger)
+    public Task OnAppendAsync(AggregateCommit origin)
+    {
+        try
         {
-            this.publisher = publisher;
-            this.contextAccessor = contextAccessor;
-            this.logger = logger;
+            bool publishResult = publisher.Publish(origin, BuildHeaders(origin));
+
+            if (publishResult == false)
+                logger.Error(() => "Unable to publish aggregate commit.");
+        }
+        catch (Exception ex)
+        {
+            logger.ErrorException(ex, () => "Unable to publish aggregate commit.");
         }
 
-        public Task OnAppendAsync(AggregateCommit origin)
+        return Task.CompletedTask;
+    }
+
+    public Task<AggregateCommit> OnAppendingAsync(AggregateCommit origin) => Task.FromResult(origin);
+
+    Dictionary<string, string> BuildHeaders(AggregateCommit commit)
+    {
+        Dictionary<string, string> messageHeaders = new Dictionary<string, string>
         {
-            try
-            {
-                bool publishResult = publisher.Publish(origin, BuildHeaders(origin));
+            { MessageHeader.AggregateRootId, Convert.ToBase64String(commit.AggregateRootId) }
+        };
 
-                if (publishResult == false)
-                    logger.Error(() => "Unable to publish aggregate commit.");
-            }
-            catch (Exception ex)
-            {
-                logger.ErrorException(ex, () => "Unable to publish aggregate commit.");
-            }
-
-            return Task.CompletedTask;
+        foreach (var trace in contextAccessor.CronusContext.Trace)
+        {
+            messageHeaders.Add(trace.Key, trace.Value.ToString());
         }
 
-        public Task<AggregateCommit> OnAppendingAsync(AggregateCommit origin) => Task.FromResult(origin);
-
-        Dictionary<string, string> BuildHeaders(AggregateCommit commit)
-        {
-            Dictionary<string, string> messageHeaders = new Dictionary<string, string>
-            {
-                { MessageHeader.AggregateRootId, Convert.ToBase64String(commit.AggregateRootId) }
-            };
-
-            foreach (var trace in contextAccessor.CronusContext.Trace)
-            {
-                messageHeaders.Add(trace.Key, trace.Value.ToString());
-            }
-
-            return messageHeaders;
-        }
+        return messageHeaders;
     }
 }

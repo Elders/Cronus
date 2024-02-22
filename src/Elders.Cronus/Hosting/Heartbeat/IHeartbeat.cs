@@ -1,10 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.Hosting.Heartbeat
+namespace Elders.Cronus.Hosting.Heartbeat;
+
+public interface IHeartbeat
 {
-    public interface IHeartbeat
-    {
-        Task StartBeatingAsync(CancellationToken stoppingToken);
-    }
+    Task StartBeatingAsync(CancellationToken stoppingToken);
 }

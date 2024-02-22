@@ -1,22 +1,21 @@
-﻿namespace Elders.Cronus.MessageProcessing
+﻿namespace Elders.Cronus.MessageProcessing;
+
+public class HandlerContext
 {
-    public class HandlerContext
+    public HandlerContext(IMessage message, object handlerInstance, CronusMessage cronusMessage)
     {
-        public HandlerContext(IMessage message, object handlerInstance, CronusMessage cronusMessage)
-        {
-            Message = message;
-            HandlerInstance = handlerInstance;
-            CronusMessage = cronusMessage;
-        }
-        public IMessage Message { get; private set; }
+        Message = message;
+        HandlerInstance = handlerInstance;
+        CronusMessage = cronusMessage;
+    }
+    public IMessage Message { get; private set; }
 
-        public object HandlerInstance { get; private set; }
+    public object HandlerInstance { get; private set; }
 
-        public CronusMessage CronusMessage { get; private set; }
+    public CronusMessage CronusMessage { get; private set; }
 
-        public override string ToString()
-        {
-            return $"{HandlerInstance.GetType().Name}({Message.GetType().Name})";
-        }
+    public override string ToString()
+    {
+        return $"{HandlerInstance.GetType().Name}({Message.GetType().Name})";
     }
 }

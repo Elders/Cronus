@@ -2,26 +2,25 @@
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 
-namespace Elders.Cronus.Migrations
+namespace Elders.Cronus.Migrations;
+
+public abstract class MigrationRunnerBase<TDataFormat, TSourceEventStorePlayer, TTargetEventStore>
+    where TDataFormat : class
+    where TSourceEventStorePlayer : IEventStorePlayer
+    where TTargetEventStore : IEventStore
 {
-    public abstract class MigrationRunnerBase<TDataFormat, TSourceEventStorePlayer, TTargetEventStore>
-        where TDataFormat : class
-        where TSourceEventStorePlayer : IEventStorePlayer
-        where TTargetEventStore : IEventStore
+    protected readonly IEventStorePlayer source;
+    protected readonly IEventStore target;
+
+    public MigrationRunnerBase(TSourceEventStorePlayer source, TTargetEventStore target)
     {
-        protected readonly IEventStorePlayer source;
-        protected readonly IEventStore target;
-
-        public MigrationRunnerBase(TSourceEventStorePlayer source, TTargetEventStore target)
-        {
-            this.source = source;
-            this.target = target;
-        }
-
-        /// <summary>
-        /// Applies the specified migrations to every <see cref="TDataFormat"/>
-        /// </summary>
-        /// <param name="migrations"></param>
-        public abstract Task RunAsync(IEnumerable<IMigration<TDataFormat>> migrations);
+        this.source = source;
+        this.target = target;
     }
+
+    /// <summary>
+    /// Applies the specified migrations to every <see cref="TDataFormat"/>
+    /// </summary>
+    /// <param name="migrations"></param>
+    public abstract Task RunAsync(IEnumerable<IMigration<TDataFormat>> migrations);
 }

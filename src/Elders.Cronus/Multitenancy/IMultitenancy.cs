@@ -1,4 +1,3 @@
-﻿namespace Elders.Cronus.Multitenancy
-{
-    public interface IMultitenancy { }
-}
+﻿namespace Elders.Cronus.Multitenancy;
+
+public interface IMultitenancy { }

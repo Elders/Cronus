@@ -1,9 +1,8 @@
 ﻿using System.Threading.Tasks;
 
-namespace Elders.Cronus.Projections
+namespace Elders.Cronus.Projections;
+
+public interface IProjectionStoreStorageManager
 {
-    public interface IProjectionStoreStorageManager
-    {
-        Task CreateProjectionsStorageAsync(string location);
-    }
+    Task CreateProjectionsStorageAsync(string location);
 }

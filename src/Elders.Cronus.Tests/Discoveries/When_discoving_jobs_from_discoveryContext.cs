@@ -9,48 +9,47 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.Discoveries
+namespace Elders.Cronus.Discoveries;
+
+[Subject("Discoveries")]
+public class When_discoving_jobs_from_discoveryContext
 {
-    [Subject("Discoveries")]
-    public class When_discoving_jobs_from_discoveryContext
+    Establish context = () =>
     {
-        Establish context = () =>
-        {
-            IConfiguration configuration = new ConfigurationMock();
+        IConfiguration configuration = new ConfigurationMock();
 
-            discoveryContext = new DiscoveryContext(new List<Assembly> { typeof(When_discoving_jobs_from_discoveryContext).Assembly }, configuration);
-        };
+        discoveryContext = new DiscoveryContext(new List<Assembly> { typeof(When_discoving_jobs_from_discoveryContext).Assembly }, configuration);
+    };
 
-        Because of = () => result = new JobDiscovery().Discover(discoveryContext);
+    Because of = () => result = new JobDiscovery().Discover(discoveryContext);
 
-        It should_have_jobs_discovered = () => result.Models.Count().ShouldBeGreaterThan(0);
+    It should_have_jobs_discovered = () => result.Models.Count().ShouldBeGreaterThan(0);
 
-        It should_have_correct_job_discovered = () => result.Models.ShouldContain(x => x.ServiceType == typeof(TestJob) && x.ImplementationType == typeof(TestJob) && x.Lifetime.Equals(Microsoft.Extensions.DependencyInjection.ServiceLifetime.Transient));
+    It should_have_correct_job_discovered = () => result.Models.ShouldContain(x => x.ServiceType == typeof(TestJob) && x.ImplementationType == typeof(TestJob) && x.Lifetime.Equals(Microsoft.Extensions.DependencyInjection.ServiceLifetime.Transient));
 
-        It should_have_job_type_container = () => result.Models.ShouldContain(x => x.ServiceType == typeof(TypeContainer<ICronusJob<object>>) && x.ImplementationInstance.GetType().Equals(typeof(TypeContainer<ICronusJob<object>>)) && x.Lifetime.Equals(Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton));
+    It should_have_job_type_container = () => result.Models.ShouldContain(x => x.ServiceType == typeof(TypeContainer<ICronusJob<object>>) && x.ImplementationInstance.GetType().Equals(typeof(TypeContainer<ICronusJob<object>>)) && x.Lifetime.Equals(Microsoft.Extensions.DependencyInjection.ServiceLifetime.Singleton));
 
-        static IDiscoveryResult<ICronusJob<object>> result;
-        static DiscoveryContext discoveryContext;
+    static IDiscoveryResult<ICronusJob<object>> result;
+    static DiscoveryContext discoveryContext;
+}
+
+public class TestJobData : IJobData
+{
+    public bool IsCompleted { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public DateTimeOffset Timestamp { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+}
+
+public class TestJob : CronusJob<TestJobData>
+{
+    public override string Name { get; set; } = "Test";
+
+    public TestJob() : base(null)
+    {
+
     }
 
-    public class TestJobData : IJobData
+    protected override Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
     {
-        public bool IsCompleted { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-        public DateTimeOffset Timestamp { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    }
-
-    public class TestJob : CronusJob<TestJobData>
-    {
-        public override string Name { get; set; } = "Test";
-
-        public TestJob() : base(null)
-        {
-
-        }
-
-        protected override Task<JobExecutionStatus> RunJobAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
-        {
-            throw new NotImplementedException();
-        }
+        throw new NotImplementedException();
     }
 }

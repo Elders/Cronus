@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace Elders.Cronus.Projections
+namespace Elders.Cronus.Projections;
+
+public interface IProjectionVersionFinder
 {
-    public interface IProjectionVersionFinder
-    {
-        IEnumerable<ProjectionVersion> GetProjectionVersionsToBootstrap();
-    }
+    IEnumerable<ProjectionVersion> GetProjectionVersionsToBootstrap();
 }

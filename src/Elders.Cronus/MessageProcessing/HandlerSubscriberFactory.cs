@@ -1,20 +1,19 @@
 ﻿using System;
 using Elders.Cronus.Workflow;
 
-namespace Elders.Cronus.MessageProcessing
+namespace Elders.Cronus.MessageProcessing;
+
+public class HandlerSubscriberFactory<T> : ISubscriberFactory<T>
 {
-    public class HandlerSubscriberFactory<T> : ISubscriberFactory<T>
+    private readonly Workflow<HandleContext> workflow;
+
+    public HandlerSubscriberFactory(ISubscriberWorkflowFactory<T> subscriberWorkflow)
     {
-        private readonly Workflow<HandleContext> workflow;
+        workflow = subscriberWorkflow.GetWorkflow() as Workflow<HandleContext>;
+    }
 
-        public HandlerSubscriberFactory(ISubscriberWorkflowFactory<T> subscriberWorkflow)
-        {
-            workflow = subscriberWorkflow.GetWorkflow() as Workflow<HandleContext>;
-        }
-
-        public ISubscriber Create(Type handlerType)
-        {
-            return new HandlerSubscriber(handlerType, workflow);
-        }
+    public ISubscriber Create(Type handlerType)
+    {
+        return new HandlerSubscriber(handlerType, workflow);
     }
 }

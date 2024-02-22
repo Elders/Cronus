@@ -1,12 +1,11 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Elders.Cronus.EventStore.Index
-{
-    [DataContract(Name = "b11705a2-6744-4ca6-8480-e887c3fc09f2")]
-    public class EventStoreIndexManagerId : AggregateRootId
-    {
-        EventStoreIndexManagerId() : base() { }
+namespace Elders.Cronus.EventStore.Index;
 
-        public EventStoreIndexManagerId(string indexName, string tenant) : base(tenant, "eventstoreindexmanager", indexName) { }
-    }
+[DataContract(Name = "b11705a2-6744-4ca6-8480-e887c3fc09f2")]
+public class EventStoreIndexManagerId : AggregateRootId
+{
+    EventStoreIndexManagerId() : base() { }
+
+    public EventStoreIndexManagerId(string indexName, string tenant) : base(tenant, "eventstoreindexmanager", indexName) { }
 }

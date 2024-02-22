@@ -6,28 +6,27 @@ using System.Linq;
 using Elders.Cronus.Migrations.TestMigration;
 using System;
 
-namespace Elders.Cronus.Migrations
+namespace Elders.Cronus.Migrations;
+
+[Subject("Migration")]
+public class When_removing_event_from_aggregateCommit
 {
-    [Subject("Migration")]
-    public class When_removing_event_from_aggregateCommit
+    Establish context = () =>
     {
-        Establish context = () =>
-        {
-            migration = new RemoveEventMigration();
-            var id = new FooId("1234", "elders");
-            aggregateCommitFoo = new AggregateCommit(id.RawId, 1, new List<IEvent>
-                {
-                    new TestCreateEventFoo(id),
-                    new TestUpdateEventFoo(id, string.Empty)
-                }, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
-        };
+        migration = new RemoveEventMigration();
+        var id = new FooId("1234", "elders");
+        aggregateCommitFoo = new AggregateCommit(id.RawId, 1, new List<IEvent>
+            {
+                new TestCreateEventFoo(id),
+                new TestUpdateEventFoo(id, string.Empty)
+            }, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
+    };
 
-        Because of = () => migrationOuput = migration.Apply(aggregateCommitFoo).ToList();
+    Because of = () => migrationOuput = migration.Apply(aggregateCommitFoo).ToList();
 
-        It the_migration_should_add_new_event = () => migrationOuput.Single().Events.Count.ShouldEqual(1);
+    It the_migration_should_add_new_event = () => migrationOuput.Single().Events.Count.ShouldEqual(1);
 
-        static IMigration<AggregateCommit, IEnumerable<AggregateCommit>> migration;
-        static AggregateCommit aggregateCommitFoo;
-        static IList<AggregateCommit> migrationOuput;
-    }
+    static IMigration<AggregateCommit, IEnumerable<AggregateCommit>> migration;
+    static AggregateCommit aggregateCommitFoo;
+    static IList<AggregateCommit> migrationOuput;
 }

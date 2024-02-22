@@ -1,11 +1,10 @@
 using System.Threading.Tasks;
 
-namespace Elders.Cronus
-{
-    public interface IConsumer<out T> where T : IMessageHandler
-    {
-        Task StartAsync();
+namespace Elders.Cronus;
 
-        Task StopAsync();
-    }
+public interface IConsumer<out T> where T : IMessageHandler
+{
+    Task StartAsync();
+
+    Task StopAsync();
 }

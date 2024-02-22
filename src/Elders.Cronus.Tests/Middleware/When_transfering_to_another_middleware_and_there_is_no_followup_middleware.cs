@@ -3,45 +3,44 @@ using Machine.Specifications;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Elders.Cronus.Tests.Middleware
+namespace Elders.Cronus.Tests.Middleware;
+
+[Subject("Elders.Cronus.Middleware")]
+public class When_transfering_to_another_middleware_and_there_is_no_followup_middleware
 {
-    [Subject("Elders.Cronus.Middleware")]
-    public class When_transfering_to_another_middleware_and_there_is_no_followup_middleware
+    Establish context = () =>
     {
-        Establish context = () =>
+        expectedExecution = new List<ExecutionToken>();
+        executionChain = new TestExecutionChain();
+        var mainToken = executionChain.CreateToken();
+        mainMiddleware = new TestMiddleware(mainToken);
+        expectedExecution.Add(mainToken);
+
+
+        var secondToken = executionChain.CreateToken();
+        var secondMiddleware = new TestMiddleware(secondToken);
+        mainMiddleware.Use((execution) =>
         {
-            expectedExecution = new List<ExecutionToken>();
-            executionChain = new TestExecutionChain();
-            var mainToken = executionChain.CreateToken();
-            mainMiddleware = new TestMiddleware(mainToken);
-            expectedExecution.Add(mainToken);
+            execution.Transfer(secondMiddleware);
+            return Task.CompletedTask;
+        });
+        expectedExecution.Add(secondToken);
 
 
-            var secondToken = executionChain.CreateToken();
-            var secondMiddleware = new TestMiddleware(secondToken);
-            mainMiddleware.Use((execution) =>
-            {
-                execution.Transfer(secondMiddleware);
-                return Task.CompletedTask;
-            });
-            expectedExecution.Add(secondToken);
+    };
 
+    Because of = async () => await mainMiddleware.RunAsync(invocationContext).ConfigureAwait(false);
 
-        };
+    It the_execution_chain_should_not_be_empty = () => executionChain.GetTokens().ShouldNotBeEmpty();
 
-        Because of = async () => await mainMiddleware.RunAsync(invocationContext).ConfigureAwait(false);
+    It should_have_the_expected_execution = () => executionChain.ShouldMatch(expectedExecution);
 
-        It the_execution_chain_should_not_be_empty = () => executionChain.GetTokens().ShouldNotBeEmpty();
+    static TestMiddleware mainMiddleware;
 
-        It should_have_the_expected_execution = () => executionChain.ShouldMatch(expectedExecution);
+    static TestExecutionChain executionChain;
 
-        static TestMiddleware mainMiddleware;
+    static List<ExecutionToken> expectedExecution;
 
-        static TestExecutionChain executionChain;
+    static string invocationContext = "Test context";
 
-        static List<ExecutionToken> expectedExecution;
-
-        static string invocationContext = "Test context";
-
-    }
 }
