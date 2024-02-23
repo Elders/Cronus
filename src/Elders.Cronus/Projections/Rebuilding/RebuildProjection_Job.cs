@@ -30,7 +30,7 @@ public sealed class RebuildProjection_Job : CronusJob<RebuildProjection_JobData>
         LoggerMessage.Define<string>(LogLevel.Information, CronusLogEvent.CronusJobError, "The rebuild job for version {cronus_projection_version} was cancelled.");
 
     private static readonly Action<ILogger, string, double, ulong, double, Exception> LogRebuildProjectionCompleted =
-        LoggerMessage.Define<string, double, ulong, double>(LogLevel.Information, CronusLogEvent.CronusJobOk, "The rebuild job for version {cronus_projection_version} has completed in {Elapsed:0.0000} ms. Total events: {counter}. Average speed: {speed} events/s.");
+        LoggerMessage.Define<string, double, ulong, double>(LogLevel.Information, CronusLogEvent.CronusJobOk, "The rebuild job for version {cronus_projection_version} has completed in {ElapsedMilliseconds:0.0000}ms. Total events: {counter}. Average speed: {speed} events/s.");
 
     public RebuildProjection_Job(
         IInitializableProjectionStore projectionStoreInitializer,

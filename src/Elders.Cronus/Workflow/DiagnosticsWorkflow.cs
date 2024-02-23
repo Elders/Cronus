@@ -21,11 +21,11 @@ internal static class CronusLogEvent
     public static EventId CronusJobError = new EventId(74101, "CronusJobError");
 }
 
-public class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext : HandleContext
+public sealed class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext : HandleContext
 {
     private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DiagnosticsWorkflow<>));
     private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
-    private static readonly Action<ILogger, string, string, double, Exception> LogHandleSuccess = LoggerMessage.Define<string, string, double>(LogLevel.Information, CronusLogEvent.CronusWorkflowHandle, "{cronus_MessageHandler} handled {cronus_MessageName} in {Elapsed:0.0000} ms.", LogOption.SkipLogInfoChecks);
+    private static readonly Action<ILogger, string, string, double, Exception> LogHandleSuccess = LoggerMessage.Define<string, string, double>(LogLevel.Information, CronusLogEvent.CronusWorkflowHandle, "{cronus_MessageHandler} handled {cronus_MessageName} in {ElapsedMilliseconds:0.0000}ms.", LogOption.SkipLogInfoChecks);
     private static readonly Action<ILogger, string, string, Exception> LogHandleStarting = LoggerMessage.Define<string, string>(LogLevel.Debug, CronusLogEvent.CronusWorkflowHandle, "{cronus_MessageHandler} starting handle {cronus_MessageName}.", LogOption.SkipLogInfoChecks);
 
     private const string ActivityName = "Elders.Cronus.Hosting.Workflow";
@@ -46,11 +46,12 @@ public class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext :
     {
         if (execution is null) throw new ArgumentNullException(nameof(execution));
 
-        string tenant = execution.Context.Message.GetTenant();
         using (logger.BeginScope(scope =>
         {
+            string tenant = execution.Context.Message.GetTenant();
             scope.AddScope(Log.Tenant, tenant);
-            if (execution.Context.Message.TryGetRootId(out var rootId))
+
+            if (execution.Context.Message.TryGetRootId(out string rootId))
                 scope.AddScope(Log.AggregateId, rootId);
         }))
         {
