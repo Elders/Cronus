@@ -40,7 +40,7 @@ public class RebuildIndex_MessageCounter_Job : CronusJob<RebuildEventCounterInde
 
         var pingSource = new CancellationTokenSource();
         CancellationToken ct = pingSource.Token;
-        _ = Task.Factory.StartNew(async () =>
+        _ = Task.Run(async () =>
         {
             while (ct.IsCancellationRequested == false)
             {
