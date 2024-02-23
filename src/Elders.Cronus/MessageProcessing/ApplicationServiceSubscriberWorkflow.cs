@@ -18,7 +18,7 @@ public class ApplicationServiceSubscriberWorkflow : ISubscriberWorkflowFactory<I
 
     public IWorkflow GetWorkflow()
     {
-        ILogger<InMemoryRetryWorkflow<HandleContext>> logger = serviceProvider.GetRequiredService<ILogger<InMemoryRetryWorkflow<HandleContext>>>();
+        ILogger<ApplicationServiceSubscriberWorkflow> logger = serviceProvider.GetRequiredService<ILogger<ApplicationServiceSubscriberWorkflow>>();
 
         MessageHandleWorkflow messageHandleWorkflow = new MessageHandleWorkflow(new CreateScopedHandlerWorkflow());
         ScopedMessageWorkflow scopedWorkflow = new ScopedMessageWorkflow(messageHandleWorkflow, serviceProvider);

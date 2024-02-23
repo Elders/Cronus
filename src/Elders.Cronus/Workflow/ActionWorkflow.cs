@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace Elders.Cronus.Workflow;
 
-public class ActionWorkflow<TContext> : Workflow<TContext> where TContext : class
+public sealed class ActionWorkflow<TContext> : Workflow<TContext> where TContext : class
 {
     Func<Execution<TContext>, Task> implementation;
 
@@ -16,14 +16,14 @@ public class ActionWorkflow<TContext> : Workflow<TContext> where TContext : clas
     {
         if (execution is null) throw new ArgumentNullException(nameof(execution));
 
-        if (implementation != null)
+        if (implementation is not null)
             return implementation(execution);
 
         return Task.CompletedTask;
     }
 }
 
-public class ActionWorkflow<TContext, TResult> : Workflow<TContext, TResult> where TContext : class
+public sealed class ActionWorkflow<TContext, TResult> : Workflow<TContext, TResult> where TContext : class
 {
     Func<Execution<TContext>, Task<TResult>> implementation;
 
@@ -36,7 +36,7 @@ public class ActionWorkflow<TContext, TResult> : Workflow<TContext, TResult> whe
     {
         if (execution is null) throw new ArgumentNullException(nameof(execution));
 
-        if (implementation != null)
+        if (implementation is not null)
             return implementation(execution);
         else
             return Task.FromResult(default(TResult));
