@@ -13,6 +13,8 @@ namespace Elders.Cronus;
 
 public abstract class PublisherHandler
 {
+    protected bool handledByRealPublisher = false;
+
     protected internal virtual bool PublishInternal(CronusMessage message)
     {
         throw new NotImplementedException();
@@ -86,7 +88,7 @@ internal class LoggingPublishHandler : DelegatingPublishHandler
         {
             try
             {
-                bool isPublished = base.PublishInternal(message);
+                bool isPublished = base.PublishInternal(message) && handledByRealPublisher;
 
                 Type messageType = message.GetMessageType();
 
