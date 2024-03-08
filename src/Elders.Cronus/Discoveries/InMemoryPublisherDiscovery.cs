@@ -18,6 +18,7 @@ public class InMemoryDiscovery : DiscoveryBase<IPublisher<IMessage>>
 
         yield return new DiscoveredModel(typeof(IAggregateRootAtomicAction), typeof(InMemoryAggregateRootAtomicAction), ServiceLifetime.Transient);
 
+        // The order matters here. If you reorder the registrations bellow then you know what you are doing.
         yield return new DiscoveredModel(typeof(DelegatingPublishHandler), typeof(LoggingPublishHandler), ServiceLifetime.Transient) { CanAddMultiple = true };
         yield return new DiscoveredModel(typeof(DelegatingPublishHandler), typeof(CronusHeadersPublishHandler), ServiceLifetime.Transient) { CanAddMultiple = true };
         yield return new DiscoveredModel(typeof(DelegatingPublishHandler), typeof(ActivityPublishHandler), ServiceLifetime.Transient) { CanAddMultiple = true };

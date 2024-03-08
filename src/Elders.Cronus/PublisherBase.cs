@@ -11,11 +11,73 @@ using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus;
 
+public readonly struct PublishResult
+{
+    private readonly bool isHandlerExecuted;
+    private readonly bool isPublished;
+    private readonly bool isInitialState;
+
+    public PublishResult()
+    {
+        isPublished = false;
+        isHandlerExecuted = false;
+        isInitialState = true;
+    }
+
+    public PublishResult(bool isHandlerExecuted, bool isPublished)
+    {
+        this.isHandlerExecuted = isHandlerExecuted;
+        this.isPublished = isPublished;
+        isInitialState = false;
+    }
+
+    public static PublishResult Initial => new PublishResult();
+    public static PublishResult Failed => new PublishResult(false, false);
+
+    public static implicit operator bool(PublishResult result)
+    {
+        return result.isPublished && result.isHandlerExecuted;
+    }
+
+    public static bool operator true(PublishResult current) => current.isPublished == true && current.isHandlerExecuted == true; // this one is for the | operator
+    public static bool operator false(PublishResult _) => false; // we return false so the execution always hits the PublishResult.&(x, y)
+
+    // The operation x && y is evaluated as PublishResult.false(x) ? x : PublishResult.&(x, y)
+    public static PublishResult operator &(PublishResult left, PublishResult right)
+    {
+        if (CanIgnoreLeft_isPublished(left, right))
+        {
+            if (left.isInitialState == false)
+                return new PublishResult(left.isHandlerExecuted && right.isHandlerExecuted, right.isPublished);
+
+            if (CanIgnoreLeft_isDelegatingHandlerExecuted(left, right))
+                return right;
+
+            return new PublishResult(left.isHandlerExecuted && right.isHandlerExecuted, right.isPublished);
+        }
+        else if (CanIgnoreLeft_isDelegatingHandlerExecuted(left, right))
+        {
+            return right;
+        }
+
+        return new PublishResult(left.isHandlerExecuted && right.isHandlerExecuted, left.isPublished && right.isPublished);
+
+        ///////////////
+        bool CanIgnoreLeft_isPublished(PublishResult left, PublishResult right)
+        {
+            return left.isPublished == false && right.isPublished == true;
+        }
+
+        bool CanIgnoreLeft_isDelegatingHandlerExecuted(PublishResult left, PublishResult right)
+        {
+            return left.isHandlerExecuted == false && right.isHandlerExecuted == true;
+        }
+    }
+}
+
 public abstract class PublisherHandler
 {
-    protected bool handledByRealPublisher = false;
-
-    protected internal virtual bool PublishInternal(CronusMessage message)
+    protected internal virtual PublishResult PublishInternal(CronusMessage message)
     {
         throw new NotImplementedException();
     }
@@ -23,7 +85,7 @@ public abstract class PublisherHandler
 
 public abstract class DelegatingPublishHandler : PublisherHandler
 {
-    protected internal override bool PublishInternal(CronusMessage message)
+    protected internal override PublishResult PublishInternal(CronusMessage message)
     {
         if (InnerHandler is null)
             throw new InvalidOperationException("The inner publisher handler is not set.");
@@ -45,7 +107,7 @@ internal class CronusHeadersPublishHandler : DelegatingPublishHandler
         this.boundedContext = boundedContextOptions.Value;
     }
 
-    protected internal override bool PublishInternal(CronusMessage message)
+    protected internal override PublishResult PublishInternal(CronusMessage message)
     {
         Type payloadType = message.GetMessageType();
 
@@ -69,7 +131,7 @@ internal class CronusHeadersPublishHandler : DelegatingPublishHandler
         message.Headers.Remove("contract_name");
         message.Headers.Add("contract_name", payloadType.GetContractId());
 
-        return base.PublishInternal(message);
+        return new PublishResult(true, false) && base.PublishInternal(message);
     }
 }
 
@@ -82,18 +144,18 @@ internal class LoggingPublishHandler : DelegatingPublishHandler
         this.logger = logger;
     }
 
-    protected internal override bool PublishInternal(CronusMessage message)
+    protected internal override PublishResult PublishInternal(CronusMessage message)
     {
         using (logger.BeginScope(s => s.AddScope("cronus_messageid", message.Id.ToString())))
         {
             try
             {
-                bool isPublished = base.PublishInternal(message) && handledByRealPublisher;
+                PublishResult isPublished = base.PublishInternal(message);
 
                 Type messageType = message.GetMessageType();
 
-                bool isSignal = messageType.IsAssignableFrom(typeof(ISystemSignal));
-                if (isPublished && isSignal == false)
+                bool isSystemSignal = messageType.IsAssignableFrom(typeof(ISystemSignal));
+                if (isPublished && isSystemSignal == false)
                 {
                     logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", messageType.Name, messageType.Name);
                 }
@@ -106,7 +168,7 @@ internal class LoggingPublishHandler : DelegatingPublishHandler
             }
             catch (Exception ex) when (logger.ErrorException(ex, () => BuildTraceData()))
             {
-                return false;
+                return PublishResult.Failed;
             }
         }
 
@@ -143,7 +205,7 @@ internal class ActivityPublishHandler : DelegatingPublishHandler
         this.logger = logger;
     }
 
-    protected internal override bool PublishInternal(CronusMessage message)
+    protected internal override PublishResult PublishInternal(CronusMessage message)
     {
         Activity activity = StartActivity(message);
         if (Activity.Current is not null)
@@ -152,16 +214,15 @@ internal class ActivityPublishHandler : DelegatingPublishHandler
             message.Headers.Add(TelemetryTraceParent, Activity.Current.Id);
         }
 
-        bool published = base.PublishInternal(message);
+        PublishResult published = base.PublishInternal(message);
         StopActivity(activity);
 
-        return published;
+        return new PublishResult(true, false) && published;
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
     private Activity StartActivity(CronusMessage message)
     {
-        var asd = Activity.Current;
         if (diagnosticListener.IsEnabled())
         {
             Activity activity = null;
@@ -188,7 +249,6 @@ internal class ActivityPublishHandler : DelegatingPublishHandler
             }
 
             activity.SetTag("cronus_messageid", message.Id.ToString());
-
             activity.Start();
 
             return activity;
