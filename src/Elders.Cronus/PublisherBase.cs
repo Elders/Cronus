@@ -45,33 +45,10 @@ public readonly struct PublishResult
     // The operation x && y is evaluated as PublishResult.false(x) ? x : PublishResult.&(x, y)
     public static PublishResult operator &(PublishResult left, PublishResult right)
     {
-        if (CanIgnoreLeft_isPublished(left, right))
-        {
-            if (left.isInitialState == false)
-                return new PublishResult(left.isHandlerExecuted && right.isHandlerExecuted, right.isPublished);
+        if (left.isInitialState == false & left.isHandlerExecuted == false & left.isPublished == false & right.isHandlerExecuted & right.isPublished)
+            return new PublishResult(left.isHandlerExecuted & right.isHandlerExecuted, right.isPublished);
 
-            if (CanIgnoreLeft_isDelegatingHandlerExecuted(left, right))
-                return right;
-
-            return new PublishResult(left.isHandlerExecuted && right.isHandlerExecuted, right.isPublished);
-        }
-        else if (CanIgnoreLeft_isDelegatingHandlerExecuted(left, right))
-        {
-            return right;
-        }
-
-        return new PublishResult(left.isHandlerExecuted && right.isHandlerExecuted, left.isPublished && right.isPublished);
-
-        ///////////////
-        bool CanIgnoreLeft_isPublished(PublishResult left, PublishResult right)
-        {
-            return left.isPublished == false && right.isPublished == true;
-        }
-
-        bool CanIgnoreLeft_isDelegatingHandlerExecuted(PublishResult left, PublishResult right)
-        {
-            return left.isHandlerExecuted == false && right.isHandlerExecuted == true;
-        }
+        return right;
     }
 }
 
