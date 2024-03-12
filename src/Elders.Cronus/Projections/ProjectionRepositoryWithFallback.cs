@@ -64,6 +64,11 @@ public class ProjectionRepositoryWithFallback<TPrimary, TFallback> : IProjection
         return ExecuteWithFallbackAsync(repo => repo.GetAsOfAsync<T>(projectionId, timestamp));
     }
 
+    public Task<ReadResult<IProjectionDefinition>> GetAsOfAsync(IBlobId projectionId, Type projectionType, DateTimeOffset timestamp)
+    {
+        return ExecuteWithFallbackAsync(repo => repo.GetAsOfAsync(projectionId, projectionType, timestamp));
+    }
+
     public async Task SaveAsync(Type projectionType, IEvent @event)
     {
         var reporter = new FallbackReporter(this, projectionType);
