@@ -178,6 +178,11 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
         return GetAsOfInternalAsync<T>(projectionId, typeof(T), timestamp);
     }
 
+    public Task<ReadResult<IProjectionDefinition>> GetAsOfAsync(IBlobId projectionId, Type projectionType, DateTimeOffset timestamp)
+    {
+        return GetAsOfInternalAsync<IProjectionDefinition>(projectionId, projectionType, timestamp);
+    }
+
     protected async virtual Task<ReadResult<ProjectionVersions>> GetProjectionVersionsAsync(string projectionName)
     {
         if (string.IsNullOrEmpty(projectionName)) throw new ArgumentNullException(nameof(projectionName));
