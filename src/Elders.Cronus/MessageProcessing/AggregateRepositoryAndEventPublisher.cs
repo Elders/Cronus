@@ -1,4 +1,5 @@
 ﻿using Elders.Cronus.EventStore;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,13 +12,15 @@ internal class AggregateRepositoryAndEventPublisher : IAggregateRepository
     readonly IPublisher<IEvent> eventPublisher;
     private readonly IPublisher<IPublicEvent> publicEventPublisher;
     private readonly ICronusContextAccessor contextAccessor;
+    private readonly ILogger<AggregateRepositoryAndEventPublisher> logger;
 
-    public AggregateRepositoryAndEventPublisher(AggregateRepository repository, IPublisher<IEvent> eventPublisher, IPublisher<IPublicEvent> publicEventPublisher, ICronusContextAccessor contextAccessor)
+    public AggregateRepositoryAndEventPublisher(AggregateRepository repository, IPublisher<IEvent> eventPublisher, IPublisher<IPublicEvent> publicEventPublisher, ICronusContextAccessor contextAccessor, ILogger<AggregateRepositoryAndEventPublisher> logger)
     {
         this.aggregateRepository = repository;
         this.eventPublisher = eventPublisher;
         this.publicEventPublisher = publicEventPublisher;
         this.contextAccessor = contextAccessor;
+        this.logger = logger;
     }
 
     public Task<ReadResult<AR>> LoadAsync<AR>(AggregateRootId id) where AR : IAggregateRoot
@@ -32,23 +35,27 @@ internal class AggregateRepositoryAndEventPublisher : IAggregateRepository
         if (aggregateRoot.UncommittedEvents is null || aggregateRoot.UncommittedEvents.Any() == false)
             return;
 
+        bool isEverythingPublished = true;
         int position = -1;
         foreach (IEvent theEvent in aggregateRoot.UncommittedEvents)
         {
             if (theEvent is EntityEvent entityEvent)
             {
-                eventPublisher.Publish(entityEvent.Event, BuildHeaders(aggregateCommit, aggregateRoot, ++position));
+                isEverythingPublished &= eventPublisher.Publish(entityEvent.Event, BuildHeaders(aggregateCommit, aggregateRoot, ++position));
             }
             else
             {
-                eventPublisher.Publish(theEvent, BuildHeaders(aggregateCommit, aggregateRoot, ++position));
+                isEverythingPublished &= eventPublisher.Publish(theEvent, BuildHeaders(aggregateCommit, aggregateRoot, ++position));
             }
         }
         position += 5;
         foreach (IPublicEvent publicEvent in aggregateRoot.UncommittedPublicEvents)
         {
-            publicEventPublisher.Publish(publicEvent, BuildHeaders(aggregateCommit, aggregateRoot, position++));
+            isEverythingPublished &= publicEventPublisher.Publish(publicEvent, BuildHeaders(aggregateCommit, aggregateRoot, position++));
         }
+
+        if (isEverythingPublished == false)
+            logger.LogError("Aggregate events have been published partially.");
     }
 
     Dictionary<string, string> BuildHeaders(AggregateCommit aggregatecommit, IAggregateRoot aggregateRoot, int eventPosition)
