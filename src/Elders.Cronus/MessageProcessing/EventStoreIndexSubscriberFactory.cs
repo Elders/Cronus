@@ -40,6 +40,8 @@ public class EventStoreIndexSubscriberFactory<TIndex> : ISubscriberFactory<TInde
             string msgBoundedContext = msg.GetBoundedContext(boundedContext);
             if (msgBoundedContext == boundedContext)
                 yield return msg;
+            else if (msgBoundedContext.Equals(boundedContext, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException($"Please make sure the bounded context names are the same case. Bounded context from message: {msgBoundedContext}, expected bounded context: {boundedContext}");
         }
     }
 }
