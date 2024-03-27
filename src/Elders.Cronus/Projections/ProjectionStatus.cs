@@ -13,11 +13,14 @@ public class ProjectionStatus : IEqualityComparer<ProjectionStatus>, IEquatable<
 
     ProjectionStatus(string status)
     {
-        this.status = status;
+        if (string.IsNullOrEmpty(status))
+            throw new ArgumentNullException("status");
+
+        Status = status;
     }
 
     [DataMember(Order = 1)]
-    string status;
+    public string Status { get; private set; }
 
     /// <summary>
     /// The projection does not exist
@@ -79,15 +82,10 @@ public class ProjectionStatus : IEqualityComparer<ProjectionStatus>, IEquatable<
         }
     }
 
-    public static ProjectionStatus Create(DateTime timestamp)
-    {
-        return new ProjectionStatus(timestamp.ToFileTimeUtc().ToString());
-    }
-
     public static implicit operator string(ProjectionStatus status)
     {
         if (status is null == true) throw new ArgumentNullException(nameof(status));
-        return status.status;
+        return status.Status;
     }
 
     public bool Equals(ProjectionStatus other)
@@ -95,24 +93,24 @@ public class ProjectionStatus : IEqualityComparer<ProjectionStatus>, IEquatable<
         if (other is null) return false;
         if (ReferenceEquals(this, other)) return true;
 
-        if (status == other.status)
+        if (Status == other.Status)
             return true;
 
         // Everything bellow is for backwords comp
-        if (status == New)
-            return other.status == "replaying" || other.status == "building";
+        if (Status == New)
+            return other.Status == "replaying" || other.Status == "building";
 
-        if (status == "replaying")
-            return other.status == New || other.status == "building";
+        if (Status == "replaying")
+            return other.Status == New || other.Status == "building";
 
-        if (status == "building")
-            return other.status == New || other.status == "replaying";
+        if (Status == "building")
+            return other.Status == New || other.Status == "replaying";
 
-        if (status == Fixing)
-            return other.status == "rebuilding";
+        if (Status == Fixing)
+            return other.Status == "rebuilding";
 
-        if (status == "rebuilding")
-            return other.status == Fixing;
+        if (Status == "rebuilding")
+            return other.Status == Fixing;
 
         return false;
     }
@@ -162,7 +160,7 @@ public class ProjectionStatus : IEqualityComparer<ProjectionStatus>, IEquatable<
 
             int hashCode = startValue;
 
-            hashCode = hashCode * multiplier ^ this.status.GetHashCode();
+            hashCode = hashCode * multiplier ^ this.Status.GetHashCode();
 
             return hashCode;
         }
