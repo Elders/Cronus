@@ -50,6 +50,24 @@ public class TestProjectionModified : ProjectionDefinition<TestProjectionState, 
     public string Text { get; set; }
 }
 
+[DataContract(Name = "asc")]
+public class TestProjectionHandlersAsc : ProjectionDefinition<TestProjectionState, TestProjectionId>,
+    IEventHandler<A>,
+    IEventHandler<B>
+{
+    public Task HandleAsync(A @event) => Task.CompletedTask;
+    public Task HandleAsync(B @event) => Task.CompletedTask;
+}
+
+[DataContract(Name = "desc")]
+public class TestProjectionHandlersDesc : ProjectionDefinition<TestProjectionState, TestProjectionId>,
+    IEventHandler<B>,
+    IEventHandler<A>
+{
+    public Task HandleAsync(B @event) => Task.CompletedTask;
+    public Task HandleAsync(A @event) => Task.CompletedTask;
+}
+
 public class TestProjectionState
 {
 
@@ -86,3 +104,16 @@ public class NonReplayableProjection : IProjection, INonVersionableProjection { 
 
 [DataContract(Name = "INonRebuildableProjection")]
 public class NonRebuildableProjection : IProjection, INonRebuildableProjection { }
+
+
+[DataContract(Name = "a95d15cc-d29d-4a40-8df4-a6ebf837fb98")]
+public class A : IEvent
+{
+    public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
+}
+
+[DataContract(Name = "bf2aed4c-d192-445b-9bc0-b3bebbef1c83")]
+public class B : IEvent
+{
+    public DateTimeOffset Timestamp => DateTimeOffset.UtcNow;
+}

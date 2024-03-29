@@ -5,6 +5,9 @@ using System.Linq;
 
 namespace Elders.Cronus.Projections.Versioning;
 
+/// <summary>
+/// The order of the event handlers does NOT matter.
+/// </summary>
 public class ProjectionHasher
 {
     private static readonly char[] padding = { '=' };
