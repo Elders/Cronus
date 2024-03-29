@@ -1,8 +1,7 @@
-﻿using System.Runtime.Serialization;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Projections;
 
@@ -165,4 +164,6 @@ public class ProjectionStatus : IEqualityComparer<ProjectionStatus>, IEquatable<
             return hashCode;
         }
     }
+
+    public override string ToString() => Status;
 }
