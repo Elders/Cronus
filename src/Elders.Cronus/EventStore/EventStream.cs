@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,8 @@ public sealed class AggregateStream
         IEnumerable<IGrouping<int, AggregateEventRaw>> byRevision = events.GroupBy(x => x.Revision);
         foreach (IGrouping<int, AggregateEventRaw> revisionEvents in byRevision)
         {
-            AggregateCommitRaw commit = new AggregateCommitRaw(revisionEvents);
+            long timestamp = revisionEvents.First().Timestamp; // all events in revision must be with the same timestamp
+            AggregateCommitRaw commit = new AggregateCommitRaw(revisionEvents, timestamp.ToDateTimeOffsetUtc());
             Commits.Add(commit);
         }
     }

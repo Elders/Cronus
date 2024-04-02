@@ -8,9 +8,10 @@ namespace Elders.Cronus.EventStore;
 
 public sealed class AggregateCommitRaw : IMessage
 {
-    public AggregateCommitRaw(IEnumerable<AggregateEventRaw> @events)
+    public AggregateCommitRaw(IEnumerable<AggregateEventRaw> @events, DateTimeOffset timestamp)
     {
         Events = new List<AggregateEventRaw>(@events);
+        Timestamp = timestamp;
     }
 
     public List<AggregateEventRaw> Events { get; private set; }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
@@ -145,5 +146,106 @@ public sealed class Migrate_v9_to_v10 : IMigrationCustomLogic, IMigration<Aggreg
         var genericArguments = handlerInterfaces.GetGenericArguments();
 
         return handlerInterfaces.IsGenericType && genericArguments.Length == 1 && messagePayloadType.IsAssignableFrom(genericArguments[0]);
+    }
+}
+
+[DataContract(Name = "ad7b4d5f-da19-4fb2-b4ae-f90addf66c05")]
+public sealed class DoFixEventTimestamps : ISignal
+{
+    DoFixEventTimestamps()
+    {
+        Timestamp = DateTimeOffset.UtcNow;
+    }
+
+    public DoFixEventTimestamps(string tenant) : this()
+    {
+        Tenant = tenant;
+    }
+
+    [DataMember(Order = 0)]
+    public string Tenant { get; private set; }
+
+    [DataMember(Order = 1)]
+    public DateTimeOffset Timestamp { get; private set; }
+}
+
+[DataContract(Name = "6c76a1cb-0fe8-4f34-8b60-fcb285c75d08")]
+public class FixEventTimestamps : ITrigger,
+        ISignalHandle<DoFixEventTimestamps>
+{
+    private readonly IEventStorePlayer player;
+    private readonly IEventStore eventStore;
+    private readonly ISerializer serializer;
+    private readonly ILogger<FixEventTimestamps> logger;
+
+    public FixEventTimestamps(IEventStorePlayer player, ILogger<FixEventTimestamps> logger, IEventStore eventStore, ISerializer serializer)
+    {
+        this.player = player;
+        this.logger = logger;
+        this.eventStore = eventStore;
+        this.serializer = serializer;
+    }
+    const string TimestampPropertyName = "Timestamp";
+
+    public async Task HandleAsync(DoFixEventTimestamps signal)
+    {
+        logger.Info(() => "Starting FixEventTimestamps...");
+
+        PlayerOperator @operator = new PlayerOperator()
+        {
+            OnAggregateStreamLoadedAsync = async arStream =>
+            {
+                foreach (AggregateCommitRaw commit in arStream.Commits)
+                {
+                    byte[] arid = null;
+                    int rev = -1;
+
+                    Dictionary<int, IMessage> messages = new Dictionary<int, IMessage>();
+                    HashSet<DateTimeOffset> timestamps = new HashSet<DateTimeOffset>();
+                    foreach (var @event in commit.Events)
+                    {
+                        if (rev < 0)
+                        {
+                            arid = @event.AggregateRootId;
+                            rev = @event.Revision;
+                        }
+
+                        var temp = serializer.DeserializeFromBytes<IMessage>(@event.Data);
+                        messages.Add(@event.Position, temp);
+
+                        timestamps.Add(temp.Timestamp);
+                    }
+
+                    if (messages.Count != timestamps.Count)
+                    {
+                        // fix timestamp
+                        int timestampFix = 0;
+                        foreach (var msg in messages)
+                        {
+                            timestampFix++;
+
+                            var propInfo = msg.Value.GetType().GetProperty(TimestampPropertyName);
+                            if (propInfo is not null)
+                            {
+                                propInfo.SetValue(msg.Value, msg.Value.Timestamp.AddTicks(timestampFix));
+                            }
+
+                            var newEventFixedTimestamp = new AggregateEventRaw(arid, serializer.SerializeToBytes(msg.Value), rev, msg.Key, commit.Timestamp.ToFileTime());
+                            // EventStore
+                            await eventStore.AppendAsync(newEventFixedTimestamp).ConfigureAwait(false);
+                        }
+                    }
+                }
+
+                //if (count % 100 == 0)
+                //{
+                //    logger.LogInformation("Deleted and reordered events for {count} offer ARs", count);
+                //}
+            }
+        };
+
+        await player.EnumerateEventStore(@operator, new PlayerOptions());
+
+        logger.Info(() => "Finished FixEventTimestamps....");
     }
 }
