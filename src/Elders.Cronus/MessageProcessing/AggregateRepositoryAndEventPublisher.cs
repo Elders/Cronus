@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Elders.Cronus.MessageProcessing;
 
-internal class AggregateRepositoryAndEventPublisher : IAggregateRepository
+internal sealed class AggregateRepositoryAndEventPublisher : IAggregateRepository
 {
     readonly AggregateRepository aggregateRepository;
     readonly IPublisher<IEvent> eventPublisher;

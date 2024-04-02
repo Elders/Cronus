@@ -20,13 +20,6 @@ public class SerializableException : Exception
             ExInnerException = new SerializableException(ex.InnerException);
     }
 
-    /// <summary>
-    /// Serialization constructor.
-    /// </summary>
-    protected SerializableException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    { }
-
     [DataMember(Order = 1)]
     public Type ExType { get; private set; }
 

@@ -25,13 +25,6 @@ public class AggregateLoadException : Exception
     public AggregateLoadException(string message) : base(message) { }
 
     /// <summary>
-    /// Serialization constructor.
-    /// </summary>
-    protected AggregateLoadException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    { }
-
-    /// <summary>
     /// Constructs a new AggregateStateFirstLevelConcurrencyException.
     /// </summary>
     public AggregateLoadException() { }

@@ -22,13 +22,6 @@ public class AggregateStateFirstLevelConcurrencyException : Exception
     public AggregateStateFirstLevelConcurrencyException(string message) : base(message) { }
 
     /// <summary>
-    /// Serialization constructor.
-    /// </summary>
-    protected AggregateStateFirstLevelConcurrencyException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    { }
-
-    /// <summary>
     /// Constructs a new AggregateStateFirstLevelConcurrencyException.
     /// </summary>
     public AggregateStateFirstLevelConcurrencyException() { }

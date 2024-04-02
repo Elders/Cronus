@@ -25,13 +25,6 @@ public class EventStreamIntegrityViolationException : Exception
     public EventStreamIntegrityViolationException(string message) : base(message) { }
 
     /// <summary>
-    /// Serialization constructor.
-    /// </summary>
-    protected EventStreamIntegrityViolationException(SerializationInfo info, StreamingContext context)
-        : base(info, context)
-    { }
-
-    /// <summary>
     /// Constructs a new EventStreamIntegrityViolationException.
     /// </summary>
     public EventStreamIntegrityViolationException() { }

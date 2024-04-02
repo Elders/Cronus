@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Elders.Cronus.MessageProcessing;
 
-public class DefaultSubscriberWorkflow<T> : ISubscriberWorkflowFactory<T>
+public sealed class DefaultSubscriberWorkflow<T> : ISubscriberWorkflowFactory<T>
 {
     private readonly IServiceProvider serviceProvider;
 

@@ -14,6 +14,4 @@ public class UnableToResolveTenantException : Exception
     public UnableToResolveTenantException(string message) : this(message, null) { }
 
     public UnableToResolveTenantException(string message, Exception innerException) : base(message, innerException) { }
-
-    protected UnableToResolveTenantException(SerializationInfo info, StreamingContext context) : base(info, context) { }
 }
