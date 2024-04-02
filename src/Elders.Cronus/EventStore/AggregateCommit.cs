@@ -16,6 +16,11 @@ public sealed class AggregateCommitRaw : IMessage
 
     public List<AggregateEventRaw> Events { get; private set; }
 
+    /// <summary>
+    /// This is the timestamp of commit creation.
+    /// This value is different from the timestamp of concrete events.
+    /// Usage: only for infrastructore purpoces
+    /// </summary>
     public DateTimeOffset Timestamp { get; private set; }
 }
 
@@ -60,6 +65,11 @@ public class AggregateCommit : IMessage
     [DataMember(Order = 6)]
     public List<IPublicEvent> PublicEvents { get; set; }
 
+    /// <summary>
+    /// This is the timestamp of commit creation.
+    /// This value is different from the timestamp of concrete events.
+    /// Usage: only for infrastructore purpoces
+    /// </summary>
     [DataMember(Order = 5)]
     public long Timestamp { get; private set; }
 
