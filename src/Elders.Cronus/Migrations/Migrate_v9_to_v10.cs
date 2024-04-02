@@ -43,26 +43,29 @@ public sealed class Migrate_v9_to_v10 : IMigrationCustomLogic, IMigration<Aggreg
         List<Task> tasks = new List<Task>();
 
         // fix timestamp
+        int timestampFix = 0;
         foreach (IEvent @event in migratedAggregateCommit.Events)
         {
+            timestampFix++;
             if (@event.Timestamp <= MinFiletimeAsDateTimeOffset)
             {
                 var propInfo = @event.GetType().GetProperty(TimestampPropertyName);
                 if (propInfo is not null)
                 {
-                    propInfo.SetValue(@event, migratedAggregateCommit.Timestamp.ToDateTimeOffsetUtc());
+                    propInfo.SetValue(@event, (migratedAggregateCommit.Timestamp + timestampFix).ToDateTimeOffsetUtc());
                 }
             }
         }
 
         foreach (IPublicEvent publicEvent in migratedAggregateCommit.PublicEvents)
         {
+            timestampFix++;
             if (publicEvent.Timestamp <= MinFiletimeAsDateTimeOffset)
             {
                 var propInfo = publicEvent.GetType().GetProperty(TimestampPropertyName);
                 if (propInfo is not null)
                 {
-                    propInfo.SetValue(publicEvent, migratedAggregateCommit.Timestamp.ToDateTimeOffsetUtc());
+                    propInfo.SetValue(publicEvent, (migratedAggregateCommit.Timestamp + timestampFix).ToDateTimeOffsetUtc());
                 }
             }
         }
@@ -120,7 +123,6 @@ public sealed class Migrate_v9_to_v10 : IMigrationCustomLogic, IMigration<Aggreg
 
                 if (isInterested)
                 {
-                    EventOrigin origin = new EventOrigin(migratedAggregateCommit.AggregateRootId, migratedAggregateCommit.Revision, pos, migratedAggregateCommit.Events[pos].Timestamp.ToFileTime());
                     ProjectionVersion version = liveOnlyProjections.Where(ver => ver.ProjectionName.Equals(projectionType.GetContractId())).SingleOrDefault();
                     if (version is not null)
                     {
