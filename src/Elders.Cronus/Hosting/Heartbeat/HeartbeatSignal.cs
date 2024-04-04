@@ -4,10 +4,13 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.Hosting.Heartbeat;
 
-[DataContract(Name = "c80739a6-b5dc-483e-8c11-06a85542416e")]
+[DataContract(Namespace = "cronus", Name = "c80739a6-b5dc-483e-8c11-06a85542416e")]
 public sealed class HeartbeatSignal : ISignal
 {
-    HeartbeatSignal() { }
+    HeartbeatSignal()
+    {
+        Tenants = new List<string>();
+    }
 
     public HeartbeatSignal(string boundedContext, List<string> tenants)
     {

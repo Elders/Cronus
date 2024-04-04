@@ -43,6 +43,8 @@ public static class CronusServiceCollectionExtensions
         foreach (var result in discoveryResults)
             cronusServicesProvider.HandleDiscoveredModel(result);
 
+        services.AddCronusHeartbeat();
+
         return services;
     }
 
@@ -53,7 +55,7 @@ public static class CronusServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddCronusHeartbeat(this IServiceCollection services)
+    internal static IServiceCollection AddCronusHeartbeat(this IServiceCollection services)
     {
         services.AddOptions<HeartbeatOptions, HeartbeaOptionsProvider>();
         services.AddSingleton<IHeartbeat, CronusHeartbeat>();

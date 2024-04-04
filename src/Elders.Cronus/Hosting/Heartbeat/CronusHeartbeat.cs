@@ -42,6 +42,7 @@ public class CronusHeartbeat : IHeartbeat
             catch (Exception ex) when (ex is TaskCanceledException or ObjectDisposedException)
             {
                 // Someone has cancled the task during the delay. In this case we just return without any error.
+
             }
             catch (Exception ex)
             {
@@ -49,5 +50,7 @@ public class CronusHeartbeat : IHeartbeat
                 logger.WarnException(ex, () => "Failed to send heartbeat.");
             }
         }
+
+        logger.LogInformation("Heartbeat has been stopped.");
     }
 }

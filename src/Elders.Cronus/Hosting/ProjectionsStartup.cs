@@ -3,7 +3,7 @@
 namespace Elders.Cronus;
 
 [CronusStartup(Bootstraps.Projections)]
-internal class ProjectionsStartup : ICronusStartup
+internal sealed class ProjectionsStartup : ICronusStartup
 {
     private readonly CronusProjectionBootstrapper projectionsBootstrapper;
 

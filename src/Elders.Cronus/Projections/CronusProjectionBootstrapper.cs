@@ -13,21 +13,26 @@ internal class CronusProjectionBootstrapper
     private readonly ProjectionFinderViaReflection projectionFinderViaReflection;
     private readonly LatestProjectionVersionFinder projectionFinder;
     private readonly IPublisher<ICommand> publisher;
+    private readonly IOptionsMonitor<CronusHostOptions> cronusOptionsMonitor;
     private readonly CronusHostOptions cronusHostOptions;
     private readonly TenantsOptions tenants;
 
-    public CronusProjectionBootstrapper(IServiceProvider serviceProvider, ProjectionFinderViaReflection projectionFinderViaReflection, LatestProjectionVersionFinder projectionFinder, IOptions<CronusHostOptions> cronusHostOptions, IOptions<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher)
+    public CronusProjectionBootstrapper(IServiceProvider serviceProvider, ProjectionFinderViaReflection projectionFinderViaReflection, LatestProjectionVersionFinder projectionFinder, IOptions<CronusHostOptions> cronusHostOptions, IOptions<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher, IOptionsMonitor<CronusHostOptions> cronusOptionsMonitor)
     {
         this.serviceProvider = serviceProvider;
         this.projectionFinderViaReflection = projectionFinderViaReflection;
         this.projectionFinder = projectionFinder;
         this.publisher = publisher;
+        this.cronusOptionsMonitor = cronusOptionsMonitor;
         this.cronusHostOptions = cronusHostOptions.Value;
         this.tenants = tenantsOptions.Value;
     }
 
     public async Task BootstrapAsync()
     {
+        if (cronusOptionsMonitor.CurrentValue.ProjectionsEnabled == false)
+            return;
+
         foreach (var tenant in tenants.Tenants)
         {
             using (var scopedServiceProvider = serviceProvider.CreateScope())
