@@ -17,7 +17,6 @@ public class CronusHeartbeat : IHeartbeat
     private readonly HeartbeatOptions options;
     private readonly ILogger<CronusHeartbeat> logger;
     private const string TTL = "5000";
-    private static Dictionary<string, string> heartbeatHeaders = new Dictionary<string, string>() { { MessageHeader.TTL, TTL } };
 
     public CronusHeartbeat(IPublisher<ISignal> publisher, IOptionsMonitor<BoundedContext> boundedContext, IOptionsMonitor<HeartbeatOptions> HeartbeatOptions, IOptions<TenantsOptions> tenantsOptions, ILogger<CronusHeartbeat> logger)
     {
@@ -34,6 +33,7 @@ public class CronusHeartbeat : IHeartbeat
         {
             try
             {
+                Dictionary<string, string> heartbeatHeaders = new Dictionary<string, string>() { { MessageHeader.TTL, TTL } };
                 var signal = new HeartbeatSignal(boundedContext.Name, tenants);
                 publisher.Publish(signal, heartbeatHeaders);
                 logger.Debug(() => "Heartbeat sent");
