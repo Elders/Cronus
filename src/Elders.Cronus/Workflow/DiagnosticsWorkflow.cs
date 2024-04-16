@@ -19,6 +19,8 @@ internal static class CronusLogEvent
     public static EventId CronusProjectionWrite = new EventId(74021, "CronusProjectionWrite");
     public static EventId CronusJobOk = new EventId(74100, "CronusJobOk");
     public static EventId CronusJobError = new EventId(74101, "CronusJobError");
+    public static EventId CronusPublishOk = new EventId(74200, "CronusPublishOk");
+    public static EventId CronusPublishError = new EventId(74201, "CronusPublishError");
 }
 
 public sealed class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext : HandleContext

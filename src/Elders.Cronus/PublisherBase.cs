@@ -5,7 +5,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using Elders.Cronus.Hosting.Heartbeat;
 using Elders.Cronus.Multitenancy;
+using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -137,6 +139,11 @@ internal class CronusHeadersPublishHandler : DelegatingPublishHandler
 
 internal class LoggingPublishHandler : DelegatingPublishHandler
 {
+    private static Type HeartbeatSignalType = typeof(HeartbeatSignal);
+    private static readonly Action<ILogger, string, string, Exception> LogPublishOK = LoggerMessage.Define<string, string>(LogLevel.Information, CronusLogEvent.CronusPublishOk, "Publish {cronus_MessageType} {cronus_MessageName} - OK");
+    private static readonly Action<ILogger, string, string, Exception> LogPublishError = LoggerMessage.Define<string, string>(LogLevel.Error, CronusLogEvent.CronusPublishError, "Publish {cronus_MessageType} {cronus_MessageName} - Fail");
+
+
     private readonly ILogger<LoggingPublishHandler> logger;
 
     public LoggingPublishHandler(ILogger<LoggingPublishHandler> logger)
@@ -154,14 +161,14 @@ internal class LoggingPublishHandler : DelegatingPublishHandler
 
                 Type messageType = message.GetMessageType();
 
-                bool isSystemSignal = messageType.IsAssignableFrom(typeof(ISystemSignal));
+                bool isSystemSignal = messageType.IsAssignableFrom(typeof(ISystemSignal)) || messageType == HeartbeatSignalType;
                 if (isPublished && isSystemSignal == false)
                 {
-                    logger.Info(() => "Publish {cronus_MessageType} {cronus_MessageName} - OK", messageType.Name, messageType.Name);
+                    LogPublishOK(logger, messageType.Name, messageType.Name, null);
                 }
                 else if (isPublished == false)
                 {
-                    logger.Error(() => "Publish {cronus_MessageType} {cronus_MessageName} - Fail", messageType.Name, messageType.Name);
+                    LogPublishError(logger, messageType.Name, messageType.Name, null);
                 }
 
                 return isPublished;
