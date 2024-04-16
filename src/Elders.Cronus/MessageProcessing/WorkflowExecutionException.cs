@@ -20,5 +20,3 @@ public class WorkflowExecutionException : Exception
 
     public ErrorContext Context { get; private set; }
 }
-
-
