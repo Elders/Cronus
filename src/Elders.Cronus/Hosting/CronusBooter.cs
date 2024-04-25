@@ -20,7 +20,8 @@ public sealed class CronusBooter
         foreach (var startupType in startups)
         {
             ICronusStartup startup = (ICronusStartup)serviceProvider.GetRequiredService(startupType);
-            startup.Bootstrap();
+            if (startup.ShouldBootstrap())
+                startup.Bootstrap();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +11,28 @@ public class EventStoreDiscovery : DiscoveryBase<IEventStore>
 {
     protected override DiscoveryResult<IEventStore> DiscoverFromAssemblies(DiscoveryContext context)
     {
-        IEnumerable<DiscoveredModel> models = DiscoverIndices(context)
-           .Concat(new[] {
+        var cronusOptions = new CronusHostOptions();
+        context.Configuration.GetSection("Cronus").Bind(cronusOptions);
+
+        IEnumerable<DiscoveredModel> models = Enumerable.Empty<DiscoveredModel>();
+
+        if (cronusOptions.ApplicationServicesEnabled)
+        {
+            models = DiscoverIndices(context)
+              .Concat(new[] {
+                new DiscoveredModel(typeof(IEventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Transient),
                 new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Transient),
                 new DiscoveredModel(typeof(EventLookupInByteArray), typeof(EventLookupInByteArray), ServiceLifetime.Singleton)
-           });
+              });
+        }
+        else
+        {
+            models = DiscoverIndices(context)
+              .Concat(new[] {
+                new DiscoveredModel(typeof(IEventStoreFactory), typeof(MIssingEventStoreFactory), ServiceLifetime.Singleton),
+                new DiscoveredModel(typeof(EventLookupInByteArray), typeof(EventLookupInByteArray), ServiceLifetime.Singleton)
+              });
+        }
 
         return new DiscoveryResult<IEventStore>(models);
     }

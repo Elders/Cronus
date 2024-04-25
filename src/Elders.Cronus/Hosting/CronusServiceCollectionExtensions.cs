@@ -32,7 +32,7 @@ public static class CronusServiceCollectionExtensions
         services.AddOpenTelemetry();
         services.AddTenantSupport();
         services.AddCronusHostOptions();
-        services.AddDefaultSubscribers();
+        services.AddDefaultSubscribers(cronusServicesProvider);
         services.AddInMemoryLock();
         services.AddJobManager();
 
@@ -43,7 +43,7 @@ public static class CronusServiceCollectionExtensions
         foreach (var result in discoveryResults)
             cronusServicesProvider.HandleDiscoveredModel(result);
 
-        services.AddCronusHeartbeat();
+        //  services.AddCronusHeartbeat();
 
         return services;
     }

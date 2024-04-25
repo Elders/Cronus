@@ -14,7 +14,7 @@ public sealed class AggregateRepository : IAggregateRepository
     readonly IIntegrityPolicy<EventStream> integrityPolicy;
     private readonly CronusAggregateCommitInterceptor aggregateInterceptor;
 
-    public AggregateRepository(EventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy, CronusAggregateCommitInterceptor aggregateInterceptor)
+    public AggregateRepository(IEventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy, CronusAggregateCommitInterceptor aggregateInterceptor)
     {
         if (eventStoreFactory is null) throw new ArgumentNullException(nameof(eventStoreFactory));
         if (atomicAction is null) throw new ArgumentNullException(nameof(atomicAction));

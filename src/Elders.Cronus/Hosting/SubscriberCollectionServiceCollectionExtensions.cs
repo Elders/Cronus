@@ -1,6 +1,8 @@
-﻿using Elders.Cronus.EventStore.Index;
+﻿using Elders.Cronus.Discoveries;
+using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Migrations;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus;
@@ -17,11 +19,16 @@ public static class SubscriberCollectionServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddDefaultSubscribers(this IServiceCollection services)
+    public static IServiceCollection AddDefaultSubscribers(this IServiceCollection services, CronusServicesProvider cronusServicesProvider)
     {
+        var cronusOptions = new CronusHostOptions();
+        cronusServicesProvider.Configuration.GetSection("Cronus").Bind(cronusOptions);
+
         services.AddSubscribersWithOpenGenerics();
 
-        services.AddApplicationServiceSubscribers();
+        if (cronusOptions.ApplicationServicesEnabled)
+            services.AddApplicationServiceSubscribers();
+
         services.AddSubscribers<IPort>();
         services.AddSubscribers<IGateway>();
         services.AddSubscribers<ISaga>();
@@ -31,9 +38,12 @@ public static class SubscriberCollectionServiceCollectionExtensions
         services.AddSubscribers<ISystemProjection>();
         services.AddSubscribers<IMigrationHandler>();
         services.AddTriggersSubscribers();
+
         services.AddEventStoreIndexSubscribers();
         services.AddSystemEventStoreIndexSubscribers();
-        services.AddProjections();
+
+        if (cronusOptions.ProjectionsEnabled)
+            services.AddProjections();
 
         return services;
     }

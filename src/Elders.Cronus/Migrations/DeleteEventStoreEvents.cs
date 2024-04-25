@@ -10,7 +10,7 @@ public sealed class DeleteEventStoreEvents<TSourceEventStorePlayer, TTargetEvent
 {
     private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DeleteEventStoreEvents<,>));
 
-    public DeleteEventStoreEvents(TSourceEventStorePlayer source, EventStoreFactory factory) : base(source, factory.GetEventStore()) { }
+    public DeleteEventStoreEvents(TSourceEventStorePlayer source, IEventStoreFactory factory) : base(source, factory.GetEventStore()) { }
 
     public override async Task RunAsync(IEnumerable<IMigration<AggregateEventRaw>> migrations)
     {
