@@ -15,10 +15,15 @@ public class ProjectionsDiscovery : HandlersDiscovery<IProjection>
         var cronusOptions = new CronusHostOptions();
         context.Configuration.GetSection("Cronus").Bind(cronusOptions);
 
-        IEnumerable<DiscoveredModel> models = base.DiscoverHandlers(context);
-        if (cronusOptions.ProjectionsEnabled)
+        IEnumerable<DiscoveredModel> models =
+            base.DiscoverHandlers(context)
+            .Concat(GetSupportingModels())
+            .Concat(GetModels());
+
+        var hasProjectionStore = context.FindServiceExcept<IProjectionStore>(typeof(MissingProjections)).Any();
+        if (hasProjectionStore == false)
         {
-            models = models.Concat(GetModels());
+            models = models.Concat(RegisterMissingModels());
         }
 
         return models;
@@ -31,15 +36,23 @@ public class ProjectionsDiscovery : HandlersDiscovery<IProjection>
         yield return new DiscoveredModel(typeof(ProjectionRepository), typeof(ProjectionRepository), ServiceLifetime.Transient);
         yield return new DiscoveredModel(typeof(ProjectionRepositoryWithFallback<>), typeof(ProjectionRepositoryWithFallback<>), ServiceLifetime.Transient);
         yield return new DiscoveredModel(typeof(ProjectionRepositoryWithFallback<,>), typeof(ProjectionRepositoryWithFallback<,>), ServiceLifetime.Transient);
-        //yield return new DiscoveredModel(typeof(InMemoryProjectionVersionStore), typeof(InMemoryProjectionVersionStore), ServiceLifetime.Singleton);
+    }
+
+    IEnumerable<DiscoveredModel> RegisterMissingModels()
+    {
+        yield return new DiscoveredModel(typeof(IProjectionStore), typeof(MissingProjections), ServiceLifetime.Transient);
+        yield return new DiscoveredModel(typeof(IInitializableProjectionStore), typeof(MissingProjections), ServiceLifetime.Transient);
+    }
+
+    IEnumerable<DiscoveredModel> GetSupportingModels()
+    {
         yield return new DiscoveredModel(typeof(IProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
         yield return new DiscoveredModel(typeof(MarkupInterfaceProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
-
+        yield return new DiscoveredModel(typeof(ProjectionHasher), typeof(ProjectionHasher), ServiceLifetime.Singleton);
         yield return new DiscoveredModel(typeof(CronusProjectionBootstrapper), typeof(CronusProjectionBootstrapper), ServiceLifetime.Transient);
-        yield return new DiscoveredModel(typeof(LatestProjectionVersionFinder), typeof(LatestProjectionVersionFinder), ServiceLifetime.Transient);
         yield return new DiscoveredModel(typeof(IProjectionVersionFinder), typeof(ProjectionFinderViaReflection), ServiceLifetime.Transient);
         yield return new DiscoveredModel(typeof(ProjectionFinderViaReflection), typeof(ProjectionFinderViaReflection), ServiceLifetime.Transient);
-        yield return new DiscoveredModel(typeof(ProjectionHasher), typeof(ProjectionHasher), ServiceLifetime.Singleton);
+        yield return new DiscoveredModel(typeof(LatestProjectionVersionFinder), typeof(LatestProjectionVersionFinder), ServiceLifetime.Transient);
     }
 }
 
@@ -47,13 +60,15 @@ public class SystemdProjectionsDiscovery : HandlersDiscovery<ISystemProjection>
 {
     protected override IEnumerable<DiscoveredModel> DiscoverHandlers(DiscoveryContext context)
     {
-        var cronusOptions = new CronusHostOptions();
-        context.Configuration.GetSection("Cronus").Bind(cronusOptions);
+        IEnumerable<DiscoveredModel> models =
+            base.DiscoverHandlers(context)
+            .Concat(GetSupportingModels())
+            .Concat(GetModels());
 
-        IEnumerable<DiscoveredModel> models = base.DiscoverHandlers(context);
-        if (cronusOptions.SystemServicesEnabled)
+        var hasProjectionStore = context.FindServiceExcept<IProjectionStore>(typeof(MissingProjections)).Any();
+        if (hasProjectionStore == false)
         {
-            models = models.Concat(GetModels());
+            models = models.Concat(RegisterMissingModels());
         }
         return models;
     }
@@ -65,11 +80,21 @@ public class SystemdProjectionsDiscovery : HandlersDiscovery<ISystemProjection>
         yield return new DiscoveredModel(typeof(ProjectionRepository), typeof(ProjectionRepository), ServiceLifetime.Transient);
         yield return new DiscoveredModel(typeof(ProjectionRepositoryWithFallback<>), typeof(ProjectionRepositoryWithFallback<>), ServiceLifetime.Transient);
         yield return new DiscoveredModel(typeof(ProjectionRepositoryWithFallback<,>), typeof(ProjectionRepositoryWithFallback<,>), ServiceLifetime.Transient);
-        yield return new DiscoveredModel(typeof(IProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
-        yield return new DiscoveredModel(typeof(MarkupInterfaceProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
         yield return new DiscoveredModel(typeof(ProjectionVersionHelper), typeof(ProjectionVersionHelper), ServiceLifetime.Transient);
         yield return new DiscoveredModel(typeof(ProgressTracker), typeof(ProgressTracker), ServiceLifetime.Scoped);
+    }
 
+    IEnumerable<DiscoveredModel> GetSupportingModels()
+    {
+        yield return new DiscoveredModel(typeof(IProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
+        yield return new DiscoveredModel(typeof(MarkupInterfaceProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
         yield return new DiscoveredModel(typeof(ProjectionHasher), typeof(ProjectionHasher), ServiceLifetime.Singleton);
+    }
+
+    IEnumerable<DiscoveredModel> RegisterMissingModels()
+    {
+        yield return new DiscoveredModel(typeof(IProjectionStore), typeof(MissingProjections), ServiceLifetime.Transient);
+        yield return new DiscoveredModel(typeof(IInitializableProjectionStore), typeof(MissingProjections), ServiceLifetime.Transient);
+
     }
 }

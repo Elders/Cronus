@@ -1,6 +1,5 @@
 ﻿using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.Index;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,25 +10,22 @@ public class EventStoreDiscovery : DiscoveryBase<IEventStore>
 {
     protected override DiscoveryResult<IEventStore> DiscoverFromAssemblies(DiscoveryContext context)
     {
-        var cronusOptions = new CronusHostOptions();
-        context.Configuration.GetSection("Cronus").Bind(cronusOptions);
-
-        IEnumerable<DiscoveredModel> models = Enumerable.Empty<DiscoveredModel>();
-
-        if (cronusOptions.ApplicationServicesEnabled)
-        {
-            models = DiscoverIndices(context)
-              .Concat(new[] {
+        IEnumerable<DiscoveredModel> models = DiscoverIndices(context)
+          .Concat(new[] {
                 new DiscoveredModel(typeof(IEventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Transient),
                 new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Transient),
                 new DiscoveredModel(typeof(EventLookupInByteArray), typeof(EventLookupInByteArray), ServiceLifetime.Singleton)
-              });
-        }
-        else
+          });
+
+        bool hasEventStore = context.FindServiceExcept<IEventStore>([typeof(CronusEventStore), typeof(MissingPersistence)]).Any();
+        if (hasEventStore == false)
         {
-            models = DiscoverIndices(context)
+            models = models
               .Concat(new[] {
-                new DiscoveredModel(typeof(IEventStoreFactory), typeof(MIssingEventStoreFactory), ServiceLifetime.Singleton),
+                new DiscoveredModel(typeof(IMessageCounter), typeof(MissingPersistence), ServiceLifetime.Singleton),
+                new DiscoveredModel(typeof(IEventStorePlayer), typeof(MissingPersistence), ServiceLifetime.Singleton),
+                new DiscoveredModel(typeof(IIndexStore), typeof(MissingPersistence), ServiceLifetime.Singleton),
+                new DiscoveredModel(typeof(IEventStore), typeof(MissingPersistence), ServiceLifetime.Singleton),
                 new DiscoveredModel(typeof(EventLookupInByteArray), typeof(EventLookupInByteArray), ServiceLifetime.Singleton)
               });
         }

@@ -5,7 +5,7 @@ using Elders.Cronus.Projections;
 namespace Elders.Cronus.EventStore.Index.Handlers;
 
 [DataContract(Name = ContractId)]
-public class EventStoreIndexStatus : ProjectionDefinition<EventStoreIndexStatusState, EventStoreIndexManagerId>, ISystemProjection, ISystemEventStoreIndexHandler,
+public sealed class EventStoreIndexStatus : ProjectionDefinition<EventStoreIndexStatusState, EventStoreIndexManagerId>, ISystemProjection, ISystemEventStoreIndexHandler,
     IEventHandler<EventStoreIndexRequested>,
     IEventHandler<EventStoreIndexIsNowPresent>
 {

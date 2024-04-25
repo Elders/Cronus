@@ -1,6 +1,4 @@
-﻿using Elders.Cronus.EventStore.Index;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+﻿using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore;
 
@@ -20,16 +18,5 @@ public sealed class EventStoreFactory : IEventStoreFactory
         this.logger = logger;
     }
 
-    public IEventStore GetEventStore()
-    {
-        return new CronusEventStore(eventStore, logger);
-    }
-}
-
-public sealed class MIssingEventStoreFactory : IEventStoreFactory
-{
-    public IEventStore GetEventStore()
-    {
-        throw new System.NotImplementedException("The EventStore is not configured. You need to do the following steps: 1. Set Cronus:ApplicationServicesEnabled = true. 2. Install nuget package Cronus.Persistence.Cassandra.");
-    }
+    public IEventStore GetEventStore() => new CronusEventStore(eventStore, logger);
 }

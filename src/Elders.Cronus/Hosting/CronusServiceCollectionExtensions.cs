@@ -43,7 +43,7 @@ public static class CronusServiceCollectionExtensions
         foreach (var result in discoveryResults)
             cronusServicesProvider.HandleDiscoveredModel(result);
 
-        //  services.AddCronusHeartbeat();
+        services.AddCronusHeartbeat();
 
         return services;
     }

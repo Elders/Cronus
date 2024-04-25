@@ -34,6 +34,16 @@ public static class DiscoveryExtensions
              .Where(type => type.IsAssignableFrom(second) == false);
     }
 
+    public static IEnumerable<Type> FindExcept<TService>(this IEnumerable<Assembly> assemblies, IEnumerable<Type> except)
+    {
+        return assemblies
+             .SelectMany(asm => asm.GetLoadableTypes())
+             .Where(TypeIsNotAbstract)
+             .Where(TypeIsNotInterface)
+             .Where(type => typeof(TService).IsAssignableFrom(type))
+             .Where(type => except.Where(ex => type.IsAssignableFrom(ex)).Any() == false);
+    }
+
     private static bool TypeIsNotAbstract(Type type) => type.IsAbstract == false;
     private static bool TypeIsNotInterface(Type type) => type.IsInterface == false;
 }
