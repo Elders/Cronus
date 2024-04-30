@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.Migrations;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries;
@@ -63,23 +64,29 @@ public class CronusHostDiscovery : DiscoveryBase<ICronusHost>
 
     protected virtual IEnumerable<DiscoveredModel> DiscoverMigrations(DiscoveryContext context)
     {
-        IEnumerable<Type> loadedMigrations = context.Assemblies.Find<IMigration>();
+        var cronusOptions = new CronusHostOptions();
+        context.Configuration.GetSection("Cronus").Bind(cronusOptions);
 
-        foreach (var migrationType in loadedMigrations)
+        if (cronusOptions.MigrationsEnabled)
         {
-            var directInterfaces = GetDirectInterfaces(migrationType);
+            IEnumerable<Type> loadedMigrations = context.Assemblies.Find<IMigration>();
 
-            foreach (var interfaceBase in directInterfaces)
+            foreach (var migrationType in loadedMigrations)
             {
-                var generics = interfaceBase.GetGenericArguments();
-                if (generics.Length == 1 && typeof(IMigration).IsAssignableFrom(interfaceBase))
+                var directInterfaces = GetDirectInterfaces(migrationType);
+
+                foreach (var interfaceBase in directInterfaces)
                 {
-                    var tenantResolverType = typeof(IMigration<>);
-                    var tenantResolverTypeGeneric = tenantResolverType.MakeGenericType(generics.Single());
-                    yield return new DiscoveredModel(tenantResolverTypeGeneric, migrationType, ServiceLifetime.Transient)
+                    var generics = interfaceBase.GetGenericArguments();
+                    if (generics.Length == 1 && typeof(IMigration).IsAssignableFrom(interfaceBase))
                     {
-                        CanAddMultiple = true
-                    };
+                        var tenantResolverType = typeof(IMigration<>);
+                        var tenantResolverTypeGeneric = tenantResolverType.MakeGenericType(generics.Single());
+                        yield return new DiscoveredModel(tenantResolverTypeGeneric, migrationType, ServiceLifetime.Transient)
+                        {
+                            CanAddMultiple = true
+                        };
+                    }
                 }
             }
         }

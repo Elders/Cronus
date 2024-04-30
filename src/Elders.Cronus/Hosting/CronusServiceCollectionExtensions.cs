@@ -32,7 +32,7 @@ public static class CronusServiceCollectionExtensions
         services.AddOpenTelemetry();
         services.AddTenantSupport();
         services.AddCronusHostOptions();
-        services.AddDefaultSubscribers();
+        services.AddDefaultSubscribers(cronusServicesProvider);
         services.AddInMemoryLock();
         services.AddJobManager();
 

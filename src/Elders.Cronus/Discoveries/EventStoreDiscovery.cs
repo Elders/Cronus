@@ -11,10 +11,24 @@ public class EventStoreDiscovery : DiscoveryBase<IEventStore>
     protected override DiscoveryResult<IEventStore> DiscoverFromAssemblies(DiscoveryContext context)
     {
         IEnumerable<DiscoveredModel> models = DiscoverIndices(context)
-           .Concat(new[] {
+          .Concat(new[] {
+                new DiscoveredModel(typeof(IEventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Transient),
                 new DiscoveredModel(typeof(EventStoreFactory), typeof(EventStoreFactory), ServiceLifetime.Transient),
                 new DiscoveredModel(typeof(EventLookupInByteArray), typeof(EventLookupInByteArray), ServiceLifetime.Singleton)
-           });
+          });
+
+        bool hasEventStore = context.FindServiceExcept<IEventStore>([typeof(CronusEventStore), typeof(MissingPersistence)]).Any();
+        if (hasEventStore == false)
+        {
+            models = models
+              .Concat(new[] {
+                new DiscoveredModel(typeof(IMessageCounter), typeof(MissingPersistence), ServiceLifetime.Singleton),
+                new DiscoveredModel(typeof(IEventStorePlayer), typeof(MissingPersistence), ServiceLifetime.Singleton),
+                new DiscoveredModel(typeof(IIndexStore), typeof(MissingPersistence), ServiceLifetime.Singleton),
+                new DiscoveredModel(typeof(IEventStore), typeof(MissingPersistence), ServiceLifetime.Singleton),
+                new DiscoveredModel(typeof(EventLookupInByteArray), typeof(EventLookupInByteArray), ServiceLifetime.Singleton)
+              });
+        }
 
         return new DiscoveryResult<IEventStore>(models);
     }

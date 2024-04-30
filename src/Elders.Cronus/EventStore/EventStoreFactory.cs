@@ -2,7 +2,12 @@
 
 namespace Elders.Cronus.EventStore;
 
-public sealed class EventStoreFactory
+public interface IEventStoreFactory
+{
+    IEventStore GetEventStore();
+}
+
+public sealed class EventStoreFactory : IEventStoreFactory
 {
     private readonly IEventStore eventStore;
     private readonly ILogger<CronusEventStore> logger;
@@ -13,8 +18,5 @@ public sealed class EventStoreFactory
         this.logger = logger;
     }
 
-    public IEventStore GetEventStore()
-    {
-        return new CronusEventStore(eventStore, logger);
-    }
+    public IEventStore GetEventStore() => new CronusEventStore(eventStore, logger);
 }

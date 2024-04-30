@@ -23,4 +23,5 @@ public class DiscoveryContext
     public IEnumerable<Type> FindService<TService>() => Assemblies.Find<TService>();
 
     public IEnumerable<Type> FindServiceExcept<TService>(Type serviceType) => Assemblies.FindExcept<TService>(serviceType);
+    public IEnumerable<Type> FindServiceExcept<TService>(IEnumerable<Type> serviceTypes) => Assemblies.FindExcept<TService>(serviceTypes);
 }

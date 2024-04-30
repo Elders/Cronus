@@ -18,7 +18,7 @@ public sealed class Migrate_v9_to_v10 : IMigrationCustomLogic, IMigration<Aggreg
 
     const string TimestampPropertyName = "Timestamp";
 
-    private readonly EventStoreFactory eventStoreFactory;
+    private readonly IEventStoreFactory eventStoreFactory;
     private readonly IIndexStore indexStore;
     private readonly IInitializableProjectionStore initializableProjectionStore;
     private readonly IProjectionWriter projection;
@@ -26,7 +26,7 @@ public sealed class Migrate_v9_to_v10 : IMigrationCustomLogic, IMigration<Aggreg
     private readonly LatestProjectionVersionFinder projectionFinder;
     private readonly ILogger<Migrate_v9_to_v10> logger;
 
-    public Migrate_v9_to_v10(EventStoreFactory eventStoreFactory, IIndexStore indexStore, IInitializableProjectionStore initializableProjectionStore, IProjectionWriter projection, TypeContainer<IProjection> projectionsContainer, LatestProjectionVersionFinder projectionFinder, ILogger<Migrate_v9_to_v10> logger)
+    public Migrate_v9_to_v10(IEventStoreFactory eventStoreFactory, IIndexStore indexStore, IInitializableProjectionStore initializableProjectionStore, IProjectionWriter projection, TypeContainer<IProjection> projectionsContainer, LatestProjectionVersionFinder projectionFinder, ILogger<Migrate_v9_to_v10> logger)
     {
         this.eventStoreFactory = eventStoreFactory;
         this.indexStore = indexStore;
