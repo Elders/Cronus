@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Text.Json;
+using System.Text;
+using System.Text.Json.Serialization;
 
 namespace Elders.Cronus.EventStore;
 
-public class PagingOptions
+public sealed class PagingOptions
 {
     PagingOptions() { }
 
-    public PagingOptions(int pageSize, byte[] token, Order order)
+    public PagingOptions(int take, byte[] paginationToken, Order order)
     {
-        Take = pageSize;
-        PaginationToken = token;
+        Take = take;
+        PaginationToken = paginationToken;
         Order = order;
     }
 
@@ -21,13 +24,23 @@ public class PagingOptions
 
     public static PagingOptions Empty() => new PagingOptions();
 
-    public override string ToString()
+    public string Serialize()
     {
-        return $"\n Records taken: {Take}\n Token: {PaginationToken}";
+        return Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(this));
+    }
+
+    public static PagingOptions Deserialize(string paginationToken)
+    {
+        PagingOptions pagingOptions = Empty();
+        if (string.IsNullOrEmpty(paginationToken) == false)
+        {
+            string paginationJson = Encoding.UTF8.GetString(Convert.FromBase64String(paginationToken));
+            pagingOptions = JsonSerializer.Deserialize<PagingOptions>(paginationJson);
+        }
+        return pagingOptions;
     }
 }
-
-public class Order : ValueObject<Order>
+public sealed class Order : ValueObject<Order>
 {
     Order() { }
 
@@ -36,6 +49,7 @@ public class Order : ValueObject<Order>
         this.order = order;
     }
 
+    [JsonInclude]
     private readonly string order;
 
     public static Order Ascending = new Order("ascending");
