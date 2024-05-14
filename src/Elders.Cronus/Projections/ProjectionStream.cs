@@ -29,20 +29,12 @@ public sealed class ProjectionStream : IEnumerable<IEvent>
         this.events = events;
     }
 
-    public async Task<T> RestoreFromHistoryAsync<T>(T projection, Order order = null) where T : IProjectionDefinition
+    public async Task<T> RestoreFromHistoryAsync<T>(T projection) where T : IProjectionDefinition
     {
         if (events.Any() == false)
             return default(T);
 
-        IEnumerable<IEvent> eventsOrderedByTimestamp;
-        if (order is null || order == Order.Ascending)
-        {
-            eventsOrderedByTimestamp = events.OrderBy(@event => @event.Timestamp);
-        }
-        else
-        {
-            eventsOrderedByTimestamp = events.OrderByDescending(@event => @event.Timestamp); // Use load by descening with discretion, it might go bum bam when initizlizing the state, if you dont know what you are doing.
-        }
+        IEnumerable<IEvent> eventsOrderedByTimestamp = events.OrderBy(@event => @event.Timestamp);
 
         projection.InitializeState(projectionId, null);
         foreach (IEvent @event in eventsOrderedByTimestamp)
