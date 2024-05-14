@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Elders.Cronus.EventStore;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections;
 
-public sealed class ProjectionStream
+public sealed class ProjectionStream : IEnumerable<IEvent>
 {
     private readonly ProjectionVersion version;
     private readonly IBlobId projectionId;
@@ -27,12 +29,20 @@ public sealed class ProjectionStream
         this.events = events;
     }
 
-    public async Task<T> RestoreFromHistoryAsync<T>(T projection) where T : IProjectionDefinition
+    public async Task<T> RestoreFromHistoryAsync<T>(T projection, Order order = null) where T : IProjectionDefinition
     {
         if (events.Any() == false)
             return default(T);
 
-        IEnumerable<IEvent> eventsOrderedByTimestamp = events.OrderBy(@event => @event.Timestamp);
+        IEnumerable<IEvent> eventsOrderedByTimestamp;
+        if (order is null || order == Order.Ascending)
+        {
+            eventsOrderedByTimestamp = events.OrderBy(@event => @event.Timestamp);
+        }
+        else
+        {
+            eventsOrderedByTimestamp = events.OrderByDescending(@event => @event.Timestamp); // Use load by descening with discretion, it might go bum bam when initizlizing the state, if you dont know what you are doing.
+        }
 
         projection.InitializeState(projectionId, null);
         foreach (IEvent @event in eventsOrderedByTimestamp)
@@ -49,4 +59,8 @@ public sealed class ProjectionStream
     {
         return _emptyProjectionStream;
     }
+
+    public IEnumerator<IEvent> GetEnumerator() => events.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => events.GetEnumerator();
 }
