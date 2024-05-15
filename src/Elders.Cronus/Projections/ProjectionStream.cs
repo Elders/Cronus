@@ -1,11 +1,13 @@
-﻿using System;
+﻿using Elders.Cronus.EventStore;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections;
 
-public sealed class ProjectionStream
+public sealed class ProjectionStream : IEnumerable<IEvent>
 {
     private readonly ProjectionVersion version;
     private readonly IBlobId projectionId;
@@ -49,4 +51,8 @@ public sealed class ProjectionStream
     {
         return _emptyProjectionStream;
     }
+
+    public IEnumerator<IEvent> GetEnumerator() => events.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => events.GetEnumerator();
 }

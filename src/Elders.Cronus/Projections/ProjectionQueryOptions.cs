@@ -1,20 +1,35 @@
-﻿using System;
+﻿using Elders.Cronus.EventStore;
+using System;
 
 namespace Elders.Cronus.Projections.Cassandra;
 
-public readonly struct ProjectionQueryOptions(IBlobId id, ProjectionVersion version, DateTimeOffset? asOf, int? batchSize)
+public readonly struct ProjectionQueryOptions
 {
     private const int DefaultBatchSize = 1000;
 
-    public ProjectionQueryOptions(IBlobId id, ProjectionVersion version, DateTimeOffset asOf) : this(id, version, asOf, DefaultBatchSize) { }
+    ProjectionQueryOptions(IBlobId id, ProjectionVersion version, PagingOptions pagingOptions, DateTimeOffset? asOf, int? batchSize)
+    {
+        Id = id;
+        Version = version;
+        PagingOptions = pagingOptions;
+        AsOf = asOf;
+        batchSize ??= DefaultBatchSize;
+        BatchSize = batchSize.Value;
+    }
 
-    public ProjectionQueryOptions(IBlobId id, ProjectionVersion version) : this(id, version, null, DefaultBatchSize) { }
+    public ProjectionQueryOptions(IBlobId id, ProjectionVersion version, DateTimeOffset asOf) : this(id, version, default, asOf, DefaultBatchSize) { }
 
-    public IBlobId Id { get; } = id;
+    public ProjectionQueryOptions(IBlobId id, ProjectionVersion version, PagingOptions options) : this(id, version, options, null, options.Take) { }
 
-    public ProjectionVersion Version { get; } = version;
+    public ProjectionQueryOptions(IBlobId id, ProjectionVersion version) : this(id, version, null, null, DefaultBatchSize) { }
 
-    public DateTimeOffset? AsOf { get; } = asOf;
+    public IBlobId Id { get; }
 
-    public int BatchSize { get; } = batchSize ?? DefaultBatchSize;
+    public ProjectionVersion Version { get; }
+
+    public DateTimeOffset? AsOf { get; }
+
+    public PagingOptions PagingOptions { get; }
+
+    public int BatchSize { get; }
 }
