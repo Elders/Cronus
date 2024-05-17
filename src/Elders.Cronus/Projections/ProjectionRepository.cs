@@ -206,8 +206,8 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
             try
             {
                 ProjectionStream stream = await LoadProjectionStreamAsync(projectionId, projectionType).ConfigureAwait(false);
-                T projectionInstance = (T)FastActivator.CreateInstance(projectionType);
-                var readResult = new ReadResult<T>(await stream.RestoreFromHistoryAsync(projectionInstance).ConfigureAwait(false));
+                IHandlerInstance projectionInstance = handlerFactory.Create(projectionType);
+                var readResult = new ReadResult<T>(await stream.RestoreFromHistoryAsync((T)projectionInstance.Current).ConfigureAwait(false));
                 if (readResult.NotFound)
                     LogProjectionInstanceNotFound(log, null);
 
@@ -248,8 +248,8 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
                     await projectionStore.EnumerateProjectionsAsync(@operator, options).ConfigureAwait(false);
                 }
 
-                T projectionInstance = (T)FastActivator.CreateInstance(projectionType);
-                var readResult = new ReadResult<T>(await stream.RestoreFromHistoryAsync(projectionInstance).ConfigureAwait(false));
+                IHandlerInstance projectionInstance = handlerFactory.Create(projectionType);
+                var readResult = new ReadResult<T>(await stream.RestoreFromHistoryAsync((T)projectionInstance.Current).ConfigureAwait(false));
                 if (readResult.NotFound)
                     LogProjectionInstanceNotFound(log, null);
 
