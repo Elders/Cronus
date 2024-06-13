@@ -13,18 +13,23 @@ public class CronusHeartbeat : IHeartbeat
 {
     private readonly IPublisher<ISignal> publisher;
     private readonly BoundedContext boundedContext;
-    private readonly List<string> tenants;
-    private readonly HeartbeatOptions options;
     private readonly ILogger<CronusHeartbeat> logger;
+
     private const string TTL = "5000";
 
-    public CronusHeartbeat(IPublisher<ISignal> publisher, IOptionsMonitor<BoundedContext> boundedContext, IOptionsMonitor<HeartbeatOptions> HeartbeatOptions, IOptions<TenantsOptions> tenantsOptions, ILogger<CronusHeartbeat> logger)
+    private TenantsOptions tenants;
+    private HeartbeatOptions options;
+
+    public CronusHeartbeat(IPublisher<ISignal> publisher, IOptionsMonitor<BoundedContext> boundedContext, IOptionsMonitor<HeartbeatOptions> heartbeatOptions, IOptionsMonitor<TenantsOptions> tenantsOptions, ILogger<CronusHeartbeat> logger)
     {
         this.publisher = publisher;
         this.boundedContext = boundedContext.CurrentValue;
-        tenants = tenantsOptions.Value.Tenants.ToList();
-        options = HeartbeatOptions.CurrentValue;
+        tenants = tenantsOptions.CurrentValue;
+        options = heartbeatOptions.CurrentValue;
         this.logger = logger;
+
+        heartbeatOptions.OnChange(OnHeartbeatOptionsChanged);
+        tenantsOptions.OnChange(OnTenantsOptionsChanged);
     }
 
     public async Task StartBeatingAsync(CancellationToken stoppingToken)
@@ -34,7 +39,7 @@ public class CronusHeartbeat : IHeartbeat
             try
             {
                 Dictionary<string, string> heartbeatHeaders = new Dictionary<string, string>() { { MessageHeader.TTL, TTL } };
-                var signal = new HeartbeatSignal(boundedContext.Name, tenants);
+                var signal = new HeartbeatSignal(boundedContext.Name, tenants.Tenants.ToList());
                 publisher.Publish(signal, heartbeatHeaders);
 
                 await Task.Delay(TimeSpan.FromSeconds(options.IntervalInSeconds), stoppingToken);
@@ -52,5 +57,27 @@ public class CronusHeartbeat : IHeartbeat
         }
 
         logger.LogInformation("Heartbeat has been stopped.");
+    }
+
+    private void OnHeartbeatOptionsChanged(HeartbeatOptions newOptions)
+    {
+        try
+        {
+            logger.LogInformation("Heartbeat options re-loaded with {@options}", newOptions);
+
+            options = newOptions;
+        }
+        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(HeartbeatOptions)}")) { }
+    }
+
+    private void OnTenantsOptionsChanged(TenantsOptions newOptions)
+    {
+        try
+        {
+            logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+
+            tenants = newOptions;
+        }
+        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(TenantsOptions)}")) { }
     }
 }

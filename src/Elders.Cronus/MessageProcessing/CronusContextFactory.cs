@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.MessageProcessing;
@@ -13,16 +14,22 @@ namespace Elders.Cronus.MessageProcessing;
 /// </summary>
 public class DefaultCronusContextFactory
 {
+    private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DefaultCronusContextFactory));
+
     private readonly ICronusContextAccessor _cronusContextAccessor;
     private readonly ITenantResolver _tenantResolver;
-    private readonly IOptionsMonitor<TenantsOptions> tenantsOptions;
+    private TenantsOptions tenantsOptions;
 
     public DefaultCronusContextFactory(IServiceProvider serviceProvider)
     {
         // May be null
         _cronusContextAccessor = serviceProvider.GetService<ICronusContextAccessor>();
         _tenantResolver = serviceProvider.GetRequiredService<ITenantResolver>();
-        tenantsOptions = serviceProvider.GetRequiredService<IOptionsMonitor<TenantsOptions>>();
+
+        IOptionsMonitor<TenantsOptions> optionsMonitor = serviceProvider.GetRequiredService<IOptionsMonitor<TenantsOptions>>();
+        tenantsOptions = optionsMonitor.CurrentValue;
+
+        optionsMonitor.OnChange(Changed);
     }
 
     internal ICronusContextAccessor CronusContextAccessor => _cronusContextAccessor;
@@ -61,8 +68,19 @@ public class DefaultCronusContextFactory
     {
         if (string.IsNullOrEmpty(tenant)) throw new ArgumentNullException(nameof(tenant));
 
-        if (tenantsOptions.CurrentValue.Tenants.Where(t => t.Equals(tenant, StringComparison.OrdinalIgnoreCase)).Any() == false)
+        if (tenantsOptions.Tenants.Where(t => t.Equals(tenant, StringComparison.OrdinalIgnoreCase)).Any() == false)
             throw new ArgumentException($"The tenant `{tenant}` is not registered. Make sure that the tenant `{tenant}` is properly configured using `cronus:tenants`. More info at https://github.com/Elders/Cronus/blob/master/doc/Configuration.md", nameof(tenant));
+    }
+
+    private void Changed(TenantsOptions newOptions)
+    {
+        try
+        {
+            logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+
+            tenantsOptions = newOptions;
+        }
+        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(TenantsOptions)}")) { }
     }
 
     /// <summary>

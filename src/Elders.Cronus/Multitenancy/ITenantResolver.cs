@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Elders.Cronus.AspNetCore.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.Multitenancy;
@@ -30,15 +31,18 @@ public interface ITenantResolver<in T>
 
 public class TenantResolver : ITenantResolver
 {
+    private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(TenantResolver));
     ConcurrentDictionary<Type, ResolverCache> resolvers = new ConcurrentDictionary<Type, ResolverCache>();
 
-    private readonly TenantsOptions tenants;
+    private TenantsOptions tenants;
     private readonly IServiceProvider serviceProvider;
 
-    public TenantResolver(IServiceProvider serviceProvider, IOptions<TenantsOptions> tenantsOptions)
+    public TenantResolver(IServiceProvider serviceProvider, IOptionsMonitor<TenantsOptions> tenantsOptions)
     {
         this.serviceProvider = serviceProvider;
-        this.tenants = tenantsOptions.Value;
+        this.tenants = tenantsOptions.CurrentValue;
+
+        tenantsOptions.OnChange(OnTenantsOptionsChanged);
     }
 
     public string Resolve(object source)
@@ -70,6 +74,18 @@ public class TenantResolver : ITenantResolver
         }
 
         throw new UnableToResolveTenantException("Unable to resolve tenant.");
+    }
+
+    private void OnTenantsOptionsChanged(TenantsOptions newOptions)
+    {
+        try
+        {
+            logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+
+            tenants = newOptions;
+
+        }
+        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(TenantsOptions)}")) { }
     }
 
     class ResolverCache

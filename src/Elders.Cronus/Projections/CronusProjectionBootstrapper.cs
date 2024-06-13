@@ -33,7 +33,7 @@ internal class CronusProjectionBootstrapper
 
         tenantsOptions.OnChange(async newOptions =>
         {
-            await BootstrapProjectionsForTenantAsync(newOptions);
+            await OptionsChangedBootstrapProjectionsForTenantAsync(newOptions);
         });
     }
 
@@ -79,7 +79,7 @@ internal class CronusProjectionBootstrapper
         }
     }
 
-    private async Task BootstrapProjectionsForTenantAsync(TenantsOptions newOptions)
+    private async Task OptionsChangedBootstrapProjectionsForTenantAsync(TenantsOptions newOptions)
     {
         try
         {
@@ -89,8 +89,8 @@ internal class CronusProjectionBootstrapper
 
                 // Find the difference between the old and new tenants
                 // and bootstrap the new tenants
-                var diff = newOptions.Tenants.Except(tenants.Tenants);
-                foreach (var tenant in diff)
+                var newTenants = newOptions.Tenants.Except(tenants.Tenants);
+                foreach (var tenant in newTenants)
                 {
                     await BootstrapProjectionsForTenantAsync(tenant).ConfigureAwait(false);
                 }
