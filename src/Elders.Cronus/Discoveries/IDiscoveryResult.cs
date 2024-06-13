@@ -30,7 +30,7 @@ public class DiscoveryResult<T> : IDiscoveryResult<T>
 
 public class DiscoveredModel : ServiceDescriptor
 {
-    public DiscoveredModel(Type serviceType, object instance) : base(serviceType, instance) { }
+    public DiscoveredModel(Type serviceType, object instance) : base(serviceType: serviceType, provider => instance, lifetime: ServiceLifetime.Singleton) { } // This is singleton
 
     public DiscoveredModel(Type serviceType, Type implementationType, ServiceLifetime lifetime) : base(serviceType, implementationType, lifetime) { }
 
