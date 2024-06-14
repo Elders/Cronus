@@ -78,14 +78,9 @@ public class TenantResolver : ITenantResolver
 
     private void OnTenantsOptionsChanged(TenantsOptions newOptions)
     {
-        try
-        {
-            logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+        logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
 
-            tenants = newOptions;
-
-        }
-        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(TenantsOptions)}")) { }
+        tenants = newOptions;
     }
 
     class ResolverCache

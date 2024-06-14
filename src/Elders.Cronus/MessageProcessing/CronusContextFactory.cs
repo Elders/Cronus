@@ -74,13 +74,9 @@ public class DefaultCronusContextFactory
 
     private void Changed(TenantsOptions newOptions)
     {
-        try
-        {
-            logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+        logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
 
-            tenantsOptions = newOptions;
-        }
-        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(TenantsOptions)}")) { }
+        tenantsOptions = newOptions;
     }
 
     /// <summary>

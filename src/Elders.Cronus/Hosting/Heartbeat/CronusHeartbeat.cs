@@ -61,23 +61,15 @@ public class CronusHeartbeat : IHeartbeat
 
     private void OnHeartbeatOptionsChanged(HeartbeatOptions newOptions)
     {
-        try
-        {
-            logger.LogInformation("Heartbeat options re-loaded with {@options}", newOptions);
+        logger.LogInformation("Heartbeat options re-loaded with {@options}", newOptions);
 
-            options = newOptions;
-        }
-        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(HeartbeatOptions)}")) { }
+        options = newOptions;
     }
 
     private void OnTenantsOptionsChanged(TenantsOptions newOptions)
     {
-        try
-        {
-            logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+        logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
 
-            tenants = newOptions;
-        }
-        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(TenantsOptions)}")) { }
+        tenants = newOptions;
     }
 }

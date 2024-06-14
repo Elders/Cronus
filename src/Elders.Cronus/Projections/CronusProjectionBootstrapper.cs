@@ -81,34 +81,27 @@ internal class CronusProjectionBootstrapper
 
     private async Task OptionsChangedBootstrapProjectionsForTenantAsync(TenantsOptions newOptions)
     {
-        try
+        if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false) // Check for difference between tenants and newOptions
         {
-            if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false) // Check for difference between tenants and newOptions
+            logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+
+            // Find the difference between the old and new tenants
+            // and bootstrap the new tenants
+            var newTenants = newOptions.Tenants.Except(tenants.Tenants);
+            foreach (var tenant in newTenants)
             {
-                logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
-
-                // Find the difference between the old and new tenants
-                // and bootstrap the new tenants
-                var newTenants = newOptions.Tenants.Except(tenants.Tenants);
-                foreach (var tenant in newTenants)
-                {
-                    await BootstrapProjectionsForTenantAsync(tenant).ConfigureAwait(false);
-                }
-
-                tenants = newOptions;
+                await BootstrapProjectionsForTenantAsync(tenant).ConfigureAwait(false);
             }
+
+            tenants = newOptions;
         }
-        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(TenantsOptions)}")) { }
     }
 
     private void CronusHostOptionsChanged(CronusHostOptions newOptions)
     {
-        try
-        {
-            logger.Info(() => "Cronus host options re-loaded with {@options}", newOptions);
+        logger.Info(() => "Cronus host options re-loaded with {@options}", newOptions);
 
-            cronusHostOptions = newOptions;
-        }
-        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(CronusHostOptions)}")) { }
+        cronusHostOptions = newOptions;
+
     }
 }

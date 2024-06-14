@@ -54,37 +54,29 @@ public class EventStoreIndicesStartup : ICronusStartup
 
     private void OptionsChangedBootstrapEventStoreIndexForTenant(TenantsOptions newOptions)
     {
-        try
+        if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false) // Check for difference between tenants and newOptions
         {
-            if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false) // Check for difference between tenants and newOptions
+            logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+
+            // Find the difference between the old and new tenants
+            // and bootstrap the new tenants
+            var newTenants = newOptions.Tenants.Except(tenants.Tenants);
+            foreach (var index in indexTypeContainer.Items)
             {
-                logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
-
-                // Find the difference between the old and new tenants
-                // and bootstrap the new tenants
-                var newTenants = newOptions.Tenants.Except(tenants.Tenants);
-                foreach (var index in indexTypeContainer.Items)
+                foreach (var tenant in newTenants)
                 {
-                    foreach (var tenant in newTenants)
-                    {
-                        InitializeIndesForTenant(index, tenant);
-                    }
+                    InitializeIndesForTenant(index, tenant);
                 }
-
-                tenants = newOptions;
             }
+
+            tenants = newOptions;
         }
-        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(TenantsOptions)}")) { }
     }
 
     private void CronusHostOptionsChanged(CronusHostOptions newOptions)
     {
-        try
-        {
-            logger.Info(() => "Cronus host options re-loaded with {@options}", newOptions);
+        logger.Info(() => "Cronus host options re-loaded with {@options}", newOptions);
 
-            cronusHostOptions = newOptions;
-        }
-        catch (Exception ex) when (logger.CriticalException(ex, () => $"There was an error while changing {nameof(CronusHostOptions)}")) { }
+        cronusHostOptions = newOptions;
     }
 }
