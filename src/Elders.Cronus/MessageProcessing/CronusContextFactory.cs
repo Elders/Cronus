@@ -14,17 +14,17 @@ namespace Elders.Cronus.MessageProcessing;
 /// </summary>
 public class DefaultCronusContextFactory
 {
-    private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DefaultCronusContextFactory));
-
+    private readonly ILogger<DefaultCronusContextFactory> _logger;
     private readonly ICronusContextAccessor _cronusContextAccessor;
     private readonly ITenantResolver _tenantResolver;
     private TenantsOptions tenantsOptions;
 
-    public DefaultCronusContextFactory(IServiceProvider serviceProvider)
+    public DefaultCronusContextFactory(IServiceProvider serviceProvider, ILogger<DefaultCronusContextFactory> logger)
     {
         // May be null
         _cronusContextAccessor = serviceProvider.GetService<ICronusContextAccessor>();
         _tenantResolver = serviceProvider.GetRequiredService<ITenantResolver>();
+        _logger = logger;
 
         IOptionsMonitor<TenantsOptions> optionsMonitor = serviceProvider.GetRequiredService<IOptionsMonitor<TenantsOptions>>();
         tenantsOptions = optionsMonitor.CurrentValue;
@@ -74,7 +74,7 @@ public class DefaultCronusContextFactory
 
     private void Changed(TenantsOptions newOptions)
     {
-        logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+        _logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
 
         tenantsOptions = newOptions;
     }

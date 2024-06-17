@@ -61,14 +61,14 @@ public class CronusHeartbeat : IHeartbeat
 
     private void OnHeartbeatOptionsChanged(HeartbeatOptions newOptions)
     {
-        logger.LogInformation("Heartbeat options re-loaded with {@options}", newOptions);
+        logger.Debug(() => "Heartbeat options re-loaded with {@options}", newOptions);
 
         options = newOptions;
     }
 
     private void OnTenantsOptionsChanged(TenantsOptions newOptions)
     {
-        logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+        logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
 
         tenants = newOptions;
     }

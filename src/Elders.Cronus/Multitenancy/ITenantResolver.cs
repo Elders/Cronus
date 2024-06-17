@@ -31,16 +31,17 @@ public interface ITenantResolver<in T>
 
 public class TenantResolver : ITenantResolver
 {
-    private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(TenantResolver));
     ConcurrentDictionary<Type, ResolverCache> resolvers = new ConcurrentDictionary<Type, ResolverCache>();
 
     private TenantsOptions tenants;
     private readonly IServiceProvider serviceProvider;
+    private readonly ILogger<TenantResolver> logger;
 
-    public TenantResolver(IServiceProvider serviceProvider, IOptionsMonitor<TenantsOptions> tenantsOptions)
+    public TenantResolver(IServiceProvider serviceProvider, IOptionsMonitor<TenantsOptions> tenantsOptions, ILogger<TenantResolver> logger)
     {
         this.serviceProvider = serviceProvider;
         this.tenants = tenantsOptions.CurrentValue;
+        this.logger = logger;
 
         tenantsOptions.OnChange(OnTenantsOptionsChanged);
     }
@@ -78,7 +79,7 @@ public class TenantResolver : ITenantResolver
 
     private void OnTenantsOptionsChanged(TenantsOptions newOptions)
     {
-        logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+        logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
 
         tenants = newOptions;
     }

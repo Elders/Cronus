@@ -10,18 +10,18 @@ namespace Elders.Cronus;
 [CronusStartup(Bootstraps.EventStoreIndices)]
 public class EventStoreIndicesStartup : ICronusStartup
 {
-    private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(EventStoreIndicesStartup));
-
     private TenantsOptions tenants;
     private CronusHostOptions cronusHostOptions;
     private readonly IPublisher<ICommand> publisher;
     private readonly TypeContainer<IEventStoreIndex> indexTypeContainer;
+    private readonly ILogger<EventStoreIndicesStartup> logger;
 
-    public EventStoreIndicesStartup(TypeContainer<IEventStoreIndex> indexTypeContainer, IOptionsMonitor<CronusHostOptions> cronusHostOptions, IOptionsMonitor<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher)
+    public EventStoreIndicesStartup(TypeContainer<IEventStoreIndex> indexTypeContainer, IOptionsMonitor<CronusHostOptions> cronusHostOptions, IOptionsMonitor<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher, ILogger<EventStoreIndicesStartup> logger)
     {
         this.tenants = tenantsOptions.CurrentValue;
         this.cronusHostOptions = cronusHostOptions.CurrentValue;
         this.publisher = publisher;
+        this.logger = logger;
         this.indexTypeContainer = indexTypeContainer;
 
         cronusHostOptions.OnChange(CronusHostOptionsChanged);
@@ -56,7 +56,7 @@ public class EventStoreIndicesStartup : ICronusStartup
     {
         if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false) // Check for difference between tenants and newOptions
         {
-            logger.Info(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+            logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
 
             // Find the difference between the old and new tenants
             // and bootstrap the new tenants
@@ -75,7 +75,7 @@ public class EventStoreIndicesStartup : ICronusStartup
 
     private void CronusHostOptionsChanged(CronusHostOptions newOptions)
     {
-        logger.Info(() => "Cronus host options re-loaded with {@options}", newOptions);
+        logger.Debug(() => "Cronus host options re-loaded with {@options}", newOptions);
 
         cronusHostOptions = newOptions;
     }
