@@ -4,7 +4,7 @@ namespace Elders.Cronus.EventStore;
 
 public class PlayerOptions
 {
-    private static DateTimeOffset MinAfterTimestamp = new DateTimeOffset(1602, 1, 1, 0, 0, 0, TimeSpan.Zero);   // 315360000000000
+    private static DateTimeOffset MinAfterTimestamp = new DateTimeOffset(2000, 1, 1, 0, 0, 0, TimeSpan.Zero);
     private static DateTimeOffset MaxAfterTimestamp = DateTimeOffset.MaxValue.Subtract(TimeSpan.FromDays(100)); // 2650381343999999999
 
     public string EventTypeId { get; set; }
