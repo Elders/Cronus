@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.Projections;
@@ -13,52 +15,93 @@ internal class CronusProjectionBootstrapper
     private readonly ProjectionFinderViaReflection projectionFinderViaReflection;
     private readonly LatestProjectionVersionFinder projectionFinder;
     private readonly IPublisher<ICommand> publisher;
-    private readonly IOptionsMonitor<CronusHostOptions> cronusOptionsMonitor;
-    private readonly CronusHostOptions cronusHostOptions;
-    private readonly TenantsOptions tenants;
+    private readonly ILogger<CronusProjectionBootstrapper> logger;
+    private CronusHostOptions cronusHostOptions;
+    private TenantsOptions tenants;
 
-    public CronusProjectionBootstrapper(IServiceProvider serviceProvider, ProjectionFinderViaReflection projectionFinderViaReflection, LatestProjectionVersionFinder projectionFinder, IOptions<CronusHostOptions> cronusHostOptions, IOptions<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher, IOptionsMonitor<CronusHostOptions> cronusOptionsMonitor)
+    public CronusProjectionBootstrapper(IServiceProvider serviceProvider, ProjectionFinderViaReflection projectionFinderViaReflection, LatestProjectionVersionFinder projectionFinder, IOptionsMonitor<CronusHostOptions> cronusHostOptions, IOptionsMonitor<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher, IOptionsMonitor<CronusHostOptions> cronusOptionsMonitor, ILogger<CronusProjectionBootstrapper> logger)
     {
         this.serviceProvider = serviceProvider;
         this.projectionFinderViaReflection = projectionFinderViaReflection;
         this.projectionFinder = projectionFinder;
         this.publisher = publisher;
-        this.cronusOptionsMonitor = cronusOptionsMonitor;
-        this.cronusHostOptions = cronusHostOptions.Value;
-        this.tenants = tenantsOptions.Value;
+        this.cronusHostOptions = cronusHostOptions.CurrentValue;
+        this.tenants = tenantsOptions.CurrentValue;
+        this.logger = logger;
+
+        cronusHostOptions.OnChange(CronusHostOptionsChanged);
+
+        tenantsOptions.OnChange(async newOptions =>
+        {
+            await OptionsChangedBootstrapProjectionsForTenantAsync(newOptions);
+        });
     }
 
     public async Task BootstrapAsync()
     {
-        if (cronusOptionsMonitor.CurrentValue.ProjectionsEnabled == false)
+        if (cronusHostOptions.ProjectionsEnabled == false)
             return;
 
         foreach (var tenant in tenants.Tenants)
         {
-            using (var scopedServiceProvider = serviceProvider.CreateScope())
+            await BootstrapProjectionsForTenantAsync(tenant).ConfigureAwait(false);
+        }
+    }
+
+    private async Task BootstrapProjectionsForTenantAsync(string tenant)
+    {
+        if (cronusHostOptions.ProjectionsEnabled == false)
+            return;
+
+        using (var scopedServiceProvider = serviceProvider.CreateScope())
+        {
+            var cronusContextFactory = scopedServiceProvider.ServiceProvider.GetRequiredService<Elders.Cronus.MessageProcessing.DefaultCronusContextFactory>();
+            var cronusContext = cronusContextFactory.Create(tenant, scopedServiceProvider.ServiceProvider);
+
+            IInitializableProjectionStore storeInitializer = scopedServiceProvider.ServiceProvider.GetRequiredService<IInitializableProjectionStore>();
+
+            foreach (ProjectionVersion viaReflection in projectionFinder.GetProjectionVersionsToBootstrap())
             {
-                var cronusContextFactory = scopedServiceProvider.ServiceProvider.GetRequiredService<Elders.Cronus.MessageProcessing.DefaultCronusContextFactory>();
-                var cronusContext = cronusContextFactory.Create(tenant, scopedServiceProvider.ServiceProvider);
+                await storeInitializer.InitializeAsync(viaReflection).ConfigureAwait(false);
+            }
 
-                IInitializableProjectionStore storeInitializer = scopedServiceProvider.ServiceProvider.GetRequiredService<IInitializableProjectionStore>();
+            await Task.Delay(5000).ConfigureAwait(false); // Enjoying the song => https://www.youtube.com/watch?v=t2nopZVrTH0
 
-                foreach (ProjectionVersion viaReflection in projectionFinder.GetProjectionVersionsToBootstrap())
+            if (cronusHostOptions.SystemServicesEnabled)
+            {
+                foreach (ProjectionVersion projectionVersion in projectionFinderViaReflection.GetProjectionVersionsToBootstrap())
                 {
-                    await storeInitializer.InitializeAsync(viaReflection).ConfigureAwait(false);
-                }
-
-                await Task.Delay(5000).ConfigureAwait(false); // Enjoying the song => https://www.youtube.com/watch?v=t2nopZVrTH0
-
-                if (cronusHostOptions.SystemServicesEnabled)
-                {
-                    foreach (ProjectionVersion projectionVersion in projectionFinderViaReflection.GetProjectionVersionsToBootstrap())
-                    {
-                        var id = new ProjectionVersionManagerId(projectionVersion.ProjectionName, tenant);
-                        var command = new RegisterProjection(id, projectionVersion.Hash);
-                        publisher.Publish(command);
-                    }
+                    var id = new ProjectionVersionManagerId(projectionVersion.ProjectionName, tenant);
+                    var command = new RegisterProjection(id, projectionVersion.Hash);
+                    publisher.Publish(command);
                 }
             }
         }
+    }
+
+    private async Task OptionsChangedBootstrapProjectionsForTenantAsync(TenantsOptions newOptions)
+    {
+        if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false) // Check for difference between tenants and newOptions
+        {
+            logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+
+            // Find the difference between the old and new tenants
+            // and bootstrap the new tenants
+            var newTenants = newOptions.Tenants.Except(tenants.Tenants);
+            foreach (var tenant in newTenants)
+            {
+                await BootstrapProjectionsForTenantAsync(tenant).ConfigureAwait(false);
+            }
+
+            tenants = newOptions;
+        }
+    }
+
+    private void CronusHostOptionsChanged(CronusHostOptions newOptions)
+    {
+        logger.Debug(() => "Cronus host options re-loaded with {@options}", newOptions);
+
+        cronusHostOptions = newOptions;
+
     }
 }
