@@ -10,8 +10,6 @@ namespace Elders.Cronus.MessageProcessing;
 /// </summary>
 public sealed class MessageHandleWorkflow : Workflow<HandleContext>
 {
-    public MessageHandleWorkflow() : this(DefaultHandlerFactory.FactoryWrokflow) { }
-
     public MessageHandleWorkflow(Workflow<HandleContext, IHandlerInstance> createHandler)
     {
         CreateHandler = createHandler;

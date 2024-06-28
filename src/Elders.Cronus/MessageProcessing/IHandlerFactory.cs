@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.MessageProcessing;
 
@@ -11,22 +12,19 @@ public interface IHandlerFactory
 
 public class DefaultHandlerFactory : IHandlerFactory
 {
-    public static Workflow<HandleContext, IHandlerInstance> FactoryWrokflow = WorkflowExtensions.Lambda<HandleContext, IHandlerInstance>(exec =>
-    { return Task.FromResult(factory.Create(exec.Context.HandlerType)); });
+    private readonly ICronusContextAccessor cronusContextAccessor;
 
-    readonly Func<Type, object> handlerFctory;
-
-    public DefaultHandlerFactory(Func<Type, object> handlerFactory)
+    public DefaultHandlerFactory(ICronusContextAccessor cronusContextAccessor)
     {
-        this.handlerFctory = handlerFactory;
+        this.cronusContextAccessor = cronusContextAccessor;
     }
 
     public IHandlerInstance Create(Type handlerType)
     {
-        return new DefaultHandlerInstance(handlerFctory(handlerType));
-    }
+        object handlerInstance = cronusContextAccessor.CronusContext.ServiceProvider.GetRequiredService(handlerType);
 
-    private static DefaultHandlerFactory factory = new DefaultHandlerFactory(x => FastActivator.CreateInstance(x));
+        return new DefaultHandlerInstance(handlerInstance);
+    }
 }
 
 public interface IHandlerInstance : IDisposable

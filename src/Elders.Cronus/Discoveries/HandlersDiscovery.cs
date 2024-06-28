@@ -20,6 +20,7 @@ public abstract class HandlersDiscovery<T> : DiscoveryBase<T>
         }
 
         yield return new DiscoveredModel(typeof(TypeContainer<T>), new TypeContainer<T>(foundTypes));
-        yield return new DiscoveredModel(typeof(IHandlerFactory), provider => new DefaultHandlerFactory(type => provider.GetRequiredService(type)), ServiceLifetime.Transient);
+        yield return new DiscoveredModel(typeof(IHandlerFactory), typeof(DefaultHandlerFactory), ServiceLifetime.Singleton);
+        yield return new DiscoveredModel(typeof(DefaultHandlerFactory), typeof(DefaultHandlerFactory), ServiceLifetime.Singleton);
     }
 }
