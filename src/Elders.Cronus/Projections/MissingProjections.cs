@@ -19,7 +19,7 @@ internal sealed class MissingProjections : IProjectionStore, IInitializableProje
         throw new NotImplementedException(MissingProjectionsMessage);
     }
 
-    public Task<List<ProjectionCommit>> LoadAsync(ProjectionVersion version, IBlobId projectionId, long partitionId)
+    public IAsyncEnumerable<ProjectionCommit> LoadAsync(ProjectionVersion version, IBlobId projectionId, long partitionId)
     {
         throw new NotImplementedException(MissingProjectionsMessage);
     }

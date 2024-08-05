@@ -6,7 +6,7 @@ namespace Elders.Cronus.Projections;
 
 public interface IProjectionStore
 {
-    Task<List<ProjectionCommit>> LoadAsync(ProjectionVersion version, IBlobId projectionId, long partitionId);
+    IAsyncEnumerable<ProjectionCommit> LoadAsync(ProjectionVersion version, IBlobId projectionId, long partitionId);
 
     Task EnumerateProjectionsAsync(ProjectionsOperator @operator, ProjectionQueryOptions options);
 

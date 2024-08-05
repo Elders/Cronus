@@ -68,11 +68,18 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
                             {
                                 if (ShouldSaveEventForVersion(version))
                                 {
-                                    Task appendProjectionPartition = PersistPartition(version.ProjectionName, projectionId, partition);
-                                    tasks.Add(appendProjectionPartition);
+                                    Task appendProjectionPartition = PersistPartitionAsync(version.ProjectionName, projectionId, partition); // versiqta tuk?
+                                    await appendProjectionPartition.ConfigureAwait(false);
 
-                                    Task appendProjectionRecord = PersistAsync(projectionId, version, @event, partition);
-                                    tasks.Add(appendProjectionRecord);
+                                    if (appendProjectionPartition.IsCompletedSuccessfully)
+                                    {
+                                        Task appendProjectionRecord = PersistAsync(projectionId, version, @event, partition);
+                                        tasks.Add(appendProjectionRecord);
+                                    }
+                                    else
+                                    {
+                                        log.LogError("Hustyn imame problem"); // handle this case and dont continue maybe?
+                                    }
                                 }
                             }
                         }
@@ -136,11 +143,18 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
             List<Task> tasks = new List<Task>();
             foreach (var projectionId in projectionIds)
             {
-                Task persistPartition = PersistPartition(projectionName, projectionId, partition);
-                tasks.Add(persistPartition);
+                Task appendProjectionPartition = PersistPartitionAsync(version.ProjectionName, projectionId, partition); // versiqta tuk?
+                await appendProjectionPartition.ConfigureAwait(false);
 
-                Task task = PersistAsync(projectionId, version, @event, partition);
-                tasks.Add(task);
+                if (appendProjectionPartition.IsCompletedSuccessfully)
+                {
+                    Task appendProjectionRecord = PersistAsync(projectionId, version, @event, partition);
+                    tasks.Add(appendProjectionRecord);
+                }
+                else
+                {
+                    log.LogError("Hustyn imame problem"); // handle this case and dont continue maybe?
+                }
             }
 
             try
@@ -178,7 +192,7 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
             Task persistEvent = projectionStore.SaveAsync(commit);
             tasks.Add(persistEvent);
 
-            Task persistPartition = PersistPartition(projectionName, projectionId, partition);
+            Task persistPartition = PersistPartitionAsync(projectionName, projectionId, partition);
             tasks.Add(persistPartition);
 
             try
@@ -207,7 +221,7 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
     public Task<ReadResult<IProjectionDefinition>> GetAsOfAsync(IBlobId projectionId, Type projectionType, DateTimeOffset timestamp)
     {
         return GetAsOfInternalAsync<IProjectionDefinition>(projectionId, projectionType, timestamp);
-    }
+    } // think abput me
 
     protected async virtual Task<ReadResult<ProjectionVersions>> GetProjectionVersionsAsync(string projectionName)
     {
@@ -301,7 +315,7 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
         }
     }
 
-    private Task PersistPartition(string projectionName, IBlobId projectionId, long partition) // always persist parititon ?
+    private Task PersistPartitionAsync(string projectionName, IBlobId projectionId, long partition) // always persist parititon ?
     {
         try
         {
@@ -353,9 +367,9 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
 
         await foreach (ProjectionPartition partition in loadedPartitions)
         {
-            var loadeaadCommits = await projectionStore.LoadAsync(version, projectionId, partition.Partition);
+            IAsyncEnumerable<ProjectionCommit> loadedCommits = projectionStore.LoadAsync(version, projectionId, partition.Partition);
 
-            foreach (var commit in loadeaadCommits) // execute in parallel
+            await foreach (ProjectionCommit commit in loadedCommits)
             {
                 projectionCommits.Add(commit);
             }
