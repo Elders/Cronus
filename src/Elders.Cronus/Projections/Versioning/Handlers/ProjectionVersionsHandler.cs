@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 namespace Elders.Cronus.Projections.Versioning;
 
 [DataContract(Name = ContractId)]
-public class ProjectionVersionsHandler : ProjectionDefinition<ProjectionVersionsHandlerState, ProjectionVersionManagerId>, ISystemProjection, INonVersionableProjection,
+public class ProjectionVersionsHandler : ProjectionDefinition<ProjectionVersionsHandlerState, ProjectionVersionManagerId, PartitionByTimestamp>, ISystemProjection, INonVersionableProjection,
     IEventHandler<ProjectionVersionRequested>,
     IEventHandler<NewProjectionVersionIsNowLive>,
     IEventHandler<ProjectionVersionRequestCanceled>,

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Elders.Cronus.Tests.Projections;
 
 [DataContract(Name = "05a82e14-3bcd-4e0e-a725-65f3d3a0ee0e")]
-public class TestProjection : ProjectionDefinition<TestProjectionState, TestProjectionId>,
+public class TestProjection : ProjectionDefinition<TestProjectionState, TestProjectionId, PartitionByTimestamp>,
     IEventHandler<TestEvent1>,
     IEventHandler<TestEvent2>,
     IEventHandler<TestEvent3>
@@ -22,7 +22,7 @@ public class TestProjection : ProjectionDefinition<TestProjectionState, TestProj
 }
 
 [DataContract(Name = "05a82e14-3bcd-4e0e-a725-65f3d3a0ee0e")]
-public class TestProjectionShuffled : ProjectionDefinition<TestProjectionState, TestProjectionId>,
+public class TestProjectionShuffled : ProjectionDefinition<TestProjectionState, TestProjectionId, PartitionByTimestamp>,
     IEventHandler<TestEvent2>,
     IEventHandler<TestEvent3>,
     IEventHandler<TestEvent1>
@@ -38,7 +38,7 @@ public class TestProjectionShuffled : ProjectionDefinition<TestProjectionState, 
 }
 
 [DataContract(Name = "05a82e14-3bcd-4e0e-a725-65f3d3a0ee0e")]
-public class TestProjectionModified : ProjectionDefinition<TestProjectionState, TestProjectionId>,
+public class TestProjectionModified : ProjectionDefinition<TestProjectionState, TestProjectionId, PartitionByTimestamp>,
     IEventHandler<TestEvent2>,
     IEventHandler<TestEvent1>
 {
@@ -51,7 +51,7 @@ public class TestProjectionModified : ProjectionDefinition<TestProjectionState, 
 }
 
 [DataContract(Name = "asc")]
-public class TestProjectionHandlersAsc : ProjectionDefinition<TestProjectionState, TestProjectionId>,
+public class TestProjectionHandlersAsc : ProjectionDefinition<TestProjectionState, TestProjectionId, PartitionByTimestamp>,
     IEventHandler<A>,
     IEventHandler<B>
 {
@@ -60,7 +60,7 @@ public class TestProjectionHandlersAsc : ProjectionDefinition<TestProjectionStat
 }
 
 [DataContract(Name = "desc")]
-public class TestProjectionHandlersDesc : ProjectionDefinition<TestProjectionState, TestProjectionId>,
+public class TestProjectionHandlersDesc : ProjectionDefinition<TestProjectionState, TestProjectionId, PartitionByTimestamp>,
     IEventHandler<B>,
     IEventHandler<A>
 {

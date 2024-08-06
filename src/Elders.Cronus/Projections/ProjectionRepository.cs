@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Cassandra;
+using Elders.Cronus.Projections.PartitionIndex;
 using Elders.Cronus.Projections.Versioning;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
@@ -18,19 +20,22 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
     private static readonly Action<ILogger, Exception> LogProjectionLoadError = LoggerMessage.Define(LogLevel.Error, CronusLogEvent.CronusProjectionRead, "Unable to load projection.");
     private static readonly Action<ILogger, Exception> LogProjectionLiveVersionMissing = LoggerMessage.Define(LogLevel.Error, CronusLogEvent.CronusProjectionRead, "Unable to find projection `live` version.");
     private static readonly Action<ILogger, Exception> LogProjectionWriteError = LoggerMessage.Define(LogLevel.Error, CronusLogEvent.CronusProjectionWrite, "Failed to write in projection.");
+    private static readonly Action<ILogger, Exception> LogPartitionProjectionWriteError = LoggerMessage.Define(LogLevel.Error, CronusLogEvent.CronusPartitionProjectionWrite, "Failed to write in projection partition.");
 
     private readonly ICronusContextAccessor contextAccessor;
     readonly IProjectionStore projectionStore;
+    private readonly IProjectionPartionsStore partionsStore;
     private readonly IHandlerFactory handlerFactory;
     private readonly ProjectionHasher projectionHasher;
 
-    public ProjectionRepository(ICronusContextAccessor contextAccessor, IProjectionStore projectionStore, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
+    public ProjectionRepository(ICronusContextAccessor contextAccessor, IProjectionStore projectionStore, IProjectionPartionsStore partionsStore, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
     {
         if (contextAccessor is null) throw new ArgumentException(nameof(contextAccessor));
         if (projectionStore is null) throw new ArgumentException(nameof(projectionStore));
 
         this.contextAccessor = contextAccessor;
         this.projectionStore = projectionStore;
+        this.partionsStore = partionsStore;
         this.handlerFactory = handlerFactory;
         this.projectionHasher = projectionHasher;
     }
@@ -44,11 +49,9 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
         // TODO: inspect the type if it implements IProjectionDefinition
         IHandlerInstance handlerInstance = handlerFactory.Create(projectionType);
         IProjectionDefinition projection = handlerInstance.Current as IProjectionDefinition;
-
         if (projection is not null)
         {
             var projectionIds = projection.GetProjectionIds(@event);
-
             List<Task> tasks = new List<Task>();
             foreach (IBlobId projectionId in projectionIds)
             {
@@ -57,14 +60,19 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
                     ReadResult<ProjectionVersions> result = await GetProjectionVersionsAsync(projectionName).ConfigureAwait(false);
                     if (result.IsSuccess)
                     {
+                        long partition = projection.GetPartition(@event);
+
                         foreach (ProjectionVersion version in result.Data)
                         {
                             using (log.BeginScope(s => s.AddScope(Log.ProjectionVersion, version)))
                             {
                                 if (ShouldSaveEventForVersion(version))
                                 {
-                                    Task task = PersistAsync(projectionId, version, @event);
-                                    tasks.Add(task);
+                                    Task appendProjectionPartition = PersistPartition(version.ProjectionName, projectionId, partition);
+                                    tasks.Add(appendProjectionPartition);
+
+                                    Task appendProjectionRecord = PersistAsync(projectionId, version, @event, partition);
+                                    tasks.Add(appendProjectionRecord);
                                 }
                             }
                         }
@@ -110,7 +118,7 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
         if (ShouldSaveEventForVersion(version) == false)
             throw new ArgumentException("Invalid version. Only versions in `Building` and `Live` status are eligable for persistence.", nameof(version));
 
-        string projectionName = projectionType.GetContractId();
+        string projectionName = version.ProjectionName;
         if (projectionName.Equals(version.ProjectionName, StringComparison.OrdinalIgnoreCase) == false)
             throw new ArgumentException($"Invalid version. The version `{version}` does not match projection `{projectionName}`", nameof(version));
 
@@ -123,10 +131,15 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
             var projection = handlerInstance.Current as IProjectionDefinition;
 
             var projectionIds = projection.GetProjectionIds(@event);
+            long partition = projection.GetPartition(@event);
+
             List<Task> tasks = new List<Task>();
             foreach (var projectionId in projectionIds)
             {
-                Task task = PersistAsync(projectionId, version, @event);
+                Task persistPartition = PersistPartition(projectionName, projectionId, partition);
+                tasks.Add(persistPartition);
+
+                Task task = PersistAsync(projectionId, version, @event, partition);
                 tasks.Add(task);
             }
 
@@ -152,12 +165,25 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
         }
         else if (isEventSourcedType)
         {
+            var projectionId = new Urn($"urn:cronus:{projectionName}");
+
+            var handlerInstance = handlerFactory.Create(projectionType);
+            var projection = handlerInstance.Current as IAmEventSourcedProjection;
+
+            List<Task> tasks = new List<Task>();
+
+            long partition = projection.GetPartition(@event);
+            var commit = new ProjectionCommit(projectionId, version, @event, partition);
+
+            Task persistEvent = projectionStore.SaveAsync(commit);
+            tasks.Add(persistEvent);
+
+            Task persistPartition = PersistPartition(projectionName, projectionId, partition);
+            tasks.Add(persistPartition);
+
             try
             {
-                var projectionId = new Urn($"urn:cronus:{projectionName}");
-
-                var commit = new ProjectionCommit(projectionId, version, @event);
-                await projectionStore.SaveAsync(commit).ConfigureAwait(false);
+                await Task.WhenAll(tasks).ConfigureAwait(false);
             }
             catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex))) { }
         }
@@ -262,14 +288,27 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
         }
     }
 
-    private Task PersistAsync(IBlobId projectionId, ProjectionVersion version, IEvent @event)
+    private Task PersistAsync(IBlobId projectionId, ProjectionVersion version, IEvent @event, long partition)
     {
         try
         {
-            var commit = new ProjectionCommit(projectionId, version, @event);
+            var commit = new ProjectionCommit(projectionId, version, @event, partition);
             return projectionStore.SaveAsync(commit);
         }
         catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionWriteError(log, ex)))
+        {
+            return Task.FromException(ex);
+        }
+    }
+
+    private Task PersistPartition(string projectionName, IBlobId projectionId, long partition) // always persist parititon ?
+    {
+        try
+        {
+            var partitionRecord = new ProjectionPartition(projectionName, projectionId.RawId, partition);
+            return partionsStore.AppendAsync(partitionRecord);
+        }
+        catch (Exception ex) when (ExceptionFilter.True(() => LogPartitionProjectionWriteError(log, ex)))
         {
             return Task.FromException(ex);
         }
@@ -296,20 +335,6 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
         }
     }
 
-    private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, ProjectionVersion version)
-    {
-        List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
-
-        var loadedCommits = projectionStore.LoadAsync(version, projectionId).ConfigureAwait(false);
-        await foreach (var commit in loadedCommits)
-        {
-            projectionCommits.Add(commit);
-        }
-
-        ProjectionStream stream = new ProjectionStream(version, projectionId, projectionCommits.Select(c => c.Event));
-        return stream;
-    }
-
     private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, Type projectionType)
     {
         ProjectionVersion liveVersion = await LoadLiveProjectionVersion(projectionType).ConfigureAwait(false);
@@ -318,6 +343,26 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
 
         else
             return ProjectionStream.Empty();
+    }
+
+    private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, ProjectionVersion version)
+    {
+        List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
+
+        IAsyncEnumerable<ProjectionPartition> loadedPartitions = partionsStore.GetPartitionsAsync(version.ProjectionName, projectionId);
+
+        await foreach (ProjectionPartition partition in loadedPartitions)
+        {
+            var loadeaadCommits = await projectionStore.LoadAsync(version, projectionId, partition.Partition);
+
+            foreach (var commit in loadeaadCommits) // execute in parallel
+            {
+                projectionCommits.Add(commit);
+            }
+        }
+
+        ProjectionStream stream = new ProjectionStream(version, projectionId, projectionCommits.Select(c => c.Event));
+        return stream;
     }
 
     private async Task<ProjectionVersion> LoadLiveProjectionVersion(Type projectionType)

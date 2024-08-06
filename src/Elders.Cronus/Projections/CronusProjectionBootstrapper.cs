@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Elders.Cronus.Multitenancy;
+using Elders.Cronus.Projections.PartitionIndex;
 using Elders.Cronus.Projections.Versioning;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -59,6 +60,9 @@ internal class CronusProjectionBootstrapper
             var cronusContext = cronusContextFactory.Create(tenant, scopedServiceProvider.ServiceProvider);
 
             IInitializableProjectionStore storeInitializer = scopedServiceProvider.ServiceProvider.GetRequiredService<IInitializableProjectionStore>();
+            IInitializableProjectionPartionsStore partitionsStoreInitializer = scopedServiceProvider.ServiceProvider.GetRequiredService<IInitializableProjectionPartionsStore>();
+
+            await partitionsStoreInitializer.InitializeAsync().ConfigureAwait(false);
 
             foreach (ProjectionVersion viaReflection in projectionFinder.GetProjectionVersionsToBootstrap())
             {
