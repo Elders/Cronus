@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Cassandra;
 using Elders.Cronus.Projections.Versioning;
@@ -298,15 +299,20 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
 
     private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, ProjectionVersion version)
     {
-        List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
+        ProjectionStream stream = ProjectionStream.Empty();
 
-        var loadedCommits = projectionStore.LoadAsync(version, projectionId).ConfigureAwait(false);
-        await foreach (var commit in loadedCommits)
+        ProjectionQueryOptions options = new ProjectionQueryOptions(projectionId, version, new PagingOptions(1000, null, Order.Ascending));
+        ProjectionsOperator @operator = new ProjectionsOperator()
         {
-            projectionCommits.Add(commit);
-        }
+            OnProjectionStreamLoadedAsync = projectionStream =>
+            {
+                stream = projectionStream;
+                return Task.CompletedTask;
+            }
+        };
 
-        ProjectionStream stream = new ProjectionStream(version, projectionId, projectionCommits.Select(c => c.Event));
+        await projectionStore.EnumerateProjectionsAsync(@operator, options).ConfigureAwait(false);
+
         return stream;
     }
 

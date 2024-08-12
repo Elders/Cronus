@@ -19,11 +19,6 @@ internal sealed class MissingProjections : IProjectionStore, IInitializableProje
         throw new NotImplementedException(MissingProjectionsMessage);
     }
 
-    public IAsyncEnumerable<ProjectionCommit> LoadAsync(ProjectionVersion version, IBlobId projectionId)
-    {
-        throw new NotImplementedException(MissingProjectionsMessage);
-    }
-
     public Task SaveAsync(ProjectionCommit commit)
     {
         throw new NotImplementedException(MissingProjectionsMessage);
