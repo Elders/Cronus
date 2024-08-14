@@ -30,7 +30,7 @@
     <RootNamespace>Elders.Cronus</RootNamespace>
     <NeutralLanguage>en-US</NeutralLanguage>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <AssemblyVersion>10.0.0</AssemblyVersion>
+    <AssemblyVersion>11.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
