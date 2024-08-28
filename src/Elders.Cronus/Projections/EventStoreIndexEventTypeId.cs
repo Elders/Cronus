@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Text;
 using System.Runtime.Serialization;
+using System.Text;
 
 namespace Elders.Cronus.Projections;
 
@@ -21,7 +21,7 @@ public class EventStoreIndexEventTypeId : IBlobId
 
     public EventStoreIndexEventTypeId(Type eventType) : this(eventType.GetContractId()) { }
 
-    public byte[] RawId { get { return Encoding.UTF8.GetBytes(contractId); } }
+    public ReadOnlyMemory<byte> RawId { get { return Encoding.UTF8.GetBytes(contractId); } }
 }
 
 [DataContract(Name = "3cc90b7e-56b3-4566-b4ae-d1523d203b20")]
@@ -42,5 +42,5 @@ public class EventStoreIndexEventStateTypeId : IBlobId
 
     public EventStoreIndexEventStateTypeId(Type eventType) : this(eventType.GetContractId()) { }
 
-    public byte[] RawId { get { return Encoding.UTF8.GetBytes(contractId); } }
+    public ReadOnlyMemory<byte> RawId { get { return Encoding.UTF8.GetBytes(contractId); } }
 }

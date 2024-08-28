@@ -4,7 +4,7 @@ namespace Elders.Cronus.EventStore.Index;
 
 public sealed class IndexRecord
 {
-    public IndexRecord(string id, byte[] aggregateRootId)
+    public IndexRecord(string id, ReadOnlyMemory<byte> aggregateRootId)
     {
         Id = id;
         AggregateRootId = aggregateRootId;
@@ -13,7 +13,7 @@ public sealed class IndexRecord
         TimeStamp = 0;
     }
 
-    public IndexRecord(string id, byte[] aggregateRootId, int revision, int position, long timestamp)
+    public IndexRecord(string id, ReadOnlyMemory<byte> aggregateRootId, int revision, int position, long timestamp)
     {
         if (revision < 1) throw new ArgumentOutOfRangeException(nameof(revision), revision, "IndexRecord revision is out of range.");
         if (position < 0) throw new ArgumentOutOfRangeException(nameof(position), position, "IndexRecord position is out of range.");
@@ -28,7 +28,7 @@ public sealed class IndexRecord
 
     public string Id { get; private set; }
 
-    public byte[] AggregateRootId { get; private set; }
+    public ReadOnlyMemory<byte> AggregateRootId { get; private set; }
 
     public int Revision { get; private set; }
 

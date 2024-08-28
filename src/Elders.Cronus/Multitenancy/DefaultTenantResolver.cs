@@ -89,10 +89,10 @@ public class DefaultTenantResolver :
         return source;
     }
 
-    bool TryResolve(byte[] id, out string tenant)
+    bool TryResolve(ReadOnlyMemory<byte> id, out string tenant)
     {
         tenant = string.Empty;
-        var urn = System.Text.Encoding.UTF8.GetString(id);
+        var urn = System.Text.Encoding.UTF8.GetString(id.Span);
         AggregateRootId aggregateUrn;
 
         if (AggregateRootId.TryParse(urn, out aggregateUrn))

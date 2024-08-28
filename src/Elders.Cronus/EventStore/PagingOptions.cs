@@ -40,7 +40,7 @@ public sealed class PagingOptions
         return pagingOptions;
     }
 }
-public sealed class Order : ValueObject<Order>
+public sealed record class Order
 {
     private const string AscendingOrder = "ascending";
     private const string DescendingOrder = "descending";
@@ -58,7 +58,7 @@ public sealed class Order : ValueObject<Order>
 
     string GetOrderType(string value)
     {
-        if(string.IsNullOrEmpty(value))
+        if (string.IsNullOrEmpty(value))
             throw new ArgumentNullException(nameof(value));
 
         if (value.Equals(AscendingOrder, StringComparison.OrdinalIgnoreCase))

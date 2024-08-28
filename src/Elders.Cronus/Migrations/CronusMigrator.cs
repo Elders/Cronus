@@ -34,7 +34,7 @@ public sealed class CronusMigrator : ICronusMigrator, ICronusMigratorManual
         }
         catch (Exception ex)
         {
-            logger.ErrorException(ex, () => $"IMigrationCustomLogic has failed. ARID: {Encoding.UTF8.GetString(aggregateCommit.AggregateRootId)} Rev: {aggregateCommit.Revision}");
+            logger.ErrorException(ex, () => $"IMigrationCustomLogic has failed. ARID: {Encoding.UTF8.GetString(aggregateCommit.AggregateRootId.Span)} Rev: {aggregateCommit.Revision}");
             throw;
         }
     }

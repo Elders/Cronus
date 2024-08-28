@@ -40,7 +40,7 @@ public class InMemoryEventStoreStorage : IDisposable
     /// <param name="aggregateCommit">The aggregate commit.</param>
     internal protected void Flush(AggregateCommit aggregateCommit)
     {
-        var idHash = Convert.ToBase64String(aggregateCommit.AggregateRootId);
+        var idHash = Convert.ToBase64String(aggregateCommit.AggregateRootId.Span);
         if (!eventsStreams.ContainsKey(idHash))
         {
             eventsStreams.TryAdd(idHash, new ConcurrentQueue<AggregateCommit>());
@@ -54,7 +54,7 @@ public class InMemoryEventStoreStorage : IDisposable
 
     internal protected List<AggregateCommit> Seek(IBlobId aggregateId)
     {
-        var idHash = Convert.ToBase64String(aggregateId.RawId);
+        var idHash = Convert.ToBase64String(aggregateId.RawId.Span);
         ConcurrentQueue<AggregateCommit> commits;
         if (eventsStreams.TryGetValue(idHash, out commits))
             return commits.ToList();

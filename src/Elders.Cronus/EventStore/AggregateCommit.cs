@@ -37,7 +37,7 @@ public class AggregateCommit : IMessage
     {
     }
 
-    public AggregateCommit(byte[] aggregateRootId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents, long timestamp)
+    public AggregateCommit(ReadOnlyMemory<byte> aggregateRootId, int revision, List<IEvent> events, List<IPublicEvent> publicEvents, long timestamp)
     {
         if (revision < 1) throw new ArgumentOutOfRangeException(nameof(revision), revision, "Aggregate commit revision is out of range.");
         if (timestamp <= 0) throw new ArgumentOutOfRangeException(nameof(timestamp), timestamp, "Aggregate commit timestamp is out of range.");
@@ -50,7 +50,7 @@ public class AggregateCommit : IMessage
     }
 
     [DataMember(Order = 1)]
-    public byte[] AggregateRootId { get; private set; }
+    public ReadOnlyMemory<byte> AggregateRootId { get; private set; }
 
     [Obsolete("Do not use this.", true)]
     [DataMember(Order = 2)]
@@ -81,7 +81,7 @@ public class AggregateCommit : IMessage
         commitInfoBuilder.AppendLine("AggregateCommit details:");
 
         commitInfoBuilder.Append("RootId:");
-        commitInfoBuilder.AppendLine(Encoding.UTF8.GetString(AggregateRootId));
+        commitInfoBuilder.AppendLine(Encoding.UTF8.GetString(AggregateRootId.Span));
 
         commitInfoBuilder.Append("Revision:");
         commitInfoBuilder.AppendLine(Revision.ToString());

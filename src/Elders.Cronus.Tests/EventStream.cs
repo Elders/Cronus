@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Machine.Specifications;
-using Elders.Cronus.Tests.TestModel;
 using Elders.Cronus.EventStore;
+using Elders.Cronus.Tests.TestModel;
+using Machine.Specifications;
 
 namespace Elders.Cronus.Tests;
 
@@ -14,8 +14,8 @@ public class When_build_aggregate_root_from_events
         id = new TestAggregateId();
 
         var commits = new List<AggregateCommit>();
-        commits.Add(new AggregateCommit(id, 1, new List<IEvent>() { new TestCreateEvent(id) }, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime()));
-        commits.Add(new AggregateCommit(id, 2, new List<IEvent>() { new TestUpdateEvent(id, "When_build_aggregate_root_from_events") }, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime()));
+        commits.Add(new AggregateCommit(id.RawId, 1, new List<IEvent>() { new TestCreateEvent(id) }, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime()));
+        commits.Add(new AggregateCommit(id.RawId, 2, new List<IEvent>() { new TestUpdateEvent(id, "When_build_aggregate_root_from_events") }, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime()));
 
         eventStream = new EventStream(commits);
     };
@@ -37,7 +37,7 @@ public class When_build_aggregate_root_from_history_without_the_initial_event
     {
         id = new TestAggregateId();
         var commits = new List<AggregateCommit>();
-        commits.Add(new AggregateCommit(id, 2, new List<IEvent>() { new TestUpdateEvent(id, "When_build_aggregate_root_from_history_without_the_initial_event") }, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime()));
+        commits.Add(new AggregateCommit(id.RawId, 2, new List<IEvent>() { new TestUpdateEvent(id, "When_build_aggregate_root_from_history_without_the_initial_event") }, new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime()));
         eventStream = new EventStream(commits);
     };
 
