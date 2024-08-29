@@ -197,7 +197,7 @@ public class FixEventTimestamps : ITrigger,
             {
                 foreach (AggregateCommitRaw commit in arStream.Commits)
                 {
-                    byte[] arid = null;
+                    ReadOnlyMemory<byte> arid = ReadOnlyMemory<byte>.Empty;
                     int rev = -1;
 
                     Dictionary<int, IMessage> messages = new Dictionary<int, IMessage>();
