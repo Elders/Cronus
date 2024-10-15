@@ -22,7 +22,7 @@ jobs:
   - task: UseDotNet@2
     inputs:
       packageType: 'sdk'
-      version: '8.x'
+      version: '9.x'
       includePreviewVersions: true
 
   - task: DotNetCoreCLI@2
@@ -30,6 +30,7 @@ jobs:
     inputs:
       command: test
       projects: '**/*Tests.csproj'
+      arguments: --framework net9.0
 
   - task: DotNetCoreCLI@2
     name: build
