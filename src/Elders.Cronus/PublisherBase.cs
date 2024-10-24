@@ -140,8 +140,8 @@ internal class CronusHeadersPublishHandler : DelegatingPublishHandler
 internal class LoggingPublishHandler : DelegatingPublishHandler
 {
     private static Type HeartbeatSignalType = typeof(HeartbeatSignal);
-    private static readonly Action<ILogger, string, string, Exception> LogPublishOK = LoggerMessage.Define<string, string>(LogLevel.Information, CronusLogEvent.CronusPublishOk, "Publish {cronus_MessageType} {cronus_MessageName} - OK");
-    private static readonly Action<ILogger, string, string, Exception> LogPublishError = LoggerMessage.Define<string, string>(LogLevel.Error, CronusLogEvent.CronusPublishError, "Publish {cronus_MessageType} {cronus_MessageName} - Fail");
+    private static readonly Action<ILogger, string, Exception> LogPublishOK = LoggerMessage.Define<string>(LogLevel.Information, CronusLogEvent.CronusPublishOk, "Publish {cronus_MessageType} - OK");
+    private static readonly Action<ILogger, string, Exception> LogPublishError = LoggerMessage.Define<string>(LogLevel.Error, CronusLogEvent.CronusPublishError, "Publish {cronus_MessageType} - Fail");
 
 
     private readonly ILogger<LoggingPublishHandler> logger;
@@ -153,7 +153,7 @@ internal class LoggingPublishHandler : DelegatingPublishHandler
 
     protected internal override PublishResult PublishInternal(CronusMessage message)
     {
-        using (logger.BeginScope(s => s.AddScope("cronus_messageid", message.Id.ToString())))
+        using (logger.BeginScope(s => s.AddScope("cronus_MessageId", message.Id.ToString())))
         {
             try
             {
@@ -164,36 +164,19 @@ internal class LoggingPublishHandler : DelegatingPublishHandler
                 bool isSystemSignal = messageType.IsAssignableFrom(typeof(ISystemSignal)) || messageType == HeartbeatSignalType;
                 if (isPublished && isSystemSignal == false)
                 {
-                    LogPublishOK(logger, messageType.Name, messageType.Name, null);
+                    LogPublishOK(logger, messageType.Name, null);
                 }
                 else if (isPublished == false)
                 {
-                    LogPublishError(logger, messageType.Name, messageType.Name, null);
+                    LogPublishError(logger, messageType.Name, null);
                 }
 
                 return isPublished;
             }
-            catch (Exception ex) when (logger.ErrorException(ex, () => BuildTraceData()))
+            catch (Exception ex) when (True(() => logger.LogError(ex, "Failed to publish message {cronus_MessageType}. {@cronus_Message}", message.GetMessageType().Name, message)))
             {
                 return PublishResult.Failed;
             }
-        }
-
-        string BuildTraceData()
-        {
-            StringBuilder errorMessage = new StringBuilder();
-            errorMessage.AppendLine("Failed to publish message!");
-
-            errorMessage.AppendLine("Headers:");
-            foreach (var header in message.Headers)
-            {
-                errorMessage.AppendLine($"{header.Key}:{header.Value}");
-            }
-
-            string messageString = JsonSerializer.Serialize<object>(message);
-            errorMessage.AppendLine(messageString);
-
-            return errorMessage.ToString();
         }
     }
 }

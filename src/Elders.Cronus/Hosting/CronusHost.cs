@@ -5,6 +5,7 @@ using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Hosting;
 using Elders.Cronus.Migrations;
+using Elders.Cronus.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,10 @@ namespace Elders.Cronus;
 public sealed class CronusHost : ICronusHost
 {
     private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(CronusHost));
+    private static readonly Action<ILogger, Exception> LogHostHasCrashed = LoggerMessage.Define(LogLevel.Critical, CronusLogEvent.CronusHost, "Host has crashed.");
+    private static readonly Action<ILogger, CronusHostOptions, Exception> LogHostOptionsReloaded = LoggerMessage.Define<CronusHostOptions>(LogLevel.Information, CronusLogEvent.CronusHost, "Cronus host options re-loaded with {@options}");
+
+
     private readonly CronusBooter booter;
     private readonly IConsumer<IApplicationService> appServices;
     private readonly IConsumer<ICronusEventStoreIndex> systemIndices;
@@ -118,7 +123,7 @@ public sealed class CronusHost : ICronusHost
         }
         catch (Exception ex)
         {
-            logger.CriticalException(ex, () => $"Start: {ex.Message}");
+            LogHostHasCrashed(logger, ex);
             throw;
         }
     }
@@ -159,7 +164,7 @@ public sealed class CronusHost : ICronusHost
         }
         catch (Exception ex)
         {
-            logger.CriticalException(ex, () => $"Stop: {ex.Message}");
+            LogHostHasCrashed(logger, ex);
             throw;
         }
     }
@@ -170,7 +175,7 @@ public sealed class CronusHost : ICronusHost
     {
         if (hostOptions != newOptions)
         {
-            logger.Info(() => "Cronus host options re-loaded with {@options}", newOptions);
+            LogHostOptionsReloaded(logger, newOptions, null);
 
             Start(hostOptions, newOptions);
             Stop(hostOptions, newOptions);
@@ -193,7 +198,7 @@ public sealed class CronusHost : ICronusHost
         }
         catch (Exception ex)
         {
-            logger.CriticalException(ex, () => $"Restart: {ex.Message}");
+            LogHostHasCrashed(logger, ex);
             throw;
         }
     }
@@ -212,7 +217,7 @@ public sealed class CronusHost : ICronusHost
         }
         catch (Exception ex)
         {
-            logger.CriticalException(ex, () => $"Restop: {ex.Message}");
+            LogHostHasCrashed(logger, ex);
             throw;
         }
     }

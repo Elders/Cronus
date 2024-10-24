@@ -74,7 +74,8 @@ public class DefaultCronusContextFactory
 
     private void Changed(TenantsOptions newOptions)
     {
-        _logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+        if (_logger.IsEnabled(LogLevel.Debug))
+            _logger.LogDebug("Cronus tenants options re-loaded with {@options}", newOptions);
 
         tenantsOptions = newOptions;
     }

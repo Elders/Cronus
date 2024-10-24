@@ -35,10 +35,6 @@ public sealed class DeleteEventStoreEvents<TSourceEventStorePlayer, TTargetEvent
             await source.EnumerateEventStore(@operator, options).ConfigureAwait(false);
 
         }
-        catch (System.Exception ex)
-        {
-            logger.ErrorException(ex, () => $"Something boom bam while runnning migration.");
-        }
-
+        catch (System.Exception ex) when (True(() => logger.LogError(ex, "Error while applying migration."))) { }
     }
 }

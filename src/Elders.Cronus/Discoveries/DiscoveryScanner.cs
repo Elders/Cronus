@@ -11,11 +11,10 @@ public sealed class DiscoveryScanner
 
     public IEnumerable<IDiscoveryResult<object>> Scan(DiscoveryContext context)
     {
-        List<Type> allTypes = context.Assemblies
+        IEnumerable<Type> allTypes = context.Assemblies
                .SelectMany(asm => asm
                    .GetLoadableTypes()
-                   .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery<object>).IsAssignableFrom(type)))
-               .ToList();
+                   .Where(type => type.IsAbstract == false && type.IsClass && typeof(IDiscovery<object>).IsAssignableFrom(type)));
 
         IEnumerable<IDiscovery<object>> discoveries = allTypes
             .Where(candidate => allTypes.Where(t => t.BaseType == candidate).Any() == false) // filter out discoveries which inherit from each other. We remove the base discoveries
@@ -23,7 +22,7 @@ public sealed class DiscoveryScanner
 
         foreach (var discovery in discoveries)
         {
-            logger.Info(() => $"Discovered {discovery.Name}");
+            logger.LogInformation("Discovered {name}.", discovery.Name);
 
             yield return discovery.Discover(context);
         }

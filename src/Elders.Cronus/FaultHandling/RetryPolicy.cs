@@ -179,12 +179,12 @@ public class RetryPolicy
                     return default;
                 }
             }
-            catch (WorkflowExecutionException ex) when ((ErrorDetectionStrategy.IsTransient(ex) && shouldRetry(retryCount++, ex, out delay)) && logger.WarnException(ex, () => $"Operation has failed. Retrying - Count: {retryCount}, Delay: {delay.TotalMilliseconds}ms."))
+            catch (WorkflowExecutionException ex) when ((ErrorDetectionStrategy.IsTransient(ex) && shouldRetry(retryCount++, ex, out delay)) && True(() => logger.LogWarning(ex, "Operation has failed. Retrying - Count: {retryCount}, Delay: {delay}ms.", retryCount, delay.TotalMilliseconds)))
             {
                 // Retry
                 lastError = ex;
             }
-            catch (WorkflowExecutionException ex) when (((ErrorDetectionStrategy.IsTransient(ex) && shouldRetry(retryCount++, ex, out _)) == false) && logger.ErrorException(ex, () => $"Operation has failed."))
+            catch (WorkflowExecutionException ex) when (((ErrorDetectionStrategy.IsTransient(ex) && shouldRetry(retryCount++, ex, out _)) == false) && True(() => logger.LogError(ex, "Operation has failed.")))
             {
                 // Error
                 lastError = ex;

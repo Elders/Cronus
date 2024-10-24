@@ -14,7 +14,10 @@ public static class LogOption
 
 internal static class CronusLogEvent
 {
+    public static EventId CronusHost = new EventId(74000, "CronusHost");
     public static EventId CronusWorkflowHandle = new EventId(74001, "CronusWorkflowHandle");
+    public static EventId CronusEventStoreRead = new EventId(74010, "CronusEventStoreRead");
+    public static EventId CronusEventStoreWrite = new EventId(74011, "CronusEventStoreWrite");
     public static EventId CronusProjectionRead = new EventId(74020, "CronusProjectionRead");
     public static EventId CronusProjectionWrite = new EventId(74021, "CronusProjectionWrite");
     public static EventId CronusJobOk = new EventId(74100, "CronusJobOk");
@@ -27,8 +30,8 @@ public sealed class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TCo
 {
     private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DiagnosticsWorkflow<>));
     private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
-    private static readonly Action<ILogger, string, string, double, Exception> LogHandleSuccess = LoggerMessage.Define<string, string, double>(LogLevel.Information, CronusLogEvent.CronusWorkflowHandle, "{cronus_MessageHandler} handled {cronus_MessageName} in {ElapsedMilliseconds:0.0000}ms.", LogOption.SkipLogInfoChecks);
-    private static readonly Action<ILogger, string, string, Exception> LogHandleStarting = LoggerMessage.Define<string, string>(LogLevel.Debug, CronusLogEvent.CronusWorkflowHandle, "{cronus_MessageHandler} starting handle {cronus_MessageName}.", LogOption.SkipLogInfoChecks);
+    private static readonly Action<ILogger, string, string, double, Exception> LogHandleSuccess = LoggerMessage.Define<string, string, double>(LogLevel.Information, CronusLogEvent.CronusWorkflowHandle, "{cronus_MessageHandler} handled {cronus_MessageType} in {ElapsedMilliseconds:0.0000}ms.", LogOption.SkipLogInfoChecks);
+    private static readonly Action<ILogger, string, string, Exception> LogHandleStarting = LoggerMessage.Define<string, string>(LogLevel.Debug, CronusLogEvent.CronusWorkflowHandle, "{cronus_MessageHandler} starting handle {cronus_MessageType}.", LogOption.SkipLogInfoChecks);
 
     private const string ActivityName = "Elders.Cronus.Hosting.Workflow";
     private const string DiagnosticsUnhandledExceptionKey = "Elders.Cronus.Hosting.UnhandledException";
@@ -62,7 +65,7 @@ public sealed class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TCo
             Type msgType = execution.Context.Message.Payload.GetType();
 
             LogHandleStarting(logger, execution.Context.HandlerType.Name, msgType.Name, null);
-            if (logger.IsInfoEnabled())
+            if (logger.IsEnabled(LogLevel.Information))
             {
                 long startTimestamp = 0;
                 startTimestamp = Stopwatch.GetTimestamp();

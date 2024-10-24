@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus;
 
-internal class AssemblyLoader
+internal sealed class AssemblyLoader
 {
     static readonly ILogger logger = CronusLogger.CreateLogger(nameof(AssemblyLoader));
 
@@ -64,7 +64,7 @@ internal class AssemblyLoader
                 Assemblies.Add(assembly.FullName, assembly);
         }
 
-        logger.Info(() => loadAssembliesLog.ToString());
+        logger.LogInformation(loadAssembliesLog.ToString());
     }
 
     static void InitAssemblies()

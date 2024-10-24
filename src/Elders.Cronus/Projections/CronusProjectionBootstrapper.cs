@@ -83,7 +83,8 @@ internal class CronusProjectionBootstrapper
     {
         if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false) // Check for difference between tenants and newOptions
         {
-            logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+            if (logger.IsEnabled(LogLevel.Debug))
+                logger.LogDebug("Cronus host options re-loaded with {@options}", newOptions);
 
             // Find the difference between the old and new tenants
             // and bootstrap the new tenants
@@ -99,7 +100,8 @@ internal class CronusProjectionBootstrapper
 
     private void CronusHostOptionsChanged(CronusHostOptions newOptions)
     {
-        logger.Debug(() => "Cronus host options re-loaded with {@options}", newOptions);
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug("Cronus host options re-loaded with {@options}", newOptions);
 
         cronusHostOptions = newOptions;
 

@@ -29,12 +29,9 @@ internal sealed class AggregateCommitPublisher : IAggregateCommitInterceptor
             bool publishResult = publisher.Publish(origin, BuildHeaders(origin));
 
             if (publishResult == false)
-                logger.Error(() => "Unable to publish aggregate commit.");
+                logger.LogError("Unable to publish aggregate commit.");
         }
-        catch (Exception ex)
-        {
-            logger.ErrorException(ex, () => "Unable to publish aggregate commit.");
-        }
+        catch (Exception ex) when (True(() => logger.LogError(ex, "Unable to publish aggregate commit."))) { }
 
         return Task.CompletedTask;
     }

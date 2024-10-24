@@ -32,10 +32,8 @@ public sealed class CronusMigrator : ICronusMigrator, ICronusMigratorManual
         {
             await theLogic.OnAggregateCommitAsync(aggregateCommit).ConfigureAwait(false);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (False(() => logger.LogError(ex, $"IMigrationCustomLogic has failed. ARID: {Encoding.UTF8.GetString(aggregateCommit.AggregateRootId.Span)} Rev: {aggregateCommit.Revision}")))
         {
-            logger.ErrorException(ex, () => $"IMigrationCustomLogic has failed. ARID: {Encoding.UTF8.GetString(aggregateCommit.AggregateRootId.Span)} Rev: {aggregateCommit.Revision}");
-            throw;
         }
     }
 }

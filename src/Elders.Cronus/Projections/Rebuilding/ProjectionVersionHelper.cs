@@ -62,19 +62,19 @@ public class ProjectionVersionHelper
     {
         if (HasReplayTimeout(dueDate))
         {
-            logger.Error(() => $"Rebuild of projection `{version}` has expired. Version:{version} Deadline:{dueDate}.");
+            logger.LogError("Rebuild of projection {cronus_ProjectionVersion} has expired.", version);
             return true;
         }
 
         ProjectionVersions allVersions = await GetAllVersionsAsync(version).ConfigureAwait(false);
         if (allVersions.IsOutdated(version))
         {
-            logger.Error(() => $"Version `{version}` is outdated. There is a newer one which is already live.");
+            logger.LogError("Projection `{cronus_ProjectionVersion}` is outdated. There is a newer one which is already live.", version);
             return true;
         }
         else if (allVersions.IsCanceled(version) && version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase) == false)
         {
-            logger.Error(() => $"Version `{version}` was canceled");
+            logger.LogError("Projection {cronus_ProjectionVersion} was canceled.", version);
             return true;
         }
 

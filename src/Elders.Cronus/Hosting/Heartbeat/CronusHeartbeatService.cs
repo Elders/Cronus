@@ -30,14 +30,14 @@ public sealed class CronusHeartbeatService : BackgroundService
     {
         try
         {
-            _logger.LogInformation("Consume Scoped Service Hosted Service is working.");
+            if (_logger.IsEnabled(LogLevel.Information))
+                _logger.LogInformation("CronusHeartbeatService is working.");
 
             var heartbeat = Services.GetRequiredService<IHeartbeat>();
             return heartbeat.StartBeatingAsync(stoppingToken);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (True(() => _logger.LogError("Failed to send heartbeat.")))
         {
-            _logger.ErrorException(ex, () => "Failed to send heartbeat.");
             return Task.FromException(ex);
         }
     }

@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Elders.Cronus.Discoveries;
 
-public class MigrationDiscovery : DiscoveryBase<MigrationDiscovery>
+public sealed class MigrationDiscovery : DiscoveryBase<MigrationDiscovery>
 {
     protected override DiscoveryResult<MigrationDiscovery> DiscoverFromAssemblies(DiscoveryContext context)
     {

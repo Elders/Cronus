@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Elders.Cronus.IntegrityValidation;
+using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore.Integrity;
@@ -8,7 +10,7 @@ public sealed class EventStreamIntegrityPolicy : IIntegrityPolicy<EventStream>
 {
     readonly List<IntegrityRule<EventStream>> rules;
 
-    public EventStreamIntegrityPolicy()
+    public EventStreamIntegrityPolicy(ILogger<EventStreamIntegrityPolicy> logger)
     {
         rules =
         [
@@ -34,33 +36,42 @@ public sealed class EventStreamIntegrityPolicy : IIntegrityPolicy<EventStream>
         return integrity;
     }
 
-    class EventStreamValidatorLogger : IResolver<EventStream>
-    {
-        private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(EventStreamValidatorLogger));
+    //class EventStreamValidatorLogger : IResolver<EventStream>
+    //{
+    //    private static readonly Action<ILogger, string, string, Exception> LogEventStoreIntegrityError = LoggerMessage.Define<string, string>(LogLevel.Error, CronusLogEvent.CronusEventStoreRead, "{cronus_MessageHandler} starting handle {cronus_MessageType}.", LogOption.SkipLogInfoChecks);
 
-        public uint PriorityLevel { get { return uint.MinValue; } }
 
-        public int CompareTo(IResolver<EventStream> other)
-        {
-            return PriorityLevel.CompareTo(other.PriorityLevel);
-        }
+    //    private readonly ILogger logger;
 
-        public IntegrityResult<EventStream> Resolve(EventStream eventStream, IValidatorResult validatorResult)
-        {
-            if (validatorResult.IsValid == false)
-                logger.Error(() => "EventStream integrity violation occured.");
+    //    public EventStreamValidatorLogger(ILogger<EventStreamIntegrityPolicy> logger)
+    //    {
+    //        this.logger = logger;
+    //    }
 
-            if (logger.IsDebugEnabled())
-            {
-                foreach (var errorMessage in validatorResult.Errors)
-                {
-                    logger.Debug(() => $"[INTEGRITY-ERROR: {validatorResult.ErrorType}] {errorMessage}");
-                }
+    //    public uint PriorityLevel { get { return uint.MinValue; } }
 
-                logger.Debug(() => eventStream.ToString());
-            }
+    //    public int CompareTo(IResolver<EventStream> other)
+    //    {
+    //        return PriorityLevel.CompareTo(other.PriorityLevel);
+    //    }
 
-            return new IntegrityResult<EventStream>(eventStream, true);
-        }
-    }
+    //    public IntegrityResult<EventStream> Resolve(EventStream eventStream, IValidatorResult validatorResult)
+    //    {
+    //        if (validatorResult.IsValid == false)
+    //        { 
+    //            logger.Error(() => "EventStream integrity violation occured.");
+
+    //        if (logger.IsDebugEnabled())
+    //        {
+    //            foreach (var errorMessage in validatorResult.Errors)
+    //            {
+    //                logger.Debug(() => $"[INTEGRITY-ERROR: {validatorResult.ErrorType}] {errorMessage}");
+    //            }
+
+    //            logger.Debug(() => eventStream.ToString());
+    //        }
+
+    //        return new IntegrityResult<EventStream>(eventStream, true);
+    //    }
+    //}
 }

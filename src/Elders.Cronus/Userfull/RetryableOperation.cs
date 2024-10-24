@@ -43,12 +43,14 @@ public static class RetryableOperation
             {
                 if (retry(i, exception, out delay))
                 {
-                    logger.Debug(() => $"Retry {i} after {delay.TotalMilliseconds} ms. Operation Info: {getOperationInfo()}");
+                    if (logger.IsEnabled(LogLevel.Debug))
+                        logger.LogDebug("Retry {retryCount} after {delay}ms. Operation Info: {operationInfo}", i, delay.TotalMilliseconds, getOperationInfo());
                     Thread.Sleep(delay);
                 }
                 else
                 {
-                    logger.Debug(() => "Maximum number of retries has been reached.");
+                    if (logger.IsEnabled(LogLevel.Debug))
+                        logger.LogDebug("Maximum number of retries has been reached.");
                     if (exception is null)
                         exception = new Exception($"Maximum number of retries has been reached.{Environment.NewLine}{getOperationInfo()}");
                     throw exception;

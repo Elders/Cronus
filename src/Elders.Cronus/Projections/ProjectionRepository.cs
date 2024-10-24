@@ -72,7 +72,7 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
                     }
                     if (result.HasError)
                     {
-                        log.Error(() => "Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + result.Error + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
+                        log.LogError("Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + result.Error + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
                     }
                 }
             }
@@ -92,7 +92,7 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
                     }
                 }
 
-                log.LogWarning(ex, "Failed to save event {event} in projection {projection}.", @event.GetType().Name, projectionType.Name);
+                log.LogWarning(ex, "Failed to save event {cronus.Messageevent} in projection {projection}.", @event.GetType().Name, projectionType.Name);
 
                 throw;
             }

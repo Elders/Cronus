@@ -33,7 +33,6 @@ public static class CronusServiceCollectionExtensions
         services.AddTenantSupport();
         services.AddCronusHostOptions();
         services.AddDefaultSubscribers(cronusServicesProvider);
-        services.AddInMemoryLock();
         services.AddJobManager();
 
         var discoveryFinder = new DiscoveryScanner();
@@ -60,13 +59,6 @@ public static class CronusServiceCollectionExtensions
         services.AddOptions<HeartbeatOptions, HeartbeaOptionsProvider>();
         services.AddSingleton<IHeartbeat, CronusHeartbeat>();
         services.AddHostedService<CronusHeartbeatService>();
-
-        return services;
-    }
-
-    public static IServiceCollection AddInMemoryLock(this IServiceCollection services)
-    {
-        services.AddSingleton<ILock, InMemoryLockWithTTL>();
 
         return services;
     }
