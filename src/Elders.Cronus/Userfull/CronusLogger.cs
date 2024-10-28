@@ -11,6 +11,12 @@ public static class Log
     public const string AggregateId = "cronus_arid";
     public const string AggregateName = "cronus_arname";
 
+    public const string MessageId = "cronus_messageId";
+    public const string MessageData = "cronus_messageData";
+    public const string MessageType = "cronus_messageType";
+
+    public const string MessageHandler = "cronus_messageHandler";
+
     public const string JobName = "cronus_job_name";
     public const string JobData = "cronus_job_data";
 
@@ -24,7 +30,7 @@ public static class CronusLogger
 {
     private static ILoggerFactory factory = new LoggerFactory();
     private static ILogger startupLogger;
-
+    
     public static IHostBuilder UseCronusStartupLogger(this IHostBuilder hostBuilder, ILogger startupLogger)
     {
         SetStartupLogger(startupLogger);

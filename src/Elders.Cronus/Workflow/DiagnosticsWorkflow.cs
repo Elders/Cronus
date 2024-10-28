@@ -111,7 +111,7 @@ public sealed class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TCo
                     activity.SetParentId(parentId);
             }
 
-            activity.SetTag("cronus_messageid", context.Message.Id.ToString());
+            activity.SetTag(Log.MessageId, context.Message.Id.ToString());
             activity.Start();
 
             return activity;

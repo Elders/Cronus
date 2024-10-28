@@ -153,7 +153,7 @@ internal class LoggingPublishHandler : DelegatingPublishHandler
 
     protected internal override PublishResult PublishInternal(CronusMessage message)
     {
-        using (logger.BeginScope(s => s.AddScope("cronus_MessageId", message.Id.ToString())))
+        using (logger.BeginScope(s => s.AddScope(Log.MessageId, message.Id.ToString())))
         {
             try
             {
@@ -238,7 +238,7 @@ internal class ActivityPublishHandler : DelegatingPublishHandler
                 }
             }
 
-            activity.SetTag("cronus_messageid", message.Id.ToString());
+            activity.SetTag(Log.MessageId, message.Id.ToString());
             activity.Start();
 
             return activity;
