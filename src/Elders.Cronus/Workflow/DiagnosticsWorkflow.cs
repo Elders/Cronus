@@ -29,7 +29,6 @@ internal static class CronusLogEvent
 public sealed class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TContext : HandleContext
 {
     private static readonly ILogger logger = CronusLogger.CreateLogger(typeof(DiagnosticsWorkflow<>));
-    private static readonly double TimestampToTicks = TimeSpan.TicksPerSecond / (double)Stopwatch.Frequency;
     private static readonly Action<ILogger, string, string, double, Exception> LogHandleSuccess = LoggerMessage.Define<string, string, double>(LogLevel.Information, CronusLogEvent.CronusWorkflowHandle, "{cronus_MessageHandler} handled {cronus_MessageType} in {ElapsedMilliseconds:0.0000}ms.", LogOption.SkipLogInfoChecks);
     private static readonly Action<ILogger, string, string, Exception> LogHandleStarting = LoggerMessage.Define<string, string>(LogLevel.Debug, CronusLogEvent.CronusWorkflowHandle, "{cronus_MessageHandler} starting handle {cronus_MessageType}.", LogOption.SkipLogInfoChecks);
 
@@ -72,7 +71,7 @@ public sealed class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TCo
 
                 await workflow.RunAsync(execution.Context).ConfigureAwait(false);
 
-                TimeSpan elapsed = new TimeSpan((long)(TimestampToTicks * (Stopwatch.GetTimestamp() - startTimestamp)));
+                TimeSpan elapsed = Stopwatch.GetElapsedTime(startTimestamp);
 
                 LogHandleSuccess(logger, execution.Context.HandlerType.Name, msgType.Name, elapsed.TotalMilliseconds, null);
             }
