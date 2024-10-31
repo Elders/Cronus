@@ -1,0 +1,121 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
+using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.Projections.Cassandra;
+using Elders.Cronus.Projections.Versioning;
+
+namespace Elders.Cronus.Projections;
+
+/// <summary>
+/// Use this class ONLY for version v11 for cronus. Remove this later when we dont use the legacy tables. USE <see cref="ProjectionFinderViaReflection"/> instead
+/// We put this because we need to ensure that we have the _new table with the latest live revision (we always append in both projection tables)
+/// Otherwise if we have latest live version 6 , until we go manually to rebuild the projection the only _new table for this projection will be the initial `1`
+/// </summary>
+internal class LatestVersionProjectionFinder : IProjectionVersionFinder
+{
+    private readonly TypeContainer<IProjection> _allProjections;
+    private readonly ProjectionHasher _hasher;
+    private readonly IProjectionStore _projectionStore;
+    private readonly ICronusContextAccessor _cronusContextAccessor;
+
+    private readonly ProjectionVersion persistentVersion;
+
+    public LatestVersionProjectionFinder(TypeContainer<IProjection> allProjections, ProjectionHasher hasher, IProjectionStore projectionStore, ICronusContextAccessor cronusContextAccessor)
+    {
+        _allProjections = allProjections;
+        _hasher = hasher;
+        _projectionStore = projectionStore;
+        _cronusContextAccessor = cronusContextAccessor;
+
+        persistentVersion = new ProjectionVersion(ProjectionVersionsHandler.ContractId, ProjectionStatus.Live, 1, hasher.CalculateHash(typeof(ProjectionVersionsHandler)));
+    }
+
+    public IEnumerable<ProjectionVersion> GetProjectionVersionsToBootstrap()
+    {
+        foreach (Type projectionType in _allProjections.Items)
+        {
+            if (typeof(IProjectionDefinition).IsAssignableFrom(projectionType) || typeof(IAmEventSourcedProjection).IsAssignableFrom(projectionType))
+            {
+                yield return GetCurrentLiveVersionOrTheDefaultOne(projectionType).GetAwaiter().GetResult(); // oof
+            }
+        }
+    }
+
+    public async Task<ProjectionVersion> GetCurrentLiveVersionOrTheDefaultOne(Type projectionType)
+    {
+        string projectionName = projectionType.GetContractId();
+
+        ProjectionVersionManagerId versionId = new ProjectionVersionManagerId(projectionName, _cronusContextAccessor.CronusContext.Tenant);
+        ProjectionVersion initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.NotPresent, 1, _hasher.CalculateHash(projectionType));
+
+        try
+        {
+            var loadResultFromF1 = await GetProjectionVersionsFromStoreAsync(projectionName, _cronusContextAccessor.CronusContext.Tenant);
+
+            if (loadResultFromF1.IsSuccess)
+            {
+                ProjectionVersion found = loadResultFromF1.Data.State.AllVersions.GetLive();
+                if (found is not null)
+                {
+                    return found;
+                }
+                else
+                {
+                    return initialVersion;
+                }
+            }
+            else
+            {
+                return initialVersion;
+            }
+        }
+        catch (Exception ex)
+        {
+            // TODO: we might come here if we are in the initial state (we have no data), because we are trying to load from tables that don't exist yet (Check for specific exeption?)
+
+            return initialVersion;
+        }
+    }
+
+    private async Task<ReadResult<ProjectionVersionsHandler>> GetProjectionVersionsFromStoreAsync(string projectionName, string tenant)
+    {
+        try
+        {
+            ProjectionVersionManagerId versionId = new ProjectionVersionManagerId(projectionName, tenant);
+            ProjectionStream stream = await LoadProjectionStreamAsync(versionId, persistentVersion).ConfigureAwait(false);
+
+            ProjectionVersionsHandler projectionInstance = new ProjectionVersionsHandler();
+            projectionInstance = await stream.RestoreFromHistoryAsync(projectionInstance).ConfigureAwait(false);
+
+            return new ReadResult<ProjectionVersionsHandler>(projectionInstance);
+        }
+        catch (Exception ex)
+        {
+            return ReadResult<ProjectionVersionsHandler>.WithError(ex.Message);
+        }
+    }
+
+
+    private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, ProjectionVersion version)
+    {
+        List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
+
+        ProjectionStream stream = ProjectionStream.Empty();
+
+        ProjectionQueryOptions options = new ProjectionQueryOptions(projectionId, version, new PagingOptions(1000, null, Order.Ascending));
+        ProjectionsOperator @operator = new ProjectionsOperator()
+        {
+            OnProjectionStreamLoadedAsync = projectionStream =>
+            {
+                stream = projectionStream;
+                return Task.CompletedTask;
+            }
+        };
+
+        await _projectionStore.EnumerateProjectionsAsync(@operator, options).ConfigureAwait(false);
+
+        return stream;
+    }
+}
