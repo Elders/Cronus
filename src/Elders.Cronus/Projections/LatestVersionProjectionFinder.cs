@@ -22,7 +22,7 @@ internal class LatestVersionProjectionFinder : IProjectionVersionFinder
     private readonly ICronusContextAccessor _cronusContextAccessor;
     private readonly ILogger<LatestVersionProjectionFinder> _logger;
 
-    private const string MasterProjectionMissingMessage = "table f1469a8e9fc847f5b057d5394ed33b4c_1_ver does not exist";
+    private const char Dash = '-';
 
     private readonly ProjectionVersion persistentVersion;
 
@@ -55,9 +55,11 @@ internal class LatestVersionProjectionFinder : IProjectionVersionFinder
         ProjectionVersionManagerId versionId = new ProjectionVersionManagerId(projectionName, _cronusContextAccessor.CronusContext.Tenant);
         ProjectionVersion initialVersion = new ProjectionVersion(projectionName, ProjectionStatus.NotPresent, 1, _hasher.CalculateHash(projectionType));
 
+        string error = $"table {GetPersistantProjectionColumnFamilyName()} does not exist";
+
         try
         {
-            var loadResultFromF1 = await GetProjectionVersionsFromStoreAsync(projectionName, _cronusContextAccessor.CronusContext.Tenant);
+            var loadResultFromF1 = await GetProjectionVersionsFromStoreAsync(projectionName, _cronusContextAccessor.CronusContext.Tenant).ConfigureAwait(false);
 
             if (loadResultFromF1.IsSuccess)
             {
@@ -76,7 +78,7 @@ internal class LatestVersionProjectionFinder : IProjectionVersionFinder
                 return initialVersion;
             }
         }
-        catch (Exception ex) when (ex.Message.Contains(MasterProjectionMissingMessage)) // we might come here if we are in the initial state (we have no data and f1 projection is missing), because we are trying to load from tables that don't exist yet
+        catch (Exception ex) when (ex.Message.Contains(error)) // we might come here if we are in the initial state (we have no data and f1 projection is missing), because we are trying to load from tables that don't exist yet
         {
             return initialVersion;
         }
@@ -96,7 +98,6 @@ internal class LatestVersionProjectionFinder : IProjectionVersionFinder
 
         return new ReadResult<ProjectionVersionsHandler>(projectionInstance);
     }
-
 
     private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, ProjectionVersion version)
     {
@@ -118,4 +119,32 @@ internal class LatestVersionProjectionFinder : IProjectionVersionFinder
 
         return stream;
     }
+
+    private string GetPersistantProjectionColumnFamilyName()
+    {
+        string projectionName = persistentVersion.ProjectionName;
+        Span<char> result = stackalloc char[projectionName.Length];
+
+        int theIndex = 0;
+        for (int i = 0; i < projectionName.Length; i++)
+        {
+            char character = projectionName[i];
+
+            if (character.Equals(Dash))
+                continue;
+
+            if (char.IsUpper(character))
+            {
+                result[theIndex] = char.ToLower(character);
+            }
+            else
+            {
+                result[theIndex] = character;
+            }
+            theIndex++;
+        }
+        Span<char> trimmed = result.Slice(0, theIndex);
+        return $"{trimmed}_{persistentVersion.Revision}_{persistentVersion.Hash}";
+    }
+
 }
