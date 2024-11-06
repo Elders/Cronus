@@ -5,6 +5,7 @@ using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Cassandra;
 using Elders.Cronus.Projections.Versioning;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Projections;
 
@@ -19,10 +20,13 @@ internal class LatestVersionProjectionFinder : IProjectionVersionFinder
     private readonly ProjectionHasher _hasher;
     private readonly IProjectionStore _projectionStore;
     private readonly ICronusContextAccessor _cronusContextAccessor;
+    private readonly ILogger<LatestVersionProjectionFinder> _logger;
+
+    private const string MasterProjectionMissingMessage = "table f1469a8e9fc847f5b057d5394ed33b4c_1_ver does not exist";
 
     private readonly ProjectionVersion persistentVersion;
 
-    public LatestVersionProjectionFinder(TypeContainer<IProjection> allProjections, ProjectionHasher hasher, IProjectionStore projectionStore, ICronusContextAccessor cronusContextAccessor)
+    public LatestVersionProjectionFinder(TypeContainer<IProjection> allProjections, ProjectionHasher hasher, IProjectionStore projectionStore, ICronusContextAccessor cronusContextAccessor, ILogger<LatestVersionProjectionFinder> logger)
     {
         _allProjections = allProjections;
         _hasher = hasher;
@@ -30,6 +34,7 @@ internal class LatestVersionProjectionFinder : IProjectionVersionFinder
         _cronusContextAccessor = cronusContextAccessor;
 
         persistentVersion = new ProjectionVersion(ProjectionVersionsHandler.ContractId, ProjectionStatus.Live, 1, hasher.CalculateHash(typeof(ProjectionVersionsHandler)));
+        _logger = logger;
     }
 
     public IEnumerable<ProjectionVersion> GetProjectionVersionsToBootstrap()
@@ -71,30 +76,25 @@ internal class LatestVersionProjectionFinder : IProjectionVersionFinder
                 return initialVersion;
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex.Message.Contains(MasterProjectionMissingMessage)) // we might come here if we are in the initial state (we have no data and f1 projection is missing), because we are trying to load from tables that don't exist yet
         {
-            // TODO: we might come here if we are in the initial state (we have no data), because we are trying to load from tables that don't exist yet (Check for specific exeption?)
-
             return initialVersion;
+        }
+        catch (Exception ex) when (True(() => _logger.LogError(ex, "Something went wrong while getting the latest live version, because {message}", ex.Message)))
+        {
+            throw;
         }
     }
 
     private async Task<ReadResult<ProjectionVersionsHandler>> GetProjectionVersionsFromStoreAsync(string projectionName, string tenant)
     {
-        try
-        {
-            ProjectionVersionManagerId versionId = new ProjectionVersionManagerId(projectionName, tenant);
-            ProjectionStream stream = await LoadProjectionStreamAsync(versionId, persistentVersion).ConfigureAwait(false);
+        ProjectionVersionManagerId versionId = new ProjectionVersionManagerId(projectionName, tenant);
+        ProjectionStream stream = await LoadProjectionStreamAsync(versionId, persistentVersion).ConfigureAwait(false);
 
-            ProjectionVersionsHandler projectionInstance = new ProjectionVersionsHandler();
-            projectionInstance = await stream.RestoreFromHistoryAsync(projectionInstance).ConfigureAwait(false);
+        ProjectionVersionsHandler projectionInstance = new ProjectionVersionsHandler();
+        projectionInstance = await stream.RestoreFromHistoryAsync(projectionInstance).ConfigureAwait(false);
 
-            return new ReadResult<ProjectionVersionsHandler>(projectionInstance);
-        }
-        catch (Exception ex)
-        {
-            return ReadResult<ProjectionVersionsHandler>.WithError(ex.Message);
-        }
+        return new ReadResult<ProjectionVersionsHandler>(projectionInstance);
     }
 
 
