@@ -43,7 +43,7 @@ internal class LatestVersionProjectionFinder : IProjectionVersionFinder
         {
             if (typeof(IProjectionDefinition).IsAssignableFrom(projectionType) || typeof(IAmEventSourcedProjection).IsAssignableFrom(projectionType))
             {
-                yield return GetCurrentLiveVersionOrTheDefaultOne(projectionType).GetAwaiter().GetResult(); // oof
+                yield return GetCurrentLiveVersionOrTheDefaultOne(projectionType).GetAwaiter().GetResult();
             }
         }
     }
