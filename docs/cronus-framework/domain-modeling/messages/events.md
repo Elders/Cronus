@@ -13,28 +13,38 @@ An event is something significant that has happened in the domain.  It encapsula
 To create an event with Cronus, just use the `IEvent` markup interface.
 
 ```csharp
-// TODO: give a relevant example
-[DataContract(Name = "d2b92ca6-34bc-4670-890e-8dff6de624b6")]
-public class ExampleCreated : IEvent
+[DataContract(Name = "728fc4e7-628b-4962-bd68-97c98aa05694")]
+public class TaskCreated : IEvent
 {
-    public ExampleCreated(ExampleId id, ExampleName name)
-    {
-        if (id is null) throw new ArgumentNullException(nameof(id));
-        if (name is null) throw new ArgumentNullException(nameof(name));
+    TaskCreated() { }
 
+    public TaskCreated(TaskId id, UserId userId, string name, DateTimeOffset timestamp)
+    {
         Id = id;
+        UserId = userId;
         Name = name;
+        CreatedAt = DateTimeOffset.UtcNow;
+        Timestamp = timestamp;
     }
 
     [DataMember(Order = 1)]
-    public ExampleId Id { get; private set; }
+    public TaskId Id { get; private set; }
 
     [DataMember(Order = 2)]
-    public ExampleName Name { get; private set; }
+    public UserId UserId { get; private set; }
+
+    [DataMember(Order = 3)]
+    public string Name { get; private set; }
+
+    [DataMember(Order = 4)]
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    [DataMember(Order = 5)]
+    public DateTimeOffset Timestamp { get; private set; }
 
     public override string ToString()
     {
-        return $"Example with id '{Id}' and name '{Name}' has been created";
+        return $"Task with id '{Id}' and name '{Name}' for user [{UserId}] at {CreatedAt} has been created.";
     }
 }
 ```

@@ -21,44 +21,78 @@ And add some dependencies.
 dotnet add package Cronus.Projection.Cassandra
 ```
 
-### Create a projection for querying tasks created by the user
+### Create a projection for querying tasks
+
+You can choose whitch implementation to use. You can get hte tasks(_commented in the controller_) with same name, or all tasks.
 
 {% tabs %}
 {% tab title="TaskProjection" %}
 ```csharp
 [DataContract(Name = "c94513d1-e5ee-4aae-8c0f-6e85b63a4e03")]
-    public class TaskProjection : ProjectionDefinition<TaskProjectionData, UserId>,
-        IEventHandler<TaskCreated>
+public class TaskProjection : ProjectionDefinition<TaskProjectionData, TaskId>,
+    IEventHandler<TaskCreated>
+{
+    public TaskProjection()
     {
-        public TaskProjection()
-        {
-            Subscribe<TaskCreated>(x => x.UserId);
-        }
-
-        public Task HandleAsync(TaskCreated @event)
-        {
-            TaskDto task = new TaskDto();
-            State.Tasks.Add(task);
-
-            return Task.CompletedTask;
-        }
+        //Id.NID - here we are subscribing by tenant
+        //in our case the tenant is: "tenant"
+        //so we well get all events
+        Subscribe<TaskCreated>(x => new TaskId(x.Id.NID));
     }
+
+    public Task HandleAsync(TaskCreated @event)
+    {
+        Data task = new Data();
+
+        task.Id = @event.Id;
+        task.UserId = @event.UserId;
+        task.Name = @event.Name;
+        task.Timestamp = @event.Timestamp;
+
+        State.Tasks.Add(task);
+
+        return Task.CompletedTask;
+    }
+    public IEnumerable<Data> GetTaskByName(string name)
+    {
+        return State.Tasks.Where(x => x.Name.Equals(name));
+    }
+}
 ```
 {% endtab %}
 
 {% tab title="TaskProjectionData" %}
 ```csharp
- [DataContract(Name = "565e099a-5ca2-4258-87b1-4091a9d2c945")]
-    public class TaskProjectionData
+[DataContract(Name = "c135893e-b9e3-453a-b0e0-53545094ec5d")]
+public class TaskProjectionData
+{
+    public TaskProjectionData()
     {
-        public TaskProjectionData()
-        {
-            Tasks = new List<TaskDto>();
-        }
-
-        [DataMember(Order = 1)]
-        public List<TaskDto> Tasks { get; set; }
+        Tasks = new List<Data>();
     }
+
+    [DataMember(Order = 1)]
+    public List<Data> Tasks { get; set; }
+
+    [DataContract(Name = "317b3cbb-593a-4ffc-8284-d5f5c599d8ae")]
+    public class Data
+    {
+        [DataMember(Order = 1)]
+        public TaskId Id { get; set; }
+
+        [DataMember(Order = 2)]
+        public UserId UserId { get; set; }
+
+        [DataMember(Order = 3)]
+        public string Name { get; set; }
+
+        [DataMember(Order = 4)]
+        public DateTimeOffset CreatedAt { get; set; }
+
+        [DataMember(Order = 5)]
+        public DateTimeOffset Timestamp { get; set; }
+    }
+}
 ```
 {% endtab %}
 {% endtabs %}
@@ -71,7 +105,7 @@ Inject `IProjectionReader` that will be responsible for getting the projection s
 
 ```csharp
 [ApiController]
-[Route("Tasks")]
+[Route("[controller]/[action]")]
 public class TaskController : ControllerBase
 {
 private readonly IPublisher<CreateTask> _publisher;
@@ -85,21 +119,35 @@ public TaskController(IPublisher<CreateTask> publisher, IProjectionReader reader
 
 //.... create task code ..//
 
-[HttpGet("user/{userId}/")]
-public async Task<IActionResult> GetTasksByUserIdAsync(string userId)
+[HttpGet]
+public async Task<IActionResult> GetTasksByName(string name)
 {
-    UserId UserId = new UserId(userId);
 
-    ReadResult<TaskProjection> readResult = await _projectionReader.GetAsync<TaskProjection>(UserId);
+    ReadResult<TaskProjection> readResult = await _projectionReader.GetAsync<TaskProjection>(new TaskId("tenant"));
 
     if (readResult.IsSuccess == false)
         return NotFound();
 
-    return Ok(readResult.Data.State.Tasks);
+    var TasksByName = readResult.Data.GetTaskByName(name);
+
+
+    return Ok(TasksByName);
+
+    ////Get all tasks
+    //return Ok(readResult.Data.State.Tasks.Select(x => new TaskData
+    //{
+    //    CreatedAt = x.CreatedAt,
+    //    Id = x.Id,
+    //    Name = x.Name,
+    //    Timestamp = x.Timestamp,
+    //    UserId = x.UserId
+    //}));
 }
 ```
 
 ### Connect Dashboard
+
+(_The dashboard is not requerd_)
 
 If we hit this controller immediately after the first start, it could lead to a probable read error. \
 We need to give it some time to initialize our new projection store and build new versions of the projections. For an empty event store, it could take less than a few seconds but in order not to wait for this and verify that all working properly, we will check it manually.
@@ -108,18 +156,18 @@ We need to give it some time to initialize our new projection store and build ne
 It hosts inside our Application so add this missing code to our background service.
 
 ```csharp
-  protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-    {
-        logger.LogInformation("Starting service...");
-        cronusHost.Start();
-        
-        // Dashboard configuration
-        cronusDashboard = CronusApi.GetHost();
-        cronusApi.Provider = cronusDashboard.Services;
-        await cronusDashboard.StartAsync().ConfigureAwait(false);
-        
-        logger.LogInformation("Service started!");
-    }
+protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+{
+    logger.LogInformation("Starting service...");
+    cronusHost.Start();
+    
+    // Dashboard configuration
+    cronusDashboard = CronusApi.GetHost();
+    cronusApi.Provider = cronusDashboard.Services;
+    await cronusDashboard.StartAsync().ConfigureAwait(false);
+    
+    logger.LogInformation("Service started!");
+}
 ```
 
 Start our Cronus Service and API.&#x20;

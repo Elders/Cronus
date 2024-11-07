@@ -26,30 +26,39 @@ You can define a command with Cronus using the `ICommand` markup interface. All 
 {% endcontent-ref %}
 
 ```csharp
-// TODO: give relevant example
-[DataContract(Name = "13d0f763-0cb1-43ae-af03-614680c3575a")]
-public class CreateExample : ICommand
+[DataContract(Name = "857d960c-4b91-49cc-98fd-fa543906c52d")]
+public class CreateTask : ICommand
 {
-    CreateExample() {}
-    
-    public CreateExample(ExampleId id, ExampleName name)
+    public CreateTask() { }
+
+    public CreateTask(TaskId id, UserId userId, string name, DateTimeOffset timestamp)
     {
         if (id is null) throw new ArgumentNullException(nameof(id));
+        if (userId is null) throw new ArgumentNullException(nameof(userId));
         if (name is null) throw new ArgumentNullException(nameof(name));
+        if (timestamp == default) throw new ArgumentNullException(nameof(timestamp));
 
         Id = id;
+        UserId = userId;
         Name = name;
+        Timestamp = timestamp;
     }
 
     [DataMember(Order = 1)]
-    public ExampleId Id { get; private set; }
+    public TaskId Id { get; private set; }
 
     [DataMember(Order = 2)]
-    public ExampleName Name { get; private set; }
+    public UserId UserId { get; private set; }
+
+    [DataMember(Order = 3)]
+    public string Name { get; private set; }
+
+    [DataMember(Order = 4)]
+    public DateTimeOffset Timestamp { get; private set; }
 
     public override string ToString()
     {
-        return $"Create an example with id '{Id}' and name '{Name}'";
+        return $"Create a task with id '{Id}' and name '{Name}' for user [{UserId}].";
     }
 }
 ```
@@ -63,26 +72,34 @@ Cronus uses the `ToString()` method for logging, so you can override it to gener
 To publish a command, inject an instance of`IPublisher<ICommand>` into your code and invoke the `Publish()` method passing the command. This method will return `true` if the command has been published successfully through the configured transport. You can also use one of the overrides of the `Publish()` method to delay or schedule a command.
 
 ```csharp
-// TODO: give relevant example
-public class CreateExampleController : ControllerBase
+[ApiController]
+[Route("[controller]/[action]")]
+public class TaskController : ControllerBase
 {
-    private IPublisher<ICommand> publisher;
-    
-    public GetExampleController(IPublisher<ICommand> publisher)
+    private readonly IPublisher<ICommand> _publisher;
+
+    public TaskController(IPublisher<ICommand> publisher)
     {
-        this.publisher= publisher;
+        _publisher = publisher;
     }
 
-    public async Task<IActionResult> CreateExample(CreateExampleRequest request)
+    [HttpPost]
+    public IActionResult CreateTask(CreateTaskRequest request)
     {
-				var id = ExampleId.New(request.Tenant, request.Id);
-				var name = new ExampleName(request.Name);
-				var command = new CreateExample(id, name);
-        var published = publisher.Publish(command);
-        if (published)
-            return Accepted(id);
-        else
-            return StatusCode(406, "Unable to process the request");
+        string id = Guid.NewGuid().ToString();
+        string Userid = Guid.NewGuid().ToString();
+        TaskId taskId = new TaskId(id);
+        UserId userId = new UserId(Userid);
+        var expireDate = DateTimeOffset.UtcNow;
+        expireDate.AddDays(request.DaysActive);
+
+        CreateTask command = new CreateTask(taskId, userId, request.Name, expireDate);
+
+        if (_publisher.Publish(command) == false)
+        {
+            return Problem($"Unable to publish command. {command.Id}: {command.Name}");
+        };
+        return Ok(id);
     }
 }
 ```

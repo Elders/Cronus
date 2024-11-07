@@ -11,21 +11,32 @@ To create a projection, create a class for it that inherits `ProjectionDefinitio
 Use the `IEventHandler<TEvent>` interface to indicate that the projection can handle events of the specified event type. Implement this interface for each event type your projection needs to handle.
 
 ```csharp
-// TODO: give a relevant example
-[DataContract(Name = "bae8bd10-9903-4960-95c4-b4fa4688a860")]
-public class ExampleByIdProjection : ProjectionDefinition<ExampleByIdProjectionState, ExampleId>,
-    IEventHandler<ExampleCreated>
+[DataContract(Name = "c94513d1-e5ee-4aae-8c0f-6e85b63a4e03")]
+public class TaskProjection : ProjectionDefinition<TaskProjectionData, TaskId>,
+    IEventHandler<TaskCreated>
 {
-		public ExampleByIdProjection()
-		{
-		    Subscribe<ExampleCreated>(x => x.Id);
-		}
+    public TaskProjection()
+    {
+        Subscribe<TaskCreated>(x => new TaskId(x.Id.NID));
+    }
 
-		public void Handle(ExampleCreated @event)
-		{
-		    State.Id = @event.Id;
-		    State.Name = @event.Name;
-		}
+    public Task HandleAsync(TaskCreated @event)
+    {
+        Data task = new Data();
+
+        task.Id = @event.Id;
+        task.UserId = @event.UserId;
+        task.Name = @event.Name;
+        task.Timestamp = @event.Timestamp;
+
+        State.Tasks.Add(task);
+
+        return Task.CompletedTask;
+    }
+    public IEnumerable<Data> GetTaskByName(string name)
+    {
+        return State.Tasks.Where(x => x.Name.Equals(name));
+    }
 }
 ```
 
@@ -36,15 +47,35 @@ Create a class for the projection state. The state of the projection gets serial
 {% endcontent-ref %}
 
 ```csharp
-// TODO: give a relevant example
-[DataContract(Name = "ed879ae7-e238-43eb-99f0-3a39c6c935e0")]
-public class ExampleByIdProjectionState
+[DataContract(Name = "c135893e-b9e3-453a-b0e0-53545094ec5d")]
+public class TaskProjectionData
 {
-    [DataMember(Order = 1)]
-    public ExampleId Id { get; set; }
+    public TaskProjectionData()
+    {
+        Tasks = new List<Data>();
+    }
 
-    [DataMember(Order = 2)]
-    public ExampleName Name { get; set; }
+    [DataMember(Order = 1)]
+    public List<Data> Tasks { get; set; }
+
+    [DataContract(Name = "317b3cbb-593a-4ffc-8284-d5f5c599d8ae")]
+    public class Data
+    {
+        [DataMember(Order = 1)]
+        public TaskId Id { get; set; }
+
+        [DataMember(Order = 2)]
+        public UserId UserId { get; set; }
+
+        [DataMember(Order = 3)]
+        public string Name { get; set; }
+
+        [DataMember(Order = 4)]
+        public DateTimeOffset CreatedAt { get; set; }
+
+        [DataMember(Order = 5)]
+        public DateTimeOffset Timestamp { get; set; }
+    }
 }
 ```
 

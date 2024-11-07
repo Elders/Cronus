@@ -5,25 +5,24 @@ An entity is an object that has an identity and is mutable. Each entity is uniqu
 You can define an entity with Cronus using the `Entity<TAggregateRoot, TEntityState>` base class. To publish an event from an entity, use the `Apply(IEvent @event)` method provided by the base class.
 
 ```csharp
-// TODO: give a relevant example
-
-public class ExampleEntity : Entity<Example, ExampleEntityState>
+public class Wallet : Entity<UserAggregate, WalletState>
 {
-		public ExampleEntity(Example root, IEntityId entityId, ExampleEntityTitle title) 
-				: base(root, entityId)
+    public Wallet(UserAggregate root, WalletId entityId, string name, decimal amount) : base(root, entityId)
     {
-        state.Title = title;
+        state.EntityId = entityId;
+        state.Name = name;
+        state.Amount = amount;
     }
 
-    public void DoSomething()
-		{
-				Apply(new SomethingHappend(state.EntityId));
-		}
+    public void AddMoney(decimal value, UserId userId)
+    {
 
-    public void DoSomethingElse()
-		{
-				Apply(new SomethingElseHappend(state.EntityId));
-		}
+        if (value > 0)
+        {
+            IEvent @event = new AddMoney(state.EntityId, userId, value, DateTimeOffset.UtcNow);
+            Apply(@event);
+        }
+    }
 }
 ```
 
@@ -40,23 +39,13 @@ Use the abstract helper class `EntityState<TEntityId>` to create an entity state
 To change the state of an entity, create event-handler methods for each event with a method signature `public void When(Event e) { ... }`.
 
 ```csharp
-// TODO: give a relevant example
-
-public class ExampleEntityState : EntityState<ExampleEntityId>
+public class WalletState : EntityState<WalletId>
 {
-    public override ExampleEntityId EntityId { get; set; }
+    public override WalletId EntityId { get; set; }
 
-    public ExampleEntityTitle Title { get; set; }
+    public string Name { get; set; }
 
-    public void When(SomethingHappend e)
-    {
-
-    }
-
-    public void When(SomethingElseHappend e)
-		{
-
-		}
+    public decimal Amount { get; set; }
 }
 ```
 
@@ -65,16 +54,14 @@ public class ExampleEntityState : EntityState<ExampleEntityId>
 All entity ids must implement the `IEntityId` interface. Since Cronus uses [URNs](https://en.wikipedia.org/wiki/Uniform_Resource_Name) for ids that will require implementing the [URN specification](https://tools.ietf.org/html/rfc8141) as well. If you don't want to do that, you can use the provided helper base class `EntityId<TAggregateRootId>`.
 
 ```csharp
-// TODO: give a relevant example
-
-[DataContract(Name = "5154f78a-cd72-43f0-a445-a5d3fa44a461")]
-public class ExampleEntityId : EntityId<ConcertId>
+[DataContract(Name = "1d23c591-219f-491e-bfb1-a775fe2751b6")]
+public class WalletId : EntityId<UserId>
 {
-    ExampleEntityId() { }
+    protected override ReadOnlySpan<char> EntityName => "wallet";
 
-    public ExampleEntityId(string idBase, ConcertId rootId) : base(idBase, rootId, "exampleentity")
-    {
-    }
+    WalletId() { }
+
+    public WalletId(string id, UserId idBase) : base(id.AsSpan(), idBase) { }
 }
 ```
 
