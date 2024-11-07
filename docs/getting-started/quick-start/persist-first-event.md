@@ -5,32 +5,32 @@
 First, we need to add a UserId and TaskId to have the [Identifications ](../../cronus-framework/domain-modeling/ids.md)of these two entities
 
 {% tabs %}
-{% tab title="UserId" %}
+{% tab title="TaskId" %}
 ```csharp
-[DataContract(Name = "12dc51ee-4f84-494e-9174-f142472b4cc8")]
+[DataContract(Name = "d5e50e1f-5886-4608-9361-9fe0eb440a6b")]
 public class TaskId : AggregateRootId
 {
     TaskId() { }
 
-    public TaskId(string id) : base(id, "task", "tenant") { }
+    public TaskId(string id) : base("tenant", "task", id) { }
 }
 ```
 {% endtab %}
 
-{% tab title="TaskId" %}
+{% tab title="UserId" %}
 ```csharp
 [DataContract(Name = "00f5463f-633a-49f4-9fbe-f98e0911c2f5")]
 public class UserId : AggregateRootId
 {
     UserId() { }
 
-    public UserId(string id) : base(id, "user", "tenant") { }
+    public UserId(string id) : base("tenant", "user", id) { }
 }
 ```
 {% endtab %}
 {% endtabs %}
 
-Then we need to create a Cronus [command](../../cronus-framework/domain-modeling/messages/commands.md) for task creation and an [Event ](../../cronus-framework/domain-modeling/messages/events.md)that will indicate that the event has occurred.
+Then we need to create a Cronus [command](../../cronus-framework/domain-modeling/messages/commands.md) for task creation and an [Event](../../cronus-framework/domain-modeling/messages/events.md) that will indicate that the event has occurred.
 
 {% tabs %}
 {% tab title="Command" %}
@@ -40,17 +40,17 @@ public class CreateTask : ICommand
 {
     public CreateTask() { }
 
-    public CreateTask(TaskId id, UserId userId, string name, DateTimeOffset deadline)
+    public CreateTask(TaskId id, UserId userId, string name, DateTimeOffset timestamp)
     {
         if (id is null) throw new ArgumentNullException(nameof(id));
         if (userId is null) throw new ArgumentNullException(nameof(userId));
         if (name is null) throw new ArgumentNullException(nameof(name));
-        if (deadline == default) throw new ArgumentNullException(nameof(deadline));
+        if (timestamp == default) throw new ArgumentNullException(nameof(timestamp));
 
         Id = id;
         UserId = userId;
         Name = name;
-        Deadline = deadline;
+        Timestamp = timestamp;
     }
 
     [DataMember(Order = 1)]
@@ -63,7 +63,7 @@ public class CreateTask : ICommand
     public string Name { get; private set; }
 
     [DataMember(Order = 4)]
-    public DateTimeOffset Deadline { get; private set; }
+    public DateTimeOffset Timestamp { get; private set; }
 
     public override string ToString()
     {
@@ -80,13 +80,13 @@ public class TaskCreated : IEvent
 {
     TaskCreated() { }
 
-    public TaskCreated(TaskId id, UserId userId, string name, DateTimeOffset deadline)
+    public TaskCreated(TaskId id, UserId userId, string name, DateTimeOffset timestamp)
     {
         Id = id;
         UserId = userId;
         Name = name;
         CreatedAt = DateTimeOffset.UtcNow;
-        Deadline = deadline;
+        Timestamp = timestamp;
     }
 
     [DataMember(Order = 1)]
@@ -102,7 +102,7 @@ public class TaskCreated : IEvent
     public DateTimeOffset CreatedAt { get; private set; }
 
     [DataMember(Order = 5)]
-    public DateTimeOffset Deadline { get; private set; }
+    public DateTimeOffset Timestamp { get; private set; }
 
     public override string ToString()
     {
@@ -122,12 +122,12 @@ public class TaskAggregate : AggregateRoot<TaskState>
 {
     public TaskAggregate() { }
 
-    public TaskAggregate(TaskId id, UserId userId, string name, DateTimeOffset deadline)
+    public void CreateTask(TaskId id, UserId userId, string name, DateTimeOffset deadline)
     {
-        Event @event = new TaskCreated(id, userId, name, deadline);
+        IEvent @event = new TaskCreated(id, userId, name, deadline);
         Apply(@event);
     }
- }
+}
 ```
 
 Apply method will pass the event to the state of an aggregate and change its state.
@@ -151,7 +151,7 @@ public class TaskState : AggregateRootState<TaskAggregate, TaskId>
         UserId = @event.UserId;
         Name = @event.Name;
         CreatedAt = @event.CreatedAt;
-        Deadline = @event.Deadline;cd 
+        Deadline = @event.Timestamp;
     }
 }
 ```
@@ -160,17 +160,18 @@ Finally, we can create an [Application Service](../../cronus-framework/domain-mo
 
 ```csharp
 [DataContract(Name = "ef669879-5d35-4cb7-baea-39a7c46c9e13")]
-public class TaskAppService : ApplicationService<TaskAggregate>,
- ICommandHandler<CreateTask>
+public class TaskService : ApplicationService<TaskAggregate>,
+ICommandHandler<CreateTask>
 {
-    public TaskAppService(IAggregateRepository repository) : base(repository) { }
+    public TaskService(IAggregateRepository repository) : base(repository) { }
 
     public async Task HandleAsync(CreateTask command)
     {
         ReadResult<TaskAggregate> taskResult = await repository.LoadAsync<TaskAggregate>(command.Id).ConfigureAwait(false);
         if (taskResult.NotFound)
         {
-            var task = new TaskAggregate(command.Id, command.UserId, command.Name, command.Deadline);
+            var task = new TaskAggregate();
+            task.CreateTask(command.Id, command.UserId, command.Name, DateTimeOffset.UtcNow);
             await repository.SaveAsync(task).ConfigureAwait(false);
         }
     }
@@ -187,30 +188,32 @@ Now we need a controller to publish our commands and create tasks.&#x20;
 {% tab title="Controller" %}
 ```csharp
 [ApiController]
-[Route("Tasks")]
+[Route("[controller]/[action]")]
 public class TaskController : ControllerBase
 {
-    private readonly IPublisher<CreateTask> _publisher;
+    private readonly IPublisher<ICommand> _publisher;
 
-    public TaskController(IPublisher<CreateTask> publisher)
+    public TaskController(IPublisher<ICommand> publisher)
     {
         _publisher = publisher;
     }
 
-    [HttpPost(Name = "create")]
+    [HttpPost]
     public IActionResult CreateTask(CreateTaskRequest request)
     {
         string id = Guid.NewGuid().ToString();
+        string Userid = Guid.NewGuid().ToString();
         TaskId taskId = new TaskId(id);
-        UserId userId = new UserId(request.UserId);
+        UserId userId = new UserId(Userid);
+        var expireDate = DateTimeOffset.UtcNow;
+        expireDate.AddDays(request.DaysActive);
 
-        CreateTask command = new CreateTask(taskId, userId, request.Name, request.Deadline);
+        CreateTask command = new CreateTask(taskId, userId, request.Name, expireDate);
 
-        if(_publisher.Publish(command) == false)
+        if (_publisher.Publish(command) == false)
         {
             return Problem($"Unable to publish command. {command.Id}: {command.Name}");
         };
-
         return Ok(id);
     }
 }
@@ -222,13 +225,10 @@ public class TaskController : ControllerBase
 public class CreateTaskRequest
 {
     [Required]
-    public string UserId { get; set; }
-
-    [Required]
     public string Name { get; set; }
 
     [Required]
-    public DateTimeOffset Deadline { get; set; }
+    public int DaysActive { get; set; }
 }
 ```
 {% endtab %}

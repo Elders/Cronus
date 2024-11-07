@@ -45,6 +45,8 @@ This is the minimum set of packages for our Cronus host to work.
 
 Add _appsettings.json_ with the following configuration into the project folder.
 
+//This should be int the Service and in the Api.
+
 {% code title="appsettings.json" %}
 ```json
 {
@@ -52,22 +54,96 @@ Add _appsettings.json_ with the following configuration into the project folder.
     "BoundedContext": "taskmanager",
     "Tenants": [ "tenant" ],
     "Transport": {
-      "RabbitMQ": {
-        "Server": "127.0.0.1",
-        "VHost": "taskmanager"
-      }
+        "RabbitMQ": {
+            "Server": "127.0.0.1",
+            "VHost": "taskmanager"
+        },
+        "PublicRabbitMQ": [
+            {
+                "Server": "127.0.0.1",
+                "VHost": "unicom-public",
+                "FederatedExchange": {
+                    "UpstreamUri": "guest:guest@localhost:5672",
+                    "VHost": "unicom-public",
+                    "UseSsl": false,
+                    "MaxHops": 1
+                }
+            }
+        ]
     },
     "Persistence": {
-      "Cassandra": {
-        "ConnectionString": "Contact Points=127.0.0.1;Port=9042;Default Keyspace=taskmanager_es"
-      }
+        "Cassandra": {
+            "ConnectionString": "Contact Points=127.0.0.1;Port=9042;Default Keyspace=taskmanager_es"
+        }
+    },
+    "Projections": {
+        "Cassandra": {
+            "ConnectionString": "Contact Points=127.0.0.1;Port=9042;Default Keyspace=taskmanager_projections"
+        }
+    },
+    "Cluster": {
+        "Consul": {
+            "Address": "127.0.0.1"
+        }
+    },
+    "AtomicAction": {
+        "Redis": {
+            "ConnectionString": "127.0.0.1:6379"
+        }
     }
-  }
+}
 }
 ```
 {% endcode %}
 
 You can also see how the Cronus application can be configured in more detail in [Configuration.](../../cronus-framework/configuration.md)
+
+This is the code that your _Program.cs_ in TaskManager.Service should contain.
+
+{% code title="Program.cs" %}
+```c#
+using Cronus11Service;
+using Elders.Cronus;
+
+IHost host = Host.CreateDefaultBuilder(args)
+        .ConfigureServices((hostContext, services) =>
+        {
+            services.AddHostedService<Worker>();
+            services.AddCronus(hostContext.Configuration);
+
+        })
+        .UseDefaultServiceProvider((context, options) =>
+        {
+            options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
+            options.ValidateScopes = false;
+            options.ValidateOnBuild = false;
+        })
+        .Build();
+
+host.Run();
+```
+{% endcode %}
+
+This is the code that you should add in the _Program.cs_ in TaskManager.Api.
+
+{% code title="Program.cs" %}
+```c#
+builder.Services.AddCronus(builder.Configuration);
+
+builder.Host.UseDefaultServiceProvider((context, options) =>
+{
+    options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
+    options.ValidateScopes = false;
+    options.ValidateOnBuild = false;
+}
+);
+
+....
+
+app.UseCronusAspNetCore();
+
+```
+{% endcode %}
 
 ### F5&#x20;
 
