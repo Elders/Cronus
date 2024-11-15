@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Elders.Cronus.IntegrityValidation;
-using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore.Integrity;

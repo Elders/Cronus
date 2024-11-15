@@ -25,6 +25,11 @@ namespace Elders.Cronus.EventStore.AutoUpdater
         public static AutoUpdaterStatus None = new AutoUpdaterStatus("none");
 
         /// <summary>
+        /// Update has been requested/>
+        /// </summary>
+        public static AutoUpdaterStatus Requested = new AutoUpdaterStatus("requested");
+
+        /// <summary>
         /// Update is currently in process/>
         /// </summary>
         public static AutoUpdaterStatus Triggered = new AutoUpdaterStatus("triggered");

@@ -8,7 +8,7 @@ using System.Linq;
 namespace Elders.Cronus;
 
 [CronusStartup(Bootstraps.EventStoreIndices)]
-public class EventStoreIndicesStartup : ICronusStartup
+public class EventStoreIndicesStartup : ICronusStartup /// TODO: make this <see cref="ICronusTenantStartup"/>
 {
     private TenantsOptions tenants;
     private CronusHostOptions cronusHostOptions;

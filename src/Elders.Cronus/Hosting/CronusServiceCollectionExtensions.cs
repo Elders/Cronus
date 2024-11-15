@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using Elders.Cronus.AtomicAction;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.Hosting.Heartbeat;

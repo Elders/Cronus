@@ -1,5 +1,8 @@
-﻿using Elders.Cronus.EventStore.AutoUpdater.Events;
+﻿using Elders.Cronus.EventStore.AutoUpdater.Commands;
+using Elders.Cronus.EventStore.AutoUpdater.Events;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Elders.Cronus.EventStore.AutoUpdater;
 
@@ -7,49 +10,77 @@ public class AutoUpdater : AggregateRoot<AutoUpdaterState>
 {
     AutoUpdater() { }
 
-    public AutoUpdater(AutoUpdaterId id, uint majorVersion, string bc, DateTimeOffset timestamp)
+    public AutoUpdater(AutoUpdaterId id, string bc)
     {
-        Apply(new AutoUpdaterInitialized(id, majorVersion, bc, timestamp));
+        Apply(new AutoUpdaterInitialized(id, bc, DateTimeOffset.UtcNow));
     }
 
-    public void TriggerUpdate(uint versionToUpdateTo, DateTimeOffset timestamp)
+    public void BulkRequestUpdate(IEnumerable<SingleAutoUpdate> updates)
     {
-        if (ShouldTriggerUpdate(versionToUpdateTo)) // TODO: Add more meaningful checks
+        var ordered = updates.OrderBy(x => x.Sequence);
+        foreach (var update in ordered)
         {
-            Apply(new AutoUpdateTriggered(state.Id, state.CurrentVersion, versionToUpdateTo, state.BoundedContext, timestamp));
+            RequestUpdate(update.Name, update.Sequence, update.IsSystem);
         }
     }
 
-    public void FinishUpdate(DateTimeOffset timestamp)
+    public void RequestUpdate(string name, uint sequence, bool isSystem)
     {
-        if (state.VersionStatus.Equals(AutoUpdaterStatus.Triggered))
+        if (state.AutoUpdateExists(name) == false)
         {
-            Apply(new AutoUpdateFinished(state.Id, state.CurrentVersion, state.BoundedContext, timestamp));
+            Apply(new AutoUpdateRequested(state.Id, name, sequence, state.BoundedContext, isSystem, DateTimeOffset.UtcNow));
+        }
+
+        HandleTriggerOfAutoUpdates(AutoUpdaterStatus.Requested, name, sequence);
+    }
+
+    public void FinishUpdate(string name)
+    {
+        if (ExistsInTriggeredState(name, out var update))
+        {
+            Apply(new AutoUpdateFinished(state.Id, update.Name, update.Sequence, state.BoundedContext, update.IsSystemUpdate, DateTimeOffset.UtcNow));
+
+            AutoUpdate autoUpdate = state.GetByName(name);
+            HandleTriggerOfAutoUpdates(AutoUpdaterStatus.Finished, name, autoUpdate.Sequence);
         }
     }
 
-    public void FailUpdate(DateTimeOffset timestamp)
+    public void FailUpdate(string name)
     {
-        if (state.VersionStatus.Equals(AutoUpdaterStatus.Triggered))
+        if (ExistsInTriggeredState(name, out var update))
         {
-            Apply(new AutoUpdateFailed(state.Id, state.CurrentVersion, state.BoundedContext, timestamp));
+            Apply(new AutoUpdateFailed(state.Id, update.Name, update.Sequence, state.BoundedContext, update.IsSystemUpdate, DateTimeOffset.UtcNow));
         }
     }
 
-    private bool ShouldTriggerUpdate(uint versionToUpdateTo)
+    private void HandleTriggerOfAutoUpdates(AutoUpdaterStatus currentStatus, string name, uint currentExecutionSequence) // TODO: failed status?
     {
-        if (state.VersionStatus.Equals(AutoUpdaterStatus.Failed))
+        if (currentStatus.Equals(AutoUpdaterStatus.Requested) || currentStatus.Equals(AutoUpdaterStatus.Finished))
         {
-            if (versionToUpdateTo == state.CurrentVersion)
+            if (state.ThereIsAutoUpdateInProgress() == false)
+            {
+                AutoUpdate nextUpdate = state.GetNextToExecute(currentExecutionSequence);
+                if (nextUpdate is not null)
+                {
+                    Apply(new AutoUpdateTriggered(state.Id, nextUpdate.Name, nextUpdate.Sequence, state.BoundedContext, nextUpdate.IsSystemUpdate, DateTimeOffset.UtcNow));
+                }
+            }
+        }
+    }
+
+    private bool ExistsInTriggeredState(string name, out AutoUpdate theUpdate)
+    {
+        theUpdate = null;
+
+        AutoUpdate autoUpdate = state.GetByName(name);
+        if (autoUpdate is not null)
+        {
+            if (autoUpdate.Status.Equals(AutoUpdaterStatus.Triggered))
+            {
+                theUpdate = autoUpdate;
                 return true;
-            else
-                return false;
+            }
         }
-        else if (versionToUpdateTo > state.CurrentVersion &&
-            state.VersionStatus == AutoUpdaterStatus.None ||
-            state.VersionStatus == AutoUpdaterStatus.Finished)
-            return true;
-        else
-            return false;
+        return false;
     }
 }

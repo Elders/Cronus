@@ -8,9 +8,10 @@ public class FailAutoUpdate : ISystemCommand
 {
     FailAutoUpdate() { }
 
-    public FailAutoUpdate(AutoUpdaterId id, DateTimeOffset timestamp)
+    public FailAutoUpdate(AutoUpdaterId id, string name, DateTimeOffset timestamp)
     {
         Id = id;
+        Name = name;
         Timestamp = timestamp;
     }
 
@@ -18,5 +19,8 @@ public class FailAutoUpdate : ISystemCommand
     public AutoUpdaterId Id { get; private set; }
 
     [DataMember(Order = 2)]
+    public string Name { get; private set; }
+
+    [DataMember(Order = 3)]
     public DateTimeOffset Timestamp { get; private set; }
 }
