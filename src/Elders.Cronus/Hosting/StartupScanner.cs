@@ -23,6 +23,16 @@ public class CronusStartupScanner
         return startups;
     }
 
+    public IEnumerable<Type> ScanForCronusTenantStartups()
+    {
+        var startups = assemblyScanner
+            .Scan()
+            .Where(type => type.IsAbstract == false && type.IsClass && typeof(ICronusTenantStartup).IsAssignableFrom(type))
+            .OrderBy(type => GetCronusStartupRank(type));
+
+        return startups;
+    }
+
     private int GetCronusStartupRank(Type type)
     {
         CronusStartupAttribute cronusStartupAttribute = type

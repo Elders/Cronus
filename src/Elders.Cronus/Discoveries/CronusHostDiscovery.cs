@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Elders.Cronus.AutoUpdates;
 using Elders.Cronus.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +19,9 @@ public class CronusHostDiscovery : DiscoveryBase<ICronusHost>
             .Concat(DiscoverEvents(context))
             .Concat(DiscoverPublicEvents(context))
             .Concat(DiscoverSignals(context))
-            .Concat(DiscoverMigrations(context));
+            .Concat(DiscoverMigrations(context))
+            .Concat(DiscoverAutoUpdates(context))
+            .Concat(DiscoverCronusTenantStartups(context));
 
         return new DiscoveryResult<ICronusHost>(models);
     }
@@ -36,6 +39,19 @@ public class CronusHostDiscovery : DiscoveryBase<ICronusHost>
         }
 
         yield return new DiscoveredModel(typeof(Cronus.ProjectionsStartup), typeof(Cronus.ProjectionsStartup), ServiceLifetime.Transient); // TODO: Check if this is alrady registered in the foreach above. If yes we can remove this line. Elase we have to figure out what is going on
+    }
+
+    protected virtual IEnumerable<DiscoveredModel> DiscoverCronusTenantStartups(DiscoveryContext context)
+    {
+        foreach (var startupType in context.Assemblies.Find<ICronusTenantStartup>())
+        {
+            var singletonPerTenantOpenGeneric = typeof(SingletonPerTenant<>);
+            Type[] typeArgs = { startupType };
+            var ggwp = singletonPerTenantOpenGeneric.MakeGenericType(typeArgs);
+
+            yield return new DiscoveredModel(typeof(ICronusTenantStartup), provider => ((SingletonPerTenant<ICronusTenantStartup>)provider.GetRequiredService(ggwp)).Get(), ServiceLifetime.Transient) { CanAddMultiple = true };
+            yield return new DiscoveredModel(startupType, startupType, ServiceLifetime.Transient);
+        }
     }
 
     protected virtual IEnumerable<DiscoveredModel> DiscoverCommands(DiscoveryContext context)
@@ -105,5 +121,25 @@ public class CronusHostDiscovery : DiscoveryBase<ICronusHost>
 
             return directInterfaces;
         }
+    }
+
+    protected virtual IEnumerable<DiscoveredModel> DiscoverAutoUpdates(DiscoveryContext context)
+    {
+        IEnumerable<Type> loadedMigrations = context.Assemblies.Find<IAutoUpdate>();
+        foreach (Type type in loadedMigrations)
+        {
+            yield return new DiscoveredModel(typeof(IAutoUpdate), type, ServiceLifetime.Transient) { CanAddMultiple = true };
+
+            foreach (Type migrationType in loadedMigrations)
+            {
+                var singletonPerTenantOpenGeneric = typeof(SingletonPerTenant<>);
+                Type[] typeArgs = { migrationType };
+                var ggwp = singletonPerTenantOpenGeneric.MakeGenericType(typeArgs);
+                yield return new DiscoveredModel(ggwp, provider => ((SingletonPerTenant<IAutoUpdate>)provider.GetRequiredService(ggwp)).Get(), ServiceLifetime.Transient) { CanOverrideDefaults = true };
+            }
+        }
+
+        yield return new DiscoveredModel(typeof(IAutoUpdaterStrategy), provider => provider.GetRequiredService<SingletonPerTenant<AutoUpdaterStrategy>>().Get(), ServiceLifetime.Transient) { CanOverrideDefaults = true };
+        yield return new DiscoveredModel(typeof(AutoUpdaterStrategy), typeof(AutoUpdaterStrategy), ServiceLifetime.Transient);
     }
 }
