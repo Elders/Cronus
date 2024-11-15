@@ -3,11 +3,12 @@ using System.Runtime.Serialization;
 
 namespace Elders.Cronus.EventStore.AutoUpdater.Events;
 
-[DataContract(Name = "adeff439-3624-4af7-a894-e2a19da863ae")]
-public class AutoUpdateFinished : ISystemEvent
+[DataContract(Name = "2150b60e-7ce4-4d40-bf44-556e1c53e8a1")]
+public class AutoUpdateRequested : ISystemEvent
 {
-    AutoUpdateFinished() { }
-    public AutoUpdateFinished(AutoUpdaterId id, string name, uint sequence, string boundedContext, bool isSystem, DateTimeOffset timestamp)
+    AutoUpdateRequested() { }
+
+    public AutoUpdateRequested(AutoUpdaterId id, string name, uint sequence, string boundedContext, bool isSystem, DateTimeOffset timestamp)
     {
         Id = id;
         Name = name;

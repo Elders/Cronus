@@ -8,10 +8,9 @@ public class AutoUpdaterInitialized : ISystemEvent
 {
     AutoUpdaterInitialized() { }
 
-    public AutoUpdaterInitialized(AutoUpdaterId id, uint firstVersion, string boundedContext, DateTimeOffset timestamp)
+    public AutoUpdaterInitialized(AutoUpdaterId id, string boundedContext, DateTimeOffset timestamp)
     {
         Id = id;
-        InitialVersion = firstVersion;
         BoundedContext = boundedContext;
         Timestamp = timestamp;
     }
@@ -20,11 +19,8 @@ public class AutoUpdaterInitialized : ISystemEvent
     public AutoUpdaterId Id { get; private set; }
 
     [DataMember(Order = 2)]
-    public uint InitialVersion { get; private set; }
-
-    [DataMember(Order = 3)]
     public string BoundedContext { get; private set; }
 
-    [DataMember(Order = 4)]
+    [DataMember(Order = 3)]
     public DateTimeOffset Timestamp { get; private set; }
 }
