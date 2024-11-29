@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Elders.Cronus.Projections;
 
-public class LatestProjectionVersionFinder
+public sealed class LatestProjectionVersionFinder
 {
     private readonly IEnumerable<IProjectionVersionFinder> projectionFinders;
 
