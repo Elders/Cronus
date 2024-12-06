@@ -98,28 +98,25 @@ public sealed class RebuildProjectionSequentially_Job : CronusJob<RebuildProject
             {
                 OnAggregateStreamLoadedAsync = async stream =>
                 {
-                    List<IEvent> events = [];
+                    List<AggregateEventRaw> rawEvents = [];
                     foreach (string eventTypeContract in projectionEventsContractIds)
                     {
                         var interested = stream.Commits
                             .SelectMany(x => x.Events)
                             .Where(x => IsInterested(eventTypeContract, x.Data));
 
-                        foreach (var eventRaw in interested)
-                        {
-                            var @event = serializer.DeserializeFromBytes<IEvent>(eventRaw.Data).Unwrap();
-                            if (@event is null)
-                            {
-                                logger.LogError("Failed to deserialize event from data {data}.", eventRaw.Data);
-                                return;
-                            }
-
-                            events.Add(@event);
-                        }
+                        rawEvents.AddRange(interested);
                     }
 
-                    foreach (var @event in events.OrderBy(x => x.Timestamp))
+                    foreach (var eventRaw in rawEvents.OrderBy(x => x.Revision).ThenBy(x => x.Position))
                     {
+                        var @event = serializer.DeserializeFromBytes<IEvent>(eventRaw.Data).Unwrap();
+                        if (@event is null)
+                        {
+                            logger.LogError("Failed to deserialize event from data {data}.", eventRaw.Data);
+                            return;
+                        }
+
                         Task projectionStoreTask = projectionWriter.SaveAsync(projectionType, @event, version);
                         Task replayTask = eventSourcedProjection.ReplayEventAsync(@event);
 
