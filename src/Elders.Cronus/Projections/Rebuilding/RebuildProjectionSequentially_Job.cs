@@ -98,43 +98,44 @@ public sealed class RebuildProjectionSequentially_Job : CronusJob<RebuildProject
             {
                 OnAggregateStreamLoadedAsync = async stream =>
                 {
+                    List<AggregateEventRaw> rawEvents = [];
                     foreach (string eventTypeContract in projectionEventsContractIds)
                     {
-                        var eventsData = stream.Commits
+                        var interested = stream.Commits
                             .SelectMany(x => x.Events)
-                            .Where(x => IsInterested(eventTypeContract, x.Data))
-                            .Select(x => x.Data);
+                            .Where(x => IsInterested(eventTypeContract, x.Data));
 
-                        foreach (var eventRaw in eventsData)
+                        rawEvents.AddRange(interested);
+                    }
+
+                    foreach (var eventRaw in rawEvents.OrderBy(x => x.Revision).ThenBy(x => x.Position))
+                    {
+                        var @event = serializer.DeserializeFromBytes<IEvent>(eventRaw.Data).Unwrap();
+                        if (@event is null)
                         {
-                            IEvent @event = serializer.DeserializeFromBytes<IEvent>(eventRaw);
-                            @event = @event.Unwrap();
-                            if (@event is null)
-                            {
-                                logger.LogError("Failed to deserialize event from data {data}.", eventRaw);
-                                return;
-                            }
-
-                            Task projectionStoreTask = projectionWriter.SaveAsync(projectionType, @event, version);
-                            Task replayTask = eventSourcedProjection.ReplayEventAsync(@event);
-
-                            try
-                            {
-                                await Task.WhenAll([projectionStoreTask, replayTask]).ConfigureAwait(false);
-                            }
-                            catch (Exception ex)
-                            {
-                                if (projectionStoreTask.IsFaulted)
-                                    logger.LogError(ex, "Failed to persist event!");
-
-                                if (replayTask.IsFaulted)
-                                    logger.LogError(ex, "Failed to replay event!");
-
-                                continue;
-                            }
-
-                            progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
+                            logger.LogError("Failed to deserialize event from data {data}.", eventRaw.Data);
+                            return;
                         }
+
+                        Task projectionStoreTask = projectionWriter.SaveAsync(projectionType, @event, version);
+                        Task replayTask = eventSourcedProjection.ReplayEventAsync(@event);
+
+                        try
+                        {
+                            await Task.WhenAll([projectionStoreTask, replayTask]).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (projectionStoreTask.IsFaulted)
+                                logger.LogError(ex, "Failed to persist event!");
+
+                            if (replayTask.IsFaulted)
+                                logger.LogError(ex, "Failed to replay event!");
+
+                            continue;
+                        }
+
+                        progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
                     }
                 },
                 NotifyProgressAsync = async options =>
