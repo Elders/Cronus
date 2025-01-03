@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
-using Elders.Cronus.AtomicAction;
-using Elders.Cronus.Userfull;
-using Elders.Cronus.IntegrityValidation;
 using System.Threading.Tasks;
+using Elders.Cronus.AtomicAction;
+using Elders.Cronus.IntegrityValidation;
+using Elders.Cronus.Userfull;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.EventStore;
 
@@ -13,8 +14,9 @@ public sealed class AggregateRepository : IAggregateRepository
     readonly IEventStore eventStore;
     readonly IIntegrityPolicy<EventStream> integrityPolicy;
     private readonly CronusAggregateCommitInterceptor aggregateInterceptor;
+    private readonly ILogger<AggregateRepository> logger;
 
-    public AggregateRepository(IEventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy, CronusAggregateCommitInterceptor aggregateInterceptor)
+    public AggregateRepository(IEventStoreFactory eventStoreFactory, IAggregateRootAtomicAction atomicAction, IIntegrityPolicy<EventStream> integrityPolicy, CronusAggregateCommitInterceptor aggregateInterceptor, ILogger<AggregateRepository> logger)
     {
         if (eventStoreFactory is null) throw new ArgumentNullException(nameof(eventStoreFactory));
         if (atomicAction is null) throw new ArgumentNullException(nameof(atomicAction));
@@ -24,6 +26,7 @@ public sealed class AggregateRepository : IAggregateRepository
         this.atomicAction = atomicAction;
         this.integrityPolicy = integrityPolicy;
         this.aggregateInterceptor = aggregateInterceptor;
+        this.logger = logger;
     }
 
     /// <summary>
@@ -63,10 +66,29 @@ public sealed class AggregateRepository : IAggregateRepository
         {
             if (aggregateRoot.UncommittedPublicEvents is not null && aggregateRoot.UncommittedPublicEvents.Any())
             {
-                throw new Exception("Public events cannot be applied by themselves. If you wanna publish a public event then you need to have an IEvent in the same revision. It is not ok to update aggregate state with public events!");
+                throw new Exception("Public events cannot be applied by themselves. If you want to publish a public event you need to have at least one private event (IEvent) within the same commit. It is not recommended to update aggregate state with public events!");
             }
 
             return default;
+        }
+
+        DateTimeOffset lastTimestamp = default;
+        foreach (var @event in aggregateRoot.UncommittedEvents)
+        {
+            if (@event.Timestamp == default)
+                throw new InvalidOperationException("Cannot use default timestamp for an aggregate event.");
+
+            if (lastTimestamp == @event.Timestamp)
+            {
+                var errorMessage = "There are multiple events with the same timestamp within the same aggregate commit. Loss of data may occur!";
+#if DEBUG
+                throw new InvalidOperationException(errorMessage);
+#else
+                logger?.LogWarning(errorMessage);
+#endif
+            }
+
+            lastTimestamp = @event.Timestamp;
         }
 
         var arCommit = new AggregateCommit(aggregateRoot.State.Id.RawId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList(), DateTime.UtcNow.ToFileTimeUtc());
