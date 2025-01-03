@@ -1,12 +1,12 @@
-﻿using Elders.Cronus.Tests.TestModel;
-using Machine.Specifications;
-using Elders.Cronus.EventStore.InMemory;
-using Elders.Cronus.EventStore;
+﻿using System.Collections.Generic;
 using Elders.Cronus.AtomicAction;
 using Elders.Cronus.AtomicAction.InMemory;
-using Elders.Cronus.IntegrityValidation;
-using System.Collections.Generic;
+using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.InMemory;
 using Elders.Cronus.EventStore.Integrity;
+using Elders.Cronus.IntegrityValidation;
+using Elders.Cronus.Tests.TestModel;
+using Machine.Specifications;
 
 namespace Elders.Cronus.Tests.InMemoryEventStoreSuite;
 
@@ -21,7 +21,7 @@ public class When_saving_aggregate_root_in_event_store
         eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
         integrityPpolicy = new EventStreamIntegrityPolicy();
         eventStoreFactory = new EventStoreFactory(eventStore, null);
-        aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy, new CronusAggregateCommitInterceptor(new List<EmptyAggregateTransformer>()));
+        aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy, new CronusAggregateCommitInterceptor(new List<EmptyAggregateTransformer>()), null);
         id = new TestAggregateId();
         aggregateRoot = new TestAggregateRoot(id);
     };
