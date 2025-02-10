@@ -77,7 +77,7 @@ public static class CronusServiceCollectionExtensions
         {
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("cronus"));
 
-            services.AddSingleton<ActivitySource>(new ActivitySource("Elders.Cronus", "10.0.0"));
+            services.AddSingleton<ActivitySource>(new ActivitySource("Elders.Cronus", "11.0.0"));
         }
 
         return services;
