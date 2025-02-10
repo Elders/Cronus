@@ -110,28 +110,25 @@ public sealed class AggregateRepository : IAggregateRepository
 
     static bool CheckForDuplicateEventTimestamps<AR>(AR aggregateRoot) where AR : IAggregateRoot
     {
-        bool hasDuplicateTimestamps = false;
         DateTimeOffset temp = default;
         foreach (IEvent uncommittedEvent in aggregateRoot.UncommittedEvents)
         {
             if (temp == uncommittedEvent.Timestamp)
             {
-                hasDuplicateTimestamps = true;
-                break;
+                return true;
             }
             else if (temp > uncommittedEvent.Timestamp)
             {
                 // We are exiting the fast check and we will do the slow one. 
-                hasDuplicateTimestamps = aggregateRoot.UncommittedEvents
-                                                    .Select(e => e.Timestamp)
-                                                    .GroupBy(t => t)
-                                                    .Where(g => g.Count() > 1)
-                                                    .Any();
-                break;
+                return aggregateRoot.UncommittedEvents
+                                    .Select(e => e.Timestamp)
+                                    .GroupBy(t => t)
+                                    .Where(g => g.Count() > 1)
+                                    .Any();
             }
             temp = uncommittedEvent.Timestamp;
         }
 
-        return hasDuplicateTimestamps;
+        return false;
     }
 }
