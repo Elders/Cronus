@@ -1,6 +1,7 @@
 ﻿using Elders.Cronus.EventStore.Index;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore;
@@ -21,7 +22,7 @@ internal sealed class MissingPersistence : IEventStoreFactory, IEventStore, IMes
 
     public Task<bool> DeleteAsync(AggregateEventRaw eventRaw) => throw new NotImplementedException(MissingPersistenceMessage);
 
-    public Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions) => throw new NotImplementedException(MissingPersistenceMessage);
+    public Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions, CancellationToken cancellationToken = default) => throw new NotImplementedException(MissingPersistenceMessage);
 
     public IAsyncEnumerable<IndexRecord> GetAsync(string indexRecordId) => throw new NotImplementedException(MissingPersistenceMessage);
 
