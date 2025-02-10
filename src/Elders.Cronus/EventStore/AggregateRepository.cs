@@ -76,11 +76,7 @@ public sealed class AggregateRepository : IAggregateRepository
             return default;
         }
 
-        bool hasDuplicateTimestamps = aggregateRoot.UncommittedEvents
-                                                    .Select(e => e.Timestamp)
-                                                    .GroupBy(t => t)
-                                                    .Where(g => g.Count() > 1)
-                                                    .Any();
+        bool hasDuplicateTimestamps = CheckForDuplicateEventTimestamps(aggregateRoot);
 
         if (hasDuplicateTimestamps)
         {
@@ -110,5 +106,32 @@ public sealed class AggregateRepository : IAggregateRepository
         {
             throw new AggregateStateFirstLevelConcurrencyException($"Unable to save AR {Environment.NewLine}{arCommit.ToString()}", result.Errors.MakeJustOneException());
         }
+    }
+
+    static bool CheckForDuplicateEventTimestamps<AR>(AR aggregateRoot) where AR : IAggregateRoot
+    {
+        bool hasDuplicateTimestamps = false;
+        DateTimeOffset temp = default;
+        foreach (IEvent uncommittedEvent in aggregateRoot.UncommittedEvents)
+        {
+            if (temp == uncommittedEvent.Timestamp)
+            {
+                hasDuplicateTimestamps = true;
+                break;
+            }
+            else if (temp > uncommittedEvent.Timestamp)
+            {
+                // We are exiting the fast check and we will do the slow one. 
+                hasDuplicateTimestamps = aggregateRoot.UncommittedEvents
+                                                    .Select(e => e.Timestamp)
+                                                    .GroupBy(t => t)
+                                                    .Where(g => g.Count() > 1)
+                                                    .Any();
+                break;
+            }
+            temp = uncommittedEvent.Timestamp;
+        }
+
+        return hasDuplicateTimestamps;
     }
 }
