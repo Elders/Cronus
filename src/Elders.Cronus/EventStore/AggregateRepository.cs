@@ -11,6 +11,9 @@ namespace Elders.Cronus.EventStore;
 
 public sealed class AggregateRepository : IAggregateRepository
 {
+    const string DuplicateTimestampErrorMessage = "There are multiple events with the same timestamp within the same aggregate commit. Loss of data may occur when using projections! DO NOT use a variable inside an aggregate method to store a timestamp and to set that to new events' timestamp. Instead, use DatetimeOffset.UtcNow.";
+
+
     readonly IAggregateRootAtomicAction atomicAction;
     readonly IEventStore eventStore;
     readonly IIntegrityPolicy<EventStream> integrityPolicy;
@@ -73,22 +76,20 @@ public sealed class AggregateRepository : IAggregateRepository
             return default;
         }
 
-        IEnumerable<IGrouping<DateTimeOffset, DateTimeOffset>> duplicateTimestamps = aggregateRoot.UncommittedEvents
-         .Select(e => e.Timestamp)
-        .GroupBy(t => t)
-        .Where(g => g.Count() > 1);
+        bool hasDuplicateTimestamps = aggregateRoot.UncommittedEvents
+                                                    .Select(e => e.Timestamp)
+                                                    .GroupBy(t => t)
+                                                    .Where(g => g.Count() > 1)
+                                                    .Any();
 
-            if (duplicateTimestamps != null)
-            {
-                var errorMessage = "There are multiple events with the same timestamp within the same aggregate commit. Loss of data may occur!";
+        if (hasDuplicateTimestamps)
+        {
 #if DEBUG
-                throw new InvalidOperationException(errorMessage);
+            throw new InvalidOperationException(DuplicateTimestampErrorMessage);
 #else
-                logger?.LogWarning(errorMessage);
+                logger?.LogWarning(DuplicateTimestampErrorMessage);
 #endif
-            }
-
-        
+        }
 
         var arCommit = new AggregateCommit(aggregateRoot.State.Id.RawId, aggregateRoot.Revision, aggregateRoot.UncommittedEvents.ToList(), aggregateRoot.UncommittedPublicEvents.ToList(), DateTime.UtcNow.ToFileTimeUtc());
         arCommit = await aggregateInterceptor.OnAppendingAsync(arCommit).ConfigureAwait(false);
