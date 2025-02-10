@@ -47,28 +47,26 @@ public class CronusHeartbeat : IHeartbeat
             catch (Exception ex) when (ex is TaskCanceledException or ObjectDisposedException)
             {
                 // Someone has cancled the task during the delay. In this case we just return without any error.
-
             }
-            catch (Exception ex)
-            {
-                // failed to send heartbeat 
-                logger.WarnException(ex, () => "Failed to send heartbeat.");
-            }
+            catch (Exception ex) when (True(() => logger.LogWarning(ex, "Failed to send heartbeat."))) { }
         }
 
-        logger.LogInformation("Heartbeat has been stopped.");
+        if (logger.IsEnabled(LogLevel.Information))
+            logger.LogInformation("Heartbeat has been stopped.");
     }
 
     private void OnHeartbeatOptionsChanged(HeartbeatOptions newOptions)
     {
-        logger.Debug(() => "Heartbeat options re-loaded with {@options}", newOptions);
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug("Heartbeat options re-loaded with {@options}", newOptions);
 
         options = newOptions;
     }
 
     private void OnTenantsOptionsChanged(TenantsOptions newOptions)
     {
-        logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug("Cronus tenants options re-loaded with {@options}", newOptions);
 
         tenants = newOptions;
     }

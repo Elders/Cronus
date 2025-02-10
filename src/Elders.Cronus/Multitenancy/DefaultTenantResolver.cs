@@ -28,7 +28,7 @@ public class DefaultTenantResolver :
         if (id is null == true) throw new ArgumentNullException(nameof(id));
 
         string tenant;
-        if (TryResolve(id.RawId, out tenant))
+        if (TryResolve(id.RawId.Span, out tenant))
             return tenant;
 
         throw new NotSupportedException($"Unable to resolve tenant for id {id}");
@@ -49,7 +49,7 @@ public class DefaultTenantResolver :
         if (aggregateCommit is null == true) throw new ArgumentNullException(nameof(aggregateCommit));
 
         string tenant;
-        if (TryResolve(aggregateCommit.AggregateRootId, out tenant))
+        if (TryResolve(aggregateCommit.AggregateRootId.Span, out tenant))
             return tenant;
 
         throw new NotSupportedException($"Unable to resolve tenant for id {aggregateCommit.AggregateRootId}");
@@ -89,7 +89,7 @@ public class DefaultTenantResolver :
         return source;
     }
 
-    bool TryResolve(byte[] id, out string tenant)
+    bool TryResolve(ReadOnlySpan<byte> id, out string tenant)
     {
         tenant = string.Empty;
         var urn = System.Text.Encoding.UTF8.GetString(id);

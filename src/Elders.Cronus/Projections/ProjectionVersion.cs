@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 namespace Elders.Cronus.Projections;
 
 [DataContract(Name = "bb4883b9-c3a5-48e5-8ba1-28fb94d061ac")]
-public sealed class ProjectionVersion : ValueObject<ProjectionVersion>
+public sealed class ProjectionVersion : IEquatable<ProjectionVersion>
 {
     private ProjectionVersion() { }
 
@@ -57,7 +57,7 @@ public sealed class ProjectionVersion : ValueObject<ProjectionVersion>
         return Status == ProjectionStatus.Unknown || Status == ProjectionStatus.NotPresent;
     }
 
-    public override bool Equals(ProjectionVersion other)
+    public bool Equals(ProjectionVersion other)
     {
         if (other is null) return false;
 

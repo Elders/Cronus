@@ -1,10 +1,10 @@
-﻿using Elders.Cronus.Migration.Middleware.Tests.TestModel.Bar;
-using Elders.Cronus.Migration.Middleware.Tests.TestModel.Foo;
-using Elders.Cronus.EventStore;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System;
+using Elders.Cronus.EventStore;
+using Elders.Cronus.Migration.Middleware.Tests.TestModel.Bar;
+using Elders.Cronus.Migration.Middleware.Tests.TestModel.Foo;
 
 namespace Elders.Cronus.Migrations.TestMigration;
 
@@ -42,7 +42,7 @@ public class MergeAggregatesMigration : IMigration<AggregateCommit, IEnumerable<
     {
         if (ShouldApply(current))
         {
-            var urnRaw = new Urn(Encoding.UTF8.GetString(current.AggregateRootId));
+            var urnRaw = new Urn(Encoding.UTF8.GetString(current.AggregateRootId.Span));
             var urn = AggregateRootId.Parse(urnRaw.Value);
             var fooId = new FooId(urn.Id, urn.Tenant);
             LoadFromEventStore(fooId);
@@ -71,7 +71,7 @@ public class MergeAggregatesMigration : IMigration<AggregateCommit, IEnumerable<
 
     public bool ShouldApply(AggregateCommit current)
     {
-        var urnRaw = new Urn(Encoding.UTF8.GetString(current.AggregateRootId));
+        var urnRaw = new Urn(Encoding.UTF8.GetString(current.AggregateRootId.Span));
         var urn = AggregateRootId.Parse(urnRaw.Value);
         string currentAggregateName = urn.AggregateRootName;
 

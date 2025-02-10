@@ -21,7 +21,9 @@ public sealed class LoggingAggregateRepository : IAggregateRepository
                                         .AddScope(Log.AggregateName, id.AggregateRootName)
                                         .AddScope(Log.AggregateId, id.Value)))
         {
-            logger.Debug(() => "Loading aggregate...");
+            if (logger.IsEnabled(LogLevel.Debug))
+                logger.LogDebug("Loading aggregate...");
+
             return await realDeal.LoadAsync<AR>(id).ConfigureAwait(false);
         }
     }
@@ -33,7 +35,9 @@ public sealed class LoggingAggregateRepository : IAggregateRepository
                                         .AddScope(Log.AggregateId, GetAggregateRootId(aggregateRoot))))
         {
             await realDeal.SaveAsync<AR>(aggregateRoot).ConfigureAwait(false);
-            logger.Debug(() => "Aggregate has been saved.");
+
+            if (logger.IsEnabled(LogLevel.Debug))
+                logger.LogDebug("Aggregate has been saved.");
         }
     }
 
@@ -44,7 +48,7 @@ public sealed class LoggingAggregateRepository : IAggregateRepository
         try { aggregateId = aggregateRoot.State.Id.Value; }
         catch (Exception ex)
         {
-            logger.ErrorException(ex, () => $"Unable to save aggregate. There is a problem with the ID for {typeof(AR).Name}");
+            logger.LogError(ex, $"Unable to save aggregate. There is a problem with the ID for {typeof(AR).Name}");
             throw new Exception($"Unable to save aggregate. There is a problem with the ID for {typeof(AR).Name}. Check the inner exception if you want to be confused even more.", ex);
         }
 

@@ -1,4 +1,6 @@
-﻿namespace Elders.Cronus.EventStore;
+﻿using System;
+
+namespace Elders.Cronus.EventStore;
 
 /// <summary>
 /// Represents an aggregate event in a raw form. This means that you need to take care
@@ -7,7 +9,7 @@
 /// </summary>
 public sealed class AggregateEventRaw
 {
-    public AggregateEventRaw(byte[] aggregateRootId, byte[] data, int revision, int position, long timestamp)
+    public AggregateEventRaw(ReadOnlyMemory<byte> aggregateRootId, byte[] data, int revision, int position, long timestamp)
     {
         AggregateRootId = aggregateRootId;
         Data = data;
@@ -16,7 +18,7 @@ public sealed class AggregateEventRaw
         Timestamp = timestamp;
     }
 
-    public byte[] AggregateRootId { get; private set; }
+    public ReadOnlyMemory<byte> AggregateRootId { get; private set; }
 
     public byte[] Data { get; private set; }
 

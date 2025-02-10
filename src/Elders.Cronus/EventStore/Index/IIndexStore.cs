@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,9 +9,6 @@ public interface IIndexStore
     Task ApendAsync(IndexRecord indexRecord);
     Task DeleteAsync(IndexRecord indexRecord);
     IAsyncEnumerable<IndexRecord> GetAsync(string indexRecordId);
-    [Obsolete("Will be removed in v11!")]
-    Task<LoadIndexRecordsResult> GetAsync(string indexRecordId, string paginationToken, int pageSize);
-
     Task<long> GetCountAsync(string indexRecordId);
 }
 

@@ -79,7 +79,8 @@ public class TenantResolver : ITenantResolver
 
     private void OnTenantsOptionsChanged(TenantsOptions newOptions)
     {
-        logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug("Cronus tenants options re-loaded with {@options}", newOptions);
 
         tenants = newOptions;
     }

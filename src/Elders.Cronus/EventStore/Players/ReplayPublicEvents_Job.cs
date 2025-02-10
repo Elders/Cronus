@@ -70,13 +70,13 @@ public class ReplayPublicEvents_Job : CronusJob<ReplayPublicEvents_JobData>
             }
         };
 
-        await player.EnumerateEventStore(@operator, opt).ConfigureAwait(false);
+        await player.EnumerateEventStore(@operator, opt, cancellationToken).ConfigureAwait(false);
 
         Data.IsCompleted = true;
         Data.Timestamp = DateTimeOffset.UtcNow;
         Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-        logger.Info(() => $"The job has been completed.");
+        logger.LogInformation("A job has completed.");
         return JobExecutionStatus.Completed;
     }
 }

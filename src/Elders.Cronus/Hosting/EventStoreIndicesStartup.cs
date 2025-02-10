@@ -8,7 +8,7 @@ using System.Linq;
 namespace Elders.Cronus;
 
 [CronusStartup(Bootstraps.EventStoreIndices)]
-public class EventStoreIndicesStartup : ICronusStartup
+public class EventStoreIndicesStartup : ICronusStartup /// TODO: make this <see cref="ICronusTenantStartup"/>
 {
     private TenantsOptions tenants;
     private CronusHostOptions cronusHostOptions;
@@ -56,7 +56,8 @@ public class EventStoreIndicesStartup : ICronusStartup
     {
         if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false) // Check for difference between tenants and newOptions
         {
-            logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+            if (logger.IsEnabled(LogLevel.Debug))
+                logger.LogDebug("Cronus tenants options re-loaded with {@options}", newOptions);
 
             // Find the difference between the old and new tenants
             // and bootstrap the new tenants
@@ -75,7 +76,8 @@ public class EventStoreIndicesStartup : ICronusStartup
 
     private void CronusHostOptionsChanged(CronusHostOptions newOptions)
     {
-        logger.Debug(() => "Cronus host options re-loaded with {@options}", newOptions);
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug("Cronus host options re-loaded with {@options}", newOptions);
 
         cronusHostOptions = newOptions;
     }

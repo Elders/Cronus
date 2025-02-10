@@ -7,7 +7,7 @@ public class FooBarId : AggregateRootId
 {
     FooBarId() { }
 
-    public FooBarId(AggregateRootId id) : base(id.Tenant, "FooBar", id) { }
+    public FooBarId(AggregateRootId id) : base(id.Tenant, "FooBar", id.Id) { }
 
     public FooBarId(string id, string tenant) : base(tenant, "FooBar", id) { }
 }

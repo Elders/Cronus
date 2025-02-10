@@ -29,10 +29,7 @@ public abstract class MigrationWorkflowBase<TInput, TResult> : Workflow<TInput, 
             if (migration.ShouldApply(input))
                 result = migration.Apply(input);
         }
-        catch (Exception ex)
-        {
-            logger.ErrorException(ex, () => "Error while applying migration");
-        }
+        catch (Exception ex) when (True(() => logger.LogError(ex, "Error while applying migration"))) { }
 
         return Task.FromResult(result);
     }

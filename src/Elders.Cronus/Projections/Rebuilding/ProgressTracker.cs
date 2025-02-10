@@ -8,6 +8,7 @@ using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
 
+
 namespace Elders.Cronus.Projections.Rebuilding;
 
 public class ProgressTracker
@@ -139,7 +140,7 @@ public class ProgressTracker
                 Interlocked.Increment(ref EventTypeProcessed[executionId].Value);
 
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => $"Error when saving aggregate commit for projection {ProjectionName}")) { }
+        catch (Exception ex) when (False(() => logger.LogError(ex, "Error when saving aggregate commit for projection {ProjectionName}", ProjectionName))) { }
     }
 
     object gate = new object();

@@ -22,7 +22,7 @@ public class CronusEventStore : IEventStore
         {
             await eventStore.AppendAsync(aggregateCommit).ConfigureAwait(false);
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to append aggregate with id = {aggregateCommit.AggregateRootId}. \n Exception: {ex.Message}"))
+        catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to append aggregate with ID = {cronus_arid}.", aggregateCommit.AggregateRootId)))
         {
             throw;
         }
@@ -34,7 +34,7 @@ public class CronusEventStore : IEventStore
         {
             await eventStore.AppendAsync(aggregateEventRaw).ConfigureAwait(false);
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to append aggregate with id = {aggregateEventRaw.AggregateRootId}. \n Exception: {ex.Message}"))
+        catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to append aggregate with ID = {cronus_arid}.", aggregateEventRaw.AggregateRootId)))
         {
             throw;
         }
@@ -46,7 +46,7 @@ public class CronusEventStore : IEventStore
         {
             return await eventStore.DeleteAsync(eventRaw).ConfigureAwait(false);
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to delete aggregate event with id = {eventRaw.AggregateRootId}. \n Exception: {ex.Message}"))
+        catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to delete aggregate event with ID = {cronus_arid}.", eventRaw.AggregateRootId)))
         {
             throw;
         }
@@ -58,7 +58,7 @@ public class CronusEventStore : IEventStore
         {
             return await eventStore.LoadAggregateEventRaw(indexRecord).ConfigureAwait(false);
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to load aggregate event raw with id = {indexRecord.AggregateRootId}. \n Exception: {ex.Message}"))
+        catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to load aggregate event raw with ID = {cronus_arid}.", indexRecord.AggregateRootId)))
         {
             throw;
         }
@@ -70,7 +70,7 @@ public class CronusEventStore : IEventStore
         {
             return await eventStore.LoadAsync(aggregateId).ConfigureAwait(false);
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId}. \n Exception: {ex.Message}"))
+        catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to load aggregate with ID = {cronus_arid}.", aggregateId)))
         {
             throw;
         }
@@ -82,7 +82,7 @@ public class CronusEventStore : IEventStore
         {
             return await eventStore.LoadWithPagingAsync(aggregateId, pagingOptions).ConfigureAwait(false);
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => $"Failed to load aggregate with id = {aggregateId} and Paging options {pagingOptions}. \n Exception: {ex.Message}"))
+        catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to load aggregate with ID = {cronus_arid} and Paging options {@pagingOptions}.", aggregateId, pagingOptions)))
         {
             throw;
         }

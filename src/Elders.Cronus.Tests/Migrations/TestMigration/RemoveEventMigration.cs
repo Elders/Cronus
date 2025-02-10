@@ -1,8 +1,8 @@
-﻿using Elders.Cronus.Migration.Middleware.Tests.TestModel.Foo;
-using Elders.Cronus.EventStore;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System;
+using Elders.Cronus.EventStore;
+using Elders.Cronus.Migration.Middleware.Tests.TestModel.Foo;
 
 namespace Elders.Cronus.Migrations.TestMigration;
 
@@ -29,7 +29,7 @@ public class RemoveEventMigration : IMigration<AggregateCommit, IEnumerable<Aggr
 
     public bool ShouldApply(AggregateCommit current)
     {
-        var urnRaw = new Urn(Encoding.UTF8.GetString(current.AggregateRootId));
+        var urnRaw = new Urn(Encoding.UTF8.GetString(current.AggregateRootId.Span));
         var urn = AggregateRootId.Parse(urnRaw.Value);
         string currentAggregateName = urn.AggregateRootName;
 

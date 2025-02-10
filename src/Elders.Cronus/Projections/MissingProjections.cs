@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Elders.Cronus.Projections.Cassandra;
 
@@ -15,11 +14,6 @@ internal sealed class MissingProjections : IProjectionStore, IInitializableProje
     }
 
     public Task<bool> InitializeAsync(ProjectionVersion version)
-    {
-        throw new NotImplementedException(MissingProjectionsMessage);
-    }
-
-    public IAsyncEnumerable<ProjectionCommit> LoadAsync(ProjectionVersion version, IBlobId projectionId)
     {
         throw new NotImplementedException(MissingProjectionsMessage);
     }

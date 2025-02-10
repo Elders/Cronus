@@ -1,8 +1,8 @@
-﻿using Elders.Cronus.EventStore;
-using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
+using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.MessageProcessing;
 
@@ -29,12 +29,9 @@ internal sealed class AggregateCommitPublisher : IAggregateCommitInterceptor
             bool publishResult = publisher.Publish(origin, BuildHeaders(origin));
 
             if (publishResult == false)
-                logger.Error(() => "Unable to publish aggregate commit.");
+                logger.LogError("Unable to publish aggregate commit.");
         }
-        catch (Exception ex)
-        {
-            logger.ErrorException(ex, () => "Unable to publish aggregate commit.");
-        }
+        catch (Exception ex) when (True(() => logger.LogError(ex, "Unable to publish aggregate commit."))) { }
 
         return Task.CompletedTask;
     }
@@ -45,7 +42,7 @@ internal sealed class AggregateCommitPublisher : IAggregateCommitInterceptor
     {
         Dictionary<string, string> messageHeaders = new Dictionary<string, string>
         {
-            { MessageHeader.AggregateRootId, Convert.ToBase64String(commit.AggregateRootId) }
+            { MessageHeader.AggregateRootId, Convert.ToBase64String(commit.AggregateRootId.Span) }
         };
 
         foreach (var trace in contextAccessor.CronusContext.Trace)

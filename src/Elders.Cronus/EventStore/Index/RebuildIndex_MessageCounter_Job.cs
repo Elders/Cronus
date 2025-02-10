@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.Index;
 
-public class RebuildIndex_MessageCounter_Job : CronusJob<RebuildEventCounterIndex_JobData>
+public sealed class RebuildIndex_MessageCounter_Job : CronusJob<RebuildEventCounterIndex_JobData>
 {
     private readonly ICronusContextAccessor contextAccessor;
     private readonly TypeContainer<IEvent> eventTypes;
@@ -46,13 +46,14 @@ public class RebuildIndex_MessageCounter_Job : CronusJob<RebuildEventCounterInde
             {
                 try
                 {
-                    logger.Debug(() => $"Message counter cluster ping.");
+                    if (logger.IsEnabled(LogLevel.Debug))
+                        logger.LogDebug("Message counter cluster ping.");
                     await cluster.PingAsync(Data, ct).ConfigureAwait(false);
                     await Task.Delay(5000, ct).ConfigureAwait(false);
                 }
                 catch (TaskCanceledException)
                 {
-                    logger.Info(() => $"Message counter cluster ping has been stopped.");
+                    logger.LogInformation("Message counter cluster ping has been stopped.");
                 }
             }
         }, ct);
@@ -61,7 +62,8 @@ public class RebuildIndex_MessageCounter_Job : CronusJob<RebuildEventCounterInde
         {
             string eventTypeId = eventType.GetContractId();
 
-            logger.Info(() => $"Message counter for {eventTypeId} has been reset");
+            if (logger.IsEnabled(LogLevel.Information))
+                logger.LogInformation("Message counter for {cronus_MessageType} has been reset.", eventType.Name);
 
             var countTask = indexStore.GetCountAsync(eventTypeId);
             var resetTask = messageCounter.ResetAsync(eventType);
@@ -75,7 +77,7 @@ public class RebuildIndex_MessageCounter_Job : CronusJob<RebuildEventCounterInde
         Data.IsCompleted = true;
         Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-        logger.Info(() => $"The job has been completed.");
+        logger.LogInformation("The job has been completed.");
 
         return JobExecutionStatus.Completed;
     }

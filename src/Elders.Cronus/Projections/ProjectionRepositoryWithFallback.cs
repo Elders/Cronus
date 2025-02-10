@@ -211,11 +211,11 @@ public class ProjectionRepositoryWithFallback<TPrimary, TFallback> : IProjection
             if (exceptions.Any())
             {
                 var exception = new AggregateException(exceptions);
-                logger.WarnException(exception, () => report.ToString());
+                logger.LogWarning(exception, report.ToString());
             }
             else
             {
-                logger.Info(() => report.ToString());
+                logger.LogInformation(report.ToString());
             }
         }
 
@@ -224,12 +224,12 @@ public class ProjectionRepositoryWithFallback<TPrimary, TFallback> : IProjection
             if (exceptions.Any())
             {
                 var exception = new AggregateException(exceptions);
-                logger.WarnException(exception, () => report.ToString());
+                logger.LogWarning(exception, report.ToString());
                 throw exception;
             }
             else
             {
-                logger.Info(() => report.ToString());
+                logger.LogInformation(report.ToString());
             }
         }
     }

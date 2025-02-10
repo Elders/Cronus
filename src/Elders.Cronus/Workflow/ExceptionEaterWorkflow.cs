@@ -17,7 +17,7 @@ public sealed class ExceptionEaterWorkflow<TContext> : Workflow<TContext> where 
     }
     protected override async Task RunAsync(Execution<TContext> execution)
     {
-        try { await workflow.RunAsync(execution.Context).ConfigureAwait(false); } // here we shouldn't elide async kwyword 'cause it'll raise an exception outside this catch
-        catch (Exception ex) when (logger.ErrorException(ex, () => "Somewhere along the way an exception was thrown and it was eaten. See inner exception")) { }
+        try { await workflow.RunAsync(execution.Context).ConfigureAwait(false); } // here we shouldn't remove async keyword 'cause it'll raise an exception outside this catch
+        catch (Exception ex) when (True(() => logger.LogError(ex, "Somewhere along the way an exception was thrown and it was eaten. See inner exception"))) { }
     }
 }

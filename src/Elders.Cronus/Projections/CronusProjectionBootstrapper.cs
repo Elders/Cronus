@@ -13,17 +13,15 @@ internal class CronusProjectionBootstrapper
 {
     private readonly IServiceProvider serviceProvider;
     private readonly ProjectionFinderViaReflection projectionFinderViaReflection;
-    private readonly LatestProjectionVersionFinder projectionFinder;
     private readonly IPublisher<ICommand> publisher;
     private readonly ILogger<CronusProjectionBootstrapper> logger;
     private CronusHostOptions cronusHostOptions;
     private TenantsOptions tenants;
 
-    public CronusProjectionBootstrapper(IServiceProvider serviceProvider, ProjectionFinderViaReflection projectionFinderViaReflection, LatestProjectionVersionFinder projectionFinder, IOptionsMonitor<CronusHostOptions> cronusHostOptions, IOptionsMonitor<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher, IOptionsMonitor<CronusHostOptions> cronusOptionsMonitor, ILogger<CronusProjectionBootstrapper> logger)
+    public CronusProjectionBootstrapper(IServiceProvider serviceProvider, ProjectionFinderViaReflection projectionFinderViaReflection, IOptionsMonitor<CronusHostOptions> cronusHostOptions, IOptionsMonitor<TenantsOptions> tenantsOptions, IPublisher<ICommand> publisher, IOptionsMonitor<CronusHostOptions> cronusOptionsMonitor, ILogger<CronusProjectionBootstrapper> logger)
     {
         this.serviceProvider = serviceProvider;
         this.projectionFinderViaReflection = projectionFinderViaReflection;
-        this.projectionFinder = projectionFinder;
         this.publisher = publisher;
         this.cronusHostOptions = cronusHostOptions.CurrentValue;
         this.tenants = tenantsOptions.CurrentValue;
@@ -59,8 +57,9 @@ internal class CronusProjectionBootstrapper
             var cronusContext = cronusContextFactory.Create(tenant, scopedServiceProvider.ServiceProvider);
 
             IInitializableProjectionStore storeInitializer = scopedServiceProvider.ServiceProvider.GetRequiredService<IInitializableProjectionStore>();
+            LatestProjectionVersionFinder finder = serviceProvider.GetRequiredService<LatestProjectionVersionFinder>();
 
-            foreach (ProjectionVersion viaReflection in projectionFinder.GetProjectionVersionsToBootstrap())
+            foreach (ProjectionVersion viaReflection in finder.GetProjectionVersionsToBootstrap())
             {
                 await storeInitializer.InitializeAsync(viaReflection).ConfigureAwait(false);
             }
@@ -83,7 +82,8 @@ internal class CronusProjectionBootstrapper
     {
         if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false) // Check for difference between tenants and newOptions
         {
-            logger.Debug(() => "Cronus tenants options re-loaded with {@options}", newOptions);
+            if (logger.IsEnabled(LogLevel.Debug))
+                logger.LogDebug("Cronus host options re-loaded with {@options}", newOptions);
 
             // Find the difference between the old and new tenants
             // and bootstrap the new tenants
@@ -99,7 +99,8 @@ internal class CronusProjectionBootstrapper
 
     private void CronusHostOptionsChanged(CronusHostOptions newOptions)
     {
-        logger.Debug(() => "Cronus host options re-loaded with {@options}", newOptions);
+        if (logger.IsEnabled(LogLevel.Debug))
+            logger.LogDebug("Cronus host options re-loaded with {@options}", newOptions);
 
         cronusHostOptions = newOptions;
 

@@ -45,16 +45,14 @@ public abstract class CronusJob<TData> : ICronusJob<TData>
         {
             using (logger.BeginScope(s => s.AddScope("cronus_job_name", Name)))
             {
-                logger.Info(() => "Initializing job...");
+                logger.LogInformation("Initializing job...");
 
                 await SyncInitialStateAsync(cluster, cancellationToken).ConfigureAwait(false);
                 return await RunJobWithLoggerAsync(cluster, cancellationToken).ConfigureAwait(false);
             }
         }
-        catch (Exception ex)
+        catch (Exception ex) when (True(() => logger.LogError(ex, "A job run has failed!")))
         {
-            logger.ErrorException(ex, () => "Job run has failed.");
-
             return JobExecutionStatus.Failed;
         }
     }
@@ -73,10 +71,10 @@ public abstract class CronusJob<TData> : ICronusJob<TData>
             using (logger.BeginScope(s => s
                        .AddScope(Log.JobData, System.Text.Json.JsonSerializer.Serialize<TData>(Data))))
             {
-                logger.Info(() => "Job state synced.");
+                logger.LogInformation("Job state synced.");
             }
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => "Error when syncing initial state of a job")) { }
+        catch (Exception ex) when (True(() => logger.LogError(ex, "Error while syncing initial state of a job."))) { }
     }
 
     private Task<JobExecutionStatus> RunJobWithLoggerAsync(IClusterOperations cluster, CancellationToken cancellationToken = default)
@@ -86,11 +84,11 @@ public abstract class CronusJob<TData> : ICronusJob<TData>
             using (logger.BeginScope(s => s
                     .AddScope("cronus_job_data", System.Text.Json.JsonSerializer.Serialize<TData>(Data))))
             {
-                logger.Info(() => "Job started...");
+                logger.LogInformation("A job has started...");
                 return RunJobAsync(cluster, cancellationToken);
             }
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => "Error on RunJobWithLoggerAsync"))
+        catch (Exception ex) when (True(() => logger.LogError(ex, "Error on RunJobWithLoggerAsync")))
         {
             return Task.FromResult(JobExecutionStatus.Failed);
         }

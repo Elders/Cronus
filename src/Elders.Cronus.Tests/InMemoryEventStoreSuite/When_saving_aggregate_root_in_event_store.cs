@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Elders.Cronus.AtomicAction;
-using Elders.Cronus.AtomicAction.InMemory;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.EventStore.InMemory;
 using Elders.Cronus.EventStore.Integrity;
@@ -19,7 +18,7 @@ public class When_saving_aggregate_root_in_event_store
         eventStoreStorage = new InMemoryEventStoreStorage();
         eventStore = new InMemoryEventStore(eventStoreStorage);
         eventStorePlayer = new InMemoryEventStorePlayer(eventStoreStorage);
-        integrityPpolicy = new EventStreamIntegrityPolicy();
+        integrityPpolicy = new EventStreamIntegrityPolicy(null);
         eventStoreFactory = new EventStoreFactory(eventStore, null);
         aggregateRepository = new AggregateRepository(eventStoreFactory, versionService, integrityPpolicy, new CronusAggregateCommitInterceptor(new List<EmptyAggregateTransformer>()), null);
         id = new TestAggregateId();

@@ -28,8 +28,9 @@ public sealed class PublicEventsPlayer : ISystemTrigger,
             ReplayPublicEvents_Job job = jobFactory.CreateJob(signal);
             JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
 
-            logger.Debug(() => "Replay public events finished.");
+            if (logger.IsEnabled(LogLevel.Debug))
+                logger.LogDebug("Replay public events finished.");
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => "Failed to replay public events.")) { }
+        catch (Exception ex) when (True(() => logger.LogError(ex, "Failed to replay public events."))) { }
     }
 }

@@ -18,7 +18,7 @@ public class When__EventStreamPolicy_is_applied_to_a_correct__EventStream__
             AggregateCommit commit3 = new AggregateCommit(aggregateId, 3, new List<Cronus.IEvent>(), new List<IPublicEvent>(), DateTimeOffset.Now.ToFileTime());
             eventStream = new EventStream(new[] { commit1, commit3, commit2 });
 
-            integrityPolicy = new EventStreamIntegrityPolicy();
+            integrityPolicy = new EventStreamIntegrityPolicy(null);
         };
 
     Because of = () => integrityResult = integrityPolicy.Apply(eventStream);

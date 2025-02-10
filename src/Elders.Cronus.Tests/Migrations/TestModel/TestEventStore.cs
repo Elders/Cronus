@@ -1,8 +1,9 @@
-﻿using Elders.Cronus.EventStore;
-using Elders.Cronus.EventStore.Index;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
+using Elders.Cronus.EventStore.Index;
 
 namespace Elders.Cronus.Migration.Middleware.Tests.TestModel;
 
@@ -29,7 +30,7 @@ public class TestEventStore : IEventStore
     }
     public Task<EventStream> LoadAsync(IBlobId aggregateId)
     {
-        var es = new EventStream(Storage.Where(x => x.AggregateRootId.SequenceEqual(aggregateId.RawId)).ToList());
+        var es = new EventStream(Storage.Where(x => x.AggregateRootId.Span.SequenceEqual(aggregateId.RawId.Span)).ToList());
         return Task.FromResult(es);
     }
 

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Cassandra;
 using Elders.Cronus.Projections.Versioning;
@@ -71,7 +71,7 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
                     }
                     if (result.HasError)
                     {
-                        log.Error(() => "Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + result.Error + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
+                        log.LogError("Failed to update projection because the projection version failed to load. Please replay the projection to restore the state. Self-heal hint!" + Environment.NewLine + result.Error + Environment.NewLine + $"\tProjectionName:{projectionName}" + Environment.NewLine + $"\tEvent:{@event}");
                     }
                 }
             }
@@ -91,7 +91,7 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
                     }
                 }
 
-                log.LogWarning(ex, "Failed to save event {event} in projection {projection}.", @event.GetType().Name, projectionType.Name);
+                log.LogWarning(ex, "Failed to save event {cronus.Messageevent} in projection {projection}.", @event.GetType().Name, projectionType.Name);
 
                 throw;
             }
@@ -298,15 +298,20 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
 
     private async Task<ProjectionStream> LoadProjectionStreamAsync(IBlobId projectionId, ProjectionVersion version)
     {
-        List<ProjectionCommit> projectionCommits = new List<ProjectionCommit>();
+        ProjectionStream stream = ProjectionStream.Empty();
 
-        var loadedCommits = projectionStore.LoadAsync(version, projectionId).ConfigureAwait(false);
-        await foreach (var commit in loadedCommits)
+        ProjectionQueryOptions options = new ProjectionQueryOptions(projectionId, version, new PagingOptions(1000, null, Order.Ascending));
+        ProjectionsOperator @operator = new ProjectionsOperator()
         {
-            projectionCommits.Add(commit);
-        }
+            OnProjectionStreamLoadedAsync = projectionStream =>
+            {
+                stream = projectionStream;
+                return Task.CompletedTask;
+            }
+        };
 
-        ProjectionStream stream = new ProjectionStream(version, projectionId, projectionCommits.Select(c => c.Event));
+        await projectionStore.EnumerateProjectionsAsync(@operator, options).ConfigureAwait(false);
+
         return stream;
     }
 

@@ -9,6 +9,8 @@ namespace Elders.Cronus.MessageProcessing;
 
 public class ScopedMessageWorkflow : Workflow<HandleContext>
 {
+    private const string ErrorMessage = "Somehow the IServiceScope has been already created and there will be an unexpected behavior after this message.";
+
     private static ConcurrentDictionary<HandleContext, IServiceScope> scopes = new ConcurrentDictionary<HandleContext, IServiceScope>();
     public static IServiceScope GetScope(HandleContext context) => scopes[context];
 
@@ -50,9 +52,8 @@ public class ScopedMessageWorkflow : Workflow<HandleContext>
 
         if (hasScopeError)
         {
-            string message = "Somehow the IServiceScope has been already created and there will be an unexpected behavior after this message.";
-            logger.Critical(() => message);
-            throw new Exception(message);
+            logger.LogCritical(ErrorMessage);
+            throw new Exception(ErrorMessage);
         }
 
         return base.CreateExecutionContext(context);

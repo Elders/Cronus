@@ -27,7 +27,7 @@ public class RebuildIndex_EventToAggregateRootId_Job : CronusJob<RebuildIndex_Jo
     {
         if (cancellationToken.IsCancellationRequested)
         {
-            logger.Info(() => $"The job has been cancelled.");
+            logger.LogInformation("A job has been cancelled.");
             return JobExecutionStatus.Running;
         }
 
@@ -39,7 +39,7 @@ public class RebuildIndex_EventToAggregateRootId_Job : CronusJob<RebuildIndex_Jo
             {
                 string eventContractId = eventFinder.FindEventId(@event.Data.AsSpan());
                 if (string.IsNullOrEmpty(eventContractId))
-                    logger.Error(() => $"Unable to find a valid event in the data : {Encoding.UTF8.GetString(@event.Data)}");
+                    logger.LogError($"Unable to find a valid event in the data : {Encoding.UTF8.GetString(@event.Data)}");
 
                 IndexRecord indexRecord = new IndexRecord(eventContractId, @event.AggregateRootId, @event.Revision, @event.Position, @event.Timestamp);
                 await indexStore.ApendAsync(indexRecord);
@@ -56,8 +56,11 @@ public class RebuildIndex_EventToAggregateRootId_Job : CronusJob<RebuildIndex_Jo
 
                 Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
-                var avgSpeed = Math.Round(counter / elapsed.TotalSeconds, 1); // no need to check for division by 0. double.PositiveInfinity is a thing
-                logger.LogInformation("RebuildIndex_EventToAggregateRootId_Job progress: {counter}. Average speed {speed} events/s.", counter, avgSpeed);
+                if (logger.IsEnabled(LogLevel.Information))
+                {
+                    var avgSpeed = Math.Round(counter / elapsed.TotalSeconds, 1); // no need to check for division by 0. double.PositiveInfinity is a thing
+                    logger.LogInformation("RebuildIndex_EventToAggregateRootId_Job progress: {counter}. Average speed {speed} events/s.", counter, avgSpeed);
+                }
             }
         };
 

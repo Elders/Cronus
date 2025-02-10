@@ -55,8 +55,8 @@ public sealed class EventStream
     {
         var performanceCriticalOutputBuilder = new StringBuilder();
         AggregateCommit firstCommit = aggregateCommits.First();
-        string aggregateRootId = Encoding.UTF8.GetString(firstCommit.AggregateRootId);
-        string aggregateName = Encoding.UTF8.GetString(firstCommit.AggregateRootId).Split('@')[0];
+        string aggregateRootId = Encoding.UTF8.GetString(firstCommit.AggregateRootId.Span);
+        string aggregateName = Encoding.UTF8.GetString(firstCommit.AggregateRootId.Span).Split('@')[0];
 
         performanceCriticalOutputBuilder.AppendLine("Aggregate Info");
         performanceCriticalOutputBuilder.AppendLine("==============");

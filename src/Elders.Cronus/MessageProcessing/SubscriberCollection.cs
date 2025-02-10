@@ -59,7 +59,7 @@ public sealed class SubscriberCollection<T> : ISubscriberCollection<T>
 
             return result;
         }
-        catch (Exception ex) when (logger.ErrorException(ex, () => "An error occured while getting subscribers for message."))
+        catch (Exception ex) when (True(() => logger.LogError(ex, "An error occured while getting subscribers for message.")))
         {
             return Enumerable.Empty<ISubscriber>();
         }

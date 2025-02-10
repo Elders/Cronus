@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using Elders.Cronus.AtomicAction;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.Hosting.Heartbeat;
@@ -33,7 +32,6 @@ public static class CronusServiceCollectionExtensions
         services.AddTenantSupport();
         services.AddCronusHostOptions();
         services.AddDefaultSubscribers(cronusServicesProvider);
-        services.AddInMemoryLock();
         services.AddJobManager();
 
         var discoveryFinder = new DiscoveryScanner();
@@ -64,13 +62,6 @@ public static class CronusServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddInMemoryLock(this IServiceCollection services)
-    {
-        services.AddSingleton<ILock, InMemoryLockWithTTL>();
-
-        return services;
-    }
-
     internal static IServiceCollection AddBooter(this IServiceCollection services)
     {
         return services.AddSingleton<CronusBooter>();
@@ -86,7 +77,7 @@ public static class CronusServiceCollectionExtensions
         {
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("cronus"));
 
-            services.AddSingleton<ActivitySource>(new ActivitySource("Elders.Cronus", "10.0.0"));
+            services.AddSingleton<ActivitySource>(new ActivitySource("Elders.Cronus", "11.0.0"));
         }
 
         return services;
