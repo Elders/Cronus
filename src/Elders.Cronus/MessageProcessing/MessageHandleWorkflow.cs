@@ -10,6 +10,9 @@ namespace Elders.Cronus.MessageProcessing;
 /// </summary>
 public sealed class MessageHandleWorkflow : Workflow<HandleContext>
 {
+    [Obsolete("Do not use this in your code. It's used only when the services are registered on startup.", true)]
+    public MessageHandleWorkflow() { }
+
     public MessageHandleWorkflow(Workflow<HandleContext, IHandlerInstance> createHandler)
     {
         CreateHandler = createHandler;
