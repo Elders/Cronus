@@ -54,12 +54,12 @@ public class EventStoreIndexBuilder : Saga, ISystemSaga,
 
         if (result == JobExecutionStatus.Running)
         {
-            RequestTimeout(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(30), sagaTimeout.MaxDegreeOfParallelism));
+            RequestTimeout(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(60), sagaTimeout.MaxDegreeOfParallelism));
         }
         else if (result == JobExecutionStatus.Failed)
         {
             // log error
-            RequestTimeout(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(30), sagaTimeout.MaxDegreeOfParallelism));
+            RequestTimeout(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(60), sagaTimeout.MaxDegreeOfParallelism));
         }
         else if (result == JobExecutionStatus.Completed)
         {

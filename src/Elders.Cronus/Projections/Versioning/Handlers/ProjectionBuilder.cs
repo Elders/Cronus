@@ -74,7 +74,7 @@ public sealed class ProjectionBuilder : Saga, ISystemSaga,
 
         if (result == JobExecutionStatus.Running)
         {
-            RequestTimeout(new CreateNewProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(30)));
+            RequestTimeout(new CreateNewProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(60)));
         }
         else if (result == JobExecutionStatus.Failed)
         {
