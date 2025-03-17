@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Elders.Cronus.Multitenancy;
@@ -40,10 +41,14 @@ internal class CronusProjectionBootstrapper
         if (cronusHostOptions.ProjectionsEnabled == false)
             return;
 
+        List<Task> tenantBootstrapTasks = new List<Task>();
         foreach (var tenant in tenants.Tenants)
         {
-            await BootstrapProjectionsForTenantAsync(tenant).ConfigureAwait(false);
+            string scopedTenant = tenant;
+            tenantBootstrapTasks.Add(BootstrapProjectionsForTenantAsync(scopedTenant));
         }
+
+        await Task.WhenAll(tenantBootstrapTasks);
     }
 
     private async Task BootstrapProjectionsForTenantAsync(string tenant)
@@ -88,10 +93,14 @@ internal class CronusProjectionBootstrapper
             // Find the difference between the old and new tenants
             // and bootstrap the new tenants
             var newTenants = newOptions.Tenants.Except(tenants.Tenants);
+            List<Task> tenantBootstrapTasks = new List<Task>();
             foreach (var tenant in newTenants)
             {
-                await BootstrapProjectionsForTenantAsync(tenant).ConfigureAwait(false);
+                string scopedTenant = tenant;
+                tenantBootstrapTasks.Add(BootstrapProjectionsForTenantAsync(scopedTenant));
             }
+
+            await Task.WhenAll(tenantBootstrapTasks);
 
             tenants = newOptions;
         }
