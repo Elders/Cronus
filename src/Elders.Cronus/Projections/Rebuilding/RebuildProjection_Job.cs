@@ -7,6 +7,7 @@ using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Projections.Cassandra.EventSourcing;
+using Elders.Cronus.Projections.Versioning;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -93,13 +94,21 @@ public sealed class RebuildProjection_Job : CronusJob<RebuildProjection_JobData>
         progressTracker.MarkProcessStart();
         foreach (string eventTypeId in projectionHandledEventTypes)
         {
-            if (Data.IsCanceled || cancellationToken.IsCancellationRequested || await projectionVersionHelper.ShouldBeCanceledAsync(version, Data.DueDate).ConfigureAwait(false))
+            if (version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId) == false)
             {
-                if (Data.IsCanceled == false)
+                if (Data.IsCanceled)
+                {
+                    LogRebuildProjectionCanceled(logger, version.ToString(), null);
+                    return JobExecutionStatus.Canceled;
+                }
+
+                if (cancellationToken.IsCancellationRequested || await projectionVersionHelper.ShouldBeCanceledAsync(version, Data.DueDate).ConfigureAwait(false))
+                {
                     await CancelJobAsync(cluster).ConfigureAwait(false);
 
-                LogRebuildProjectionCanceled(logger, version.ToString(), null);
-                return JobExecutionStatus.Canceled;
+                    LogRebuildProjectionCanceled(logger, version.ToString(), null);
+                    return JobExecutionStatus.Canceled;
+                }
             }
 
             PlayerOperator playerOperator = new PlayerOperator()
