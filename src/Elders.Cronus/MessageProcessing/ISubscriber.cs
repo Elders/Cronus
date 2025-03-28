@@ -13,5 +13,6 @@ public interface ISubscriber
     /// </summary>
     /// <returns></returns>
     IEnumerable<Type> GetInvolvedMessageTypes();
+    Type HandlerType { get; }
     Task ProcessAsync(CronusMessage message);
 }

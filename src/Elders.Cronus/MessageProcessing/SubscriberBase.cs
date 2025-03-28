@@ -21,6 +21,8 @@ public abstract class SubscriberBase : ISubscriber
 
     public string Id { get; protected set; }
 
+    public Type HandlerType => handlerType;
+
     public Task ProcessAsync(CronusMessage message)
     {
         var context = new HandleContext(message, handlerType);
