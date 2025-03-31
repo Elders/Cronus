@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.AutoUpdates;
+using Elders.Cronus.DangerZone;
 using Elders.Cronus.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,7 +22,8 @@ public class CronusHostDiscovery : DiscoveryBase<ICronusHost>
             .Concat(DiscoverSignals(context))
             .Concat(DiscoverMigrations(context))
             .Concat(DiscoverAutoUpdates(context))
-            .Concat(DiscoverCronusTenantStartups(context));
+            .Concat(DiscoverCronusTenantStartups(context))
+            .Concat(DiscoverDangerZone(context));
 
         return new DiscoveryResult<ICronusHost>(models);
     }
@@ -76,6 +78,12 @@ public class CronusHostDiscovery : DiscoveryBase<ICronusHost>
     {
         IEnumerable<Type> loadedSignals = context.Assemblies.Find<ISignal>();
         yield return new DiscoveredModel(typeof(TypeContainer<ISignal>), new TypeContainer<ISignal>(loadedSignals));
+    }
+
+    protected virtual IEnumerable<DiscoveredModel> DiscoverDangerZone(DiscoveryContext context)
+    {
+        Type loadedDangerZone = context.Assemblies.Find<DangerZoneExecutor>().SingleOrDefault();
+        yield return new DiscoveredModel(typeof(DangerZoneExecutor), typeof(DangerZoneExecutor), ServiceLifetime.Singleton);
     }
 
     protected virtual IEnumerable<DiscoveredModel> DiscoverMigrations(DiscoveryContext context)
