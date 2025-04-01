@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using Elders.Cronus.Cluster.Job;
+using Elders.Cronus.DangerZone;
 using Elders.Cronus.Discoveries;
 using Elders.Cronus.Hosting.Heartbeat;
 using Elders.Cronus.MessageProcessing;
@@ -33,6 +34,7 @@ public static class CronusServiceCollectionExtensions
         services.AddCronusHostOptions();
         services.AddDefaultSubscribers(cronusServicesProvider);
         services.AddJobManager();
+        services.AddDangerZone();
 
         var discoveryFinder = new DiscoveryScanner();
         var discoveryContext = new DiscoveryContext(AssemblyLoader.Assemblies.Values, cronusServicesProvider.Configuration);
@@ -100,6 +102,14 @@ public static class CronusServiceCollectionExtensions
         services.AddOptions();
         services.AddOptions<CronusHostOptions, CronusHostOptionsProvider>();
         services.AddOptions<BoundedContext, BoundedContextProvider>();
+
+        return services;
+    }
+
+    internal static IServiceCollection AddDangerZone(this IServiceCollection services)
+    {
+        services.AddOptions<CronusDangerZoneOptions, CronusDangerZoneOptionsProvider>();
+        services.AddSingleton<DangerZoneExecutor>();
 
         return services;
     }

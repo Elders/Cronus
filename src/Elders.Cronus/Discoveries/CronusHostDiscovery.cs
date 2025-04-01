@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Elders.Cronus.AutoUpdates;
+using Elders.Cronus.DangerZone;
 using Elders.Cronus.Migrations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
