@@ -31,9 +31,13 @@ public sealed class DangerZoneExecutor
             return;
         }
 
+        logger.LogInformation("Wiping data for tenant {tenant}", tenant);
+
         foreach (var item in dangerZones)
         {
             await item.WipeDataAsync(tenant).ConfigureAwait(false);
         }
+
+        logger.LogInformation("Data for tenant {tenant} has been wiped.", tenant);
     }
 }
