@@ -1,11 +1,14 @@
 ﻿using System;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.EventStore.Players;
+using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Projections.Rebuilding;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Elders.Cronus.Projections.Versioning;
 
@@ -20,13 +23,15 @@ public sealed class ProjectionBuilder : Saga, ISystemSaga,
 
     private ILogger logger;
 
+    private readonly TenantsOptions tenants;
     private readonly ICronusJobRunner jobRunner;
     private readonly RebuildProjection_JobFactory fastJobFactory;
     private readonly RebuildProjectionSequentially_JobFactory sequentialJobFactory;
 
-    public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, ICronusJobRunner jobRunner, RebuildProjection_JobFactory fastJobFactory, RebuildProjectionSequentially_JobFactory sequentialJobFactory, ILogger<ProjectionBuilder> logger)
+    public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, IOptions<TenantsOptions> tenantOptions, ICronusJobRunner jobRunner, RebuildProjection_JobFactory fastJobFactory, RebuildProjectionSequentially_JobFactory sequentialJobFactory, ILogger<ProjectionBuilder> logger)
         : base(commandPublisher, timeoutRequestPublisher)
     {
+        this.tenants = tenantOptions.Value;
         this.jobRunner = jobRunner;
         this.fastJobFactory = fastJobFactory;
         this.sequentialJobFactory = sequentialJobFactory;
@@ -68,6 +73,12 @@ public sealed class ProjectionBuilder : Saga, ISystemSaga,
 
     public async Task HandleAsync(CreateNewProjectionVersion sagaTimeout)
     {
+        if (tenants.Tenants.Contains(sagaTimeout.Tenant) == false)
+        {
+            logger.LogWarning("Tenant is not present in the tenants configuration, and the projection won't be rebuilt.");
+            return;
+        }
+
         ICronusJob<object> job = GetJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.ReplayEventsOptions, sagaTimeout.ProjectionVersionRequest.Timebox);
         JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
         LogProjectionReplayStatus(logger, result, null);
