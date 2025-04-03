@@ -29,6 +29,9 @@ namespace Elders.Cronus
         [DataMember(Order = 3)]
         public IDictionary<string, string> Headers { get; private set; }
 
+        [DataMember(Order = 4)]
+        public byte[] PayloadRaw { get; private set; }
+
         public string MessageId { get { return GetHeader(MessageHeader.MessageId); } }
 
         public string CausationId { get { return GetHeader(MessageHeader.CausationId); } }
