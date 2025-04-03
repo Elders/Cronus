@@ -1,3 +1,10 @@
+# [7.1.0-preview-v7-add-rawpayload.1](https://github.com/Elders/Cronus/compare/v7.0.0...v7.1.0-preview-v7-add-rawpayload.1) (2025-04-03)
+
+
+### Features
+
+* Adds PayloadRaw to CronusMessage ([9aa3bf3](https://github.com/Elders/Cronus/commit/9aa3bf3bb353bfd11db3f60d16b196d6f56302d4))
+
 # [7.0.0](https://github.com/Elders/Cronus/compare/v6.4.3...v7.0.0) (2022-04-05)
 
 
