@@ -9,7 +9,7 @@ trigger:
     exclude: [CHANGELOG.md]
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'ubuntu-22.04'
 
 stages:
 
