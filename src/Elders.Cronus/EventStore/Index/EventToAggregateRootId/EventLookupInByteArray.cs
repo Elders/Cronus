@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.HighPerformance;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace Elders.Cronus.EventStore.Index;
@@ -40,10 +41,13 @@ public class EventLookupInByteArray
 
     public string FindEventId(ReadOnlySpan<byte> data)
     {
+        ReadOnlySpan<byte> contract = data.Slice(10, 36);
         foreach (var item in table)
         {
-            if (data.IndexOf(item.Value) > -1)
+            if (item.Value.AsSpan().SequenceEqual(contract))
+            {
                 return item.Key;
+            }
         }
 
         return string.Empty;
@@ -51,6 +55,7 @@ public class EventLookupInByteArray
 
     public bool HasEventId(ReadOnlySpan<byte> data, ReadOnlySpan<byte> eventContract)
     {
-        return data.IndexOf(eventContract) > -1;
+        ReadOnlySpan<byte> contract = data.Slice(10, 36);
+        return contract.SequenceEqual(eventContract);
     }
 }

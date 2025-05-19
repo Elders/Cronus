@@ -39,7 +39,10 @@ public class RebuildIndex_EventToAggregateRootId_Job : CronusJob<RebuildIndex_Jo
             {
                 string eventContractId = eventFinder.FindEventId(@event.Data.AsSpan());
                 if (string.IsNullOrEmpty(eventContractId))
+                {
                     logger.LogError($"Unable to find a valid event in the data : {Encoding.UTF8.GetString(@event.Data)}");
+                    return;
+                }
 
                 IndexRecord indexRecord = new IndexRecord(eventContractId, @event.AggregateRootId, @event.Revision, @event.Position, @event.Timestamp);
                 await indexStore.ApendAsync(indexRecord);
