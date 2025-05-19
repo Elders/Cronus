@@ -12,7 +12,6 @@ pool:
   vmImage: 'ubuntu-22.04'
 
 stages:
-
 - stage: RunTestsDotnet9
   displayName: 'Run tests for dotnet 9'
   jobs:
