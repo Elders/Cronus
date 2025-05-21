@@ -23,19 +23,21 @@ public sealed class ProjectionBuilder : Saga, ISystemSaga,
 
     private ILogger logger;
 
-    private readonly TenantsOptions tenants;
+    private TenantsOptions tenants;
     private readonly ICronusJobRunner jobRunner;
     private readonly RebuildProjection_JobFactory fastJobFactory;
     private readonly RebuildProjectionSequentially_JobFactory sequentialJobFactory;
 
-    public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, IOptions<TenantsOptions> tenantOptions, ICronusJobRunner jobRunner, RebuildProjection_JobFactory fastJobFactory, RebuildProjectionSequentially_JobFactory sequentialJobFactory, ILogger<ProjectionBuilder> logger)
+    public ProjectionBuilder(IPublisher<ICommand> commandPublisher, IPublisher<IScheduledMessage> timeoutRequestPublisher, IOptionsMonitor<TenantsOptions> monitor, ICronusJobRunner jobRunner, RebuildProjection_JobFactory fastJobFactory, RebuildProjectionSequentially_JobFactory sequentialJobFactory, ILogger<ProjectionBuilder> logger)
         : base(commandPublisher, timeoutRequestPublisher)
     {
-        this.tenants = tenantOptions.Value;
+        this.tenants = monitor.CurrentValue;
         this.jobRunner = jobRunner;
         this.fastJobFactory = fastJobFactory;
         this.sequentialJobFactory = sequentialJobFactory;
         this.logger = logger;
+
+        monitor.OnChange(OptionsForTenantReloaded);
     }
 
     public Task HandleAsync(ProjectionVersionRequested @event)
@@ -105,6 +107,17 @@ public sealed class ProjectionBuilder : Saga, ISystemSaga,
         commandPublisher.Publish(timedout);
 
         return Task.CompletedTask;
+    }
+
+    private void OptionsForTenantReloaded(TenantsOptions newOptions)
+    {
+        if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false)
+        {
+            if (logger.IsEnabled(LogLevel.Debug))
+                logger.LogDebug("Cronus tenants options re-loaded with {@options}", newOptions);
+
+            tenants = newOptions;
+        }
     }
 }
 
