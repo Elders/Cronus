@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-    <!--<NullableReferenceTypes>true</NullableReferenceTypes>
-    <LangVersion>8.0</LangVersion>-->
+    <TargetFrameworks>net10.0</TargetFrameworks>
   </PropertyGroup>
 
   <!--Nuget-->
@@ -15,11 +13,9 @@
     <Description>Cronus is a lightweight framework for building event driven systems with DDD/CQRS in mind.</Description>
     <PackageTags>CQRS DDD ES Event store sourcing cronus</PackageTags>
 
-    <Copyright>Copyright © 1Software/EldersOSS 2013-2025</Copyright>
+    <Copyright>Copyright © Elders LTD 2026</Copyright>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <RequireLicenseAcceptance>true</RequireLicenseAcceptance>
-
-    <ReleaseNotes>https://github.com/Elders/Cronus/blob/preview/CHANGELOG.md</ReleaseNotes>
 
     <PackageIconUrl>https://raw.githubusercontent.com/Elders/logo/master/cronus/frame.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/Elders/Cronus.git</RepositoryUrl>
