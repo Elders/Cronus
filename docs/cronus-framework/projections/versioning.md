@@ -60,6 +60,7 @@ Next deploy, Cronus hashes the new handler, notices the hash has changed, reques
 ## Related
 
 * [Handlers / Projections](../domain-modeling/handlers/projections.md) — how to write the handler itself.
+* [Projection Markers](projection-markers.md) — `INonVersionableProjection` and `INonRebuildableProjection`, the opt-out markers referenced above.
 * [Jobs](../jobs.md) — the job runner the replay sits on top of.
 * [Indices](../indices.md) — specifically the `EventToAggregateRootId` index, which the rebuild depends on to locate events efficiently.
 * [Snapshots](snapshots.md) — note: snapshots are not currently shipped; that page documents the situation.
