@@ -1,0 +1,54 @@
+# Cronus
+
+> Cronus is a lightweight .NET DDD/CQRS/Event Sourcing framework by Elders OSS. Domain code is organised around aggregates that emit events, application services that handle commands, and projections / sagas / ports / triggers / gateways that react to events. Targets `net8.0;net9.0`. Default stack is RabbitMQ transport plus Cassandra event store and projections.
+
+This file points crawlers and LLMs at the highest-signal pages in the Cronus documentation tree on this repo. Every link is relative to the repo root and verified against the `docs-update-2026-04-23` branch.
+
+## Concepts
+
+- [Bounded context](docs/cronus-framework/domain-modeling/bounded-context.md): The explicit boundary inside which a model is consistent. In Cronus this collapses to the single load-bearing config value `Cronus:BoundedContext`.
+- [Aggregate](docs/cronus-framework/domain-modeling/aggregate.md): Cluster of domain objects treated as one consistency boundary; event-sourced through `AggregateRoot<TState>` + `AggregateRootState<TRoot, TRootId>`.
+- [IDs](docs/cronus-framework/domain-modeling/ids.md): URN-based identity. Every aggregate root, entity, projection and id-carrying message is a URN-shaped value object.
+- [Multitenancy](docs/cronus-framework/domain-modeling/multitenancy.md): Tenant is a first-class dimension of every message; declared via `Cronus:Tenants`.
+- [Messages](docs/cronus-framework/domain-modeling/messages/README.md): Four kinds — `ICommand`, `IEvent`, `IPublicEvent`, `ISignal` — all under `IMessage`.
+- [Commands](docs/cronus-framework/domain-modeling/messages/commands.md): Imperative request to mutate one aggregate.
+- [Events](docs/cronus-framework/domain-modeling/messages/events.md): Past-tense fact emitted from an aggregate via `Apply(IEvent)`.
+- [Public events](docs/cronus-framework/domain-modeling/messages/public-events.md): Published-language event that crosses bounded contexts; carries the originating tenant.
+- [Signals](docs/cronus-framework/domain-modeling/messages/signals.md): Heartbeats, rebuilds, process pings — arbitrary side-effect triggers.
+- [Handlers](docs/cronus-framework/domain-modeling/handlers/README.md): Six handler kinds, picked by intent — Application Service, Projection, Saga, Port, Trigger, Gateway.
+- [Application services](docs/cronus-framework/domain-modeling/handlers/application-services.md): Write-side entry point; loads an aggregate, calls a method, saves the events.
+- [Projections](docs/cronus-framework/domain-modeling/handlers/projections.md): Derived read model built by handling events — event-sourced or external-store.
+- [Sagas](docs/cronus-framework/domain-modeling/handlers/sagas.md): Process manager that watches the event stream and publishes new commands; supports scheduled timeouts.
+- [Ports](docs/cronus-framework/domain-modeling/handlers/ports.md): Where an event meets the outside world — emails, third-party APIs, follow-up commands.
+- [Triggers](docs/cronus-framework/domain-modeling/handlers/triggers.md): Starts something new (a job, a workflow) in response to an event or signal.
+- [Gateways](docs/cronus-framework/domain-modeling/handlers/gateways.md): A port that remembers infra state the external system needs (push tokens, badges).
+- [Published language](docs/cronus-framework/domain-modeling/published-language.md): The vocabulary a bounded context exposes to others.
+- [Value object](docs/cronus-framework/domain-modeling/value-object.md): Modern Cronus uses C# `record` types with `[DataContract]`; the `ValueObject<T>` base is gone.
+
+## Getting started
+
+- [Setup](docs/getting-started/quick-start/setup.md): Provisions a two-process TaskManager skeleton — API + worker — with Cronus, Cassandra and RabbitMQ.
+- [Persist first event](docs/getting-started/quick-start/persist-first-event.md): Models IDs, command, event, aggregate, application service and an API controller; ends with `TaskCreated` in Cassandra.
+- [Explore projections](docs/getting-started/quick-start/explore-projections.md): Adds a `TaskProjection` event-sourced read model and exposes it through the API.
+
+## Reference
+
+- [Configuration](docs/cronus-framework/configuration.md): Every `Cronus:*` configuration key — bounded context, tenants, persistence, transport, consumer toggles.
+- [Discoveries](docs/cronus-framework/extensibility/discoveries.md): How Cronus assembles itself from a core plus pluggable satellites at boot via `DiscoveryBase<TCronusService>`.
+- [`[CronusStartup]` and boot phases](docs/cronus-framework/extensibility/startup-attribute.md): The `Bootstraps` enum (`Environment`, `ExternalResource`, `Configuration`, `Aggregates`, `Ports`, `Sagas`, `EventStoreIndices`, `Projections`, `Gateways`, `Runtime`) and `ICronusStartup` ordering.
+- [Fault handling](docs/cronus-framework/extensibility/fault-handling.md): Strategies for retries, dead-letter routing and error surfaces.
+- [Observability](docs/cronus-framework/extensibility/observability.md): Logging, activity tracing and metrics hooks Cronus exposes.
+- [Workflows](docs/cronus-framework/workflows.md): The message-processing pipeline — middleware-style wrappers around handler invocation.
+- [Indices](docs/cronus-framework/indices.md): Event-store secondary indices Cronus maintains for non-id-shaped queries.
+- [Event store](docs/cronus-framework/event-store/README.md): The append-only store and its replay/migration story.
+- [Messaging](docs/cronus-framework/messaging/README.md): Transport, routing and delivery semantics.
+- [Serialization](docs/cronus-framework/messaging/serialization.md): The `[DataContract(Name = "<guid>")]` wire contract that ties past, present and future versions of every message together.
+- [Projections subsystem](docs/cronus-framework/projections/README.md): Lifecycle, snapshots and versioning of projections.
+- [Cluster](docs/cronus-framework/cluster.md): How multiple Cronus hosts coordinate.
+- [Jobs](docs/cronus-framework/jobs.md): Long-running background work model.
+- [Unit testing](docs/cronus-framework/unit-testing.md): Patterns for testing aggregates, sagas and projections.
+
+## Optional
+
+- [AGENTS.md](AGENTS.md): Hard rules, banned legacy types, handler/message decision tables and KB-grounding guidance for AI coding agents working in Cronus codebases.
+- [README](README.md): Project intro and links to the public Cronus documentation site.
