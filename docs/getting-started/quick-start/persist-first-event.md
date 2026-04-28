@@ -1,8 +1,21 @@
 # Persist First Event
 
-### Create Ids, commands and events
+With the skeleton from the [setup page](setup.md) running, we can model a tiny slice of the task manager and send a command that ends up as an event in Cassandra.
 
-First, we need to add a UserId and TaskId to have the [Identifications ](../../cronus-framework/domain-modeling/ids.md)of these two entities
+The slice is:
+
+1. Two aggregate IDs — `TaskId` and `UserId`.
+2. A command — `CreateTask`.
+3. An event — `TaskCreated`.
+4. An aggregate root and its state — `TaskAggregate` / `TaskState`.
+5. An application service — `TaskAppService`.
+6. An API controller that publishes the command.
+
+Put commands/events/IDs in a shared project (for example `TaskManager.Contracts`) that both the API and the worker reference. Aggregates, states and app services live in the worker project only.
+
+## 1. IDs
+
+`AggregateRootId`'s ctor takes `(tenant, arName, id)` — in that order.
 
 {% tabs %}
 {% tab title="TaskId" %}
@@ -12,7 +25,7 @@ public class TaskId : AggregateRootId
 {
     TaskId() { }
 
-    public TaskId(string id) : base("tenant", "task", id) { }
+    public TaskId(string tenant, string id) : base(tenant, "task", id) { }
 }
 ```
 {% endtab %}
@@ -24,165 +37,148 @@ public class UserId : AggregateRootId
 {
     UserId() { }
 
-    public UserId(string id) : base("tenant", "user", id) { }
+    public UserId(string tenant, string id) : base(tenant, "user", id) { }
 }
 ```
 {% endtab %}
 {% endtabs %}
 
-Then we need to create a Cronus [command](../../cronus-framework/domain-modeling/messages/commands.md) for task creation and an [Event](../../cronus-framework/domain-modeling/messages/events.md) that will indicate that the event has occurred.
+{% hint style="warning" %}
+The constructor order is `(tenant, arName, id)`. Older docs and NuGet packages exposed a generic `AggregateRootId<T>` with a different order (`id, arName, tenant`); the generic form is commented out in current master and you should use the non-generic base instead.
+{% endhint %}
+
+## 2. Command and event
 
 {% tabs %}
-{% tab title="Command" %}
+{% tab title="CreateTask" %}
 ```csharp
 [DataContract(Name = "857d960c-4b91-49cc-98fd-fa543906c52d")]
 public class CreateTask : ICommand
 {
-    public CreateTask() { }
+    CreateTask() { }
 
-    public CreateTask(TaskId id, UserId userId, string name, DateTimeOffset timestamp)
+    public CreateTask(TaskId id, UserId userId, string name, DateTimeOffset deadline, DateTimeOffset timestamp)
     {
         if (id is null) throw new ArgumentNullException(nameof(id));
         if (userId is null) throw new ArgumentNullException(nameof(userId));
-        if (name is null) throw new ArgumentNullException(nameof(name));
-        if (timestamp == default) throw new ArgumentNullException(nameof(timestamp));
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name is required", nameof(name));
 
         Id = id;
         UserId = userId;
         Name = name;
+        Deadline = deadline;
         Timestamp = timestamp;
     }
 
-    [DataMember(Order = 1)]
-    public TaskId Id { get; private set; }
+    [DataMember(Order = 1)] public TaskId Id { get; private set; }
+    [DataMember(Order = 2)] public UserId UserId { get; private set; }
+    [DataMember(Order = 3)] public string Name { get; private set; }
+    [DataMember(Order = 4)] public DateTimeOffset Deadline { get; private set; }
+    [DataMember(Order = 5)] public DateTimeOffset Timestamp { get; private set; }
 
-    [DataMember(Order = 2)]
-    public UserId UserId { get; private set; }
-
-    [DataMember(Order = 3)]
-    public string Name { get; private set; }
-
-    [DataMember(Order = 4)]
-    public DateTimeOffset Timestamp { get; private set; }
-
-    public override string ToString()
-    {
-        return $"Create a task with id '{Id}' and name '{Name}' for user [{UserId}].";
-    }
+    public override string ToString() => $"Create task '{Name}' ({Id}) for user {UserId}.";
 }
 ```
 {% endtab %}
 
-{% tab title="Event" %}
+{% tab title="TaskCreated" %}
 ```csharp
 [DataContract(Name = "728fc4e7-628b-4962-bd68-97c98aa05694")]
 public class TaskCreated : IEvent
 {
     TaskCreated() { }
 
-    public TaskCreated(TaskId id, UserId userId, string name, DateTimeOffset timestamp)
+    public TaskCreated(TaskId id, UserId userId, string name, DateTimeOffset deadline, DateTimeOffset timestamp)
     {
         Id = id;
         UserId = userId;
         Name = name;
-        CreatedAt = DateTimeOffset.UtcNow;
+        Deadline = deadline;
         Timestamp = timestamp;
     }
 
-    [DataMember(Order = 1)]
-    public TaskId Id { get; private set; }
+    [DataMember(Order = 1)] public TaskId Id { get; private set; }
+    [DataMember(Order = 2)] public UserId UserId { get; private set; }
+    [DataMember(Order = 3)] public string Name { get; private set; }
+    [DataMember(Order = 4)] public DateTimeOffset Deadline { get; private set; }
+    [DataMember(Order = 5)] public DateTimeOffset Timestamp { get; private set; }
 
-    [DataMember(Order = 2)]
-    public UserId UserId { get; private set; }
-
-    [DataMember(Order = 3)]
-    public string Name { get; private set; }
-
-    [DataMember(Order = 4)]
-    public DateTimeOffset CreatedAt { get; private set; }
-
-    [DataMember(Order = 5)]
-    public DateTimeOffset Timestamp { get; private set; }
-
-    public override string ToString()
-    {
-        return $"Task with id '{Id}' and name '{Name}' for user [{UserId}] at {CreatedAt} has been created.";
-    }
+    public override string ToString() => $"Task '{Name}' ({Id}) created for user {UserId}.";
 }
 ```
 {% endtab %}
 {% endtabs %}
 
-### Create an Aggregate and Application Service
+## 3. Aggregate and state
 
-Add [Aggregate ](../../cronus-framework/domain-modeling/aggregate.md)that inherits [AggregateRoot ](../../cronus-framework/domain-modeling/aggregate.md#aggregate-root)with the generic [state](../../cronus-framework/domain-modeling/aggregate.md#aggregate-root-state).
+The aggregate is the only object allowed to call `Apply`. The state folds each event into itself via a `When(TEvent)` handler.
 
+{% code title="TaskAggregate.cs" %}
 ```csharp
 public class TaskAggregate : AggregateRoot<TaskState>
 {
-    public TaskAggregate() { }
+    TaskAggregate() { }
 
     public void CreateTask(TaskId id, UserId userId, string name, DateTimeOffset deadline)
     {
-        IEvent @event = new TaskCreated(id, userId, name, deadline);
-        Apply(@event);
+        Apply(new TaskCreated(id, userId, name, deadline, DateTimeOffset.UtcNow));
     }
 }
 ```
+{% endcode %}
 
-Apply method will pass the event to the state of an aggregate and change its state.
-
+{% code title="TaskState.cs" %}
 ```csharp
 public class TaskState : AggregateRootState<TaskAggregate, TaskId>
 {
     public override TaskId Id { get; set; }
-
     public UserId UserId { get; set; }
-
     public string Name { get; set; }
-
     public DateTimeOffset CreatedAt { get; set; }
-
     public DateTimeOffset Deadline { get; set; }
 
-    public void When(TaskCreated @event)
+    public void When(TaskCreated e)
     {
-        Id = @event.Id;
-        UserId = @event.UserId;
-        Name = @event.Name;
-        CreatedAt = @event.CreatedAt;
-        Deadline = @event.Timestamp;
+        Id = e.Id;
+        UserId = e.UserId;
+        Name = e.Name;
+        CreatedAt = e.Timestamp;
+        Deadline = e.Deadline;
     }
 }
 ```
+{% endcode %}
 
-Finally, we can create an [Application Service](../../cronus-framework/domain-modeling/handlers/application-services.md) for command handling.
+## 4. Application service
 
+`ApplicationService<TaskAggregate>` gives you the `repository` field. `ICommandHandler<CreateTask>.HandleAsync` is the async entry point — load the aggregate, decide whether to create it, save it.
+
+{% code title="TaskAppService.cs" %}
 ```csharp
-[DataContract(Name = "ef669879-5d35-4cb7-baea-39a7c46c9e13")]
-public class TaskService : ApplicationService<TaskAggregate>,
-ICommandHandler<CreateTask>
+public class TaskAppService : ApplicationService<TaskAggregate>,
+    ICommandHandler<CreateTask>
 {
     public TaskService(IAggregateRepository repository) : base(repository) { }
 
     public async Task HandleAsync(CreateTask command)
     {
-        ReadResult<TaskAggregate> taskResult = await repository.LoadAsync<TaskAggregate>(command.Id).ConfigureAwait(false);
-        if (taskResult.NotFound)
-        {
-            var task = new TaskAggregate();
-            task.CreateTask(command.Id, command.UserId, command.Name, DateTimeOffset.UtcNow);
-            await repository.SaveAsync(task).ConfigureAwait(false);
-        }
+        ReadResult<TaskAggregate> existing = await repository.LoadAsync<TaskAggregate>(command.Id).ConfigureAwait(false);
+        if (existing.IsSuccess) return; // idempotent — already created
+
+        var task = new TaskAggregate(command.Id, command.UserId, command.Name, command.Deadline);
+        await repository.SaveAsync(task).ConfigureAwait(false);
     }
 }
 ```
+{% endcode %}
 
-We register a handler by inheriting from `ICommandHandler<>.` When the command arrives we read the state of the aggregate, and if it is not found we create a new one and call `SaveAsync` to save its state to the database.&#x20;
+{% hint style="info" %}
+`ReadResult<T>` exposes `IsSuccess`, `NotFound`, `HasError`, and `Error` — use them to branch deliberately instead of catching exceptions.
+{% endhint %}
 
-### Create Controller and send a request
+## 5. API controller
 
-Now we need a controller to publish our commands and create tasks.&#x20;
+Inject `IPublisher<ICommand>` and `await publisher.PublishAsync(...)`. The method returns `true` when the transport accepted the command.
 
 {% tabs %}
 {% tab title="Controller" %}
@@ -191,30 +187,28 @@ Now we need a controller to publish our commands and create tasks.&#x20;
 [Route("[controller]/[action]")]
 public class TaskController : ControllerBase
 {
-    private readonly IPublisher<ICommand> _publisher;
+    private readonly IPublisher<ICommand> publisher;
 
     public TaskController(IPublisher<ICommand> publisher)
     {
-        _publisher = publisher;
+        this.publisher = publisher;
     }
 
     [HttpPost]
-    public IActionResult CreateTask(CreateTaskRequest request)
+    public async Task<IActionResult> CreateTask(CreateTaskRequest request, CancellationToken ct)
     {
-        string id = Guid.NewGuid().ToString();
-        string Userid = Guid.NewGuid().ToString();
-        TaskId taskId = new TaskId(id);
-        UserId userId = new UserId(Userid);
-        var expireDate = DateTimeOffset.UtcNow;
-        expireDate.AddDays(request.DaysActive);
+        const string tenant = "tenant"; // must match Cronus:Tenants from appsettings
 
-        CreateTask command = new CreateTask(taskId, userId, request.Name, expireDate);
+        var taskId = new TaskId(tenant, Guid.NewGuid().ToString());
+        var userId = new UserId(tenant, request.UserId);
+        var deadline = DateTimeOffset.UtcNow.AddDays(request.DaysActive);
 
-        if (_publisher.Publish(command) == false)
-        {
-            return Problem($"Unable to publish command. {command.Id}: {command.Name}");
-        };
-        return Ok(id);
+        var command = new CreateTask(taskId, userId, request.Name, deadline, DateTimeOffset.UtcNow);
+
+        if (await publisher.PublishAsync(command).ConfigureAwait(false) == false)
+            return Problem($"Unable to publish {command}.");
+
+        return Accepted(taskId.Value);
     }
 }
 ```
@@ -224,28 +218,52 @@ public class TaskController : ControllerBase
 ```csharp
 public class CreateTaskRequest
 {
-    [Required]
-    public string Name { get; set; }
-
-    [Required]
-    public int DaysActive { get; set; }
+    [Required] public string UserId { get; set; }
+    [Required] public string Name { get; set; }
+    [Required] public int DaysActive { get; set; }
 }
 ```
 {% endtab %}
 {% endtabs %}
 
-Here we create _TaskId_ and _UserId_ and inject_`IPublisher<CreateTask>`_to publish the command. After this, the command will be sent to RabbitMq and then handled in Application Service.
+## 6. Run it
 
-Now let's start our Service and API. \
-We should be able to make post requests to our Controller throw the Swagger and create our first Task in the system. It must be persisted in the [Event Store](../../cronus-framework/event-store/).
+With both the worker and the API running (see [setup.md](setup.md)), `POST /Task/CreateTask`:
 
-![I highly recommend debugging on the first run to better understand the flow of program execution.](<../../.gitbook/assets/image (10).png>)
+```json
+{
+  "userId": "alice",
+  "name": "Write the quick start",
+  "daysActive": 7
+}
+```
 
-### Inspection of the Event Store
+The API returns `202 Accepted` with the task URN (for example `urn:tenant:task:c9b3…`). Internally:
 
-Download [DevCenter ](https://downloads.datastax.com/#devcenter)or any other UI tool for Cassandra.
+1. The controller publishes `CreateTask` onto RabbitMQ.
+2. The worker's subscriber picks it up and runs `TaskAppService.HandleAsync`.
+3. The service constructs a new `TaskAggregate`, which applies a `TaskCreated` event.
+4. `repository.SaveAsync(task)` writes the event to Cassandra.
 
-Let's take an Id from the response and encode it to Base64.\
-Than try: `select * from taskmanagerevents where id = 'dXJuOnRlbmFudDp0YXNrOmU1MjA1NTA3LWYyNmUtNGExMy05OTU4LTNjMzVlYzAwY2I1Yw=='`
+{% hint style="success" %}
+If you watch the worker logs you should see a `CronusWorkflowHandle` line saying `TaskAppService handled CreateTask in X.XXXXms.` — that is the diagnostics workflow confirming the handler ran.
+{% endhint %}
 
-![Use DevCenter tool for Cassandra visualization.](<../../.gitbook/assets/image (9).png>)
+## 7. Inspect the Event Store
+
+Take the task URN from the response, Base64-encode it, and query the Cassandra `taskmanagerevents` table:
+
+```shell
+echo -n 'urn:tenant:task:c9b3...' | base64
+# e.g. dXJuOnRlbmFudDp0YXNrOmM5YjMu...
+
+cqlsh -e "select * from taskmanager_es.taskmanagerevents where id = 'dXJuOnRlbmFudDp0YXNrOmM5YjMu...';"
+```
+
+You should see exactly one row — the `TaskCreated` event, serialised, tagged with its `[DataContract(Name = …)]` GUID. Restart the worker and run a `LoadAsync<TaskAggregate>(taskId)`: Cronus rebuilds the aggregate by replaying that single event back into the state.
+
+Next stop — turning those events into a read model.
+
+{% content-ref url="explore-projections.md" %}
+[explore-projections.md](explore-projections.md)
+{% endcontent-ref %}

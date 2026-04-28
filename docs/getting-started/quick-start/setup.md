@@ -1,49 +1,82 @@
 ---
-description: 'Prerequisite software: Docker'
+description: Prepare a two-process TaskManager skeleton — API + worker — with Cronus, Cassandra and RabbitMQ.
 ---
 
 # Setup
 
-### Creating a projects
+This quick start builds a tiny task-management service in two processes:
 
-Create a new console application project in a new folder using dotnet command.
+* **TaskManager.Api** — an ASP.NET Core Web API that accepts requests from clients and publishes commands to Cronus.
+* **TaskManager.Service** — a worker host that consumes commands, persists events, builds projections, and runs the rest of the Cronus pipeline.
 
-```
-> dotnet new console --name TaskManager.Service
-```
+Splitting API and worker is the recommended production topology. The API process stays fast and stateless; the worker process owns all long-running background work.
 
-Also, create a Web API project using the same folder for communicating with our Service. Then add both projects to the common solution.
+## Prerequisites
 
-```
- dotnet new webapi --name TaskManager.Api
-```
+* .NET 8 or .NET 9 SDK
+* Docker (for Cassandra and RabbitMQ)
+* An IDE — Visual Studio, Rider, or VS Code
 
-Then we add the Cronus dependency.&#x20;
+## 1. Create the solution
 
 ```shell
-cd TaskManager.Api
-dotnet add package Cronus
+mkdir TaskManager && cd TaskManager
+dotnet new sln --name TaskManager
 
-cd ../TaskManager.Service
-dotnet add package Cronus
-dotnet add package Cronus.Transport.RabbitMQ
-dotnet add package Cronus.Persistence.Cassandra
-dotnet add package Cronus.Serialization.NewtonsoftJson
-dotnet add package Microsoft.Extensions.Hosting
+dotnet new webapi --name TaskManager.Api
+dotnet new worker --name TaskManager.Service
+
+dotnet sln add TaskManager.Api TaskManager.Service
 ```
 
-This is the minimum set of packages for our Cronus host to work.
+## 2. Add the Cronus packages
 
-### Run docker images
+The API only publishes commands, so it needs the core package; the worker persists events, builds projections and moves data over RabbitMQ, so it needs the full transport and persistence story.
 
-* Setup Cassandra (Container memory is limited to 2GB):\
-  <mark style="color:red;">`docker run --restart=always -d --name cassandra -p 9042:9042 -p 9160:9160 -p 7199:7199 -p 7001:7001 -p 7000:7000 cassandra`</mark>
-* Setup RabbitMq (Container memory is limited to 512MB):\
-  <mark style="color:red;">`docker run --restart=always -d --hostname node1 -e RABBITMQ_NODENAME=docker-UNIQUENAME-rabbitmq --name rabbitmq -p 15672:15672 -p 5672:5672 elders/rabbitmq:3.8.3`</mark>
+```shell
+# API — publisher only
+dotnet add TaskManager.Api package Cronus
 
-### Setup configuration file
+# Worker — full Cronus host
+dotnet add TaskManager.Service package Cronus
+dotnet add TaskManager.Service package Cronus.Transport.RabbitMQ
+dotnet add TaskManager.Service package Cronus.Persistence.Cassandra
+dotnet add TaskManager.Service package Cronus.Projections.Cassandra
+dotnet add TaskManager.Service package Cronus.Serialization.NewtonsoftJson
+```
 
-Add _appsettings.json_ with the following configuration into the project folder.
+{% hint style="warning" %}
+The projections package is `Cronus.Projections.Cassandra` (plural). The older, singular `Cronus.Projection.Cassandra` is a different and obsolete package name.
+{% endhint %}
+
+## 3. Start the backing services
+
+From a clean Docker environment, the simplest way to get Cassandra and RabbitMQ running is:
+
+```shell
+# Cassandra 4.0 — Cronus EventStore
+docker run --restart=always -d --name cassandra \
+    -p 9042:9042 \
+    cassandra:4.0
+
+# RabbitMQ 3.9.11 (eldersoss image — management plugin included)
+docker run --restart=always -d --name rabbitmq \
+    -p 5672:5672 -p 15672:15672 \
+    -e RABBITMQ_DEFAULT_USER=user \
+    -e RABBITMQ_DEFAULT_PASS=pass \
+    -e RABBITMQ_DEFAULT_VHOST=rabbit \
+    eldersoss/rabbitmq:3.9.11
+```
+
+The image tags above match the ones used by the Elders platform's shared `docker-compose.yml`. Use them to keep local development aligned with CI/CD.
+
+{% hint style="info" %}
+The RabbitMQ management UI is at [http://localhost:15672](http://localhost:15672) (user `user` / pass `pass`). Cassandra has no bundled UI — use [DataStax DevCenter](https://downloads.datastax.com/#devcenter) or `cqlsh` to inspect tables.
+{% endhint %}
+
+## 4. Write `appsettings.json`
+
+Both processes share the same Cronus configuration. Create identical `appsettings.json` files in `TaskManager.Api` and `TaskManager.Service`:
 
 //This should be int the Service and in the Api.
 
@@ -54,97 +87,123 @@ Add _appsettings.json_ with the following configuration into the project folder.
     "BoundedContext": "taskmanager",
     "Tenants": [ "tenant" ],
     "Transport": {
-        "RabbitMQ": {
-            "Server": "127.0.0.1",
-            "VHost": "taskmanager"
-        },
-        "PublicRabbitMQ": [
-            {
-                "Server": "127.0.0.1",
-                "VHost": "unicom-public",
-                "FederatedExchange": {
-                    "UpstreamUri": "guest:guest@localhost:5672",
-                    "VHost": "unicom-public",
-                    "UseSsl": false,
-                    "MaxHops": 1
-                }
-            }
-        ]
+      "RabbitMQ": {
+        "Server": "127.0.0.1",
+        "Port": 5672,
+        "VHost": "rabbit",
+        "Username": "user",
+        "Password": "pass"
+      }
     },
     "Persistence": {
-        "Cassandra": {
-            "ConnectionString": "Contact Points=127.0.0.1;Port=9042;Default Keyspace=taskmanager_es"
-        }
+      "Cassandra": {
+        "ConnectionString": "Contact Points=127.0.0.1;Port=9042;Default Keyspace=taskmanager_es"
+      }
     },
     "Projections": {
-        "Cassandra": {
-            "ConnectionString": "Contact Points=127.0.0.1;Port=9042;Default Keyspace=taskmanager_projections"
-        }
-    },
-    "Cluster": {
-        "Consul": {
-            "Address": "127.0.0.1"
-        }
-    },
-    "AtomicAction": {
-        "Redis": {
-            "ConnectionString": "127.0.0.1:6379"
-        }
+      "Cassandra": {
+        "ConnectionString": "Contact Points=127.0.0.1;Port=9042;Default Keyspace=taskmanager_projections"
+      }
     }
 }
 }
 ```
 {% endcode %}
 
-You can also see how the Cronus application can be configured in more detail in [Configuration.](../../cronus-framework/configuration.md)
+The full list of configuration keys lives on the configuration page:
 
-This is the code that your _Program.cs_ in TaskManager.Service should contain.
+{% content-ref url="../../cronus-framework/configuration.md" %}
+[configuration.md](../../cronus-framework/configuration.md)
+{% endcontent-ref %}
 
-{% code title="Program.cs" %}
-```c#
-using Cronus11Service;
+## 5. Turn off background consumers in the API
+
+The API process must not run application-service or projection consumers — that is the worker's job. Switch the relevant feature flags off in `TaskManager.Api/appsettings.json`:
+
+{% code title="TaskManager.Api/appsettings.json" %}
+```json
+{
+  "Cronus": {
+    "ApplicationServicesEnabled": false,
+    "ProjectionsEnabled": false,
+    "PortsEnabled": false,
+    "SagasEnabled": false,
+    "GatewaysEnabled": false,
+    "TriggersEnabled": false
+  }
+}
+```
+{% endcode %}
+
+{% hint style="success" %}
+You **should** turn off every consumer in the API process. The API only needs the publisher side of Cronus — it pushes commands to the bus and returns. The worker process keeps the defaults (all consumers `true`) and does the heavy lifting.
+{% endhint %}
+
+## 6. Wire the worker
+
+{% code title="TaskManager.Service/Program.cs" %}
+```csharp
 using Elders.Cronus;
 
 IHost host = Host.CreateDefaultBuilder(args)
-        .ConfigureServices((hostContext, services) =>
-        {
-            services.AddHostedService<Worker>();
-            services.AddCronus(hostContext.Configuration);
+    .ConfigureServices((ctx, services) =>
+    {
+        services.AddCronus(ctx.Configuration);
+        services.AddHostedService<CronusBackgroundService>();
+    })
+    .Build();
 
-        })
-        .UseDefaultServiceProvider((context, options) =>
-        {
-            options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
-            options.ValidateScopes = false;
-            options.ValidateOnBuild = false;
-        })
-        .Build();
+await host.RunAsync();
 
-host.Run();
+sealed class CronusBackgroundService : BackgroundService
+{
+    private readonly ICronusHost cronus;
+    public CronusBackgroundService(ICronusHost cronus) => this.cronus = cronus;
+
+    protected override async Task ExecuteAsync(CancellationToken _)
+    {
+        await cronus.StartAsync().ConfigureAwait(false);
+    }
+}
 ```
 {% endcode %}
 
-This is the code that you should add in the _Program.cs_ in TaskManager.Api.
+`services.AddCronus(configuration)` registers every Cronus core service, scans your assemblies for application services, projections, sagas, ports, triggers and gateways, and binds the configuration options. `ICronusHost.StartAsync()` starts the subscribers based on your feature flags.
 
-{% code title="Program.cs" %}
-```c#
+## 7. Wire the API
+
+{% code title="TaskManager.Api/Program.cs" %}
+```csharp
+using Elders.Cronus;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddControllers();
 builder.Services.AddCronus(builder.Configuration);
 
-builder.Host.UseDefaultServiceProvider((context, options) =>
-{
-    options.ValidateScopes = context.HostingEnvironment.IsDevelopment();
-    options.ValidateScopes = false;
-    options.ValidateOnBuild = false;
-}
-);
+var app = builder.Build();
 
-....
-
-app.UseCronusAspNetCore();
-
+app.MapControllers();
+await app.RunAsync();
 ```
 {% endcode %}
 
-### F5&#x20;
+The API can now inject `IPublisher<ICommand>` into controllers and dispatch commands.
 
-![Ensure that service has been started properly.](../../.gitbook/assets/CronusStarting.gif)
+## 8. Run both processes
+
+Open two terminals:
+
+```shell
+# Terminal 1 — worker
+dotnet run --project TaskManager.Service
+
+# Terminal 2 — API
+dotnet run --project TaskManager.Api
+```
+
+If both processes start cleanly (no exceptions in the logs) your Cronus skeleton is ready. Proceed to the next page to model a domain and persist your first event.
+
+{% content-ref url="persist-first-event.md" %}
+[persist-first-event.md](persist-first-event.md)
+{% endcontent-ref %}
