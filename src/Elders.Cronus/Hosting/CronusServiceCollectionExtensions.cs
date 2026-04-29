@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.DangerZone;
 using Elders.Cronus.Discoveries;
@@ -15,6 +16,12 @@ namespace Elders.Cronus;
 
 public static class CronusServiceCollectionExtensions
 {
+    private static readonly string _assemblyVersion =
+        typeof(CronusServiceCollectionExtensions).Assembly
+            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+        ?? typeof(CronusServiceCollectionExtensions).Assembly.GetName().Version?.ToString()
+        ?? "0.0.0";
+
     /// <summary>
     /// // Adds Cronus core services
     /// </summary>
@@ -79,7 +86,7 @@ public static class CronusServiceCollectionExtensions
         {
             services.AddSingleton<DiagnosticListener>(new DiagnosticListener("cronus"));
 
-            services.AddSingleton<ActivitySource>(new ActivitySource("Elders.Cronus", "11.0.0"));
+            services.AddSingleton<ActivitySource>(new ActivitySource("Elders.Cronus", _assemblyVersion));
         }
 
         return services;
