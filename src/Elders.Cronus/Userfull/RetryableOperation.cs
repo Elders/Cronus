@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -54,7 +55,7 @@ public static class RetryableOperation
                         logger.LogDebug("Maximum number of retries has been reached.");
                     if (exception is null)
                         exception = new Exception($"Maximum number of retries has been reached.{Environment.NewLine}{getOperationInfo()}");
-                    throw exception;
+                    ExceptionDispatchInfo.Throw(exception);
                 }
             }
             else
@@ -114,7 +115,7 @@ public static class RetryableOperation
             {
                 if (logger.IsEnabled(LogLevel.Debug))
                     logger.LogDebug("Maximum number of retries has been reached.");
-                throw lastException;
+                ExceptionDispatchInfo.Throw(lastException);
             }
         }
     }
