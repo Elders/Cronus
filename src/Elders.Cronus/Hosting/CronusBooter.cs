@@ -1,10 +1,12 @@
-﻿using Elders.Cronus.MessageProcessing;
+using Elders.Cronus.MessageProcessing;
 using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus;
 
@@ -23,7 +25,7 @@ public sealed class CronusBooter
         monitor.OnChange(OnTenantsOptionsChanged);
     }
 
-    public void BootstrapCronus()
+    public async Task BootstrapCronusAsync(CancellationToken cancellationToken = default)
     {
         var scanner = new CronusStartupScanner(new DefaulAssemblyScanner());
         IEnumerable<Type> startups = scanner.Scan();
@@ -31,7 +33,7 @@ public sealed class CronusBooter
         foreach (var startupType in startups)
         {
             ICronusStartup startup = (ICronusStartup)serviceProvider.GetRequiredService(startupType);
-            startup.Bootstrap();
+            await startup.BootstrapAsync(cancellationToken).ConfigureAwait(false);
         }
 
         IEnumerable<Type> tenantStartups = scanner.ScanForCronusTenantStartups();
@@ -45,7 +47,7 @@ public sealed class CronusBooter
                     var cronusContext = cronusContextFactory.Create(tenant, scopedServiceProvider.ServiceProvider);
 
                     ICronusTenantStartup tenantStartUp = (ICronusTenantStartup)cronusContext.ServiceProvider.GetRequiredService(tenantStartupType);
-                    tenantStartUp.Bootstrap();
+                    await tenantStartUp.BootstrapAsync(cancellationToken).ConfigureAwait(false);
                 }
             }
         }
