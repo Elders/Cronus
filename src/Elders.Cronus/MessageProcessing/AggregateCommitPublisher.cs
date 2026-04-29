@@ -22,18 +22,16 @@ internal sealed class AggregateCommitPublisher : IAggregateCommitInterceptor
         this.logger = logger;
     }
 
-    public Task OnAppendAsync(AggregateCommit origin)
+    public async Task OnAppendAsync(AggregateCommit origin)
     {
         try
         {
-            bool publishResult = publisher.Publish(origin, BuildHeaders(origin));
+            bool publishResult = await publisher.PublishAsync(origin, BuildHeaders(origin)).ConfigureAwait(false);
 
             if (publishResult == false)
                 logger.LogError("Unable to publish aggregate commit.");
         }
         catch (Exception ex) when (True(() => logger.LogError(ex, "Unable to publish aggregate commit."))) { }
-
-        return Task.CompletedTask;
     }
 
     public Task<AggregateCommit> OnAppendingAsync(AggregateCommit origin) => Task.FromResult(origin);

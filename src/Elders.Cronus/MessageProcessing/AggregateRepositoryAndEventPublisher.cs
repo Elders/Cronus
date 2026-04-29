@@ -41,17 +41,17 @@ internal sealed class AggregateRepositoryAndEventPublisher : IAggregateRepositor
         {
             if (theEvent is EntityEvent entityEvent)
             {
-                isEverythingPublished &= eventPublisher.Publish(entityEvent.Event, BuildHeaders(aggregateCommit, aggregateRoot, ++position));
+                isEverythingPublished &= await eventPublisher.PublishAsync(entityEvent.Event, BuildHeaders(aggregateCommit, aggregateRoot, ++position)).ConfigureAwait(false);
             }
             else
             {
-                isEverythingPublished &= eventPublisher.Publish(theEvent, BuildHeaders(aggregateCommit, aggregateRoot, ++position));
+                isEverythingPublished &= await eventPublisher.PublishAsync(theEvent, BuildHeaders(aggregateCommit, aggregateRoot, ++position)).ConfigureAwait(false);
             }
         }
         position += 5;
         foreach (IPublicEvent publicEvent in aggregateRoot.UncommittedPublicEvents)
         {
-            isEverythingPublished &= publicEventPublisher.Publish(publicEvent, BuildHeaders(aggregateCommit, aggregateRoot, position++));
+            isEverythingPublished &= await publicEventPublisher.PublishAsync(publicEvent, BuildHeaders(aggregateCommit, aggregateRoot, position++)).ConfigureAwait(false);
         }
 
         if (isEverythingPublished == false)

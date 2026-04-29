@@ -159,7 +159,7 @@ public class ProgressTracker
                             while (true)
                             {
                                 RebuildProjectionProgress progressSignalche = GetProgressSignal();
-                                signalPublisher.Publish(progressSignalche);
+                                await signalPublisher.PublishAsync(progressSignalche, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                                 if (cancellationToken.IsCancellationRequested)
                                     break;

@@ -77,7 +77,7 @@ internal class CronusProjectionBootstrapper
                 {
                     var id = new ProjectionVersionManagerId(projectionVersion.ProjectionName, tenant);
                     var command = new RegisterProjection(id, projectionVersion.Hash);
-                    publisher.Publish(command);
+                    await publisher.PublishAsync(command).ConfigureAwait(false);
                 }
             }
         }

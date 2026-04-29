@@ -23,16 +23,13 @@ public class EventStoreIndexBuilder : Saga, ISystemSaga,
         this.messageCounterJobFactory = messageCounterJobFactory;
     }
 
-    public Task HandleAsync(EventStoreIndexRequested @event)
+    public async Task HandleAsync(EventStoreIndexRequested @event)
     {
         var startRebuildAt = @event.Timebox.RequestStartAt;
         if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
         {
-            RequestTimeout(new RebuildIndexInternal(@event, @event.Timebox.RequestStartAt, @event.MaxDegreeOfParallelism));
-            //RequestTimeout(new EventStoreIndexRebuildTimedout(@event, @event.Timebox.FinishRequestUntil));
+            await RequestTimeoutAsync(new RebuildIndexInternal(@event, @event.Timebox.RequestStartAt, @event.MaxDegreeOfParallelism)).ConfigureAwait(false);
         }
-
-        return Task.CompletedTask;
     }
 
     public async Task HandleAsync(RebuildIndexInternal sagaTimeout)
@@ -54,17 +51,17 @@ public class EventStoreIndexBuilder : Saga, ISystemSaga,
 
         if (result == JobExecutionStatus.Running)
         {
-            RequestTimeout(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(60), sagaTimeout.MaxDegreeOfParallelism));
+            await RequestTimeoutAsync(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(60), sagaTimeout.MaxDegreeOfParallelism)).ConfigureAwait(false);
         }
         else if (result == JobExecutionStatus.Failed)
         {
             // log error
-            RequestTimeout(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(60), sagaTimeout.MaxDegreeOfParallelism));
+            await RequestTimeoutAsync(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(60), sagaTimeout.MaxDegreeOfParallelism)).ConfigureAwait(false);
         }
         else if (result == JobExecutionStatus.Completed)
         {
             var finalize = new FinalizeEventStoreIndexRequest(sagaTimeout.EventStoreIndexRequest.Id);
-            commandPublisher.Publish(finalize);
+            await commandPublisher.PublishAsync(finalize).ConfigureAwait(false);
         }
     }
 

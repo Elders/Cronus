@@ -40,16 +40,14 @@ public sealed class ProjectionBuilder : Saga, ISystemSaga,
         monitor.OnChange(OptionsForTenantReloaded);
     }
 
-    public Task HandleAsync(ProjectionVersionRequested @event)
+    public async Task HandleAsync(ProjectionVersionRequested @event)
     {
         var startRebuildAt = @event.Timebox.RequestStartAt;
         if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
         {
-            RequestTimeout(new CreateNewProjectionVersion(@event, @event.Timebox.RequestStartAt));
-            //RequestTimeout(new ProjectionVersionRequestHeartbeat(@event, @event.Timebox.FinishRequestUntil));
+            await RequestTimeoutAsync(new CreateNewProjectionVersion(@event, @event.Timebox.RequestStartAt)).ConfigureAwait(false);
+            //await RequestTimeoutAsync(new ProjectionVersionRequestHeartbeat(@event, @event.Timebox.FinishRequestUntil)).ConfigureAwait(false);
         }
-
-        return Task.CompletedTask;
     }
 
     public Task HandleAsync(ProjectionVersionRequestPaused @event)
@@ -87,26 +85,24 @@ public sealed class ProjectionBuilder : Saga, ISystemSaga,
 
         if (result == JobExecutionStatus.Running)
         {
-            RequestTimeout(new CreateNewProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(60)));
+            await RequestTimeoutAsync(new CreateNewProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(60))).ConfigureAwait(false);
         }
         else if (result == JobExecutionStatus.Failed)
         {
             var cancel = new CancelProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, "Failed");
-            commandPublisher.Publish(cancel);
+            await commandPublisher.PublishAsync(cancel).ConfigureAwait(false);
         }
         else if (result == JobExecutionStatus.Completed)
         {
             var finalize = new FinalizeProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version);
-            commandPublisher.Publish(finalize);
+            await commandPublisher.PublishAsync(finalize).ConfigureAwait(false);
         }
     }
 
-    public Task HandleAsync(ProjectionVersionRequestHeartbeat sagaTimeout)
+    public async Task HandleAsync(ProjectionVersionRequestHeartbeat sagaTimeout)
     {
         var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
-        commandPublisher.Publish(timedout);
-
-        return Task.CompletedTask;
+        await commandPublisher.PublishAsync(timedout).ConfigureAwait(false);
     }
 
     private void OptionsForTenantReloaded(TenantsOptions newOptions)

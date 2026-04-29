@@ -40,9 +40,9 @@ public class CronusHeartbeat : IHeartbeat
             {
                 Dictionary<string, string> heartbeatHeaders = new Dictionary<string, string>() { { MessageHeader.TTL, TTL } };
                 var signal = new HeartbeatSignal(boundedContext.Name, tenants.Tenants.ToList());
-                publisher.Publish(signal, heartbeatHeaders);
+                await publisher.PublishAsync(signal, heartbeatHeaders, stoppingToken).ConfigureAwait(false);
 
-                await Task.Delay(TimeSpan.FromSeconds(options.IntervalInSeconds), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(options.IntervalInSeconds), stoppingToken).ConfigureAwait(false);
             }
             catch (Exception ex) when (ex is TaskCanceledException or ObjectDisposedException)
             {

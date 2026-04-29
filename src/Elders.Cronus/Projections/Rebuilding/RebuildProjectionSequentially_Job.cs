@@ -82,7 +82,7 @@ public sealed class RebuildProjectionSequentially_Job : CronusJob<RebuildProject
             return JobExecutionStatus.Running;
 
         var startSignal = progressTracker.GetProgressStartedSignal();
-        signalPublisher.Publish(startSignal);
+        await signalPublisher.PublishAsync(startSignal, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         List<string> projectionEventsContractIds = projectionVersionHelper.GetInvolvedEventTypes(projectionType).Select(x => x.GetContractId()).ToList();
 
@@ -195,7 +195,7 @@ public sealed class RebuildProjectionSequentially_Job : CronusJob<RebuildProject
         Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
         var finishSignal = progressTracker.GetProgressFinishedSignal();
-        signalPublisher.Publish(finishSignal);
+        await signalPublisher.PublishAsync(finishSignal, cancellationToken: cancellationToken).ConfigureAwait(false);
 
         var totalCount = progressTracker.GetTotalProcessedCount();
         var avgSpeed = progressTracker.GetProcessedPerSecond();
@@ -220,7 +220,7 @@ public sealed class RebuildProjectionSequentially_Job : CronusJob<RebuildProject
         Data = await cluster.PingAsync(Data).ConfigureAwait(false);
 
         var finishSignal = progressTracker.GetProgressFinishedSignal();
-        signalPublisher.Publish(finishSignal);
+        await signalPublisher.PublishAsync(finishSignal).ConfigureAwait(false);
     }
 
     private bool IsInterested(string eventTypeContract, byte[] data)
