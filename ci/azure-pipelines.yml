@@ -1,6 +1,8 @@
 ---
 variables:
-  PROJECT_DIR: Elders.Cronus
+  - group: elders-nuget
+  - name: PROJECT_DIR
+    value: Elders.Cronus
 
 trigger:
   branches:
@@ -76,12 +78,10 @@ stages:
           echo dotnet nuget `dotnet nuget --version`
           echo dotnet `dotnet --version`
 
-    - task: NuGetCommand@2
+    - task: Bash@3
       name: publish
-      enabled: true
+      displayName: nuget push to nuget.org
       condition: and(eq(variables['newVer'], 'yes'), succeeded())
       inputs:
-        command: 'push'
-        packagesToPush: '$(Build.StagingDirectory)/*.nupkg'
-        nuGetFeedType: 'external'
-        publishFeedCredentials: 'CI-AzurePipelines'
+        targetType: 'inline'
+        script: 'dotnet nuget push $(Build.StagingDirectory)/*.nupkg --api-key $(NUGET_KEY) --source https://api.nuget.org/v3/index.json --skip-duplicate'
