@@ -35,7 +35,7 @@ public class RebuildIndex_EventToAggregateRootId_Job : CronusJob<RebuildIndex_Jo
         uint counter = 0u;
         PlayerOperator @operator = new PlayerOperator()
         {
-            OnLoadAsync = async @event =>
+            OnLoadAsync = async (@event, ct) =>
             {
                 string eventContractId = eventFinder.FindEventId(@event.Data.AsSpan());
                 if (string.IsNullOrEmpty(eventContractId))
@@ -45,11 +45,11 @@ public class RebuildIndex_EventToAggregateRootId_Job : CronusJob<RebuildIndex_Jo
                 }
 
                 IndexRecord indexRecord = new IndexRecord(eventContractId, @event.AggregateRootId, @event.Revision, @event.Position, @event.Timestamp);
-                await indexStore.ApendAsync(indexRecord);
+                await indexStore.ApendAsync(indexRecord).ConfigureAwait(false);
 
                 Interlocked.Increment(ref counter);
             },
-            NotifyProgressAsync = async options =>
+            NotifyProgressAsync = async (options, ct) =>
             {
                 var elapsed = Stopwatch.GetElapsedTime(startTimestamp);
                 Data.PaginationToken = options.PaginationToken;
@@ -57,7 +57,7 @@ public class RebuildIndex_EventToAggregateRootId_Job : CronusJob<RebuildIndex_Jo
                 Data.Timestamp = DateTimeOffset.UtcNow;
                 Data.ProcessedCount = counter;
 
-                Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                Data = await cluster.PingAsync(Data, ct).ConfigureAwait(false);
 
                 if (logger.IsEnabled(LogLevel.Information))
                 {

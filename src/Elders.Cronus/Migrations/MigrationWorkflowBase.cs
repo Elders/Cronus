@@ -1,10 +1,14 @@
-﻿using System;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.Migrations;
 
+/// <summary>
+/// Base workflow that applies a single <see cref="IMigration{TInput, TResult}"/> over the supplied input.
+/// </summary>
 public abstract class MigrationWorkflowBase<TInput, TResult> : Workflow<TInput, TResult>
     where TInput : class
     where TResult : class
@@ -15,12 +19,13 @@ public abstract class MigrationWorkflowBase<TInput, TResult> : Workflow<TInput, 
 
     public MigrationWorkflowBase(IMigration<TInput, TResult> migration)
     {
-        if (migration is null) throw new ArgumentNullException(nameof(migration));
+        ArgumentNullException.ThrowIfNull(migration);
 
         this.migration = migration;
     }
 
-    protected override Task<TResult> RunAsync(Execution<TInput, TResult> execution)
+    /// <inheritdoc />
+    protected override Task<TResult> RunAsync(Execution<TInput, TResult> execution, CancellationToken cancellationToken = default)
     {
         TResult result = default(TResult);
         var input = execution.Context;

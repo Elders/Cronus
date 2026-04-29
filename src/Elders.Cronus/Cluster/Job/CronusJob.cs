@@ -111,7 +111,15 @@ public abstract class CronusJob<TData> : ICronusJob<TData>
             return fromCluster;
     }
 
-    public virtual Task BeforeRunAsync() { return Task.CompletedTask; }
+    /// <summary>
+    /// Hook invoked before the job's main work runs. Override to perform setup work.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public virtual Task BeforeRunAsync(CancellationToken cancellationToken = default) { return Task.CompletedTask; }
 
-    public virtual Task AfterRunAsync() { return Task.CompletedTask; }
+    /// <summary>
+    /// Hook invoked after the job's main work has completed. Override to perform clean-up work.
+    /// </summary>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public virtual Task AfterRunAsync(CancellationToken cancellationToken = default) { return Task.CompletedTask; }
 }

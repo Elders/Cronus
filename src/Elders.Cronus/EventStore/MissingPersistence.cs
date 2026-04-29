@@ -12,15 +12,15 @@ internal sealed class MissingPersistence : IEventStoreFactory, IEventStore, IMes
 
     public Task ApendAsync(IndexRecord indexRecord) => throw new NotImplementedException(MissingPersistenceMessage);
 
-    public Task AppendAsync(AggregateCommit aggregateCommit) => throw new NotImplementedException(MissingPersistenceMessage);
+    public Task AppendAsync(AggregateCommit aggregateCommit, CancellationToken cancellationToken = default) => throw new NotImplementedException(MissingPersistenceMessage);
 
-    public Task AppendAsync(AggregateEventRaw eventRaw) => throw new NotImplementedException(MissingPersistenceMessage);
+    public Task AppendAsync(AggregateEventRaw eventRaw, CancellationToken cancellationToken = default) => throw new NotImplementedException(MissingPersistenceMessage);
 
     public Task DecrementAsync(Type messageType, long decrementWith = 1) => throw new NotImplementedException(MissingPersistenceMessage);
 
     public Task DeleteAsync(IndexRecord indexRecord) => throw new NotImplementedException(MissingPersistenceMessage);
 
-    public Task<bool> DeleteAsync(AggregateEventRaw eventRaw) => throw new NotImplementedException(MissingPersistenceMessage);
+    public Task<bool> DeleteAsync(AggregateEventRaw eventRaw, CancellationToken cancellationToken = default) => throw new NotImplementedException(MissingPersistenceMessage);
 
     public Task EnumerateEventStore(PlayerOperator @operator, PlayerOptions replayOptions, CancellationToken cancellationToken = default) => throw new NotImplementedException(MissingPersistenceMessage);
 
@@ -36,11 +36,11 @@ internal sealed class MissingPersistence : IEventStoreFactory, IEventStore, IMes
 
     public Task IncrementAsync(Type messageType, long incrementWith = 1) => throw new NotImplementedException(MissingPersistenceMessage);
 
-    public Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord) => throw new NotImplementedException(MissingPersistenceMessage);
+    public Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord, CancellationToken cancellationToken = default) => throw new NotImplementedException(MissingPersistenceMessage);
 
-    public Task<EventStream> LoadAsync(IBlobId aggregateId) => throw new NotImplementedException(MissingPersistenceMessage);
+    public Task<EventStream> LoadAsync(IBlobId aggregateId, CancellationToken cancellationToken = default) => throw new NotImplementedException(MissingPersistenceMessage);
 
-    public Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingAsync(IBlobId aggregateId, PagingOptions pagingOptions) => throw new NotImplementedException(MissingPersistenceMessage);
+    public Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingAsync(IBlobId aggregateId, PagingOptions pagingOptions, CancellationToken cancellationToken = default) => throw new NotImplementedException(MissingPersistenceMessage);
 
     public Task ResetAsync(Type messageType) => throw new NotImplementedException(MissingPersistenceMessage);
 }

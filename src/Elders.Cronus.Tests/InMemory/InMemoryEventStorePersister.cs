@@ -1,5 +1,6 @@
 using Elders.Cronus.EventStore.Index;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.InMemory;
@@ -17,42 +18,40 @@ public class InMemoryEventStore : IEventStore
         this.eventStoreStorage = eventStoreStorage;
     }
 
-    /// <summary>
-    /// Loads all the commits of an aggregate with the specified aggregate identifier.
-    /// </summary>
-    /// <param name="aggregateId">The aggregate identifier.</param>
-    /// <returns></returns>
-    public Task<EventStream> LoadAsync(IBlobId aggregateId)
+    /// <inheritdoc />
+    public Task<EventStream> LoadAsync(IBlobId aggregateId, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(new EventStream(eventStoreStorage.Seek(aggregateId)));
     }
 
-    /// <summary>
-    /// Persists the specified aggregate commit.
-    /// </summary>
-    /// <param name="aggregateCommit">The aggregate commit.</param>
-    public Task AppendAsync(AggregateCommit aggregateCommit)
+    /// <inheritdoc />
+    public Task AppendAsync(AggregateCommit aggregateCommit, CancellationToken cancellationToken = default)
     {
         eventStoreStorage.Flush(aggregateCommit);
 
         return Task.CompletedTask;
     }
 
-    public Task AppendAsync(AggregateEventRaw aggregateCommitRaw)
+    /// <inheritdoc />
+    public Task AppendAsync(AggregateEventRaw aggregateCommitRaw, CancellationToken cancellationToken = default)
     {
         return Task.FromException(new System.NotImplementedException());
     }
 
-    public Task<bool> DeleteAsync(AggregateEventRaw eventRaw)
-    {
-        throw new System.NotImplementedException();
-    }
-    public Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingAsync(IBlobId aggregateId, PagingOptions pagingOptions)
+    /// <inheritdoc />
+    public Task<bool> DeleteAsync(AggregateEventRaw eventRaw, CancellationToken cancellationToken = default)
     {
         throw new System.NotImplementedException();
     }
 
-    public Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord)
+    /// <inheritdoc />
+    public Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingAsync(IBlobId aggregateId, PagingOptions pagingOptions, CancellationToken cancellationToken = default)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    /// <inheritdoc />
+    public Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }

@@ -20,7 +20,7 @@ public sealed class ValidateEventStore<TSourceEventStorePlayer, TTargetEventStor
     {
         PlayerOperator @operator = new PlayerOperator()
         {
-            OnLoadAsync = raw => target.AppendAsync(raw)
+            OnLoadAsync = (raw, ct) => target.AppendAsync(raw, ct)
         };
 
         PlayerOptions playerOptions = new PlayerOptions();

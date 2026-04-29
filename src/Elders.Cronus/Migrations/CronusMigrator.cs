@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Microsoft.Extensions.Logging;
@@ -20,7 +21,8 @@ public sealed class CronusMigrator : ICronusMigrator, ICronusMigratorManual
         this.logger = logger;
     }
 
-    public async Task MigrateAsync(AggregateCommit aggregateCommit)
+    /// <inheritdoc />
+    public async Task MigrateAsync(AggregateCommit aggregateCommit, CancellationToken cancellationToken = default)
     {
         foreach (var migration in migrations)
         {
@@ -30,7 +32,7 @@ public sealed class CronusMigrator : ICronusMigrator, ICronusMigratorManual
 
         try
         {
-            await theLogic.OnAggregateCommitAsync(aggregateCommit).ConfigureAwait(false);
+            await theLogic.OnAggregateCommitAsync(aggregateCommit, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (False(() => logger.LogError(ex, $"IMigrationCustomLogic has failed. ARID: {Encoding.UTF8.GetString(aggregateCommit.AggregateRootId.Span)} Rev: {aggregateCommit.Revision}")))
         {

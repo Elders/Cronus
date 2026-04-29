@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Elders.Cronus.Workflow;
@@ -18,7 +19,8 @@ public class AggregateCommitMigrationWorkflow : MigrationWorkflowBase<AggregateC
         this.logger = logger;
     }
 
-    protected override Task<IEnumerable<AggregateCommit>> RunAsync(Execution<AggregateCommit, IEnumerable<AggregateCommit>> context)
+    /// <inheritdoc />
+    protected override Task<IEnumerable<AggregateCommit>> RunAsync(Execution<AggregateCommit, IEnumerable<AggregateCommit>> context, CancellationToken cancellationToken = default)
     {
         var commit = context.Context;
         IEnumerable<AggregateCommit> newCommits = new List<AggregateCommit> { commit };

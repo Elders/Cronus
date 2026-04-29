@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
 using Microsoft.Extensions.Logging;
@@ -21,12 +22,17 @@ public sealed class PublicEventsPlayer : ISystemTrigger,
         this.logger = logger;
     }
 
-    public async Task HandleAsync(ReplayPublicEventsRequested signal)
+    /// <summary>
+    /// Handles the <see cref="ReplayPublicEventsRequested"/> signal by running the configured replay job.
+    /// </summary>
+    /// <param name="signal">The replay signal.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public async Task HandleAsync(ReplayPublicEventsRequested signal, CancellationToken cancellationToken = default)
     {
         try
         {
             ReplayPublicEvents_Job job = jobFactory.CreateJob(signal);
-            JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
+            JobExecutionStatus result = await jobRunner.ExecuteAsync(job, cancellationToken).ConfigureAwait(false);
 
             if (logger.IsEnabled(LogLevel.Debug))
                 logger.LogDebug("Replay public events finished.");

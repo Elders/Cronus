@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,7 +60,8 @@ public class ScopedMessageWorkflow : Workflow<HandleContext>
         return base.CreateExecutionContext(context);
     }
 
-    protected override Task OnRunCompletedAsync(Execution<HandleContext> execution)
+    /// <inheritdoc />
+    protected override Task OnRunCompletedAsync(Execution<HandleContext> execution, CancellationToken cancellationToken = default)
     {
         if (scopes.TryRemove(execution.Context, out IServiceScope serviceScope))
         {
@@ -77,8 +79,9 @@ public class ScopedMessageWorkflow : Workflow<HandleContext>
         return Task.CompletedTask;
     }
 
-    protected override Task RunAsync(Execution<HandleContext> execution)
+    /// <inheritdoc />
+    protected override Task RunAsync(Execution<HandleContext> execution, CancellationToken cancellationToken = default)
     {
-        return workflow.RunAsync(execution.Context);
+        return workflow.RunAsync(execution.Context, cancellationToken);
     }
 }

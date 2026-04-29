@@ -1,8 +1,12 @@
-﻿using System;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Workflow;
 
+/// <summary>
+/// Workflow whose implementation is supplied as a delegate.
+/// </summary>
 public sealed class ActionWorkflow<TContext> : Workflow<TContext> where TContext : class
 {
     Func<Execution<TContext>, Task> implementation;
@@ -12,9 +16,10 @@ public sealed class ActionWorkflow<TContext> : Workflow<TContext> where TContext
         this.implementation = action;
     }
 
-    protected override Task RunAsync(Execution<TContext> execution)
+    /// <inheritdoc />
+    protected override Task RunAsync(Execution<TContext> execution, CancellationToken cancellationToken = default)
     {
-        if (execution is null) throw new ArgumentNullException(nameof(execution));
+        ArgumentNullException.ThrowIfNull(execution);
 
         if (implementation is not null)
             return implementation(execution);
@@ -23,6 +28,9 @@ public sealed class ActionWorkflow<TContext> : Workflow<TContext> where TContext
     }
 }
 
+/// <summary>
+/// Workflow whose implementation is supplied as a delegate and which returns a typed result.
+/// </summary>
 public sealed class ActionWorkflow<TContext, TResult> : Workflow<TContext, TResult> where TContext : class
 {
     Func<Execution<TContext>, Task<TResult>> implementation;
@@ -32,9 +40,10 @@ public sealed class ActionWorkflow<TContext, TResult> : Workflow<TContext, TResu
         this.implementation = action;
     }
 
-    protected override Task<TResult> RunAsync(Execution<TContext, TResult> execution)
+    /// <inheritdoc />
+    protected override Task<TResult> RunAsync(Execution<TContext, TResult> execution, CancellationToken cancellationToken = default)
     {
-        if (execution is null) throw new ArgumentNullException(nameof(execution));
+        ArgumentNullException.ThrowIfNull(execution);
 
         if (implementation is not null)
             return implementation(execution);

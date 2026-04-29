@@ -42,7 +42,7 @@ public class ReplayPublicEvents_Job : CronusJob<ReplayPublicEvents_JobData>
         ulong counter = Data.EventTypePaging is null ? 0 : Data.EventTypePaging.ProcessedCount;
         PlayerOperator @operator = new PlayerOperator()
         {
-            OnLoadAsync = async eventRaw =>
+            OnLoadAsync = async (eventRaw, ct) =>
             {
                 string tenant = contextAccessor.CronusContext.Tenant;
                 //TODO: Document which headers are essential or make another ctor for CronusMessage with byte[]
@@ -56,16 +56,16 @@ public class ReplayPublicEvents_Job : CronusJob<ReplayPublicEvents_JobData>
                     { "contract_name", Data.SourceEventTypeId }
                 };
 
-                await publicEventPublisher.PublishAsync(eventRaw.Data, Data.SourceEventTypeId.GetTypeByContract(), tenant, headers, cancellationToken).ConfigureAwait(false);
+                await publicEventPublisher.PublishAsync(eventRaw.Data, Data.SourceEventTypeId.GetTypeByContract(), tenant, headers, ct).ConfigureAwait(false);
 
                 counter++;
             },
-            NotifyProgressAsync = async options =>
+            NotifyProgressAsync = async (options, ct) =>
             {
                 var progress = new ReplayPublicEvents_JobData.EventPaging(options.EventTypeId, options.PaginationToken, options.After, options.Before, counter, 0);
                 Data.EventTypePaging = progress;
                 Data.Timestamp = DateTimeOffset.UtcNow;
-                Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                Data = await cluster.PingAsync(Data, ct).ConfigureAwait(false);
             }
         };
 

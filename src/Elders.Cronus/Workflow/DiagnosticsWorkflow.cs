@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.MessageProcessing;
 using Microsoft.Extensions.Logging;
@@ -46,9 +47,10 @@ public sealed class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TCo
         this.activitySource = activitySource;
     }
 
-    protected override async Task RunAsync(Execution<TContext> execution)
+    /// <inheritdoc />
+    protected override async Task RunAsync(Execution<TContext> execution, CancellationToken cancellationToken = default)
     {
-        if (execution is null) throw new ArgumentNullException(nameof(execution));
+        ArgumentNullException.ThrowIfNull(execution);
 
         using (logger.BeginScope(scope =>
         {
@@ -69,7 +71,7 @@ public sealed class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TCo
                 long startTimestamp = 0;
                 startTimestamp = Stopwatch.GetTimestamp();
 
-                await workflow.RunAsync(execution.Context).ConfigureAwait(false);
+                await workflow.RunAsync(execution.Context, cancellationToken).ConfigureAwait(false);
 
                 TimeSpan elapsed = Stopwatch.GetElapsedTime(startTimestamp);
 
@@ -77,7 +79,7 @@ public sealed class DiagnosticsWorkflow<TContext> : Workflow<TContext> where TCo
             }
             else
             {
-                await workflow.RunAsync(execution.Context).ConfigureAwait(false);
+                await workflow.RunAsync(execution.Context, cancellationToken).ConfigureAwait(false);
             }
 
             StopActivity(activity);

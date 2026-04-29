@@ -113,7 +113,7 @@ public sealed class RebuildProjection_Job : CronusJob<RebuildProjection_JobData>
 
             PlayerOperator playerOperator = new PlayerOperator()
             {
-                OnLoadAsync = async eventRaw =>
+                OnLoadAsync = async (eventRaw, ct) =>
                 {
                     IEvent @event = serializer.DeserializeFromBytes<IEvent>(eventRaw.Data);
                     @event = @event.Unwrap();
@@ -125,11 +125,11 @@ public sealed class RebuildProjection_Job : CronusJob<RebuildProjection_JobData>
 
                     await projectionWriter.SaveAsync(projectionType, @event, version).ConfigureAwait(false);
                     if (projectionInstance is not null)
-                        await projectionInstance.ReplayEventAsync(@event).ConfigureAwait(false);
+                        await projectionInstance.ReplayEventAsync(@event, ct).ConfigureAwait(false);
 
                     progressTracker.TrackAndNotify(@event.GetType().GetContractId(), pingSource.Token);
                 },
-                NotifyProgressAsync = async options =>
+                NotifyProgressAsync = async (options, ct) =>
                 {
                     var totalCount = progressTracker.GetTotalProcessedCount();
                     var progress = new RebuildProjection_JobData.EventPaging(options.EventTypeId, options.PaginationToken, options.After, options.Before, progressTracker.GetTotalProcessedCount(options.EventTypeId), 0);
@@ -139,7 +139,7 @@ public sealed class RebuildProjection_Job : CronusJob<RebuildProjection_JobData>
                         Data.Before = options.Before;
                         Data.MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
                         Data.Timestamp = DateTimeOffset.UtcNow;
-                        Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                        Data = await cluster.PingAsync(Data, ct).ConfigureAwait(false);
                     }
 
                     var avgSpeed = progressTracker.GetProcessedPerSecond();
@@ -170,7 +170,7 @@ public sealed class RebuildProjection_Job : CronusJob<RebuildProjection_JobData>
         }
 
         if (projectionInstance is not null)
-            await projectionInstance.OnReplayCompletedAsync().ConfigureAwait(false);
+            await projectionInstance.OnReplayCompletedAsync(cancellationToken).ConfigureAwait(false);
 
         pingSource.Cancel();
         Data.IsCompleted = true;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.EventStore;
 using Microsoft.Extensions.Logging;
@@ -22,11 +23,12 @@ internal sealed class AggregateCommitPublisher : IAggregateCommitInterceptor
         this.logger = logger;
     }
 
-    public async Task OnAppendAsync(AggregateCommit origin)
+    /// <inheritdoc />
+    public async Task OnAppendAsync(AggregateCommit origin, CancellationToken cancellationToken = default)
     {
         try
         {
-            bool publishResult = await publisher.PublishAsync(origin, BuildHeaders(origin)).ConfigureAwait(false);
+            bool publishResult = await publisher.PublishAsync(origin, BuildHeaders(origin), cancellationToken).ConfigureAwait(false);
 
             if (publishResult == false)
                 logger.LogError("Unable to publish aggregate commit.");
@@ -34,7 +36,8 @@ internal sealed class AggregateCommitPublisher : IAggregateCommitInterceptor
         catch (Exception ex) when (True(() => logger.LogError(ex, "Unable to publish aggregate commit."))) { }
     }
 
-    public Task<AggregateCommit> OnAppendingAsync(AggregateCommit origin) => Task.FromResult(origin);
+    /// <inheritdoc />
+    public Task<AggregateCommit> OnAppendingAsync(AggregateCommit origin, CancellationToken cancellationToken = default) => Task.FromResult(origin);
 
     Dictionary<string, string> BuildHeaders(AggregateCommit commit)
     {

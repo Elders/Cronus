@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.FaultHandling.Strategies;
 using Elders.Cronus.MessageProcessing;
@@ -142,13 +143,15 @@ public class RetryPolicy
 
     /// <summary>
     /// Repetitively executes the specified action while it satisfies the current retry policy.
+    /// Threads the supplied <paramref name="cancellationToken"/> through to the action and the inter-retry delays.
     /// </summary>
     /// <typeparam name="TResult">The type of result expected from the executable action.</typeparam>
     /// <param name="func">A delegate representing the executable action which returns the result of type R.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
     /// <returns>The result from the action.</returns>
-    public virtual async Task<TResult> ExecuteActionAsync<TResult>(Func<Task<TResult>> func)
+    public virtual async Task<TResult> ExecuteActionAsync<TResult>(Func<CancellationToken, Task<TResult>> func, CancellationToken cancellationToken = default)
     {
-        //Guard.ArgumentNotNull(func, "func");
+        ArgumentNullException.ThrowIfNull(func);
 
         int retryCount = 0;
         TimeSpan delay = TimeSpan.Zero;
@@ -158,11 +161,13 @@ public class RetryPolicy
 
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             lastError = null;
 
             try
             {
-                var result = await func();
+                var result = await func(cancellationToken).ConfigureAwait(false);
                 return result;
             }
             catch (RetryLimitExceededException limitExceededEx)
@@ -192,7 +197,7 @@ public class RetryPolicy
             }
             // If there is another exception we will let it pop because most probably this is non-user exception and there is no need for a retry. (There is a Cronus bug. Figure out how and fix it.): PAFA
 
-            // We are here because we should retry. 
+            // We are here because we should retry.
             // However, we will perform an extra check in the delay interval. Should prevent from accidentally ending up with the value of -1 that will block a thread indefinitely.
             // In addition, any other negative numbers will cause an ArgumentOutOfRangeException fault that will be thrown by Thread.Sleep.
             if (delay.TotalMilliseconds < 0)
@@ -204,7 +209,7 @@ public class RetryPolicy
 
             if (retryCount > 1 || RetryStrategy.FastFirstRetry == false)
             {
-                await Task.Delay(delay);
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
             }
         }
     }

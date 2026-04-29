@@ -96,7 +96,7 @@ public sealed class RebuildProjectionSequentially_Job : CronusJob<RebuildProject
         {
             PlayerOperator playerOperator = new PlayerOperator()
             {
-                OnAggregateStreamLoadedAsync = async stream =>
+                OnAggregateStreamLoadedAsync = async (stream, ct2) =>
                 {
                     // 1. It is important to check all EventHandlers if they are interested in specific events and do this FIRST.
                     List<AggregateEventRaw> rawEvents = [];
@@ -122,7 +122,7 @@ public sealed class RebuildProjectionSequentially_Job : CronusJob<RebuildProject
                         }
 
                         Task projectionStoreTask = projectionWriter.SaveAsync(projectionType, @event, version);
-                        Task replayTask = eventSourcedProjection.ReplayEventAsync(@event);
+                        Task replayTask = eventSourcedProjection.ReplayEventAsync(@event, ct2);
 
                         try
                         {
@@ -142,13 +142,13 @@ public sealed class RebuildProjectionSequentially_Job : CronusJob<RebuildProject
                         progressTracker.TrackAndNotify(@event.GetType().GetContractId(), ct);
                     }
                 },
-                NotifyProgressAsync = async options =>
+                NotifyProgressAsync = async (options, ct2) =>
                 {
                     var totalCount = progressTracker.GetTotalProcessedCount();
                     Data.ProcessedCount = totalCount;
                     Data.PaginationToken = options.PaginationToken;
                     Data.MaxDegreeOfParallelism = options.MaxDegreeOfParallelism;
-                    Data = await cluster.PingAsync(Data).ConfigureAwait(false);
+                    Data = await cluster.PingAsync(Data, ct2).ConfigureAwait(false);
 
                     var avgSpeed = progressTracker.GetProcessedPerSecond();
                     LogProjectionProgress(logger, version.ToString(), totalCount, avgSpeed, null);
@@ -175,7 +175,7 @@ public sealed class RebuildProjectionSequentially_Job : CronusJob<RebuildProject
             progressTracker.MarkProcessStart();
             await player.EnumerateEventStore(playerOperator, opt, cancellationToken).ConfigureAwait(false);
 
-            await eventSourcedProjection.OnReplayCompletedAsync().ConfigureAwait(false);
+            await eventSourcedProjection.OnReplayCompletedAsync(cancellationToken).ConfigureAwait(false);
             elapsed = progressTracker.GetElapsed();
         }
         else

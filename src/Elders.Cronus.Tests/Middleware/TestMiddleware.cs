@@ -1,4 +1,5 @@
-﻿using Elders.Cronus.Workflow;
+using Elders.Cronus.Workflow;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Tests.Middleware;
@@ -12,7 +13,7 @@ public class TestMiddleware : Workflow<string>
         this.token = token;
     }
 
-    protected override Task RunAsync(Execution<string> execution)
+    protected override Task RunAsync(Execution<string> execution, CancellationToken cancellationToken = default)
     {
         token.Notify();
         return Task.CompletedTask;

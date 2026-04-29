@@ -1,8 +1,12 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections.Versioning;
 
+/// <summary>
+/// Application service that handles projection-versioning commands for the projection version manager aggregate.
+/// </summary>
 [DataContract(Name = "28345d27-0ccf-48dc-88dc-2d10bed829cf")]
 public class ProjectionVersionManagerAppService : ApplicationService<ProjectionVersionManager>, ISystemAppService,
     ICommandHandler<RegisterProjection>,
@@ -22,7 +26,12 @@ public class ProjectionVersionManagerAppService : ApplicationService<ProjectionV
         this.projectionReader = projectionReader;
     }
 
-    public async Task HandleAsync(RegisterProjection command)
+    /// <summary>
+    /// Registers a projection by either creating a new manager aggregate or notifying an existing one of the new hash.
+    /// </summary>
+    /// <param name="command">The command to handle.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public async Task HandleAsync(RegisterProjection command, CancellationToken cancellationToken = default)
     {
         ProjectionVersionManager ar = null;
         ReadResult<ProjectionVersionManager> result = await repository.LoadAsync<ProjectionVersionManager>(command.Id).ConfigureAwait(false);
@@ -43,34 +52,64 @@ public class ProjectionVersionManagerAppService : ApplicationService<ProjectionV
         await repository.SaveAsync(ar).ConfigureAwait(false);
     }
 
-    public Task HandleAsync(NewProjectionVersion command)
+    /// <summary>
+    /// Triggers a replay of an existing projection version.
+    /// </summary>
+    /// <param name="command">The command to handle.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(NewProjectionVersion command, CancellationToken cancellationToken = default)
     {
-        return UpdateAsync(command.Id, ar => ar.Replay(command.Hash, projectionVersioningPolicy, command.ReplayEventsOptions));
+        return UpdateAsync(command.Id, ar => ar.Replay(command.Hash, projectionVersioningPolicy, command.ReplayEventsOptions), cancellationToken);
     }
 
-    public Task HandleAsync(FixProjectionVersion command)
+    /// <summary>
+    /// Triggers a rebuild of a projection version.
+    /// </summary>
+    /// <param name="command">The command to handle.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(FixProjectionVersion command, CancellationToken cancellationToken = default)
     {
-        return UpdateAsync(command.Id, ar => ar.Rebuild(command.Hash, projectionVersioningPolicy, command.ReplayEventsOptions));
+        return UpdateAsync(command.Id, ar => ar.Rebuild(command.Hash, projectionVersioningPolicy, command.ReplayEventsOptions), cancellationToken);
     }
 
-    public Task HandleAsync(FinalizeProjectionVersionRequest command)
+    /// <summary>
+    /// Finalises a projection version request once it has finished rebuilding successfully.
+    /// </summary>
+    /// <param name="command">The command to handle.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(FinalizeProjectionVersionRequest command, CancellationToken cancellationToken = default)
     {
-        return UpdateAsync(command.Id, ar => ar.FinalizeVersionRequest(command.Version));
+        return UpdateAsync(command.Id, ar => ar.FinalizeVersionRequest(command.Version), cancellationToken);
     }
 
-    public Task HandleAsync(CancelProjectionVersionRequest command)
+    /// <summary>
+    /// Cancels a projection version request.
+    /// </summary>
+    /// <param name="command">The command to handle.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(CancelProjectionVersionRequest command, CancellationToken cancellationToken = default)
     {
-        return UpdateAsync(command.Id, ar => ar.CancelVersionRequest(command.Version, command.Reason));
+        return UpdateAsync(command.Id, ar => ar.CancelVersionRequest(command.Version, command.Reason), cancellationToken);
     }
 
-    public Task HandleAsync(TimeoutProjectionVersionRequest command)
+    /// <summary>
+    /// Marks a projection version request as timed out.
+    /// </summary>
+    /// <param name="command">The command to handle.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(TimeoutProjectionVersionRequest command, CancellationToken cancellationToken = default)
     {
-        return UpdateAsync(command.Id, ar => ar.VersionRequestTimedout(command.Version, command.Timebox));
+        return UpdateAsync(command.Id, ar => ar.VersionRequestTimedout(command.Version, command.Timebox), cancellationToken);
     }
 
-    public Task HandleAsync(PauseProjectionVersion command)
+    /// <summary>
+    /// Pauses an in-flight projection version request.
+    /// </summary>
+    /// <param name="command">The command to handle.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(PauseProjectionVersion command, CancellationToken cancellationToken = default)
     {
-        return UpdateAsync(command.Id, ar => ar.PauseVersionRequest(command.Version));
+        return UpdateAsync(command.Id, ar => ar.PauseVersionRequest(command.Version), cancellationToken);
     }
 
     private async Task<bool> ShouldRebuildMissingSystemProjectionsAsync(ProjectionVersionManagerId projectionId, IProjectionReader projectionReader)

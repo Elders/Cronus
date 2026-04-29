@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 
@@ -60,29 +61,30 @@ public sealed class MessageHandleWorkflow : Workflow<HandleContext>
         ActualHandle = handle(ActualHandle);
     }
 
-    protected async override Task RunAsync(Execution<HandleContext> execution)
+    /// <inheritdoc />
+    protected async override Task RunAsync(Execution<HandleContext> execution, CancellationToken cancellationToken = default)
     {
         try
         {
-            using (IHandlerInstance handler = await CreateHandler.RunAsync(execution.Context).ConfigureAwait(false))
+            using (IHandlerInstance handler = await CreateHandler.RunAsync(execution.Context, cancellationToken).ConfigureAwait(false))
             {
                 var handleContext = new HandlerContext(execution.Context.Message.Payload, handler.Current, execution.Context.Message);
-                await BeginHandle.RunAsync(handleContext).ConfigureAwait(false);
-                await ActualHandle.RunAsync(handleContext).ConfigureAwait(false);
-                await EndHandle.RunAsync(handleContext).ConfigureAwait(false);
+                await BeginHandle.RunAsync(handleContext, cancellationToken).ConfigureAwait(false);
+                await ActualHandle.RunAsync(handleContext, cancellationToken).ConfigureAwait(false);
+                await EndHandle.RunAsync(handleContext, cancellationToken).ConfigureAwait(false);
             }
         }
         catch (Exception ex)
         {
             var context = new ErrorContext(ex, execution.Context.Message, execution.Context.HandlerType);
             context.AssignPropertySafely<IWorkflowContextWithServiceProvider>(prop => prop.ServiceProvider = execution.Context.ServiceProvider);
-            await Error.RunAsync(context).ConfigureAwait(false);
+            await Error.RunAsync(context, cancellationToken).ConfigureAwait(false);
 
             throw context.ToException();
         }
         finally
         {
-            await Finalize.RunAsync(execution.Context).ConfigureAwait(false);
+            await Finalize.RunAsync(execution.Context, cancellationToken).ConfigureAwait(false);
         }
     }
 }

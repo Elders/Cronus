@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
 
@@ -23,16 +24,26 @@ public class EventStoreIndexBuilder : Saga, ISystemSaga,
         this.messageCounterJobFactory = messageCounterJobFactory;
     }
 
-    public async Task HandleAsync(EventStoreIndexRequested @event)
+    /// <summary>
+    /// Handles the <see cref="EventStoreIndexRequested"/> event by scheduling a saga timeout that drives the rebuild loop.
+    /// </summary>
+    /// <param name="event">The event signalling that an index rebuild was requested.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public async Task HandleAsync(EventStoreIndexRequested @event, CancellationToken cancellationToken = default)
     {
         var startRebuildAt = @event.Timebox.RequestStartAt;
         if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
         {
-            await RequestTimeoutAsync(new RebuildIndexInternal(@event, @event.Timebox.RequestStartAt, @event.MaxDegreeOfParallelism)).ConfigureAwait(false);
+            await RequestTimeoutAsync(new RebuildIndexInternal(@event, @event.Timebox.RequestStartAt, @event.MaxDegreeOfParallelism), cancellationToken).ConfigureAwait(false);
         }
     }
 
-    public async Task HandleAsync(RebuildIndexInternal sagaTimeout)
+    /// <summary>
+    /// Handles a periodic <see cref="RebuildIndexInternal"/> saga timeout by running the next slice of the rebuild job and re-arming or finalising the saga.
+    /// </summary>
+    /// <param name="sagaTimeout">The saga timeout that fired.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public async Task HandleAsync(RebuildIndexInternal sagaTimeout, CancellationToken cancellationToken = default)
     {
         ICronusJob<object> job = null;
         // we need to redesign the job factories
@@ -47,25 +58,30 @@ public class EventStoreIndexBuilder : Saga, ISystemSaga,
             job = jobFactory.CreateJob(sagaTimeout.EventStoreIndexRequest.Timebox, sagaTimeout.MaxDegreeOfParallelism);
         }
 
-        JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
+        JobExecutionStatus result = await jobRunner.ExecuteAsync(job, cancellationToken).ConfigureAwait(false);
 
         if (result == JobExecutionStatus.Running)
         {
-            await RequestTimeoutAsync(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(60), sagaTimeout.MaxDegreeOfParallelism)).ConfigureAwait(false);
+            await RequestTimeoutAsync(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(60), sagaTimeout.MaxDegreeOfParallelism), cancellationToken).ConfigureAwait(false);
         }
         else if (result == JobExecutionStatus.Failed)
         {
             // log error
-            await RequestTimeoutAsync(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(60), sagaTimeout.MaxDegreeOfParallelism)).ConfigureAwait(false);
+            await RequestTimeoutAsync(new RebuildIndexInternal(sagaTimeout.EventStoreIndexRequest, DateTime.UtcNow.AddSeconds(60), sagaTimeout.MaxDegreeOfParallelism), cancellationToken).ConfigureAwait(false);
         }
         else if (result == JobExecutionStatus.Completed)
         {
             var finalize = new FinalizeEventStoreIndexRequest(sagaTimeout.EventStoreIndexRequest.Id);
-            await commandPublisher.PublishAsync(finalize).ConfigureAwait(false);
+            await commandPublisher.PublishAsync(finalize, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
     }
 
-    public Task HandleAsync(EventStoreIndexRebuildTimedout sagaTimeout)
+    /// <summary>
+    /// Handles the <see cref="EventStoreIndexRebuildTimedout"/> saga timeout (currently a no-op).
+    /// </summary>
+    /// <param name="sagaTimeout">The saga timeout that fired.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(EventStoreIndexRebuildTimedout sagaTimeout, CancellationToken cancellationToken = default)
     {
         //var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
         //commandPublisher.Publish(timedout);

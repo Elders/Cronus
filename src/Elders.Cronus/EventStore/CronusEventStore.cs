@@ -1,10 +1,14 @@
-﻿using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.EventStore.Index;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore;
 
+/// <summary>
+/// Logging facade over the persistence-specific <see cref="IEventStore"/> implementation. Delegates work and writes structured error logs on failure.
+/// </summary>
 public class CronusEventStore : IEventStore
 {
     private readonly IEventStore eventStore;
@@ -16,11 +20,12 @@ public class CronusEventStore : IEventStore
         this.logger = logger;
     }
 
-    public async Task AppendAsync(AggregateCommit aggregateCommit)
+    /// <inheritdoc />
+    public async Task AppendAsync(AggregateCommit aggregateCommit, CancellationToken cancellationToken = default)
     {
         try
         {
-            await eventStore.AppendAsync(aggregateCommit).ConfigureAwait(false);
+            await eventStore.AppendAsync(aggregateCommit, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to append aggregate with ID = {cronus_arid}.", aggregateCommit.AggregateRootId)))
         {
@@ -28,11 +33,12 @@ public class CronusEventStore : IEventStore
         }
     }
 
-    public async Task AppendAsync(AggregateEventRaw aggregateEventRaw)
+    /// <inheritdoc />
+    public async Task AppendAsync(AggregateEventRaw aggregateEventRaw, CancellationToken cancellationToken = default)
     {
         try
         {
-            await eventStore.AppendAsync(aggregateEventRaw).ConfigureAwait(false);
+            await eventStore.AppendAsync(aggregateEventRaw, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to append aggregate with ID = {cronus_arid}.", aggregateEventRaw.AggregateRootId)))
         {
@@ -40,11 +46,12 @@ public class CronusEventStore : IEventStore
         }
     }
 
-    public async Task<bool> DeleteAsync(AggregateEventRaw eventRaw)
+    /// <inheritdoc />
+    public async Task<bool> DeleteAsync(AggregateEventRaw eventRaw, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await eventStore.DeleteAsync(eventRaw).ConfigureAwait(false);
+            return await eventStore.DeleteAsync(eventRaw, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to delete aggregate event with ID = {cronus_arid}.", eventRaw.AggregateRootId)))
         {
@@ -52,11 +59,12 @@ public class CronusEventStore : IEventStore
         }
     }
 
-    public async Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord)
+    /// <inheritdoc />
+    public async Task<AggregateEventRaw> LoadAggregateEventRaw(IndexRecord indexRecord, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await eventStore.LoadAggregateEventRaw(indexRecord).ConfigureAwait(false);
+            return await eventStore.LoadAggregateEventRaw(indexRecord, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to load aggregate event raw with ID = {cronus_arid}.", indexRecord.AggregateRootId)))
         {
@@ -64,11 +72,12 @@ public class CronusEventStore : IEventStore
         }
     }
 
-    public async Task<EventStream> LoadAsync(IBlobId aggregateId)
+    /// <inheritdoc />
+    public async Task<EventStream> LoadAsync(IBlobId aggregateId, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await eventStore.LoadAsync(aggregateId).ConfigureAwait(false);
+            return await eventStore.LoadAsync(aggregateId, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to load aggregate with ID = {cronus_arid}.", aggregateId)))
         {
@@ -76,11 +85,12 @@ public class CronusEventStore : IEventStore
         }
     }
 
-    public async Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingAsync(IBlobId aggregateId, PagingOptions pagingOptions)
+    /// <inheritdoc />
+    public async Task<LoadAggregateRawEventsWithPagingResult> LoadWithPagingAsync(IBlobId aggregateId, PagingOptions pagingOptions, CancellationToken cancellationToken = default)
     {
         try
         {
-            return await eventStore.LoadWithPagingAsync(aggregateId, pagingOptions).ConfigureAwait(false);
+            return await eventStore.LoadWithPagingAsync(aggregateId, pagingOptions, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (False(() => logger.LogError(ex, "Failed to load aggregate with ID = {cronus_arid} and Paging options {@pagingOptions}.", aggregateId, pagingOptions)))
         {

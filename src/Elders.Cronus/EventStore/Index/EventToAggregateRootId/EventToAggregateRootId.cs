@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.Index;
@@ -20,7 +21,12 @@ public class EventToAggregateRootId : ICronusEventStoreIndex
         this.bcOptions = bcOptions;
     }
 
-    public Task IndexAsync(CronusMessage message)
+    /// <summary>
+    /// Indexes the supplied <see cref="CronusMessage"/> by mapping the contained event type to its aggregate root id.
+    /// </summary>
+    /// <param name="message">The Cronus message to index.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task IndexAsync(CronusMessage message, CancellationToken cancellationToken = default)
     {
         if (message.Payload is IEvent @event)
         {

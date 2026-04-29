@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using Elders.Cronus.Projections;
 
@@ -17,7 +18,12 @@ public sealed class EventStoreIndexStatus : ProjectionDefinition<EventStoreIndex
         Subscribe<EventStoreIndexIsNowPresent>(x => x.Id);
     }
 
-    public Task HandleAsync(EventStoreIndexRequested @event)
+    /// <summary>
+    /// Records that an index rebuild has been requested for the supplied id.
+    /// </summary>
+    /// <param name="event">The event signalling that an index rebuild was requested.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(EventStoreIndexRequested @event, CancellationToken cancellationToken = default)
     {
         State.Id = @event.Id;
         State.Status = IndexStatus.Building;
@@ -25,7 +31,12 @@ public sealed class EventStoreIndexStatus : ProjectionDefinition<EventStoreIndex
         return Task.CompletedTask;
     }
 
-    public Task HandleAsync(EventStoreIndexIsNowPresent @event)
+    /// <summary>
+    /// Records that the index has finished rebuilding and is present.
+    /// </summary>
+    /// <param name="event">The event signalling that the index is now present.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(EventStoreIndexIsNowPresent @event, CancellationToken cancellationToken = default)
     {
         State.Id = @event.Id;
         State.Status = IndexStatus.Present;

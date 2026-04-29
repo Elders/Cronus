@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.Projections.Versioning;
@@ -22,35 +23,60 @@ public class ProjectionVersionsHandler : ProjectionDefinition<ProjectionVersions
         Subscribe<ProjectionVersionRequestPaused>(x => x.Id);
     }
 
-    public Task HandleAsync(ProjectionVersionRequested @event)
+    /// <summary>
+    /// Records a newly requested projection version into the version history.
+    /// </summary>
+    /// <param name="event">The event signalling that a new projection version was requested.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(ProjectionVersionRequested @event, CancellationToken cancellationToken = default)
     {
         State.Id = @event.Id;
         State.AllVersions.Add(@event.Version);
         return Task.CompletedTask;
     }
 
-    public Task HandleAsync(NewProjectionVersionIsNowLive @event)
+    /// <summary>
+    /// Records a newly live projection version into the version history.
+    /// </summary>
+    /// <param name="event">The event signalling that the projection version is now live.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(NewProjectionVersionIsNowLive @event, CancellationToken cancellationToken = default)
     {
         State.Id = @event.Id;
         State.AllVersions.Add(@event.ProjectionVersion);
         return Task.CompletedTask;
     }
 
-    public Task HandleAsync(ProjectionVersionRequestCanceled @event)
+    /// <summary>
+    /// Records a cancelled projection version request.
+    /// </summary>
+    /// <param name="event">The event signalling that the version request was cancelled.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(ProjectionVersionRequestCanceled @event, CancellationToken cancellationToken = default)
     {
         State.Id = @event.Id;
         State.AllVersions.Add(@event.Version);
         return Task.CompletedTask;
     }
 
-    public Task HandleAsync(ProjectionVersionRequestTimedout @event)
+    /// <summary>
+    /// Records a projection version request that has timed out.
+    /// </summary>
+    /// <param name="event">The event signalling that the version request timed out.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(ProjectionVersionRequestTimedout @event, CancellationToken cancellationToken = default)
     {
         State.Id = @event.Id;
         State.AllVersions.Add(@event.Version);
         return Task.CompletedTask;
     }
 
-    public Task HandleAsync(ProjectionVersionRequestPaused @event)
+    /// <summary>
+    /// Records a projection version request that has been paused.
+    /// </summary>
+    /// <param name="event">The event signalling that the version request was paused.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(ProjectionVersionRequestPaused @event, CancellationToken cancellationToken = default)
     {
         State.Id = @event.Id;
         State.AllVersions.Add(@event.Version);

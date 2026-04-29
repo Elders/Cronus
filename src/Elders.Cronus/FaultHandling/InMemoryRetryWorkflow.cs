@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.FaultHandling.Strategies;
 using Elders.Cronus.Workflow;
@@ -6,6 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus.FaultHandling;
 
+/// <summary>
+/// Workflow decorator that retries the inner workflow in-memory using a transient-error retry policy.
+/// </summary>
 public class InMemoryRetryWorkflow<TContext> : Workflow<TContext> where TContext : class
 {
     private RetryPolicy retryPolicy;
@@ -19,10 +23,11 @@ public class InMemoryRetryWorkflow<TContext> : Workflow<TContext> where TContext
         retryPolicy = new RetryPolicy(new TransientErrorCatchAllStrategy(), retryStrategy, logger);
     }
 
-    protected override async Task RunAsync(Execution<TContext> execution)
+    /// <inheritdoc />
+    protected override async Task RunAsync(Execution<TContext> execution, CancellationToken cancellationToken = default)
     {
-        if (execution is null) throw new ArgumentNullException(nameof(execution));
+        ArgumentNullException.ThrowIfNull(execution);
 
-        await retryPolicy.ExecuteActionAsync(() => workflow.RunAsync(execution.Context));
+        await retryPolicy.ExecuteActionAsync(ct => workflow.RunAsync(execution.Context, ct), cancellationToken).ConfigureAwait(false);
     }
 }

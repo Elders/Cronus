@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using Elders.Cronus.Cluster.Job;
 using Elders.Cronus.EventStore.Players;
@@ -40,17 +41,27 @@ public sealed class ProjectionBuilder : Saga, ISystemSaga,
         monitor.OnChange(OptionsForTenantReloaded);
     }
 
-    public async Task HandleAsync(ProjectionVersionRequested @event)
+    /// <summary>
+    /// Schedules the saga timeout that drives the projection-rebuild loop.
+    /// </summary>
+    /// <param name="event">The event signalling that a new projection version was requested.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public async Task HandleAsync(ProjectionVersionRequested @event, CancellationToken cancellationToken = default)
     {
         var startRebuildAt = @event.Timebox.RequestStartAt;
         if (startRebuildAt.AddMinutes(5) > DateTime.UtcNow && @event.Timebox.HasExpired == false)
         {
-            await RequestTimeoutAsync(new CreateNewProjectionVersion(@event, @event.Timebox.RequestStartAt)).ConfigureAwait(false);
+            await RequestTimeoutAsync(new CreateNewProjectionVersion(@event, @event.Timebox.RequestStartAt), cancellationToken).ConfigureAwait(false);
             //await RequestTimeoutAsync(new ProjectionVersionRequestHeartbeat(@event, @event.Timebox.FinishRequestUntil)).ConfigureAwait(false);
         }
     }
 
-    public Task HandleAsync(ProjectionVersionRequestPaused @event)
+    /// <summary>
+    /// Cancels the rebuild job for a projection version that has been paused.
+    /// </summary>
+    /// <param name="event">The event signalling that the projection version was paused.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public Task HandleAsync(ProjectionVersionRequestPaused @event, CancellationToken cancellationToken = default)
     {
         var job = GetJob(@event.Version, new ReplayEventsOptions(), new VersionRequestTimebox(@event.Timestamp.DateTime));
 
@@ -71,7 +82,12 @@ public sealed class ProjectionBuilder : Saga, ISystemSaga,
         return job;
     }
 
-    public async Task HandleAsync(CreateNewProjectionVersion sagaTimeout)
+    /// <summary>
+    /// Drives a slice of the projection-rebuild job and either re-arms the saga, fails it, or finalises the version request based on the job result.
+    /// </summary>
+    /// <param name="sagaTimeout">The saga timeout that fired.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public async Task HandleAsync(CreateNewProjectionVersion sagaTimeout, CancellationToken cancellationToken = default)
     {
         if (tenants.Tenants.Contains(sagaTimeout.Tenant) == false)
         {
@@ -80,29 +96,34 @@ public sealed class ProjectionBuilder : Saga, ISystemSaga,
         }
 
         ICronusJob<object> job = GetJob(sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.ReplayEventsOptions, sagaTimeout.ProjectionVersionRequest.Timebox);
-        JobExecutionStatus result = await jobRunner.ExecuteAsync(job).ConfigureAwait(false);
+        JobExecutionStatus result = await jobRunner.ExecuteAsync(job, cancellationToken).ConfigureAwait(false);
         LogProjectionReplayStatus(logger, result, null);
 
         if (result == JobExecutionStatus.Running)
         {
-            await RequestTimeoutAsync(new CreateNewProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(60))).ConfigureAwait(false);
+            await RequestTimeoutAsync(new CreateNewProjectionVersion(sagaTimeout.ProjectionVersionRequest, DateTime.UtcNow.AddSeconds(60)), cancellationToken).ConfigureAwait(false);
         }
         else if (result == JobExecutionStatus.Failed)
         {
             var cancel = new CancelProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, "Failed");
-            await commandPublisher.PublishAsync(cancel).ConfigureAwait(false);
+            await commandPublisher.PublishAsync(cancel, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
         else if (result == JobExecutionStatus.Completed)
         {
             var finalize = new FinalizeProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version);
-            await commandPublisher.PublishAsync(finalize).ConfigureAwait(false);
+            await commandPublisher.PublishAsync(finalize, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
     }
 
-    public async Task HandleAsync(ProjectionVersionRequestHeartbeat sagaTimeout)
+    /// <summary>
+    /// Publishes a timeout command when the projection rebuild has not finished within its allotted timebox.
+    /// </summary>
+    /// <param name="sagaTimeout">The heartbeat saga timeout that fired.</param>
+    /// <param name="cancellationToken">A token to cancel the asynchronous operation.</param>
+    public async Task HandleAsync(ProjectionVersionRequestHeartbeat sagaTimeout, CancellationToken cancellationToken = default)
     {
         var timedout = new TimeoutProjectionVersionRequest(sagaTimeout.ProjectionVersionRequest.Id, sagaTimeout.ProjectionVersionRequest.Version, sagaTimeout.ProjectionVersionRequest.Timebox);
-        await commandPublisher.PublishAsync(timedout).ConfigureAwait(false);
+        await commandPublisher.PublishAsync(timedout, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
     private void OptionsForTenantReloaded(TenantsOptions newOptions)

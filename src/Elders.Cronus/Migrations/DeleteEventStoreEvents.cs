@@ -18,13 +18,13 @@ public sealed class DeleteEventStoreEvents<TSourceEventStorePlayer, TTargetEvent
         {
             PlayerOperator @operator = new PlayerOperator()
             {
-                OnLoadAsync = async @event =>
+                OnLoadAsync = async (@event, ct) =>
                 {
                     foreach (IMigration<AggregateEventRaw> migration in migrations)
                     {
                         if (migration.ShouldApply(@event))
                         {
-                            await target.DeleteAsync(@event).ConfigureAwait(false);
+                            await target.DeleteAsync(@event, ct).ConfigureAwait(false);
                         }
                     }
                 }

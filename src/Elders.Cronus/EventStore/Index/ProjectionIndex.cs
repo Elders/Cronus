@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Elders.Cronus.EventStore.Index;
@@ -19,7 +20,8 @@ public class ProjectionIndex : ICronusEventStoreIndex
         this.projection = projection;
     }
 
-    public async Task IndexAsync(CronusMessage message)
+    /// <inheritdoc />
+    public async Task IndexAsync(CronusMessage message, CancellationToken cancellationToken = default)
     {
         IEnumerable<Type> projectionTypes = projectionsContainer.Items;
         if (message.IsRepublished)

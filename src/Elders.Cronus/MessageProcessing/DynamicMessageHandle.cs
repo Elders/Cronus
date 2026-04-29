@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+using System.Threading;
+using System.Threading.Tasks;
 using Elders.Cronus.Workflow;
 
 namespace Elders.Cronus.MessageProcessing;
@@ -9,9 +10,10 @@ namespace Elders.Cronus.MessageProcessing;
 /// </summary>
 public sealed class DynamicMessageHandle : Workflow<HandlerContext>
 {
-    protected override Task RunAsync(Execution<HandlerContext> execution)
+    /// <inheritdoc />
+    protected override Task RunAsync(Execution<HandlerContext> execution, CancellationToken cancellationToken = default)
     {
         dynamic handler = execution.Context.HandlerInstance;
-        return handler.HandleAsync((dynamic)execution.Context.Message);
+        return handler.HandleAsync((dynamic)execution.Context.Message, cancellationToken);
     }
 }
