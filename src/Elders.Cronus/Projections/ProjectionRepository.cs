@@ -191,7 +191,37 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
         if (queryResult.IsSuccess)
             return new ReadResult<ProjectionVersions>(queryResult.Data.State.AllVersions);
 
-        return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
+        if (queryResult.HasError)
+            return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
+
+        // Bootstrap-ordering fallback: the ProjectionVersionsHandler stream for `projectionName` is empty,
+        // which happens before the version handler has finished its own rebuild. Synthesize a discovery-time
+        // version so writes through SaveAsync(Type, IEvent) are not silently dropped during startup.
+        // Once the version handler is rebuilt and the canonical versions are persisted, this fallback path
+        // is no longer hit because GetProjectionVersionsFromStoreAsync starts returning IsSuccess=true.
+        ProjectionVersions fallback = TryBuildDiscoveryTimeVersions(projectionName);
+        if (fallback is not null)
+            return new ReadResult<ProjectionVersions>(fallback);
+
+        return ReadResult<ProjectionVersions>.WithNotFoundHint($"No versions found for projection `{projectionName}` and no discovery-time fallback could be derived.");
+    }
+
+    private ProjectionVersions TryBuildDiscoveryTimeVersions(string projectionName)
+    {
+        try
+        {
+            Type projectionType = projectionName.GetTypeByContract();
+            if (projectionType is null)
+                return null;
+
+            string hash = projectionHasher.CalculateHash(projectionType);
+            ProjectionVersion seed = new ProjectionVersion(projectionName, ProjectionStatus.New, 1, hash);
+            return new ProjectionVersions(seed);
+        }
+        catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionLoadError(log, ex)))
+        {
+            return null;
+        }
     }
 
     private async Task<ReadResult<T>> GetInternalAsync<T>(IBlobId projectionId, Type projectionType) where T : IProjectionDefinition
