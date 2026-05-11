@@ -10,6 +10,8 @@ trigger:
   paths:
     exclude: [CHANGELOG.md]
 
+pr: none
+
 pool:
   vmImage: 'ubuntu-22.04'
 
