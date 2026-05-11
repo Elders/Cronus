@@ -88,7 +88,7 @@ public sealed class CronusHost : ICronusHost
         {
             CronusLogger.Configure(serviceProvider.GetService<ILoggerFactory>());
 
-            booter.BootstrapCronus();
+            await booter.BootstrapCronusAsync().ConfigureAwait(false);
 
             if (hostOptions.SystemServicesEnabled)
             {

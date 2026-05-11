@@ -1,106 +1,144 @@
 # Aggregate
 
-Aggregates represent the business models explicitly. They are designed to fully match any needed requirements. Any change done to an instance of an aggregate goes through the aggregate root.
+An **aggregate** is a cluster of domain objects treated as a single consistency boundary. Every change enters through the root; every invariant is enforced inside the root. With Cronus, an aggregate is event-sourced — its state is the fold of the events it has produced.
+
+Three classes work together:
+
+* `AggregateRoot<TState>` — the entry point for behaviour. It calls `Apply(IEvent)` to record a change.
+* `AggregateRootState<TRoot, TRootId>` — the snapshot of current data. It reacts to events via `public void When(TEvent e)`.
+* `AggregateRootId` — the aggregate's URN-based identity.
 
 ## Aggregate root
 
-Creating an aggregate root with Cronus is as simple as writing a class that inherits`AggregateRoot<TState>` and a class for the state of the aggregate root. To publish an event from an aggregate root use the `Apply(IEvent @event)` method provided by the base class.
+Inherit `AggregateRoot<TState>`. Keep a private parameterless constructor so Cronus can rehydrate the aggregate during replay, and expose behaviour as plain methods that call `Apply` to record events.
 
+{% code title="TaskAggregate.cs" %}
 ```csharp
-public class Concert : AggregateRoot<ConcertState>
+public class TaskAggregate : AggregateRoot<TaskState>
 {
-    Concert() {} // keep the private parameterless constructor
-    
-    public Concert(string name, Venue venue, DateTimeOffset startTime, TimeSpan duration)
+    TaskAggregate() { }
+
+    public TaskAggregate(TaskId id, UserId userId, string name, DateTimeOffset deadline)
     {
-        // business logic for creating a concert
-        Apply(new ConcertAnnounced(...));
+        if (id is null) throw new ArgumentNullException(nameof(id));
+        if (userId is null) throw new ArgumentNullException(nameof(userId));
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Name is required", nameof(name));
+
+        Apply(new TaskCreated(id, userId, name, deadline, DateTimeOffset.UtcNow));
     }
 
-    public void RegisterPerformer(Performer performer)
+    public void Rename(string newName)
     {
-        // business logic for registering a performer
-        Apply(new PerformerRegistered(...));
+        if (string.IsNullOrWhiteSpace(newName)) throw new ArgumentException("Name is required", nameof(newName));
+        if (state.Name == newName) return; // idempotent
+
+        Apply(new TaskRenamed(state.Id, state.Name, newName, DateTimeOffset.UtcNow));
     }
-    
-    // ...
+
+    public void Close(UserId closedBy)
+    {
+        if (state.IsClosed) return; // already closed
+        Apply(new TaskClosed(state.Id, closedBy, DateTimeOffset.UtcNow));
+    }
 }
 ```
+{% endcode %}
+
+{% hint style="success" %}
+**You can / should / must**
+
+* an aggregate root **must** enforce its invariants before calling `Apply`
+* an aggregate root **must** remain synchronous — no I/O, no `async`
+* an aggregate root **should** be idempotent — calling the same method twice with the same input produces the same events or none at all
+* an aggregate root **must not** reference other aggregates directly; use ports or sagas for cross-aggregate flows
+{% endhint %}
 
 ## Aggregate root state
 
-The aggregate root state keeps the current data of the aggregate root and is responsible for changing it based on events raised only by the root.
+Inherit `AggregateRootState<TRoot, TRootId>`. State exposes the current data, maintains the `Id`, and folds events into itself via `public void When(TEvent)` handlers. Cronus discovers the handlers by reflection once per process lifetime.
 
-Use the abstract helper class `AggregateRootState<TAggregateRoot, TAggregateRootId>` to create an aggregate root state. It can be accessed in the aggregate root using the `state` field provided by the base class. Also, you can implement the `IAggregateRootState` interface by yourself in case inheritance is not a viable option.
-
-To change the state of an aggregate root, create event-handler methods for each event with a method signature `public void When(Event e) { ... }`.
-
+{% code title="TaskState.cs" %}
 ```csharp
-public class ConcertState : AggregateRootState<Concert, ConcertId>
+public class TaskState : AggregateRootState<TaskAggregate, TaskId>
 {
-    public ConcertState()
+    public override TaskId Id { get; set; }
+    public UserId UserId { get; set; }
+    public string Name { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset Deadline { get; set; }
+    public bool IsClosed { get; set; }
+
+    public void When(TaskCreated e)
     {
-        Performers = new List<Performer>();
+        Id = e.Id;
+        UserId = e.UserId;
+        Name = e.Name;
+        CreatedAt = e.Timestamp;
+        Deadline = e.Deadline;
     }
 
-    public override ConcertId Id { get; set; }
+    public void When(TaskRenamed e) => Name = e.NewName;
 
-    public string Name { get; private set; }
-
-    public Venue Venue { get; private set; }
-
-    public DateTimeOffset StartTime { get; private set; }
-
-    public TimeSpan Duration { get; private set; }
-
-    public List<Performer> Performers { get; private set; }
-    
-    public void When(ConcertAnnounced @event)
-    {
-        // change the state here ...
-    }
-    
-    public void When(PerformerRegistered @event)
-    {
-        // change the state here ...
-    }
+    public void When(TaskClosed e) => IsClosed = true;
 }
 ```
+{% endcode %}
 
 {% hint style="info" %}
-You could read more about the state pattern [here](https://refactoring.guru/design-patterns/state/csharp/example) and [here](https://www.dofactory.com/net/state-design-pattern).
+The state class is an implementation of the **state pattern** — behaviour (validation, event emission) stays in the aggregate root; pure data and event folding stays in the state. Background reading: [Refactoring Guru](https://refactoring.guru/design-patterns/state/csharp/example), [DoFactory](https://www.dofactory.com/net/state-design-pattern).
 {% endhint %}
 
 ## Aggregate root id
 
-All aggregate root ids must implement the `IAggregateRootId` interface. Since Cronus uses [URNs](https://en.wikipedia.org/wiki/Uniform\_Resource\_Name) for ids that will require implementing the [URN specification](https://tools.ietf.org/html/rfc8141) as well. If you don't want to do that, you can use the provided helper base class `AggregateRootId`.
+An `AggregateRootId` is a URN with three segments: `tenant`, `aggregateRootName`, and `id`. The base class's primary constructor is:
 
 ```csharp
-[DataContract(Name = "e96d90d0-4943-43f4-8a84-cd90b1217d06")]
-public class ConcertId : AggregateRootId
-{
-    const string RootName = "concert";
+public AggregateRootId(string tenant, string arName, string id)
+```
 
-    public ConcertId(AggregateUrn urn) : base(RootName, urn) { }
-    public ConcertId(string idBase, string tenant) : base(idBase, RootName, tenant) { }
-    protected ConcertId() { }
+Define your own typed ID to avoid stringly-typed code elsewhere:
+
+{% code title="TaskId.cs" %}
+```csharp
+[DataContract(Name = "d5e50e1f-5886-4608-9361-9fe0eb440a6b")]
+public class TaskId : AggregateRootId
+{
+    TaskId() { }
+
+    public TaskId(string tenant, string arName, string id) : base(tenant, arName, id) { }
+
+    public TaskId(string tenant, string id) : base(tenant, "task", id) { }
+}
+```
+{% endcode %}
+
+{% hint style="warning" %}
+The constructor order is `(tenant, arName, id)`. Older docs referenced a generic `AggregateRootId<T>` base with a different order — that generic form is commented out in the current source and is **not** available. Use the non-generic `AggregateRootId` with `Parse` / `TryParse` for URN hydration.
+{% endhint %}
+
+### Parsing a URN back into an ID
+
+```csharp
+if (AggregateRootId.TryParse(urnString, out AggregateRootId parsed))
+{
+    // parsed.Tenant, parsed.AggregateRootName, parsed.Id
 }
 ```
 
-Another option is to use the `AggregateRootId<T>` class. This will give you more flexibility in constructing instances of the id. Also, parsing URNs will return the specified type `T` instead of `AggregateUrn`.
+## Loading and saving
+
+An aggregate is persisted through `IAggregateRepository`:
 
 ```csharp
-[DataContract(Name = "e96d90d0-4943-43f4-8a84-cd90b1217d06")]
-public class ConcertId : AggregateRootId<ConcertId>
+public interface IAggregateRepository
 {
-    const string RootName = "concert";
-
-    ConcertId() { }
-    public ConcertId(string id, string tenant) : base(id, RootName, tenant) { }
-
-    protected override ConcertId Construct(string id, string tenant)
-    {
-        return new ConcertId(id, tenant);
-    }
+    Task SaveAsync<AR>(AR aggregateRoot) where AR : IAggregateRoot;
+    Task<ReadResult<AR>> LoadAsync<AR>(AggregateRootId id) where AR : IAggregateRoot;
 }
 ```
+
+Application services are the only place that should call the repository — see:
+
+{% content-ref url="handlers/application-services.md" %}
+[application-services.md](handlers/application-services.md)
+{% endcontent-ref %}

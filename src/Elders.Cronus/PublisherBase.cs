@@ -1,8 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Elders.Cronus.Hosting.Heartbeat;
 using Elders.Cronus.Multitenancy;
 using Elders.Cronus.Workflow;
@@ -77,7 +79,7 @@ public readonly struct PublishResult
 
 public abstract class PublisherHandler
 {
-    protected internal virtual PublishResult PublishInternal(CronusMessage message)
+    protected internal virtual Task<PublishResult> PublishInternalAsync(CronusMessage message, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
@@ -85,12 +87,12 @@ public abstract class PublisherHandler
 
 public abstract class DelegatingPublishHandler : PublisherHandler
 {
-    protected internal override PublishResult PublishInternal(CronusMessage message)
+    protected internal override Task<PublishResult> PublishInternalAsync(CronusMessage message, CancellationToken cancellationToken)
     {
         if (InnerHandler is null)
             throw new InvalidOperationException("The inner publisher handler is not set.");
 
-        return InnerHandler.PublishInternal(message);
+        return InnerHandler.PublishInternalAsync(message, cancellationToken);
     }
 
     internal PublisherHandler InnerHandler { get; set; }
@@ -107,7 +109,7 @@ internal class CronusHeadersPublishHandler : DelegatingPublishHandler
         this.boundedContext = boundedContextOptions.Value;
     }
 
-    protected internal override PublishResult PublishInternal(CronusMessage message)
+    protected internal override async Task<PublishResult> PublishInternalAsync(CronusMessage message, CancellationToken cancellationToken)
     {
         Type payloadType = message.GetMessageType();
 
@@ -131,7 +133,7 @@ internal class CronusHeadersPublishHandler : DelegatingPublishHandler
         message.Headers.Remove("contract_name");
         message.Headers.Add("contract_name", payloadType.GetContractId());
 
-        return new PublishResult(true, false) && base.PublishInternal(message);
+        return new PublishResult(true, false) && await base.PublishInternalAsync(message, cancellationToken).ConfigureAwait(false);
     }
 }
 
@@ -149,13 +151,13 @@ internal class LoggingPublishHandler : DelegatingPublishHandler
         this.logger = logger;
     }
 
-    protected internal override PublishResult PublishInternal(CronusMessage message)
+    protected internal override async Task<PublishResult> PublishInternalAsync(CronusMessage message, CancellationToken cancellationToken)
     {
         using (logger.BeginScope(s => s.AddScope(Log.MessageId, message.Id.ToString())))
         {
             try
             {
-                PublishResult isPublished = base.PublishInternal(message);
+                PublishResult isPublished = await base.PublishInternalAsync(message, cancellationToken).ConfigureAwait(false);
 
                 Type messageType = message.GetMessageType();
 
@@ -193,7 +195,7 @@ internal class ActivityPublishHandler : DelegatingPublishHandler
         this.logger = logger;
     }
 
-    protected internal override PublishResult PublishInternal(CronusMessage message)
+    protected internal override async Task<PublishResult> PublishInternalAsync(CronusMessage message, CancellationToken cancellationToken)
     {
         Activity activity = StartActivity(message);
         if (Activity.Current is not null)
@@ -202,7 +204,7 @@ internal class ActivityPublishHandler : DelegatingPublishHandler
             message.Headers.Add(TelemetryTraceParent, Activity.Current.Id);
         }
 
-        PublishResult published = base.PublishInternal(message);
+        PublishResult published = await base.PublishInternalAsync(message, cancellationToken).ConfigureAwait(false);
         StopActivity(activity);
 
         return new PublishResult(true, false) && published;
@@ -277,7 +279,7 @@ public abstract class PublisherBase<TMessage> : PublisherHandler, IPublisher<TMe
         this.handlers = handlers.Cast<DelegatingPublishHandler>();
     }
 
-    public virtual bool Publish(TMessage message, Dictionary<string, string> messageHeaders)
+    public virtual async Task<bool> PublishAsync(TMessage message, Dictionary<string, string> messageHeaders = null, CancellationToken cancellationToken = default)
     {
         if (messageHeaders is null)
             messageHeaders = new Dictionary<string, string>();
@@ -287,7 +289,7 @@ public abstract class PublisherBase<TMessage> : PublisherHandler, IPublisher<TMe
         var enumerator = handlers.GetEnumerator();
         bool hasHandlers = enumerator.MoveNext();
         if (hasHandlers == false)
-            return PublishInternal(cronusMessage);
+            return await PublishInternalAsync(cronusMessage, cancellationToken).ConfigureAwait(false);
 
         while (hasHandlers)
         {
@@ -303,10 +305,23 @@ public abstract class PublisherBase<TMessage> : PublisherHandler, IPublisher<TMe
             }
         }
 
-        return handlers.First().PublishInternal(cronusMessage);
+        return await handlers.First().PublishInternalAsync(cronusMessage, cancellationToken).ConfigureAwait(false);
     }
 
-    public virtual bool Publish(byte[] messageRaw, Type messageType, string tenant, Dictionary<string, string> messageHeaders)
+    public virtual async Task<bool> PublishAsync(TMessage message, DateTime publishAt, Dictionary<string, string> messageHeaders = null, CancellationToken cancellationToken = default)
+    {
+        messageHeaders = messageHeaders ?? new Dictionary<string, string>();
+        messageHeaders[MessageHeader.PublishTimestamp] = publishAt.ToFileTimeUtc().ToString();
+        return await PublishAsync(message, messageHeaders, cancellationToken).ConfigureAwait(false);
+    }
+
+    public virtual async Task<bool> PublishAsync(TMessage message, TimeSpan publishAfter, Dictionary<string, string> messageHeaders = null, CancellationToken cancellationToken = default)
+    {
+        DateTime publishAt = DateTime.UtcNow.Add(publishAfter);
+        return await PublishAsync(message, publishAt, messageHeaders, cancellationToken).ConfigureAwait(false);
+    }
+
+    public virtual async Task<bool> PublishAsync(byte[] messageRaw, Type messageType, string tenant, Dictionary<string, string> messageHeaders = null, CancellationToken cancellationToken = default)
     {
         if (messageHeaders is null)
             messageHeaders = new Dictionary<string, string>();
@@ -321,7 +336,7 @@ public abstract class PublisherBase<TMessage> : PublisherHandler, IPublisher<TMe
         IEnumerator<DelegatingPublishHandler> enumerator = handlers.GetEnumerator();
         bool hasHandlers = enumerator.MoveNext();
         if (hasHandlers == false)
-            return PublishInternal(cronusMessage);
+            return await PublishInternalAsync(cronusMessage, cancellationToken).ConfigureAwait(false);
 
         while (hasHandlers)
         {
@@ -337,20 +352,7 @@ public abstract class PublisherBase<TMessage> : PublisherHandler, IPublisher<TMe
             }
         }
 
-        return handlers.First().PublishInternal(cronusMessage);
-    }
-
-    public virtual bool Publish(TMessage message, DateTime publishAt, Dictionary<string, string> messageHeaders = null)
-    {
-        messageHeaders = messageHeaders ?? new Dictionary<string, string>();
-        messageHeaders.Add(MessageHeader.PublishTimestamp, publishAt.ToFileTimeUtc().ToString());
-        return Publish(message, messageHeaders);
-    }
-
-    public bool Publish(TMessage message, TimeSpan publishAfter, Dictionary<string, string> messageHeaders = null)
-    {
-        DateTime publishAt = DateTime.UtcNow.Add(publishAfter);
-        return Publish(message, publishAt, messageHeaders);
+        return await handlers.First().PublishInternalAsync(cronusMessage, cancellationToken).ConfigureAwait(false);
     }
 
     private void EnsureValidTenant(string tenant, Dictionary<string, string> messageHeaders)

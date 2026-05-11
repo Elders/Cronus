@@ -1,5 +1,7 @@
 using System;
+using System.Runtime.ExceptionServices;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace Elders.Cronus;
@@ -53,7 +55,7 @@ public static class RetryableOperation
                         logger.LogDebug("Maximum number of retries has been reached.");
                     if (exception is null)
                         exception = new Exception($"Maximum number of retries has been reached.{Environment.NewLine}{getOperationInfo()}");
-                    throw exception;
+                    ExceptionDispatchInfo.Throw(exception);
                 }
             }
             else
@@ -62,6 +64,60 @@ public static class RetryableOperation
             }
         }
         return operationResult;
+    }
+
+    /// <summary>
+    /// Asynchronously executes the specified operation, retrying on exceptions according to the supplied <see cref="RetryPolicy"/>.
+    /// </summary>
+    /// <typeparam name="T">The result type of the operation.</typeparam>
+    /// <param name="operation">The asynchronous operation to execute. The provided <see cref="CancellationToken"/> should be honored by the operation.</param>
+    /// <param name="retryPolicy">The retry policy that decides whether to retry and the delay between retries.</param>
+    /// <param name="getOperationInfo">Optional callback returning a description of the operation, used for diagnostic logging.</param>
+    /// <param name="cancellationToken">A token to observe while waiting between retries and to forward to <paramref name="operation"/>.</param>
+    /// <returns>A task that completes with the operation's result once it succeeds.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="operation"/> or <paramref name="retryPolicy"/> is null.</exception>
+    /// <exception cref="OperationCanceledException">Thrown when <paramref name="cancellationToken"/> is canceled while waiting between retries or during the operation.</exception>
+    public static async Task<T> TryExecuteAsync<T>(Func<CancellationToken, Task<T>> operation, RetryPolicy retryPolicy, Func<string> getOperationInfo = null, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        ArgumentNullException.ThrowIfNull(retryPolicy);
+
+        ShouldRetry shouldRetry = retryPolicy();
+        int attempt = 0;
+
+        while (true)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            Exception lastException;
+            try
+            {
+                return await operation(cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                lastException = ex;
+            }
+
+            if (shouldRetry(attempt, lastException, out TimeSpan delay))
+            {
+                if (logger.IsEnabled(LogLevel.Debug))
+                    logger.LogDebug("Retry {retryCount} after {delay}ms. Operation Info: {operationInfo}", attempt, delay.TotalMilliseconds, getOperationInfo?.Invoke());
+
+                await Task.Delay(delay, cancellationToken).ConfigureAwait(false);
+                attempt++;
+            }
+            else
+            {
+                if (logger.IsEnabled(LogLevel.Debug))
+                    logger.LogDebug("Maximum number of retries has been reached.");
+                ExceptionDispatchInfo.Throw(lastException);
+            }
+        }
     }
 
     private static T InvokeTryExecuteInternal<T>(Func<T> operation, out Exception exception)

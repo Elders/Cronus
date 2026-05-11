@@ -28,14 +28,22 @@ public class ProjectionVersionHelper
     }
 
     /// <summary>
-    /// Initializing new projection version if needed
+    /// Initializes the persistent <see cref="ProjectionVersionsHandler"/> projection store so that
+    /// version-tracking reads return an empty stream instead of a storage-missing error. Idempotent.
     /// </summary>
-    /// <param name="version"></param>
-    /// <returns></returns>
-    public void InitializeNewProjectionVersion()
+    /// <returns>A task that completes when the underlying initializer has finished. Rethrows any initializer exception so callers can surface the failure.</returns>
+    public async Task InitializeNewProjectionVersionAsync()
     {
         ProjectionVersion newPersistentVersion = GetNewProjectionVersion();
-        projectionVersionInitializer.InitializeAsync(newPersistentVersion);
+        try
+        {
+            await projectionVersionInitializer.InitializeAsync(newPersistentVersion).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to initialize projection version {cronus_ProjectionVersion}.", newPersistentVersion);
+            throw;
+        }
     }
 
     public async Task<bool> ShouldBeRetriedAsync(ProjectionVersion version)
@@ -43,7 +51,7 @@ public class ProjectionVersionHelper
         bool isVersionTrackerMissing = await IsVersionTrackerMissingAsync().ConfigureAwait(false);
         if (isVersionTrackerMissing)
         {
-            InitializeNewProjectionVersion();
+            await InitializeNewProjectionVersionAsync().ConfigureAwait(false);
 
             if (version.ProjectionName.Equals(ProjectionVersionsHandler.ContractId, StringComparison.OrdinalIgnoreCase) == false)
                 return true;

@@ -23,16 +23,29 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
     readonly IProjectionStore projectionStore;
     private readonly IHandlerFactory handlerFactory;
     private readonly ProjectionHasher projectionHasher;
+    private readonly IDiscoveryTimeVersionsCache discoveryTimeVersionsCache;
 
-    public ProjectionRepository(ICronusContextAccessor contextAccessor, IProjectionStore projectionStore, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
+    /// <summary>
+    /// Read- and write-side projection repository. Synthesized versions for projections whose
+    /// canonical <c>ProjectionVersionsHandler</c> stream is empty are memoized through
+    /// <paramref name="discoveryTimeVersionsCache"/>.
+    /// </summary>
+    /// <param name="contextAccessor">Tenant + request context accessor.</param>
+    /// <param name="projectionStore">Backing projection store (Cassandra, Postgres, etc.).</param>
+    /// <param name="handlerFactory">Builds projection instances for dispatch.</param>
+    /// <param name="projectionHasher">Computes the content-derived hash that goes into a projection version.</param>
+    /// <param name="discoveryTimeVersionsCache">Singleton cache for the bootstrap-fallback path; injected to avoid static state and to make it replaceable in tests.</param>
+    public ProjectionRepository(ICronusContextAccessor contextAccessor, IProjectionStore projectionStore, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher, IDiscoveryTimeVersionsCache discoveryTimeVersionsCache)
     {
         if (contextAccessor is null) throw new ArgumentException(nameof(contextAccessor));
         if (projectionStore is null) throw new ArgumentException(nameof(projectionStore));
+        ArgumentNullException.ThrowIfNull(discoveryTimeVersionsCache);
 
         this.contextAccessor = contextAccessor;
         this.projectionStore = projectionStore;
         this.handlerFactory = handlerFactory;
         this.projectionHasher = projectionHasher;
+        this.discoveryTimeVersionsCache = discoveryTimeVersionsCache;
     }
 
     public async Task SaveAsync(Type projectionType, IEvent @event)
@@ -191,7 +204,48 @@ public partial class ProjectionRepository : IProjectionWriter, IProjectionReader
         if (queryResult.IsSuccess)
             return new ReadResult<ProjectionVersions>(queryResult.Data.State.AllVersions);
 
-        return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
+        if (queryResult.HasError)
+            return ReadResult<ProjectionVersions>.WithError(queryResult.Error);
+
+        // Bootstrap-ordering fallback: the ProjectionVersionsHandler stream for `projectionName` is empty,
+        // which happens before the version handler has finished its own rebuild. Synthesize a discovery-time
+        // version so writes through SaveAsync(Type, IEvent) are not silently dropped during startup.
+        // Once the version handler is rebuilt and the canonical versions are persisted, this fallback path
+        // is no longer hit because GetProjectionVersionsFromStoreAsync starts returning IsSuccess=true.
+        ProjectionVersions fallback = TryBuildDiscoveryTimeVersions(projectionName);
+        if (fallback is not null)
+            return new ReadResult<ProjectionVersions>(fallback);
+
+        return ReadResult<ProjectionVersions>.WithNotFoundHint($"No versions found for projection `{projectionName}` and no discovery-time fallback could be derived.");
+    }
+
+    /// <summary>
+    /// Returns a discovery-time <see cref="ProjectionVersions"/> for the given projection name when
+    /// the canonical <c>ProjectionVersionsHandler</c> stream is empty. The injected
+    /// <see cref="IDiscoveryTimeVersionsCache"/> memoizes the synthesized value per
+    /// <c>(projectionName, tenant)</c> and hands out a fresh clone on every call.
+    /// </summary>
+    private ProjectionVersions TryBuildDiscoveryTimeVersions(string projectionName)
+    {
+        string tenant = contextAccessor.CronusContext.Tenant;
+
+        return discoveryTimeVersionsCache.GetOrAdd(projectionName, tenant, () =>
+        {
+            try
+            {
+                Type projectionType = projectionName.GetTypeByContract();
+                if (projectionType is null)
+                    return null;
+
+                string hash = projectionHasher.CalculateHash(projectionType);
+                ProjectionVersion seed = new ProjectionVersion(projectionName, ProjectionStatus.New, 1, hash);
+                return new ProjectionVersions(seed);
+            }
+            catch (Exception ex) when (ExceptionFilter.True(() => LogProjectionLoadError(log, ex)))
+            {
+                return null;
+            }
+        });
     }
 
     private async Task<ReadResult<T>> GetInternalAsync<T>(IBlobId projectionId, Type projectionType) where T : IProjectionDefinition

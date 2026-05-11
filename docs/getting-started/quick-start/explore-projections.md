@@ -1,182 +1,165 @@
 # Explore Projections
 
-[Projections ](../../cronus-framework/domain-modeling/handlers/projections.md)are [queryable ](../../cronus-framework/domain-modeling/handlers/projections.md#querying-a-projection)models used for the reading part of our application. We can design projections in such a way that we can manage what data we want to store and by what will be searched. Events are the basis for projections data.
+With a `TaskCreated` event in Cassandra we can now build a **projection** — a queryable read model derived from events. This page walks through adding a `TaskProjection` and exposing it through the API.
 
-For using projections we should update the [configuration ](../../cronus-framework/configuration.md#cronus-projectionsenabled)file for both API and Service.
+{% content-ref url="../../cronus-framework/domain-modeling/handlers/projections.md" %}
+[projections.md](../../cronus-framework/domain-modeling/handlers/projections.md)
+{% endcontent-ref %}
 
-{% code title="appsettings.json" %}
-```csharp
-  "Persistence": { /* ... */ },
-  "Projections": {
-      "Cassandra": {
-        "ConnectionString": "Contact Points=127.0.0.1;Port=9042;Default Keyspace=taskmanager_projections"
-      }
+## 1. Install the projections package
+
+Projections are persisted by the `Cronus.Projections.Cassandra` package. It should already be added to `TaskManager.Service` from the [setup](setup.md) step; double-check:
+
+```shell
+dotnet list TaskManager.Service package | grep Projections
+```
+
+{% hint style="warning" %}
+The correct package name is **`Cronus.Projections.Cassandra`** (plural). An older, obsolete variant called `Cronus.Projection.Cassandra` still exists on NuGet — don't install it.
+{% endhint %}
+
+Make sure the `Cronus:Projections:Cassandra:ConnectionString` is set in both API and worker `appsettings.json`:
+
+```json
+"Projections": {
+  "Cassandra": {
+    "ConnectionString": "Contact Points=127.0.0.1;Port=9042;Default Keyspace=taskmanager_projections"
   }
-```
-{% endcode %}
-
-And add some dependencies.
-
-```csharp
-dotnet add package Cronus.Projection.Cassandra
+}
 ```
 
-### Create a projection for querying tasks
+## 2. Define the projection
 
-You can choose whitch implementation to use. You can get hte tasks(_commented in the controller_) with same name, or all tasks.
+We want to query all tasks belonging to a given user. The projection ID will therefore be `UserId`, and the projection subscribes to `TaskCreated`.
 
 {% tabs %}
 {% tab title="TaskProjection" %}
 ```csharp
 [DataContract(Name = "c94513d1-e5ee-4aae-8c0f-6e85b63a4e03")]
-public class TaskProjection : ProjectionDefinition<TaskProjectionData, TaskId>,
+public class TaskProjection : ProjectionDefinition<TaskProjectionState, UserId>,
     IEventHandler<TaskCreated>
 {
     public TaskProjection()
     {
-        //Id.NID - here we are subscribing by tenant
-        //in our case the tenant is: "tenant"
-        //so we well get all events
-        Subscribe<TaskCreated>(x => new TaskId(x.Id.NID));
+        // one event can fan out to many projection instances — here, one per user
+        Subscribe<TaskCreated>(e => e.UserId);
     }
 
     public Task HandleAsync(TaskCreated @event)
     {
-        Data task = new Data();
+        // HandleAsync runs on every event; design it to be idempotent
+        if (State.Tasks.Any(x => x.Id.Equals(@event.Id)))
+            return Task.CompletedTask;
 
-        task.Id = @event.Id;
-        task.UserId = @event.UserId;
-        task.Name = @event.Name;
-        task.Timestamp = @event.Timestamp;
-
-        State.Tasks.Add(task);
+        State.Tasks.Add(new TaskProjectionState.Entry
+        {
+            Id = @event.Id,
+            Name = @event.Name,
+            CreatedAt = @event.Timestamp,
+            Deadline = @event.Deadline
+        });
 
         return Task.CompletedTask;
     }
-    public IEnumerable<Data> GetTaskByName(string name)
-    {
-        return State.Tasks.Where(x => x.Name.Equals(name));
-    }
+
+    public IEnumerable<TaskProjectionState.Entry> WithName(string name)
+        => State.Tasks.Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 }
 ```
 {% endtab %}
 
-{% tab title="TaskProjectionData" %}
+{% tab title="TaskProjectionState" %}
 ```csharp
 [DataContract(Name = "c135893e-b9e3-453a-b0e0-53545094ec5d")]
-public class TaskProjectionData
+public class TaskProjectionState
 {
-    public TaskProjectionData()
-    {
-        Tasks = new List<Data>();
-    }
+    public TaskProjectionState() { Tasks = new List<Entry>(); }
 
     [DataMember(Order = 1)]
-    public List<Data> Tasks { get; set; }
+    public List<Entry> Tasks { get; set; }
 
     [DataContract(Name = "317b3cbb-593a-4ffc-8284-d5f5c599d8ae")]
-    public class Data
+    public class Entry
     {
-        [DataMember(Order = 1)]
-        public TaskId Id { get; set; }
-
-        [DataMember(Order = 2)]
-        public UserId UserId { get; set; }
-
-        [DataMember(Order = 3)]
-        public string Name { get; set; }
-
-        [DataMember(Order = 4)]
-        public DateTimeOffset CreatedAt { get; set; }
-
-        [DataMember(Order = 5)]
-        public DateTimeOffset Timestamp { get; set; }
+        [DataMember(Order = 1)] public TaskId Id { get; set; }
+        [DataMember(Order = 2)] public string Name { get; set; }
+        [DataMember(Order = 3)] public DateTimeOffset CreatedAt { get; set; }
+        [DataMember(Order = 4)] public DateTimeOffset Deadline { get; set; }
     }
 }
 ```
 {% endtab %}
 {% endtabs %}
 
-Every time the event will occur it will be handled and persist in its state.
+{% hint style="info" %}
+`Subscribe<TEvent>(e => projectionId)` is how Cronus maps an event to a projection instance. Every time `TaskCreated` is handled, the framework asks the projection for the target ID (here, `e.UserId`), loads (or creates) the projection row for that ID, applies the event, and saves it.
+{% endhint %}
 
-### Read the state
+## 3. Query the projection
 
-Inject `IProjectionReader` that will be responsible for getting the projection state by Id on which projection was subscribed before: `Subscribe<TaskCreated>(x => x.UserId).`
+Inject `IProjectionReader` into a controller and call `GetAsync<TProjection>(id)`. The reader returns a `ReadResult<TaskProjection>`; always branch on its `NotFound` / `HasError` / `IsSuccess` flags.
 
+{% code title="TaskQueryController.cs" %}
 ```csharp
 [ApiController]
 [Route("[controller]/[action]")]
-public class TaskController : ControllerBase
+public class TaskQueryController : ControllerBase
 {
-private readonly IPublisher<CreateTask> _publisher;
-private readonly IProjectionReader _projectionReader;
+    private readonly IProjectionReader reader;
 
-public TaskController(IPublisher<CreateTask> publisher, IProjectionReader reader)
-{
-    _publisher = publisher;
-    _projectionReader = reader;
+    public TaskQueryController(IProjectionReader reader)
+    {
+        this.reader = reader;
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetByUser(string userId, CancellationToken ct)
+    {
+        const string tenant = "tenant";
+        var id = new UserId(tenant, userId);
+
+        ReadResult<TaskProjection> result = await reader.GetAsync<TaskProjection>(id).ConfigureAwait(false);
+
+        if (result.NotFound) return NotFound();
+        if (result.HasError) return Problem(result.Error);
+
+        return Ok(result.Data.State.Tasks);
+    }
 }
+```
+{% endcode %}
 
-//.... create task code ..//
+{% hint style="info" %}
+The first time the worker starts with a new projection, Cronus builds and activates a new _projection version_ by replaying the existing event stream into it. This can take a moment on large stores. The projection is considered live only once the version is `Live`; until then `NotFound` is a possible result.
+{% endhint %}
 
-[HttpGet]
-public async Task<IActionResult> GetTasksByName(string name)
+## 4. Run it end-to-end
+
+1. Start the worker and the API (`dotnet run --project ...`).
+2. `POST /Task/CreateTask` with `userId=alice`.
+3. Wait a moment for the worker to handle the command and update the projection.
+4. `GET /TaskQuery/GetByUser?userId=alice` → the created task appears in the list.
+
+If the projection returns `NotFound`, check the worker logs for `CronusWorkflowHandle` entries involving `TaskProjection`. A missing entry means the event was not routed — usually a `Subscribe<TEvent>` is missing or the tenant does not match.
+
+## 5. Optional — plug in the Cronus Dashboard
+
+[Cronus Dashboard](https://cronus-dashboard.github.io/) is a browser UI that inspects running hosts: tenants, projections, versions, rebuilds, and event traffic. It talks to the Cronus RPC endpoint that the worker exposes.
+
+Enable the RPC endpoint in the worker's `appsettings.json`:
+
+```json
 {
-
-    ReadResult<TaskProjection> readResult = await _projectionReader.GetAsync<TaskProjection>(new TaskId("tenant"));
-
-    if (readResult.IsSuccess == false)
-        return NotFound();
-
-    var TasksByName = readResult.Data.GetTaskByName(name);
-
-
-    return Ok(TasksByName);
-
-    ////Get all tasks
-    //return Ok(readResult.Data.State.Tasks.Select(x => new TaskData
-    //{
-    //    CreatedAt = x.CreatedAt,
-    //    Id = x.Id,
-    //    Name = x.Name,
-    //    Timestamp = x.Timestamp,
-    //    UserId = x.UserId
-    //}));
+  "Cronus": {
+    "RpcApiEnabled": true
+  }
 }
 ```
 
-### Connect Dashboard
+Then open the dashboard, add a connection to `http://localhost:7477`, and navigate to the _Projections_ tab. A green "live" badge means the projection is synchronised with the event store.
 
-(_The dashboard is not requerd_)
+## Where to next
 
-If we hit this controller immediately after the first start, it could lead to a probable read error. \
-We need to give it some time to initialize our new projection store and build new versions of the projections. For an empty event store, it could take less than a few seconds but in order not to wait for this and verify that all working properly, we will check it manually.
-
-[Cronus Dashboard](https://cronus-dashboard.github.io/) is a UI management tool for the Cronus framework.\
-It hosts inside our Application so add this missing code to our background service.
-
-```csharp
-protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-{
-    logger.LogInformation("Starting service...");
-    cronusHost.Start();
-    
-    // Dashboard configuration
-    cronusDashboard = CronusApi.GetHost();
-    cronusApi.Provider = cronusDashboard.Services;
-    await cronusDashboard.StartAsync().ConfigureAwait(false);
-    
-    logger.LogInformation("Service started!");
-}
-```
-
-Start our Cronus Service and API.&#x20;
-
-In the dashboard select the `Connections` tab and click `New Connection`.\
-Set the predefined port for the Cronus endpoint: [http://localhost:7477](http://localhost:7477) and specify your connection name. Click `Check` and then `Add Connection`.\
-After you add a connection select it from the drop-down menu and navigate to the Projections tab.\
-You would be able to see all projections in the system.&#x20;
-
-![A live green badge means that the projection is synchronized with ES and ready to use.](<../../.gitbook/assets/image (1).png>)
-
-Now we would be able to request a controller with `userId`. `GetAsync` method of `IProjectionReader` will restore all events related to projection and apply them to the state. &#x20;
+* [Aggregate](../../cronus-framework/domain-modeling/aggregate.md) — deeper on the write model.
+* [Projections handler](../../cronus-framework/domain-modeling/handlers/projections.md) — snapshots, versioning, non-event-sourced projections.
+* [Configuration](../../cronus-framework/configuration.md) — every Cronus option.

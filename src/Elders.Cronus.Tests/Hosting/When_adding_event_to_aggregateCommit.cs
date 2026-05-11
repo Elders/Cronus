@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus.Migrations;
 
@@ -60,15 +62,15 @@ public class TestAssemblyScanner : IAssemblyScanner
         yield return typeof(PortsStartup);
     }
 
-    [CronusStartup(Bootstraps.Environment)] public class EnvironmentStartup : ICronusStartup { public void Bootstrap() { } }
-    [CronusStartup(Bootstraps.ExternalResource)] public class ExternalResourceStartup : ICronusStartup { public void Bootstrap() { } }
-    [CronusStartup(Bootstraps.Configuration)] public class ConfigurationStartup : ICronusStartup { public void Bootstrap() { } }
-    [CronusStartup(Bootstraps.Aggregates)] public class AggregatesStartup : ICronusStartup { public void Bootstrap() { } }
-    [CronusStartup(Bootstraps.Ports)] public class PortsStartup : ICronusStartup { public void Bootstrap() { } }
-    [CronusStartup(Bootstraps.Sagas)] public class SagasStartup : ICronusStartup { public void Bootstrap() { } }
-    [CronusStartup(Bootstraps.Projections)] public class ProjectionsStartup : ICronusStartup { public void Bootstrap() { } }
-    [CronusStartup(Bootstraps.Projections)] public class SecondProjectionsStartup : ICronusStartup { public void Bootstrap() { } }
-    [CronusStartup(Bootstraps.Gateways)] public class GatewaysStartup : ICronusStartup { public void Bootstrap() { } }
-    [CronusStartup(Bootstraps.Runtime)] public class RuntimeStartup : ICronusStartup { public void Bootstrap() { } }
-    public class NoAttributeStartup : ICronusStartup { public void Bootstrap() { } }
+    [CronusStartup(Bootstraps.Environment)] public class EnvironmentStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
+    [CronusStartup(Bootstraps.ExternalResource)] public class ExternalResourceStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
+    [CronusStartup(Bootstraps.Configuration)] public class ConfigurationStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
+    [CronusStartup(Bootstraps.Aggregates)] public class AggregatesStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
+    [CronusStartup(Bootstraps.Ports)] public class PortsStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
+    [CronusStartup(Bootstraps.Sagas)] public class SagasStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
+    [CronusStartup(Bootstraps.Projections)] public class ProjectionsStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
+    [CronusStartup(Bootstraps.Projections)] public class SecondProjectionsStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
+    [CronusStartup(Bootstraps.Gateways)] public class GatewaysStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
+    [CronusStartup(Bootstraps.Runtime)] public class RuntimeStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
+    public class NoAttributeStartup : ICronusStartup { public Task BootstrapAsync(CancellationToken cancellationToken = default) => Task.CompletedTask; }
 }

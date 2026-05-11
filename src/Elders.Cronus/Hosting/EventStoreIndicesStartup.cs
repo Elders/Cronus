@@ -1,9 +1,11 @@
-﻿using Elders.Cronus.EventStore.Index;
+using Elders.Cronus.EventStore.Index;
 using Elders.Cronus.Multitenancy;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Elders.Cronus;
 
@@ -25,10 +27,13 @@ public class EventStoreIndicesStartup : ICronusStartup /// TODO: make this <see 
         this.indexTypeContainer = indexTypeContainer;
 
         cronusHostOptions.OnChange(CronusHostOptionsChanged);
-        tenantsOptions.OnChange(OptionsChangedBootstrapEventStoreIndexForTenant);
+        tenantsOptions.OnChange(async newOptions =>
+        {
+            await OptionsChangedBootstrapEventStoreIndexForTenantAsync(newOptions).ConfigureAwait(false);
+        });
     }
 
-    public void Bootstrap()
+    public async Task BootstrapAsync(CancellationToken cancellationToken = default)
     {
         if (cronusHostOptions.ApplicationServicesEnabled == false)
             return;
@@ -37,22 +42,22 @@ public class EventStoreIndicesStartup : ICronusStartup /// TODO: make this <see 
         {
             foreach (var tenant in tenants.Tenants)
             {
-                InitializeIndesForTenant(index, tenant);
+                await InitializeIndexForTenantAsync(index, tenant, cancellationToken).ConfigureAwait(false);
             }
         }
     }
 
-    private void InitializeIndesForTenant(Type index, string tenant)
+    private async Task InitializeIndexForTenantAsync(Type index, string tenant, CancellationToken cancellationToken = default)
     {
         if (cronusHostOptions.ApplicationServicesEnabled == false)
             return;
 
         var id = new EventStoreIndexManagerId(index.GetContractId(), tenant);
         var command = new RegisterIndex(id);
-        publisher.Publish(command);
+        await publisher.PublishAsync(command, cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
-    private void OptionsChangedBootstrapEventStoreIndexForTenant(TenantsOptions newOptions)
+    private async Task OptionsChangedBootstrapEventStoreIndexForTenantAsync(TenantsOptions newOptions)
     {
         if (tenants.Tenants.SequenceEqual(newOptions.Tenants) == false) // Check for difference between tenants and newOptions
         {
@@ -66,7 +71,7 @@ public class EventStoreIndicesStartup : ICronusStartup /// TODO: make this <see 
             {
                 foreach (var tenant in newTenants)
                 {
-                    InitializeIndesForTenant(index, tenant);
+                    await InitializeIndexForTenantAsync(index, tenant).ConfigureAwait(false);
                 }
             }
 

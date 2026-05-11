@@ -27,7 +27,7 @@ public class AutoUpdateSaga : Saga, ISystemSaga, // TODO: in future we can have 
             var id = new AutoUpdaterId(@event.BoundedContext, @event.Id.Tenant);
 
             var finish = new FinishAutoUpdate(id, @event.Name, DateTimeOffset.UtcNow);
-            commandPublisher.Publish(finish);
+            await commandPublisher.PublishAsync(finish).ConfigureAwait(false);
         }
     }
 }

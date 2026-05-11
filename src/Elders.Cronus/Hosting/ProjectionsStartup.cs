@@ -1,4 +1,6 @@
-﻿using Elders.Cronus.Projections;
+using System.Threading;
+using System.Threading.Tasks;
+using Elders.Cronus.Projections;
 
 namespace Elders.Cronus;
 
@@ -12,8 +14,8 @@ internal sealed class ProjectionsStartup : ICronusStartup /// TODO: make this <s
         this.projectionsBootstrapper = projectionsBootstrapper;
     }
 
-    public void Bootstrap()
+    public Task BootstrapAsync(CancellationToken cancellationToken = default)
     {
-        projectionsBootstrapper.BootstrapAsync().GetAwaiter().GetResult();
+        return projectionsBootstrapper.BootstrapAsync();
     }
 }
