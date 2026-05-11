@@ -72,6 +72,12 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
+          # Force-refresh tags from origin. git fetch's default tag policy does NOT
+          # update tags that already exist locally, which leaves the agent's workspace
+          # stuck on stale tag positions across builds (specifically when a tag was
+          # force-moved on origin). semantic-release then mis-computes the next
+          # version. --force --tags makes the agent always match origin's tag refs.
+          git fetch --tags --force origin
           time curl -L https://github.com/Elders/blob/releases/download/SemRel-01/node_modules.tar.gz | tar mx -I pigz
           time npx semantic-release --no-ci
           # few commands for debugging purposes
