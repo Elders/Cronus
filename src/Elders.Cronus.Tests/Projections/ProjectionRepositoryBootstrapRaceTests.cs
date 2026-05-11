@@ -68,6 +68,33 @@ public class ProjectionRepositoryBootstrapRaceTests
     }
 
     [Fact]
+    public async Task Mutating_synthesized_result_does_not_corrupt_memoization_cache()
+    {
+        // The fallback path memoizes ProjectionVersions per (projectionName, tenant). ProjectionVersions
+        // exposes Add/Remove and can be mutated; if the cache returned the same instance on every call,
+        // a caller that mutates it (e.g., adds a Canceled version) would poison every subsequent reader.
+        BootstrapTestHarness harness = BootstrapTestHarness.WithEmptyVersionHandlerStream();
+
+        ReadResult<ProjectionVersions> first = await harness.Repository.InvokeGetProjectionVersionsAsync(harness.ProjectionName);
+        Assert.True(first.IsSuccess);
+        ProjectionVersion synthesized = SingleVersion(first.Data);
+
+        // Add a Canceled twin of the synthesized version. ProjectionVersions.Add removes the matching New
+        // entry and inserts the Canceled one — so a non-defensive cache would now hand out a Canceled
+        // single-version on the next read.
+        first.Data.Add(synthesized.WithStatus(ProjectionStatus.Canceled));
+
+        ReadResult<ProjectionVersions> second = await harness.Repository.InvokeGetProjectionVersionsAsync(harness.ProjectionName);
+        Assert.True(second.IsSuccess);
+        Assert.NotSame(first.Data, second.Data);
+
+        ProjectionVersion stillSynthesized = SingleVersion(second.Data);
+        Assert.Equal(ProjectionStatus.New, stillSynthesized.Status);
+        Assert.Equal(1, stillSynthesized.Revision);
+        Assert.Equal(harness.ExpectedHash, stillSynthesized.Hash);
+    }
+
+    [Fact]
     public void Synthesized_version_hash_matches_canonical_ProjectionHasher_output()
     {
         // Guards against drift between ProjectionRepository's fallback and ProjectionVersionManager's
@@ -135,7 +162,10 @@ public class ProjectionRepositoryBootstrapRaceTests
             };
             DefaultHandlerFactory handlerFactory = new DefaultHandlerFactory(contextAccessor);
 
-            TestableProjectionRepository repository = new TestableProjectionRepository(contextAccessor, projectionStore, handlerFactory, hasher);
+            // Each harness gets a fresh cache instance; no static state, no cross-test leakage.
+            IDiscoveryTimeVersionsCache discoveryCache = new DiscoveryTimeVersionsCache();
+
+            TestableProjectionRepository repository = new TestableProjectionRepository(contextAccessor, projectionStore, handlerFactory, hasher, discoveryCache);
 
             return new BootstrapTestHarness(repository, projectionStore, projectionName, expectedHash);
         }
@@ -152,8 +182,8 @@ public class ProjectionRepositoryBootstrapRaceTests
     /// </summary>
     private sealed class TestableProjectionRepository : ProjectionRepository
     {
-        public TestableProjectionRepository(ICronusContextAccessor contextAccessor, IProjectionStore projectionStore, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher)
-            : base(contextAccessor, projectionStore, handlerFactory, projectionHasher)
+        public TestableProjectionRepository(ICronusContextAccessor contextAccessor, IProjectionStore projectionStore, IHandlerFactory handlerFactory, ProjectionHasher projectionHasher, IDiscoveryTimeVersionsCache discoveryTimeVersionsCache)
+            : base(contextAccessor, projectionStore, handlerFactory, projectionHasher, discoveryTimeVersionsCache)
         {
         }
 

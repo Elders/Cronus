@@ -49,6 +49,7 @@ public class ProjectionsDiscovery : HandlersDiscovery<IProjection>
         yield return new DiscoveredModel(typeof(IProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
         yield return new DiscoveredModel(typeof(MarkupInterfaceProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
         yield return new DiscoveredModel(typeof(ProjectionHasher), typeof(ProjectionHasher), ServiceLifetime.Singleton);
+        yield return new DiscoveredModel(typeof(IDiscoveryTimeVersionsCache), typeof(DiscoveryTimeVersionsCache), ServiceLifetime.Singleton);
 
         yield return new DiscoveredModel(typeof(LatestProjectionVersionFinder), typeof(LatestProjectionVersionFinder), ServiceLifetime.Transient);
 
@@ -91,6 +92,7 @@ public class SystemdProjectionsDiscovery : HandlersDiscovery<ISystemProjection>
         yield return new DiscoveredModel(typeof(IProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
         yield return new DiscoveredModel(typeof(MarkupInterfaceProjectionVersioningPolicy), typeof(MarkupInterfaceProjectionVersioningPolicy), ServiceLifetime.Singleton);
         yield return new DiscoveredModel(typeof(ProjectionHasher), typeof(ProjectionHasher), ServiceLifetime.Singleton);
+        yield return new DiscoveredModel(typeof(IDiscoveryTimeVersionsCache), typeof(DiscoveryTimeVersionsCache), ServiceLifetime.Singleton);
     }
 
     IEnumerable<DiscoveredModel> RegisterMissingModels()
